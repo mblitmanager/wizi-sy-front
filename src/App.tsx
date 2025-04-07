@@ -10,6 +10,9 @@ import Formations from './pages/Formations';
 import Calendar from './pages/Calendar';
 import Profile from './pages/Profile';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminDashboard from './pages/admin/Dashboard';
+import UsersManagement from './pages/admin/Users';
+import QuizManagement from './pages/admin/Quizzes';
 
 const queryClient = new QueryClient();
 
@@ -20,12 +23,18 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+            {/* Student Routes */}
             <Route path="/" element={<Dashboard />} />
             <Route path="/quiz" element={<QuizList />} />
             <Route path="/quiz/:id" element={<QuizPlay />} />
             <Route path="/formations" element={<Formations />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/profile" element={<Profile />} />
+            
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<UsersManagement />} />
+            <Route path="/admin/quizzes" element={<QuizManagement />} />
           </Route>
         </Routes>
       </Router>
