@@ -9,11 +9,12 @@ interface AuthState {
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  isAdmin: () => boolean;
 }
 
 const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       token: null,
       login: async (email: string, password: string) => {
@@ -21,11 +22,22 @@ const useAuthStore = create<AuthState>()(
           const response = await apiClient.post('/api/login', { email, password });
           const { token, user } = response.data;
           
+          if (!user || !user.roles) {
+            throw new Error('Invalid user data received');
+          }
+          
           // Update axios default headers with the new token
           apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           
           set({ token, user });
           localStorage.setItem('token', token);
+
+          // Redirect based on role
+          if (user.roles.includes('ROLE_ADMIN')) {
+            window.location.href = '/admin';
+          } else {
+            window.location.href = '/';
+          }
         } catch (error) {
           if (error instanceof AxiosError) {
             if (!error.response) {
@@ -45,6 +57,11 @@ const useAuthStore = create<AuthState>()(
         
         set({ user: null, token: null });
         localStorage.removeItem('token');
+        window.location.href = '/login';
+      },
+      isAdmin: () => {
+        const state = get();
+        return state.user?.roles?.includes('ROLE_ADMIN') || false;
       },
     }),
     {
