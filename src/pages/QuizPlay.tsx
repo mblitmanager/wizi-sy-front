@@ -8,7 +8,7 @@ function QuizPlay() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-gray-900">Quiz #{id}</h1>
       <div className="bg-white p-6 rounded-lg shadow-sm">
-        <p className="text-gray-600">Quiz content will be displayed here.</p>
+        <p className="text-gray-600">Le contenu du quiz sera affiché ici.</p>
       </div>
     </div>
   );

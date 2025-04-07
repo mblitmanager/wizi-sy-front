@@ -4,33 +4,33 @@ import { Users, BookOpen, Award, Calendar, BarChart3 } from 'lucide-react';
 
 const adminMenuItems = [
   {
-    title: 'Users Management',
+    title: 'Gestion des utilisateurs',
     icon: Users,
-    description: 'Manage trainees, trainers, and staff accounts',
+    description: 'Gérer les comptes des stagiaires, formateurs et personnel',
     link: '/admin/users'
   },
   {
-    title: 'Training Management',
+    title: 'Gestion des formations',
     icon: BookOpen,
-    description: 'Manage courses, quizzes, and content',
+    description: 'Gérer les cours, quiz et contenus',
     link: '/admin/trainings'
   },
   {
-    title: 'Quiz Management',
+    title: 'Gestion des quiz',
     icon: Award,
-    description: 'Create and manage quizzes and questions',
+    description: 'Créer et gérer les quiz et questions',
     link: '/admin/quizzes'
   },
   {
-    title: 'Schedule Management',
+    title: 'Gestion des plannings',
     icon: Calendar,
-    description: 'Manage training schedules and events',
+    description: 'Gérer les plannings de formation et événements',
     link: '/admin/schedule'
   },
   {
-    title: 'Statistics',
+    title: 'Statistiques',
     icon: BarChart3,
-    description: 'View detailed analytics and reports',
+    description: 'Voir les analyses détaillées et rapports',
     link: '/admin/stats'
   }
 ];
@@ -64,21 +64,21 @@ function AdminDashboard() {
 
       <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Activité récente</h2>
           <div className="space-y-4">
-            <p className="text-sm text-gray-600">No recent activity to display</p>
+            <p className="text-sm text-gray-600">Aucune activité récente à afficher</p>
           </div>
         </div>
         
         <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Statistiques rapides</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 bg-blue-50 rounded-lg">
-              <p className="text-sm text-gray-600">Total Users</p>
+              <p className="text-sm text-gray-600">Nombre total d'utilisateurs</p>
               <p className="text-2xl font-semibold text-blue-600">0</p>
             </div>
             <div className="p-4 bg-green-50 rounded-lg">
-              <p className="text-sm text-gray-600">Active Quizzes</p>
+              <p className="text-sm text-gray-600">Quiz actifs</p>
               <p className="text-2xl font-semibold text-green-600">0</p>
             </div>
           </div>

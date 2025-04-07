@@ -5,10 +5,10 @@ function QuizManagement() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">Quiz Management</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Gestion des quiz</h1>
         <button className="btn btn-primary flex items-center space-x-2">
           <Plus className="w-5 h-5" />
-          <span>Create Quiz</span>
+          <span>Créer un quiz</span>
         </button>
       </div>
 
@@ -19,7 +19,7 @@ function QuizManagement() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search quizzes..."
+                placeholder="Rechercher des quiz..."
                 className="pl-10 pr-4 py-2 w-full border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -44,7 +44,7 @@ function QuizManagement() {
             <tbody className="bg-white divide-y divide-gray-200">
               <tr>
                 <td className="px-6 py-4 text-sm text-gray-600" colSpan={5}>
-                  No quizzes found
+                  <span>Aucun quiz trouvé</span>
                 </td>
               </tr>
             </tbody>
