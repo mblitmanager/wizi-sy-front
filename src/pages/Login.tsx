@@ -1,14 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 
 function Login() {
   const navigate = useNavigate();
-  const login = useAuthStore((state) => state.login);
+  const { login, token, isAdmin } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Check if already logged in and redirect accordingly
+  useEffect(() => {
+    if (token) {
+      if (isAdmin()) {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
+    }
+  }, [token, isAdmin, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,7 +28,7 @@ function Login() {
 
     try {
       await login(email, password);
-      navigate('/', { replace: true });
+      // Navigation is handled in the auth store
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);

@@ -25,19 +25,28 @@ const useAuthStore = create<AuthState>()(
           if (!user || !user.roles) {
             throw new Error('Invalid user data received');
           }
-          
+
           // Update axios default headers with the new token
           apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           
+          // Set the user and token in the store
           set({ token, user });
           localStorage.setItem('token', token);
 
-          // Redirect based on role
-          if (user.roles.includes('ROLE_ADMIN')) {
-            window.location.href = '/admin';
-          } else {
-            window.location.href = '/';
+          // Clear any existing navigation timeouts
+          if (window.navigationTimeout) {
+            clearTimeout(window.navigationTimeout);
           }
+
+          // Delay navigation slightly to ensure state is updated
+          window.navigationTimeout = setTimeout(() => {
+            if (user.roles.includes('ROLE_ADMIN')) {
+              window.location.href = '/admin';
+            } else {
+              window.location.href = '/';
+            }
+          }, 100);
+
         } catch (error) {
           if (error instanceof AxiosError) {
             if (!error.response) {
@@ -55,8 +64,11 @@ const useAuthStore = create<AuthState>()(
         // Clear axios default headers
         delete apiClient.defaults.headers.common['Authorization'];
         
+        // Clear the store
         set({ user: null, token: null });
         localStorage.removeItem('token');
+
+        // Redirect to login
         window.location.href = '/login';
       },
       isAdmin: () => {
@@ -66,8 +78,19 @@ const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
+      partialize: (state) => ({
+        token: state.token,
+        user: state.user,
+      }),
     }
   )
 );
+
+// Add type declaration for the timeout
+declare global {
+  interface Window {
+    navigationTimeout?: number;
+  }
+}
 
 export default useAuthStore;
