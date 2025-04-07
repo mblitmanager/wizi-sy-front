@@ -21,6 +21,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      // Clear token and redirect to login on authentication error
       localStorage.removeItem('token');
       window.location.href = '/login';
     }
