@@ -37,17 +37,18 @@ const adminMenuItems = [
 
 function AdminDashboard() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 sm:px-6 lg:px-8">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Menu Items */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {adminMenuItems.map((item) => (
           <Link
             key={item.link}
             to={item.link}
-            className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+            className="bg-white p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
           >
             <div className="flex items-start space-x-4">
               <div className="p-2 bg-blue-50 rounded-lg">
@@ -62,15 +63,16 @@ function AdminDashboard() {
         ))}
       </div>
 
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+      {/* Recent Activity and Quick Stats */}
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Activité récente</h2>
           <div className="space-y-4">
             <p className="text-sm text-gray-600">Aucune activité récente à afficher</p>
           </div>
         </div>
-        
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Statistiques rapides</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 bg-blue-50 rounded-lg">
