@@ -16,21 +16,21 @@ function Sidebar() {
   const isAdmin = user?.roles?.includes('ROLE_ADMIN');
 
   const studentNavItems = [
-    { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
+    { path: '/', icon: LayoutDashboard, label: 'Tableau de bord' },
     { path: '/quiz', icon: BrainCircuit, label: 'Quiz' },
     { path: '/formations', icon: Users, label: 'Formations' },
-    { path: '/calendar', icon: CalendarIcon, label: 'Calendar' },
-    { path: '/profile', icon: UserCircle, label: 'Profile' }
+    { path: '/calendar', icon: CalendarIcon, label: 'Calendrier' },
+    { path: '/profile', icon: UserCircle, label: 'Profil' }
   ];
 
   const adminNavItems = [
-    { path: '/admin', icon: LayoutDashboard, label: 'Admin Dashboard' },
-    { path: '/admin/users', icon: Users, label: 'Users' },
-    { path: '/admin/quizzes', icon: BrainCircuit, label: 'Quizzes' },
-    { path: '/admin/trainings', icon: Users, label: 'Trainings' },
-    { path: '/admin/schedule', icon: CalendarIcon, label: 'Schedule' },
-    { path: '/admin/stats', icon: BarChart3, label: 'Statistics' },
-    { path: '/admin/settings', icon: Settings, label: 'Settings' }
+    { path: '/admin', icon: LayoutDashboard, label: 'Tableau de bord' },
+    { path: '/admin/users', icon: Users, label: 'Utilisateurs' },
+    { path: '/admin/quizzes', icon: BrainCircuit, label: 'Quiz' },
+    { path: '/admin/trainings', icon: Users, label: 'Formation' },
+    { path: '/admin/schedule', icon: CalendarIcon, label: 'Planification' },
+    { path: '/admin/stats', icon: BarChart3, label: 'Statistiques' },
+    { path: '/admin/settings', icon: Settings, label: 'Paramètres' }
   ];
 
   const navItems = isAdmin ? adminNavItems : studentNavItems;
@@ -38,7 +38,7 @@ function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 shadow-sm">
       <div className="p-6">
-        <h1 className="text-2xl font-bold text-gray-900">Learning Portal</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Wizi Learn</h1>
       </div>
       <nav className="mt-6">
         {navItems.map((item) => (
