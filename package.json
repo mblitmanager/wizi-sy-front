@@ -14,6 +14,7 @@
     "@fullcalendar/daygrid": "^6.1.11",
     "@fullcalendar/interaction": "^6.1.11",
     "@fullcalendar/react": "^6.1.11",
+    "@hookform/resolvers": "^3.10.0",
     "@tanstack/react-query": "^5.24.1",
     "axios": "^1.6.7",
     "clsx": "^2.1.0",
@@ -24,11 +25,12 @@
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.50.1",
     "react-router-dom": "^6.22.1",
+    "react-spinners": "^0.15.0",
+    "react-toastify": "^11.0.5",
     "socket.io-client": "^4.7.4",
     "tailwind-merge": "^2.2.1",
-    "zod": "^3.22.4",
-    "zustand": "^4.5.1",
-    "@hookform/resolvers": "^3.3.4"
+    "zod": "^3.24.2",
+    "zustand": "^4.5.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
