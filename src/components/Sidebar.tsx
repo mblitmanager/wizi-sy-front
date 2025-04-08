@@ -11,7 +11,12 @@ import {
   Phone,
   Trophy,
   Share2,
-  Gift
+  Gift,
+  BookOpen,
+  Play,
+  History,
+  Award,
+  Target
 } from 'lucide-react';
 import useAuthStore from '../store/authStore';
 
@@ -27,6 +32,10 @@ function Sidebar() {
     { path: '/contacts', icon: Phone, label: 'Contacts' },
     { path: '/ranking', icon: Trophy, label: 'Classement' },
     { path: '/referral', icon: Share2, label: 'Parrainage' },
+    { path: '/catalog', icon: BookOpen, label: 'Catalogue' },
+    { path: '/tutorials', icon: Play, label: 'Tutoriels' },
+    { path: '/history', icon: History, label: 'Historique' },
+    { path: '/achievements', icon: Award, label: 'Récompenses' },
     { path: '/profile', icon: UserCircle, label: 'Profil' }
   ];
 
@@ -37,8 +46,9 @@ function Sidebar() {
     { path: '/admin/contacts', icon: Phone, label: 'Contacts' },
     { path: '/admin/rankings', icon: Trophy, label: 'Classements' },
     { path: '/admin/referrals', icon: Gift, label: 'Parrainages' },
-    { path: '/admin/trainings', icon: Users, label: 'Formation' },
-    { path: '/admin/schedule', icon: CalendarIcon, label: 'Planification' },
+    { path: '/admin/media', icon: Play, label: 'Médias' },
+    { path: '/admin/challenges', icon: Target, label: 'Challenges' },
+    { path: '/admin/schedule', icon: CalendarIcon, label: 'Planning' },
     { path: '/admin/stats', icon: BarChart3, label: 'Statistiques' },
     { path: '/admin/settings', icon: Settings, label: 'Paramètres' }
   ];
