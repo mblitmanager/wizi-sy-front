@@ -7,7 +7,11 @@ import {
   Calendar as CalendarIcon,
   UserCircle,
   Settings,
-  BarChart3
+  BarChart3,
+  Phone,
+  Trophy,
+  Share2,
+  Gift
 } from 'lucide-react';
 import useAuthStore from '../store/authStore';
 
@@ -20,6 +24,9 @@ function Sidebar() {
     { path: '/quiz', icon: BrainCircuit, label: 'Quiz' },
     { path: '/formations', icon: Users, label: 'Formations' },
     { path: '/calendar', icon: CalendarIcon, label: 'Calendrier' },
+    { path: '/contacts', icon: Phone, label: 'Contacts' },
+    { path: '/ranking', icon: Trophy, label: 'Classement' },
+    { path: '/referral', icon: Share2, label: 'Parrainage' },
     { path: '/profile', icon: UserCircle, label: 'Profil' }
   ];
 
@@ -27,6 +34,9 @@ function Sidebar() {
     { path: '/admin', icon: LayoutDashboard, label: 'Tableau de bord' },
     { path: '/admin/users', icon: Users, label: 'Utilisateurs' },
     { path: '/admin/quizzes', icon: BrainCircuit, label: 'Quiz' },
+    { path: '/admin/contacts', icon: Phone, label: 'Contacts' },
+    { path: '/admin/rankings', icon: Trophy, label: 'Classements' },
+    { path: '/admin/referrals', icon: Gift, label: 'Parrainages' },
     { path: '/admin/trainings', icon: Users, label: 'Formation' },
     { path: '/admin/schedule', icon: CalendarIcon, label: 'Planification' },
     { path: '/admin/stats', icon: BarChart3, label: 'Statistiques' },

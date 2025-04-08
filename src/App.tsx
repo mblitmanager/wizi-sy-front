@@ -9,10 +9,16 @@ import QuizPlay from './pages/QuizPlay';
 import Formations from './pages/Formations';
 import Calendar from './pages/Calendar';
 import Profile from './pages/Profile';
+import Contacts from './pages/Contacts';
+import Ranking from './pages/Ranking';
+import Referral from './pages/Referral';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminDashboard from './pages/admin/Dashboard';
 import UsersManagement from './pages/admin/Users';
 import QuizManagement from './pages/admin/Quizzes';
+import ContactsManagement from './pages/admin/Contacts';
+import RankingsManagement from './pages/admin/Rankings';
+import ReferralsManagement from './pages/admin/Referrals';
 
 const queryClient = new QueryClient();
 
@@ -31,6 +37,9 @@ function App() {
             <Route path="/formations" element={<Formations />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/contacts" element={<Contacts />} />
+            <Route path="/ranking" element={<Ranking />} />
+            <Route path="/referral" element={<Referral />} />
           </Route>
           
           {/* Admin Routes */}
@@ -38,6 +47,9 @@ function App() {
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<UsersManagement />} />
             <Route path="/admin/quizzes" element={<QuizManagement />} />
+            <Route path="/admin/contacts" element={<ContactsManagement />} />
+            <Route path="/admin/rankings" element={<RankingsManagement />} />
+            <Route path="/admin/referrals" element={<ReferralsManagement />} />
           </Route>
         </Routes>
       </Router>
