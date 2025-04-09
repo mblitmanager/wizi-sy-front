@@ -9,7 +9,7 @@ interface CategoryCardProps {
 }
 
 const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
-  // Map category icons
+  // Map des icônes de catégorie
   const renderIcon = () => {
     switch (category.icon) {
       case 'file-text':
@@ -27,12 +27,12 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
 
   return (
     <Link to={`/category/${category.id}`}>
-      <div className={`category-card ${category.colorClass} hover:scale-105`}>
+      <div className={`category-card ${category.colorClass} hover:scale-105 transition-transform`}>
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="text-xl font-bold mb-2">{category.name}</h3>
-            <p className="text-sm opacity-90 mb-4">{category.description}</p>
-            <div className="text-sm font-medium">
+            <h3 className="text-xl font-bold mb-2 font-montserrat">{category.name}</h3>
+            <p className="text-sm opacity-90 mb-4 font-roboto">{category.description}</p>
+            <div className="text-sm font-medium font-nunito">
               {category.quizCount} {category.quizCount > 1 ? 'Quiz' : 'Quiz'}
             </div>
           </div>

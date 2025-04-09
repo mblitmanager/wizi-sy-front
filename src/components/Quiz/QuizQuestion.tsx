@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Question } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -26,7 +26,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
 
   const progress = ((currentQuestion - 1) / totalQuestions) * 100;
 
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -44,7 +44,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
     return () => clearInterval(timer);
   }, [question.id, selectedAnswer]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setSelectedAnswer(null);
     setShowFeedback(false);
     setTimeLeft(timeLimit);
@@ -66,7 +66,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
   return (
     <div className="max-w-xl mx-auto">
       <div className="mb-6">
-        <div className="flex justify-between items-center text-sm text-gray-500 mb-1">
+        <div className="flex justify-between items-center text-sm text-gray-500 mb-1 font-roboto">
           <span>
             Question {currentQuestion} sur {totalQuestions}
           </span>
@@ -89,18 +89,18 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
         </div>
       )}
 
-      <h3 className="text-xl font-medium text-gray-800 mb-6">{question.text}</h3>
+      <h3 className="text-xl font-medium text-gray-800 mb-6 font-montserrat">{question.text}</h3>
 
       <div className="space-y-3">
         {question.answers.map((answer) => {
           const isSelected = selectedAnswer === answer.id;
-          let optionClass = "quiz-option";
+          let optionClass = "relative border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 hover:bg-opacity-90 font-nunito";
           
           if (showFeedback) {
             if (answer.isCorrect) {
-              optionClass += " correct";
+              optionClass += " bg-green-500 border-green-600 text-white";
             } else if (isSelected && !answer.isCorrect) {
-              optionClass += " incorrect";
+              optionClass += " bg-red-500 border-red-600 text-white";
             }
           }
           
@@ -129,7 +129,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
 
       {showFeedback && (
         <div className="mt-4 text-center">
-          <Button disabled>
+          <Button disabled className="font-nunito">
             Prochaine question...
           </Button>
         </div>

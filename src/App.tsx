@@ -19,11 +19,7 @@ import LeaderboardPage from "@/pages/LeaderboardPage";
 import ProfilePage from "@/pages/ProfilePage";
 import LoginPage from "@/pages/auth/LoginPage";
 import RegisterPage from "@/pages/auth/RegisterPage";
-import AdminPage from "@/pages/AdminPage";
 import NotFound from "@/pages/NotFound";
-
-// Components
-import { SessionTimeoutIndicator } from "@/components/Auth/SessionTimeoutIndicator";
 
 const queryClient = new QueryClient();
 
@@ -34,7 +30,6 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <SessionTimeoutIndicator />
           <Routes>
             <Route path="/" element={<AppLayout />}>
               <Route index element={<HomePage />} />
@@ -43,7 +38,6 @@ const App = () => (
               <Route path="quiz" element={<QuizCatalogPage />} />
               <Route path="leaderboard" element={<LeaderboardPage />} />
               <Route path="profile" element={<ProfilePage />} />
-              <Route path="admin" element={<AdminPage />} />
             </Route>
             <Route path="/auth" element={<AuthLayout />}>
               <Route path="login" element={<LoginPage />} />

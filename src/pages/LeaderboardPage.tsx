@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { LeaderboardEntry } from '@/types';
-import { mockAPI } from '@/api';
+import { mockAPI } from '@/api/mockAPI';
 import { useAuth } from '@/context/AuthContext';
 import { Trophy, Award, Medal } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,12 +15,11 @@ const LeaderboardPage: React.FC = () => {
     const fetchLeaderboard = async () => {
       setIsLoading(true);
       try {
-        // In a real app, we would use an API call
-        // const data = await progressAPI.getLeaderboard();
+        // Dans une vraie application, nous utiliserions un appel API
         const data = mockAPI.getLeaderboard();
         setLeaderboard(data);
       } catch (error) {
-        console.error('Failed to fetch leaderboard:', error);
+        console.error('Échec de récupération du classement:', error);
       } finally {
         setIsLoading(false);
       }
@@ -61,16 +60,16 @@ const LeaderboardPage: React.FC = () => {
 
   return (
     <div className="pb-20 md:pb-0 md:pl-64">
-      <h1 className="text-2xl font-bold mb-6">Classement</h1>
+      <h1 className="text-2xl font-bold mb-6 font-montserrat">Classement</h1>
 
       <Tabs defaultValue="points">
-        <TabsList className="mb-6">
+        <TabsList className="mb-6 font-nunito">
           <TabsTrigger value="points">Points</TabsTrigger>
           <TabsTrigger value="level">Niveau</TabsTrigger>
         </TabsList>
 
         <TabsContent value="points" className="space-y-6">
-          {/* User's rank card (if logged in) */}
+          {/* Carte de classement de l'utilisateur (si connecté) */}
           {user && userRank && (
             <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6">
               <div className="flex items-center">
@@ -80,19 +79,19 @@ const LeaderboardPage: React.FC = () => {
                 <div className="flex-grow">
                   <div className="flex items-center">
                     <div className="flex-grow">
-                      <div className="font-semibold">{user.username} (Vous)</div>
-                      <div className="text-sm text-gray-500">Niveau {user.level}</div>
+                      <div className="font-semibold font-nunito">{user.username} (Vous)</div>
+                      <div className="text-sm text-gray-500 font-roboto">Niveau {user.level}</div>
                     </div>
-                    <div className="text-xl font-bold text-blue-600">{user.points} pts</div>
+                    <div className="text-xl font-bold text-blue-600 font-nunito">{user.points} pts</div>
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Leaderboard list */}
+          {/* Liste du classement */}
           <div className="bg-white rounded-lg shadow">
-            <div className="flex items-center p-4 border-b border-gray-100 text-sm text-gray-500">
+            <div className="flex items-center p-4 border-b border-gray-100 text-sm text-gray-500 font-roboto">
               <div className="w-12 text-center">Rang</div>
               <div className="flex-grow">Utilisateur</div>
               <div className="w-24 text-right">Points</div>
@@ -109,7 +108,7 @@ const LeaderboardPage: React.FC = () => {
                   {getRankIcon(entry.rank)}
                 </div>
                 <div className="flex-grow flex items-center">
-                  <div className="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center mr-3">
+                  <div className="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center mr-3 font-nunito">
                     {entry.avatar ? (
                       <img src={entry.avatar} alt={entry.username} className="rounded-full" />
                     ) : (
@@ -117,21 +116,21 @@ const LeaderboardPage: React.FC = () => {
                     )}
                   </div>
                   <div>
-                    <div className="font-medium">
+                    <div className="font-medium font-nunito">
                       {entry.username} 
                       {entry.userId === user?.id && <span className="text-gray-500 text-sm ml-1">(Vous)</span>}
                     </div>
-                    <div className="text-xs text-gray-500">Niveau {entry.level}</div>
+                    <div className="text-xs text-gray-500 font-roboto">Niveau {entry.level}</div>
                   </div>
                 </div>
-                <div className="w-24 text-right font-semibold">{entry.points} pts</div>
+                <div className="w-24 text-right font-semibold font-nunito">{entry.points} pts</div>
               </div>
             ))}
           </div>
         </TabsContent>
 
         <TabsContent value="level" className="space-y-6">
-          {/* Similar content but sorted by level */}
+          {/* Contenu similaire mais trié par niveau */}
           {user && userRank && (
             <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6">
               <div className="flex items-center">
@@ -141,10 +140,10 @@ const LeaderboardPage: React.FC = () => {
                 <div className="flex-grow">
                   <div className="flex items-center">
                     <div className="flex-grow">
-                      <div className="font-semibold">{user.username} (Vous)</div>
-                      <div className="text-sm text-gray-500">{user.points} points</div>
+                      <div className="font-semibold font-nunito">{user.username} (Vous)</div>
+                      <div className="text-sm text-gray-500 font-roboto">{user.points} points</div>
                     </div>
-                    <div className="text-xl font-bold text-blue-600">Niveau {user.level}</div>
+                    <div className="text-xl font-bold text-blue-600 font-nunito">Niveau {user.level}</div>
                   </div>
                 </div>
               </div>
@@ -152,7 +151,7 @@ const LeaderboardPage: React.FC = () => {
           )}
 
           <div className="bg-white rounded-lg shadow">
-            <div className="flex items-center p-4 border-b border-gray-100 text-sm text-gray-500">
+            <div className="flex items-center p-4 border-b border-gray-100 text-sm text-gray-500 font-roboto">
               <div className="w-12 text-center">Rang</div>
               <div className="flex-grow">Utilisateur</div>
               <div className="w-24 text-right">Niveau</div>
@@ -171,7 +170,7 @@ const LeaderboardPage: React.FC = () => {
                     {getRankIcon(index + 1)}
                   </div>
                   <div className="flex-grow flex items-center">
-                    <div className="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center mr-3">
+                    <div className="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center mr-3 font-nunito">
                       {entry.avatar ? (
                         <img src={entry.avatar} alt={entry.username} className="rounded-full" />
                       ) : (
@@ -179,14 +178,14 @@ const LeaderboardPage: React.FC = () => {
                       )}
                     </div>
                     <div>
-                      <div className="font-medium">
+                      <div className="font-medium font-nunito">
                         {entry.username}
                         {entry.userId === user?.id && <span className="text-gray-500 text-sm ml-1">(Vous)</span>}
                       </div>
-                      <div className="text-xs text-gray-500">{entry.points} points</div>
+                      <div className="text-xs text-gray-500 font-roboto">{entry.points} points</div>
                     </div>
                   </div>
-                  <div className="w-24 text-right font-semibold">Niveau {entry.level}</div>
+                  <div className="w-24 text-right font-semibold font-nunito">Niveau {entry.level}</div>
                 </div>
               ))}
           </div>

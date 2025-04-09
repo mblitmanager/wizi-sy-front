@@ -38,13 +38,14 @@ const LoginForm: React.FC = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          className="font-roboto"
         />
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label htmlFor="password">Mot de passe</Label>
-          <Link to="/auth/reset-password" className="text-sm text-blue-600 hover:underline">
+          <Link to="/auth/reset-password" className="text-sm text-blue-600 hover:underline font-nunito">
             Mot de passe oublié?
           </Link>
         </div>
@@ -55,12 +56,13 @@ const LoginForm: React.FC = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          className="font-roboto"
         />
       </div>
 
-      {error && <div className="text-red-500 text-sm">{error}</div>}
+      {error && <div className="text-red-500 text-sm font-roboto">{error}</div>}
 
-      <Button type="submit" className="w-full" disabled={isLoading}>
+      <Button type="submit" className="w-full font-nunito" disabled={isLoading}>
         {isLoading ? (
           <span className="flex items-center">
             <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
@@ -71,18 +73,18 @@ const LoginForm: React.FC = () => {
         )}
       </Button>
 
-      <div className="text-center text-sm">
+      <div className="text-center text-sm font-roboto">
         <span className="text-gray-600">Pas encore de compte? </span>
-        <Link to="/auth/register" className="text-blue-600 hover:underline">
+        <Link to="/auth/register" className="text-blue-600 hover:underline font-nunito">
           S'inscrire
         </Link>
       </div>
 
-      {/* Demo login for testing - remove in production */}
+      {/* Demo login for testing */}
       <div className="border-t border-gray-200 pt-4 mt-4">
         <Button
           variant="outline"
-          className="w-full"
+          className="w-full font-nunito"
           onClick={() => {
             setEmail('demo@example.com');
             setPassword('password');

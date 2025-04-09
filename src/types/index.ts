@@ -1,37 +1,32 @@
+
+// User types
 export interface User {
   id: string;
   username: string;
   email: string;
   points: number;
   level: number;
+  role?: 'stagiaire' | 'admin';
   avatar?: string;
-  role: 'admin' | 'stagiaire';
 }
 
-export interface Category {
-  id: string;
-  name: string;
-  color: string;
-  icon: string;
-  description: string;
-  quizCount: number;
-  colorClass: string;
-}
-
+// Quiz and Question types
 export interface Answer {
   id: string;
   text: string;
   isCorrect: boolean;
 }
 
+export interface Media {
+  type: 'image' | 'video' | 'audio';
+  url: string;
+}
+
 export interface Question {
   id: string;
   text: string;
   answers: Answer[];
-  media?: {
-    type: 'image' | 'video' | 'audio';
-    url: string;
-  };
+  media?: Media;
 }
 
 export interface Quiz {
@@ -39,10 +34,10 @@ export interface Quiz {
   title: string;
   description: string;
   category: string;
+  categoryId?: string; // Pour faciliter le filtrage
   level: 'débutant' | 'intermédiaire' | 'avancé' | 'super';
   questions: Question[];
   points: number;
-  timeLimit?: number; // in seconds
 }
 
 export interface QuizResult {
@@ -53,34 +48,41 @@ export interface QuizResult {
   correctAnswers: number;
   totalQuestions: number;
   completedAt: string;
-  timeSpent: number; // in seconds
+  timeSpent: number; // en secondes
+}
+
+// Category types
+export interface Category {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  color: string;
+  colorClass: string;
+  quizCount: number;
+}
+
+// Progress types
+export interface CategoryProgress {
+  completedQuizzes: number;
+  totalQuizzes: number;
+  points: number;
 }
 
 export interface UserProgress {
   userId: string;
-  categoryProgress: {
-    [categoryId: string]: {
-      completedQuizzes: number;
-      totalQuizzes: number;
-      points: number;
-    }
-  };
+  categoryProgress: Record<string, CategoryProgress>;
   badges: string[];
   streak: number;
   lastActive: string;
 }
 
+// Leaderboard types
 export interface LeaderboardEntry {
   userId: string;
   username: string;
   points: number;
   level: number;
-  avatar?: string;
   rank: number;
-}
-
-export interface ApiResponse<T> {
-  data: T;
-  status: number;
-  message: string;
+  avatar?: string;
 }

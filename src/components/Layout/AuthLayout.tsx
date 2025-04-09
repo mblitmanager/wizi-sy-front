@@ -23,14 +23,14 @@ export const AuthLayout: React.FC = () => {
       <div className="flex-grow flex items-center justify-center p-4">
         <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
           <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">Wizi Learn</h1>
-            <p className="text-gray-600 mt-1">Votre parcours d'apprentissage interactif</p>
+            <h1 className="text-2xl font-bold text-gray-900 font-montserrat">LearnQuest</h1>
+            <p className="text-gray-600 mt-1 font-roboto">Votre parcours d'apprentissage interactif</p>
           </div>
           <Outlet />
         </div>
       </div>
-      <footer className="py-4 text-center text-gray-500 text-sm">
-        © 2025 Wizi Learn. Tous droits réservés.
+      <footer className="py-4 text-center text-gray-500 text-sm font-roboto">
+        © 2025 LearnQuest. Tous droits réservés.
       </footer>
     </div>
   );

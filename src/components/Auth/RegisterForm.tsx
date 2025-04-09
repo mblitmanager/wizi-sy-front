@@ -46,6 +46,7 @@ const RegisterForm: React.FC = () => {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
+          className="font-roboto"
         />
       </div>
 
@@ -58,6 +59,7 @@ const RegisterForm: React.FC = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          className="font-roboto"
         />
       </div>
 
@@ -71,6 +73,7 @@ const RegisterForm: React.FC = () => {
           onChange={(e) => setPassword(e.target.value)}
           required
           minLength={6}
+          className="font-roboto"
         />
       </div>
 
@@ -84,12 +87,13 @@ const RegisterForm: React.FC = () => {
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
           minLength={6}
+          className="font-roboto"
         />
       </div>
 
-      {error && <div className="text-red-500 text-sm">{error}</div>}
+      {error && <div className="text-red-500 text-sm font-roboto">{error}</div>}
 
-      <Button type="submit" className="w-full" disabled={isLoading}>
+      <Button type="submit" className="w-full font-nunito" disabled={isLoading}>
         {isLoading ? (
           <span className="flex items-center">
             <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
@@ -100,9 +104,9 @@ const RegisterForm: React.FC = () => {
         )}
       </Button>
 
-      <div className="text-center text-sm">
+      <div className="text-center text-sm font-roboto">
         <span className="text-gray-600">Déjà un compte? </span>
-        <Link to="/auth/login" className="text-blue-600 hover:underline">
+        <Link to="/auth/login" className="text-blue-600 hover:underline font-nunito">
           Se connecter
         </Link>
       </div>

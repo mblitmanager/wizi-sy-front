@@ -1,7 +1,7 @@
 
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { User } from '../types';
-import { authAPI } from '../api';
+import { mockAPI } from '../api/mockAPI';
 import { toast } from '@/hooks/use-toast';
 
 interface AuthContextType {
@@ -40,7 +40,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!token) return false;
     
     try {
-      const userData = await authAPI.getCurrentUser();
+      // Dans une application réelle, il faudrait appeler l'API pour vérifier le token
+      // et récupérer les informations de l'utilisateur
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      if (!userData.id) return false;
+      
       setUser(userData);
       
       // Update session timestamp
@@ -74,6 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleSessionExpiration = () => {
     // Clear user data and token
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     localStorage.removeItem('sessionTimestamp');
     setUser(null);
     
@@ -99,14 +104,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         try {
-          const userData = await authAPI.getCurrentUser();
-          setUser(userData);
-          
-          // Update session timestamp
-          localStorage.setItem('sessionTimestamp', Date.now().toString());
-          startSessionTimer();
+          const userData = JSON.parse(localStorage.getItem('user') || '{}');
+          if (userData.id) {
+            setUser(userData);
+            
+            // Update session timestamp
+            localStorage.setItem('sessionTimestamp', Date.now().toString());
+            startSessionTimer();
+          }
         } catch (error) {
           localStorage.removeItem('token');
+          localStorage.removeItem('user');
           localStorage.removeItem('sessionTimestamp');
           console.error('Authentication error:', error);
         }
@@ -155,9 +163,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await authAPI.login(email, password);
-      localStorage.setItem('token', response.id); // Using id as token for mock purposes
+      // En mode développement, on utilise le mock API
+      const response = mockAPI.loginUser(email, password);
+      
+      // Store user data in localStorage
+      localStorage.setItem('token', 'mock-token-' + response.id);
+      localStorage.setItem('user', JSON.stringify(response));
       localStorage.setItem('sessionTimestamp', Date.now().toString());
+      
       setUser(response);
       startSessionTimer();
       
@@ -180,9 +193,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (username: string, email: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await authAPI.register(username, email, password);
-      localStorage.setItem('token', response.id); // Using id as token for mock purposes
+      // En mode développement, on utilise le mock API
+      const response = mockAPI.registerUser(username, email, password);
+      
+      // Store user data in localStorage
+      localStorage.setItem('token', 'mock-token-' + response.id);
+      localStorage.setItem('user', JSON.stringify(response));
       localStorage.setItem('sessionTimestamp', Date.now().toString());
+      
       setUser(response);
       startSessionTimer();
       
@@ -203,9 +221,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    authAPI.logout();
-    setUser(null);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     localStorage.removeItem('sessionTimestamp');
+    setUser(null);
+    
     if (sessionTimer) {
       clearTimeout(sessionTimer);
       setSessionTimer(null);
