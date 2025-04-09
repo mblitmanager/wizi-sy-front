@@ -1,33 +1,35 @@
 
 import React, { useState, useEffect } from 'react';
 import { mockAPI } from '@/api';
-import { Category, Quiz } from '@/types';
+import { Quiz, Category } from '@/types';
 import QuizCard from '@/components/Quiz/QuizCard';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
+import { Search, Filter } from 'lucide-react';
 
 const QuizCatalogPage: React.FC = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedLevel, setSelectedLevel] = useState('all');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Fetch categories
-        const categoriesData = mockAPI.getCategories();
-        setCategories(categoriesData);
-
-        // Fetch all quizzes across categories
-        const allQuizzes: Quiz[] = [];
-        categoriesData.forEach(category => {
-          const categoryQuizzes = mockAPI.getQuizzesByCategory(category.id);
-          allQuizzes.push(...categoryQuizzes);
-        });
+        const allQuizzes = mockAPI.getAllQuizzes();
+        const allCategories = mockAPI.getCategories();
+        
         setQuizzes(allQuizzes);
+        setCategories(allCategories);
       } catch (error) {
         console.error('Failed to fetch quiz data:', error);
       } finally {
@@ -38,28 +40,19 @@ const QuizCatalogPage: React.FC = () => {
     fetchData();
   }, []);
 
-  const filterQuizzes = (quiz: Quiz) => {
-    if (!searchTerm) return true;
+  const filteredQuizzes = quizzes.filter(quiz => {
+    const matchesSearch = searchTerm === '' || 
+      quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      quiz.description.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      quiz.title.toLowerCase().includes(searchLower) ||
-      quiz.description.toLowerCase().includes(searchLower)
-    );
-  };
+    const matchesCategory = selectedCategory === 'all' || quiz.categoryId === selectedCategory;
+    
+    const matchesLevel = selectedLevel === 'all' || quiz.level === selectedLevel;
+    
+    return matchesSearch && matchesCategory && matchesLevel;
+  });
 
-  const getQuizzesByCategory = (categoryId: string) => {
-    return quizzes.filter(quiz => quiz.category === categoryId && filterQuizzes(quiz));
-  };
-
-  const getLevelQuizzes = (level: 'débutant' | 'intermédiaire' | 'avancé' | 'super') => {
-    return quizzes.filter(quiz => quiz.level === level && filterQuizzes(quiz));
-  };
-
-  const getCategoryColor = (categoryId: string) => {
-    const category = categories.find(cat => cat.id === categoryId);
-    return category ? category.color : '#cccccc';
-  };
+  const levels = ['débutant', 'intermédiaire', 'avancé', 'super'];
 
   if (isLoading) {
     return (
@@ -71,86 +64,76 @@ const QuizCatalogPage: React.FC = () => {
 
   return (
     <div className="pb-20 md:pb-0 md:pl-64">
-      <h1 className="text-2xl font-bold mb-6">Catalogue de Quiz</h1>
-
-      {/* Search bar */}
-      <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-        <Input
-          placeholder="Rechercher un quiz..."
-          className="pl-10"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      <h1 className="text-3xl font-bold mb-6">Catalogue des Quiz</h1>
+      
+      <div className="space-y-4 mb-8">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+          <Input
+            placeholder="Rechercher un quiz..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="w-full sm:w-1/2">
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filtrer par catégorie" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toutes les catégories</SelectItem>
+                {categories.map(category => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="w-full sm:w-1/2">
+            <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filtrer par niveau" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous les niveaux</SelectItem>
+                {levels.map(level => (
+                  <SelectItem key={level} value={level}>
+                    {level.charAt(0).toUpperCase() + level.slice(1)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </div>
-
-      <Tabs defaultValue="category">
-        <TabsList className="mb-6">
-          <TabsTrigger value="category">Par catégorie</TabsTrigger>
-          <TabsTrigger value="level">Par niveau</TabsTrigger>
-        </TabsList>
-
-        {/* By Category tab */}
-        <TabsContent value="category">
-          {categories.map(category => {
-            const categoryQuizzes = getQuizzesByCategory(category.id);
-            if (categoryQuizzes.length === 0) return null;
-            
+      
+      {filteredQuizzes.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {filteredQuizzes.map(quiz => {
+            const category = categories.find(cat => cat.id === quiz.categoryId);
             return (
-              <div key={category.id} className="mb-8">
-                <h2 className="text-xl font-semibold mb-4">
-                  <span 
-                    className="inline-block w-3 h-3 rounded-full mr-2" 
-                    style={{ backgroundColor: category.color }}
-                  ></span>
-                  {category.name}
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {categoryQuizzes.map(quiz => (
-                    <QuizCard key={quiz.id} quiz={quiz} categoryColor={category.color} />
-                  ))}
-                </div>
-              </div>
+              <QuizCard 
+                key={quiz.id} 
+                quiz={quiz} 
+                categoryColor={category?.color || 'gray'} 
+              />
             );
           })}
-          
-          {categories.every(category => getQuizzesByCategory(category.id).length === 0) && (
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
-              <p className="text-gray-500">Aucun quiz trouvé pour cette recherche.</p>
-            </div>
-          )}
-        </TabsContent>
-
-        {/* By Level tab */}
-        <TabsContent value="level">
-          {['débutant', 'intermédiaire', 'avancé', 'super'].map((level) => {
-            const levelQuizzes = getLevelQuizzes(level as any);
-            if (levelQuizzes.length === 0) return null;
-            
-            return (
-              <div key={level} className="mb-8">
-                <h2 className="text-xl font-semibold mb-4">
-                  {level.charAt(0).toUpperCase() + level.slice(1)}
-                  {level === 'super' && ' Quiz'}
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {levelQuizzes.map(quiz => (
-                    <QuizCard key={quiz.id} quiz={quiz} categoryColor={getCategoryColor(quiz.category)} />
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-          
-          {['débutant', 'intermédiaire', 'avancé', 'super'].every(
-            level => getLevelQuizzes(level as any).length === 0
-          ) && (
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
-              <p className="text-gray-500">Aucun quiz trouvé pour cette recherche.</p>
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+        </div>
+      ) : (
+        <div className="text-center py-12 bg-gray-50 rounded-lg">
+          <Filter className="mx-auto h-10 w-10 text-gray-400 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun résultat</h3>
+          <p className="text-gray-600">
+            Aucun quiz ne correspond à vos critères de recherche. Essayez de modifier vos filtres.
+          </p>
+        </div>
+      )}
     </div>
   );
 };

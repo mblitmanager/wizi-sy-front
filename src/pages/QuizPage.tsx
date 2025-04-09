@@ -1,133 +1,120 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Quiz, QuizResult, Question } from '@/types';
-import { mockAPI, quizAPI } from '@/api';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Quiz, Question, QuizResult } from '@/types';
+import { mockAPI } from '@/api';
+import { useAuth } from '@/context/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { ChevronLeft } from 'lucide-react';
 import QuizQuestion from '@/components/Quiz/QuizQuestion';
 import QuizResultComponent from '@/components/Quiz/QuizResult';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 const QuizPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
+  const { toast } = useToast();
   
   const [quiz, setQuiz] = useState<Quiz | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<{ questionId: string; answerId: string; isCorrect: boolean }[]>([]);
-  const [quizStartTime, setQuizStartTime] = useState<Date | null>(null);
-  const [quizEndTime, setQuizEndTime] = useState<Date | null>(null);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [isQuizCompleted, setIsQuizCompleted] = useState(false);
   const [result, setResult] = useState<QuizResult | null>(null);
-  const [hasStarted, setHasStarted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchQuiz = async () => {
+    const fetchQuizData = async () => {
       setIsLoading(true);
       try {
         if (!id) return;
         
-        // In a real app, we would use API calls
-        // const quizData = await quizAPI.getQuizById(id);
-        const categories = mockAPI.getCategories();
-        const allQuizzes: Quiz[] = [];
-        
-        categories.forEach(category => {
-          allQuizzes.push(...mockAPI.getQuizzesByCategory(category.id));
-        });
-        
-        const quizData = allQuizzes.find(q => q.id === id) || null;
-        setQuiz(quizData);
+        // Get quiz information
+        const quizData = mockAPI.getQuizById(id);
+        if (quizData) {
+          setQuiz(quizData);
+          
+          // Get questions for this quiz
+          const quizQuestions = mockAPI.getQuestionsByQuizId(id);
+          setQuestions(quizQuestions);
+        }
       } catch (error) {
-        console.error('Failed to fetch quiz:', error);
+        console.error('Failed to fetch quiz data:', error);
         toast({
           title: "Erreur",
-          description: "Impossible de charger le quiz",
-          variant: "destructive",
+          description: "Impossible de charger le quiz. Veuillez réessayer.",
+          variant: "destructive"
         });
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchQuiz();
-  }, [id]);
+    fetchQuizData();
+  }, [id, toast]);
 
-  const startQuiz = () => {
-    setHasStarted(true);
-    setQuizStartTime(new Date());
-    setCurrentQuestionIndex(0);
-    setAnswers([]);
+  const handleAnswer = (questionId: string, answerId: string) => {
+    setAnswers(prev => ({
+      ...prev,
+      [questionId]: answerId
+    }));
   };
 
-  const handleAnswer = (answerId: string, isCorrect: boolean) => {
-    if (!quiz) return;
-    
-    const currentQuestion = quiz.questions[currentQuestionIndex];
-    
-    setAnswers(prev => [
-      ...prev,
-      { questionId: currentQuestion.id, answerId, isCorrect }
-    ]);
-    
-    // Move to the next question or end the quiz
-    if (currentQuestionIndex < quiz.questions.length - 1) {
-      setTimeout(() => {
-        setCurrentQuestionIndex(prev => prev + 1);
-      }, 1000);
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
     } else {
-      endQuiz();
+      completeQuiz();
     }
   };
 
-  const endQuiz = () => {
-    if (!quiz || !user || !quizStartTime) return;
+  const completeQuiz = () => {
+    // Calculate result
+    let correctAnswers = 0;
+    questions.forEach(question => {
+      if (answers[question.id] === question.correctAnswerId) {
+        correctAnswers++;
+      }
+    });
     
-    const endTime = new Date();
-    setQuizEndTime(endTime);
-    
-    const correctAnswersCount = answers.filter(a => a.isCorrect).length;
-    const totalQuestions = quiz.questions.length;
-    const score = Math.round((correctAnswersCount / totalQuestions) * quiz.points);
-    const timeSpent = Math.floor((endTime.getTime() - quizStartTime.getTime()) / 1000);
+    const score = Math.round((correctAnswers / questions.length) * 100);
+    const passed = score >= 70; // Pass threshold
     
     const quizResult: QuizResult = {
-      id: `result-${Date.now()}`,
-      quizId: quiz.id,
-      userId: user.id,
+      quizId: id || '',
       score,
-      correctAnswers: correctAnswersCount,
-      totalQuestions,
-      completedAt: endTime.toISOString(),
-      timeSpent,
+      totalQuestions: questions.length,
+      correctAnswers,
+      date: new Date().toISOString(),
+      passed
     };
     
     setResult(quizResult);
+    setIsQuizCompleted(true);
     
-    // In a real app, we would submit the result to the API
-    // quizAPI.submitQuizResult({
-    //   quizId: quiz.id,
-    //   userId: user.id,
-    //   score,
-    //   correctAnswers: correctAnswersCount,
-    //   totalQuestions,
-    //   timeSpent,
-    // });
-    
-    toast({
-      title: "Quiz terminé!",
-      description: `Vous avez obtenu ${score} points`,
-    });
+    // Award experience points if passed
+    if (passed && user) {
+      const newExp = user.experience + quiz?.expPoints || 0;
+      updateUser({
+        ...user,
+        experience: newExp,
+        completedQuizzes: [...(user.completedQuizzes || []), id as string]
+      });
+      
+      toast({
+        title: "Quiz terminé !",
+        description: `Vous avez gagné ${quiz?.expPoints} points d'expérience`,
+      });
+    }
   };
 
-  const retryQuiz = () => {
-    setResult(null);
-    setHasStarted(false);
-    setAnswers([]);
+  const handleRestartQuiz = () => {
     setCurrentQuestionIndex(0);
+    setAnswers({});
+    setIsQuizCompleted(false);
+    setResult(null);
   };
 
   if (isLoading) {
@@ -143,78 +130,71 @@ const QuizPage: React.FC = () => {
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Quiz non trouvé</h2>
         <p className="text-gray-600 mb-8">Le quiz que vous recherchez n'existe pas.</p>
-        <Button onClick={() => navigate('/')}>Retour à l'accueil</Button>
+        <Link to="/quiz">
+          <Button>Voir tous les quiz</Button>
+        </Link>
       </div>
     );
   }
 
-  // Show quiz start screen
-  if (!hasStarted && !result) {
+  if (isQuizCompleted && result) {
     return (
-      <div className="max-w-lg mx-auto text-center py-12">
-        <Button 
-          variant="outline" 
-          onClick={() => navigate(-1)}
-          className="mb-8 flex items-center"
-        >
+      <div className="pb-20 md:pb-0 md:pl-64">
+        <Link to={`/category/${quiz.categoryId}`} className="inline-flex items-center text-gray-500 hover:text-gray-700 mb-4">
           <ChevronLeft className="h-4 w-4 mr-1" />
-          Retour
-        </Button>
+          Retour à la catégorie
+        </Link>
         
-        <h1 className="text-3xl font-bold mb-4">{quiz.title}</h1>
-        <p className="text-gray-600 mb-6">{quiz.description}</p>
-        
-        <div className="bg-gray-50 p-6 rounded-lg mb-8">
-          <div className="flex justify-between mb-4">
-            <div className="text-left">
-              <div className="text-sm text-gray-500">Niveau</div>
-              <div className="font-medium">{quiz.level.charAt(0).toUpperCase() + quiz.level.slice(1)}</div>
-            </div>
-            <div className="text-right">
-              <div className="text-sm text-gray-500">Questions</div>
-              <div className="font-medium">{quiz.questions.length}</div>
-            </div>
-          </div>
-          <div className="flex justify-between">
-            <div className="text-left">
-              <div className="text-sm text-gray-500">Points à gagner</div>
-              <div className="font-medium">{quiz.points}</div>
-            </div>
-            <div className="text-right">
-              <div className="text-sm text-gray-500">Temps estimé</div>
-              <div className="font-medium">{quiz.questions.length * 30} secondes</div>
-            </div>
-          </div>
-        </div>
-        
-        <Button onClick={startQuiz} className="px-8 py-6 text-lg">
-          Commencer le quiz
-        </Button>
+        <QuizResultComponent result={result} onRestart={handleRestartQuiz} />
       </div>
     );
   }
 
-  // Show quiz result
-  if (result) {
-    return (
-      <div className="py-8">
-        <QuizResultComponent result={result} onRetry={retryQuiz} />
-      </div>
-    );
-  }
-
-  // Show current question
-  const currentQuestion = quiz.questions[currentQuestionIndex];
+  const currentQuestion = questions[currentQuestionIndex];
+  const selectedAnswerId = answers[currentQuestion?.id];
+  const isLastQuestion = currentQuestionIndex === questions.length - 1;
 
   return (
-    <div className="py-8 px-4">
-      <QuizQuestion
-        question={currentQuestion}
-        totalQuestions={quiz.questions.length}
-        currentQuestion={currentQuestionIndex + 1}
-        onAnswer={handleAnswer}
-        timeLimit={30} // adjust based on difficulty if needed
-      />
+    <div className="pb-20 md:pb-0 md:pl-64">
+      <Link to={`/category/${quiz.categoryId}`} className="inline-flex items-center text-gray-500 hover:text-gray-700 mb-4">
+        <ChevronLeft className="h-4 w-4 mr-1" />
+        Retour à la catégorie
+      </Link>
+      
+      <div className={`h-2 w-24 mb-4 rounded-full bg-${quiz.category?.color || 'blue'}-500`}></div>
+      
+      <h1 className="text-3xl font-bold mb-2">{quiz.title}</h1>
+      <p className="text-gray-600 mb-8">{quiz.description}</p>
+      
+      <Card className="mb-4">
+        <CardContent className="pt-6">
+          <div className="flex justify-between items-center mb-6">
+            <span className="text-sm font-medium bg-blue-100 text-blue-800 px-2 py-1 rounded">
+              Question {currentQuestionIndex + 1} / {questions.length}
+            </span>
+            <span className="text-sm text-gray-500">
+              {quiz.timeLimit} minutes
+            </span>
+          </div>
+          
+          {currentQuestion && (
+            <QuizQuestion 
+              question={currentQuestion} 
+              selectedAnswerId={selectedAnswerId}
+              onSelectAnswer={(answerId) => handleAnswer(currentQuestion.id, answerId)}
+            />
+          )}
+          
+          <div className="flex justify-end mt-8">
+            <Button 
+              onClick={handleNextQuestion}
+              disabled={!selectedAnswerId}
+            >
+              {isLastQuestion ? "Terminer" : "Question suivante"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
