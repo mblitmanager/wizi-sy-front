@@ -6,6 +6,10 @@ import FormSelect2 from "../../../components/form/FormSelect2";
 import { toast, ToastContainer } from "react-toastify";
 import { useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
+import {
+  createStagiaire,
+  fetchFormations,
+} from "../../../services/stagiaireService";
 
 export default function CreateUser() {
   const navigate = useNavigate();
@@ -14,40 +18,12 @@ export default function CreateUser() {
     { value: string; label: string }[]
   >([]);
   const [loadingFormations, setLoadingFormations] = useState(true);
-
   useEffect(() => {
-    const fetchFormations = async () => {
+    const loadFormations = async () => {
       setLoadingFormations(true);
       try {
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-          toast.error("Token not found in local storage.");
-          return;
-        }
-
-        const response = await fetch(
-          `${import.meta.env.VITE_API_BACKEND_URL}/formations`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch formations");
-        }
-        const data = await response.json();
-        console.log("Fetched formations:", data);
-        // Map the formations to the format required by FormSelect2
-        const formattedFormations = data.member.map((formation: any) => ({
-          value: formation.id.toString(),
-          label: formation.titre,
-        }));
-        setFormations(formattedFormations);
+        const data = await fetchFormations();
+        setFormations(data);
       } catch (error) {
         console.error("Error fetching formations:", error);
         toast.error("Failed to fetch formations.");
@@ -56,47 +32,20 @@ export default function CreateUser() {
       }
     };
 
-    fetchFormations();
+    loadFormations();
   }, []);
 
   const onSubmit = async (data: any) => {
     try {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        toast.error("User creation failed. Token not found.");
-        return;
-      }
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BACKEND_URL}/stagiaire/ajouter`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-
-          body: JSON.stringify({
-            nom: data.name,
-            prenom: data.prenom,
-            email: data.email,
-            password: data.password,
-            formations: data.formations,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to create user");
-      }
-
-      const result = await response.json();
+      await createStagiaire(data);
       toast.success("Stagiaire créé avec succès!");
       navigate("/admin/users");
     } catch (error) {
+      console.error(error);
       toast.error("Échec de la création de l'utilisateur.");
     }
   };
+
   return (
     <div className="space-y-6">
       <ToastContainer />

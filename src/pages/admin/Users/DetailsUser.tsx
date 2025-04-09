@@ -95,9 +95,6 @@ export default function DetailUser() {
           <strong>Email :</strong> {user.email}
         </p>{" "}
         <p>
-          <strong>Type :</strong> {user.type}
-        </p>
-        <p>
           <strong>Statut :</strong>{" "}
           {user.active ? (
             <span className="text-green-500">Actif</span>

@@ -1,8 +1,8 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import type { User } from '../types';
-import apiClient from '../lib/axios';
-import { AxiosError } from 'axios';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import type { User } from "../types";
+import apiClient from "../lib/axios";
+import { AxiosError } from "axios";
 
 interface AuthState {
   user: User | null;
@@ -21,18 +21,18 @@ interface JwtPayload {
 
 const decodeJWT = (token: string): JwtPayload => {
   try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
     const jsonPayload = decodeURIComponent(
       atob(base64)
-        .split('')
-        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
     );
     return JSON.parse(jsonPayload);
   } catch (error) {
-    console.error('Error decoding JWT:', error);
-    throw new Error('Invalid token format');
+    console.error("Error decoding JWT:", error);
+    throw new Error("Invalid token format");
   }
 };
 
@@ -43,31 +43,40 @@ const useAuthStore = create<AuthState>()(
       token: null,
       login: async (email: string, password: string) => {
         try {
-          const response = await apiClient.post('/api/login', { email, password });
+          const response = await apiClient.post("/api/login", {
+            email,
+            password,
+          });
           const { token } = response.data;
-          
+
           if (!token) {
-            throw new Error('No token received');
+            throw new Error("No token received");
           }
 
           // Decode the JWT token
           const decodedToken = decodeJWT(token);
-          
+          // Configure le header global pour les requêtes suivantes
+          apiClient.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${token}`;
+
           // Create user object from token data
           const user: User = {
             id: decodedToken.username, // Using username as ID since it's unique
             email: decodedToken.username,
             roles: decodedToken.roles,
-            firstName: '', // These will be populated later if needed
-            lastName: ''
+            firstName: "", // These will be populated later if needed
+            lastName: "",
           };
 
           // Update axios default headers with the new token
-          apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          
+          apiClient.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${token}`;
+
           // Set the user and token in the store
           set({ token, user });
-          localStorage.setItem('token', token);
+          localStorage.setItem("token", token);
 
           // Clear any existing navigation timeouts
           if (window.navigationTimeout) {
@@ -76,44 +85,63 @@ const useAuthStore = create<AuthState>()(
 
           // Delay navigation slightly to ensure state is updated
           window.navigationTimeout = setTimeout(() => {
-            if (decodedToken.roles.includes('ROLE_ADMIN')) {
-              window.location.href = '/admin';
+            if (decodedToken.roles.includes("ROLE_ADMIN")) {
+              window.location.href = "/admin";
             } else {
-              window.location.href = '/';
+              window.location.href = "/";
             }
           }, 100);
-
         } catch (error) {
           if (error instanceof AxiosError) {
             if (!error.response) {
-              throw new Error('Network error. Please check your connection and try again.');
+              throw new Error(
+                "Network error. Please check your connection and try again."
+              );
             }
             if (error.response.status === 401) {
-              throw new Error('Invalid email or password');
+              throw new Error("Invalid email or password");
             }
-            throw new Error(error.response.data?.message || 'An error occurred during login');
+            throw new Error(
+              error.response.data?.message || "An error occurred during login"
+            );
           }
-          throw new Error('An unexpected error occurred');
+          throw new Error("An unexpected error occurred");
         }
       },
+
+      isTokenExpired: () => {
+        const state = get();
+        const token = state.token;
+
+        if (!token) return true;
+
+        try {
+          const decoded = decodeJWT(token);
+          const now = Math.floor(Date.now() / 1000); // temps en secondes
+          return decoded.exp < now;
+        } catch (e) {
+          return true;
+        }
+      },
+
       logout: () => {
         // Clear axios default headers
-        delete apiClient.defaults.headers.common['Authorization'];
-        
+        delete apiClient.defaults.headers.common["Authorization"];
+
         // Clear the store
         set({ user: null, token: null });
-        localStorage.removeItem('token');
+        localStorage.removeItem("token");
 
         // Redirect to login
-        window.location.href = '/login';
+        window.location.href = "/login";
       },
       isAdmin: () => {
         const state = get();
-        return state.user?.roles?.includes('ROLE_ADMIN') || false;
+        return state.user?.roles?.includes("ROLE_ADMIN") || false;
       },
     }),
     {
-      name: 'auth-storage',
+      name: "auth-storage",
       partialize: (state) => ({
         token: state.token,
         user: state.user,

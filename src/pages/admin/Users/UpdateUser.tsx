@@ -133,7 +133,7 @@ export default function UpdateUser() {
       toast.success("Utilisateur mis à jour avec succès!");
       navigate("/admin/users");
     } catch (error) {
-      toast.error("Error updating user:", error);
+      toast.error(`Error updating user: ${(error as Error).message}`);
     }
   };
 
