@@ -1,4 +1,3 @@
-
 import { Category, Quiz, LeaderboardEntry } from '../types';
 
 // Mock de l'API pour le développement
@@ -50,7 +49,7 @@ export const mockAPI = {
   ],
 
   getQuizzesByCategory: (categoryId: string): Quiz[] => {
-    const quizzes = {
+    const quizzes: Record<string, Quiz[]> = {
       '1': [ // Bureautique
         {
           id: '1',
@@ -58,7 +57,7 @@ export const mockAPI = {
           description: 'Apprenez les fondamentaux de Microsoft Word',
           category: 'Bureautique',
           categoryId: '1',
-          level: 'débutant',
+          level: 'débutant' as const,
           questions: [
             {
               id: '1',
@@ -119,7 +118,7 @@ export const mockAPI = {
           description: 'Les premières étapes avec Microsoft Excel',
           category: 'Bureautique',
           categoryId: '1',
-          level: 'débutant',
+          level: 'débutant' as const,
           questions: [
             {
               id: '1',
@@ -180,7 +179,7 @@ export const mockAPI = {
           description: 'Créez des présentations professionnelles',
           category: 'Bureautique',
           categoryId: '1',
-          level: 'intermédiaire',
+          level: 'intermédiaire' as const,
           questions: [],
           points: 15,
         },
@@ -192,7 +191,7 @@ export const mockAPI = {
           description: 'Maîtrisez les fondamentaux de la langue française',
           category: 'Langues',
           categoryId: '2',
-          level: 'débutant',
+          level: 'débutant' as const,
           questions: [
             {
               id: '1',
@@ -253,7 +252,7 @@ export const mockAPI = {
           description: 'Apprenez les bases de l\'anglais',
           category: 'Langues',
           categoryId: '2',
-          level: 'débutant',
+          level: 'débutant' as const,
           questions: [],
           points: 10,
         },
@@ -265,7 +264,7 @@ export const mockAPI = {
           description: 'Apprenez à créer et gérer un site WordPress',
           category: 'Internet',
           categoryId: '3',
-          level: 'débutant',
+          level: 'débutant' as const,
           questions: [],
           points: 10,
         },
@@ -275,7 +274,7 @@ export const mockAPI = {
           description: 'Optimisez votre présence sur les réseaux sociaux',
           category: 'Internet',
           categoryId: '3',
-          level: 'intermédiaire',
+          level: 'intermédiaire' as const,
           questions: [],
           points: 15,
         },
@@ -287,7 +286,7 @@ export const mockAPI = {
           description: 'Découvrez les fondamentaux de Photoshop',
           category: 'Création',
           categoryId: '4',
-          level: 'débutant',
+          level: 'débutant' as const,
           questions: [],
           points: 10,
         },
@@ -297,14 +296,14 @@ export const mockAPI = {
           description: 'Les bases essentielles d\'Illustrator',
           category: 'Création',
           categoryId: '4',
-          level: 'débutant',
+          level: 'débutant' as const,
           questions: [],
           points: 10,
         },
       ],
     };
 
-    return quizzes[categoryId as keyof typeof quizzes] || [];
+    return quizzes[categoryId] || [];
   },
 
   getLeaderboard: (): LeaderboardEntry[] => [
@@ -320,9 +319,7 @@ export const mockAPI = {
     { userId: '10', username: 'ClaireRousseau', points: 380, level: 2, rank: 10 },
   ],
 
-  // Mock de login pour le développement
   loginUser: (email: string, password: string) => {
-    // Simule la vérification des identifiants
     if (email === 'admin@example.com' && password === 'admin123') {
       return {
         id: 'admin1',
@@ -345,9 +342,7 @@ export const mockAPI = {
     throw new Error('Identifiants incorrects');
   },
 
-  // Mock d'inscription
   registerUser: (username: string, email: string, password: string) => {
-    // Vérification simple pour simuler un email déjà utilisé
     if (email === 'demo@example.com') {
       throw new Error('Cet email est déjà utilisé');
     }
@@ -362,13 +357,12 @@ export const mockAPI = {
     };
   },
 
-  // Mock de soumission de résultat de quiz
   submitQuizResult: (quizId: string, correctAnswers: number, totalQuestions: number, timeSpent: number) => {
     const score = Math.round((correctAnswers / totalQuestions) * 100);
     return {
       id: 'result_' + Date.now().toString(),
       quizId,
-      userId: '1', // Utilisateur courant simulé
+      userId: '1',
       score,
       correctAnswers,
       totalQuestions,
