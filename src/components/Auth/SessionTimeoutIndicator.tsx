@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
 // Session warning time in milliseconds (show warning 5 minutes before expiration)
@@ -67,11 +67,11 @@ export const SessionTimeoutIndicator: React.FC = () => {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Votre session va expirer</DialogTitle>
+          <DialogDescription>
+            Votre session expirera dans {formatTime(timeLeft)} si vous ne prenez aucune action.
+            Souhaitez-vous rester connecté?
+          </DialogDescription>
         </DialogHeader>
-        <div className="py-4">
-          <p>Votre session expirera dans {formatTime(timeLeft)} si vous ne prenez aucune action.</p>
-          <p className="mt-2">Souhaitez-vous rester connecté?</p>
-        </div>
         <DialogFooter>
           <Button onClick={handleContinue}>Continuer ma session</Button>
         </DialogFooter>

@@ -4,8 +4,9 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Home, BookOpen, BarChart2, User, Menu, Settings } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Link } from 'react-router-dom';
+import { SessionTimeoutIndicator } from '@/components/Auth/SessionTimeoutIndicator';
 
 export const AppLayout: React.FC = () => {
   const { isAuthenticated, user, logout, isAdmin, refreshSession } = useAuth();
@@ -65,8 +66,10 @@ export const AppLayout: React.FC = () => {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-[240px] sm:w-[300px]">
+              <SheetHeader>
+                <SheetTitle className="text-xl font-bold mb-6 font-montserrat">LearnQuest</SheetTitle>
+              </SheetHeader>
               <div className="px-2 py-6">
-                <h2 className="text-xl font-bold mb-6 font-montserrat">LearnQuest</h2>
                 <nav className="space-y-2">
                   {navItems.map((item) => (
                     <Link
@@ -110,6 +113,9 @@ export const AppLayout: React.FC = () => {
           )}
         </div>
       </header>
+
+      {/* Session Timeout Indicator */}
+      <SessionTimeoutIndicator />
 
       {/* Contenu principal */}
       <main className="flex-grow container mx-auto py-4 px-4">
