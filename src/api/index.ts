@@ -1,4 +1,5 @@
-import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry } from '../types';
+
+import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry, Question, Answer } from '../types';
 
 // Base URL of our API
 const API_URL = 'http://localhost:8000/api';
@@ -94,6 +95,16 @@ export const quizAPI = {
 
   getQuizQuestions: async (quizId: string): Promise<Question[]> => {
     const response = await fetch(`${API_URL}/quizzes/${quizId}/questions`);
+    return handleResponse(response);
+  },
+
+  getQuestionById: async (questionId: string): Promise<Question> => {
+    const response = await fetch(`${API_URL}/questions/${questionId}.json`);
+    return handleResponse(response);
+  },
+
+  getResponsesByQuestion: async (questionId: string): Promise<Answer[]> => {
+    const response = await fetch(`${API_URL}/questions/${questionId}/reponses`);
     return handleResponse(response);
   },
 

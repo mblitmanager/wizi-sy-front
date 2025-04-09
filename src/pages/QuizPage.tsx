@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
+import { quizAPI } from '@/api';
 import { mockAPI } from '@/api/mockAPI';
 import { Quiz, Question, QuizResult } from '@/types';
 import { useAuth } from '@/context/AuthContext';
@@ -9,11 +10,14 @@ import QuizResultComponent from '@/components/Quiz/QuizResult';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useToast } from '@/components/ui/use-toast';
 
 const QuizPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [quiz, setQuiz] = useState<Quiz | null>(null);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<{ [key: string]: string }>({});
   const [correctAnswers, setCorrectAnswers] = useState<string[]>([]);
@@ -29,29 +33,52 @@ const QuizPage: React.FC = () => {
       try {
         if (!id) return;
         
-        // Dans une vraie application, ceci serait un appel API
-        const allQuizzes = mockAPI.getAllQuizzes();
-        const foundQuiz = allQuizzes.find(q => q.id === id) || null;
+        let foundQuiz: Quiz;
+        try {
+          // Essayer d'abord d'utiliser l'API
+          foundQuiz = await quizAPI.getQuizById(id);
+          const quizQuestions = await quizAPI.getQuizQuestions(id);
+          setQuestions(quizQuestions);
+        } catch (error) {
+          console.error('Échec de récupération du quiz via API:', error);
+          // Utiliser les données factices en cas d'échec
+          const allQuizzes = mockAPI.getAllQuizzes();
+          foundQuiz = allQuizzes.find(q => q.id === id) as Quiz;
+          if (foundQuiz) {
+            setQuestions(foundQuiz.questions);
+          }
+        }
         
         if (foundQuiz) {
           setQuiz(foundQuiz);
           setStartTime(new Date());
+        } else {
+          toast({
+            title: "Erreur",
+            description: "Impossible de trouver ce quiz",
+            variant: "destructive"
+          });
         }
       } catch (error) {
         console.error('Échec de récupération du quiz:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger ce quiz",
+          variant: "destructive"
+        });
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchQuiz();
-  }, [id]);
+  }, [id, toast]);
 
   // Gérer les réponses aux questions
   const handleAnswer = (answerId: string, isCorrect: boolean) => {
-    if (!quiz) return;
+    if (!quiz || questions.length === 0) return;
     
-    const question = quiz.questions[currentQuestionIndex];
+    const question = questions[currentQuestionIndex];
     
     // Mettre à jour les réponses de l'utilisateur
     setUserAnswers(prev => ({
@@ -66,7 +93,7 @@ const QuizPage: React.FC = () => {
     
     // Passer à la question suivante ou finir le quiz
     setTimeout(() => {
-      if (currentQuestionIndex < quiz.questions.length - 1) {
+      if (currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex(prevIndex => prevIndex + 1);
       } else {
         finishQuiz();
@@ -76,13 +103,13 @@ const QuizPage: React.FC = () => {
 
   // Finaliser le quiz
   const finishQuiz = () => {
-    if (!quiz || !user || !startTime) return;
+    if (!quiz || !user || !startTime || questions.length === 0) return;
     
     const endTime = new Date();
     const timeSpentSeconds = Math.floor((endTime.getTime() - startTime.getTime()) / 1000);
     
     // Calculer le score
-    const score = Math.round((correctAnswers.length / quiz.questions.length) * 100);
+    const score = Math.round((correctAnswers.length / questions.length) * 100);
     
     // Créer le résultat du quiz
     const quizResult: QuizResult = {
@@ -91,7 +118,7 @@ const QuizPage: React.FC = () => {
       userId: user.id,
       score,
       correctAnswers: correctAnswers.length,
-      totalQuestions: quiz.questions.length,
+      totalQuestions: questions.length,
       completedAt: new Date().toISOString(),
       timeSpent: timeSpentSeconds
     };
@@ -99,8 +126,26 @@ const QuizPage: React.FC = () => {
     setResult(quizResult);
     setIsFinished(true);
     
-    // Dans une vraie application, nous enverrions le résultat à l'API
-    // await quizAPI.submitQuizResult(quizResult);
+    // Envoyer le résultat à l'API si disponible
+    try {
+      quizAPI.submitQuizResult(quizResult)
+        .then(() => {
+          toast({
+            title: "Succès",
+            description: "Votre résultat a été enregistré",
+          });
+        })
+        .catch(error => {
+          console.error('Échec de soumission du résultat:', error);
+          toast({
+            title: "Avertissement",
+            description: "Impossible d'enregistrer votre résultat en ligne",
+            variant: "destructive"
+          });
+        });
+    } catch (error) {
+      console.error('Erreur lors de la soumission du résultat:', error);
+    }
   };
 
   // Redémarrer le quiz
@@ -130,7 +175,20 @@ const QuizPage: React.FC = () => {
     return <QuizResultComponent result={result} onRetry={handleRetryQuiz} />;
   }
 
-  const currentQuestion = quiz.questions[currentQuestionIndex];
+  if (questions.length === 0) {
+    return (
+      <div className="max-w-3xl mx-auto pb-20 md:pb-0 md:pl-64">
+        <div className="text-center py-12">
+          <h2 className="text-xl font-semibold">Aucune question trouvée pour ce quiz</h2>
+          <Link to="/quiz" className="mt-4 inline-block">
+            <Button>Retour au catalogue</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const currentQuestion = questions[currentQuestionIndex];
 
   return (
     <div className="max-w-3xl mx-auto pb-20 md:pb-0 md:pl-64">
@@ -147,7 +205,7 @@ const QuizPage: React.FC = () => {
       {currentQuestion && (
         <QuizQuestion
           question={currentQuestion}
-          totalQuestions={quiz.questions.length}
+          totalQuestions={questions.length}
           currentQuestion={currentQuestionIndex + 1}
           onAnswer={handleAnswer}
         />
