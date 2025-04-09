@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Home, BookOpen, BarChart2, User, Menu, Settings } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -8,18 +8,30 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Link } from 'react-router-dom';
 
 export const AppLayout: React.FC = () => {
-  const { isAuthenticated, user, logout, isAdmin } = useAuth();
+  const { isAuthenticated, user, logout, isAdmin, refreshSession } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
   const isActive = (path: string) => location.pathname === path;
 
   // If user is not authenticated and not on auth pages, redirect to login
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isAuthenticated && !location.pathname.includes('/auth')) {
       navigate('/auth/login');
     }
   }, [isAuthenticated, location.pathname, navigate]);
+
+  // Regularly check and refresh session
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Check session every 5 minutes
+      const intervalId = setInterval(() => {
+        refreshSession();
+      }, 5 * 60 * 1000);
+      
+      return () => clearInterval(intervalId);
+    }
+  }, [isAuthenticated, refreshSession]);
 
   if (!isAuthenticated) {
     return <Outlet />;

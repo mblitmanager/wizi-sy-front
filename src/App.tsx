@@ -22,6 +22,9 @@ import RegisterPage from "@/pages/auth/RegisterPage";
 import AdminPage from "@/pages/AdminPage";
 import NotFound from "@/pages/NotFound";
 
+// Components
+import { SessionTimeoutIndicator } from "@/components/Auth/SessionTimeoutIndicator";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -31,6 +34,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <SessionTimeoutIndicator />
           <Routes>
             <Route path="/" element={<AppLayout />}>
               <Route index element={<HomePage />} />
