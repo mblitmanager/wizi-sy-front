@@ -92,7 +92,7 @@ export const AppLayout: React.FC = () => {
                 </div>
               </div>
               <div className={`${isAdmin ? 'bg-red-500' : 'bg-blue-500'} text-white w-8 h-8 rounded-full flex items-center justify-center`}>
-                {user.username.charAt(0).toUpperCase()}
+                {user.username ? user.username.charAt(0).toUpperCase() : '?'}
               </div>
             </div>
           )}
