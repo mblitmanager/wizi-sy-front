@@ -1,16 +1,27 @@
-// User types
+
+// Types pour les utilisateurs
 export interface User {
   id: string;
   username: string;
   email: string;
   points: number;
   level: number;
-  role?: 'stagiaire' | 'admin';
-  avatar?: string;
-  token?: string; // Ajout du token pour l'authentification
+  role: 'admin' | 'stagiaire' | 'formateur' | 'commercial' | 'pole_relation_client';
+  token?: string;
 }
 
-// Quiz and Question types
+// Types pour les catégories
+export interface Category {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  color: string;
+  colorClass: string;
+  quizCount: number;
+}
+
+// Types pour les questions et réponses
 export interface Answer {
   id: string;
   text: string;
@@ -29,17 +40,19 @@ export interface Question {
   media?: Media;
 }
 
+// Types pour les quiz
 export interface Quiz {
   id: string;
   title: string;
   description: string;
   category: string;
-  categoryId?: string; // Pour faciliter le filtrage
+  categoryId: string;
   level: 'débutant' | 'intermédiaire' | 'avancé' | 'super';
   questions: Question[];
   points: number;
 }
 
+// Types pour les résultats de quiz
 export interface QuizResult {
   id: string;
   quizId: string;
@@ -51,18 +64,7 @@ export interface QuizResult {
   timeSpent: number; // en secondes
 }
 
-// Category types
-export interface Category {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  color: string;
-  colorClass: string;
-  quizCount: number;
-}
-
-// Progress types
+// Types pour la progression des utilisateurs
 export interface CategoryProgress {
   completedQuizzes: number;
   totalQuizzes: number;
@@ -77,7 +79,7 @@ export interface UserProgress {
   lastActive: string;
 }
 
-// Leaderboard types
+// Types pour le classement
 export interface LeaderboardEntry {
   userId: string;
   username: string;
