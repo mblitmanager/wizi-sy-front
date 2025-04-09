@@ -4,8 +4,10 @@ import * as CollapsiblePrimitive from "@radix-ui/react-collapsible"
 
 const Collapsible = CollapsiblePrimitive.Root
 
+type CollapsibleTriggerFunctionChildren = (props: { open: boolean }) => React.ReactNode;
+
 interface CollapsibleTriggerProps extends React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Trigger> {
-  children: React.ReactNode | (({ open }: { open: boolean }) => React.ReactNode);
+  children: React.ReactNode | CollapsibleTriggerFunctionChildren;
 }
 
 const CollapsibleTrigger = React.forwardRef<
@@ -20,7 +22,7 @@ const CollapsibleTrigger = React.forwardRef<
       onClick={() => setOpen(!open)}
       {...props}
     >
-      {typeof children === 'function' ? children({ open }) : children}
+      {typeof children === 'function' ? (children as CollapsibleTriggerFunctionChildren)({ open }) : children}
     </CollapsiblePrimitive.Trigger>
   );
 });

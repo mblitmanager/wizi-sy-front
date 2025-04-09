@@ -84,32 +84,64 @@ export const quizAPI = {
   },
 
   getQuizzesByCategory: async (categoryId: string): Promise<Quiz[]> => {
-    const response = await fetch(`${API_URL}/formations/${categoryId}/quizzes`);
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`${API_URL}/formations/${categoryId}/quizzes`, { headers });
     return handleResponse(response);
   },
 
   getQuizById: async (quizId: string): Promise<Quiz> => {
-    const response = await fetch(`${API_URL}/quizzes/${quizId}`);
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`${API_URL}/quizzes/${quizId}`, { headers });
     return handleResponse(response);
   },
 
   getQuizQuestions: async (quizId: string): Promise<Question[]> => {
-    const response = await fetch(`${API_URL}/quizzes/${quizId}/questions`);
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`${API_URL}/quizzes/${quizId}/questions`, { headers });
     return handleResponse(response);
   },
 
   getQuestionById: async (questionId: string): Promise<Question> => {
-    const response = await fetch(`${API_URL}/questions/${questionId}.json`);
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`${API_URL}/questions/${questionId}`, { headers });
     return handleResponse(response);
   },
 
   getResponsesByQuestion: async (questionId: string): Promise<Answer[]> => {
-    const response = await fetch(`${API_URL}/questions/${questionId}/reponses`);
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`${API_URL}/questions/${questionId}/reponses`, { headers });
     return handleResponse(response);
   },
 
   submitQuizResult: async (result: Omit<QuizResult, 'id' | 'completedAt'>): Promise<QuizResult> => {
     const token = localStorage.getItem('token');
+    if (!token) throw new Error('Not authenticated');
+    
     const response = await fetch(`${API_URL}/stats/quiz/${result.quizId}`, {
       method: 'POST',
       headers: {
@@ -135,7 +167,13 @@ export const progressAPI = {
   },
 
   getLeaderboard: async (): Promise<LeaderboardEntry[]> => {
-    const response = await fetch(`${API_URL}/classement`);
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`${API_URL}/classement`, { headers });
     return handleResponse(response);
   },
 
