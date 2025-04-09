@@ -8,6 +8,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (username: string, email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   isAuthenticated: false,
   isLoading: true,
+  isAdmin: false,
   login: async () => {},
   register: async () => {},
   logout: () => {},
@@ -52,7 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(response);
       toast({
         title: "Connexion réussie",
-        description: "Bienvenue sur LearnQuest!",
+        description: `Bienvenue sur LearnQuest${response.role === 'admin' ? ' - Mode Administrateur' : ''}!`,
       });
     } catch (error) {
       toast({
@@ -103,6 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         isAuthenticated: !!user,
         isLoading,
+        isAdmin: user?.role === 'admin',
         login,
         register,
         logout,

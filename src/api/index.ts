@@ -1,4 +1,3 @@
-
 import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry } from '../types';
 
 // Base URL of our API
@@ -111,7 +110,7 @@ export const progressAPI = {
   },
 };
 
-// Mock data for development
+// Updated mock data for development
 export const mockAPI = {
   getCategories: (): Category[] => [
     {

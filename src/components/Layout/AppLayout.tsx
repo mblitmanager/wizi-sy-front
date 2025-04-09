@@ -1,14 +1,14 @@
 
 import React from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, BarChart2, User, Menu } from 'lucide-react';
+import { Home, BookOpen, BarChart2, User, Menu, Settings } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Link } from 'react-router-dom';
 
 export const AppLayout: React.FC = () => {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, logout, isAdmin } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -26,12 +26,20 @@ export const AppLayout: React.FC = () => {
   }
 
   // Navigation items for both bottom and side navigation
-  const navItems = [
+  const stagiairesNavItems = [
     { name: 'Accueil', path: '/', icon: <Home className="h-5 w-5" /> },
     { name: 'Quiz', path: '/quiz', icon: <BookOpen className="h-5 w-5" /> },
     { name: 'Classement', path: '/leaderboard', icon: <BarChart2 className="h-5 w-5" /> },
     { name: 'Profil', path: '/profile', icon: <User className="h-5 w-5" /> },
   ];
+
+  const adminNavItems = [
+    { name: 'Accueil', path: '/', icon: <Home className="h-5 w-5" /> },
+    { name: 'Administration', path: '/admin', icon: <Settings className="h-5 w-5" /> },
+    { name: 'Profil', path: '/profile', icon: <User className="h-5 w-5" /> },
+  ];
+
+  const navItems = isAdmin ? adminNavItems : stagiairesNavItems;
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -72,15 +80,18 @@ export const AppLayout: React.FC = () => {
             </SheetContent>
           </Sheet>
           <h1 className="text-lg font-bold ml-2">LearnQuest</h1>
+          {isAdmin && <span className="ml-2 text-sm bg-red-500 text-white px-2 py-0.5 rounded">Admin</span>}
         </div>
         <div className="flex items-center">
           {user && (
             <div className="flex items-center">
               <div className="mr-2 hidden md:block text-right">
                 <div className="text-sm font-medium">{user.username}</div>
-                <div className="text-xs text-gray-500">Niveau {user.level}</div>
+                <div className="text-xs text-gray-500">
+                  {isAdmin ? 'Administrateur' : `Niveau ${user.level}`}
+                </div>
               </div>
-              <div className="bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center">
+              <div className={`${isAdmin ? 'bg-red-500' : 'bg-blue-500'} text-white w-8 h-8 rounded-full flex items-center justify-center`}>
                 {user.username.charAt(0).toUpperCase()}
               </div>
             </div>

@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   username: string;
@@ -6,6 +5,7 @@ export interface User {
   points: number;
   level: number;
   avatar?: string;
+  role: 'admin' | 'stagiaire';
 }
 
 export interface Category {
