@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Quiz, Question, QuizResult } from '@/types';
-import { mockAPI } from '@/api/mockAPI';
+import { quizAPI } from '@/api';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,6 +10,7 @@ import { ChevronLeft } from 'lucide-react';
 import QuizQuestion from '@/components/Quiz/QuizQuestion';
 import QuizResultComponent from '@/components/Quiz/QuizResult';
 import { useToast } from '@/hooks/use-toast';
+import { useQuery } from '@tanstack/react-query';
 
 const QuizPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,47 +18,48 @@ const QuizPage: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   
-  const [quiz, setQuiz] = useState<Quiz | null>(null);
-  const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [correctAnswers, setCorrectAnswers] = useState<number>(0);
   const [isQuizStarted, setIsQuizStarted] = useState(false);
   const [isQuizCompleted, setIsQuizCompleted] = useState(false);
   const [result, setResult] = useState<QuizResult | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [startTime, setStartTime] = useState<number>(0);
 
-  useEffect(() => {
-    const fetchQuizData = async () => {
-      setIsLoading(true);
-      try {
-        if (!id) return;
-        
-        // Dans une vraie application, nous utiliserions des appels API
-        const categories = mockAPI.getCategories();
-        const categoryId = id.charAt(0);
-        const categoryQuizzes = mockAPI.getQuizzesByCategory(categoryId);
-        const foundQuiz = categoryQuizzes.find(q => q.id === id) || null;
-        
-        if (foundQuiz) {
-          setQuiz(foundQuiz);
-          setQuestions(foundQuiz.questions);
-        }
-      } catch (error) {
-        console.error('Échec de récupération des données du quiz:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger le quiz",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  // Fetch quiz data using React Query
+  const { data: quiz, isLoading: isQuizLoading, error: quizError } = useQuery({
+    queryKey: ['quiz', id],
+    queryFn: () => id ? quizAPI.getQuizById(id) : Promise.reject('No quiz ID provided'),
+    enabled: !!id,
+  });
 
-    fetchQuizData();
-  }, [id, toast]);
+  // Fetch quiz questions using React Query
+  const { data: questions, isLoading: areQuestionsLoading, error: questionsError } = useQuery({
+    queryKey: ['quizQuestions', id],
+    queryFn: () => id ? quizAPI.getQuizQuestions(id) : Promise.reject('No quiz ID provided'),
+    enabled: !!id,
+  });
+
+  // Handle errors
+  useEffect(() => {
+    if (quizError) {
+      console.error('Error fetching quiz:', quizError);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger le quiz",
+        variant: "destructive",
+      });
+    }
+    
+    if (questionsError) {
+      console.error('Error fetching questions:', questionsError);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les questions du quiz",
+        variant: "destructive",
+      });
+    }
+  }, [quizError, questionsError, toast]);
 
   const startQuiz = () => {
     setIsQuizStarted(true);
@@ -70,6 +72,8 @@ const QuizPage: React.FC = () => {
   };
 
   const handleAnswer = (answerId: string, isCorrect: boolean) => {
+    if (!questions) return;
+    
     const questionId = questions[currentQuestionIndex].id;
     
     // Enregistrement de la réponse
@@ -93,31 +97,65 @@ const QuizPage: React.FC = () => {
     }
   };
 
-  const completeQuiz = () => {
-    if (!quiz) return;
+  const completeQuiz = async () => {
+    if (!quiz || !questions) return;
     
     const timeSpent = Math.floor((Date.now() - startTime) / 1000);
     
-    // Dans une application réelle, nous soumettrions le résultat à l'API
-    const quizResult = {
-      id: `result_${Date.now()}`,
-      quizId: quiz.id,
-      userId: user?.id || 'anonymous',
-      score: Math.round((correctAnswers / questions.length) * quiz.points),
-      correctAnswers,
-      totalQuestions: questions.length,
-      completedAt: new Date().toISOString(),
-      timeSpent,
-    };
-    
-    setResult(quizResult);
-    setIsQuizCompleted(true);
-    
-    toast({
-      title: "Quiz terminé",
-      description: `Vous avez obtenu ${quizResult.score} points!`,
-    });
+    try {
+      // Préparer les données du résultat
+      const quizResultData = {
+        quizId: quiz.id,
+        userId: user?.id || 'anonymous',
+        score: Math.round((correctAnswers / questions.length) * quiz.points),
+        correctAnswers,
+        totalQuestions: questions.length,
+        timeSpent,
+      };
+      
+      // Soumettre le résultat à l'API
+      const submittedResult = await quizAPI.submitQuizResult(quizResultData);
+      
+      // Mettre à jour l'état avec le résultat
+      setResult({
+        ...submittedResult,
+        // Ajouter des champs qui pourraient manquer dans la réponse de l'API
+        completedAt: submittedResult.completedAt || new Date().toISOString(),
+        id: submittedResult.id || `result_${Date.now()}`,
+      });
+      
+      setIsQuizCompleted(true);
+      
+      toast({
+        title: "Quiz terminé",
+        description: `Vous avez obtenu ${quizResultData.score} points!`,
+      });
+    } catch (error) {
+      console.error('Error submitting quiz result:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'enregistrer votre résultat",
+        variant: "destructive",
+      });
+      
+      // Même en cas d'erreur, on affiche le résultat à l'utilisateur
+      const fallbackResult: QuizResult = {
+        id: `result_${Date.now()}`,
+        quizId: quiz.id,
+        userId: user?.id || 'anonymous',
+        score: Math.round((correctAnswers / questions.length) * quiz.points),
+        correctAnswers,
+        totalQuestions: questions.length,
+        completedAt: new Date().toISOString(),
+        timeSpent,
+      };
+      
+      setResult(fallbackResult);
+      setIsQuizCompleted(true);
+    }
   };
+
+  const isLoading = isQuizLoading || areQuestionsLoading;
 
   if (isLoading) {
     return (
@@ -127,7 +165,7 @@ const QuizPage: React.FC = () => {
     );
   }
 
-  if (!quiz) {
+  if (!quiz || !questions) {
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold text-gray-800 mb-4 font-montserrat">Quiz non trouvé</h2>
@@ -173,11 +211,11 @@ const QuizPage: React.FC = () => {
                   </div>
                   <div>
                     <span className="text-gray-500">Questions:</span>
-                    <span className="font-semibold ml-1">{quiz.questions.length}</span>
+                    <span className="font-semibold ml-1">{questions.length}</span>
                   </div>
                   <div>
                     <span className="text-gray-500">Temps estimé:</span>
-                    <span className="font-semibold ml-1">{quiz.questions.length * 30} secondes</span>
+                    <span className="font-semibold ml-1">{questions.length * 30} secondes</span>
                   </div>
                 </div>
               </div>

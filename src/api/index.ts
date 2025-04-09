@@ -1,4 +1,3 @@
-
 import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry } from '../types';
 
 // Base URL of our API
@@ -93,6 +92,11 @@ export const quizAPI = {
     return handleResponse(response);
   },
 
+  getQuizQuestions: async (quizId: string): Promise<Question[]> => {
+    const response = await fetch(`${API_URL}/quizzes/${quizId}/questions`);
+    return handleResponse(response);
+  },
+
   submitQuizResult: async (result: Omit<QuizResult, 'id' | 'completedAt'>): Promise<QuizResult> => {
     const token = localStorage.getItem('token');
     const response = await fetch(`${API_URL}/stats/quiz/${result.quizId}`, {
@@ -135,5 +139,5 @@ export const progressAPI = {
   },
 };
 
-// Continuer à utiliser le mockAPI pour le développement tant que l'API n'est pas complètement disponible
+// Export mockAPI for fallback or development purposes
 export { mockAPI } from './mockAPI';
