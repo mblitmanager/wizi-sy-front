@@ -66,7 +66,7 @@ export const AppLayout: React.FC = () => {
             </SheetTrigger>
             <SheetContent side="left" className="w-[240px] sm:w-[300px]">
               <div className="px-2 py-6">
-                <h2 className="text-xl font-bold mb-6">LearnQuest</h2>
+                <h2 className="text-xl font-bold mb-6">Wizi Learn</h2>
                 <nav className="space-y-2">
                   {navItems.map((item) => (
                     <Link
@@ -91,7 +91,7 @@ export const AppLayout: React.FC = () => {
               </div>
             </SheetContent>
           </Sheet>
-          <h1 className="text-lg font-bold ml-2">LearnQuest</h1>
+          <h1 className="text-lg font-bold ml-2">Wizi Learn</h1>
           {isAdmin && <span className="ml-2 text-sm bg-red-500 text-white px-2 py-0.5 rounded">Admin</span>}
         </div>
         <div className="flex items-center">

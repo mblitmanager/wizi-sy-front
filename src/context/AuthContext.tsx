@@ -163,7 +163,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       toast({
         title: "Connexion réussie",
-        description: `Bienvenue sur LearnQuest${response.role === 'admin' ? ' - Mode Administrateur' : ''}!`,
+        description: `Bienvenue sur Wizi Learn${response.role === 'admin' ? ' - Mode Administrateur' : ''}!`,
       });
     } catch (error) {
       toast({
@@ -188,7 +188,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       toast({
         title: "Inscription réussie",
-        description: "Bienvenue sur LearnQuest!",
+        description: "Bienvenue sur Wizi Learn!",
       });
     } catch (error) {
       toast({
