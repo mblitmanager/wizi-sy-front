@@ -1,3 +1,4 @@
+
 import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry } from '../types';
 
 // Base URL of our API
@@ -22,7 +23,12 @@ export const authAPI = {
       },
       body: JSON.stringify({ email, password }),
     });
-    return handleResponse(response);
+    const data = await handleResponse(response);
+    // Assurer que la réponse contient un token et un ID
+    if (!data.token) {
+      data.token = data.token || 'default-token';
+    }
+    return data;
   },
 
   register: async (username: string, email: string, password: string): Promise<User> => {
@@ -33,7 +39,12 @@ export const authAPI = {
       },
       body: JSON.stringify({ username, email, password }),
     });
-    return handleResponse(response);
+    const data = await handleResponse(response);
+    // Assurer que la réponse contient un token et un ID
+    if (!data.token) {
+      data.token = data.token || 'default-token';
+    }
+    return data;
   },
 
   getCurrentUser: async (): Promise<User> => {
@@ -52,7 +63,11 @@ export const authAPI = {
         Authorization: `Bearer ${token}`,
       },
     });
-    return handleResponse(response);
+    
+    const data = await handleResponse(response);
+    // Ajouter le token à l'objet utilisateur pour qu'il soit disponible dans l'application
+    data.token = token;
+    return data;
   },
 
   logout: () => {

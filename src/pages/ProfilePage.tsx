@@ -110,6 +110,11 @@ const ProfilePage: React.FC = () => {
     );
   }
 
+  // Extraction sécurisée du premier caractère du nom d'utilisateur
+  const userInitial = user.username && user.username.length > 0 
+    ? user.username.charAt(0).toUpperCase() 
+    : '?';
+
   return (
     <div className="pb-20 md:pb-0 md:pl-64">
       <h1 className="text-2xl font-bold mb-6 font-montserrat">Profil</h1>
@@ -118,10 +123,10 @@ const ProfilePage: React.FC = () => {
       <div className="bg-white rounded-lg shadow p-6 mb-8">
         <div className="flex items-center">
           <div className="bg-blue-500 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mr-6 font-nunito">
-            {user.username.charAt(0).toUpperCase()}
+            {userInitial}
           </div>
           <div>
-            <h2 className="text-xl font-bold font-montserrat">{user.username}</h2>
+            <h2 className="text-xl font-bold font-montserrat">{user.username || 'Utilisateur'}</h2>
             <p className="text-gray-500 font-roboto">Membre depuis 2024</p>
           </div>
         </div>

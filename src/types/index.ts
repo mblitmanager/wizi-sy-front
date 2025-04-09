@@ -1,4 +1,3 @@
-
 // User types
 export interface User {
   id: string;
@@ -8,6 +7,7 @@ export interface User {
   level: number;
   role?: 'stagiaire' | 'admin';
   avatar?: string;
+  token?: string; // Ajout du token pour l'authentification
 }
 
 // Quiz and Question types
