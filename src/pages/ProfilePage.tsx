@@ -20,7 +20,10 @@ const ProfilePage: React.FC = () => {
     const fetchUserData = async () => {
       setIsLoading(true);
       try {
-        if (!user) return;
+        if (!user) {
+          setIsLoading(false);
+          return;
+        }
 
         // Dans une vraie application, nous utiliserions des appels API
         const categoriesData = mockAPI.getCategories();
@@ -98,10 +101,20 @@ const ProfilePage: React.FC = () => {
     },
   };
 
-  if (isLoading || !user) {
+  // Handle loading or no user state
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64">
+        <div className="text-lg font-medium text-gray-700 mb-2">Vous n'êtes pas connecté</div>
+        <p className="text-gray-500">Veuillez vous connecter pour accéder à votre profil.</p>
       </div>
     );
   }
@@ -212,7 +225,7 @@ const ProfilePage: React.FC = () => {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold font-montserrat">Résultats récents</h2>
             <CollapsibleTrigger className="rounded-full p-1 hover:bg-gray-100">
-              {({ open }: { open: boolean }) => (
+              {({ open }) => (
                 open ? <ChevronDown className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />
               )}
             </CollapsibleTrigger>

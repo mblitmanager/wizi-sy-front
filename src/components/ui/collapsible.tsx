@@ -4,8 +4,10 @@ import * as CollapsiblePrimitive from "@radix-ui/react-collapsible"
 
 const Collapsible = CollapsiblePrimitive.Root
 
+// Define the function children type more clearly
 type CollapsibleTriggerFunctionChildren = (props: { open: boolean }) => React.ReactNode;
 
+// Define the props to accept either ReactNode or the function children
 interface CollapsibleTriggerProps {
   children: React.ReactNode | CollapsibleTriggerFunctionChildren;
 }

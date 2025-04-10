@@ -7,7 +7,7 @@ const API_URL = 'http://localhost:8000/api';
 // Helper function to handle API responses
 const handleResponse = async (response: Response) => {
   if (!response.ok) {
-    const error = await response.json();
+    const error = await response.json().catch(() => ({ message: 'Network response was not ok' }));
     throw new Error(error.message || 'Something went wrong');
   }
   return response.json();
@@ -56,6 +56,13 @@ export const authAPI = {
     // nous devons adapter ce code à votre API spécifique
     const userId = localStorage.getItem('userId');
     if (!userId) throw new Error('User ID not found');
+    
+    // Validation du userId avant de faire la requête
+    if (userId === 'undefined' || userId === 'null') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('userId');
+      throw new Error('Invalid user ID');
+    }
     
     // Supposons que nous puissions récupérer un stagiaire par son ID
     const response = await fetch(`${API_URL}/stagiaires/${userId}`, {
