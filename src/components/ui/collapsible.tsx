@@ -7,8 +7,8 @@ const Collapsible = CollapsiblePrimitive.Root
 // Define the function children type more clearly
 type CollapsibleTriggerFunctionChildren = (props: { open: boolean }) => React.ReactNode;
 
-// Define the props interface
-interface CollapsibleTriggerProps extends React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Trigger> {
+// Define a proper props interface that doesn't cause circular references
+interface CollapsibleTriggerProps extends Omit<React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Trigger>, 'children'> {
   children: React.ReactNode | CollapsibleTriggerFunctionChildren;
 }
 
