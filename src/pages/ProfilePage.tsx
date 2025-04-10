@@ -212,7 +212,7 @@ const ProfilePage: React.FC = () => {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold font-montserrat">Résultats récents</h2>
             <CollapsibleTrigger className="rounded-full p-1 hover:bg-gray-100">
-              {({ open }) => (
+              {({ open }: { open: boolean }) => (
                 open ? <ChevronDown className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />
               )}
             </CollapsibleTrigger>

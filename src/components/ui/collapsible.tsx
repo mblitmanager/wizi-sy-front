@@ -22,7 +22,9 @@ const CollapsibleTrigger = React.forwardRef<
       onClick={() => setOpen(!open)}
       {...props}
     >
-      {typeof children === 'function' ? (children as CollapsibleTriggerFunctionChildren)({ open }) : children}
+      {typeof children === 'function' 
+        ? (children as CollapsibleTriggerFunctionChildren)({ open }) 
+        : children}
     </CollapsiblePrimitive.Trigger>
   );
 });
