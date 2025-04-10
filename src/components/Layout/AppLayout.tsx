@@ -67,7 +67,7 @@ export const AppLayout: React.FC = () => {
             </SheetTrigger>
             <SheetContent side="left" className="w-[240px] sm:w-[300px]">
               <SheetHeader>
-                <SheetTitle className="text-xl font-bold mb-6 font-montserrat">LearnQuest</SheetTitle>
+                <SheetTitle className="text-xl font-bold mb-6 font-montserrat">Wizi Learn</SheetTitle>
               </SheetHeader>
               <div className="px-2 py-6">
                 <nav className="space-y-2">
@@ -94,7 +94,7 @@ export const AppLayout: React.FC = () => {
               </div>
             </SheetContent>
           </Sheet>
-          <h1 className="text-lg font-bold ml-2 font-montserrat">LearnQuest</h1>
+          <h1 className="text-lg font-bold ml-2 font-montserrat">Wizi Learn</h1>
           {isAdmin && <span className="ml-2 text-sm bg-red-500 text-white px-2 py-0.5 rounded font-nunito">Admin</span>}
         </div>
         <div className="flex items-center">

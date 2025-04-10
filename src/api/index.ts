@@ -2,7 +2,7 @@
 import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry, Question, Answer } from '../types';
 
 // Base URL of our API
-const API_URL = 'http://localhost:8000/api';
+const API_URL = 'http://laravel.test/api';
 
 // Helper function to handle API responses
 const handleResponse = async (response: Response) => {
