@@ -12,7 +12,7 @@ interface CollapsibleTriggerProps {
 
 const CollapsibleTrigger = React.forwardRef<
   React.ElementRef<typeof CollapsiblePrimitive.Trigger>,
-  CollapsibleTriggerProps & React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Trigger>
+  React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Trigger> & CollapsibleTriggerProps
 >(({ children, ...props }, ref) => {
   const [open, setOpen] = React.useState(false);
 
