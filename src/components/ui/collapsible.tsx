@@ -6,13 +6,13 @@ const Collapsible = CollapsiblePrimitive.Root
 
 type CollapsibleTriggerFunctionChildren = (props: { open: boolean }) => React.ReactNode;
 
-interface CollapsibleTriggerProps extends React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Trigger> {
+interface CollapsibleTriggerProps {
   children: React.ReactNode | CollapsibleTriggerFunctionChildren;
 }
 
 const CollapsibleTrigger = React.forwardRef<
   React.ElementRef<typeof CollapsiblePrimitive.Trigger>,
-  CollapsibleTriggerProps
+  CollapsibleTriggerProps & React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Trigger>
 >(({ children, ...props }, ref) => {
   const [open, setOpen] = React.useState(false);
 
