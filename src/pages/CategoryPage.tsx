@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Category, Quiz } from '@/types';
-import { mockAPI } from '@/api/mockAPI';
+import { quizAPI, mockAPI } from '@/api';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -19,18 +19,27 @@ const CategoryPage: React.FC = () => {
       try {
         if (!id) return;
         
-        // Récupération des informations de la catégorie
+        // Get category information
+        const categories = await quizAPI.getCategories();
+        const foundCategory = categories.find(cat => cat.id === id) || null;
+        setCategory(foundCategory);
+        
+        // Get quizzes for this category
+        if (foundCategory) {
+          const categoryQuizzes = await quizAPI.getQuizzesByCategory(id);
+          setQuizzes(categoryQuizzes);
+        }
+      } catch (error) {
+        console.error('Failed to fetch category data:', error);
+        // Fallback to mock data
         const categories = mockAPI.getCategories();
         const foundCategory = categories.find(cat => cat.id === id) || null;
         setCategory(foundCategory);
         
-        // Récupération des quiz pour cette catégorie
-        if (foundCategory) {
+        if (foundCategory && id) {
           const categoryQuizzes = mockAPI.getQuizzesByCategory(id);
           setQuizzes(categoryQuizzes);
         }
-      } catch (error) {
-        console.error('Échec de récupération des données de catégorie:', error);
       } finally {
         setIsLoading(false);
       }
@@ -115,7 +124,7 @@ const CategoryPage: React.FC = () => {
         Retour
       </Link>
       
-      <div className={`h-2 w-24 mb-4 rounded-full ${category.colorClass.replace('category-', 'bg-')}`}></div>
+      <div className={`h-2 w-24 mb-4 rounded-full ${category.colorClass ? category.colorClass.replace('category-', 'bg-') : 'bg-blue-500'}`}></div>
       
       <h1 className="text-3xl font-bold mb-2 font-montserrat">{category.name}</h1>
       <p className="text-gray-600 mb-8 font-roboto">{category.description}</p>

@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QuizResult } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Award, Clock, Star, BarChart2, Home, Redo } from 'lucide-react';
+import { Award, Clock, BarChart2, Home, Redo } from 'lucide-react';
 
 interface QuizResultProps {
   result: QuizResult;

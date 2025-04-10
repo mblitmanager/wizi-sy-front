@@ -1,15 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams, Navigate } from 'react-router-dom';
+import { useParams, Navigate, Link } from 'react-router-dom';
 import { quizAPI } from '@/api';
 import { mockAPI } from '@/api/mockAPI';
-import { Quiz, Question, QuizResult } from '@/types';
+import { Quiz, Question, QuizResult, Answer } from '@/types';
 import { useAuth } from '@/context/AuthContext';
 import QuizQuestion from '@/components/Quiz/QuizQuestion';
 import QuizResultComponent from '@/components/Quiz/QuizResult';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 
 const QuizPage: React.FC = () => {
@@ -26,7 +25,7 @@ const QuizPage: React.FC = () => {
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Charger le quiz
+  // Load the quiz
   useEffect(() => {
     const fetchQuiz = async () => {
       setIsLoading(true);
@@ -34,16 +33,19 @@ const QuizPage: React.FC = () => {
         if (!id) return;
         
         let foundQuiz: Quiz;
+        let quizQuestions: Question[];
+        
         try {
-          // Essayer d'abord d'utiliser l'API
+          // First try using the API
           foundQuiz = await quizAPI.getQuizById(id);
-          const quizQuestions = await quizAPI.getQuizQuestions(id);
+          quizQuestions = await quizAPI.getQuizQuestions(id);
           setQuestions(quizQuestions);
         } catch (error) {
-          console.error('Échec de récupération du quiz via API:', error);
-          // Utiliser les données factices en cas d'échec
-          const allQuizzes = mockAPI.getAllQuizzes();
+          console.error('Failed to fetch quiz via API:', error);
+          // Use mock data as fallback
+          const allQuizzes = mockAPI.getQuizzesByCategory("");
           foundQuiz = allQuizzes.find(q => q.id === id) as Quiz;
+          
           if (foundQuiz) {
             setQuestions(foundQuiz.questions);
           }
@@ -60,7 +62,7 @@ const QuizPage: React.FC = () => {
           });
         }
       } catch (error) {
-        console.error('Échec de récupération du quiz:', error);
+        console.error('Failed to fetch quiz:', error);
         toast({
           title: "Erreur",
           description: "Impossible de charger ce quiz",
@@ -74,24 +76,24 @@ const QuizPage: React.FC = () => {
     fetchQuiz();
   }, [id, toast]);
 
-  // Gérer les réponses aux questions
+  // Handle question answers
   const handleAnswer = (answerId: string, isCorrect: boolean) => {
     if (!quiz || questions.length === 0) return;
     
     const question = questions[currentQuestionIndex];
     
-    // Mettre à jour les réponses de l'utilisateur
+    // Update user answers
     setUserAnswers(prev => ({
       ...prev,
       [question.id]: answerId
     }));
     
-    // Mettre à jour les réponses correctes
+    // Update correct answers
     if (isCorrect) {
       setCorrectAnswers(prev => [...prev, question.id]);
     }
     
-    // Passer à la question suivante ou finir le quiz
+    // Move to next question or finish the quiz
     setTimeout(() => {
       if (currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex(prevIndex => prevIndex + 1);
@@ -101,17 +103,17 @@ const QuizPage: React.FC = () => {
     }, 1000);
   };
 
-  // Finaliser le quiz
+  // Finalize the quiz
   const finishQuiz = () => {
     if (!quiz || !user || !startTime || questions.length === 0) return;
     
     const endTime = new Date();
     const timeSpentSeconds = Math.floor((endTime.getTime() - startTime.getTime()) / 1000);
     
-    // Calculer le score
+    // Calculate score
     const score = Math.round((correctAnswers.length / questions.length) * 100);
     
-    // Créer le résultat du quiz
+    // Create quiz result
     const quizResult: QuizResult = {
       id: `result_${Date.now()}`,
       quizId: quiz.id,
@@ -126,7 +128,7 @@ const QuizPage: React.FC = () => {
     setResult(quizResult);
     setIsFinished(true);
     
-    // Envoyer le résultat à l'API si disponible
+    // Send result to API if available
     try {
       quizAPI.submitQuizResult(quizResult)
         .then(() => {
@@ -136,7 +138,7 @@ const QuizPage: React.FC = () => {
           });
         })
         .catch(error => {
-          console.error('Échec de soumission du résultat:', error);
+          console.error('Failed to submit result:', error);
           toast({
             title: "Avertissement",
             description: "Impossible d'enregistrer votre résultat en ligne",
@@ -144,11 +146,11 @@ const QuizPage: React.FC = () => {
           });
         });
     } catch (error) {
-      console.error('Erreur lors de la soumission du résultat:', error);
+      console.error('Error submitting result:', error);
     }
   };
 
-  // Redémarrer le quiz
+  // Restart the quiz
   const handleRetryQuiz = () => {
     setCurrentQuestionIndex(0);
     setUserAnswers({});
@@ -170,7 +172,7 @@ const QuizPage: React.FC = () => {
     return <Navigate to="/quiz" />;
   }
 
-  // Afficher le résultat du quiz si terminé
+  // Show quiz result if finished
   if (isFinished && result) {
     return <QuizResultComponent result={result} onRetry={handleRetryQuiz} />;
   }
@@ -193,7 +195,7 @@ const QuizPage: React.FC = () => {
   return (
     <div className="max-w-3xl mx-auto pb-20 md:pb-0 md:pl-64">
       <div className="mb-6">
-        <Link to={`/category/${quiz.categoryId}`} className="inline-flex items-center text-gray-500 hover:text-gray-700 mb-4 font-nunito">
+        <Link to="/quiz" className="inline-flex items-center text-gray-500 hover:text-gray-700 mb-4 font-nunito">
           <ChevronLeft className="h-4 w-4 mr-1" />
           Retour
         </Link>

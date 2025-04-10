@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { mockAPI } from '@/api/mockAPI';
+import { quizAPI, mockAPI } from '@/api';
 import { Quiz, Category } from '@/types';
 import { Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -20,14 +20,30 @@ const QuizCatalogPage: React.FC = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Dans une vraie application, nous utiliserions des appels API
+        // Get categories from API
+        const categoriesData = await quizAPI.getCategories();
+        setCategories(categoriesData);
+        
+        // Collect all quizzes from each category
+        const allQuizzes: Quiz[] = [];
+        for (const category of categoriesData) {
+          const categoryQuizzes = await quizAPI.getQuizzesByCategory(category.id);
+          allQuizzes.push(...categoryQuizzes);
+        }
+        setQuizzes(allQuizzes);
+      } catch (error) {
+        console.error('Failed to fetch quizzes:', error);
+        // Fallback to mock data
         const categoriesData = mockAPI.getCategories();
         setCategories(categoriesData);
         
-        const allQuizzes = mockAPI.getAllQuizzes();
+        // Collect mock quizzes
+        const allQuizzes: Quiz[] = [];
+        for (const category of categoriesData) {
+          const categoryQuizzes = mockAPI.getQuizzesByCategory(category.id);
+          allQuizzes.push(...categoryQuizzes);
+        }
         setQuizzes(allQuizzes);
-      } catch (error) {
-        console.error('Échec de récupération des quizz:', error);
       } finally {
         setIsLoading(false);
       }
@@ -36,21 +52,21 @@ const QuizCatalogPage: React.FC = () => {
     fetchData();
   }, []);
 
-  // Filtrer les quiz en fonction des critères de recherche
+  // Filter quizzes based on search criteria
   const filteredQuizzes = quizzes.filter(quiz => {
     const matchesSearch = quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                         quiz.description.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesCategory = selectedCategory ? quiz.categoryId === selectedCategory : true;
+    const matchesCategory = selectedCategory ? quiz.category === selectedCategory : true;
     
     const matchesLevel = selectedLevel ? quiz.level === selectedLevel : true;
     
     return matchesSearch && matchesCategory && matchesLevel;
   });
 
-  // Obtenir la couleur de la catégorie
-  const getCategoryColor = (categoryId: string) => {
-    const category = categories.find(cat => cat.id === categoryId);
+  // Get category color
+  const getCategoryColor = (categoryName: string) => {
+    const category = categories.find(cat => cat.name === categoryName);
     return category ? category.color : '#3D9BE9';
   };
 
@@ -66,7 +82,7 @@ const QuizCatalogPage: React.FC = () => {
     <div className="pb-20 md:pb-0 md:pl-64">
       <h1 className="text-2xl font-bold mb-6 font-montserrat">Catalogue de Quiz</h1>
       
-      {/* Barre de recherche */}
+      {/* Search bar */}
       <div className="relative mb-6">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
         <Input
@@ -78,14 +94,14 @@ const QuizCatalogPage: React.FC = () => {
         />
       </div>
       
-      {/* Filtres */}
+      {/* Filters */}
       <div className="flex flex-wrap gap-2 mb-6">
         <div className="flex items-center mr-2">
           <Filter className="h-4 w-4 mr-1 text-gray-500" />
           <span className="text-sm text-gray-600 font-roboto">Filtres:</span>
         </div>
         
-        {/* Filtre par catégorie */}
+        {/* Category filter */}
         <Badge
           variant={selectedCategory === null ? "default" : "outline"}
           className="cursor-pointer font-nunito"
@@ -97,10 +113,10 @@ const QuizCatalogPage: React.FC = () => {
         {categories.map(category => (
           <Badge
             key={category.id}
-            variant={selectedCategory === category.id ? "default" : "outline"}
+            variant={selectedCategory === category.name ? "default" : "outline"}
             className="cursor-pointer font-nunito"
-            style={{ backgroundColor: selectedCategory === category.id ? category.color : undefined }}
-            onClick={() => setSelectedCategory(category.id)}
+            style={{ backgroundColor: selectedCategory === category.name ? category.color : undefined }}
+            onClick={() => setSelectedCategory(category.name)}
           >
             {category.name}
           </Badge>
@@ -108,7 +124,7 @@ const QuizCatalogPage: React.FC = () => {
         
         <Separator className="my-3" />
         
-        {/* Filtre par niveau */}
+        {/* Level filter */}
         <Badge
           variant={selectedLevel === null ? "default" : "outline"}
           className="cursor-pointer font-nunito"
@@ -150,14 +166,14 @@ const QuizCatalogPage: React.FC = () => {
         </Badge>
       </div>
       
-      {/* Liste des quiz */}
+      {/* Quiz list */}
       {filteredQuizzes.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredQuizzes.map(quiz => (
             <QuizCard
               key={quiz.id}
               quiz={quiz}
-              categoryColor={getCategoryColor(quiz.categoryId)}
+              categoryColor={getCategoryColor(quiz.category)}
             />
           ))}
         </div>
