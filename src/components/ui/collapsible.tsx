@@ -16,9 +16,23 @@ const CollapsibleTrigger = React.forwardRef<
   React.ElementRef<typeof CollapsiblePrimitive.Trigger>,
   CollapsibleTriggerProps
 >(({ children, ...props }, ref) => {
-  // Get the open state from the parent collapsible using useContext
-  const contextValue = React.useContext(CollapsiblePrimitive.CollapsibleContext);
-  const open = contextValue?.open || false;
+  // Get the open state from the parent collapsible
+  const [open, setOpen] = React.useState(false);
+  
+  // Use effect to update local state when the collapsible state changes
+  React.useEffect(() => {
+    const element = ref?.current?.closest('[data-state]');
+    if (element) {
+      const observer = new MutationObserver(() => {
+        setOpen(element.getAttribute('data-state') === 'open');
+      });
+      
+      observer.observe(element, { attributes: true });
+      setOpen(element.getAttribute('data-state') === 'open');
+      
+      return () => observer.disconnect();
+    }
+  }, [ref]);
 
   return (
     <CollapsiblePrimitive.Trigger
