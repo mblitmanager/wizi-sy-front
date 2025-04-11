@@ -4,11 +4,11 @@ import * as CollapsiblePrimitive from "@radix-ui/react-collapsible"
 
 const Collapsible = CollapsiblePrimitive.Root
 
-// Define the function children type more clearly
+// Define a type for the function children
 type CollapsibleTriggerFunctionChildren = (props: { open: boolean }) => React.ReactNode;
 
-// Define a proper props interface that doesn't cause circular references
-interface CollapsibleTriggerProps extends Omit<React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Trigger>, 'children'> {
+// Define props interface with proper typing
+interface CollapsibleTriggerProps extends React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Trigger> {
   children: React.ReactNode | CollapsibleTriggerFunctionChildren;
 }
 
@@ -16,12 +16,12 @@ const CollapsibleTrigger = React.forwardRef<
   React.ElementRef<typeof CollapsiblePrimitive.Trigger>,
   CollapsibleTriggerProps
 >(({ children, ...props }, ref) => {
-  const [open, setOpen] = React.useState(false);
+  // Use context from Collapsible to get the open state
+  const open = React.useContext(CollapsiblePrimitive.CollapsibleContext).open;
 
   return (
     <CollapsiblePrimitive.Trigger
       ref={ref}
-      onClick={() => setOpen(!open)}
       {...props}
     >
       {typeof children === 'function' 

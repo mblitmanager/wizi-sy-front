@@ -20,6 +20,14 @@ import ProfilePage from "@/pages/ProfilePage";
 import LoginPage from "@/pages/auth/LoginPage";
 import RegisterPage from "@/pages/auth/RegisterPage";
 import NotFound from "@/pages/NotFound";
+import ErrorPage from "@/pages/ErrorPage";
+
+// Admin Pages
+import AdminPage from "@/pages/AdminPage";
+import UsersPage from "@/pages/admin/UsersPage";
+import CoursesPage from "@/pages/admin/CoursesPage";
+import QuizzesPage from "@/pages/admin/QuizzesPage";
+import StatsPage from "@/pages/admin/StatsPage";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +46,13 @@ const App = () => (
               <Route path="quiz" element={<QuizCatalogPage />} />
               <Route path="leaderboard" element={<LeaderboardPage />} />
               <Route path="profile" element={<ProfilePage />} />
+              
+              {/* Admin Routes */}
+              <Route path="admin" element={<AdminPage />} />
+              <Route path="admin/users" element={<UsersPage />} />
+              <Route path="admin/courses" element={<CoursesPage />} />
+              <Route path="admin/quizzes" element={<QuizzesPage />} />
+              <Route path="admin/stats" element={<StatsPage />} />
             </Route>
             <Route path="/auth" element={<AuthLayout />}>
               <Route path="login" element={<LoginPage />} />
