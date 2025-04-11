@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { Navigate } from 'react-router-dom';
 import { Category, UserProgress } from '@/types';
 import { mockAPI } from '@/api/mockAPI';
 import CategoryCard from '@/components/Home/CategoryCard';
@@ -9,10 +10,15 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 
 const HomePage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [userProgress, setUserProgress] = useState<UserProgress | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // If user is admin, redirect to admin dashboard
+  if (isAdmin) {
+    return <Navigate to="/admin" />;
+  }
 
   // Récupération des catégories et de la progression de l'utilisateur
   useEffect(() => {

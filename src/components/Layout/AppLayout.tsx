@@ -21,6 +21,23 @@ export const AppLayout: React.FC = () => {
       navigate('/auth/login');
     }
   }, [isAuthenticated, location.pathname, navigate]);
+  
+  // Rediriger les administrateurs vers le tableau de bord admin et les stagiaires vers l'accueil
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Si c'est la page racine, rediriger en fonction du rôle
+      if (location.pathname === '/') {
+        if (isAdmin) {
+          navigate('/admin');
+        }
+        // Les stagiaires restent sur la page d'accueil (/)
+      }
+      // Si c'est une page admin et l'utilisateur n'est pas admin, rediriger vers l'accueil
+      else if (location.pathname.includes('/admin') && !isAdmin) {
+        navigate('/');
+      }
+    }
+  }, [isAuthenticated, isAdmin, location.pathname, navigate]);
 
   // Vérifier et rafraîchir la session régulièrement
   useEffect(() => {
@@ -47,8 +64,8 @@ export const AppLayout: React.FC = () => {
   ];
 
   const adminNavItems = [
-    { name: 'Accueil', path: '/', icon: <Home className="h-5 w-5" /> },
-    { name: 'Administration', path: '/admin', icon: <Settings className="h-5 w-5" /> },
+    { name: 'Tableau de bord', path: '/admin', icon: <Home className="h-5 w-5" /> },
+    { name: 'Administration', path: '/admin/users', icon: <Settings className="h-5 w-5" /> },
     { name: 'Profil', path: '/profile', icon: <User className="h-5 w-5" /> },
   ];
 

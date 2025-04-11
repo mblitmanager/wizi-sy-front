@@ -9,15 +9,16 @@ type CollapsibleTriggerFunctionChildren = (props: { open: boolean }) => React.Re
 
 // Fixed props interface with proper typing
 interface CollapsibleTriggerProps extends React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Trigger> {
-  children: React.ReactNode;
+  children: React.ReactNode | CollapsibleTriggerFunctionChildren;
 }
 
 const CollapsibleTrigger = React.forwardRef<
   React.ElementRef<typeof CollapsiblePrimitive.Trigger>,
   CollapsibleTriggerProps
 >(({ children, ...props }, ref) => {
-  // Get the open state from context properly
-  const open = React.useContext(CollapsiblePrimitive.Root.contextValue || {} as any)?.open || false;
+  // Get the open state from the parent collapsible using useContext
+  const contextValue = React.useContext(CollapsiblePrimitive.CollapsibleContext);
+  const open = contextValue?.open || false;
 
   return (
     <CollapsiblePrimitive.Trigger

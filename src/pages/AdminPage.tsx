@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { Navigate, Link } from 'react-router-dom';
+import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserPlus, Users, BookOpen, BarChart2 } from 'lucide-react';
@@ -9,8 +9,16 @@ import { Button } from '@/components/ui/button';
 
 const AdminPage: React.FC = () => {
   const { isAdmin } = useAuth();
+  const navigate = useNavigate();
+  
+  // Verify admin status and redirect if needed
+  useEffect(() => {
+    if (!isAdmin) {
+      navigate('/');
+    }
+  }, [isAdmin, navigate]);
 
-  // Redirect non-admin users
+  // Redirect non-admin users immediately
   if (!isAdmin) {
     return <Navigate to="/" />;
   }
