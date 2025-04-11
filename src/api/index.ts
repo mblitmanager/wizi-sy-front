@@ -1,5 +1,6 @@
 
 import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry, Question, Answer } from '../types';
+import { decodeToken } from '@/utils/tokenUtils';
 
 // Base URL of our API
 const API_URL = 'http://laravel.test/api';
@@ -24,10 +25,25 @@ export const authAPI = {
       body: JSON.stringify({ email, password }),
     });
     const data = await handleResponse(response);
-    // Assurer que la réponse contient un token et un ID
-    if (!data.token) {
+    
+    // If token exists, decode it to extract user information
+    if (data.token) {
+      const decodedToken = decodeToken(data.token);
+      
+      // If token contains user ID, ensure it's set in the return data
+      if (decodedToken && decodedToken.id && !data.id) {
+        data.id = decodedToken.id;
+      }
+      
+      // If token contains role information, ensure it's set in the return data
+      if (decodedToken && decodedToken.role && !data.role) {
+        data.role = decodedToken.role;
+      }
+    } else {
+      // Fallback for testing/development
       data.token = data.token || 'default-token';
     }
+    
     return data;
   },
 
@@ -40,10 +56,25 @@ export const authAPI = {
       body: JSON.stringify({ username, email, password }),
     });
     const data = await handleResponse(response);
-    // Assurer que la réponse contient un token et un ID
-    if (!data.token) {
-      data.token = data.token || 'default-token';
+    
+    // If token exists, decode it to extract user information
+    if (data.token) {
+      const decodedToken = decodeToken(data.token);
+      
+      // If token contains user ID, ensure it's set in the return data
+      if (decodedToken && decodedToken.id && !data.id) {
+        data.id = decodedToken.id;
+      }
+      
+      // If token contains role information, ensure it's set in the return data
+      if (decodedToken && decodedToken.role && !data.role) {
+        data.role = decodedToken.role;
+      }
+    } else {
+      // Fallback for testing/development
+      data.token = data.token || 'default-token'; 
     }
+    
     return data;
   },
 
@@ -51,20 +82,21 @@ export const authAPI = {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('Not authenticated');
     
-    // Nous pourrions utiliser un endpoint dédié pour récupérer l'utilisateur courant
-    // Mais comme ce n'est pas explicitement disponible dans les routes fournies,
-    // nous devons adapter ce code à votre API spécifique
-    const userId = localStorage.getItem('userId');
-    if (!userId) throw new Error('User ID not found');
+    // Try to get userId from token first
+    let userId = localStorage.getItem('userId');
     
-    // Validation du userId avant de faire la requête
-    if (userId === 'undefined' || userId === 'null') {
-      localStorage.removeItem('token');
-      localStorage.removeItem('userId');
-      throw new Error('Invalid user ID');
+    // If userId is not available, try to extract it from the token
+    if (!userId || userId === 'undefined' || userId === 'null') {
+      const decodedToken = decodeToken(token);
+      if (decodedToken && decodedToken.id) {
+        userId = decodedToken.id;
+        localStorage.setItem('userId', userId);
+      } else {
+        throw new Error('User ID not found in token or storage');
+      }
     }
     
-    // Supposons que nous puissions récupérer un stagiaire par son ID
+    // Make API request with the token and userId
     const response = await fetch(`${API_URL}/stagiaires/${userId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -72,7 +104,16 @@ export const authAPI = {
     });
     
     const data = await handleResponse(response);
-    // Ajouter le token à l'objet utilisateur pour qu'il soit disponible dans l'application
+    
+    // If response doesn't include role but token does, add it
+    if (!data.role) {
+      const decodedToken = decodeToken(token);
+      if (decodedToken && decodedToken.role) {
+        data.role = decodedToken.role;
+      }
+    }
+    
+    // Add token to user object
     data.token = token;
     return data;
   },

@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import { User } from '../types';
 import { authAPI } from '../api';
 import { toast } from '@/hooks/use-toast';
+import { decodeToken, isTokenExpired, getUserRoleFromToken } from '@/utils/tokenUtils';
 
 interface AuthContextType {
   user: User | null;
@@ -25,7 +26,6 @@ const AuthContext = createContext<AuthContextType>({
   refreshSession: async () => false,
 });
 
-// Session expiration time in milliseconds (2 hours)
 const SESSION_EXPIRATION = 2 * 60 * 60 * 1000;
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -33,17 +33,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const [sessionTimer, setSessionTimer] = useState<NodeJS.Timeout | null>(null);
 
-  // Function to refresh the session
   const refreshSession = async (): Promise<boolean> => {
     const token = localStorage.getItem('token');
     if (!token) return false;
     
+    if (isTokenExpired(token)) {
+      handleSessionExpiration();
+      return false;
+    }
+    
     try {
-      // Tenter de récupérer l'utilisateur courant via l'API
+      const decodedToken = decodeToken(token);
+      if (!decodedToken || !decodedToken.id) {
+        handleSessionExpiration();
+        return false;
+      }
+      
+      localStorage.setItem('userId', decodedToken.id);
+      
       const userData = await authAPI.getCurrentUser();
+      
+      if (decodedToken.role && !userData.role) {
+        userData.role = decodedToken.role;
+      }
+      
+      userData.token = token;
+      
       setUser(userData);
       
-      // Update session timestamp
       localStorage.setItem('sessionTimestamp', Date.now().toString());
       startSessionTimer();
       
@@ -55,14 +72,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Function to start the session timer
   const startSessionTimer = () => {
-    // Clear any existing timer
     if (sessionTimer) {
       clearTimeout(sessionTimer);
     }
     
-    // Set new timer for session expiration
     const timer = setTimeout(() => {
       handleSessionExpiration();
     }, SESSION_EXPIRATION);
@@ -70,9 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSessionTimer(timer);
   };
 
-  // Function to handle session expiration
   const handleSessionExpiration = () => {
-    // Clear user data and token
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
     localStorage.removeItem('sessionTimestamp');
@@ -85,41 +97,58 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
-  // Check for session validity on initial load
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('token');
       const timestamp = localStorage.getItem('sessionTimestamp');
       
-      if (token) {
-        // Check if session is expired
-        if (timestamp && Date.now() - parseInt(timestamp) > SESSION_EXPIRATION) {
-          handleSessionExpiration();
-          setIsLoading(false);
-          return;
-        }
-
-        try {
-          // Tenter de récupérer l'utilisateur via l'API
-          const userData = await authAPI.getCurrentUser();
-          setUser(userData);
-          
-          // Update session timestamp
-          localStorage.setItem('sessionTimestamp', Date.now().toString());
-          startSessionTimer();
-        } catch (error) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('userId');
-          localStorage.removeItem('sessionTimestamp');
-          console.error('Authentication error:', error);
-        }
+      if (!token) {
+        setIsLoading(false);
+        return;
       }
+      
+      if (isTokenExpired(token)) {
+        handleSessionExpiration();
+        setIsLoading(false);
+        return;
+      }
+      
+      if (timestamp && Date.now() - parseInt(timestamp) > SESSION_EXPIRATION) {
+        handleSessionExpiration();
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const decodedToken = decodeToken(token);
+        if (!decodedToken || !decodedToken.id) {
+          throw new Error('Invalid token format');
+        }
+        
+        localStorage.setItem('userId', decodedToken.id);
+        
+        const userData = await authAPI.getCurrentUser();
+        
+        if (decodedToken.role && !userData.role) {
+          userData.role = decodedToken.role;
+        }
+        
+        userData.token = token;
+        
+        setUser(userData);
+        
+        localStorage.setItem('sessionTimestamp', Date.now().toString());
+        startSessionTimer();
+      } catch (error) {
+        console.error('Authentication error:', error);
+        handleSessionExpiration();
+      }
+      
       setIsLoading(false);
     };
 
     checkAuth();
 
-    // Cleanup function to clear timer
     return () => {
       if (sessionTimer) {
         clearTimeout(sessionTimer);
@@ -127,26 +156,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  // Set up event listeners for user activity
   useEffect(() => {
     if (user) {
       const handleUserActivity = () => {
-        // Only refresh if we have a current session
-        const token = localStorage.getItem('token');
-        if (token) {
+        if (localStorage.getItem('token')) {
           localStorage.setItem('sessionTimestamp', Date.now().toString());
           startSessionTimer();
         }
       };
 
-      // Add event listeners to track user activity
       window.addEventListener('click', handleUserActivity);
       window.addEventListener('keypress', handleUserActivity);
       window.addEventListener('scroll', handleUserActivity);
       window.addEventListener('mousemove', handleUserActivity);
 
       return () => {
-        // Clean up event listeners
         window.removeEventListener('click', handleUserActivity);
         window.removeEventListener('keypress', handleUserActivity);
         window.removeEventListener('scroll', handleUserActivity);
@@ -158,13 +182,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Utiliser l'API réelle pour la connexion
       const response = await authAPI.login(email, password);
       
-      // Store user data in localStorage
-      localStorage.setItem('token', response.token || 'default-token');
-      localStorage.setItem('userId', response.id);
+      if (!response.token) {
+        throw new Error('No token received from server');
+      }
+      
+      const decodedToken = decodeToken(response.token);
+      
+      if (!decodedToken) {
+        throw new Error('Invalid token format');
+      }
+      
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('userId', decodedToken.id || response.id);
       localStorage.setItem('sessionTimestamp', Date.now().toString());
+      
+      if (decodedToken.role && !response.role) {
+        response.role = decodedToken.role;
+      }
       
       setUser(response);
       startSessionTimer();
@@ -188,10 +224,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (username: string, email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Utiliser l'API réelle pour l'inscription
       const response = await authAPI.register(username, email, password);
       
-      // Store user data in localStorage
       localStorage.setItem('token', response.token || 'default-token');
       localStorage.setItem('userId', response.id);
       localStorage.setItem('sessionTimestamp', Date.now().toString());
