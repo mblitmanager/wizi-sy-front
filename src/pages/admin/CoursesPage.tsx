@@ -54,7 +54,7 @@ const CoursesPage: React.FC = () => {
                   <TableCell className="font-roboto">{course.quizCount}</TableCell>
                   <TableCell className="font-roboto max-w-xs truncate">{course.description}</TableCell>
                   <TableCell>
-                    <Badge variant={course.status === 'published' ? 'success' : 'secondary'} className="font-nunito">
+                    <Badge variant={course.status === 'published' ? 'default' : 'secondary'} className="font-nunito">
                       {course.status === 'published' ? 'Publié' : 'Brouillon'}
                     </Badge>
                   </TableCell>

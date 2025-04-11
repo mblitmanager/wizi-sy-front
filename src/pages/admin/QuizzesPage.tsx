@@ -69,7 +69,7 @@ const QuizzesPage: React.FC = () => {
                   <TableCell className="font-roboto">{quiz.questions}</TableCell>
                   <TableCell>{getDifficultyBadge(quiz.difficulty)}</TableCell>
                   <TableCell>
-                    <Badge variant={quiz.status === 'published' ? 'success' : 'secondary'} className="font-nunito">
+                    <Badge variant={quiz.status === 'published' ? 'default' : 'secondary'} className="font-nunito">
                       {quiz.status === 'published' ? 'Publié' : 'Brouillon'}
                     </Badge>
                   </TableCell>
