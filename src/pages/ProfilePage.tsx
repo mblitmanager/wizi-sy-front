@@ -30,11 +30,23 @@ const ProfilePage: React.FC = () => {
         const progress = await progressAPI.getUserProgress(user.id);
         setUserProgress(progress);
         
-        // Fetch categories from API
-        const categoriesResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://laravel.test/api'}/formations`);
+        // Fetch categories from API - using the correct endpoint
+        const categoriesResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://laravel.test/api'}/formation/categories`);
         if (categoriesResponse.ok) {
-          const categoriesData = await categoriesResponse.json();
-          setCategories(categoriesData);
+          const categoryNames = await categoriesResponse.json();
+          
+          // Create category objects from the names
+          const categoryObjects: Category[] = categoryNames.map((name: string, index: number) => ({
+            id: `${index + 1}`,
+            name: name,
+            description: `Toutes les formations ${name}`,
+            icon: 'file-text',
+            color: '#3D9BE9',
+            colorClass: `category-${name.toLowerCase()}`,
+            quizCount: 0
+          }));
+          
+          setCategories(categoryObjects);
         }
         
         // Fetch recent quiz results
@@ -59,12 +71,11 @@ const ProfilePage: React.FC = () => {
         
         // Fallback to empty data
         setUserProgress({
-          completedQuizzes: 0,
+          userId: user.id,
+          categoryProgress: {},
           badges: [],
           streak: 0,
-          totalPointsEarned: 0,
-          rank: 0,
-          categoryProgress: []
+          lastActive: new Date().toISOString()
         });
         setRecentResults([]);
       } finally {

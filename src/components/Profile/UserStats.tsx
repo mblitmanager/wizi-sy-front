@@ -10,6 +10,12 @@ interface UserStatsProps {
 }
 
 const UserStats: React.FC<UserStatsProps> = ({ user, userProgress }) => {
+  const totalPoints = user?.points || (userProgress ? Object.values(userProgress.categoryProgress)
+    .reduce((sum, cat) => sum + (cat?.points || 0), 0) : 0);
+  
+  const badgesCount = userProgress?.badges?.length || 0;
+  const streak = userProgress?.streak || 0;
+
   return (
     <section className="mb-6">
       <h2 className="text-xl font-semibold mb-4 font-montserrat">Mes statistiques</h2>
@@ -17,7 +23,7 @@ const UserStats: React.FC<UserStatsProps> = ({ user, userProgress }) => {
         <Card>
           <CardContent className="p-4 flex flex-col items-center justify-center">
             <Trophy className="h-6 w-6 text-yellow-500 mb-2" />
-            <div className="text-xl font-bold font-nunito">{user?.points || userProgress?.totalPointsEarned || 0}</div>
+            <div className="text-xl font-bold font-nunito">{totalPoints}</div>
             <div className="text-xs text-gray-500 font-roboto">Points</div>
           </CardContent>
         </Card>
@@ -31,14 +37,14 @@ const UserStats: React.FC<UserStatsProps> = ({ user, userProgress }) => {
         <Card>
           <CardContent className="p-4 flex flex-col items-center justify-center">
             <Flame className="h-6 w-6 text-red-500 mb-2" />
-            <div className="text-xl font-bold font-nunito">{userProgress?.streak || 0}</div>
+            <div className="text-xl font-bold font-nunito">{streak}</div>
             <div className="text-xs text-gray-500 font-roboto">Jours consécutifs</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 flex flex-col items-center justify-center">
             <Star className="h-6 w-6 text-purple-500 mb-2" />
-            <div className="text-xl font-bold font-nunito">{userProgress?.badges?.length || 0}</div>
+            <div className="text-xl font-bold font-nunito">{badgesCount}</div>
             <div className="text-xs text-gray-500 font-roboto">Badges</div>
           </CardContent>
         </Card>
