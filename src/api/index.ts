@@ -133,7 +133,7 @@ export const quizAPI = {
       headers['Authorization'] = `Bearer ${token}`;
     }
   
-    const response = await fetch(`${API_URL}/formations`, { headers });
+    const response = await fetch(`${API_URL}/formation/categories`, { headers });
     return handleResponse(response);
   },
   
