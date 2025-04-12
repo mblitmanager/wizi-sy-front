@@ -9,6 +9,7 @@ import UserStats from '@/components/Profile/UserStats';
 import RecentResults from '@/components/Profile/RecentResults';
 import NotificationSettings from '@/components/Profile/NotificationSettings';
 import { Card, CardContent } from '@/components/ui/card';
+import { progressAPI } from '@/api';
 
 const ProfilePage: React.FC = () => {
   const { user } = useAuth();
@@ -16,6 +17,9 @@ const ProfilePage: React.FC = () => {
   // Get user's recent quiz results and progress
   const recentResults = mockAPI.getRecentQuizResults(user?.id || '');
   const userProgress = mockAPI.getUserProgress(user?.id || '');
+  
+  // Get categories for the progress display
+  const categories = mockAPI.getCategories();
   
   return (
     <div className="max-w-4xl mx-auto">
@@ -31,12 +35,12 @@ const ProfilePage: React.FC = () => {
             </CardContent>
           </Card>
           
-          <CategoryProgress progress={userProgress} />
+          <CategoryProgress categories={categories} userProgress={userProgress} />
         </div>
         
         <div className="lg:col-span-1 space-y-6">
           <BadgesDisplay badges={userProgress.badges} />
-          <UserStats userId={user?.id || ''} />
+          <UserStats user={user} userProgress={userProgress} />
         </div>
       </div>
     </div>

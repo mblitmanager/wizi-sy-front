@@ -1,4 +1,4 @@
-import { Category, Quiz, LeaderboardEntry } from '../types';
+import { Category, Quiz, LeaderboardEntry, QuizResult, UserProgress } from '../types';
 
 // Mock de l'API pour le développement
 export const mockAPI = {
@@ -318,6 +318,68 @@ export const mockAPI = {
     { userId: '9', username: 'MichelPetit', points: 420, level: 2, rank: 9 },
     { userId: '10', username: 'ClaireRousseau', points: 380, level: 2, rank: 10 },
   ],
+
+  getRecentQuizResults: (userId: string): QuizResult[] => [
+    {
+      id: 'result1',
+      quizId: '1',
+      userId,
+      score: 80,
+      correctAnswers: 4,
+      totalQuestions: 5,
+      completedAt: new Date(Date.now() - 86400000).toISOString(), // Yesterday
+      timeSpent: 300,
+    },
+    {
+      id: 'result2',
+      quizId: '2',
+      userId,
+      score: 60,
+      correctAnswers: 3,
+      totalQuestions: 5,
+      completedAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+      timeSpent: 250,
+    },
+    {
+      id: 'result3',
+      quizId: '4',
+      userId,
+      score: 100,
+      correctAnswers: 5,
+      totalQuestions: 5,
+      completedAt: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
+      timeSpent: 180,
+    },
+  ],
+
+  getUserProgress: (userId: string): UserProgress => ({
+    userId,
+    categoryProgress: {
+      '1': { // Bureautique
+        completedQuizzes: 2,
+        totalQuizzes: 3,
+        points: 20
+      },
+      '2': { // Langues
+        completedQuizzes: 1,
+        totalQuizzes: 2,
+        points: 10
+      },
+      '3': { // Internet
+        completedQuizzes: 0,
+        totalQuizzes: 2,
+        points: 0
+      },
+      '4': { // Création
+        completedQuizzes: 1,
+        totalQuizzes: 2,
+        points: 15
+      }
+    },
+    badges: ['beginner', 'quick_learner'],
+    streak: 3,
+    lastActive: new Date().toISOString()
+  }),
 
   loginUser: (email: string, password: string) => {
     if (email === 'admin@example.com' && password === 'admin123') {
