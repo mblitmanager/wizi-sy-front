@@ -1,9 +1,8 @@
-
 import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry, Question, Answer } from '../types';
 import { decodeToken } from '@/utils/tokenUtils';
 
 // Base URL of our API
-const API_URL = 'http://laravel.test/api';
+const API_URL = 'http://localhost:8000/api';
 
 // Helper function to handle API responses
 const handleResponse = async (response: Response) => {
@@ -48,7 +47,7 @@ export const authAPI = {
   },
 
   register: async (username: string, email: string, password: string): Promise<User> => {
-    const response = await fetch(`${API_URL}/stagiaire/ajouter`, {
+    const response = await fetch(`${API_URL}/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -82,22 +81,7 @@ export const authAPI = {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('Not authenticated');
     
-    // Try to get userId from token first
-    let userId = localStorage.getItem('userId');
-    
-    // If userId is not available, try to extract it from the token
-    if (!userId || userId === 'undefined' || userId === 'null') {
-      const decodedToken = decodeToken(token);
-      if (decodedToken && decodedToken.id) {
-        userId = decodedToken.id;
-        localStorage.setItem('userId', userId);
-      } else {
-        throw new Error('User ID not found in token or storage');
-      }
-    }
-    
-    // Make API request with the token and userId
-    const response = await fetch(`${API_URL}/stagiaires/${userId}`, {
+    const response = await fetch(`${API_URL}/user`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -118,7 +102,17 @@ export const authAPI = {
     return data;
   },
 
-  logout: () => {
+  logout: async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    
+    await fetch(`${API_URL}/logout`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
   },
@@ -137,7 +131,6 @@ export const quizAPI = {
     return handleResponse(response);
   },
   
-
   getQuizzesByCategory: async (categoryId: string): Promise<Quiz[]> => {
     const token = localStorage.getItem('token');
     const headers: HeadersInit = {};
@@ -145,7 +138,7 @@ export const quizAPI = {
       headers['Authorization'] = `Bearer ${token}`;
     }
     
-    const response = await fetch(`${API_URL}/formations/${categoryId}/quizzes`, { headers });
+    const response = await fetch(`${API_URL}/formations/categories/${categoryId}`, { headers });
     return handleResponse(response);
   },
 
@@ -197,7 +190,7 @@ export const quizAPI = {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('Not authenticated');
     
-    const response = await fetch(`${API_URL}/stats/quiz/${result.quizId}`, {
+    const response = await fetch(`${API_URL}/quizzes/${result.quizId}/submit`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -213,7 +206,7 @@ export const quizAPI = {
 export const progressAPI = {
   getUserProgress: async (userId: string): Promise<UserProgress> => {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${API_URL}/stagiaire/${userId}/formations`, {
+    const response = await fetch(`${API_URL}/stagiaire/formations`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -228,13 +221,13 @@ export const progressAPI = {
       headers['Authorization'] = `Bearer ${token}`;
     }
     
-    const response = await fetch(`${API_URL}/classement`, { headers });
+    const response = await fetch(`${API_URL}/stagiaire/ranking/global`, { headers });
     return handleResponse(response);
   },
 
   getUserStats: async (userId: string): Promise<any> => {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${API_URL}/stats/compare/${userId}`, {
+    const response = await fetch(`${API_URL}/stagiaire/progress`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

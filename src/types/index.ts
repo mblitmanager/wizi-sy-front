@@ -1,4 +1,3 @@
-
 // Types pour les utilisateurs
 export interface User {
   id: string;
@@ -35,9 +34,16 @@ export interface Media {
 
 export interface Question {
   id: string;
+  quiz_id: string;
   text: string;
-  answers: Answer[];
-  media?: Media;
+  type: 'true_false' | 'multiple_choice' | 'fill_blank' | 'matching' | 'ordering' | 'word_bank' | 'flashcard' | 'audio';
+  media_url?: string;
+  explication?: string;
+  points: number;
+  astuce?: string;
+  options?: string[];
+  correct_answer: any;
+  time_limit?: number;
 }
 
 // Types pour les quiz
