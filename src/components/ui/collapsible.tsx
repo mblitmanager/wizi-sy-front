@@ -2,50 +2,23 @@
 import * as React from "react"
 import * as CollapsiblePrimitive from "@radix-ui/react-collapsible"
 
+import { cn } from "@/lib/utils"
+
 const Collapsible = CollapsiblePrimitive.Root
-
-// Define a simple type for the function children
-type CollapsibleTriggerFunctionChildren = (props: { open: boolean }) => React.ReactNode;
-
-// Fixed props interface with proper typing
-interface CollapsibleTriggerProps extends React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Trigger> {
-  children: React.ReactNode | CollapsibleTriggerFunctionChildren;
-}
 
 const CollapsibleTrigger = React.forwardRef<
   React.ElementRef<typeof CollapsiblePrimitive.Trigger>,
-  CollapsibleTriggerProps
->(({ children, ...props }, ref) => {
-  // Get the open state from the parent collapsible
-  const [open, setOpen] = React.useState(false);
-  
-  // Use effect to update local state when the collapsible state changes
-  React.useEffect(() => {
-    const element = ref?.current?.closest('[data-state]');
-    if (element) {
-      const observer = new MutationObserver(() => {
-        setOpen(element.getAttribute('data-state') === 'open');
-      });
-      
-      observer.observe(element, { attributes: true });
-      setOpen(element.getAttribute('data-state') === 'open');
-      
-      return () => observer.disconnect();
-    }
-  }, [ref]);
-
-  return (
-    <CollapsiblePrimitive.Trigger
-      ref={ref}
-      {...props}
-    >
-      {typeof children === 'function' 
-        ? (children as CollapsibleTriggerFunctionChildren)({ open }) 
-        : children}
-    </CollapsiblePrimitive.Trigger>
-  );
-});
-CollapsibleTrigger.displayName = CollapsiblePrimitive.Trigger.displayName;
+  React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Trigger>
+>(({ className, children, ...props }, ref) => (
+  <CollapsiblePrimitive.Trigger
+    ref={ref}
+    className={cn("flex items-center justify-between w-full", className)}
+    {...props}
+  >
+    {children}
+  </CollapsiblePrimitive.Trigger>
+))
+CollapsibleTrigger.displayName = CollapsiblePrimitive.Trigger.displayName
 
 const CollapsibleContent = React.forwardRef<
   React.ElementRef<typeof CollapsiblePrimitive.Content>,
@@ -53,10 +26,13 @@ const CollapsibleContent = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <CollapsiblePrimitive.Content
     ref={ref}
-    className={`data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden ${className}`}
+    className={cn(
+      "data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden transition-all",
+      className
+    )}
     {...props}
   >
-    {children}
+    <div className="p-0">{children}</div>
   </CollapsiblePrimitive.Content>
 ))
 CollapsibleContent.displayName = CollapsiblePrimitive.Content.displayName

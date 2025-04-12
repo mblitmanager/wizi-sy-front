@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Trophy, Award, Flame, Star } from 'lucide-react';
 
 interface UserStatsProps {
-  user: User;
+  user: User | null;
   userProgress?: UserProgress | null;
 }
 
@@ -17,7 +17,7 @@ const UserStats: React.FC<UserStatsProps> = ({ user, userProgress }) => {
         <Card>
           <CardContent className="p-4 flex flex-col items-center justify-center">
             <Trophy className="h-6 w-6 text-yellow-500 mb-2" />
-            <div className="text-xl font-bold font-nunito">{user?.points || 0}</div>
+            <div className="text-xl font-bold font-nunito">{user?.points || userProgress?.totalPointsEarned || 0}</div>
             <div className="text-xs text-gray-500 font-roboto">Points</div>
           </CardContent>
         </Card>
