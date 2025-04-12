@@ -127,9 +127,16 @@ export const authAPI = {
 // Quiz API
 export const quizAPI = {
   getCategories: async (): Promise<Category[]> => {
-    const response = await fetch(`${API_URL}/formations`);
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  
+    const response = await fetch(`${API_URL}/formations`, { headers });
     return handleResponse(response);
   },
+  
 
   getQuizzesByCategory: async (categoryId: string): Promise<Quiz[]> => {
     const token = localStorage.getItem('token');
