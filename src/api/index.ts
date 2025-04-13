@@ -2,7 +2,7 @@ import axios from 'axios';
 import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry, Question, Answer } from '../types';
 import { decodeToken } from '@/utils/tokenUtils';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -26,6 +26,7 @@ api.interceptors.response.use(
   async (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
+      delete api.defaults.headers.common['Authorization'];
       window.location.href = '/auth/login';
     }
     return Promise.reject(error);
@@ -35,11 +36,11 @@ api.interceptors.response.use(
 // Authentication API
 export const authAPI = {
   login: async (email: string, password: string): Promise<User> => {
-    const response = await api.post<{ token: string; user: User }>('/login', { email, password });
+    const response = await api.post<{ token: string; user: User }>('/auth/login', { email, password });
     const { token, user } = response.data;
     
-    if (!token) {
-      throw new Error('Token non reçu');
+    if (!token || !user) {
+      throw new Error('Token ou utilisateur non reçu');
     }
 
     localStorage.setItem('token', token);
@@ -56,8 +57,8 @@ export const authAPI = {
     });
     const { token, user } = response.data;
     
-    if (!token) {
-      throw new Error('Token non reçu');
+    if (!token || !user) {
+      throw new Error('Token ou utilisateur non reçu');
     }
 
     localStorage.setItem('token', token);
@@ -73,7 +74,7 @@ export const authAPI = {
   },
 
   refreshToken: async (): Promise<string> => {
-    const response = await api.post<{ token: string }>('/refresh');
+    const response = await api.post<{ token: string }>('/refresh-token');
     const { token } = response.data;
     
     if (!token) {
@@ -87,8 +88,11 @@ export const authAPI = {
   },
 
   getCurrentUser: async (): Promise<User> => {
-    const response = await api.get<User>('/me');
-    return response.data;
+    const response = await api.get<{ user: User; stagiaire?: any }>('/me');
+    if (!response.data.user) {
+      throw new Error('Utilisateur non trouvé');
+    }
+    return response.data.user;
   },
 };
 

@@ -44,8 +44,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           const userData = await authAPI.getCurrentUser();
-          setUser(userData);
-          setIsAuthenticated(true);
+          if (userData) {
+            setUser(userData);
+            setIsAuthenticated(true);
+          } else {
+            await logout();
+          }
         }
       } catch (error) {
         console.error('Error checking auth:', error);

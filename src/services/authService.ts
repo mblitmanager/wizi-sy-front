@@ -15,7 +15,7 @@ export interface LoginResponse {
 
 export const authService = {
   async login(email: string, password: string): Promise<LoginResponse> {
-    const response = await api.post<LoginResponse>('/auth/login', {
+    const response = await api.post<LoginResponse>('/api/auth/login', {
       email,
       password
     });
@@ -27,7 +27,7 @@ export const authService = {
   },
 
   async getCurrentUser(): Promise<User> {
-    const response = await api.get<User>('/api/user');
+    const response = await api.get<User>('/api/me');
     return response.data;
   },
 
