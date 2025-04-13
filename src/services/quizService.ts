@@ -159,5 +159,10 @@ export const quizService = {
   async getFormationsByCategory(category: string): Promise<Formation[]> {
     const response = await api.get<Formation[]>(`/formations/categories/${category}`);
     return response.data;
+  },
+
+  async getFormationsByStagiaire(stagiaireId: string): Promise<{ data: Formation[] }> {
+    const response = await api.get<{ data: Formation[] }>(`/stagiaire/${stagiaireId}/formations`);
+    return response.data;
   }
 }; 

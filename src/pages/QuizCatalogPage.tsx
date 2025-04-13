@@ -8,9 +8,11 @@ import QuizCard from '@/components/Quiz/QuizCard';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Formation } from '@/types';
+import { useAuth } from '@/context/AuthContext';
 
 const QuizCatalogPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [quizzes, setQuizzes] = useState<QuizData[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -23,27 +25,33 @@ const QuizCatalogPage: React.FC = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const categories = await quizService.getQuizCategories();
-        setCategories(categories.filter(Boolean)); // Filtrer les catégories vides
-
-        // Récupérer les formations pour chaque catégorie
-        const formationsByCategory: Record<string, Formation[]> = {};
-        for (const category of categories) {
-          if (category) {
-            const formations = await quizService.getFormationsByCategory(category);
-            formationsByCategory[category] = formations;
-          }
+        if (!user?.id) {
+          throw new Error('Utilisateur non connecté');
         }
+
+        // Récupérer les formations du stagiaire
+        const formationsResponse = await quizService.getFormationsByStagiaire(user.id);
+        const formations = formationsResponse.data;
+
+        // Extraire les catégories uniques des formations du stagiaire
+        const uniqueCategories = [...new Set(formations.map(f => f.categorie))].filter(Boolean);
+        setCategories(uniqueCategories);
+
+        // Organiser les formations par catégorie
+        const formationsByCategory: Record<string, Formation[]> = {};
+        uniqueCategories.forEach(category => {
+          formationsByCategory[category] = formations.filter(f => f.categorie === category);
+        });
         setFormationsByCategory(formationsByCategory);
       } catch (error) {
-        console.error('Failed to fetch quizzes:', error);
+        console.error('Failed to fetch formations:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [user?.id]);
 
   // Filter quizzes based on search criteria
   const filteredQuizzes = quizzes.filter(quiz => {
