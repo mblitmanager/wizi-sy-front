@@ -7,6 +7,20 @@ export interface User {
   level: number;
   role: 'admin' | 'stagiaire' | 'formateur' | 'commercial' | 'pole_relation_client';
   token?: string;
+  stagiaire?: {
+    id: string;
+    prenom: string;
+    civilite: string;
+    telephone: string;
+    adresse: string;
+    date_naissance: string;
+    ville: string;
+    code_postal: string;
+    statut: boolean;
+    formation_id?: string;
+    formateur_id?: string;
+    commercial_id?: string;
+  };
 }
 
 // Types pour les catégories
@@ -107,4 +121,5 @@ export interface Formation {
   updated_at: string;
   formateurs: any[];
   stagiaires: any[];
+  quizzes: Quiz[];
 }
