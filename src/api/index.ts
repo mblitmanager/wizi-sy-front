@@ -2,7 +2,7 @@ import axios from 'axios';
 import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry, Question, Answer } from '../types';
 import { decodeToken } from '@/utils/tokenUtils';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost/wizi-learn/back/public/api';
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -32,69 +32,6 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
-// Authentication API
-export const authAPI = {
-  login: async (email: string, password: string): Promise<User> => {
-    const response = await api.post<{ token: string; user: User }>('/auth/login', { email, password });
-    const { token, user } = response.data;
-    
-    if (!token || !user) {
-      throw new Error('Token ou utilisateur non reçu');
-    }
-
-    localStorage.setItem('token', token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    
-    return user;
-  },
-
-  register: async (username: string, email: string, password: string): Promise<User> => {
-    const response = await api.post<{ token: string; user: User }>('/register', {
-      username,
-      email,
-      password,
-    });
-    const { token, user } = response.data;
-    
-    if (!token || !user) {
-      throw new Error('Token ou utilisateur non reçu');
-    }
-
-    localStorage.setItem('token', token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    
-    return user;
-  },
-
-  logout: async (): Promise<void> => {
-    await api.post('/logout');
-    localStorage.removeItem('token');
-    delete api.defaults.headers.common['Authorization'];
-  },
-
-  refreshToken: async (): Promise<string> => {
-    const response = await api.post<{ token: string }>('/refresh-token');
-    const { token } = response.data;
-    
-    if (!token) {
-      throw new Error('Token non reçu');
-    }
-
-    localStorage.setItem('token', token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    
-    return token;
-  },
-
-  getCurrentUser: async (): Promise<User> => {
-    const response = await api.get<{ user: User; stagiaire?: any }>('/me');
-    if (!response.data.user) {
-      throw new Error('Utilisateur non trouvé');
-    }
-    return response.data.user;
-  },
-};
 
 // Quiz API
 export const quizAPI = {

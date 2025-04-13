@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { api, authAPI } from '@/api';
+import { api } from '@/api';
+import { authService } from '@/services/authService';
 import { User } from '@/types';
 import { toast } from '@/hooks/use-toast';
 import { decodeToken, isTokenExpired } from '@/utils/tokenUtils';
@@ -43,7 +44,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
 
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          const userData = await authAPI.getCurrentUser();
+          const userData = await authService.getCurrentUser();
           if (userData) {
             setUser(userData);
             setIsAuthenticated(true);
@@ -91,7 +92,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
-      const userData = await authAPI.login(email, password);
+      const { user: userData, token } = await authService.login(email, password);
       setUser(userData);
       setIsAuthenticated(true);
       toast({
@@ -105,7 +106,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshToken = async () => {
     try {
-      await authAPI.refreshToken();
+      await authService.refreshToken();
     } catch (error) {
       console.error('Error refreshing token:', error);
       await logout();
@@ -115,7 +116,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const refreshSession = async () => {
     try {
       await refreshToken();
-      const userData = await authAPI.getCurrentUser();
+      const userData = await authService.getCurrentUser();
       setUser(userData);
     } catch (error) {
       console.error('Error refreshing session:', error);
@@ -125,7 +126,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      await authAPI.logout();
+      await authService.logout();
     } catch (error) {
       console.error('Error during logout:', error);
     } finally {
