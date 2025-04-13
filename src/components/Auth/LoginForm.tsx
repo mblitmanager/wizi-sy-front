@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -11,16 +13,35 @@ const LoginForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const validateForm = () => {
+    if (!email || !password) {
+      setError('Veuillez remplir tous les champs');
+      return false;
+    }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setError('Veuillez entrer une adresse email valide');
+      return false;
+    }
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       await login(email, password);
+      navigate('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue lors de la connexion');
     } finally {
       setIsLoading(false);
     }
@@ -28,6 +49,13 @@ const LoginForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
@@ -38,6 +66,8 @@ const LoginForm: React.FC = () => {
           onChange={(e) => setEmail(e.target.value)}
           required
           className="font-roboto"
+          autoComplete="email"
+          disabled={isLoading}
         />
       </div>
 
@@ -57,10 +87,9 @@ const LoginForm: React.FC = () => {
           required
           className="font-roboto"
           autoComplete="current-password"
+          disabled={isLoading}
         />
       </div>
-
-      {error && <div className="text-red-500 text-sm font-roboto">{error}</div>}
 
       <Button type="submit" className="w-full font-nunito" disabled={isLoading}>
         {isLoading ? (
@@ -81,7 +110,7 @@ const LoginForm: React.FC = () => {
       </div>
 
       {/* Demo login for testing */}
-      <div className="border-t border-gray-200 pt-4 mt-4">
+      <div className="mt-4">
         <Button
           variant="outline"
           className="w-full font-nunito"
@@ -90,6 +119,7 @@ const LoginForm: React.FC = () => {
             setPassword('password');
           }}
           type="button"
+          disabled={isLoading}
         >
           Remplir avec un compte démo
         </Button>
