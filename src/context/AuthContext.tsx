@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { api, authAPI } from '@/api';
 import { User } from '@/types';
 import { toast } from '@/hooks/use-toast';
+import { decodeToken, isTokenExpired } from '@/utils/tokenUtils';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -12,6 +13,7 @@ interface AuthContextType {
   refreshToken: () => Promise<void>;
   isAdmin: boolean;
   refreshSession: () => Promise<void>;
+  getRedirectPath: () => string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,6 +37,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const token = localStorage.getItem('token');
         if (token) {
+          if (isTokenExpired(token)) {
+            await logout();
+            return;
+          }
+
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           const userData = await authAPI.getCurrentUser();
           setUser(userData);
@@ -50,6 +57,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     checkAuth();
   }, []);
+
+  const getRedirectPath = (): string | null => {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+
+    const decodedToken = decodeToken(token);
+    if (!decodedToken) return null;
+
+    const currentPath = window.location.pathname;
+
+    // Si l'utilisateur est sur une page d'authentification, rediriger selon le rôle
+    if (currentPath.startsWith('/auth')) {
+      return decodedToken.role === 'admin' ? '/admin' : '/';
+    }
+
+    // Vérifier les accès aux pages admin
+    if (currentPath.startsWith('/admin') && decodedToken.role !== 'admin') {
+      return '/';
+    }
+
+    // Vérifier les accès aux pages stagiaire
+    if (currentPath.startsWith('/stagiaire') && decodedToken.role !== 'stagiaire') {
+      return '/';
+    }
+
+    return null;
+  };
 
   const login = async (email: string, password: string) => {
     try {
@@ -113,7 +147,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       logout, 
       refreshToken,
       isAdmin,
-      refreshSession
+      refreshSession,
+      getRedirectPath
     }}>
       {children}
     </AuthContext.Provider>

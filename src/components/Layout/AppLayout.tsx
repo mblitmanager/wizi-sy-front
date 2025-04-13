@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Home, BookOpen, BarChart2, User, Menu, Settings } from 'lucide-react';
@@ -9,35 +8,24 @@ import { Link } from 'react-router-dom';
 import { SessionTimeoutIndicator } from '@/components/Auth/SessionTimeoutIndicator';
 
 export const AppLayout: React.FC = () => {
-  const { isAuthenticated, user, logout, isAdmin, refreshSession } = useAuth();
+  const { isAuthenticated, user, logout, isAdmin, refreshSession, getRedirectPath } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
   const isActive = (path: string) => location.pathname === path;
 
-  // Si l'utilisateur n'est pas authentifié et pas sur les pages auth, rediriger vers login
+  // Vérifier l'authentification et les rôles
   useEffect(() => {
     if (!isAuthenticated && !location.pathname.includes('/auth')) {
       navigate('/auth/login');
+      return;
     }
-  }, [isAuthenticated, location.pathname, navigate]);
-  
-  // Rediriger les administrateurs vers le tableau de bord admin et les stagiaires vers l'accueil
-  useEffect(() => {
-    if (isAuthenticated) {
-      // Si c'est la page racine, rediriger en fonction du rôle
-      if (location.pathname === '/') {
-        if (isAdmin) {
-          navigate('/admin');
-        }
-        // Les stagiaires restent sur la page d'accueil (/)
-      }
-      // Si c'est une page admin et l'utilisateur n'est pas admin, rediriger vers l'accueil
-      else if (location.pathname.includes('/admin') && !isAdmin) {
-        navigate('/');
-      }
+
+    const redirectPath = getRedirectPath();
+    if (redirectPath) {
+      navigate(redirectPath);
     }
-  }, [isAuthenticated, isAdmin, location.pathname, navigate]);
+  }, [isAuthenticated, location.pathname, navigate, getRedirectPath]);
 
   // Vérifier et rafraîchir la session régulièrement
   useEffect(() => {

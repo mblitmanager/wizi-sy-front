@@ -1,13 +1,12 @@
-
 /**
  * Simple utilities for token handling and decoding
  */
 
-interface DecodedToken {
+export interface DecodedToken {
   id: string;
   role: 'admin' | 'stagiaire' | 'formateur' | 'commercial' | 'pole_relation_client';
   exp?: number;
-  [key: string]: any;
+  iat?: number;
 }
 
 /**
@@ -28,10 +27,15 @@ export const decodeToken = (token: string): DecodedToken | null => {
     const payload = parts[1];
     const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
     
+    // Normalize role values
+    const role = decoded.role?.toLowerCase();
+    const normalizedRole = role === 'administrateur' ? 'admin' : role;
+    
     return {
       id: decoded.id || decoded.user_id || decoded.sub,
-      role: decoded.role || 'stagiaire', // Default to stagiaire if role not found
-      ...decoded
+      role: normalizedRole || 'stagiaire', // Default to stagiaire if role not found
+      exp: decoded.exp,
+      iat: decoded.iat
     };
   } catch (error) {
     console.error('Error decoding token:', error);
@@ -41,29 +45,24 @@ export const decodeToken = (token: string): DecodedToken | null => {
 
 /**
  * Checks if a token is expired
- * @param token The decoded token or JWT string
- * @returns true if token is expired, false otherwise
+ * @param token The JWT token to check
+ * @returns boolean indicating if the token is expired
  */
-export const isTokenExpired = (token: string | DecodedToken): boolean => {
-  try {
-    const decoded = typeof token === 'string' ? decodeToken(token) : token;
-    if (!decoded || !decoded.exp) return true;
-    
-    // Check if token is expired (exp is in seconds, Date.now() is in milliseconds)
-    return decoded.exp * 1000 < Date.now();
-  } catch (error) {
-    console.error('Error checking token expiration:', error);
-    return true;
-  }
+export const isTokenExpired = (token: string): boolean => {
+  const decoded = decodeToken(token);
+  if (!decoded || !decoded.exp) return true;
+  
+  const now = Math.floor(Date.now() / 1000);
+  return decoded.exp < now;
 };
 
 /**
- * Gets user role from token
- * @param token JWT token string
- * @returns The user role or null if token is invalid
+ * Gets the user role from the token
+ * @param token The JWT token
+ * @returns The user role or null if invalid
  */
 export const getUserRoleFromToken = (token: string): string | null => {
   const decoded = decodeToken(token);
-  return decoded ? decoded.role : null;
+  return decoded?.role || null;
 };
 
