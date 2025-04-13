@@ -1,49 +1,42 @@
-
 import React, { useState, useEffect } from 'react';
-import { quizAPI, mockAPI } from '@/api';
-import { Quiz, Category } from '@/types';
+import { useNavigate } from 'react-router-dom';
+import { quizService } from '@/services/quizService';
+import { QuizData } from '@/services/quizService';
 import { Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import QuizCard from '@/components/Quiz/QuizCard';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Formation } from '@/types';
 
 const QuizCatalogPage: React.FC = () => {
-  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const navigate = useNavigate();
+  const [quizzes, setQuizzes] = useState<QuizData[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [formationsByCategory, setFormationsByCategory] = useState<Record<string, Formation[]>>({});
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Get categories from API
-        const categoriesData = await quizAPI.getCategories();
-        setCategories(categoriesData);
-        
-        // Collect all quizzes from each category
-        const allQuizzes: Quiz[] = [];
-        for (const category of categoriesData) {
-          const categoryQuizzes = await quizAPI.getQuizzesByCategory(category.id);
-          allQuizzes.push(...categoryQuizzes);
+        const categories = await quizService.getQuizCategories();
+        setCategories(categories.filter(Boolean)); // Filtrer les catégories vides
+
+        // Récupérer les formations pour chaque catégorie
+        const formationsByCategory: Record<string, Formation[]> = {};
+        for (const category of categories) {
+          if (category) {
+            const formations = await quizService.getFormationsByCategory(category);
+            formationsByCategory[category] = formations;
+          }
         }
-        setQuizzes(allQuizzes);
+        setFormationsByCategory(formationsByCategory);
       } catch (error) {
         console.error('Failed to fetch quizzes:', error);
-        // Fallback to mock data
-        const categoriesData = mockAPI.getCategories();
-        setCategories(categoriesData);
-        
-        // Collect mock quizzes
-        const allQuizzes: Quiz[] = [];
-        for (const category of categoriesData) {
-          const categoryQuizzes = mockAPI.getQuizzesByCategory(category.id);
-          allQuizzes.push(...categoryQuizzes);
-        }
-        setQuizzes(allQuizzes);
       } finally {
         setIsLoading(false);
       }
@@ -66,8 +59,15 @@ const QuizCatalogPage: React.FC = () => {
 
   // Get category color
   const getCategoryColor = (categoryName: string) => {
-    const category = categories.find(cat => cat.name === categoryName);
-    return category ? category.color : '#3D9BE9';
+    // Default colors for categories
+    const categoryColors: Record<string, string> = {
+      'Général': '#3D9BE9',
+      'Technique': '#FF6B6B',
+      'Commercial': '#4ECDC4',
+      'Relation Client': '#FFD166',
+      'Management': '#9B59B6'
+    };
+    return categoryColors[categoryName] || '#3D9BE9';
   };
 
   if (isLoading) {
@@ -103,6 +103,7 @@ const QuizCatalogPage: React.FC = () => {
         
         {/* Category filter */}
         <Badge
+          key="all-categories"
           variant={selectedCategory === null ? "default" : "outline"}
           className="cursor-pointer font-nunito"
           onClick={() => setSelectedCategory(null)}
@@ -110,15 +111,15 @@ const QuizCatalogPage: React.FC = () => {
           Toutes les catégories
         </Badge>
         
-        {categories.map(category => (
+        {categories.map((category, index) => (
           <Badge
-            key={category.id}
-            variant={selectedCategory === category.name ? "default" : "outline"}
+            key={`category-${category}-${index}`}
+            variant={selectedCategory === category ? "default" : "outline"}
             className="cursor-pointer font-nunito"
-            style={{ backgroundColor: selectedCategory === category.name ? category.color : undefined }}
-            onClick={() => setSelectedCategory(category.name)}
+            style={{ backgroundColor: selectedCategory === category ? getCategoryColor(category) : undefined }}
+            onClick={() => setSelectedCategory(category)}
           >
-            {category.name}
+            {category}
           </Badge>
         ))}
         
@@ -126,6 +127,7 @@ const QuizCatalogPage: React.FC = () => {
         
         {/* Level filter */}
         <Badge
+          key="all-levels"
           variant={selectedLevel === null ? "default" : "outline"}
           className="cursor-pointer font-nunito"
           onClick={() => setSelectedLevel(null)}
@@ -134,6 +136,7 @@ const QuizCatalogPage: React.FC = () => {
         </Badge>
         
         <Badge
+          key="beginner"
           variant={selectedLevel === 'débutant' ? "default" : "outline"}
           className={`cursor-pointer font-nunito ${selectedLevel === 'débutant' ? 'bg-green-500' : ''}`}
           onClick={() => setSelectedLevel('débutant')}
@@ -142,6 +145,7 @@ const QuizCatalogPage: React.FC = () => {
         </Badge>
         
         <Badge
+          key="intermediate"
           variant={selectedLevel === 'intermédiaire' ? "default" : "outline"}
           className={`cursor-pointer font-nunito ${selectedLevel === 'intermédiaire' ? 'bg-blue-500' : ''}`}
           onClick={() => setSelectedLevel('intermédiaire')}
@@ -150,6 +154,7 @@ const QuizCatalogPage: React.FC = () => {
         </Badge>
         
         <Badge
+          key="advanced"
           variant={selectedLevel === 'avancé' ? "default" : "outline"}
           className={`cursor-pointer font-nunito ${selectedLevel === 'avancé' ? 'bg-purple-500' : ''}`}
           onClick={() => setSelectedLevel('avancé')}
@@ -158,6 +163,7 @@ const QuizCatalogPage: React.FC = () => {
         </Badge>
         
         <Badge
+          key="super"
           variant={selectedLevel === 'super' ? "default" : "outline"}
           className={`cursor-pointer font-nunito ${selectedLevel === 'super' ? 'bg-red-500' : ''}`}
           onClick={() => setSelectedLevel('super')}
@@ -171,7 +177,7 @@ const QuizCatalogPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredQuizzes.map(quiz => (
             <QuizCard
-              key={quiz.id}
+              key={`quiz-${quiz.id}`}
               quiz={quiz}
               categoryColor={getCategoryColor(quiz.category)}
             />
