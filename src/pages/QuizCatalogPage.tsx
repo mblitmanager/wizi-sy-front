@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { quizService } from '@/services/quizService';
-import { QuizData } from '@/services/quizService';
+import { Quiz, Question, Formation } from '@/types';
 import { Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import QuizCard from '@/components/Quiz/QuizCard';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Formation } from '@/types';
 import { useAuth } from '@/context/AuthContext';
 
 const QuizCatalogPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [quizzes, setQuizzes] = useState<QuizData[]>([]);
+  const { user, isAuthenticated } = useAuth();
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -22,16 +21,18 @@ const QuizCatalogPage: React.FC = () => {
   const [formationsByCategory, setFormationsByCategory] = useState<Record<string, Formation[]>>({});
 
   useEffect(() => {
+    if (!isAuthenticated || !user) {
+      navigate('/login');
+      return;
+    }
+
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        if (!user?.id) {
-          throw new Error('Utilisateur non connecté');
-        }
-
         // Récupérer les formations du stagiaire
         const formationsResponse = await quizService.getFormationsByStagiaire(user.id);
         const formations = formationsResponse.data;
+        console.log('Formations:', formations);
 
         // Extraire les catégories uniques des formations du stagiaire
         const uniqueCategories = [...new Set(formations.map(f => f.categorie))].filter(Boolean);
@@ -43,6 +44,38 @@ const QuizCatalogPage: React.FC = () => {
           formationsByCategory[category] = formations.filter(f => f.categorie === category);
         });
         setFormationsByCategory(formationsByCategory);
+
+        // Convertir les formations en quizzes avec les bons types
+        const quizzesData = formations.flatMap(formation => 
+          formation.quizzes.map(quiz => {
+            console.log('Quiz:', quiz);
+            const questions: Question[] = quiz.questions.map(q => ({
+              id: q.id.toString(),
+              quiz_id: quiz.id.toString(),
+              text: q.text,
+              type: q.type,
+              options: q.options,
+              correct_answer: q.correct_answer,
+              points: q.points,
+              media_url: q.media_url,
+              explication: q.explication,
+              astuce: q.astuce,
+              time_limit: q.time_limit
+            }));
+
+            return {
+              id: quiz.id.toString(),
+              title: quiz.title,
+              description: quiz.description,
+              category: formation.categorie,
+              categoryId: formation.id.toString(),
+              level: quiz.level,
+              questions,
+              points: quiz.points || 0
+            };
+          })
+        );
+        setQuizzes(quizzesData);
       } catch (error) {
         console.error('Failed to fetch formations:', error);
       } finally {
@@ -51,7 +84,7 @@ const QuizCatalogPage: React.FC = () => {
     };
 
     fetchData();
-  }, [user?.id]);
+  }, [user, isAuthenticated, navigate]);
 
   // Filter quizzes based on search criteria
   const filteredQuizzes = quizzes.filter(quiz => {
@@ -173,7 +206,7 @@ const QuizCatalogPage: React.FC = () => {
         <Badge
           key="super"
           variant={selectedLevel === 'super' ? "default" : "outline"}
-          className={`cursor-pointer font-nunito ${selectedLevel === 'super' ? 'bg-red-500' : ''}`}
+          className={`cursor-pointer font-nunito ${selectedLevel === 'super' ? 'bg-yellow-500' : ''}`}
           onClick={() => setSelectedLevel('super')}
         >
           Super Quiz
@@ -192,9 +225,9 @@ const QuizCatalogPage: React.FC = () => {
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
+        <div className="text-center py-12">
           <p className="text-gray-500 font-roboto">
-            Aucun quiz ne correspond à votre recherche.
+            Aucun quiz ne correspond à vos critères de recherche.
           </p>
         </div>
       )}

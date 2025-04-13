@@ -1,14 +1,15 @@
 export interface Question {
   id: string;
+  quiz_id: string;
   text: string;
-  type: 'multiple_choice' | 'true_false' | 'fill_blank' | 'matching' | 'ordering' | 'word_bank' | 'flashcard' | 'audio';
-  options?: string[];
-  correctAnswer: any;
+  type: 'true_false' | 'multiple_choice' | 'fill_blank' | 'matching' | 'ordering' | 'word_bank' | 'flashcard' | 'audio';
+  media_url?: string;
+  explication?: string;
   points: number;
-  mediaUrl?: string;
-  explanation?: string;
-  hint?: string;
-  timeLimit?: number;
+  astuce?: string;
+  options?: string[];
+  correct_answer: any;
+  time_limit?: number;
 }
 
 export interface Answer {
@@ -25,12 +26,14 @@ export interface Answer {
 export interface Quiz {
   id: string;
   title: string;
-  description?: string;
+  description: string;
+  category: string;
   categoryId: string;
+  level: 'débutant' | 'intermédiaire' | 'avancé' | 'super';
   questions: Question[];
+  points: number;
   timeLimit?: number;
   passingScore?: number;
-  level: 'beginner' | 'intermediate' | 'advanced' | 'super';
   trainingId?: string;
 }
 
@@ -82,4 +85,19 @@ export interface LeaderboardEntry {
   username: string;
   score: number;
   rank: number;
+}
+
+export interface Formation {
+  id: number;
+  titre: string;
+  description: string;
+  categorie: string;
+  image?: string;
+  statut: number;
+  duree: string;
+  created_at: string;
+  updated_at: string;
+  formateurs: any[];
+  stagiaires: any[];
+  quizzes: Quiz[];
 } 
