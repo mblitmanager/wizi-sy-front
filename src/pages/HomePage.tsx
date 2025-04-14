@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Category, UserProgress } from '@/types';
 import { quizAPI, progressAPI } from '@/api';
-import { CategoryCard } from '@/components/Home/CategoryCard';
-import { ProgressCard } from '@/components/Home/ProgressCard';
+import CategoryCard from '@/components/Home/CategoryCard';
+import ProgressCard from '@/components/Home/ProgressCard';
 
 const HomePage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -72,9 +71,7 @@ const HomePage: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {categories.map(category => (
-            <Link key={category.id} to={`/category/${category.id}`}>
-              <CategoryCard category={category} />
-            </Link>
+            <CategoryCard key={category.id} category={category} />
           ))}
         </div>
       )}
