@@ -1,15 +1,14 @@
 export interface Question {
   id: string;
-  quiz_id: string;
   text: string;
-  type: 'true_false' | 'multiple_choice' | 'fill_blank' | 'matching' | 'ordering' | 'word_bank' | 'flashcard' | 'audio';
-  media_url?: string;
-  explication?: string;
-  points: number;
-  astuce?: string;
+  type: 'multiple_choice' | 'true_false' | 'fill_blank' | 'matching' | 'ordering' | 'word_bank' | 'flashcard' | 'audio';
   options?: string[];
-  correct_answer: any;
-  time_limit?: number;
+  correctAnswer: any;
+  points: number;
+  mediaUrl?: string;
+  explanation?: string;
+  hint?: string;
+  timeLimit?: number;
 }
 
 export interface Answer {
@@ -27,23 +26,40 @@ export interface Quiz {
   id: string;
   title: string;
   description?: string;
-  category_id: string;
+  categoryId: string;
   questions: Question[];
-  time_limit?: number;
-  passing_score?: number;
+  timeLimit?: number;
+  passingScore?: number;
+  level: 'beginner' | 'intermediate' | 'advanced' | 'super';
+  trainingId?: string;
 }
 
 export interface QuizResult {
   id: string;
-  quiz_id: string;
-  user_id: string;
+  quizId: string;
+  userId: string;
   score: number;
-  completed_at: string;
-  answers: {
-    question_id: string;
-    answer: any;
-    is_correct: boolean;
-  }[];
+  correctAnswers: number;
+  totalQuestions: number;
+  completedAt: string;
+  timeSpent: number;
+}
+
+export interface QuizResponse {
+  data: Quiz;
+}
+
+export interface QuizSubmitResponse {
+  data: {
+    score: number;
+    correctAnswers: number;
+    totalQuestions: number;
+    results: {
+      questionId: string;
+      isCorrect: boolean;
+      correctAnswer: any;
+    }[];
+  };
 }
 
 export interface Category {
