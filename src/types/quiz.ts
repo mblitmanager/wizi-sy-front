@@ -36,8 +36,8 @@ export interface Quiz {
   titre?: string;
   description: string;
   category: string;
-  categoryId: string;
-  level: 'débutant' | 'intermédiaire' | 'avancé' | 'super';
+  categoryId?: string;
+  level?: 'débutant' | 'intermédiaire' | 'avancé' | 'super';
   niveau?: 'débutant' | 'intermédiaire' | 'avancé' | 'super';
   questions: Question[];
   points: number;
@@ -96,18 +96,21 @@ export interface QuizResult {
 }
 
 export interface UserProgress {
-  user_id: string;
-  quiz_id: string;
-  score: number;
-  completed_at: string;
-  attempts: number;
+  user_id?: string;
+  quiz_id?: string;
+  score?: number;
+  completed_at?: string;
+  attempts?: number;
+  quizzes_completed?: number;
+  total_points?: number;
+  average_score?: number;
 }
 
 export interface LeaderboardEntry {
-  user_id: string;
-  username: string;
-  score: number;
-  rank: number;
+  user_id?: string;
+  username?: string;
+  score?: number;
+  rank?: number;
   level?: number;
   avatar?: string;
   points?: number;
@@ -132,7 +135,7 @@ type MultipleChoiceAnswer = number;
 type TrueFalseAnswer = number;
 type FillBlankAnswer = { [key: string]: string };
 type MatchingAnswer = number[];
-type OrderingAnswer = number[];
+type OrderingAnswer = string[];
 type WordBankAnswer = { [key: string]: string[] };
 type FlashcardAnswer = boolean;
 type AudioQuestionAnswer = string;

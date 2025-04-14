@@ -96,7 +96,13 @@ export const quizAPI = {
     };
     
     const response = await fetch(`${API_URL}/questions/${questionId}/reponses`, { headers });
-    return handleResponse(response);
+    const data = await handleResponse<Answer[]>(response);
+    
+    // Convert is_correct from 0/1 to boolean for internal use if needed
+    return data.map(answer => ({
+      ...answer,
+      is_correct: answer.is_correct
+    }));
   },
 
   submitQuiz: async (quizId: string, answers: Record<string, string>, score: number, timeSpent: number): Promise<QuizResult> => {
@@ -135,14 +141,25 @@ export const progressAPI = {
   },
 };
 
-// New method for fetching formations by stagiaire
-export const getFormationsByStagiaire = async (stagiaireId: string): Promise<any> => {
-  const headers: HeadersInit = {
-    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-  };
+// Formation API
+export const formationAPI = {
+  getFormationsByStagiaire: async (): Promise<Formation[]> => {
+    const headers: HeadersInit = {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`,
+    };
+    
+    const response = await fetch(`${API_URL}/stagiaire/formations`, { headers });
+    return handleResponse(response);
+  },
   
-  const response = await fetch(`${API_URL}/stagiaire/${stagiaireId}/formations`, { headers });
-  return handleResponse(response);
+  getFormationById: async (formationId: string): Promise<Formation> => {
+    const headers: HeadersInit = {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`,
+    };
+    
+    const response = await fetch(`${API_URL}/formations/${formationId}`, { headers });
+    return handleResponse(response);
+  }
 };
 
 // Making the function available for component imports

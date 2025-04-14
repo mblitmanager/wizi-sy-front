@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Category, Quiz } from '@/types';
-import { quizAPI, mockAPI } from '@/api';
+import { quizAPI } from '@/api';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -21,25 +21,22 @@ const CategoryPage: React.FC = () => {
         
         // Get category information
         const categories = await quizAPI.getCategories();
-        const foundCategory = categories.find(cat => cat.id === id) || null;
-        setCategory(foundCategory);
+        const foundCategory = categories.find(cat => cat === id) || null;
+        setCategory(foundCategory ? { 
+          id: id,
+          name: id,
+          description: `Quizzes in ${id} category`,
+          color: '#4F46E5',
+          colorClass: 'category-blue-500'
+        } : null);
         
         // Get quizzes for this category
-        if (foundCategory) {
-          const categoryQuizzes = await quizAPI.getQuizzesByCategory(id);
-          setQuizzes(categoryQuizzes);
-        }
+        const categoryQuizzes = await quizAPI.getQuizzesByCategory(id);
+        setQuizzes(categoryQuizzes);
       } catch (error) {
         console.error('Failed to fetch category data:', error);
-        // Fallback to mock data
-        const categories = mockAPI.getCategories();
-        const foundCategory = categories.find(cat => cat.id === id) || null;
-        setCategory(foundCategory);
-        
-        if (foundCategory && id) {
-          const categoryQuizzes = mockAPI.getQuizzesByCategory(id);
-          setQuizzes(categoryQuizzes);
-        }
+        setCategory(null);
+        setQuizzes([]);
       } finally {
         setIsLoading(false);
       }
@@ -84,7 +81,7 @@ const CategoryPage: React.FC = () => {
   };
 
   const renderQuizzesByLevel = (level: 'débutant' | 'intermédiaire' | 'avancé' | 'super') => {
-    const filteredQuizzes = quizzes.filter(quiz => quiz.level === level);
+    const filteredQuizzes = quizzes.filter(quiz => quiz.level === level || quiz.niveau === level);
     
     if (filteredQuizzes.length === 0) return null;
     
@@ -101,12 +98,12 @@ const CategoryPage: React.FC = () => {
                 <div className="h-2" style={{ backgroundColor: category.color }}></div>
                 <div className="p-4">
                   <div className="flex justify-between items-start">
-                    <h3 className="font-semibold text-gray-800 font-montserrat">{quiz.title}</h3>
-                    {getLevelBadge(quiz.level)}
+                    <h3 className="font-semibold text-gray-800 font-montserrat">{quiz.title || quiz.titre}</h3>
+                    {getLevelBadge(quiz.level || quiz.niveau as any)}
                   </div>
                   <p className="text-sm text-gray-600 mt-2 mb-3 font-roboto">{quiz.description}</p>
                   <div className="flex items-center text-xs text-gray-500 font-nunito">
-                    <span>{quiz.questions.length} questions • {quiz.points} points</span>
+                    <span>{quiz.questions?.length || 0} questions • {quiz.points || quiz.nb_points_total || 0} points</span>
                   </div>
                 </div>
               </div>

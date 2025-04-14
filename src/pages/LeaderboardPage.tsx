@@ -1,206 +1,41 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { progressAPI } from '@/api';
 import { LeaderboardEntry } from '@/types/quiz';
-import { useAuth } from '@/context/AuthContext';
-import { Trophy, Award, Medal } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { rankingService } from '@/services/api';
-import { useToast } from '@/hooks/use-toast';
+import { RankingComponent } from '@/components/Ranking/RankingComponent';
 
 const LeaderboardPage: React.FC = () => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const { user } = useAuth();
-  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
-      setIsLoading(true);
+      setLoading(true);
       try {
-        const response = await rankingService.getRankings();
-        if (response.data && response.data.global) {
-          setLeaderboard(response.data.global.entries);
-        } else {
-          setLeaderboard([]);
-        }
+        const data = await progressAPI.getLeaderboard();
+        setLeaderboard(data);
       } catch (error) {
-        console.error('Échec de récupération du classement:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de récupérer le classement. Veuillez réessayer plus tard.",
-          variant: "destructive"
-        });
+        console.error('Failed to fetch leaderboard:', error);
+        setLeaderboard([]);
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
     fetchLeaderboard();
-  }, [toast]);
-
-  const getUserRank = (): number | null => {
-    if (!user) return null;
-    
-    const userEntry = leaderboard.find(entry => entry.user_id === user.id);
-    return userEntry ? userEntry.rank : null;
-  };
-
-  const userRank = getUserRank();
-
-  const getRankIcon = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return <Trophy className="h-5 w-5 text-yellow-500" />;
-      case 2:
-        return <Medal className="h-5 w-5 text-gray-400" />;
-      case 3:
-        return <Medal className="h-5 w-5 text-amber-600" />;
-      default:
-        return <span className="font-semibold">{rank}</span>;
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
+  }, []);
 
   return (
     <div className="pb-20 md:pb-0 md:pl-64">
-      <h1 className="text-2xl font-bold mb-6 font-montserrat">Classement</h1>
-
-      <Tabs defaultValue="points">
-        <TabsList className="mb-6 font-nunito">
-          <TabsTrigger value="points">Points</TabsTrigger>
-          <TabsTrigger value="level">Niveau</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="points" className="space-y-6">
-          {/* Carte de classement de l'utilisateur (si connecté) */}
-          {user && userRank && (
-            <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6">
-              <div className="flex items-center">
-                <div className="bg-white rounded-full w-10 h-10 flex items-center justify-center mr-4">
-                  {getRankIcon(userRank)}
-                </div>
-                <div className="flex-grow">
-                  <div className="flex items-center">
-                    <div className="flex-grow">
-                      <div className="font-semibold font-nunito">{user.username} (Vous)</div>
-                      <div className="text-sm text-gray-500 font-roboto">Niveau {user.level}</div>
-                    </div>
-                    <div className="text-xl font-bold text-blue-600 font-nunito">{user.points} pts</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Liste du classement */}
-          <div className="bg-white rounded-lg shadow">
-            <div className="flex items-center p-4 border-b border-gray-100 text-sm text-gray-500 font-roboto">
-              <div className="w-12 text-center">Rang</div>
-              <div className="flex-grow">Utilisateur</div>
-              <div className="w-24 text-right">Points</div>
-            </div>
-
-            {leaderboard.map((entry) => (
-              <div 
-                key={entry.user_id} 
-                className={`flex items-center p-4 border-b border-gray-100 ${
-                  entry.user_id === user?.id ? 'bg-blue-50' : ''
-                }`}
-              >
-                <div className="w-12 text-center">
-                  {getRankIcon(entry.rank)}
-                </div>
-                <div className="flex-grow flex items-center">
-                  <div className="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center mr-3 font-nunito">
-                    {entry.avatar ? (
-                      <img src={entry.avatar} alt={entry.username} className="rounded-full" />
-                    ) : (
-                      <span>{entry.username.charAt(0).toUpperCase()}</span>
-                    )}
-                  </div>
-                  <div>
-                    <div className="font-medium font-nunito">
-                      {entry.username} 
-                      {entry.user_id === user?.id && <span className="text-gray-500 text-sm ml-1">(Vous)</span>}
-                    </div>
-                    <div className="text-xs text-gray-500 font-roboto">Niveau {entry.level || 1}</div>
-                  </div>
-                </div>
-                <div className="w-24 text-right font-semibold font-nunito">{entry.points || entry.score} pts</div>
-              </div>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="level" className="space-y-6">
-          {/* Contenu similaire mais trié par niveau */}
-          {user && userRank && (
-            <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6">
-              <div className="flex items-center">
-                <div className="bg-white rounded-full w-10 h-10 flex items-center justify-center mr-4">
-                  {getRankIcon(userRank)}
-                </div>
-                <div className="flex-grow">
-                  <div className="flex items-center">
-                    <div className="flex-grow">
-                      <div className="font-semibold font-nunito">{user.username} (Vous)</div>
-                      <div className="text-sm text-gray-500 font-roboto">{user.points} points</div>
-                    </div>
-                    <div className="text-xl font-bold text-blue-600 font-nunito">Niveau {user.level}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="bg-white rounded-lg shadow">
-            <div className="flex items-center p-4 border-b border-gray-100 text-sm text-gray-500 font-roboto">
-              <div className="w-12 text-center">Rang</div>
-              <div className="flex-grow">Utilisateur</div>
-              <div className="w-24 text-right">Niveau</div>
-            </div>
-
-            {leaderboard
-              .sort((a, b) => (b.level || 1) - (a.level || 1) || (b.points || b.score) - (a.points || a.score))
-              .map((entry, index) => (
-                <div 
-                  key={entry.user_id} 
-                  className={`flex items-center p-4 border-b border-gray-100 ${
-                    entry.user_id === user?.id ? 'bg-blue-50' : ''
-                  }`}
-                >
-                  <div className="w-12 text-center">
-                    {getRankIcon(index + 1)}
-                  </div>
-                  <div className="flex-grow flex items-center">
-                    <div className="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center mr-3 font-nunito">
-                      {entry.avatar ? (
-                        <img src={entry.avatar} alt={entry.username} className="rounded-full" />
-                      ) : (
-                        <span>{entry.username.charAt(0).toUpperCase()}</span>
-                      )}
-                    </div>
-                    <div>
-                      <div className="font-medium font-nunito">
-                        {entry.username}
-                        {entry.user_id === user?.id && <span className="text-gray-500 text-sm ml-1">(Vous)</span>}
-                      </div>
-                      <div className="text-xs text-gray-500 font-roboto">{entry.points || entry.score} points</div>
-                    </div>
-                  </div>
-                  <div className="w-24 text-right font-semibold font-nunito">Niveau {entry.level || 1}</div>
-                </div>
-              ))}
-          </div>
-        </TabsContent>
-      </Tabs>
+      <h1 className="text-3xl font-bold mb-8 text-gray-800 font-montserrat">Classement Global</h1>
+      
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
+      ) : (
+        <RankingComponent rankings={leaderboard} />
+      )}
     </div>
   );
 };

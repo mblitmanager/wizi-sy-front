@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { Question, Answer } from '../../types';
-import BaseQuestion from './BaseQuestion';
-import { CheckCircle2, XCircle } from 'lucide-react';
-import { quizAPI } from '../../api';
+
+import React, { useState, useEffect } from 'react';
+import { Question, Answer } from '@/types/quiz';
+import { Radio } from '@/components/ui/radio';
+import { quizAPI } from '@/api';
 
 interface MultipleChoiceProps {
   question: Question;
@@ -19,127 +19,106 @@ const MultipleChoice: React.FC<MultipleChoiceProps> = ({
   isAnswerChecked,
   selectedAnswer,
   showHint,
-  timeRemaining
+  timeRemaining,
 }) => {
-  const [reponses, setReponses] = useState<Answer[]>([]);
+  const [answers, setAnswers] = useState<Answer[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchResponses = async () => {
+    const fetchAnswers = async () => {
       try {
         setLoading(true);
-        setError(null);
-        
-        // If the question already has options, create responses from options
-        if (question.options && question.options.length > 0) {
-          const formattedResponses: Answer[] = question.options.map((option, index) => ({
-            id: `${question.id}-option-${index}`,
-            question_id: question.id,
-            text: option,
-            is_correct: (question.correct_answer === index.toString() || question.correct_answer === index) ? 1 : 0
-          }));
-          setReponses(formattedResponses);
-          setLoading(false);
-          return;
-        }
-        
-        // Otherwise fetch from API
-        const responses = await quizAPI.getResponsesByQuestion(question.id);
-        console.log('Responses fetched:', responses);
-        
-        if (responses && responses.length > 0) {
-          setReponses(responses);
-        } else {
-          setError('Aucune réponse disponible pour cette question.');
-        }
-      } catch (err) {
-        console.error('Error fetching responses:', err);
-        setError('Failed to load responses. Please try again.');
+        const fetchedAnswers = await quizAPI.getReponsesByQuestion(question.id);
+        setAnswers(fetchedAnswers);
+      } catch (error) {
+        console.error('Failed to fetch answers:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchResponses();
-  }, [question]);
+    fetchAnswers();
+  }, [question.id]);
 
-  // Ajoutez cet useEffect pour afficher la réponse sélectionnée
-  useEffect(() => {
-    if (selectedAnswer !== null) {
-      const selectedReponse = reponses[selectedAnswer];
-      if (selectedReponse) {
-        console.log('Réponse sélectionnée:', {
-          id: selectedReponse.id,
-          text: selectedReponse.text,
-          isCorrect: selectedReponse.is_correct
-        });
-      }
-    }
-  }, [selectedAnswer, reponses]);
+  const handleSelect = (index: number) => {
+    if (isAnswerChecked) return;
+    onAnswer(Number(answers[index].id));
+  };
 
   if (loading) {
-    return <div className="text-center p-4">Chargement des réponses...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center text-red-500 p-4">{error}</div>;
-  }
-
-  if (!reponses || reponses.length === 0) {
-    return <div className="text-center text-red-500 p-4">Aucune réponse disponible pour cette question.</div>;
+    return <div>Chargement des réponses...</div>;
   }
 
   return (
-    <BaseQuestion
-      question={question}
-      onAnswer={onAnswer}
-      isAnswerChecked={isAnswerChecked}
-      selectedAnswer={selectedAnswer}
-      showHint={showHint}
-      timeRemaining={timeRemaining}
-    >
-      <div className="space-y-3">
-        {reponses.map((reponse, index) => (
-          <button
-            key={reponse.id}
-            onClick={() => {
-              if (!isAnswerChecked) {
-                console.log('Réponse sélectionnée:', {
-                  id: reponse.id,
-                  text: reponse.text,
-                  isCorrect: reponse.is_correct
-                });
-                onAnswer(index);
-              }
-            }}
-            disabled={isAnswerChecked}
-            className={`w-full p-4 rounded-xl border-2 transition-all duration-200 ${
-              selectedAnswer === index
-                ? isAnswerChecked
-                  ? reponse.is_correct
-                    ? 'border-green-500 bg-green-50'
-                    : 'border-red-500 bg-red-50'
-                  : 'border-blue-500 bg-blue-50'
-                : isAnswerChecked && reponse.is_correct
-                ? 'border-green-500 bg-green-50'
-                : 'border-gray-200 hover:border-blue-300'
-            }`}
+    <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200 my-4">
+      <div className="mb-4 font-medium text-gray-800 font-montserrat">
+        {question.text}
+      </div>
+      
+      {question.media && question.media.type === 'image' && (
+        <div className="mb-4">
+          <img 
+            src={question.media.url} 
+            alt="Question illustration" 
+            className="max-w-full mx-auto rounded-lg" 
+          />
+        </div>
+      )}
+      
+      <div className="space-y-2">
+        {answers.map((answer, index) => (
+          <div 
+            key={answer.id}
+            className={`p-3 rounded-md cursor-pointer transition-colors
+              ${String(selectedAnswer) === answer.id 
+                ? isAnswerChecked 
+                  ? answer.is_correct === 1 
+                    ? 'bg-green-50 border border-green-200'
+                    : 'bg-red-50 border border-red-200'
+                  : 'bg-blue-50 border border-blue-200'
+                : isAnswerChecked && answer.is_correct === 1
+                  ? 'bg-green-50 border border-green-200'
+                  : 'hover:bg-gray-50 border border-transparent hover:border-gray-200'
+              }`}
+            onClick={() => handleSelect(index)}
           >
-            <div className="flex items-center justify-between">
-              <span className="text-left">{reponse.text}</span>
-              {isAnswerChecked && (
-                reponse.is_correct ? (
-                  <CheckCircle2 className="h-6 w-6 text-green-500" />
-                ) : selectedAnswer === index ? (
-                  <XCircle className="h-6 w-6 text-red-500" />
-                ) : null
-              )}
+            <div className="flex items-start">
+              <Radio
+                checked={String(selectedAnswer) === answer.id}
+                onCheckedChange={() => handleSelect(index)}
+                disabled={isAnswerChecked}
+                className="mt-0.5"
+              />
+              <label 
+                className="ml-2 text-gray-700 cursor-pointer font-roboto" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleSelect(index);
+                }}
+              >
+                {answer.text}
+              </label>
             </div>
-          </button>
+          </div>
         ))}
       </div>
-    </BaseQuestion>
+      
+      {showHint && question.astuce && (
+        <div className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-md">
+          <p className="text-amber-800 text-sm font-nunito">
+            <strong>Indice:</strong> {question.astuce}
+          </p>
+        </div>
+      )}
+      
+      {isAnswerChecked && question.explication && (
+        <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-md">
+          <p className="text-blue-800 text-sm font-nunito">
+            <strong>Explication:</strong> {question.explication}
+          </p>
+        </div>
+      )}
+    </div>
   );
 };
 

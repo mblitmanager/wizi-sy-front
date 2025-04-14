@@ -37,12 +37,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
       try {
         setLoading(true);
         const fetchedAnswers = await quizAPI.getReponsesByQuestion(question.id);
-        // Convert IndexAnswer to QuizAnswer
-        const convertedAnswers: QuizAnswer[] = fetchedAnswers.map(answer => ({
-          ...answer,
-          question_id: question.id
-        }));
-        setAnswers(convertedAnswers);
+        setAnswers(fetchedAnswers);
       } catch (error) {
         console.error('Erreur lors de la récupération des réponses:', error);
       } finally {
@@ -60,7 +55,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
           clearInterval(timer);
           if (!selectedAnswer) {
             // Auto-select wrong answer if time runs out
-            handleSelectAnswer(answers.find(a => !a.is_correct)?.id || '');
+            handleSelectAnswer(answers.find(a => a.is_correct === 0)?.id || '');
           }
           return 0;
         }
