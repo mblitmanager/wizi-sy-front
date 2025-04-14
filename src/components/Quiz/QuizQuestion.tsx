@@ -53,7 +53,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
           clearInterval(timer);
           if (!selectedAnswer) {
             // Auto-select wrong answer if time runs out
-            handleSelectAnswer(answers.find(a => !a.isCorrect)?.id || '');
+            handleSelectAnswer(answers.find(a => !a.is_correct)?.id || '');
           }
           return 0;
         }
@@ -73,17 +73,17 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
   const handleSelectAnswer = (answerId: string) => {
     if (selectedAnswer || showFeedback) return;
     
-    const isCorrect = answers.find(a => a.id === answerId)?.isCorrect || false;
+    const isCorrect = answers.find(a => a.id === answerId)?.is_correct || false;
     setSelectedAnswer(answerId);
     setShowFeedback(true);
     
     // Delay to show feedback before moving to next question
     setTimeout(() => {
-      onAnswer(answerId, isCorrect);
+      onAnswer(answerId, isCorrect === 1);
     }, 1500);
   };
 
-  const handleQuestionAnswer = (answer: string | string[] | number | number[] | boolean | Record<string, string[]>) => {
+  const handleQuestionAnswer = (answer: string | number | boolean | string[] | number[] | Record<string, string | string[]>) => {
     // Adapter la réponse du QuestionRenderer au format attendu par QuizQuestion
     if (typeof answer === 'string') {
       handleSelectAnswer(answer);
@@ -98,7 +98,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
       handleSelectAnswer(answer.toString());
     } else if (typeof answer === 'boolean') {
       // Pour les questions vrai/faux, convertir en ID de réponse
-      const correctAnswer = answers.find(a => a.isCorrect)?.id;
+      const correctAnswer = answers.find(a => a.is_correct)?.id;
       if (correctAnswer) {
         handleSelectAnswer(correctAnswer);
       }

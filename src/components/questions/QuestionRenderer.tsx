@@ -11,8 +11,8 @@ import AudioQuestion from './AudioQuestion';
 
 // Types pour les réponses des différents types de questions
 type MultipleChoiceAnswer = number;
-type TrueFalseAnswer = boolean;
-type FillBlankAnswer = string;
+type TrueFalseAnswer = number;
+type FillBlankAnswer = { [key: string]: string };
 type MatchingAnswer = number[];
 type OrderingAnswer = number[];
 type WordBankAnswer = { [key: string]: string[] };

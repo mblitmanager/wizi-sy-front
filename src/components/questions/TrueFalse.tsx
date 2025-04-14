@@ -6,9 +6,9 @@ import { getReponsesByQuestion } from '../../api';
 
 interface TrueFalseProps {
   question: Question;
-  onAnswer: (answer: boolean) => void;
+  onAnswer: (answer: number) => void;
   isAnswerChecked: boolean;
-  selectedAnswer: boolean | null;
+  selectedAnswer: number | null;
   showHint?: boolean;
   timeRemaining?: number;
 }
@@ -40,6 +40,20 @@ const TrueFalse: React.FC<TrueFalseProps> = ({
     fetchReponses();
   }, [question.id]);
 
+  // Ajoutez cet useEffect pour afficher la réponse sélectionnée
+  useEffect(() => {
+    if (selectedAnswer !== null) {
+      const selectedReponse = reponses[selectedAnswer];
+      if (selectedReponse) {
+        console.log('Réponse sélectionnée:', {
+          id: selectedReponse.id,
+          text: selectedReponse.text,
+          isCorrect: selectedReponse.is_correct
+        });
+      }
+    }
+  }, [selectedAnswer, reponses]);
+
   if (loading) {
     return <div className="text-center">Chargement des réponses...</div>;
   }
@@ -47,8 +61,6 @@ const TrueFalse: React.FC<TrueFalseProps> = ({
   if (!reponses || reponses.length === 0) {
     return <div className="text-center text-red-500">Aucune réponse disponible pour cette question.</div>;
   }
-
-  const correctAnswer = reponses.find(r => r.is_correct)?.text === 'true';
 
   return (
     <>
@@ -62,29 +74,39 @@ const TrueFalse: React.FC<TrueFalseProps> = ({
       />
       
       <div className="space-y-3">
-        {['true', 'false'].map((value) => (
+        {reponses.map((reponse, index) => (
           <button
-            key={value}
-            onClick={() => !isAnswerChecked && onAnswer(value === 'true')}
+            key={reponse.id}
+            onClick={() => {
+              if (!isAnswerChecked) {
+                onAnswer(index);
+                // Alternative: afficher directement ici au moment du clic
+                console.log('Réponse cliquée:', {
+                  id: reponse.id,
+                  text: reponse.text,
+                  isCorrect: reponse.is_correct
+                });
+              }
+            }}
             disabled={isAnswerChecked}
             className={`w-full p-4 rounded-xl border-2 transition-all duration-200 ${
-              selectedAnswer === (value === 'true')
+              selectedAnswer === index
                 ? isAnswerChecked
-                  ? selectedAnswer === correctAnswer
+                  ? reponse.is_correct
                     ? 'border-green-500 bg-green-50'
                     : 'border-red-500 bg-red-50'
                   : 'border-blue-500 bg-blue-50'
-                : isAnswerChecked && value === (correctAnswer ? 'true' : 'false')
+                : isAnswerChecked && reponse.is_correct
                 ? 'border-green-500 bg-green-50'
                 : 'border-gray-200 hover:border-blue-300'
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-left">{value === 'true' ? 'Vrai' : 'Faux'}</span>
+              <span className="text-left">{reponse.text}</span>
               {isAnswerChecked && (
-                value === (correctAnswer ? 'true' : 'false') ? (
+                reponse.is_correct ? (
                   <CheckCircle2 className="h-6 w-6 text-green-500" />
-                ) : selectedAnswer === (value === 'true') ? (
+                ) : selectedAnswer === index ? (
                   <XCircle className="h-6 w-6 text-red-500" />
                 ) : null
               )}
@@ -95,5 +117,4 @@ const TrueFalse: React.FC<TrueFalseProps> = ({
     </>
   );
 };
-
 export default TrueFalse; 

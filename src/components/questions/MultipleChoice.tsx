@@ -104,7 +104,7 @@ const MultipleChoice: React.FC<MultipleChoiceProps> = ({
             <div className="flex items-center justify-between">
               <span className="text-left">{reponse.text}</span>
               {isAnswerChecked && (
-                reponse.isCorrect ? (
+                reponse.is_correct ? (
                   <CheckCircle2 className="h-6 w-6 text-green-500" />
                 ) : selectedAnswer === index ? (
                   <XCircle className="h-6 w-6 text-red-500" />

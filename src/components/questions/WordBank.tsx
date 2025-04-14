@@ -34,7 +34,7 @@ const WordBank: React.FC<WordBankProps> = ({
         setResponses(data.map(r => ({
           ...r,
           question_id: question.id,
-          is_correct: true
+          is_correct: 1
         })) as Answer[]);
       } catch (error) {
         console.error('Error fetching responses:', error);
