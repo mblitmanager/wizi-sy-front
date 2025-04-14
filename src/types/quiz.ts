@@ -1,4 +1,3 @@
-
 import { User } from './index';
 
 export interface Question {
@@ -10,26 +9,20 @@ export interface Question {
     url: string;
   };
   type: 'vrai faux' | 'choix multiples' | 'remplir le champ vide' | 'correspondance' | 'commander' | 'banque de mots' | 'carte flash' | 'question audio';
-  // type: 'true_false' | 'multiple_choice' | 'fill_blank' | 'matching' | 'ordering' | 'word_bank' | 'flashcard' | 'audio';
   media_url?: string;
   explication?: string;
   points: number;
   astuce?: string;
   options?: string[];
   categories?: string[];
-  correct_answer: string | number | boolean | string[] | number[] | Record<string, string> | Record<string, string[]> | Record<string, number[]>;
+  correct_answer: string | number | boolean | string[] | number[] | Record<string, string> | Record<string, string[]>;
   time_limit?: number;
 }
 
 export interface Answer {
   id: string;
-  question_id: string;
   text: string;
   is_correct: number;
-  position?: number;
-  match_pair?: string;
-  bank_group?: string;
-  flashcard_back?: string;
 }
 
 export interface Quiz {
@@ -45,24 +38,8 @@ export interface Quiz {
   points: number;
   nb_points_total?: number;
   timeLimit?: number;
-  passingScore?: number;
-  trainingId?: string;
 }
 
-export interface QuizResult {
-  id: string;
-  quizId: string;
-  userId: string;
-  score: number;
-  correctAnswers: number;
-  totalQuestions: number;
-  completedAt: string;
-  timeSpent: number;
-  quizName?: string; // Adding this field to fix the RecentResults error
-  answers?: Record<string, string>;
-}
-
-// Interface pour la soumission des résultats
 export interface QuizSubmitData {
   quizId: string;
   answers: Record<string, string>;
@@ -94,11 +71,23 @@ export interface Category {
   id: string;
   name: string;
   description?: string;
-  image_url?: string;
   icon?: string;
   color?: string;
   colorClass?: string;
   quizCount?: number;
+}
+
+export interface QuizResult {
+  id: string;
+  quizId: string;
+  userId: string;
+  score: number;
+  correctAnswers: number;
+  totalQuestions: number;
+  completedAt: string;
+  timeSpent: number;
+  quizName?: string;
+  answers?: Record<string, string>;
 }
 
 export interface UserProgress {
@@ -131,7 +120,6 @@ export interface Formation {
   quizzes: Quiz[];
 }
 
-// Types pour les réponses des différents types de questions
 type MultipleChoiceAnswer = number;
 type TrueFalseAnswer = number;
 type FillBlankAnswer = { [key: string]: string };
@@ -141,7 +129,6 @@ type WordBankAnswer = { [key: string]: string[] };
 type FlashcardAnswer = boolean;
 type AudioQuestionAnswer = string;
 
-// Type union pour toutes les réponses possibles
 export type QuestionAnswer = 
   | MultipleChoiceAnswer
   | TrueFalseAnswer
