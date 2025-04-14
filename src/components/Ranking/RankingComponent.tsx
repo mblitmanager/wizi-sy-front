@@ -1,150 +1,79 @@
 
-import React, { useState, useEffect } from 'react';
-import { rankingService } from '../../services/api';
-import { RankingResponse, TrainingRanking, GlobalRanking } from '../../types/ranking';
-import { useToast } from '@/hooks/use-toast';
+import React from 'react';
+import { LeaderboardEntry } from '@/types/quiz';
+import { Avatar } from '@/components/ui/avatar';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Shield, Award, Medal } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-const RankingComponent: React.FC = () => {
-  const [globalRanking, setGlobalRanking] = useState<GlobalRanking | null>(null);
-  const [trainingRankings, setTrainingRankings] = useState<TrainingRanking[]>([]);
-  const [userPosition, setUserPosition] = useState<number>(0);
-  const [userScore, setUserScore] = useState<number>(0);
-  const [selectedTraining, setSelectedTraining] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { toast } = useToast();
+interface RankingComponentProps {
+  rankings: LeaderboardEntry[];
+}
 
-  useEffect(() => {
-    const loadRankings = async () => {
-      try {
-        setIsLoading(true);
-        const response = await rankingService.getRankings() as RankingResponse;
-        setGlobalRanking(response.data.global);
-        setTrainingRankings(response.data.byTraining);
-        setUserPosition(response.data.userPosition);
-        setUserScore(response.data.userScore);
-      } catch (err) {
-        setError('Erreur lors du chargement des classements');
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les classements. Veuillez réessayer.",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadRankings();
-  }, [toast]);
-
-  const handleTrainingSelect = (trainingId: string) => {
-    setSelectedTraining(trainingId);
+const RankingComponent: React.FC<RankingComponentProps> = ({ rankings }) => {
+  // Helper function to render rank icon based on position
+  const getRankIcon = (rank: number) => {
+    if (rank === 1) return <Award className="h-5 w-5 text-yellow-500" />;
+    if (rank === 2) return <Medal className="h-5 w-5 text-gray-400" />;
+    if (rank === 3) return <Medal className="h-5 w-5 text-amber-700" />;
+    return <span className="font-semibold">{rank}</span>;
   };
 
-  const renderRankingTable = (entries: any[], isGlobal: boolean = false) => {
-    return (
-      <div className="ranking-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Rang</th>
-              <th>Utilisateur</th>
-              <th>Score</th>
-              {!isGlobal && <th>Formation</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {entries.map((entry, index) => (
-              <tr
-                key={entry.userId || entry.user_id}
-                className={entry.userId === localStorage.getItem('userId') || entry.user_id === localStorage.getItem('userId') ? 'current-user' : ''}
-              >
-                <td>{entry.rank}</td>
-                <td>
-                  <div className="user-info">
-                    {entry.avatarUrl && (
-                      <img src={entry.avatarUrl} alt={entry.username} className="avatar" />
-                    )}
-                    <span>{entry.username}</span>
-                  </div>
-                </td>
-                <td>{entry.score}</td>
-                {!isGlobal && <td>{entry.trainingName}</td>}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  };
-
-  if (isLoading) {
-    return <div>Chargement des classements...</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
-
+  // Get current user ID from localStorage to highlight current user
+  const currentUserId = localStorage.getItem('userId');
+  
   return (
-    <div className="ranking-container">
-      <div className="ranking-header">
-        <h2>Classements</h2>
-        <div className="user-stats">
-          <div className="stat">
-            <span className="label">Votre position</span>
-            <span className="value">#{userPosition}</span>
-          </div>
-          <div className="stat">
-            <span className="label">Votre score</span>
-            <span className="value">{userScore}</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="ranking-tabs">
-        <button
-          className={`tab ${!selectedTraining ? 'active' : ''}`}
-          onClick={() => setSelectedTraining(null)}
-        >
-          Classement Global
-        </button>
-        {trainingRankings.map((training) => (
-          <button
-            key={training.trainingId}
-            className={`tab ${selectedTraining === training.trainingId ? 'active' : ''}`}
-            onClick={() => handleTrainingSelect(training.trainingId)}
-          >
-            {training.trainingName}
-          </button>
-        ))}
-      </div>
-
-      <div className="ranking-content">
-        {!selectedTraining && globalRanking && (
-          <>
-            <h3>Classement Global</h3>
-            {renderRankingTable(globalRanking.entries, true)}
-            <div className="last-updated">
-              Dernière mise à jour : {new Date(globalRanking.lastUpdated).toLocaleString()}
-            </div>
-          </>
-        )}
-
-        {selectedTraining && (
-          <>
-            <h3>
-              Classement -{' '}
-              {trainingRankings.find((t) => t.trainingId === selectedTraining)?.trainingName}
-            </h3>
-            {renderRankingTable(
-              trainingRankings.find((t) => t.trainingId === selectedTraining)?.entries || []
+    <Card className="border rounded-lg shadow-sm">
+      <CardHeader className="bg-gray-50 border-b">
+        <CardTitle className="text-xl font-semibold">Classement des stagiaires</CardTitle>
+      </CardHeader>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-16 text-center">Rang</TableHead>
+              <TableHead>Stagiaire</TableHead>
+              <TableHead className="text-right">Score</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rankings.length > 0 ? (
+              rankings.map((entry, index) => (
+                <TableRow 
+                  key={entry.id || index}
+                  className={entry.userId === currentUserId ? "bg-blue-50" : ""}
+                >
+                  <TableCell className="text-center">
+                    <div className="flex justify-center items-center">
+                      {getRankIcon(index + 1)}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-2">
+                      <Avatar className="h-8 w-8">
+                        <img 
+                          src={entry.avatarUrl || "/placeholder.svg"} 
+                          alt={entry.username} 
+                          className="h-full w-full object-cover"
+                        />
+                      </Avatar>
+                      <span>{entry.username}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right font-medium">{entry.score} pts</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={3} className="text-center py-6 text-gray-500">
+                  Aucune donnée de classement disponible
+                </TableCell>
+              </TableRow>
             )}
-          </>
-        )}
-      </div>
-    </div>
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 };
 
