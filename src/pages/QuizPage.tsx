@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Navigate, Link } from 'react-router-dom';
 import { quizAPI } from '@/api';
@@ -130,7 +129,21 @@ const QuizPage: React.FC = () => {
     
     // Send result to API if available
     try {
-      quizAPI.submitQuizResult(quizResult)
+      // Envoyer les réponses au format attendu par le backend
+      const answers = Object.entries(userAnswers).reduce((acc, [questionId, answerId]) => {
+        acc[questionId] = answerId;
+        return acc;
+      }, {} as Record<string, string>);
+
+      quizAPI.submitQuizResult({
+        quizId: quiz.id,
+        userId: user.id,
+        score,
+        correctAnswers: correctAnswers.length,
+        totalQuestions: questions.length,
+        timeSpent: timeSpentSeconds,
+        answers
+      })
         .then(() => {
           toast({
             title: "Succès",

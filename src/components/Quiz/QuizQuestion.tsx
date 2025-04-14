@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Question, Answer } from '@/types';
+import { Question } from '@/types/quiz';
+import { Answer as QuizAnswer } from '@/types/quiz';
+import { Answer as IndexAnswer } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle2, XCircle } from 'lucide-react';
@@ -24,7 +26,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [timeLeft, setTimeLeft] = useState(timeLimit);
-  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [answers, setAnswers] = useState<QuizAnswer[]>([]);
   const [loading, setLoading] = useState(true);
 
   const progress = ((currentQuestion - 1) / totalQuestions) * 100;
@@ -35,7 +37,12 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
       try {
         setLoading(true);
         const fetchedAnswers = await getReponsesByQuestion(question.id);
-        setAnswers(fetchedAnswers);
+        // Convert IndexAnswer to QuizAnswer
+        const convertedAnswers: QuizAnswer[] = fetchedAnswers.map(answer => ({
+          ...answer,
+          question_id: question.id
+        }));
+        setAnswers(convertedAnswers);
       } catch (error) {
         console.error('Erreur lors de la récupération des réponses:', error);
       } finally {
@@ -73,40 +80,34 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
   const handleSelectAnswer = (answerId: string) => {
     if (selectedAnswer || showFeedback) return;
     
-    const isCorrect = answers.find(a => a.id === answerId)?.is_correct || false;
+    const isCorrect = answers.find(a => a.id === answerId)?.is_correct === 1;
     setSelectedAnswer(answerId);
     setShowFeedback(true);
     
     // Delay to show feedback before moving to next question
     setTimeout(() => {
-      onAnswer(answerId, isCorrect === 1);
+      onAnswer(answerId, isCorrect);
     }, 1500);
   };
 
-  const handleQuestionAnswer = (answer: string | number | boolean | string[] | number[] | Record<string, string | string[]>) => {
-    // Adapter la réponse du QuestionRenderer au format attendu par QuizQuestion
+  const handleQuestionAnswer = (answer: unknown) => {
     if (typeof answer === 'string') {
       handleSelectAnswer(answer);
     } else if (Array.isArray(answer) && answer.length > 0) {
-      // Pour les questions à réponses multiples, prendre la première réponse
-      if (typeof answer[0] === 'string') {
-        handleSelectAnswer(answer[0]);
-      } else if (typeof answer[0] === 'number') {
-        handleSelectAnswer(answer[0].toString());
-      }
+      handleSelectAnswer(answer[0].toString());
     } else if (typeof answer === 'number') {
       handleSelectAnswer(answer.toString());
     } else if (typeof answer === 'boolean') {
-      // Pour les questions vrai/faux, convertir en ID de réponse
-      const correctAnswer = answers.find(a => a.is_correct)?.id;
+      const correctAnswer = answers.find(a => a.is_correct === 1)?.id;
       if (correctAnswer) {
         handleSelectAnswer(correctAnswer);
       }
-    } else if (typeof answer === 'object' && !Array.isArray(answer)) {
-      // Pour les questions de correspondance, prendre la première valeur
-      const firstKey = Object.keys(answer)[0];
-      if (firstKey && Array.isArray(answer[firstKey]) && answer[firstKey].length > 0) {
-        handleSelectAnswer(answer[firstKey][0]);
+    } else if (answer && typeof answer === 'object') {
+      const firstValue = Object.values(answer)[0];
+      if (Array.isArray(firstValue) && firstValue.length > 0) {
+        handleSelectAnswer(firstValue[0].toString());
+      } else if (firstValue) {
+        handleSelectAnswer(firstValue.toString());
       }
     }
   };
@@ -127,7 +128,6 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
         <Progress value={progress} className="h-2" />
       </div>
 
-      {/* Utiliser QuestionRenderer pour afficher la question en fonction de son type */}
       <QuestionRenderer
         question={question}
         onAnswer={handleQuestionAnswer}

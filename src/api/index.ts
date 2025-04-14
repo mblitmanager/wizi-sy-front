@@ -226,7 +226,7 @@ export const progressAPI = {
     return handleResponse(response);
   },
 
-  getUserStats: async (userId: string): Promise<any> => {
+  getUserStats: async (userId: string): Promise<UserProgress> => {
     const token = localStorage.getItem('token');
     const response = await fetch(`${API_URL}/stagiaire/progress`, {
       headers: {
@@ -245,7 +245,7 @@ export const getReponsesByQuestion = async (questionId: string): Promise<Answer[
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
     });
-    return response.data.data;
+    return (response.data as { data: Answer[] }).data;
   } catch (error) {
     console.error('Erreur lors de la récupération des réponses:', error);
     throw error;

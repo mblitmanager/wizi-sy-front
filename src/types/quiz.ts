@@ -1,3 +1,5 @@
+import { User } from './index';
+
 export interface Question {
   id: string;
   quiz_id: string;
@@ -13,7 +15,8 @@ export interface Question {
   points: number;
   astuce?: string;
   options?: string[];
-  correct_answer: any;
+  categories?: string[];
+  correct_answer: string | number | boolean | string[] | number[] | Record<string, string> | Record<string, string[]> | Record<string, number[]>;
   time_limit?: number;
 }
 
@@ -31,12 +34,15 @@ export interface Answer {
 export interface Quiz {
   id: string;
   title: string;
+  titre?: string;
   description: string;
   category: string;
   categoryId: string;
   level: 'débutant' | 'intermédiaire' | 'avancé' | 'super';
+  niveau?: 'débutant' | 'intermédiaire' | 'avancé' | 'super';
   questions: Question[];
   points: number;
+  nb_points_total?: number;
   timeLimit?: number;
   passingScore?: number;
   trainingId?: string;
@@ -51,6 +57,7 @@ export interface QuizResult {
   totalQuestions: number;
   completedAt: string;
   timeSpent: number;
+  answers?: Record<string, string>;
 }
 
 export interface QuizResponse {
@@ -65,7 +72,7 @@ export interface QuizSubmitResponse {
     results: {
       questionId: string;
       isCorrect: boolean;
-      correctAnswer: any;
+      correctAnswer: string | number | boolean | string[] | number[] | Record<string, string> | Record<string, string[]>;
     }[];
   };
 }
@@ -102,7 +109,7 @@ export interface Formation {
   duree: string;
   created_at: string;
   updated_at: string;
-  formateurs: any[];
-  stagiaires: any[];
+  formateurs: User[];
+  stagiaires: User[];
   quizzes: Quiz[];
 } 

@@ -34,7 +34,7 @@ const Matching: React.FC<MatchingProps> = ({
         setResponses(fetchedResponses.map(r => ({
           ...r,
           question_id: question.id,
-          is_correct: true
+          is_correct: 1
         })) as Answer[]);
       } catch (error) {
         console.error('Erreur lors de la récupération des réponses:', error);

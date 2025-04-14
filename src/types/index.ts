@@ -56,7 +56,7 @@ export interface Question {
   points: number;
   astuce?: string;
   options?: string[];
-  correct_answer: any;
+  correct_answer: string | number | boolean | string[] | number[] | Record<string, string> | Record<string, string[]> | Record<string, number[]>;
   time_limit?: number;
 }
 
@@ -70,6 +70,7 @@ export interface Quiz {
   level: 'débutant' | 'intermédiaire' | 'avancé' | 'super';
   questions: Question[];
   points: number;
+  nb_points_total?: number;
 }
 
 // Types pour les résultats de quiz
@@ -119,7 +120,7 @@ export interface Formation {
   duree: string;
   created_at: string;
   updated_at: string;
-  formateurs: any[];
-  stagiaires: any[];
+  formateurs: User[];
+  stagiaires: User[];
   quizzes: Quiz[];
 }
