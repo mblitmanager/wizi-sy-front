@@ -2,7 +2,7 @@ import axios from 'axios';
 import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry, Question, Answer } from '../types';
 import { decodeToken } from '@/utils/tokenUtils';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost/wizi-learn/back/public/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 export const api = axios.create({
   baseURL: API_URL,
