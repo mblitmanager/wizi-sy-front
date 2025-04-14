@@ -1,11 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Question } from '@/types/quiz';
 import { Answer as QuizAnswer } from '@/types/quiz';
-import { Answer as IndexAnswer } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle2, XCircle } from 'lucide-react';
-import { getReponsesByQuestion } from '@/api';
+import { quizAPI } from '@/api';
 import QuestionRenderer from '@/components/questions/QuestionRenderer';
 
 interface QuizQuestionProps {
@@ -36,7 +36,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
     const fetchAnswers = async () => {
       try {
         setLoading(true);
-        const fetchedAnswers = await getReponsesByQuestion(question.id);
+        const fetchedAnswers = await quizAPI.getReponsesByQuestion(question.id);
         // Convert IndexAnswer to QuizAnswer
         const convertedAnswers: QuizAnswer[] = fetchedAnswers.map(answer => ({
           ...answer,

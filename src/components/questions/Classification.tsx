@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Question } from '../../types/quiz';
 import BaseQuestion from './BaseQuestion';
@@ -50,6 +51,30 @@ const Classification: React.FC<ClassificationProps> = ({
     onAnswer(newCategories);
   };
 
+  // Convert correct_answer to appropriate type if needed
+  const getCorrectAnswers = (): { [key: string]: number[] } => {
+    if (typeof question.correct_answer === 'object' && question.correct_answer !== null && !Array.isArray(question.correct_answer)) {
+      // This is a record/object type, check if it matches our needed structure
+      // We need to ensure it's a Record<string, number[]>
+      const result: { [key: string]: number[] } = {};
+      
+      for (const [key, value] of Object.entries(question.correct_answer)) {
+        if (Array.isArray(value)) {
+          // Type assertion to tell TypeScript this is a number[]
+          result[key] = value as number[];
+        } else {
+          // If it's not an array, create a single-item array
+          result[key] = [typeof value === 'number' ? value : 0];
+        }
+      }
+      
+      return result;
+    }
+    
+    // Fallback empty object if correct_answer is not in expected format
+    return {};
+  };
+
   return (
     <>
       <BaseQuestion
@@ -80,7 +105,7 @@ const Classification: React.FC<ClassificationProps> = ({
                   onDragStart={(e) => handleDragStart(e, itemIndex)}
                   className={`flex items-center p-3 rounded-lg border ${
                     isAnswerChecked
-                      ? (question.correct_answer as { [key: string]: number[] })[category]?.includes(itemIndex)
+                      ? getCorrectAnswers()[category]?.includes(itemIndex)
                         ? 'border-green-500 bg-green-50'
                         : 'border-red-500 bg-red-50'
                       : 'border-gray-200 bg-white'
@@ -98,7 +123,7 @@ const Classification: React.FC<ClassificationProps> = ({
       {isAnswerChecked && (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg">
           <h3 className="font-medium text-blue-800 mb-2">Correct Classification:</h3>
-          {Object.entries(question.correct_answer as { [key: string]: number[] }).map(([category, items]) => (
+          {Object.entries(getCorrectAnswers()).map(([category, items]) => (
             <div key={category} className="mb-2">
               <h4 className="font-medium text-blue-700">{category}:</h4>
               <div className="ml-4">
@@ -116,4 +141,4 @@ const Classification: React.FC<ClassificationProps> = ({
   );
 };
 
-export default Classification; 
+export default Classification;

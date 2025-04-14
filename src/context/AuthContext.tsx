@@ -1,147 +1,151 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { api } from '@/lib/api';
-import { User } from '../types';
-import { toast } from '@/hooks/use-toast';
-import { decodeToken, isTokenExpired, getUserRoleFromToken } from '@/utils/tokenUtils';
 
-interface AuthContextType {
-  isAuthenticated: boolean;
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { User } from '@/types';
+import { authAPI } from '@/api';
+import { decodeToken } from '@/utils/tokenUtils';
+
+export interface AuthContextType {
   user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  isAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  refreshToken: () => Promise<void>;
+  register: (userData: any) => Promise<void>;
+  refreshSession: () => Promise<void>;
+  getRedirectPath: () => string;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  isAuthenticated: false,
+  isLoading: true,
+  isAdmin: false,
+  login: async () => {},
+  logout: async () => {},
+  register: async () => {},
+  refreshSession: async () => {},
+  getRedirectPath: () => '/',
+});
 
-interface LoginResponse {
-  token: string;
+export const useAuth = () => useContext(AuthContext);
+
+interface AuthProviderProps {
+  children: ReactNode;
 }
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const checkAndRefreshToken = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setIsAuthenticated(false);
-      setUser(null);
-      return;
-    }
-
-    try {
-      if (isTokenExpired(token)) {
-        await refreshToken();
-      } else {
-        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        setIsAuthenticated(true);
-        await fetchUser();
-      }
-    } catch (error) {
-      console.error('Error checking token:', error);
-      await logout();
-    }
-  };
-
+  // Check if the user is authenticated on mount
   useEffect(() => {
-    checkAndRefreshToken();
-
-    // Set up automatic token refresh every 10 minutes
-    const refreshInterval = setInterval(() => {
-      checkAndRefreshToken();
-    }, 10 * 60 * 1000);
-
-    // Set up a listener for window focus to check token
-    const handleFocus = () => {
-      checkAndRefreshToken();
-    };
-    window.addEventListener('focus', handleFocus);
-
-    return () => {
-      clearInterval(refreshInterval);
-      window.removeEventListener('focus', handleFocus);
-    };
-  }, []);
-
-  const fetchUser = async () => {
-    try {
-      const response = await api.get<User>('/me');
-      setUser(response.data);
-    } catch (error) {
-      console.error('Error fetching user:', error);
-      await logout();
-    }
-  };
-
-  const login = async (email: string, password: string) => {
-    try {
-      const response = await api.post<LoginResponse>('/login', { email, password });
-      const { token } = response.data;
-      
-      if (!token) {
-        throw new Error('Token non reçu');
-      }
-
-      localStorage.setItem('token', token);
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setIsAuthenticated(true);
-      await fetchUser();
-    } catch (error) {
-      throw new Error('Identifiants invalides');
-    }
-  };
-
-  const refreshToken = async () => {
-    try {
-      const currentToken = localStorage.getItem('token');
-      if (!currentToken) {
-        throw new Error('No token to refresh');
-      }
-
-      const response = await api.post<LoginResponse>('/refresh');
-      const { token } = response.data;
-      
-      if (!token) {
-        throw new Error('New token not received');
-      }
-
-      localStorage.setItem('token', token);
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setIsAuthenticated(true);
-    } catch (error) {
-      console.error('Error refreshing token:', error);
-      await logout();
-    }
-  };
-
-  const logout = async () => {
-    try {
+    const checkAuth = async () => {
       const token = localStorage.getItem('token');
       if (token) {
-        await api.post('/logout');
+        try {
+          const userData = await authAPI.getCurrentUser();
+          setUser(userData);
+        } catch (error) {
+          console.error('Failed to get current user:', error);
+          localStorage.removeItem('token');
+        }
       }
+      setIsLoading(false);
+    };
+
+    checkAuth();
+  }, []);
+
+  // Login function
+  const login = async (email: string, password: string) => {
+    try {
+      const response = await authAPI.login(email, password);
+      const { token } = response;
+      
+      localStorage.setItem('token', token);
+      
+      // Decode and set user data from token
+      const userData = decodeToken(token);
+      setUser(userData);
     } catch (error) {
-      console.error('Error during logout:', error);
+      console.error('Login failed:', error);
+      throw error;
+    }
+  };
+
+  // Logout function
+  const logout = async () => {
+    try {
+      await authAPI.logout();
+    } catch (error) {
+      console.error('Logout failed:', error);
     } finally {
       localStorage.removeItem('token');
-      delete api.defaults.headers.common['Authorization'];
-      setIsAuthenticated(false);
       setUser(null);
     }
   };
 
-  return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, refreshToken }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  // Mock register function (to be implemented with real API)
+  const register = async (userData: any) => {
+    try {
+      // TODO: Implement real registration API call
+      console.log('Register user with data:', userData);
+      // Mock successful registration
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    } catch (error) {
+      console.error('Registration failed:', error);
+      throw error;
+    }
+  };
+
+  // Session refresh function
+  const refreshSession = async () => {
+    try {
+      // TODO: Implement real session refresh API call
+      console.log('Refreshing session');
+      
+      // For now, just check current user to validate the token
+      const userData = await authAPI.getCurrentUser();
+      setUser(userData);
+    } catch (error) {
+      console.error('Session refresh failed:', error);
+      throw error;
+    }
+  };
+
+  // Get redirect path based on user role
+  const getRedirectPath = () => {
+    if (!user) return '/auth/login';
+    
+    switch (user.role) {
+      case 'admin':
+        return '/admin';
+      case 'formateur':
+        return '/formateur';
+      case 'commercial':
+        return '/commercial';
+      case 'pole_relation_client':
+        return '/pole-relation';
+      default:
+        return '/';
+    }
+  };
+
+  // Value object to be provided by context
+  const value = {
+    user,
+    isAuthenticated: !!user,
+    isLoading,
+    isAdmin: user?.role === 'admin',
+    login,
+    logout,
+    register,
+    refreshSession,
+    getRedirectPath,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+export default AuthContext;

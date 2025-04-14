@@ -1,5 +1,6 @@
 
-import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry, Question, Answer, QuizSubmitData } from '../types';
+import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry, Question, Formation } from '../types';
+import { Answer, QuizSubmitData } from '../types/quiz';
 import { decodeToken } from '@/utils/tokenUtils';
 
 const API_URL = process.env.VITE_API_URL || 'http://laravel.test/api';
@@ -89,7 +90,7 @@ export const quizAPI = {
     return handleResponse(response);
   },
 
-  getResponsesByQuestion: async (questionId: string): Promise<Answer[]> => {
+  getReponsesByQuestion: async (questionId: string): Promise<Answer[]> => {
     const headers: HeadersInit = {
       'Authorization': `Bearer ${localStorage.getItem('token')}`,
     };

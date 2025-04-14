@@ -1,3 +1,4 @@
+
 import { User } from './index';
 
 export interface Question {
@@ -23,6 +24,10 @@ export interface Answer {
   id: string;
   text: string;
   is_correct: number;
+  question_id: string;
+  match_pair?: string;
+  bank_group?: string;
+  flashcard_back?: string;
 }
 
 export interface Quiz {
