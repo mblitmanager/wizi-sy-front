@@ -2,7 +2,12 @@ export interface Question {
   id: string;
   quiz_id: string;
   text: string;
-  type: 'true_false' | 'multiple_choice' | 'fill_blank' | 'matching' | 'ordering' | 'word_bank' | 'flashcard' | 'audio';
+  media?: {
+    type: 'image' | 'video' | 'audio';
+    url: string;
+  };
+  type: 'vrai faux' | 'choix multiples' | 'remplir le champ vide' | 'correspondance' | 'commander' | 'banque de mots' | 'carte flash' | 'question audio';
+  // type: 'true_false' | 'multiple_choice' | 'fill_blank' | 'matching' | 'ordering' | 'word_bank' | 'flashcard' | 'audio';
   media_url?: string;
   explication?: string;
   points: number;

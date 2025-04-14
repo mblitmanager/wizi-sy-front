@@ -1,5 +1,6 @@
 import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry, Question, Answer } from '../types';
 import { decodeToken } from '@/utils/tokenUtils';
+import axios from 'axios';
 
 // Base URL of our API
 const API_URL = 'http://localhost:8000/api';
@@ -234,6 +235,21 @@ export const progressAPI = {
     });
     return handleResponse(response);
   },
+};
+
+// Fonction pour récupérer les réponses d'une question
+export const getReponsesByQuestion = async (questionId: string): Promise<Answer[]> => {
+  try {
+    const response = await axios.get(`${API_URL}/questions/${questionId}/reponses`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    return response.data.data;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des réponses:', error);
+    throw error;
+  }
 };
 
 // Export mockAPI for fallback or development purposes
