@@ -1,6 +1,7 @@
+
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+const API_URL = process.env.VITE_API_URL || 'http://localhost:8000/api';
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -38,7 +39,7 @@ api.interceptors.response.use(
 // Auth services
 export const authService = {
   login: (credentials: { email: string; password: string }) =>
-    api.post('/auth/login', credentials),
+    api.post('/login', credentials),
   forgotPassword: (email: string) =>
     api.post('/auth/forgot-password', { email }),
   resetPassword: (data: { token: string; password: string }) =>
@@ -55,23 +56,28 @@ export const userService = {
 export const quizService = {
   getQuizzes: () => api.get('/quizzes'),
   getQuiz: (id: string) => api.get(`/quizzes/${id}`),
+  getQuestions: (id: string) => api.get(`/quiz/${id}/questions`),
+  getCategories: () => api.get('/quiz/categories'),
   playQuiz: (id: string) => api.post(`/quizzes/${id}/play`),
-  submitQuiz: (id: string, answers: any) =>
-    api.post(`/quizzes/${id}/submit`, { answers }),
+  submitQuiz: (id: string, answers: any, score: number, timeSpent: number) =>
+    api.post(`/quizzes/${id}/submit`, { answers, score, timeSpent }),
+  getReponsesByQuestion: (questionId: string) => 
+    api.get(`/questions/${questionId}/reponses`),
 };
 
 // Training services
 export const trainingService = {
   getTrainings: () => api.get('/trainings'),
   getTraining: (id: string) => api.get(`/trainings/${id}`),
+  getFormationsByCategory: (categoryId: string) => api.get(`/formations/categories/${categoryId}`),
 };
 
 // Ranking services
 export const rankingService = {
-  getRankings: () => api.get('/rankings'),
+  getRankings: () => api.get('/stagiaire/ranking/global'),
   getTrainingRankings: (trainingId: string) =>
-    api.get(`/rankings/training/${trainingId}`),
-  getRewards: () => api.get('/rankings/rewards'),
+    api.get(`/stagiaire/ranking/formation/${trainingId}`),
+  getRewards: () => api.get('/stagiaire/rewards'),
 };
 
 // Media services
@@ -82,8 +88,9 @@ export const mediaService = {
 
 // Sponsorship services
 export const sponsorshipService = {
-  getLink: () => api.get('/sponsorship/link'),
-  getReferrals: () => api.get('/sponsorship/referrals'),
+  getLink: () => api.get('/stagiaire/parrainage/link'),
+  getReferrals: () => api.get('/stagiaire/parrainage/filleuls'),
+  getStats: () => api.get('/stagiaire/parrainage/stats'),
 };
 
 // Calendar services
@@ -94,34 +101,18 @@ export const calendarService = {
 
 // Contacts services
 export const contactService = {
-  getContacts: () => api.get('/contacts'),
+  getContacts: () => api.get('/stagiaire/contacts'),
+  getCommerciaux: () => api.get('/stagiaire/contacts/commerciaux'),
+  getFormateurs: () => api.get('/stagiaire/contacts/formateurs'),
+  getPoleRelation: () => api.get('/stagiaire/contacts/pole-relation'),
 };
 
-// Admin services
-export const adminService = {
-  // User management
-  getUsers: () => api.get('/admin/users'),
-  createUser: (data: any) => api.post('/admin/users', data),
-  updateUser: (id: string, data: any) => api.put(`/admin/users/${id}`, data),
-  deleteUser: (id: string) => api.delete(`/admin/users/${id}`),
-
-  // Quiz management
-  createQuiz: (data: any) => api.post('/admin/quizzes', data),
-  updateQuiz: (id: string, data: any) => api.put(`/admin/quizzes/${id}`, data),
-  deleteQuiz: (id: string) => api.delete(`/admin/quizzes/${id}`),
-
-  // Question management
-  createQuestion: (data: any) => api.post('/admin/questions', data),
-  updateQuestion: (id: string, data: any) =>
-    api.put(`/admin/questions/${id}`, data),
-  deleteQuestion: (id: string) => api.delete(`/admin/questions/${id}`),
-
-  // Media management
-  uploadMedia: (data: FormData) => api.post('/admin/media', data),
-  deleteMedia: (id: string) => api.delete(`/admin/media/${id}`),
-
-  // Statistics
-  getStatistics: () => api.get('/admin/statistics'),
+// Stagiaire API
+export const stagiaireAPI = {
+  getFormations: () => api.get('/stagiaire/formations'),
+  getFormationById: (formationId: string) => api.get(`/formations/${formationId}`),
+  getProgressById: (formationId: string) => api.get(`/stagiaire/progress/${formationId}`),
 };
 
-export default api; 
+// Export all services
+export default api;

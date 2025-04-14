@@ -1,37 +1,47 @@
 
 import React, { useEffect, useState } from 'react';
-import { LeaderboardEntry } from '@/types';
-import { mockAPI } from '@/api/mockAPI';
+import { LeaderboardEntry } from '@/types/quiz';
 import { useAuth } from '@/context/AuthContext';
 import { Trophy, Award, Medal } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { rankingService } from '@/services/api';
+import { useToast } from '@/hooks/use-toast';
 
 const LeaderboardPage: React.FC = () => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
       setIsLoading(true);
       try {
-        // Dans une vraie application, nous utiliserions un appel API
-        const data = mockAPI.getLeaderboard();
-        setLeaderboard(data);
+        const response = await rankingService.getRankings();
+        if (response.data && response.data.global) {
+          setLeaderboard(response.data.global.entries);
+        } else {
+          setLeaderboard([]);
+        }
       } catch (error) {
         console.error('Échec de récupération du classement:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de récupérer le classement. Veuillez réessayer plus tard.",
+          variant: "destructive"
+        });
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchLeaderboard();
-  }, []);
+  }, [toast]);
 
   const getUserRank = (): number | null => {
     if (!user) return null;
     
-    const userEntry = leaderboard.find(entry => entry.userId === user.id);
+    const userEntry = leaderboard.find(entry => entry.user_id === user.id);
     return userEntry ? userEntry.rank : null;
   };
 
@@ -99,9 +109,9 @@ const LeaderboardPage: React.FC = () => {
 
             {leaderboard.map((entry) => (
               <div 
-                key={entry.userId} 
+                key={entry.user_id} 
                 className={`flex items-center p-4 border-b border-gray-100 ${
-                  entry.userId === user?.id ? 'bg-blue-50' : ''
+                  entry.user_id === user?.id ? 'bg-blue-50' : ''
                 }`}
               >
                 <div className="w-12 text-center">
@@ -118,12 +128,12 @@ const LeaderboardPage: React.FC = () => {
                   <div>
                     <div className="font-medium font-nunito">
                       {entry.username} 
-                      {entry.userId === user?.id && <span className="text-gray-500 text-sm ml-1">(Vous)</span>}
+                      {entry.user_id === user?.id && <span className="text-gray-500 text-sm ml-1">(Vous)</span>}
                     </div>
-                    <div className="text-xs text-gray-500 font-roboto">Niveau {entry.level}</div>
+                    <div className="text-xs text-gray-500 font-roboto">Niveau {entry.level || 1}</div>
                   </div>
                 </div>
-                <div className="w-24 text-right font-semibold font-nunito">{entry.points} pts</div>
+                <div className="w-24 text-right font-semibold font-nunito">{entry.points || entry.score} pts</div>
               </div>
             ))}
           </div>
@@ -158,12 +168,12 @@ const LeaderboardPage: React.FC = () => {
             </div>
 
             {leaderboard
-              .sort((a, b) => b.level - a.level || b.points - a.points)
+              .sort((a, b) => (b.level || 1) - (a.level || 1) || (b.points || b.score) - (a.points || a.score))
               .map((entry, index) => (
                 <div 
-                  key={entry.userId} 
+                  key={entry.user_id} 
                   className={`flex items-center p-4 border-b border-gray-100 ${
-                    entry.userId === user?.id ? 'bg-blue-50' : ''
+                    entry.user_id === user?.id ? 'bg-blue-50' : ''
                   }`}
                 >
                   <div className="w-12 text-center">
@@ -180,12 +190,12 @@ const LeaderboardPage: React.FC = () => {
                     <div>
                       <div className="font-medium font-nunito">
                         {entry.username}
-                        {entry.userId === user?.id && <span className="text-gray-500 text-sm ml-1">(Vous)</span>}
+                        {entry.user_id === user?.id && <span className="text-gray-500 text-sm ml-1">(Vous)</span>}
                       </div>
-                      <div className="text-xs text-gray-500 font-roboto">{entry.points} points</div>
+                      <div className="text-xs text-gray-500 font-roboto">{entry.points || entry.score} points</div>
                     </div>
                   </div>
-                  <div className="w-24 text-right font-semibold font-nunito">Niveau {entry.level}</div>
+                  <div className="w-24 text-right font-semibold font-nunito">Niveau {entry.level || 1}</div>
                 </div>
               ))}
           </div>

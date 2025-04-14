@@ -1,6 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { rankingService } from '../../services/api';
 import { RankingResponse, TrainingRanking, GlobalRanking } from '../../types/ranking';
+import { useToast } from '@/hooks/use-toast';
 
 const RankingComponent: React.FC = () => {
   const [globalRanking, setGlobalRanking] = useState<GlobalRanking | null>(null);
@@ -10,6 +12,7 @@ const RankingComponent: React.FC = () => {
   const [selectedTraining, setSelectedTraining] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     const loadRankings = async () => {
@@ -22,13 +25,18 @@ const RankingComponent: React.FC = () => {
         setUserScore(response.data.userScore);
       } catch (err) {
         setError('Erreur lors du chargement des classements');
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les classements. Veuillez réessayer.",
+          variant: "destructive"
+        });
       } finally {
         setIsLoading(false);
       }
     };
 
     loadRankings();
-  }, []);
+  }, [toast]);
 
   const handleTrainingSelect = (trainingId: string) => {
     setSelectedTraining(trainingId);
@@ -49,8 +57,8 @@ const RankingComponent: React.FC = () => {
           <tbody>
             {entries.map((entry, index) => (
               <tr
-                key={entry.userId}
-                className={entry.userId === localStorage.getItem('userId') ? 'current-user' : ''}
+                key={entry.userId || entry.user_id}
+                className={entry.userId === localStorage.getItem('userId') || entry.user_id === localStorage.getItem('userId') ? 'current-user' : ''}
               >
                 <td>{entry.rank}</td>
                 <td>
@@ -140,4 +148,4 @@ const RankingComponent: React.FC = () => {
   );
 };
 
-export default RankingComponent; 
+export default RankingComponent;

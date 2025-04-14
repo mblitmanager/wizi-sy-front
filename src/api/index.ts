@@ -144,3 +144,6 @@ export const getFormationsByStagiaire = async (stagiaireId: string): Promise<any
   const response = await fetch(`${API_URL}/stagiaire/${stagiaireId}/formations`, { headers });
   return handleResponse(response);
 };
+
+// Making the function available for component imports
+export const getReponsesByQuestion = quizAPI.getReponsesByQuestion;

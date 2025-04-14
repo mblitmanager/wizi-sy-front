@@ -122,7 +122,7 @@ const Classification: React.FC<ClassificationProps> = ({
 
       {isAnswerChecked && (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-          <h3 className="font-medium text-blue-800 mb-2">Correct Classification:</h3>
+          <h3 className="font-medium text-blue-800 mb-2">Classification correcte :</h3>
           {Object.entries(getCorrectAnswers()).map(([category, items]) => (
             <div key={category} className="mb-2">
               <h4 className="font-medium text-blue-700">{category}:</h4>

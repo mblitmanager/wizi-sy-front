@@ -16,7 +16,7 @@ export interface Question {
   astuce?: string;
   options?: string[];
   categories?: string[];
-  correct_answer: string | number | boolean | string[] | number[] | Record<string, string> | Record<string, string[]>;
+  correct_answer: string | number | boolean | string[] | number[] | Record<string, string> | Record<string, string[]> | Record<string, number[]>;
   time_limit?: number;
 }
 
@@ -67,7 +67,7 @@ export interface QuizSubmitResponse {
     results: {
       questionId: string;
       isCorrect: boolean;
-      correctAnswer: string | number | boolean | string[] | number[] | Record<string, string> | Record<string, string[]>;
+      correctAnswer: string | number | boolean | string[] | number[] | Record<string, string> | Record<string, string[]> | Record<string, number[]>;
     }[];
   };
 }
@@ -108,6 +108,9 @@ export interface LeaderboardEntry {
   username: string;
   score: number;
   rank: number;
+  level?: number;
+  avatar?: string;
+  points?: number;
 }
 
 export interface Formation {
