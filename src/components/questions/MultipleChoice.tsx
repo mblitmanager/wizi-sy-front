@@ -30,9 +30,29 @@ const MultipleChoice: React.FC<MultipleChoiceProps> = ({
       try {
         setLoading(true);
         setError(null);
+        
+        // If the question already has options, create responses from options
+        if (question.options && question.options.length > 0) {
+          const formattedResponses: Answer[] = question.options.map((option, index) => ({
+            id: `${question.id}-option-${index}`,
+            question_id: question.id,
+            text: option,
+            is_correct: (question.correct_answer === index.toString() || question.correct_answer === index) ? 1 : 0
+          }));
+          setReponses(formattedResponses);
+          setLoading(false);
+          return;
+        }
+        
+        // Otherwise fetch from API
         const responses = await quizAPI.getResponsesByQuestion(question.id);
-        console.log('Responses:', responses);
-        setReponses(responses);
+        console.log('Responses fetched:', responses);
+        
+        if (responses && responses.length > 0) {
+          setReponses(responses);
+        } else {
+          setError('Aucune réponse disponible pour cette question.');
+        }
       } catch (err) {
         console.error('Error fetching responses:', err);
         setError('Failed to load responses. Please try again.');
@@ -42,7 +62,7 @@ const MultipleChoice: React.FC<MultipleChoiceProps> = ({
     };
 
     fetchResponses();
-  }, [question.id]);
+  }, [question]);
 
   // Ajoutez cet useEffect pour afficher la réponse sélectionnée
   useEffect(() => {
@@ -123,4 +143,4 @@ const MultipleChoice: React.FC<MultipleChoiceProps> = ({
   );
 };
 
-export default MultipleChoice; 
+export default MultipleChoice;

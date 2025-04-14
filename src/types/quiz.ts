@@ -1,3 +1,4 @@
+
 import { User } from './index';
 
 export interface Question {
@@ -57,6 +58,7 @@ export interface QuizResult {
   totalQuestions: number;
   completedAt: string;
   timeSpent: number;
+  quizName?: string; // Adding this field to fix the RecentResults error
   answers?: Record<string, string>;
 }
 
@@ -93,6 +95,10 @@ export interface Category {
   name: string;
   description?: string;
   image_url?: string;
+  icon?: string;
+  color?: string;
+  colorClass?: string;
+  quizCount?: number;
 }
 
 export interface UserProgress {

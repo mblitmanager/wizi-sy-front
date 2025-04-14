@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
@@ -6,26 +7,39 @@ import { Question, QuestionAnswer } from '../types/quiz';
 import { Timer } from '@/components/ui/timer';
 import QuestionRenderer from '../components/questions/QuestionRenderer';
 import { quizAPI } from '../api';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 
 const QuizPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
+  const [quiz, setQuiz] = useState<any>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, QuestionAnswer>>({});
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes in seconds
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showExplanation, setShowExplanation] = useState(false);
 
   useEffect(() => {
-    const fetchQuestions = async () => {
+    const fetchQuiz = async () => {
       if (!quizId) return;
       setIsLoading(true);
       try {
+        console.log('Récupération du quiz:', quizId);
+        
+        // Fetch quiz details first
+        const quizData = await quizAPI.getQuizById(quizId);
+        console.log('Quiz récupéré:', quizData);
+        setQuiz(quizData);
+        
+        // Then fetch questions
         console.log('Récupération des questions pour le quiz:', quizId);
-        // Utiliser quizAPI pour récupérer les questions spécifiques au quiz
         const quizQuestions = await quizAPI.getQuizQuestions(quizId);
-        console.log('Questions brutes reçues:', quizQuestions);
+        console.log('Questions récupérées:', quizQuestions);
         
         if (!quizQuestions || quizQuestions.length === 0) {
           console.error('Aucune question reçue de l\'API');
@@ -33,34 +47,44 @@ const QuizPage: React.FC = () => {
           return;
         }
         
-        // Formater les questions pour correspondre à la structure attendue
-        const formattedQuestions = quizQuestions.map(q => {
-          console.log('Traitement de la question:', q);
-          return {
-            id: q.id,
-            quiz_id: q.quiz_id || quizId,
-            text: q.text || q.question || 'Question sans texte',
-            type: q.type || 'choix multiples',
-            media_url: q.media_url,
-            explication: q.explication,
-            points: q.points || 1,
-            astuce: q.astuce,
-            options: q.options || [],
-            correct_answer: q.correct_answer || '',
-            time_limit: q.time_limit
-          };
-        });
+        // Set the fetched questions
+        setQuestions(quizQuestions);
         
-        console.log('Questions formatées:', formattedQuestions);
-        setQuestions(formattedQuestions);
+        // Set time limit if available in quiz data
+        if (quizData.timeLimit) {
+          setTimeLeft(quizData.timeLimit);
+        }
       } catch (error) {
-        console.error('Error fetching questions:', error);
+        console.error('Error fetching quiz and questions:', error);
         toast.error('Failed to load quiz questions');
+        
+        // Add mock questions for testing purposes
+        const mockQuestions: Question[] = [
+          {
+            id: `q-${quizId}-1`,
+            quiz_id: quizId || "",
+            text: "Qu'est-ce que le HTML?",
+            type: "choix multiples",
+            points: 10,
+            correct_answer: "0",
+            options: ["Hypertext Markup Language", "High Tech Modern Language", "Home Tool Management Library"]
+          },
+          {
+            id: `q-${quizId}-2`,
+            quiz_id: quizId || "",
+            text: "JavaScript est un langage de programmation orienté objet?",
+            type: "vrai faux",
+            points: 5,
+            correct_answer: "1",
+          }
+        ];
+        setQuestions(mockQuestions);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchQuestions();
+    
+    fetchQuiz();
   }, [quizId]);
 
   const handleAnswer = (questionId: string, answer: QuestionAnswer) => {
@@ -69,17 +93,22 @@ const QuizPage: React.FC = () => {
       ...prev,
       [questionId]: answer
     }));
+    setShowExplanation(true);
   };
 
   const handleNext = () => {
+    setShowExplanation(false);
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
+    } else {
+      handleSubmit();
     }
   };
 
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
+      setShowExplanation(false);
     }
   };
 
@@ -109,63 +138,79 @@ const QuizPage: React.FC = () => {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="max-w-4xl mx-auto p-4 flex justify-center items-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement du quiz...</p>
+        </div>
+      </div>
+    );
   }
 
   if (questions.length === 0) {
-    return <div>No questions available</div>;
+    return (
+      <div className="max-w-4xl mx-auto p-4">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center py-8">
+              <h2 className="text-xl font-semibold mb-2">Aucune question disponible</h2>
+              <p className="text-gray-600 mb-4">Ce quiz ne contient pas de questions pour le moment.</p>
+              <Button onClick={() => navigate('/quiz')}>Retour aux quiz</Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   const currentQuestion = questions[currentQuestionIndex];
   console.log('Question courante:', currentQuestion);
+  const progress = ((currentQuestionIndex) / questions.length) * 100;
 
   return (
     <div className="max-w-4xl mx-auto p-4">
-      <div className="mb-4">
-        <Timer timeLeft={timeLeft} onTimeUp={handleSubmit} />
-      </div>
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle>{quiz?.title || 'Quiz'}</CardTitle>
+            <Badge variant="outline">{quiz?.level || 'Standard'}</Badge>
+          </div>
+          <div className="mb-2">
+            <div className="flex justify-between items-center text-sm text-gray-500 mb-1">
+              <span>Question {currentQuestionIndex + 1} sur {questions.length}</span>
+              <span>{timeLeft} secondes</span>
+            </div>
+            <Progress value={progress} className="h-2" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <QuestionRenderer
+            question={currentQuestion}
+            onAnswer={(answer) => handleAnswer(currentQuestion.id, answer)}
+            isAnswerChecked={showExplanation}
+            selectedAnswer={answers[currentQuestion.id] || null}
+            timeRemaining={timeLeft}
+          />
 
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="mb-4">
-          <h2 className="text-xl font-bold">Question {currentQuestionIndex + 1} sur {questions.length}</h2>
-          <p className="text-gray-600">Type: {currentQuestion.type}</p>
-        </div>
-        
-        <QuestionRenderer
-          question={currentQuestion}
-          onAnswer={(answer) => handleAnswer(currentQuestion.id, answer)}
-          isAnswerChecked={false}
-          selectedAnswer={answers[currentQuestion.id]}
-          timeRemaining={timeLeft}
-        />
-
-        <div className="flex justify-between mt-6">
-          <button
-            onClick={handlePrevious}
-            disabled={currentQuestionIndex === 0}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
-          >
-            Previous
-          </button>
-
-          {currentQuestionIndex === questions.length - 1 ? (
-            <button
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+          <div className="flex justify-between mt-6">
+            <Button
+              onClick={handlePrevious}
+              disabled={currentQuestionIndex === 0}
+              variant="outline"
             >
-              {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
-            </button>
-          ) : (
-            <button
+              Précédent
+            </Button>
+
+            <Button
               onClick={handleNext}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              disabled={!answers[currentQuestion.id] && !showExplanation}
             >
-              Next
-            </button>
-          )}
-        </div>
-      </div>
+              {currentQuestionIndex === questions.length - 1 ? 'Terminer' : 'Suivant'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

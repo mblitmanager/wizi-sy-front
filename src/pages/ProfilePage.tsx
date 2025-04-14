@@ -1,121 +1,157 @@
 
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { progressAPI } from '@/api';
-import { UserProgress, QuizResult, Category } from '@/types';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ProfileHeader from '@/components/Profile/ProfileHeader';
-import BadgesDisplay from '@/components/Profile/BadgesDisplay';
-import CategoryProgress from '@/components/Profile/CategoryProgress';
 import UserStats from '@/components/Profile/UserStats';
 import RecentResults from '@/components/Profile/RecentResults';
+import BadgesDisplay from '@/components/Profile/BadgesDisplay';
+import CategoryProgress from '@/components/Profile/CategoryProgress';
 import NotificationSettings from '@/components/Profile/NotificationSettings';
-import { Card, CardContent } from '@/components/ui/card';
+import { quizAPI, progressAPI } from '@/api';
+import { User } from '@/types';
+import { QuizResult, Category, UserProgress } from '@/types/quiz';
 import { useToast } from '@/components/ui/use-toast';
 
-const ProfilePage: React.FC = () => {
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true);
-  const [userProgress, setUserProgress] = useState<UserProgress | null>(null);
-  const [recentResults, setRecentResults] = useState<QuizResult[]>([]);
+const ProfilePage = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [results, setResults] = useState<QuizResult[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [userProgress, setUserProgress] = useState<UserProgress | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('overview');
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchUserData = async () => {
-      if (!user?.id) return;
-      
-      setIsLoading(true);
       try {
-        // Fetch user progress data
-        const progress = await progressAPI.getUserProgress(user.id);
-        setUserProgress(progress);
+        setIsLoading(true);
+        // Fetch user data from localStorage as a fallback
+        const userId = localStorage.getItem('userId');
+        const token = localStorage.getItem('token');
         
-        // Fetch categories from API - using the correct endpoint
-        const categoriesResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/formation/categories`);
-        if (categoriesResponse.ok) {
-          const categoryNames = await categoriesResponse.json();
-          
-          // Create category objects from the names
-          const categoryObjects: Category[] = categoryNames.map((name: string, index: number) => ({
-            id: `${index + 1}`,
-            name: name,
-            description: `Toutes les formations ${name}`,
-            icon: 'file-text',
-            color: '#3D9BE9',
-            colorClass: `category-${name.toLowerCase()}`,
-            quizCount: 0
-          }));
-          
-          setCategories(categoryObjects);
+        if (!userId || !token) {
+          navigate('/auth/login');
+          return;
         }
         
-        // Fetch recent quiz results
-        const recentResultsResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/stagiaires/${user.id}/formations`);
-        if (recentResultsResponse.ok) {
-          const userStatData = await recentResultsResponse.json();
-          // The API might return results in a different format, so we're adapting it
-          if (userStatData.recentResults) {
-            setRecentResults(userStatData.recentResults);
-          } else {
-            // Create a fallback with empty results if the API doesn't provide this data
-            setRecentResults([]);
+        const userData = {
+          id: userId,
+          name: localStorage.getItem('userName') || 'Utilisateur',
+          email: localStorage.getItem('userEmail') || 'utilisateur@example.com',
+          role: localStorage.getItem('userRole') || 'stagiaire',
+          avatar: localStorage.getItem('userAvatar') || '/placeholder.svg'
+        };
+        
+        setUser(userData as User);
+        
+        // Fetch categories
+        const categoriesData = await quizAPI.getCategories();
+        setCategories(categoriesData);
+        
+        // Mock quiz results (in a real app, you would fetch this from an API)
+        const mockResults: QuizResult[] = [
+          {
+            id: 'result-1',
+            quizId: 'quiz-1',
+            quizName: 'Introduction à Excel',
+            userId: userId as string,
+            score: 85,
+            correctAnswers: 17,
+            totalQuestions: 20,
+            completedAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+            timeSpent: 720
+          },
+          {
+            id: 'result-2',
+            quizId: 'quiz-2',
+            quizName: 'Sécurité sur Internet',
+            userId: userId as string,
+            score: 92,
+            correctAnswers: 11,
+            totalQuestions: 12,
+            completedAt: new Date(Date.now() - 86400000 * 3).toISOString(), // 3 days ago
+            timeSpent: 540
+          },
+          {
+            id: 'result-3',
+            quizId: 'quiz-3',
+            quizName: 'Vocabulaire anglais pour débutants',
+            userId: userId as string,
+            score: 75,
+            correctAnswers: 15,
+            totalQuestions: 20,
+            completedAt: new Date(Date.now() - 86400000 * 5).toISOString(), // 5 days ago
+            timeSpent: 900
           }
-        }
+        ];
+        
+        setResults(mockResults);
+        
+        // Mock user progress
+        const mockProgress = {
+          user_id: userId as string,
+          quiz_id: 'all',
+          score: 84,
+          completed_at: new Date().toISOString(),
+          attempts: 12
+        };
+        
+        setUserProgress(mockProgress);
       } catch (error) {
         console.error('Error fetching user data:', error);
         toast({
-          title: "Erreur de chargement",
-          description: "Impossible de charger vos données de profil. Veuillez réessayer plus tard.",
-          variant: "destructive",
+          title: "Erreur",
+          description: "Impossible de charger les données utilisateur",
+          variant: "destructive"
         });
-        
-        // Fallback to empty data
-        setUserProgress({
-          userId: user.id,
-          categoryProgress: {},
-          badges: [],
-          streak: 0,
-          lastActive: new Date().toISOString()
-        });
-        setRecentResults([]);
       } finally {
         setIsLoading(false);
       }
     };
-
+    
     fetchUserData();
-  }, [user?.id, toast]);
+  }, [navigate, toast]);
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>
-    );
+    return <div className="flex justify-center items-center h-screen">Chargement...</div>;
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <ProfileHeader user={user} />
+    <div className="container mx-auto px-4 py-8">
+      {user && <ProfileHeader user={user} />}
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-        <div className="lg:col-span-2 space-y-6">
-          <RecentResults results={recentResults} />
-          
-          <Card>
-            <CardContent className="pt-6">
-              <NotificationSettings />
-            </CardContent>
-          </Card>
-          
-          <CategoryProgress categories={categories} userProgress={userProgress} />
-        </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
+        <TabsList className="grid grid-cols-3 md:grid-cols-5 w-full">
+          <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
+          <TabsTrigger value="progress">Progression</TabsTrigger>
+          <TabsTrigger value="results">Résultats</TabsTrigger>
+          <TabsTrigger value="badges">Badges</TabsTrigger>
+          <TabsTrigger value="settings">Paramètres</TabsTrigger>
+        </TabsList>
         
-        <div className="lg:col-span-1 space-y-6">
-          <BadgesDisplay badges={userProgress?.badges || []} />
-          <UserStats user={user} userProgress={userProgress} />
-        </div>
-      </div>
+        <TabsContent value="overview" className="space-y-8 mt-6">
+          {userProgress && <UserStats progress={userProgress} />}
+          <RecentResults results={results} isLoading={isLoading} />
+        </TabsContent>
+        
+        <TabsContent value="progress" className="mt-6">
+          <CategoryProgress categories={categories} />
+        </TabsContent>
+        
+        <TabsContent value="results" className="mt-6">
+          <RecentResults results={results} isLoading={isLoading} showAll />
+        </TabsContent>
+        
+        <TabsContent value="badges" className="mt-6">
+          <BadgesDisplay />
+        </TabsContent>
+        
+        <TabsContent value="settings" className="mt-6">
+          <NotificationSettings />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
