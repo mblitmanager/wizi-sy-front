@@ -38,7 +38,7 @@ export interface Category {
 export interface Answer {
   id: string;
   text: string;
-  isCorrect: boolean;
+  is_correct: number;
 }
 
 export interface Media {

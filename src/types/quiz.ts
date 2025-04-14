@@ -21,7 +21,7 @@ export interface Answer {
   id: string;
   question_id: string;
   text: string;
-  is_correct: boolean;
+  is_correct: number;
   position?: number;
   match_pair?: string;
   bank_group?: string;
