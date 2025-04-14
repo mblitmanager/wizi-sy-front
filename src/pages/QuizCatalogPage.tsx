@@ -8,6 +8,7 @@ import QuizCard from '@/components/Quiz/QuizCard';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/context/AuthContext';
+import { quizAPI } from '@/api';
 
 const QuizCatalogPage: React.FC = () => {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ const QuizCatalogPage: React.FC = () => {
 
   useEffect(() => {
     if (!isAuthenticated || !user) {
-      navigate('/login');
+      navigate('/auth/login');
       return;
     }
 
@@ -30,7 +31,8 @@ const QuizCatalogPage: React.FC = () => {
       setIsLoading(true);
       try {
         // Récupérer les formations du stagiaire
-        const formationsResponse = await quizService.getFormationsByStagiaire(user.id);
+        console.log('User:', user);
+        const formationsResponse = await quizService.getFormationsByStagiaire(user.stagiaire.id);
         const formations = formationsResponse.data;
         console.log('Formations:', formations);
 
@@ -46,36 +48,34 @@ const QuizCatalogPage: React.FC = () => {
         setFormationsByCategory(formationsByCategory);
 
         // Convertir les formations en quizzes avec les bons types
-        const quizzesData = formations.flatMap(formation => 
-          formation.quizzes.map(quiz => {
+        const quizzesData = await Promise.all(formations.flatMap(async formation => 
+          Promise.all(formation.quizzes.map(async quiz => {
             console.log('Quiz:', quiz);
-            const questions: Question[] = quiz.questions.map(q => ({
-              id: q.id.toString(),
-              quiz_id: quiz.id.toString(),
-              text: q.text,
-              type: q.type,
-              options: q.options,
-              correct_answer: q.correct_answer,
-              points: q.points,
-              media_url: q.media_url,
-              explication: q.explication,
-              astuce: q.astuce,
-              time_limit: q.time_limit
-            }));
+            try {
+              // Récupérer les questions pour chaque quiz
+              const questions = await quizAPI.getQuizQuestions(quiz.id.toString());
+              
+              return {
+                id: quiz.id.toString(),
+                title: quiz.titre || quiz.title,
+                description: quiz.description,
+                category: formation.categorie,
+                categoryId: formation.id.toString(),
+                level: quiz.niveau || quiz.level,
+                questions,
+                points: quiz.nb_points_total || quiz.points || 0
+              };
+            } catch (error) {
+              console.error(`Failed to fetch questions for quiz ${quiz.id}:`, error);
+              return null;
+            }
+          }))
+        ));
 
-            return {
-              id: quiz.id.toString(),
-              title: quiz.title,
-              description: quiz.description,
-              category: formation.categorie,
-              categoryId: formation.id.toString(),
-              level: quiz.level,
-              questions,
-              points: quiz.points || 0
-            };
-          })
-        );
-        setQuizzes(quizzesData);
+        // Aplatir le tableau de quiz et filtrer les quiz null
+        const validQuizzes = quizzesData.flat().filter(Boolean);
+        console.log('Valid quizzes:', validQuizzes);
+        setQuizzes(validQuizzes);
       } catch (error) {
         console.error('Failed to fetch formations:', error);
       } finally {
@@ -88,6 +88,8 @@ const QuizCatalogPage: React.FC = () => {
 
   // Filter quizzes based on search criteria
   const filteredQuizzes = quizzes.filter(quiz => {
+    if (!quiz || !quiz.title || !quiz.description) return false;
+    
     const matchesSearch = quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                         quiz.description.toLowerCase().includes(searchTerm.toLowerCase());
     
@@ -102,11 +104,11 @@ const QuizCatalogPage: React.FC = () => {
   const getCategoryColor = (categoryName: string) => {
     // Default colors for categories
     const categoryColors: Record<string, string> = {
-      'Général': '#3D9BE9',
-      'Technique': '#FF6B6B',
-      'Commercial': '#4ECDC4',
-      'Relation Client': '#FFD166',
-      'Management': '#9B59B6'
+      'Bureautique': '#3D9BE9',
+      'Création': '#FF6B6B',
+      'Internet': '#4ECDC4',
+      'Langues': '#FFD166',
+      'Autre': '#9B59B6'
     };
     return categoryColors[categoryName] || '#3D9BE9';
   };

@@ -1,92 +1,262 @@
-import axios from 'axios';
-import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry, Question, Answer } from '../types';
+import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry, Question, Answer, QuizSubmitData } from '../types';
 import { decodeToken } from '@/utils/tokenUtils';
+import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+// Base URL of our API
+const API_URL = 'http://localhost:8000/api';
 
-export const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Intercepteur pour ajouter le token aux requêtes
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+// Helper function to handle API responses
+const handleResponse = async <T>(response: Response): Promise<T> => {
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Network response was not ok' }));
+    throw new Error(error.message || 'Something went wrong');
   }
-  return config;
-});
+  return response.json();
+};
 
-// Intercepteur pour gérer les erreurs
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      delete api.defaults.headers.common['Authorization'];
-      window.location.href = '/auth/login';
+// Authentication API
+export const authAPI = {
+  login: async (email: string, password: string): Promise<User> => {
+    const response = await fetch(`${API_URL}/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await handleResponse(response);
+    
+    // If token exists, decode it to extract user information
+    if (data.token) {
+      const decodedToken = decodeToken(data.token);
+      
+      // If token contains user ID, ensure it's set in the return data
+      if (decodedToken && decodedToken.id && !data.id) {
+        data.id = decodedToken.id;
+      }
+      
+      // If token contains role information, ensure it's set in the return data
+      if (decodedToken && decodedToken.role && !data.role) {
+        data.role = decodedToken.role;
+      }
+    } else {
+      // Fallback for testing/development
+      data.token = data.token || 'default-token';
     }
-    return Promise.reject(error);
-  }
-);
+    
+    return data;
+  },
+
+  register: async (username: string, email: string, password: string): Promise<User> => {
+    const response = await fetch(`${API_URL}/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, email, password }),
+    });
+    const data = await handleResponse(response);
+    
+    // If token exists, decode it to extract user information
+    if (data.token) {
+      const decodedToken = decodeToken(data.token);
+      
+      // If token contains user ID, ensure it's set in the return data
+      if (decodedToken && decodedToken.id && !data.id) {
+        data.id = decodedToken.id;
+      }
+      
+      // If token contains role information, ensure it's set in the return data
+      if (decodedToken && decodedToken.role && !data.role) {
+        data.role = decodedToken.role;
+      }
+    } else {
+      // Fallback for testing/development
+      data.token = data.token || 'default-token'; 
+    }
+    
+    return data;
+  },
+
+  getCurrentUser: async (): Promise<User> => {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('Utilisateur non authontifié');
+    
+    const response = await fetch(`${API_URL}/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    
+    const data = await handleResponse(response);
+    
+    // If response doesn't include role but token does, add it
+    if (!data.role) {
+      const decodedToken = decodeToken(token);
+      if (decodedToken && decodedToken.role) {
+        data.role = decodedToken.role;
+      }
+    }
+    
+    // Add token to user object
+    data.token = token;
+    return data;
+  },
+
+  logout: async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    
+    await fetch(`${API_URL}/logout`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+  },
+};
 
 // Quiz API
 export const quizAPI = {
   getCategories: async (): Promise<Category[]> => {
-    const response = await api.get<Category[]>('/formation/categories');
-    return response.data;
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  
+    const response = await fetch(`${API_URL}/formation/categories`, { headers });
+    return handleResponse(response);
   },
   
   getQuizzesByCategory: async (categoryId: string): Promise<Quiz[]> => {
-    const response = await api.get<Quiz[]>(`/formations/categories/${categoryId}`);
-    return response.data;
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`${API_URL}/formations/categories/${categoryId}`, { headers });
+    return handleResponse(response);
   },
 
   getQuizById: async (quizId: string): Promise<Quiz> => {
-    const response = await api.get<Quiz>(`/quizzes/${quizId}`);
-    return response.data;
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`${API_URL}/quizzes/${quizId}`, { headers });
+    return handleResponse(response);
   },
 
   getQuizQuestions: async (quizId: string): Promise<Question[]> => {
-    const response = await api.get<Question[]>(`/quizzes/${quizId}/questions`);
-    return response.data;
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`${API_URL}/quiz/${quizId}/questions`, { headers });
+    return handleResponse(response);
   },
 
   getQuestionById: async (questionId: string): Promise<Question> => {
-    const response = await api.get<Question>(`/questions/${questionId}`);
-    return response.data;
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`${API_URL}/questions/${questionId}`, { headers });
+    return handleResponse(response);
   },
 
   getResponsesByQuestion: async (questionId: string): Promise<Answer[]> => {
-    const response = await api.get<Answer[]>(`/questions/${questionId}/reponses`);
-    return response.data;
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`${API_URL}/questions/${questionId}/reponses`, { headers });
+    const data = await handleResponse<{ data: Answer[] }>(response);
+    return data.data || [];
   },
 
-  submitQuizResult: async (result: Omit<QuizResult, 'id' | 'completedAt'>): Promise<QuizResult> => {
-    const response = await api.post<QuizResult>(`/quizzes/${result.quizId}/submit`, result);
-    return response.data;
+  submitQuizResult: async (result: QuizSubmitData): Promise<QuizResult> => {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('Not authenticated');
+    
+    const response = await fetch(`${API_URL}/quizzes/${result.quizId}/submit`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        answers: result.answers,
+        score: result.score,
+        correctAnswers: result.correctAnswers,
+        totalQuestions: result.totalQuestions,
+        timeSpent: result.timeSpent
+      }),
+    });
+    return handleResponse(response);
   },
 };
 
 // User progress API
 export const progressAPI = {
   getUserProgress: async (userId: string): Promise<UserProgress> => {
-    const response = await api.get<UserProgress>(`/stagiaire/formations`);
-    return response.data;
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_URL}/stagiaire/formations`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse(response);
   },
 
   getLeaderboard: async (): Promise<LeaderboardEntry[]> => {
-    const response = await api.get<LeaderboardEntry[]>('/stagiaire/ranking/global');
-    return response.data;
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`${API_URL}/stagiaire/ranking/global`, { headers });
+    return handleResponse(response);
   },
 
-  getUserStats: async (userId: string): Promise<any> => {
-    const response = await api.get<any>(`/stagiaire/progress`);
-    return response.data;
+  getUserStats: async (userId: string): Promise<UserProgress> => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_URL}/stagiaire/progress`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse(response);
   },
+};
+
+// Fonction pour récupérer les réponses d'une question
+export const getReponsesByQuestion = async (questionId: string): Promise<Answer[]> => {
+  try {
+    const response = await axios.get(`${API_URL}/questions/${questionId}/reponses`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    return (response.data as { data: Answer[] }).data;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des réponses:', error);
+    throw error;
+  }
 };
 
 // Export mockAPI for fallback or development purposes

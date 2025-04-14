@@ -41,9 +41,8 @@ export const quizService = {
     questionCount: number,
     category?: string
   ): Promise<QuizData> {
-    const response = await api.get<QuizData>(`/quizzes/random`, {
+    const response = await api.get<QuizData>(`/api/quiz/${level}`, {
       params: {
-        level,
         count: questionCount,
         category
       }
@@ -51,27 +50,27 @@ export const quizService = {
     return response.data;
   },
 
-  async submitQuiz(quizId: string, answers: number[]): Promise<{ score: number }> {
-    const response = await api.post<{ score: number }>(`/quizzes/${quizId}/submit`, { answers });
+  async submitQuiz(quizId: string, answers: string[]): Promise<{ score: number }> {
+    const response = await api.post<{ score: number }>(`/api/quizzes/${quizId}/submit`, { answers });
     return response.data;
   },
 
   async saveQuizResult(result: QuizResult): Promise<void> {
-    await api.post('/quizzes/results', result);
+    await api.post('/api/quizzes/results', result);
   },
 
   async getQuizHistory(): Promise<QuizData[]> {
-    const response = await api.get<QuizData[]>('/quizzes/history');
+    const response = await api.get<QuizData[]>('/api/quizzes/history');
     return response.data;
   },
 
   async getQuizRanking(): Promise<{ userId: string; score: number; rank: number }[]> {
-    const response = await api.get<{ userId: string; score: number; rank: number }[]>('/quizzes/ranking');
+    const response = await api.get<{ userId: string; score: number; rank: number }[]>('/api/quizzes/ranking');
     return response.data;
   },
 
   async getQuizCategories(): Promise<string[]> {
-    const response = await api.get<string[]>('/quiz/categories');
+    const response = await api.get<string[]>('/api/quiz/categories');
     return response.data;
   },
 

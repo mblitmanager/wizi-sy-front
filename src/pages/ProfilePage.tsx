@@ -31,7 +31,7 @@ const ProfilePage: React.FC = () => {
         setUserProgress(progress);
         
         // Fetch categories from API - using the correct endpoint
-        const categoriesResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://laravel.test/api'}/formation/categories`);
+        const categoriesResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/formation/categories`);
         if (categoriesResponse.ok) {
           const categoryNames = await categoriesResponse.json();
           
@@ -50,7 +50,7 @@ const ProfilePage: React.FC = () => {
         }
         
         // Fetch recent quiz results
-        const recentResultsResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://laravel.test/api'}/stagiaires/${user.id}/formations`);
+        const recentResultsResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/stagiaires/${user.id}/formations`);
         if (recentResultsResponse.ok) {
           const userStatData = await recentResultsResponse.json();
           // The API might return results in a different format, so we're adapting it

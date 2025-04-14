@@ -1,14 +1,22 @@
+import { User } from './index';
+
 export interface Question {
   id: string;
   quiz_id: string;
   text: string;
-  type: 'true_false' | 'multiple_choice' | 'fill_blank' | 'matching' | 'ordering' | 'word_bank' | 'flashcard' | 'audio';
+  media?: {
+    type: 'image' | 'video' | 'audio';
+    url: string;
+  };
+  type: 'vrai faux' | 'choix multiples' | 'remplir le champ vide' | 'correspondance' | 'commander' | 'banque de mots' | 'carte flash' | 'question audio';
+  // type: 'true_false' | 'multiple_choice' | 'fill_blank' | 'matching' | 'ordering' | 'word_bank' | 'flashcard' | 'audio';
   media_url?: string;
   explication?: string;
   points: number;
   astuce?: string;
   options?: string[];
-  correct_answer: any;
+  categories?: string[];
+  correct_answer: string | number | boolean | string[] | number[] | Record<string, string> | Record<string, string[]> | Record<string, number[]>;
   time_limit?: number;
 }
 
@@ -16,7 +24,7 @@ export interface Answer {
   id: string;
   question_id: string;
   text: string;
-  is_correct: boolean;
+  is_correct: number;
   position?: number;
   match_pair?: string;
   bank_group?: string;
@@ -26,12 +34,15 @@ export interface Answer {
 export interface Quiz {
   id: string;
   title: string;
+  titre?: string;
   description: string;
   category: string;
   categoryId: string;
   level: 'débutant' | 'intermédiaire' | 'avancé' | 'super';
+  niveau?: 'débutant' | 'intermédiaire' | 'avancé' | 'super';
   questions: Question[];
   points: number;
+  nb_points_total?: number;
   timeLimit?: number;
   passingScore?: number;
   trainingId?: string;
@@ -46,6 +57,18 @@ export interface QuizResult {
   totalQuestions: number;
   completedAt: string;
   timeSpent: number;
+  answers?: Record<string, string>;
+}
+
+// Interface pour la soumission des résultats
+export interface QuizSubmitData {
+  quizId: string;
+  answers: Record<string, string>;
+  score: number;
+  correctAnswers: number;
+  totalQuestions: number;
+  timeSpent: number;
+  pointsEarned: number;
 }
 
 export interface QuizResponse {
@@ -60,7 +83,7 @@ export interface QuizSubmitResponse {
     results: {
       questionId: string;
       isCorrect: boolean;
-      correctAnswer: any;
+      correctAnswer: string | number | boolean | string[] | number[] | Record<string, string> | Record<string, string[]>;
     }[];
   };
 }
@@ -97,7 +120,28 @@ export interface Formation {
   duree: string;
   created_at: string;
   updated_at: string;
-  formateurs: any[];
-  stagiaires: any[];
+  formateurs: User[];
+  stagiaires: User[];
   quizzes: Quiz[];
-} 
+}
+
+// Types pour les réponses des différents types de questions
+type MultipleChoiceAnswer = number;
+type TrueFalseAnswer = number;
+type FillBlankAnswer = { [key: string]: string };
+type MatchingAnswer = number[];
+type OrderingAnswer = number[];
+type WordBankAnswer = { [key: string]: string[] };
+type FlashcardAnswer = boolean;
+type AudioQuestionAnswer = string;
+
+// Type union pour toutes les réponses possibles
+export type QuestionAnswer = 
+  | MultipleChoiceAnswer
+  | TrueFalseAnswer
+  | FillBlankAnswer
+  | MatchingAnswer
+  | OrderingAnswer
+  | WordBankAnswer
+  | FlashcardAnswer
+  | AudioQuestionAnswer;

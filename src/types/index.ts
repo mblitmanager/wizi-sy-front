@@ -38,7 +38,7 @@ export interface Category {
 export interface Answer {
   id: string;
   text: string;
-  isCorrect: boolean;
+  is_correct: number;
 }
 
 export interface Media {
@@ -50,13 +50,13 @@ export interface Question {
   id: string;
   quiz_id: string;
   text: string;
-  type: 'true_false' | 'multiple_choice' | 'fill_blank' | 'matching' | 'ordering' | 'word_bank' | 'flashcard' | 'audio';
+  type: 'vrai faux' | 'choix multiples' | 'remplir le champ vide' | 'correspondance' | 'commander' | 'banque de mots' | 'carte flash' | 'question audio';
   media_url?: string;
   explication?: string;
   points: number;
   astuce?: string;
   options?: string[];
-  correct_answer: any;
+  correct_answer: string | number | boolean | string[] | number[] | Record<string, string> | Record<string, string[]> | Record<string, number[]>;
   time_limit?: number;
 }
 
@@ -70,6 +70,7 @@ export interface Quiz {
   level: 'débutant' | 'intermédiaire' | 'avancé' | 'super';
   questions: Question[];
   points: number;
+  nb_points_total?: number;
 }
 
 // Types pour les résultats de quiz
@@ -119,7 +120,7 @@ export interface Formation {
   duree: string;
   created_at: string;
   updated_at: string;
-  formateurs: any[];
-  stagiaires: any[];
+  formateurs: User[];
+  stagiaires: User[];
   quizzes: Quiz[];
 }

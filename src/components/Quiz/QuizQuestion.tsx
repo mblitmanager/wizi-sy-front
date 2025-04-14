@@ -1,9 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
-import { Question } from '@/types';
+import { Question } from '@/types/quiz';
+import { Answer as QuizAnswer } from '@/types/quiz';
+import { Answer as IndexAnswer } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle2, XCircle } from 'lucide-react';
+import { getReponsesByQuestion } from '@/api';
+import QuestionRenderer from '@/components/questions/QuestionRenderer';
 
 interface QuizQuestionProps {
   question: Question;
@@ -23,8 +26,32 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [timeLeft, setTimeLeft] = useState(timeLimit);
+  const [answers, setAnswers] = useState<QuizAnswer[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const progress = ((currentQuestion - 1) / totalQuestions) * 100;
+
+  // Récupérer les réponses depuis l'API
+  useEffect(() => {
+    const fetchAnswers = async () => {
+      try {
+        setLoading(true);
+        const fetchedAnswers = await getReponsesByQuestion(question.id);
+        // Convert IndexAnswer to QuizAnswer
+        const convertedAnswers: QuizAnswer[] = fetchedAnswers.map(answer => ({
+          ...answer,
+          question_id: question.id
+        }));
+        setAnswers(convertedAnswers);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des réponses:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnswers();
+  }, [question.id]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -33,7 +60,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
           clearInterval(timer);
           if (!selectedAnswer) {
             // Auto-select wrong answer if time runs out
-            handleSelectAnswer(question.answers.find(a => !a.isCorrect)?.id || '');
+            handleSelectAnswer(answers.find(a => !a.is_correct)?.id || '');
           }
           return 0;
         }
@@ -42,7 +69,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [question.id, selectedAnswer]);
+  }, [question.id, selectedAnswer, answers]);
 
   useEffect(() => {
     setSelectedAnswer(null);
@@ -53,7 +80,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
   const handleSelectAnswer = (answerId: string) => {
     if (selectedAnswer || showFeedback) return;
     
-    const isCorrect = question.answers.find(a => a.id === answerId)?.isCorrect || false;
+    const isCorrect = answers.find(a => a.id === answerId)?.is_correct === 1;
     setSelectedAnswer(answerId);
     setShowFeedback(true);
     
@@ -62,6 +89,32 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
       onAnswer(answerId, isCorrect);
     }, 1500);
   };
+
+  const handleQuestionAnswer = (answer: unknown) => {
+    if (typeof answer === 'string') {
+      handleSelectAnswer(answer);
+    } else if (Array.isArray(answer) && answer.length > 0) {
+      handleSelectAnswer(answer[0].toString());
+    } else if (typeof answer === 'number') {
+      handleSelectAnswer(answer.toString());
+    } else if (typeof answer === 'boolean') {
+      const correctAnswer = answers.find(a => a.is_correct === 1)?.id;
+      if (correctAnswer) {
+        handleSelectAnswer(correctAnswer);
+      }
+    } else if (answer && typeof answer === 'object') {
+      const firstValue = Object.values(answer)[0];
+      if (Array.isArray(firstValue) && firstValue.length > 0) {
+        handleSelectAnswer(firstValue[0].toString());
+      } else if (firstValue) {
+        handleSelectAnswer(firstValue.toString());
+      }
+    }
+  };
+
+  if (loading) {
+    return <div className="text-center">Chargement des réponses...</div>;
+  }
 
   return (
     <div className="max-w-xl mx-auto">
@@ -75,57 +128,13 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
         <Progress value={progress} className="h-2" />
       </div>
 
-      {question.media && (
-        <div className="mb-6 rounded-lg overflow-hidden">
-          {question.media.type === 'image' && (
-            <img src={question.media.url} alt="Question media" className="w-full h-auto" />
-          )}
-          {question.media.type === 'video' && (
-            <video src={question.media.url} controls className="w-full h-auto"></video>
-          )}
-          {question.media.type === 'audio' && (
-            <audio src={question.media.url} controls className="w-full"></audio>
-          )}
-        </div>
-      )}
-
-      <h3 className="text-xl font-medium text-gray-800 mb-6 font-montserrat">{question.text}</h3>
-
-      <div className="space-y-3">
-        {question.answers.map((answer) => {
-          const isSelected = selectedAnswer === answer.id;
-          let optionClass = "relative border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 hover:bg-opacity-90 font-nunito";
-          
-          if (showFeedback) {
-            if (answer.isCorrect) {
-              optionClass += " bg-green-500 border-green-600 text-white";
-            } else if (isSelected && !answer.isCorrect) {
-              optionClass += " bg-red-500 border-red-600 text-white";
-            }
-          }
-          
-          return (
-            <div
-              key={answer.id}
-              className={optionClass}
-              onClick={() => handleSelectAnswer(answer.id)}
-            >
-              <div className="flex justify-between items-center">
-                <span>{answer.text}</span>
-                {showFeedback && (
-                  <span>
-                    {answer.isCorrect ? (
-                      <CheckCircle2 className="h-5 w-5 text-white" />
-                    ) : (
-                      isSelected && <XCircle className="h-5 w-5 text-white" />
-                    )}
-                  </span>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <QuestionRenderer
+        question={question}
+        onAnswer={handleQuestionAnswer}
+        isAnswerChecked={showFeedback}
+        selectedAnswer={selectedAnswer}
+        timeRemaining={timeLeft}
+      />
 
       {showFeedback && (
         <div className="mt-4 text-center">

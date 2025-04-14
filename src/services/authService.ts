@@ -1,5 +1,12 @@
 import { api } from './api';
-import { User } from '@/types';
+
+export interface User {
+  id: number;
+  email: string;
+  name: string;
+  role: 'admin' | 'formateur' | 'stagiaire';
+  avatar?: string;
+}
 
 export interface LoginResponse {
   token: string;
@@ -8,7 +15,7 @@ export interface LoginResponse {
 
 export const authService = {
   async login(email: string, password: string): Promise<LoginResponse> {
-    const response = await api.post<LoginResponse>('/api/auth/login', {
+    const response = await api.post<LoginResponse>('/auth/login', {
       email,
       password
     });
@@ -20,8 +27,8 @@ export const authService = {
   },
 
   async getCurrentUser(): Promise<User> {
-    const response = await api.get<{ user: User; stagiaire?: any }>('/api/me');
-    return response.data.user;
+    const response = await api.get<User>('/api/me');
+    return response.data;
   },
 
   async refreshToken(): Promise<{ token: string }> {

@@ -1,104 +1,92 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { api } from '@/api';
-import { authService } from '@/services/authService';
-import { User } from '@/types';
+import { api } from '@/lib/api';
+import { User } from '../types';
 import { toast } from '@/hooks/use-toast';
-import { decodeToken, isTokenExpired } from '@/utils/tokenUtils';
+import { decodeToken, isTokenExpired, getUserRoleFromToken } from '@/utils/tokenUtils';
 
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
-  isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshToken: () => Promise<void>;
-  isAdmin: boolean;
-  refreshSession: () => Promise<void>;
-  getRedirectPath: () => string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+interface LoginResponse {
+  token: string;
+}
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Vérifier l'état d'authentification au chargement
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          if (isTokenExpired(token)) {
-            await logout();
-            return;
-          }
+  const checkAndRefreshToken = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setIsAuthenticated(false);
+      setUser(null);
+      return;
+    }
 
-          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          const userData = await authService.getCurrentUser();
-          if (userData) {
-            setUser(userData);
-            setIsAuthenticated(true);
-          } else {
-            await logout();
-          }
-        }
-      } catch (error) {
-        console.error('Error checking auth:', error);
-        await logout();
-      } finally {
-        setIsLoading(false);
+    try {
+      if (isTokenExpired(token)) {
+        await refreshToken();
+      } else {
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        setIsAuthenticated(true);
+        await fetchUser();
       }
-    };
+    } catch (error) {
+      console.error('Error checking token:', error);
+      await logout();
+    }
+  };
 
-    checkAuth();
+  useEffect(() => {
+    checkAndRefreshToken();
+
+    // Set up automatic token refresh every 10 minutes
+    const refreshInterval = setInterval(() => {
+      checkAndRefreshToken();
+    }, 10 * 60 * 1000);
+
+    // Set up a listener for window focus to check token
+    const handleFocus = () => {
+      checkAndRefreshToken();
+    };
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      clearInterval(refreshInterval);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
 
-  const getRedirectPath = (): string | null => {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-
-    const decodedToken = decodeToken(token);
-    if (!decodedToken) return null;
-
-    const currentPath = window.location.pathname;
-
-    // Si l'utilisateur est sur une page d'authentification, rediriger selon le rôle
-    if (currentPath.startsWith('/auth')) {
-      return decodedToken.role === 'admin' ? '/admin' : '/';
+  const fetchUser = async () => {
+    try {
+      const response = await api.get<User>('/me');
+      setUser(response.data);
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      await logout();
     }
-
-    // Vérifier les accès aux pages admin
-    if (currentPath.startsWith('/admin') && decodedToken.role !== 'admin') {
-      return '/';
-    }
-
-    // Vérifier les accès aux pages stagiaire
-    if (currentPath.startsWith('/stagiaire') && decodedToken.role !== 'stagiaire') {
-      return '/';
-    }
-
-    return null;
   };
 
   const login = async (email: string, password: string) => {
     try {
-      const { user: userData, token } = await authService.login(email, password);
-      setUser(userData);
+      const response = await api.post<LoginResponse>('/login', { email, password });
+      const { token } = response.data;
+      
+      if (!token) {
+        throw new Error('Token non reçu');
+      }
+
+      localStorage.setItem('token', token);
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setIsAuthenticated(true);
-      toast({
-        title: 'Connexion réussie',
-        description: 'Bienvenue sur Wizi Learn!',
-      });
+      await fetchUser();
     } catch (error) {
       throw new Error('Identifiants invalides');
     }
@@ -106,27 +94,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshToken = async () => {
     try {
-      await authService.refreshToken();
+      const currentToken = localStorage.getItem('token');
+      if (!currentToken) {
+        throw new Error('No token to refresh');
+      }
+
+      const response = await api.post<LoginResponse>('/refresh');
+      const { token } = response.data;
+      
+      if (!token) {
+        throw new Error('New token not received');
+      }
+
+      localStorage.setItem('token', token);
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      setIsAuthenticated(true);
     } catch (error) {
       console.error('Error refreshing token:', error);
       await logout();
     }
   };
 
-  const refreshSession = async () => {
-    try {
-      await refreshToken();
-      const userData = await authService.getCurrentUser();
-      setUser(userData);
-    } catch (error) {
-      console.error('Error refreshing session:', error);
-      await logout();
-    }
-  };
-
   const logout = async () => {
     try {
-      await authService.logout();
+      const token = localStorage.getItem('token');
+      if (token) {
+        await api.post('/logout');
+      }
     } catch (error) {
       console.error('Error during logout:', error);
     } finally {
@@ -134,28 +128,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       delete api.defaults.headers.common['Authorization'];
       setIsAuthenticated(false);
       setUser(null);
-      toast({
-        title: 'Déconnexion',
-        description: 'Vous avez été déconnecté avec succès.',
-      });
     }
   };
 
-  const isAdmin = user?.role === 'admin';
-
   return (
-    <AuthContext.Provider value={{ 
-      isAuthenticated, 
-      user, 
-      isLoading,
-      login, 
-      logout, 
-      refreshToken,
-      isAdmin,
-      refreshSession,
-      getRedirectPath
-    }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, refreshToken }}>
       {children}
     </AuthContext.Provider>
   );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };

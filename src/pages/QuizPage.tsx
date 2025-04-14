@@ -1,217 +1,171 @@
-
 import React, { useState, useEffect } from 'react';
-import { useParams, Navigate, Link } from 'react-router-dom';
-import { quizAPI } from '@/api';
-import { mockAPI } from '@/api/mockAPI';
-import { Quiz, Question, QuizResult, Answer } from '@/types';
-import { useAuth } from '@/context/AuthContext';
-import QuizQuestion from '@/components/Quiz/QuizQuestion';
-import QuizResultComponent from '@/components/Quiz/QuizResult';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { useParams, useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
+import { quizService } from '../services/quizService';
+import { Question, QuestionAnswer } from '../types/quiz';
+import { Timer } from '@/components/ui/timer';
+import QuestionRenderer from '../components/questions/QuestionRenderer';
+import { quizAPI } from '../api';
 
 const QuizPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const [quiz, setQuiz] = useState<Quiz | null>(null);
+  const { quizId } = useParams<{ quizId: string }>();
+  const navigate = useNavigate();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<{ [key: string]: string }>({});
-  const [correctAnswers, setCorrectAnswers] = useState<string[]>([]);
-  const [isFinished, setIsFinished] = useState(false);
-  const [result, setResult] = useState<QuizResult | null>(null);
-  const [startTime, setStartTime] = useState<Date | null>(null);
+  const [answers, setAnswers] = useState<Record<string, QuestionAnswer>>({});
+  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes in seconds
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load the quiz
   useEffect(() => {
-    const fetchQuiz = async () => {
+    const fetchQuestions = async () => {
+      if (!quizId) return;
       setIsLoading(true);
       try {
-        if (!id) return;
+        console.log('Récupération des questions pour le quiz:', quizId);
+        // Utiliser quizAPI pour récupérer les questions spécifiques au quiz
+        const quizQuestions = await quizAPI.getQuizQuestions(quizId);
+        console.log('Questions brutes reçues:', quizQuestions);
         
-        let foundQuiz: Quiz;
-        let quizQuestions: Question[];
-        
-        try {
-          // First try using the API
-          foundQuiz = await quizAPI.getQuizById(id);
-          quizQuestions = await quizAPI.getQuizQuestions(id);
-          setQuestions(quizQuestions);
-        } catch (error) {
-          console.error('Failed to fetch quiz via API:', error);
-          // Use mock data as fallback
-          const allQuizzes = mockAPI.getQuizzesByCategory("");
-          foundQuiz = allQuizzes.find(q => q.id === id) as Quiz;
-          
-          if (foundQuiz) {
-            setQuestions(foundQuiz.questions);
-          }
+        if (!quizQuestions || quizQuestions.length === 0) {
+          console.error('Aucune question reçue de l\'API');
+          toast.error('Aucune question disponible pour ce quiz');
+          return;
         }
         
-        if (foundQuiz) {
-          setQuiz(foundQuiz);
-          setStartTime(new Date());
-        } else {
-          toast({
-            title: "Erreur",
-            description: "Impossible de trouver ce quiz",
-            variant: "destructive"
-          });
-        }
-      } catch (error) {
-        console.error('Failed to fetch quiz:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger ce quiz",
-          variant: "destructive"
+        // Formater les questions pour correspondre à la structure attendue
+        const formattedQuestions = quizQuestions.map(q => {
+          console.log('Traitement de la question:', q);
+          return {
+            id: q.id,
+            quiz_id: q.quiz_id || quizId,
+            text: q.text || q.question || 'Question sans texte',
+            type: q.type || 'choix multiples',
+            media_url: q.media_url,
+            explication: q.explication,
+            points: q.points || 1,
+            astuce: q.astuce,
+            options: q.options || [],
+            correct_answer: q.correct_answer || '',
+            time_limit: q.time_limit
+          };
         });
+        
+        console.log('Questions formatées:', formattedQuestions);
+        setQuestions(formattedQuestions);
+      } catch (error) {
+        console.error('Error fetching questions:', error);
+        toast.error('Failed to load quiz questions');
       } finally {
         setIsLoading(false);
       }
     };
+    fetchQuestions();
+  }, [quizId]);
 
-    fetchQuiz();
-  }, [id, toast]);
-
-  // Handle question answers
-  const handleAnswer = (answerId: string, isCorrect: boolean) => {
-    if (!quiz || questions.length === 0) return;
-    
-    const question = questions[currentQuestionIndex];
-    
-    // Update user answers
-    setUserAnswers(prev => ({
+  const handleAnswer = (questionId: string, answer: QuestionAnswer) => {
+    console.log('Réponse sélectionnée:', { questionId, answer });
+    setAnswers(prev => ({
       ...prev,
-      [question.id]: answerId
+      [questionId]: answer
     }));
-    
-    // Update correct answers
-    if (isCorrect) {
-      setCorrectAnswers(prev => [...prev, question.id]);
-    }
-    
-    // Move to next question or finish the quiz
-    setTimeout(() => {
-      if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex(prevIndex => prevIndex + 1);
-      } else {
-        finishQuiz();
-      }
-    }, 1000);
   };
 
-  // Finalize the quiz
-  const finishQuiz = () => {
-    if (!quiz || !user || !startTime || questions.length === 0) return;
-    
-    const endTime = new Date();
-    const timeSpentSeconds = Math.floor((endTime.getTime() - startTime.getTime()) / 1000);
-    
-    // Calculate score
-    const score = Math.round((correctAnswers.length / questions.length) * 100);
-    
-    // Create quiz result
-    const quizResult: QuizResult = {
-      id: `result_${Date.now()}`,
-      quizId: quiz.id,
-      userId: user.id,
-      score,
-      correctAnswers: correctAnswers.length,
-      totalQuestions: questions.length,
-      completedAt: new Date().toISOString(),
-      timeSpent: timeSpentSeconds
-    };
-    
-    setResult(quizResult);
-    setIsFinished(true);
-    
-    // Send result to API if available
+  const handleNext = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!quizId) return;
+    setIsSubmitting(true);
     try {
-      quizAPI.submitQuizResult(quizResult)
-        .then(() => {
-          toast({
-            title: "Succès",
-            description: "Votre résultat a été enregistré",
-          });
-        })
-        .catch(error => {
-          console.error('Failed to submit result:', error);
-          toast({
-            title: "Avertissement",
-            description: "Impossible d'enregistrer votre résultat en ligne",
-            variant: "destructive"
-          });
-        });
-    } catch (error) {
-      console.error('Error submitting result:', error);
-    }
-  };
+      // Convertir les réponses au format attendu par l'API
+      const formattedAnswers = Object.entries(answers).map(([questionId, answer]) => {
+        if (Array.isArray(answer)) {
+          return answer.join(',');
+        } else if (typeof answer === 'object') {
+          return JSON.stringify(answer);
+        }
+        return answer.toString();
+      });
 
-  // Restart the quiz
-  const handleRetryQuiz = () => {
-    setCurrentQuestionIndex(0);
-    setUserAnswers({});
-    setCorrectAnswers([]);
-    setIsFinished(false);
-    setResult(null);
-    setStartTime(new Date());
+      console.log('Réponses formatées pour soumission:', formattedAnswers);
+      const result = await quizService.submitQuiz(quizId, formattedAnswers);
+      navigate(`/quiz/${quizId}/result`, { state: { result } });
+    } catch (error) {
+      console.error('Error submitting quiz:', error);
+      toast.error('Failed to submit quiz');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-
-  if (!quiz) {
-    return <Navigate to="/quiz" />;
-  }
-
-  // Show quiz result if finished
-  if (isFinished && result) {
-    return <QuizResultComponent result={result} onRetry={handleRetryQuiz} />;
+    return <div>Loading...</div>;
   }
 
   if (questions.length === 0) {
-    return (
-      <div className="max-w-3xl mx-auto pb-20 md:pb-0 md:pl-64">
-        <div className="text-center py-12">
-          <h2 className="text-xl font-semibold">Aucune question trouvée pour ce quiz</h2>
-          <Link to="/quiz" className="mt-4 inline-block">
-            <Button>Retour au catalogue</Button>
-          </Link>
-        </div>
-      </div>
-    );
+    return <div>No questions available</div>;
   }
 
   const currentQuestion = questions[currentQuestionIndex];
+  console.log('Question courante:', currentQuestion);
 
   return (
-    <div className="max-w-3xl mx-auto pb-20 md:pb-0 md:pl-64">
-      <div className="mb-6">
-        <Link to="/quiz" className="inline-flex items-center text-gray-500 hover:text-gray-700 mb-4 font-nunito">
-          <ChevronLeft className="h-4 w-4 mr-1" />
-          Retour
-        </Link>
-        
-        <h1 className="text-2xl font-bold mb-2 font-montserrat">{quiz.title}</h1>
-        <p className="text-gray-600 font-roboto">{quiz.description}</p>
+    <div className="max-w-4xl mx-auto p-4">
+      <div className="mb-4">
+        <Timer timeLeft={timeLeft} onTimeUp={handleSubmit} />
       </div>
 
-      {currentQuestion && (
-        <QuizQuestion
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="mb-4">
+          <h2 className="text-xl font-bold">Question {currentQuestionIndex + 1} sur {questions.length}</h2>
+          <p className="text-gray-600">Type: {currentQuestion.type}</p>
+        </div>
+        
+        <QuestionRenderer
           question={currentQuestion}
-          totalQuestions={questions.length}
-          currentQuestion={currentQuestionIndex + 1}
-          onAnswer={handleAnswer}
+          onAnswer={(answer) => handleAnswer(currentQuestion.id, answer)}
+          isAnswerChecked={false}
+          selectedAnswer={answers[currentQuestion.id]}
+          timeRemaining={timeLeft}
         />
-      )}
+
+        <div className="flex justify-between mt-6">
+          <button
+            onClick={handlePrevious}
+            disabled={currentQuestionIndex === 0}
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
+          >
+            Previous
+          </button>
+
+          {currentQuestionIndex === questions.length - 1 ? (
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+            >
+              {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
+            </button>
+          ) : (
+            <button
+              onClick={handleNext}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Next
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

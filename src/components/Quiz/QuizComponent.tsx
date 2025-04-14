@@ -6,25 +6,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Timer } from '@/components/ui/timer';
-import { QuizQuestion } from './QuizQuestion';
-import { QuizResult } from './QuizResult';
-import { QuizCard } from './QuizCard';
+import QuizQuestion from './QuizQuestion';
+import QuizResult from './QuizResult';
+import QuizCard from './QuizCard';
+import { Question, Answer } from '@/types/quiz';
+import { QuizResult as QuizResultType } from '@/services/quizService';
 
-interface Question {
+interface QuizData {
   id: number;
-  text: string;
-  image?: string;
-  type: 'single' | 'multiple';
-  answers: Answer[];
+  title: string;
+  description: string;
+  questions: Question[];
+  duration: number;
+  level: 'débutant' | 'intermédiaire' | 'avancé' | 'super';
+  mode: 'normal' | 'challenge' | 'discovery';
   category: string;
-  difficulty: number;
-}
-
-interface Answer {
-  id: number;
-  text: string;
-  isCorrect: boolean;
-  explanation?: string;
+  categoryId: number;
+  points: number;
 }
 
 interface QuizProps {
@@ -33,6 +31,16 @@ interface QuizProps {
   category?: string;
 }
 
+const mapLevel = (level: QuizProps['level']): QuizData['level'] => {
+  const levelMap: Record<QuizProps['level'], QuizData['level']> = {
+    beginner: 'débutant',
+    intermediate: 'intermédiaire',
+    advanced: 'avancé',
+    super: 'super'
+  };
+  return levelMap[level];
+};
+
 export const QuizComponent: React.FC<QuizProps> = ({ level, mode, category }) => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -40,11 +48,13 @@ export const QuizComponent: React.FC<QuizProps> = ({ level, mode, category }) =>
   const [timeLeft, setTimeLeft] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
+  const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
   const [streak, setStreak] = useState(0);
   const [maxStreak, setMaxStreak] = useState(0);
+  const [correctAnswers, setCorrectAnswers] = useState<string[]>([]);
+  const [quizData, setQuizData] = useState<QuizData | null>(null);
 
   const questionCount = {
     beginner: 5,
@@ -54,26 +64,27 @@ export const QuizComponent: React.FC<QuizProps> = ({ level, mode, category }) =>
   }[level];
 
   useEffect(() => {
-    const loadQuiz = async () => {
+    const fetchQuiz = async () => {
       try {
         setIsLoading(true);
-        const quizData = await quizService.getQuiz(level, questionCount, category);
-        setQuestions(quizData.questions);
-        setTimeLeft(quizData.duration);
-      } catch (err) {
-        setError('Erreur lors du chargement du quiz');
+        const data = await quizService.getQuiz(mapLevel(level), questionCount, category);
+        setQuizData(data);
+        setQuestions(data.questions);
+        setTimeLeft(data.duration);
+      } catch (error) {
+        console.error('Erreur lors du chargement du quiz:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadQuiz();
-  }, [level, questionCount, category]);
+    fetchQuiz();
+  }, [level, questionCount, category, mode]);
 
-  const handleAnswerSelect = (answerId: number) => {
+  const handleAnswerSelect = (answerId: string) => {
     const currentQuestionData = questions[currentQuestion];
     
-    if (currentQuestionData.type === 'single') {
+    if (currentQuestionData.type === 'vrai faux') {
       setSelectedAnswers([answerId]);
       checkAnswer([answerId]);
     } else {
@@ -85,17 +96,14 @@ export const QuizComponent: React.FC<QuizProps> = ({ level, mode, category }) =>
     }
   };
 
-  const checkAnswer = (selectedIds: number[]) => {
+  const checkAnswer = (selectedIds: string[]) => {
     const currentQuestionData = questions[currentQuestion];
-    const correctAnswers = currentQuestionData.answers
-      .filter(a => a.isCorrect)
-      .map(a => a.id);
     
-    const isCorrect = selectedIds.length === correctAnswers.length &&
-      selectedIds.every(id => correctAnswers.includes(id));
+    // La réponse correcte est stockée dans correct_answer
+    const isCorrect = selectedIds.some(id => id === currentQuestionData.correct_answer);
 
     if (isCorrect) {
-      setScore(prev => prev + 1);
+      setScore(prev => prev + currentQuestionData.points);
       setStreak(prev => {
         const newStreak = prev + 1;
         if (newStreak > maxStreak) {
@@ -103,6 +111,7 @@ export const QuizComponent: React.FC<QuizProps> = ({ level, mode, category }) =>
         }
         return newStreak;
       });
+      setCorrectAnswers(prev => [...prev, currentQuestionData.id]);
     } else {
       setStreak(0);
     }
@@ -117,20 +126,29 @@ export const QuizComponent: React.FC<QuizProps> = ({ level, mode, category }) =>
       setShowExplanation(false);
     } else {
       setShowResults(true);
-      // Sauvegarder le score et les statistiques
-      quizService.saveQuizResult({
-        score,
+      // Sauvegarder le résultat du quiz
+      const result: QuizResultType = {
+        id: `result_${Date.now()}`,
+        quizId: questions[0]?.quiz_id || '',
+        userId: 'current-user',
+        score: calculateScore(),
+        correctAnswers: correctAnswers.length,
+        totalQuestions: questions.length,
+        completedAt: new Date().toISOString(),
+        timeSpent: quizData?.duration - timeLeft || 0,
         maxStreak,
-        level,
-        mode,
-        category,
-        questionsAnswered: questions.length
-      });
+        mode
+      };
+      quizService.saveQuizResult(result);
     }
   };
 
+  const calculateScore = () => {
+    return Math.round((correctAnswers.length / questions.length) * 100);
+  };
+
   if (isLoading) {
-    return <QuizCard loading />;
+    return <QuizCard quiz={null} categoryColor="bg-blue-500" />;
   }
 
   if (error) {
@@ -138,13 +156,22 @@ export const QuizComponent: React.FC<QuizProps> = ({ level, mode, category }) =>
   }
 
   if (showResults) {
+    const result: QuizResultType = {
+      id: `result_${Date.now()}`,
+      quizId: questions[0]?.quiz_id || '',
+      userId: 'current-user',
+      score: calculateScore(),
+      correctAnswers: correctAnswers.length,
+      totalQuestions: questions.length,
+      completedAt: new Date().toISOString(),
+      timeSpent: quizData?.duration - timeLeft || 0,
+      maxStreak,
+      mode
+    };
+
     return (
-      <QuizResult 
-        score={score}
-        totalQuestions={questions.length}
-        maxStreak={maxStreak}
-        level={level}
-        mode={mode}
+      <QuizResult
+        result={result}
         onRetry={() => window.location.reload()}
       />
     );
@@ -173,10 +200,10 @@ export const QuizComponent: React.FC<QuizProps> = ({ level, mode, category }) =>
       <CardContent>
         <QuizQuestion
           question={currentQuestionData}
-          selectedAnswers={selectedAnswers}
-          onAnswerSelect={handleAnswerSelect}
-          showExplanation={showExplanation}
-          mode={mode}
+          totalQuestions={questions.length}
+          currentQuestion={currentQuestion + 1}
+          onAnswer={handleAnswerSelect}
+          timeLimit={timeLeft}
         />
         
         <div className="flex justify-between mt-4">
