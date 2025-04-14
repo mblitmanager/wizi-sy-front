@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Question } from '../../types';
+import { Answer } from '../../types/quiz';
 import BaseQuestion from './BaseQuestion';
 import { RotateCw } from 'lucide-react';
+import { getReponsesByQuestion } from '../../api';
 
 interface FlashcardProps {
   question: Question;
@@ -20,112 +22,106 @@ const Flashcard: React.FC<FlashcardProps> = ({
   showHint,
   timeRemaining
 }) => {
+  const [responses, setResponses] = useState<Answer[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [userAnswer, setUserAnswer] = useState<boolean | null>(selectedAnswer);
+
+  useEffect(() => {
+    const fetchResponses = async () => {
+      try {
+        setLoading(true);
+        const fetchedResponses = await getReponsesByQuestion(question.id);
+        setResponses(fetchedResponses.map(r => ({
+          ...r,
+          question_id: question.id,
+          is_correct: true
+        })) as Answer[]);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des réponses:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResponses();
+  }, [question.id]);
+
+  useEffect(() => {
+    if (selectedAnswer !== null) {
+      setIsFlipped(selectedAnswer);
+    }
+  }, [selectedAnswer]);
+
+  if (loading) {
+    return <div className="text-center">Chargement des réponses...</div>;
+  }
+
+  if (!responses || responses.length === 0) {
+    return <div className="text-center text-red-500">Aucune réponse disponible pour cette question.</div>;
+  }
+
+  const frontContent = responses[0]?.text;
+  const backContent = responses[0]?.flashcard_back;
 
   const handleFlip = () => {
     if (!isAnswerChecked) {
-      setIsFlipped(!isFlipped);
-    }
-  };
-
-  const handleAnswer = (isCorrect: boolean) => {
-    if (!isAnswerChecked) {
-      setUserAnswer(isCorrect);
-      onAnswer(isCorrect);
+      const newFlipped = !isFlipped;
+      setIsFlipped(newFlipped);
+      onAnswer(newFlipped);
     }
   };
 
   return (
-    <>
-      <BaseQuestion
-        question={question}
-        onAnswer={onAnswer}
-        isAnswerChecked={isAnswerChecked}
-        selectedAnswer={selectedAnswer}
-        showHint={showHint}
-        timeRemaining={timeRemaining}
-      />
-      
-      <div className="mt-6 perspective-1000">
+    <BaseQuestion
+      question={question}
+      onAnswer={onAnswer}
+      isAnswerChecked={isAnswerChecked}
+      selectedAnswer={selectedAnswer}
+      showHint={showHint}
+      timeRemaining={timeRemaining}
+    >
+      <div
+        className={`relative w-full aspect-[3/2] cursor-pointer perspective-1000`}
+        onClick={handleFlip}
+      >
         <div
-          className={`relative w-full h-64 transition-transform duration-500 transform-style-preserve-3d ${
+          className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${
             isFlipped ? 'rotate-y-180' : ''
           }`}
         >
-          {/* Front of the card */}
+          {/* Face avant */}
           <div
-            className={`absolute w-full h-full backface-hidden rounded-xl p-6 flex flex-col items-center justify-center ${
-              isAnswerChecked
-                ? userAnswer === question.correct_answer
-                  ? 'bg-green-50 border-2 border-green-500'
-                  : 'bg-red-50 border-2 border-red-500'
-                : 'bg-white border-2 border-gray-200'
+            className={`absolute w-full h-full backface-hidden bg-white rounded-xl border-2 p-6 flex items-center justify-center text-center ${
+              !isFlipped ? 'border-blue-500' : ''
             }`}
           >
-            <div className="text-center">
-              <h3 className="text-xl font-medium mb-4">Question</h3>
-              <p className="text-gray-700">{question.text}</p>
-            </div>
-            {!isAnswerChecked && (
-              <button
-                onClick={handleFlip}
-                className="absolute bottom-4 right-4 p-2 rounded-full hover:bg-gray-100"
-              >
-                <RotateCw className="h-5 w-5 text-gray-500" />
-              </button>
-            )}
+            <div className="text-xl font-medium">{frontContent}</div>
           </div>
 
-          {/* Back of the card */}
+          {/* Face arrière */}
           <div
-            className={`absolute w-full h-full backface-hidden rounded-xl p-6 flex flex-col items-center justify-center rotate-y-180 ${
-              isAnswerChecked
-                ? userAnswer === question.correct_answer
-                  ? 'bg-green-50 border-2 border-green-500'
-                  : 'bg-red-50 border-2 border-red-500'
-                : 'bg-white border-2 border-gray-200'
+            className={`absolute w-full h-full backface-hidden bg-white rounded-xl border-2 p-6 flex items-center justify-center text-center rotate-y-180 ${
+              isFlipped ? 'border-green-500' : ''
             }`}
           >
-            <div className="text-center">
-              <h3 className="text-xl font-medium mb-4">Réponse</h3>
-              <p className="text-gray-700">{question.options?.[0]}</p>
-            </div>
-            {!isAnswerChecked && (
-              <div className="absolute bottom-4 flex space-x-4">
-                <button
-                  onClick={() => handleAnswer(true)}
-                  className={`px-4 py-2 rounded-lg ${
-                    userAnswer === true
-                      ? 'bg-green-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Je connais
-                </button>
-                <button
-                  onClick={() => handleAnswer(false)}
-                  className={`px-4 py-2 rounded-lg ${
-                    userAnswer === false
-                      ? 'bg-red-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Je ne connais pas
-                </button>
-              </div>
-            )}
+            <div className="text-xl font-medium">{backContent}</div>
           </div>
         </div>
+
+        {!isAnswerChecked && (
+          <button
+            className="absolute bottom-4 right-4 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleFlip();
+            }}
+            title="Retourner la carte"
+          >
+            <RotateCw className="h-6 w-6" />
+          </button>
+        )}
       </div>
-
-      {isAnswerChecked && (
-        <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-          <h3 className="font-medium text-blue-800 mb-2">Explication:</h3>
-          <p className="text-blue-700">{question.explication}</p>
-        </div>
-      )}
-    </>
+    </BaseQuestion>
   );
 };
 

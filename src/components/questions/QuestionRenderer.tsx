@@ -9,11 +9,32 @@ import WordBank from './WordBank';
 import Flashcard from './Flashcard';
 import AudioQuestion from './AudioQuestion';
 
+// Types pour les réponses des différents types de questions
+type MultipleChoiceAnswer = number;
+type TrueFalseAnswer = boolean;
+type FillBlankAnswer = string;
+type MatchingAnswer = number[];
+type OrderingAnswer = number[];
+type WordBankAnswer = { [key: string]: string[] };
+type FlashcardAnswer = boolean;
+type AudioQuestionAnswer = string;
+
+// Type union pour toutes les réponses possibles
+type QuestionAnswer = 
+  | MultipleChoiceAnswer
+  | TrueFalseAnswer
+  | FillBlankAnswer
+  | MatchingAnswer
+  | OrderingAnswer
+  | WordBankAnswer
+  | FlashcardAnswer
+  | AudioQuestionAnswer;
+
 interface QuestionRendererProps {
   question: Question;
-  onAnswer: (answer: any) => void;
+  onAnswer: (answer: QuestionAnswer) => void;
   isAnswerChecked: boolean;
-  selectedAnswer: any;
+  selectedAnswer: QuestionAnswer | null;
   showHint?: boolean;
   timeRemaining?: number;
 }
@@ -28,90 +49,90 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
 }) => {
   const renderQuestion = () => {
     switch (question.type) {
-      case 'multiple_choice':
+      case 'choix multiples':
         return (
           <MultipleChoice
             question={question}
-            onAnswer={onAnswer}
+            onAnswer={onAnswer as (answer: MultipleChoiceAnswer) => void}
             isAnswerChecked={isAnswerChecked}
-            selectedAnswer={selectedAnswer}
+            selectedAnswer={selectedAnswer as MultipleChoiceAnswer | null}
             showHint={showHint}
             timeRemaining={timeRemaining}
           />
         );
-      case 'true_false':
+      case 'vrai faux':
         return (
           <TrueFalse
             question={question}
-            onAnswer={onAnswer}
+            onAnswer={onAnswer as (answer: TrueFalseAnswer) => void}
             isAnswerChecked={isAnswerChecked}
-            selectedAnswer={selectedAnswer}
+            selectedAnswer={selectedAnswer as TrueFalseAnswer | null}
             showHint={showHint}
             timeRemaining={timeRemaining}
           />
         );
-      case 'fill_blank':
+      case 'remplir le champ vide':
         return (
           <FillBlank
             question={question}
-            onAnswer={onAnswer}
+            onAnswer={onAnswer as (answer: FillBlankAnswer) => void}
             isAnswerChecked={isAnswerChecked}
-            selectedAnswer={selectedAnswer}
+            selectedAnswer={selectedAnswer as FillBlankAnswer | null}
             showHint={showHint}
             timeRemaining={timeRemaining}
           />
         );
-      case 'matching':
+      case 'correspondance':
         return (
           <Matching
             question={question}
-            onAnswer={onAnswer}
+            onAnswer={onAnswer as (answer: MatchingAnswer) => void}
             isAnswerChecked={isAnswerChecked}
-            selectedAnswer={selectedAnswer}
+            selectedAnswer={selectedAnswer as MatchingAnswer | null}
             showHint={showHint}
             timeRemaining={timeRemaining}
           />
         );
-      case 'ordering':
+      case 'commander':
         return (
           <Ordering
             question={question}
-            onAnswer={onAnswer}
+            onAnswer={onAnswer as (answer: OrderingAnswer) => void}
             isAnswerChecked={isAnswerChecked}
-            selectedAnswer={selectedAnswer}
+            selectedAnswer={selectedAnswer as OrderingAnswer | null}
             showHint={showHint}
             timeRemaining={timeRemaining}
           />
         );
-      case 'word_bank':
+      case 'banque de mots':
         return (
           <WordBank
             question={question}
-            onAnswer={onAnswer}
+            onAnswer={onAnswer as (answer: WordBankAnswer) => void}
             isAnswerChecked={isAnswerChecked}
-            selectedAnswer={selectedAnswer}
+            selectedAnswer={selectedAnswer as WordBankAnswer | null}
             showHint={showHint}
             timeRemaining={timeRemaining}
           />
         );
-      case 'flashcard':
+      case 'carte flash':
         return (
           <Flashcard
             question={question}
-            onAnswer={onAnswer}
+            onAnswer={onAnswer as (answer: FlashcardAnswer) => void}
             isAnswerChecked={isAnswerChecked}
-            selectedAnswer={selectedAnswer}
+            selectedAnswer={selectedAnswer as FlashcardAnswer | null}
             showHint={showHint}
             timeRemaining={timeRemaining}
           />
         );
-      case 'audio':
+      case 'question audio':
         return (
           <AudioQuestion
             question={question}
-            onAnswer={onAnswer}
+            onAnswer={onAnswer as (answer: AudioQuestionAnswer) => void}
             isAnswerChecked={isAnswerChecked}
-            selectedAnswer={selectedAnswer}
+            selectedAnswer={selectedAnswer as AudioQuestionAnswer | null}
             showHint={showHint}
             timeRemaining={timeRemaining}
           />

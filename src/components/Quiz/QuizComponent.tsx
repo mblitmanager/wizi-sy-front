@@ -6,9 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Timer } from '@/components/ui/timer';
-import { QuizQuestion } from './QuizQuestion';
-import { QuizResult } from './QuizResult';
-import { QuizCard } from './QuizCard';
+import  QuizQuestion  from './QuizQuestion';
+import  QuizResult  from './QuizResult';
+import  QuizCard  from './QuizCard';
 
 interface Question {
   id: number;

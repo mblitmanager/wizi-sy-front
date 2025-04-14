@@ -3,11 +3,12 @@ import { Question } from '../../types/quiz';
 
 interface BaseQuestionProps {
   question: Question;
-  onAnswer: (answer: any) => void;
+  onAnswer: (answer: unknown) => void;
   isAnswerChecked: boolean;
-  selectedAnswer: any;
+  selectedAnswer: unknown;
   showHint?: boolean;
   timeRemaining?: number;
+  children?: React.ReactNode;
 }
 
 const BaseQuestion: React.FC<BaseQuestionProps> = ({
@@ -16,7 +17,8 @@ const BaseQuestion: React.FC<BaseQuestionProps> = ({
   isAnswerChecked,
   selectedAnswer,
   showHint,
-  timeRemaining
+  timeRemaining,
+  children
 }) => {
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -39,7 +41,7 @@ const BaseQuestion: React.FC<BaseQuestionProps> = ({
       {/* Media */}
       {question.media_url && (
         <div className="mb-4">
-          {question.type === 'audio' ? (
+          {question.type === 'question audio' ? (
             <audio controls className="w-full">
               <source src={question.media_url} type="audio/mpeg" />
               Votre navigateur ne supporte pas l'élément audio.
@@ -53,6 +55,9 @@ const BaseQuestion: React.FC<BaseQuestionProps> = ({
           )}
         </div>
       )}
+
+      {/* Contenu de la question */}
+      {children}
 
       {/* Astuce */}
       {showHint && question.astuce && (

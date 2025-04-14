@@ -1,6 +1,8 @@
-import React from 'react';
-import { Question } from '../../types/quiz';
+import React, { useEffect, useState } from 'react';
+import { Question, Answer } from '../../types';
 import BaseQuestion from './BaseQuestion';
+import { CheckCircle2, XCircle } from 'lucide-react';
+import { getReponsesByQuestion } from '../../api';
 
 interface TrueFalseProps {
   question: Question;
@@ -19,6 +21,35 @@ const TrueFalse: React.FC<TrueFalseProps> = ({
   showHint,
   timeRemaining
 }) => {
+  const [reponses, setReponses] = useState<Answer[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReponses = async () => {
+      try {
+        setLoading(true);
+        const fetchedReponses = await getReponsesByQuestion(question.id);
+        setReponses(fetchedReponses);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des réponses:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReponses();
+  }, [question.id]);
+
+  if (loading) {
+    return <div className="text-center">Chargement des réponses...</div>;
+  }
+
+  if (!reponses || reponses.length === 0) {
+    return <div className="text-center text-red-500">Aucune réponse disponible pour cette question.</div>;
+  }
+
+  const correctAnswer = reponses.find(r => r.is_correct)?.text === 'true';
+
   return (
     <>
       <BaseQuestion
@@ -30,37 +61,31 @@ const TrueFalse: React.FC<TrueFalseProps> = ({
         timeRemaining={timeRemaining}
       />
       
-      <div className="grid grid-cols-2 gap-4">
-        {[true, false].map((value) => (
+      <div className="space-y-3">
+        {['true', 'false'].map((value) => (
           <button
-            key={value ? 'true' : 'false'}
-            onClick={() => !isAnswerChecked && onAnswer(value)}
+            key={value}
+            onClick={() => !isAnswerChecked && onAnswer(value === 'true')}
             disabled={isAnswerChecked}
-            className={`p-4 rounded-lg border-2 transition-colors ${
-              selectedAnswer === value
+            className={`w-full p-4 rounded-xl border-2 transition-all duration-200 ${
+              selectedAnswer === (value === 'true')
                 ? isAnswerChecked
-                  ? value === question.correct_answer
-                    ? 'border-green-500 bg-green-50 text-green-700'
-                    : 'border-red-500 bg-red-50 text-red-700'
-                  : 'border-blue-500 bg-blue-50 text-blue-700'
-                : isAnswerChecked && value === question.correct_answer
-                ? 'border-green-500 bg-green-50 text-green-700'
-                : 'border-gray-200 hover:border-blue-300 text-gray-700'
+                  ? selectedAnswer === correctAnswer
+                    ? 'border-green-500 bg-green-50'
+                    : 'border-red-500 bg-red-50'
+                  : 'border-blue-500 bg-blue-50'
+                : isAnswerChecked && value === (correctAnswer ? 'true' : 'false')
+                ? 'border-green-500 bg-green-50'
+                : 'border-gray-200 hover:border-blue-300'
             }`}
           >
-            <div className="flex items-center justify-center">
-              <span className="text-lg font-medium">
-                {value ? 'Vrai' : 'Faux'}
-              </span>
+            <div className="flex items-center justify-between">
+              <span className="text-left">{value === 'true' ? 'Vrai' : 'Faux'}</span>
               {isAnswerChecked && (
-                value === question.correct_answer ? (
-                  <svg className="w-6 h-6 ml-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                ) : selectedAnswer === value ? (
-                  <svg className="w-6 h-6 ml-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                value === (correctAnswer ? 'true' : 'false') ? (
+                  <CheckCircle2 className="h-6 w-6 text-green-500" />
+                ) : selectedAnswer === (value === 'true') ? (
+                  <XCircle className="h-6 w-6 text-red-500" />
                 ) : null
               )}
             </div>

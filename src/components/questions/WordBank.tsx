@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Question } from '../../types';
+import { Answer } from '../../types/quiz';
 import BaseQuestion from './BaseQuestion';
 import { GripVertical } from 'lucide-react';
+import { getReponsesByQuestion } from '../../api';
 
 interface WordBankProps {
   question: Question;
@@ -20,99 +22,101 @@ const WordBank: React.FC<WordBankProps> = ({
   showHint,
   timeRemaining
 }) => {
-  const [groups, setGroups] = useState<{ [key: string]: string[] }>(
-    selectedAnswer || question.options?.reduce((acc, opt) => ({ ...acc, [opt]: [] }), {}) || {}
-  );
+  const [responses, setResponses] = useState<Answer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedWords, setSelectedWords] = useState<{ [key: string]: string[] }>({});
 
-  const handleDragStart = (e: React.DragEvent, word: string) => {
-    e.dataTransfer.setData('text/plain', word);
-  };
+  useEffect(() => {
+    const fetchResponses = async () => {
+      setLoading(true);
+      try {
+        const data = await getReponsesByQuestion(question.id);
+        setResponses(data.map(r => ({
+          ...r,
+          question_id: question.id,
+          is_correct: true
+        })) as Answer[]);
+      } catch (error) {
+        console.error('Error fetching responses:', error);
+      }
+      setLoading(false);
+    };
+    fetchResponses();
+  }, [question.id]);
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-  };
+  useEffect(() => {
+    if (selectedAnswer) {
+      setSelectedWords(selectedAnswer);
+    } else {
+      setSelectedWords({});
+    }
+  }, [selectedAnswer]);
 
-  const handleDrop = (e: React.DragEvent, group: string) => {
-    e.preventDefault();
+  if (loading) {
+    return <div className="text-center">Chargement des réponses...</div>;
+  }
+
+  if (!responses || responses.length === 0) {
+    return <div className="text-center text-red-500">Aucune réponse disponible pour cette question.</div>;
+  }
+
+  const handleWordSelect = (word: string, group: string) => {
     if (isAnswerChecked) return;
 
-    const word = e.dataTransfer.getData('text/plain');
-    const newGroups = { ...groups };
-    
-    // Remove word from previous group if it exists
-    Object.keys(newGroups).forEach(g => {
-      newGroups[g] = newGroups[g].filter(w => w !== word);
-    });
-    
-    // Add word to new group
-    newGroups[group] = [...newGroups[group], word];
-    setGroups(newGroups);
-    onAnswer(newGroups);
+    const newSelectedWords = { ...selectedWords };
+    if (!newSelectedWords[group]) {
+      newSelectedWords[group] = [];
+    }
+
+    if (newSelectedWords[group].includes(word)) {
+      newSelectedWords[group] = newSelectedWords[group].filter(w => w !== word);
+    } else {
+      newSelectedWords[group].push(word);
+    }
+
+    setSelectedWords(newSelectedWords);
+    onAnswer(newSelectedWords);
   };
 
+  const groupedResponses = responses.reduce((groups: { [key: string]: Answer[] }, response) => {
+    const group = response.bank_group || 'default';
+    if (!groups[group]) {
+      groups[group] = [];
+    }
+    groups[group].push(response);
+    return groups;
+  }, {});
+
   return (
-    <>
-      <BaseQuestion
-        question={question}
-        onAnswer={onAnswer}
-        isAnswerChecked={isAnswerChecked}
-        selectedAnswer={selectedAnswer}
-        showHint={showHint}
-        timeRemaining={timeRemaining}
-      />
-      
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-        {Object.entries(groups).map(([group, words]) => (
-          <div
-            key={group}
-            onDragOver={handleDragOver}
-            onDrop={(e) => handleDrop(e, group)}
-            className={`p-4 rounded-xl border-2 min-h-[200px] ${
-              isAnswerChecked ? 'border-gray-200' : 'border-dashed border-gray-300 hover:border-blue-300'
-            }`}
-          >
-            <h3 className="font-medium text-lg mb-4">{group}</h3>
+    <BaseQuestion
+      question={question}
+      onAnswer={onAnswer}
+      isAnswerChecked={isAnswerChecked}
+      selectedAnswer={selectedAnswer}
+      showHint={showHint}
+      timeRemaining={timeRemaining}
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {Object.entries(groupedResponses).map(([group, words]) => (
+          <div key={group} className="p-4 border rounded-lg">
+            <h3 className="font-semibold mb-2">{group}</h3>
             <div className="space-y-2">
               {words.map((word) => (
                 <div
-                  key={word}
-                  draggable={!isAnswerChecked}
-                  onDragStart={(e) => handleDragStart(e, word)}
-                  className={`flex items-center p-3 rounded-lg border ${
-                    isAnswerChecked
-                      ? (question.correct_answer as { [key: string]: string[] })[group]?.includes(word)
-                        ? 'border-green-500 bg-green-50'
-                        : 'border-red-500 bg-red-50'
-                      : 'border-gray-200 bg-white'
+                  key={word.id}
+                  className={`p-2 border rounded cursor-pointer ${
+                    selectedWords[group]?.includes(word.text) ? 'bg-blue-100' : ''
                   }`}
+                  onClick={() => handleWordSelect(word.text, group)}
                 >
-                  <GripVertical className="h-4 w-4 text-gray-400 mr-2" />
-                  <span>{word}</span>
+                  {word.text}
                 </div>
               ))}
             </div>
           </div>
         ))}
       </div>
-
-      {isAnswerChecked && (
-        <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-          <h3 className="font-medium text-blue-800 mb-2">Correct Groups:</h3>
-          {Object.entries(question.correct_answer as { [key: string]: string[] }).map(([group, words]) => (
-            <div key={group} className="mb-2">
-              <h4 className="font-medium text-blue-700">{group}:</h4>
-              <div className="ml-4">
-                {words.map(word => (
-                  <div key={word} className="text-blue-600">
-                    {word}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </>
+    </BaseQuestion>
   );
 };
 
