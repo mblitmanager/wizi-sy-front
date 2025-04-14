@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Question, Answer } from '../../types';
 import BaseQuestion from './BaseQuestion';
 import { CheckCircle2, XCircle } from 'lucide-react';
-import { getReponsesByQuestion } from '../../api';
+import { quizAPI } from '../../api';
 
 interface MultipleChoiceProps {
   question: Question;
@@ -23,21 +23,25 @@ const MultipleChoice: React.FC<MultipleChoiceProps> = ({
 }) => {
   const [reponses, setReponses] = useState<Answer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchReponses = async () => {
+    const fetchResponses = async () => {
       try {
         setLoading(true);
-        const fetchedReponses = await getReponsesByQuestion(question.id);
-        setReponses(fetchedReponses);
-      } catch (error) {
-        console.error('Erreur lors de la récupération des réponses:', error);
+        setError(null);
+        const responses = await quizAPI.getResponsesByQuestion(question.id);
+        console.log('Responses:', responses);
+        setReponses(responses);
+      } catch (err) {
+        console.error('Error fetching responses:', err);
+        setError('Failed to load responses. Please try again.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchReponses();
+    fetchResponses();
   }, [question.id]);
 
   // Ajoutez cet useEffect pour afficher la réponse sélectionnée
@@ -55,37 +59,38 @@ const MultipleChoice: React.FC<MultipleChoiceProps> = ({
   }, [selectedAnswer, reponses]);
 
   if (loading) {
-    return <div className="text-center">Chargement des réponses...</div>;
+    return <div className="text-center p-4">Chargement des réponses...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center text-red-500 p-4">{error}</div>;
   }
 
   if (!reponses || reponses.length === 0) {
-    return <div className="text-center text-red-500">Aucune réponse disponible pour cette question.</div>;
+    return <div className="text-center text-red-500 p-4">Aucune réponse disponible pour cette question.</div>;
   }
 
   return (
-    <>
-      <BaseQuestion
-        question={question}
-        onAnswer={onAnswer}
-        isAnswerChecked={isAnswerChecked}
-        selectedAnswer={selectedAnswer}
-        showHint={showHint}
-        timeRemaining={timeRemaining}
-      />
-      
+    <BaseQuestion
+      question={question}
+      onAnswer={onAnswer}
+      isAnswerChecked={isAnswerChecked}
+      selectedAnswer={selectedAnswer}
+      showHint={showHint}
+      timeRemaining={timeRemaining}
+    >
       <div className="space-y-3">
         {reponses.map((reponse, index) => (
           <button
             key={reponse.id}
             onClick={() => {
               if (!isAnswerChecked) {
-                onAnswer(index);
-                // Alternative: afficher directement ici au moment du clic
-                console.log('Réponse cliquée:', {
+                console.log('Réponse sélectionnée:', {
                   id: reponse.id,
                   text: reponse.text,
                   isCorrect: reponse.is_correct
                 });
+                onAnswer(index);
               }
             }}
             disabled={isAnswerChecked}
@@ -114,7 +119,8 @@ const MultipleChoice: React.FC<MultipleChoiceProps> = ({
           </button>
         ))}
       </div>
-    </>
+    </BaseQuestion>
   );
 };
+
 export default MultipleChoice; 

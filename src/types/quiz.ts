@@ -60,6 +60,17 @@ export interface QuizResult {
   answers?: Record<string, string>;
 }
 
+// Interface pour la soumission des résultats
+export interface QuizSubmitData {
+  quizId: string;
+  answers: Record<string, string>;
+  score: number;
+  correctAnswers: number;
+  totalQuestions: number;
+  timeSpent: number;
+  pointsEarned: number;
+}
+
 export interface QuizResponse {
   data: Quiz;
 }
@@ -112,4 +123,25 @@ export interface Formation {
   formateurs: User[];
   stagiaires: User[];
   quizzes: Quiz[];
-} 
+}
+
+// Types pour les réponses des différents types de questions
+type MultipleChoiceAnswer = number;
+type TrueFalseAnswer = number;
+type FillBlankAnswer = { [key: string]: string };
+type MatchingAnswer = number[];
+type OrderingAnswer = number[];
+type WordBankAnswer = { [key: string]: string[] };
+type FlashcardAnswer = boolean;
+type AudioQuestionAnswer = string;
+
+// Type union pour toutes les réponses possibles
+export type QuestionAnswer = 
+  | MultipleChoiceAnswer
+  | TrueFalseAnswer
+  | FillBlankAnswer
+  | MatchingAnswer
+  | OrderingAnswer
+  | WordBankAnswer
+  | FlashcardAnswer
+  | AudioQuestionAnswer;

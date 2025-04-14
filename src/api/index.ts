@@ -1,4 +1,4 @@
-import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry, Question, Answer } from '../types';
+import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry, Question, Answer, QuizSubmitData } from '../types';
 import { decodeToken } from '@/utils/tokenUtils';
 import axios from 'axios';
 
@@ -6,7 +6,7 @@ import axios from 'axios';
 const API_URL = 'http://localhost:8000/api';
 
 // Helper function to handle API responses
-const handleResponse = async (response: Response) => {
+const handleResponse = async <T>(response: Response): Promise<T> => {
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Network response was not ok' }));
     throw new Error(error.message || 'Something went wrong');
@@ -184,10 +184,11 @@ export const quizAPI = {
     }
     
     const response = await fetch(`${API_URL}/questions/${questionId}/reponses`, { headers });
-    return handleResponse(response);
+    const data = await handleResponse<{ data: Answer[] }>(response);
+    return data.data || [];
   },
 
-  submitQuizResult: async (result: Omit<QuizResult, 'id' | 'completedAt'>): Promise<QuizResult> => {
+  submitQuizResult: async (result: QuizSubmitData): Promise<QuizResult> => {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('Not authenticated');
     
@@ -197,7 +198,13 @@ export const quizAPI = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(result),
+      body: JSON.stringify({
+        answers: result.answers,
+        score: result.score,
+        correctAnswers: result.correctAnswers,
+        totalQuestions: result.totalQuestions,
+        timeSpent: result.timeSpent
+      }),
     });
     return handleResponse(response);
   },
