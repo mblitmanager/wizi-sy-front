@@ -79,9 +79,9 @@ export const authAPI = {
 
   getCurrentUser: async (): Promise<User> => {
     const token = localStorage.getItem('token');
-    if (!token) throw new Error('Not authenticated');
+    if (!token) throw new Error('Utilisateur non authontifié');
     
-    const response = await fetch(`${API_URL}/user`, {
+    const response = await fetch(`${API_URL}/me`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -160,7 +160,7 @@ export const quizAPI = {
       headers['Authorization'] = `Bearer ${token}`;
     }
     
-    const response = await fetch(`${API_URL}/quizzes/${quizId}/questions`, { headers });
+    const response = await fetch(`${API_URL}/quiz/${quizId}/questions`, { headers });
     return handleResponse(response);
   },
 
