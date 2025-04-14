@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Question, Answer } from '@/types/quiz';
-import { Radio } from '@/components/ui/radio';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { quizAPI } from '@/api';
 
 interface MultipleChoiceProps {
@@ -40,9 +40,9 @@ const MultipleChoice: React.FC<MultipleChoiceProps> = ({
     fetchAnswers();
   }, [question.id]);
 
-  const handleSelect = (index: number) => {
+  const handleSelect = (answerId: string) => {
     if (isAnswerChecked) return;
-    onAnswer(Number(answers[index].id));
+    onAnswer(Number(answerId));
   };
 
   if (loading) {
@@ -65,8 +65,13 @@ const MultipleChoice: React.FC<MultipleChoiceProps> = ({
         </div>
       )}
       
-      <div className="space-y-2">
-        {answers.map((answer, index) => (
+      <RadioGroup 
+        value={selectedAnswer?.toString()} 
+        onValueChange={handleSelect}
+        disabled={isAnswerChecked}
+        className="space-y-2"
+      >
+        {answers.map((answer) => (
           <div 
             key={answer.id}
             className={`p-3 rounded-md cursor-pointer transition-colors
@@ -80,28 +85,23 @@ const MultipleChoice: React.FC<MultipleChoiceProps> = ({
                   ? 'bg-green-50 border border-green-200'
                   : 'hover:bg-gray-50 border border-transparent hover:border-gray-200'
               }`}
-            onClick={() => handleSelect(index)}
           >
             <div className="flex items-start">
-              <Radio
-                checked={String(selectedAnswer) === answer.id}
-                onCheckedChange={() => handleSelect(index)}
-                disabled={isAnswerChecked}
+              <RadioGroupItem 
+                value={answer.id} 
+                id={`answer-${answer.id}`} 
                 className="mt-0.5"
               />
               <label 
-                className="ml-2 text-gray-700 cursor-pointer font-roboto" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleSelect(index);
-                }}
+                htmlFor={`answer-${answer.id}`}
+                className="ml-2 text-gray-700 cursor-pointer font-roboto"
               >
                 {answer.text}
               </label>
             </div>
           </div>
         ))}
-      </div>
+      </RadioGroup>
       
       {showHint && question.astuce && (
         <div className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-md">
