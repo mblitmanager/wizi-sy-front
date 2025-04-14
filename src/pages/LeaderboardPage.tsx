@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { progressAPI } from '@/api';
 import { LeaderboardEntry } from '@/types/quiz';
-import { RankingComponent } from '@/components/Ranking/RankingComponent';
+import RankingComponent from '@/components/Ranking/RankingComponent';
 
 const LeaderboardPage: React.FC = () => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
