@@ -8,19 +8,21 @@ export interface User {
   level: number;
   points: number;
   avatar?: string;
+  name?: string;
 }
 
-// Re-export from other type files
+// Re-export all types from other type files
 export type {
+  Answer,
   Category,
-  Quiz,
-  QuizQuestion,
+  Formation,
+  Question,
+  QuestionType,
+  QuestionAnswer,
   QuizResult,
   UserProgress,
-  Answer,
-  QuestionAnswer,
-  QuestionType,
-  LeaderboardEntry
+  LeaderboardEntry,
+  Quiz
 } from './quiz';
 
 // Export types related to the API

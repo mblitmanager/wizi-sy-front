@@ -1,4 +1,3 @@
-
 import { type Config } from "tailwindcss";
 import defaultTheme from "tailwindcss/defaultTheme";
 
@@ -23,14 +22,9 @@ export default {
         montserrat: ["Montserrat", ...defaultTheme.fontFamily.sans],
         roboto: ["Roboto", ...defaultTheme.fontFamily.sans],
         nunito: ["Nunito", ...defaultTheme.fontFamily.sans],
+        poppins: ["Poppins", ...defaultTheme.fontFamily.sans],
       },
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        // Couleurs personnalisées pour les catégories
         bureautique: {
           DEFAULT: "#3D9BE9",
           foreground: "#FFFFFF",
@@ -47,6 +41,11 @@ export default {
           DEFAULT: "#9392BE",
           foreground: "#FFFFFF",
         },
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
