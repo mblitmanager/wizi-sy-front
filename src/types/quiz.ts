@@ -100,7 +100,7 @@ export interface UserProgress {
   average_score: number;
   categoryProgress?: Record<string, number>;
   points?: number;
-  badges?: any[];
+  badges?: string[];
   streak?: number;
 }
 
@@ -133,7 +133,7 @@ type MultipleChoiceAnswer = number;
 type TrueFalseAnswer = number;
 type FillBlankAnswer = { [key: string]: string };
 type MatchingAnswer = number[];
-type OrderingAnswer = string[];
+type OrderingAnswer = number[];
 type WordBankAnswer = { [key: string]: string[] };
 type FlashcardAnswer = boolean;
 type AudioQuestionAnswer = string;

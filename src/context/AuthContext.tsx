@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@/types';
 import { authAPI } from '@/api';
@@ -77,18 +76,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const typedResponse = response as any;
         localStorage.setItem('token', typedResponse.token);
         
+        
         // Decode and set user data from token
         const decodedToken = decodeToken(typedResponse.token);
         if (decodedToken) {
           const formattedUser: User = {
             id: decodedToken.id || '',
-            username: 'Utilisateur',
+            username: email ||'Stagiaire',
             email: email,
             role: decodedToken.role || 'stagiaire',
             level: 1,
             points: 0
           };
           setUser(formattedUser);
+          console.log(decodedToken);
+          localStorage.setItem('userName', formattedUser.username);
+          localStorage.setItem('userEmail', formattedUser.email);
+          localStorage.setItem('userRole', formattedUser.role);
+          //  localStorage.setItem('userAvatar', typedResponse.avatar);
         }
       } else {
         throw new Error('No token received');

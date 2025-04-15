@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Question } from '@/types/quiz';
+import { Question, QuestionAnswer } from '@/types/quiz';
 import MultipleChoice from './MultipleChoice';
 import TrueFalse from './TrueFalse';
 import FillBlank from './FillBlank';
@@ -13,9 +12,9 @@ import Classification from './Classification';
 
 interface QuestionRendererProps {
   question: Question;
-  onAnswer: (answer: unknown) => void;
+  onAnswer: (answer: QuestionAnswer) => void;
   isAnswerChecked: boolean;
-  selectedAnswer: unknown;
+  selectedAnswer: QuestionAnswer | null;
   showHint?: boolean;
   timeRemaining?: number;
 }
@@ -79,7 +78,7 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
           question={question}
           onAnswer={onAnswer}
           isAnswerChecked={isAnswerChecked}
-          selectedAnswer={selectedAnswer as string[] | null}
+          selectedAnswer={selectedAnswer as number[] | null}
           showHint={showHint}
           timeRemaining={timeRemaining}
         />

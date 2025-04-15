@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { quizService } from '../services/quizService';
-import { Question, QuestionAnswer } from '../types/quiz';
+import { Question, QuestionAnswer, Quiz } from '../types/quiz';
 import { Timer } from '@/components/ui/timer';
 import QuestionRenderer from '../components/questions/QuestionRenderer';
 import { quizAPI } from '../api';
@@ -15,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 const QuizPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
-  const [quiz, setQuiz] = useState<any>(null);
+  const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, QuestionAnswer>>({});
