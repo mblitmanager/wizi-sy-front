@@ -34,85 +34,95 @@ const ProfilePage = () => {
     const fetchUserData = async () => {
       try {
         setIsLoading(true);
-        // Fetch user data from localStorage as a fallback
-        const userId = localStorage.getItem('userId');
         const token = localStorage.getItem('token');
         
-        if (!userId || !token) {
+        if (!token) {
           navigate('/auth/login');
           return;
         }
         
-        const userData = {
-          id: userId,
-          name: localStorage.getItem('userName') || 'Utilisateur',
-          email: localStorage.getItem('userEmail') || 'utilisateur@example.com',
-          role: localStorage.getItem('userRole') || 'stagiaire',
-          avatar: localStorage.getItem('userAvatar') || '/placeholder.svg',
-          points: 0,
-          level: 1
-        };
-        
-        setUser(userData as User);
-        
-        // Fetch categories
-        const categoriesData = await quizAPI.getCategories();
-        setCategories(categoriesData);
-        
-        // Mock quiz results (in a real app, you would fetch this from an API)
-        const mockResults: QuizResult[] = [
-          {
-            id: 'result-1',
-            quizId: 'quiz-1',
-            quizName: 'Introduction à Excel',
-            userId: userId as string,
-            score: 85,
-            correctAnswers: 17,
-            totalQuestions: 20,
-            completedAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-            timeSpent: 720
+        // Récupérer les données du stagiaire depuis l'API
+        const progressResponse = await fetch(`${import.meta.env.VITE_API_URL}/stagiaire/progress`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
-          {
-            id: 'result-2',
-            quizId: 'quiz-2',
-            quizName: 'Sécurité sur Internet',
-            userId: userId as string,
-            score: 92,
-            correctAnswers: 11,
-            totalQuestions: 12,
-            completedAt: new Date(Date.now() - 86400000 * 3).toISOString(), // 3 days ago
-            timeSpent: 540
-          },
-          {
-            id: 'result-3',
-            quizId: 'quiz-3',
-            quizName: 'Vocabulaire anglais pour débutants',
-            userId: userId as string,
-            score: 75,
-            correctAnswers: 15,
-            totalQuestions: 20,
-            completedAt: new Date(Date.now() - 86400000 * 5).toISOString(), // 5 days ago
-            timeSpent: 900
-          }
-        ];
+        });
         
-        setResults(mockResults);
-        
-        // Mock user progress
-        const mockProgress: UserProgress = {
-          quizzes_completed: 12,
-          total_points: 252,
-          average_score: 84,
-          badges: ['beginner', 'quick_learner'],
-          streak: 5,
-          categoryProgress: {
-            'excel': { points: 85, quizzes_completed: 3 },
-            'security': { points: 92, quizzes_completed: 2 },
-            'english': { points: 75, quizzes_completed: 1 }
-          }
-        };
-        
-        setUserProgress(mockProgress);
+        if (progressResponse.ok) {
+          const data = await progressResponse.json();
+          const stagiaire = data.stagiaire;
+          
+          const userData: User = {
+            id: stagiaire.id.toString(),
+            username: stagiaire.user.name,
+            email: stagiaire.user.email,
+            role: stagiaire.role,
+            level: parseInt(data.progress.level),
+            points: data.progress.total_points
+          };
+          
+          setUser(userData);
+          
+          // Fetch categories
+          const categoriesData = await quizAPI.getCategories();
+          setCategories(categoriesData);
+          
+          // Mock quiz results (in a real app, you would fetch this from an API)
+          const mockResults: QuizResult[] = [
+            {
+              id: 'result-1',
+              quizId: 'quiz-1',
+              quizName: 'Introduction à Excel',
+              userId: userData.id,
+              score: 85,
+              correctAnswers: 17,
+              totalQuestions: 20,
+              completedAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+              timeSpent: 720
+            },
+            {
+              id: 'result-2',
+              quizId: 'quiz-2',
+              quizName: 'Sécurité sur Internet',
+              userId: userData.id,
+              score: 92,
+              correctAnswers: 11,
+              totalQuestions: 12,
+              completedAt: new Date(Date.now() - 86400000 * 3).toISOString(), // 3 days ago
+              timeSpent: 540
+            },
+            {
+              id: 'result-3',
+              quizId: 'quiz-3',
+              quizName: 'Vocabulaire anglais pour débutants',
+              userId: userData.id,
+              score: 75,
+              correctAnswers: 15,
+              totalQuestions: 20,
+              completedAt: new Date(Date.now() - 86400000 * 5).toISOString(), // 5 days ago
+              timeSpent: 900
+            }
+          ];
+          
+          setResults(mockResults);
+          
+          // Mock user progress
+          const mockProgress: UserProgress = {
+            quizzes_completed: 12,
+            total_points: data.progress.total_points,
+            average_score: data.progress.average_score || 0,
+            badges: ['beginner', 'quick_learner'],
+            streak: 5,
+            categoryProgress: {
+              'excel': { points: 85, quizzes_completed: 3 },
+              'security': { points: 92, quizzes_completed: 2 },
+              'english': { points: 75, quizzes_completed: 1 }
+            }
+          };
+          
+          setUserProgress(mockProgress);
+        }
       } catch (error) {
         console.error('Error fetching user data:', error);
         toast({

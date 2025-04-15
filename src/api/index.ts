@@ -11,14 +11,14 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
   if (!response.ok) {
     // If unauthorized, clear token and redirect to login
     if (response.status === 401) {
-      console.log('Unauthorized access, redirecting to login');
+      console.log('Accès refusé, redirection vers la page de connexion');
       localStorage.removeItem('token');
       window.location.href = '/auth/login';
-      throw new Error('Unauthorized, please login again');
+      throw new Error('Accès refusé, veuillez vous reconnecter');
     }
     
-    const error = await response.json().catch(() => ({ message: 'Network response was not ok' }));
-    throw new Error(error.message || 'Something went wrong');
+    const error = await response.json().catch(() => ({ message: 'Réponse réseau non valide' }));
+    throw new Error(error.message || 'Quelque chose s\'est mal passé');
   }
   return response.json();
 };
@@ -38,7 +38,7 @@ export const authAPI = {
 
   getCurrentUser: async () => {
     const token = localStorage.getItem('token');
-    if (!token) throw new Error('Not authenticated');
+    if (!token) throw new Error('Non authentifié');
     
     const response = await fetch(`${API_URL}/me`, {
       headers: {

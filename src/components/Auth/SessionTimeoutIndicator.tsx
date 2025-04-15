@@ -12,8 +12,8 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 
-const SESSION_TIMEOUT = 15 * 60; // 15 minutes en secondes
-const WARNING_TIME = 5 * 60; // 5 minutes en secondes
+const SESSION_TIMEOUT = 15 * 600; // 15 minutes en secondes
+const WARNING_TIME = 5 * 600; // 5 minutes en secondes
 
 export const SessionTimeoutIndicator: React.FC = () => {
   const { refreshSession } = useAuth();

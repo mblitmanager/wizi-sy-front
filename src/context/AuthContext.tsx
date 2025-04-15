@@ -58,7 +58,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             setUser(formattedUser);
           }
         } catch (error) {
-          console.error('Failed to get current user:', error);
+          console.error('Erreur lors de la récupération de l\'utilisateur actuel:', error);
           localStorage.removeItem('token');
         }
       }
@@ -76,30 +76,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const typedResponse = response as any;
         localStorage.setItem('token', typedResponse.token);
         
+        // Récupérer les données du stagiaire depuis l'API
+        const progressResponse = await fetch(`${import.meta.env.VITE_API_URL}/stagiaire/progress`, {
+          headers: {
+            'Authorization': `Bearer ${typedResponse.token}`,
+            'Content-Type': 'application/json',
+          },
+        });
         
-        // Decode and set user data from token
-        const decodedToken = decodeToken(typedResponse.token);
-        if (decodedToken) {
+        if (progressResponse.ok) {
+          const data = await progressResponse.json();
+          const stagiaire = data.stagiaire;
+          
           const formattedUser: User = {
-            id: decodedToken.id || '',
-            username: email ||'Stagiaire',
-            email: email,
-            role: decodedToken.role || 'stagiaire',
-            level: 1,
-            points: 0
+            id: stagiaire.id.toString(),
+            username: stagiaire.user.name,
+            email: stagiaire.user.email,
+            role: stagiaire.role,
+            level: parseInt(data.progress.level),
+            points: data.progress.total_points
           };
+          
           setUser(formattedUser);
-          console.log(decodedToken);
           localStorage.setItem('userName', formattedUser.username);
           localStorage.setItem('userEmail', formattedUser.email);
           localStorage.setItem('userRole', formattedUser.role);
-          //  localStorage.setItem('userAvatar', typedResponse.avatar);
+          localStorage.setItem('userLevel', formattedUser.level.toString());
+          localStorage.setItem('userPoints', formattedUser.points.toString());
         }
       } else {
-        throw new Error('No token received');
+        throw new Error('Aucun jeton reçu');
       }
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error('Erreur lors de la connexion:', error);
       throw error;
     }
   };
@@ -109,7 +118,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await authAPI.logout();
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error('Erreur lors de la déconnexion:', error);
     } finally {
       localStorage.removeItem('token');
       setUser(null);
@@ -120,11 +129,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (userData: any) => {
     try {
       // TODO: Implement real registration API call
-      console.log('Register user with data:', userData);
+      console.log('Enregistrement de l\'utilisateur avec les données:', userData);  
       // Mock successful registration
       await new Promise(resolve => setTimeout(resolve, 1000));
     } catch (error) {
-      console.error('Registration failed:', error);
+      console.error('Erreur lors de l\'enregistrement:', error);
       throw error;
     }
   };
@@ -151,7 +160,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(formattedUser);
       }
     } catch (error) {
-      console.error('Session refresh failed:', error);
+      console.error('Erreur lors de la mise à jour de la session:', error);
       throw error;
     }
   };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ParrainageService } from '../../services/parrainageService';
+import { parrainageService } from '../../services/parrainageService';
 import { ParrainageStats as ParrainageStatsType } from '../../services/parrainageService';
 
 const ParrainageStats: React.FC = () => {
@@ -10,7 +10,7 @@ const ParrainageStats: React.FC = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const data = await ParrainageService.getParrainageStats();
+        const data = await parrainageService.getParrainageStats();
         setStats(data);
       } catch (err) {
         setError('Erreur lors du chargement des statistiques');
