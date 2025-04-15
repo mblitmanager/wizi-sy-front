@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Users, Link as LinkIcon, Copy } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
+const API_URL = process.env.VITE_API_URL || 'http://localhost:8000/api';
+
 const ParrainageSection = () => {
   const [parrainageLink, setParrainageLink] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -12,7 +14,7 @@ const ParrainageSection = () => {
   const generateLink = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/stagiaire/parrainage/generate-link', {
+      const response = await fetch(`${API_URL}/stagiaire/parrainage/generate-link`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
