@@ -1,4 +1,3 @@
-
 import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry, Question, Formation } from '../types';
 import { Answer, QuizSubmitData } from '../types/quiz';
 import { decodeToken } from '@/utils/tokenUtils';
@@ -171,14 +170,41 @@ export const progressAPI = {
 
 // Formation API
 export const formationAPI = {
-  getFormationsByStagiaire: async (): Promise<Formation[]> => {
+  getCategories: async (): Promise<string[]> => {
     const token = localStorage.getItem('token');
     const headers: HeadersInit = {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
     };
     
-    const response = await fetch(`${API_URL}/stagiaire/formations`, { headers });
+    const response = await fetch(`${API_URL}/formation/categories`, { headers });
+    return handleResponse(response);
+  },
+
+  getFormationsByStagiaire: async (): Promise<{ data: Formation[] }> => {
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    };
+    
+    // First get the stagiaire ID from /api/me
+    const meResponse = await fetch(`${API_URL}/me`, { headers });
+    const meData = await handleResponse<{ user: any; stagiaire: { id: number } }>(meResponse);
+    
+    // Then get the formations using the stagiaire ID
+    const response = await fetch(`${API_URL}/stagiaire/${meData.stagiaire.id}/formations`, { headers });
+    return handleResponse(response);
+  },
+  
+  getFormationsByCategory: async (categoryId: string): Promise<Formation[]> => {
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    };
+    
+    const response = await fetch(`${API_URL}/formations/categories/${categoryId}`, { headers });
     return handleResponse(response);
   },
   

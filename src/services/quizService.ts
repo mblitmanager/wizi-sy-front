@@ -1,4 +1,3 @@
-
 import { api } from './api';
 import { Question, Answer, Formation } from '@/types';
 
@@ -161,13 +160,8 @@ export const quizService = {
     return response.data;
   },
 
-  async getFormationsByStagiaire(stagiaireId: string): Promise<{ data: Formation[] }> {
-    // If stagiaireId is available, use it, otherwise just use /stagiaire/formations
-    const endpoint = stagiaireId 
-      ? `/stagiaire/${stagiaireId}/formations` 
-      : '/stagiaire/formations';
-      
-    const response = await api.get<{ data: Formation[] }>(endpoint);
+  async getFormationsByStagiaire(): Promise<{ data: Formation[] }> {
+    const response = await api.get<{ data: Formation[] }>('/stagiaire/formations');
     return response.data;
   }
 }; 

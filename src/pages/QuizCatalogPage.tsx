@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { formationAPI } from '@/api';
@@ -26,6 +25,18 @@ const QuizCatalogPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [formationsByCategory, setFormationsByCategory] = useState<Record<string, Formation[]>>({});
 
+  const fetchCategories = async () => {
+    try {
+      const categories = await formationAPI.getCategories();
+      // categories will be an array of strings directly from the API
+      // no need for Set or filter
+      return categories;
+    } catch (error) {
+      console.error('Failed to fetch categories:', error);
+      return [];
+    }
+  };
+
   useEffect(() => {
     if (!isAuthenticated || !user) {
       navigate('/auth/login');
@@ -39,16 +50,17 @@ const QuizCatalogPage: React.FC = () => {
       try {
         console.log('User:', user);
         // Récupérer les formations du stagiaire (sans utiliser user.stagiaire.id)
-        const formations = await formationAPI.getFormationsByStagiaire();
+        const formationsResponse = await formationAPI.getFormationsByStagiaire();
+        const formations = formationsResponse.data;
         console.log('Formations:', formations);
 
-        // Extraire les catégories uniques des formations du stagiaire
-        const uniqueCategories = [...new Set(formations.map(f => f.categorie))].filter(Boolean);
-        setCategories(uniqueCategories);
+        // Fetch categories using the new function
+        const fetchedCategories = await fetchCategories();
+        setCategories(fetchedCategories);
 
         // Organiser les formations par catégorie
         const formationsByCategory: Record<string, Formation[]> = {};
-        uniqueCategories.forEach(category => {
+        fetchedCategories.forEach(category => {
           formationsByCategory[category] = formations.filter(f => f.categorie === category);
         });
         setFormationsByCategory(formationsByCategory);
@@ -72,7 +84,7 @@ const QuizCatalogPage: React.FC = () => {
                 points: quiz.nb_points_total || quiz.points || 0
               };
             } catch (error) {
-              console.error(`Failed to fetch questions for quiz ${quiz.id}:`, error);
+              console.error(`Impossible de charger les questions pour le quiz ${quiz.id}:`, error);
               return null;
             }
           }))
@@ -129,7 +141,8 @@ const QuizCatalogPage: React.FC = () => {
         
         try {
           // ... same logic as above
-          const formations = await formationAPI.getFormationsByStagiaire();
+          const formationsResponse = await formationAPI.getFormationsByStagiaire();
+          const formations = formationsResponse.data;
           // ... remainder of data fetching logic
         } catch (error) {
           console.error('Failed to fetch formations:', error);
