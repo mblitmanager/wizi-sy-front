@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,6 +21,7 @@ import LoginPage from "@/pages/auth/LoginPage";
 import RegisterPage from "@/pages/auth/RegisterPage";
 import NotFound from "@/pages/NotFound";
 import ErrorPage from "@/pages/ErrorPage";
+import ContactsPage from "@/pages/ContactsPage";
 
 // Admin Pages
 import AdminPage from "@/pages/AdminPage";
@@ -48,6 +48,7 @@ const App = () => (
                 <Route path="quiz" element={<QuizCatalogPage />} />
                 <Route path="leaderboard" element={<LeaderboardPage />} />
                 <Route path="profile" element={<ProfilePage />} />
+                <Route path="contacts" element={<ContactsPage />} />
                 
                 {/* Admin Routes */}
                 <Route path="admin" element={<AdminPage />} />

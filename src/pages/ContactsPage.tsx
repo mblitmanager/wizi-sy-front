@@ -1,0 +1,72 @@
+
+import { useEffect, useState } from "react";
+import { Contact, ContactsData } from "@/types/contact";
+import { ContactCard } from "@/components/Contacts/ContactCard";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useQuery } from "@tanstack/react-query";
+import { contactService } from "@/services/api";
+
+const ContactsPage = () => {
+  const { data: commerciaux, isLoading: loadingCommerciaux } = useQuery({
+    queryKey: ['contacts', 'commerciaux'],
+    queryFn: contactService.getCommerciaux
+  });
+
+  const { data: formateurs, isLoading: loadingFormateurs } = useQuery({
+    queryKey: ['contacts', 'formateurs'],
+    queryFn: contactService.getFormateurs
+  });
+
+  const { data: poleRelation, isLoading: loadingPoleRelation } = useQuery({
+    queryKey: ['contacts', 'pole-relation'],
+    queryFn: contactService.getPoleRelation
+  });
+
+  const isLoading = loadingCommerciaux || loadingFormateurs || loadingPoleRelation;
+
+  return (
+    <div className="container mx-auto p-4 pb-20 md:pb-4">
+      <h1 className="text-3xl font-bold mb-6 font-montserrat">Contacts</h1>
+      
+      <Tabs defaultValue="commerciaux" className="w-full">
+        <TabsList className="w-full justify-start mb-6 font-nunito">
+          <TabsTrigger value="commerciaux">Commerciaux</TabsTrigger>
+          <TabsTrigger value="formateurs">Formateurs</TabsTrigger>
+          <TabsTrigger value="pole-relation">Pôle Relation</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="commerciaux">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {isLoading ? (
+              <p className="col-span-full text-center font-roboto">Chargement des commerciaux...</p>
+            ) : commerciaux?.map((contact: Contact) => (
+              <ContactCard key={contact.id} contact={contact} />
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="formateurs">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {isLoading ? (
+              <p className="col-span-full text-center font-roboto">Chargement des formateurs...</p>
+            ) : formateurs?.map((contact: Contact) => (
+              <ContactCard key={contact.id} contact={contact} />
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="pole-relation">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {isLoading ? (
+              <p className="col-span-full text-center font-roboto">Chargement du pôle relation...</p>
+            ) : poleRelation?.map((contact: Contact) => (
+              <ContactCard key={contact.id} contact={contact} />
+            ))}
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default ContactsPage;

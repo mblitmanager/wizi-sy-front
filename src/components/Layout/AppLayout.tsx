@@ -1,7 +1,6 @@
-
 import React, { useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, BarChart2, User, Menu, Settings } from 'lucide-react';
+import { Home, BookOpen, BarChart2, User, Menu, Settings, Users } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -15,17 +14,14 @@ export const AppLayout: React.FC = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
-  // Vérifier l'authentification uniquement pour les redirections vers l'auth
   useEffect(() => {
     if (!isAuthenticated && !location.pathname.includes('/auth')) {
       navigate('/auth/login');
     }
   }, [isAuthenticated, location.pathname, navigate]);
 
-  // Vérifier et rafraîchir la session régulièrement
   useEffect(() => {
     if (isAuthenticated) {
-      // Vérifier la session toutes les 5 minutes
       const intervalId = setInterval(() => {
         refreshSession();
       }, 5 * 60 * 1000);
@@ -38,11 +34,11 @@ export const AppLayout: React.FC = () => {
     return <Outlet />;
   }
 
-  // Éléments de navigation pour la barre inférieure et latérale
   const stagiairesNavItems = [
     { name: 'Accueil', path: '/', icon: <Home className="h-5 w-5" /> },
     { name: 'Quiz', path: '/quiz', icon: <BookOpen className="h-5 w-5" /> },
     { name: 'Classement', path: '/leaderboard', icon: <BarChart2 className="h-5 w-5" /> },
+    { name: 'Contacts', path: '/contacts', icon: <Users className="h-5 w-5" /> },
     { name: 'Profil', path: '/profile', icon: <User className="h-5 w-5" /> },
   ];
 
@@ -56,7 +52,6 @@ export const AppLayout: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      {/* En-tête */}
       <header className="bg-white border-b border-gray-200 py-3 px-4 flex justify-between items-center">
         <div className="flex items-center">
           <Sheet>
@@ -114,15 +109,12 @@ export const AppLayout: React.FC = () => {
         </div>
       </header>
 
-      {/* Session Timeout Indicator */}
       <SessionTimeoutIndicator />
 
-      {/* Contenu principal */}
       <main className="flex-grow container mx-auto py-4 px-4">
         <Outlet />
       </main>
 
-      {/* Barre de navigation inférieure (mobile uniquement) */}
       <nav className="bg-white border-t border-gray-200 fixed bottom-0 left-0 right-0 md:hidden z-10">
         <div className="flex justify-around items-center h-16">
           {navItems.map((item) => (
@@ -140,7 +132,6 @@ export const AppLayout: React.FC = () => {
         </div>
       </nav>
 
-      {/* Navigation latérale (desktop uniquement) - cachée sur mobile */}
       <nav className="hidden md:block fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-gray-200 pt-16 z-10">
         <div className="p-4">
           <div className="space-y-1">
