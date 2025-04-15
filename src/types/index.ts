@@ -1,43 +1,46 @@
 
-// User type for the application
+// User types
 export interface User {
   id: string;
   username: string;
   email: string;
-  points: number;
+  role: string;
   level: number;
+  points: number;
   avatar?: string;
-  firstname?: string;
-  lastname?: string;
-  role?: string;
 }
 
-// Import and re-export types from other files for easier access
-export type { 
-  Quiz, 
-  Question, 
-  Answer, 
-  Category, 
-  QuizResult, 
-  UserProgress, 
-  LeaderboardEntry, 
-  Formation,
-  QuestionAnswer
+// Re-export from other type files
+export type {
+  Category,
+  Quiz,
+  QuizQuestion,
+  QuizResult,
+  UserProgress,
+  Answer,
+  QuestionAnswer,
+  QuestionType,
+  LeaderboardEntry
 } from './quiz';
 
-export type { 
-  RankingData, 
-  RankingItem 
-} from './ranking';
+// Export types related to the API
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
 
-export type { 
-  SponsorshipLink, 
-  SponsorshipReferral, 
-  SponsorshipStats 
-} from './sponsorship';
+// Auth types
+export interface LoginCredentials {
+  email: string;
+  password: string;
+  remember?: boolean;
+}
 
-export type {
-  FormationDetails,
-  FormationModule,
-  FormationContent
-} from './formation';
+export interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+}

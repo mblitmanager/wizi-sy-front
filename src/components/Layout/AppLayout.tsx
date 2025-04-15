@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Home, BookOpen, BarChart2, User, Menu, Settings } from 'lucide-react';
@@ -8,24 +9,18 @@ import { Link } from 'react-router-dom';
 import { SessionTimeoutIndicator } from '@/components/Auth/SessionTimeoutIndicator';
 
 export const AppLayout: React.FC = () => {
-  const { isAuthenticated, user, logout, isAdmin, refreshSession, getRedirectPath } = useAuth();
+  const { isAuthenticated, user, logout, isAdmin, refreshSession } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
   const isActive = (path: string) => location.pathname === path;
 
-  // Vérifier l'authentification et les rôles
+  // Vérifier l'authentification uniquement pour les redirections vers l'auth
   useEffect(() => {
     if (!isAuthenticated && !location.pathname.includes('/auth')) {
       navigate('/auth/login');
-      return;
     }
-
-    const redirectPath = getRedirectPath();
-    if (redirectPath) {
-      navigate(redirectPath);
-    }
-  }, [isAuthenticated, location.pathname, navigate, getRedirectPath]);
+  }, [isAuthenticated, location.pathname, navigate]);
 
   // Vérifier et rafraîchir la session régulièrement
   useEffect(() => {
@@ -92,7 +87,7 @@ export const AppLayout: React.FC = () => {
                   ))}
                 </nav>
                 <div className="mt-10">
-                  <Button variant="outline" className="w-full font-nunito" onClick={logout}>
+                  <Button variant="outline" className="w-full font-nunito" onClick={() => logout()}>
                     Déconnexion
                   </Button>
                 </div>
@@ -106,9 +101,9 @@ export const AppLayout: React.FC = () => {
           {user && (
             <div className="flex items-center">
               <div className="mr-2 hidden md:block text-right">
-                <div className="text-sm font-medium font-nunito">{user.username}</div>
+                <div className="text-sm font-medium font-nunito">{user.username || "Utilisateur"}</div>
                 <div className="text-xs text-gray-500 font-roboto">
-                  {isAdmin ? 'Administrateur' : `Niveau ${user.level}`}
+                  {isAdmin ? 'Administrateur' : `Niveau ${user.level || 1}`}
                 </div>
               </div>
               <div className={`${isAdmin ? 'bg-red-500' : 'bg-blue-500'} text-white w-8 h-8 rounded-full flex items-center justify-center font-nunito`}>
@@ -165,7 +160,11 @@ export const AppLayout: React.FC = () => {
             ))}
           </div>
           <div className="pt-8 border-t border-gray-200 mt-8">
-            <Button variant="outline" className="w-full font-nunito" onClick={logout}>
+            <Button 
+              variant="outline" 
+              className="w-full font-nunito" 
+              onClick={() => logout()}
+            >
               Déconnexion
             </Button>
           </div>

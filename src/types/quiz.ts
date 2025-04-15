@@ -105,13 +105,13 @@ export interface UserProgress {
 }
 
 export interface LeaderboardEntry {
-  user_id?: string;
-  username?: string;
-  score?: number;
-  rank?: number;
-  level?: number;
+  user_id: string;
+  username: string;
   avatar?: string;
-  points?: number;
+  total_points: number;
+  quizzes_completed: number;
+  average_score?: number;
+  rank?: number;
 }
 
 export interface Formation {

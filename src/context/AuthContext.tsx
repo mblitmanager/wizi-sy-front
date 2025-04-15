@@ -45,7 +45,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (token) {
         try {
           const userData = await authAPI.getCurrentUser();
-          setUser(userData);
+          // Transforme les données utilisateur en User
+          if (userData) {
+            const formattedUser: User = {
+              id: userData.id || '',
+              username: userData.name || userData.username || 'Utilisateur',
+              email: userData.email || '',
+              role: userData.role || 'stagiaire',
+              level: userData.level || 1,
+              points: userData.points || 0
+            };
+            setUser(formattedUser);
+          }
         } catch (error) {
           console.error('Failed to get current user:', error);
           localStorage.removeItem('token');
@@ -61,13 +72,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string) => {
     try {
       const response = await authAPI.login(email, password);
-      const { token } = response;
-      
-      localStorage.setItem('token', token);
-      
-      // Decode and set user data from token
-      const userData = decodeToken(token);
-      setUser(userData);
+      if (response && response.token) {
+        localStorage.setItem('token', response.token);
+        
+        // Decode and set user data from token
+        const decodedToken = decodeToken(response.token);
+        if (decodedToken) {
+          const formattedUser: User = {
+            id: decodedToken.id || '',
+            username: 'Utilisateur',
+            email: email,
+            role: decodedToken.role || 'stagiaire',
+            level: 1,
+            points: 0
+          };
+          setUser(formattedUser);
+        }
+      } else {
+        throw new Error('No token received');
+      }
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
@@ -107,7 +130,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // For now, just check current user to validate the token
       const userData = await authAPI.getCurrentUser();
-      setUser(userData);
+      // Transforme les données utilisateur en User
+      if (userData) {
+        const formattedUser: User = {
+          id: userData.id || '',
+          username: userData.name || userData.username || 'Utilisateur',
+          email: userData.email || '',
+          role: userData.role || 'stagiaire',
+          level: userData.level || 1,
+          points: userData.points || 0
+        };
+        setUser(formattedUser);
+      }
     } catch (error) {
       console.error('Session refresh failed:', error);
       throw error;

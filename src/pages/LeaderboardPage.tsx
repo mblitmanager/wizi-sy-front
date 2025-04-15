@@ -17,7 +17,8 @@ const LeaderboardPage: React.FC = () => {
     setError(null);
     try {
       const data = await progressAPI.getLeaderboard();
-      setLeaderboard(data);
+      console.log("Leaderboard data:", data);
+      setLeaderboard(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch leaderboard:', error);
       setError('Impossible de charger les données du classement. Le serveur est peut-être indisponible.');
