@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { quizService } from '@/services/quizService';
+import { formationAPI } from '@/api';
 import { Quiz, Question, Formation } from '@/types';
 import { Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -9,6 +10,9 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/context/AuthContext';
 import { quizAPI } from '@/api';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const QuizCatalogPage: React.FC = () => {
   const navigate = useNavigate();
@@ -19,6 +23,7 @@ const QuizCatalogPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [formationsByCategory, setFormationsByCategory] = useState<Record<string, Formation[]>>({});
 
   useEffect(() => {
@@ -29,11 +34,12 @@ const QuizCatalogPage: React.FC = () => {
 
     const fetchData = async () => {
       setIsLoading(true);
+      setError(null);
+      
       try {
-        // Récupérer les formations du stagiaire
         console.log('User:', user);
-        const formationsResponse = await quizService.getFormationsByStagiaire(user.stagiaire.id);
-        const formations = formationsResponse.data;
+        // Récupérer les formations du stagiaire (sans utiliser user.stagiaire.id)
+        const formations = await formationAPI.getFormationsByStagiaire();
         console.log('Formations:', formations);
 
         // Extraire les catégories uniques des formations du stagiaire
@@ -73,11 +79,12 @@ const QuizCatalogPage: React.FC = () => {
         ));
 
         // Aplatir le tableau de quiz et filtrer les quiz null
-        const validQuizzes = quizzesData.flat().filter(Boolean);
+        const validQuizzes = quizzesData.flat().filter(Boolean) as Quiz[];
         console.log('Valid quizzes:', validQuizzes);
         setQuizzes(validQuizzes);
       } catch (error) {
         console.error('Failed to fetch formations:', error);
+        setError('Impossible de charger les formations. Veuillez réessayer plus tard.');
       } finally {
         setIsLoading(false);
       }
@@ -113,10 +120,36 @@ const QuizCatalogPage: React.FC = () => {
     return categoryColors[categoryName] || '#3D9BE9';
   };
 
+  const handleRetry = () => {
+    if (user) {
+      // Refresh the data
+      const fetchData = async () => {
+        setIsLoading(true);
+        setError(null);
+        
+        try {
+          // ... same logic as above
+          const formations = await formationAPI.getFormationsByStagiaire();
+          // ... remainder of data fetching logic
+        } catch (error) {
+          console.error('Failed to fetch formations:', error);
+          setError('Impossible de charger les formations. Veuillez réessayer plus tard.');
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      fetchData();
+    }
+  };
+
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div className="pb-20 md:pb-0 md:pl-64">
+        <h1 className="text-2xl font-bold mb-6 font-montserrat">Catalogue de Quiz</h1>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
       </div>
     );
   }
@@ -124,6 +157,22 @@ const QuizCatalogPage: React.FC = () => {
   return (
     <div className="pb-20 md:pb-0 md:pl-64">
       <h1 className="text-2xl font-bold mb-6 font-montserrat">Catalogue de Quiz</h1>
+      
+      {error && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Erreur</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleRetry} 
+            className="mt-2 flex items-center gap-2"
+          >
+            <RefreshCw className="h-4 w-4" /> Réessayer
+          </Button>
+        </Alert>
+      )}
       
       {/* Search bar */}
       <div className="relative mb-6">

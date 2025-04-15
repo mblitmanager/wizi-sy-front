@@ -5,8 +5,19 @@ import { decodeToken } from '@/utils/tokenUtils';
 
 const API_URL = process.env.VITE_API_URL || 'http://laravel.test/api';
 
+// Log the current API URL to help with debugging
+console.log('Using API URL:', API_URL);
+
 const handleResponse = async <T>(response: Response): Promise<T> => {
   if (!response.ok) {
+    // If unauthorized, clear token and redirect to login
+    if (response.status === 401) {
+      console.log('Unauthorized access, redirecting to login');
+      localStorage.removeItem('token');
+      window.location.href = '/auth/login';
+      throw new Error('Unauthorized, please login again');
+    }
+    
     const error = await response.json().catch(() => ({ message: 'Network response was not ok' }));
     throw new Error(error.message || 'Something went wrong');
   }
@@ -33,6 +44,7 @@ export const authAPI = {
     const response = await fetch(`${API_URL}/me`, {
       headers: {
         'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
     });
     return handleResponse(response);
@@ -46,6 +58,7 @@ export const authAPI = {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
     });
     localStorage.removeItem('token');
@@ -55,8 +68,10 @@ export const authAPI = {
 // Quiz API
 export const quizAPI = {
   getCategories: async (): Promise<string[]> => {
+    const token = localStorage.getItem('token');
     const headers: HeadersInit = {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
     };
     
     const response = await fetch(`${API_URL}/quiz/categories`, { headers });
@@ -64,8 +79,10 @@ export const quizAPI = {
   },
   
   getQuizzesByCategory: async (categoryId: string): Promise<Quiz[]> => {
+    const token = localStorage.getItem('token');
     const headers: HeadersInit = {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
     };
     
     const response = await fetch(`${API_URL}/formations/categories/${categoryId}`, { headers });
@@ -73,8 +90,10 @@ export const quizAPI = {
   },
 
   getQuizById: async (quizId: string): Promise<Quiz> => {
+    const token = localStorage.getItem('token');
     const headers: HeadersInit = {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
     };
     
     const response = await fetch(`${API_URL}/quizzes/${quizId}`, { headers });
@@ -82,8 +101,10 @@ export const quizAPI = {
   },
 
   getQuizQuestions: async (quizId: string): Promise<Question[]> => {
+    const token = localStorage.getItem('token');
     const headers: HeadersInit = {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
     };
     
     const response = await fetch(`${API_URL}/quiz/${quizId}/questions`, { headers });
@@ -91,8 +112,10 @@ export const quizAPI = {
   },
 
   getReponsesByQuestion: async (questionId: string): Promise<Answer[]> => {
+    const token = localStorage.getItem('token');
     const headers: HeadersInit = {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
     };
     
     const response = await fetch(`${API_URL}/questions/${questionId}/reponses`, { headers });
@@ -106,8 +129,9 @@ export const quizAPI = {
   },
 
   submitQuiz: async (quizId: string, answers: Record<string, string>, score: number, timeSpent: number): Promise<QuizResult> => {
+    const token = localStorage.getItem('token');
     const headers: HeadersInit = {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
     };
     
@@ -123,8 +147,10 @@ export const quizAPI = {
 // Progress API
 export const progressAPI = {
   getUserProgress: async (): Promise<UserProgress> => {
+    const token = localStorage.getItem('token');
     const headers: HeadersInit = {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
     };
     
     const response = await fetch(`${API_URL}/stagiaire/progress`, { headers });
@@ -132,8 +158,10 @@ export const progressAPI = {
   },
 
   getLeaderboard: async (): Promise<LeaderboardEntry[]> => {
+    const token = localStorage.getItem('token');
     const headers: HeadersInit = {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
     };
     
     const response = await fetch(`${API_URL}/stagiaire/ranking/global`, { headers });
@@ -144,8 +172,10 @@ export const progressAPI = {
 // Formation API
 export const formationAPI = {
   getFormationsByStagiaire: async (): Promise<Formation[]> => {
+    const token = localStorage.getItem('token');
     const headers: HeadersInit = {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
     };
     
     const response = await fetch(`${API_URL}/stagiaire/formations`, { headers });
@@ -153,8 +183,10 @@ export const formationAPI = {
   },
   
   getFormationById: async (formationId: string): Promise<Formation> => {
+    const token = localStorage.getItem('token');
     const headers: HeadersInit = {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
     };
     
     const response = await fetch(`${API_URL}/formations/${formationId}`, { headers });

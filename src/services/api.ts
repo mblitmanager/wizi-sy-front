@@ -3,6 +3,9 @@ import axios from 'axios';
 
 const API_URL = process.env.VITE_API_URL || 'http://localhost:8000/api';
 
+// Log the current API URL to help with debugging
+console.log('Using API URL:', API_URL);
+
 export const api = axios.create({
   baseURL: API_URL,
   headers: {
@@ -28,7 +31,9 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Additional handling for 401 errors
     if (error.response?.status === 401) {
+      console.log('Unauthorized access detected, redirecting to login');
       localStorage.removeItem('token');
       window.location.href = '/auth/login';
     }

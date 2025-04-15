@@ -47,13 +47,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const userData = await authAPI.getCurrentUser();
           // Transforme les données utilisateur en User
           if (userData) {
+            const typedUserData = userData as any;
             const formattedUser: User = {
-              id: userData.id || '',
-              username: userData.name || userData.username || 'Utilisateur',
-              email: userData.email || '',
-              role: userData.role || 'stagiaire',
-              level: userData.level || 1,
-              points: userData.points || 0
+              id: typedUserData.id || '',
+              username: typedUserData.name || typedUserData.username || 'Utilisateur',
+              email: typedUserData.email || '',
+              role: typedUserData.role || 'stagiaire',
+              level: typedUserData.level || 1,
+              points: typedUserData.points || 0
             };
             setUser(formattedUser);
           }
@@ -72,11 +73,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string) => {
     try {
       const response = await authAPI.login(email, password);
-      if (response && response.token) {
-        localStorage.setItem('token', response.token);
+      if (response && (response as any).token) {
+        const typedResponse = response as any;
+        localStorage.setItem('token', typedResponse.token);
         
         // Decode and set user data from token
-        const decodedToken = decodeToken(response.token);
+        const decodedToken = decodeToken(typedResponse.token);
         if (decodedToken) {
           const formattedUser: User = {
             id: decodedToken.id || '',
@@ -132,13 +134,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const userData = await authAPI.getCurrentUser();
       // Transforme les données utilisateur en User
       if (userData) {
+        const typedUserData = userData as any;
         const formattedUser: User = {
-          id: userData.id || '',
-          username: userData.name || userData.username || 'Utilisateur',
-          email: userData.email || '',
-          role: userData.role || 'stagiaire',
-          level: userData.level || 1,
-          points: userData.points || 0
+          id: typedUserData.id || '',
+          username: typedUserData.name || typedUserData.username || 'Utilisateur',
+          email: typedUserData.email || '',
+          role: typedUserData.role || 'stagiaire',
+          level: typedUserData.level || 1,
+          points: typedUserData.points || 0
         };
         setUser(formattedUser);
       }

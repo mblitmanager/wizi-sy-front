@@ -17,7 +17,8 @@ export type {
   Category,
   Formation,
   Question,
-  QuestionType,
+  // Fix: QuestionType doesn't exist in the quiz.ts file
+  // QuestionType,
   QuestionAnswer,
   QuizResult,
   UserProgress,

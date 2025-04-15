@@ -24,22 +24,27 @@ const HomePage: React.FC = () => {
     setError(null);
     try {
       // Get categories
-      const fetchedCategories = await quizAPI.getCategories();
-      const categoriesWithColors = fetchedCategories.map((name, index) => {
-        const colors = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
-        const colorClasses = ['category-blue-500', 'category-green-500', 'category-yellow-500', 'category-red-500', 'category-purple-500', 'category-pink-500'];
+      try {
+        const fetchedCategories = await quizAPI.getCategories();
+        const categoriesWithColors = fetchedCategories.map((name, index) => {
+          const colors = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+          const colorClasses = ['category-blue-500', 'category-green-500', 'category-yellow-500', 'category-red-500', 'category-purple-500', 'category-pink-500'];
+          
+          return {
+            id: name,
+            name: name,
+            description: `Quizzes dans la catégorie ${name}`,
+            color: colors[index % colors.length],
+            colorClass: colorClasses[index % colorClasses.length],
+            quizCount: Math.floor(Math.random() * 10) + 1, // Sample data
+          };
+        });
         
-        return {
-          id: name,
-          name: name,
-          description: `Quizzes dans la catégorie ${name}`,
-          color: colors[index % colors.length],
-          colorClass: colorClasses[index % colorClasses.length],
-          quizCount: Math.floor(Math.random() * 10) + 1, // Sample data
-        };
-      });
-      
-      setCategories(categoriesWithColors);
+        setCategories(categoriesWithColors);
+      } catch (categoriesError) {
+        console.error('Erreur lors de la récupération des catégories:', categoriesError);
+        setError('Impossible de charger les catégories. Veuillez vérifier votre connexion ou réessayer plus tard.');
+      }
       
       // Get user progress
       try {
