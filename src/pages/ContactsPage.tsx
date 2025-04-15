@@ -1,25 +1,36 @@
 
 import { useEffect, useState } from "react";
-import { Contact, ContactsData } from "@/types/contact";
+import { Contact } from "@/types/contact";
 import { ContactCard } from "@/components/Contacts/ContactCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
-import { contactService } from "@/services/api";
+import axios from "axios";
+
+const API_URL = import.meta.env.VITE_API_URL;
+
+const fetchContacts = async (endpoint: string) => {
+  const response = await axios.get(`${API_URL}/stagiaire/contacts/${endpoint}`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    }
+  });
+  return response.data;
+};
 
 const ContactsPage = () => {
   const { data: commerciaux, isLoading: loadingCommerciaux } = useQuery({
     queryKey: ['contacts', 'commerciaux'],
-    queryFn: contactService.getCommerciaux
+    queryFn: () => fetchContacts('commerciaux'),
   });
 
   const { data: formateurs, isLoading: loadingFormateurs } = useQuery({
     queryKey: ['contacts', 'formateurs'],
-    queryFn: contactService.getFormateurs
+    queryFn: () => fetchContacts('formateurs'),
   });
 
   const { data: poleRelation, isLoading: loadingPoleRelation } = useQuery({
     queryKey: ['contacts', 'pole-relation'],
-    queryFn: contactService.getPoleRelation
+    queryFn: () => fetchContacts('pole-relation'),
   });
 
   const isLoading = loadingCommerciaux || loadingFormateurs || loadingPoleRelation;

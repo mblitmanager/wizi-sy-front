@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 
 const API_URL = process.env.VITE_API_URL || 'http://localhost:8000/api';
@@ -106,10 +105,25 @@ export const calendarService = {
 
 // Contacts services
 export const contactService = {
-  getContacts: () => api.get('/stagiaire/contacts'),
-  getCommerciaux: () => api.get('/stagiaire/contacts/commerciaux'),
-  getFormateurs: () => api.get('/stagiaire/contacts/formateurs'),
-  getPoleRelation: () => api.get('/stagiaire/contacts/pole-relation'),
+  getCommerciaux: async () => {
+    const response = await api.get('/stagiaire/contacts/commerciaux');
+    return response.data;
+  },
+  
+  getFormateurs: async () => {
+    const response = await api.get('/stagiaire/contacts/formateurs');
+    return response.data;
+  },
+  
+  getPoleRelation: async () => {
+    const response = await api.get('/stagiaire/contacts/pole-relation');
+    return response.data;
+  },
+  
+  getContacts: async () => {
+    const response = await api.get('/stagiaire/contacts');
+    return response.data;
+  }
 };
 
 // Stagiaire API
