@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
@@ -24,13 +23,13 @@ const AdminPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold font-montserrat">Panneau d'administration</h1>
       </div>
 
       <Tabs defaultValue="users">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
           <TabsTrigger value="users" className="font-nunito">Utilisateurs</TabsTrigger>
           <TabsTrigger value="courses" className="font-nunito">Formations</TabsTrigger>
           <TabsTrigger value="quizzes" className="font-nunito">Quizz</TabsTrigger>
@@ -38,7 +37,7 @@ const AdminPage: React.FC = () => {
         </TabsList>
         
         <TabsContent value="users" className="space-y-4 mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium font-montserrat">Stagiaires</CardTitle>
@@ -80,7 +79,7 @@ const AdminPage: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="courses" className="space-y-4 mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium font-montserrat">Formations</CardTitle>
@@ -126,7 +125,7 @@ const AdminPage: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="stats" className="space-y-4 mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium font-montserrat">Quiz complétés</CardTitle>

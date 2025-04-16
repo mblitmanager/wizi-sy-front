@@ -231,7 +231,7 @@ const QuizPage: React.FC = () => {
   const progress = ((currentQuestionIndex) / questions.length) * 100;
 
   return (
-    <div className="container mx-auto p-4 pb-20 md:pb-4">
+    <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
       <h1 className="text-3xl font-bold mb-6">Quiz</h1>
       
       <Tabs defaultValue="available" className="w-full">
@@ -243,7 +243,7 @@ const QuizPage: React.FC = () => {
 
         {/* Onglet des quiz disponibles */}
         <TabsContent value="available">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {quizLevels.map((level) => (
               <Card key={level.id} className="text-center">
                 <CardHeader className="p-4">
@@ -291,7 +291,7 @@ const QuizPage: React.FC = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="p-4 pt-0">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="flex items-center">
                       <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
                       <div>
@@ -341,8 +341,8 @@ const QuizPage: React.FC = () => {
               <CardDescription>
                 Basé sur le nombre de quiz joués et les scores réalisés
               </CardDescription>
-            </CardHeader>
-            <CardContent>
+        </CardHeader>
+        <CardContent>
               <div className="space-y-4">
                 {ranking.map((rank, index) => (
                   <div key={rank.id} className="flex items-center justify-between p-3 rounded bg-muted/50">
@@ -365,14 +365,14 @@ const QuizPage: React.FC = () => {
                     </div>
                   </div>
                 ))}
-              </div>
-            </CardContent>
+          </div>
+        </CardContent>
             <CardFooter>
               <Link to="/recompenses" className="w-full">
                 <Button className="w-full">Voir les récompenses</Button>
               </Link>
             </CardFooter>
-          </Card>
+      </Card>
         </TabsContent>
       </Tabs>
     </div>

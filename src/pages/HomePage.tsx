@@ -30,6 +30,7 @@ import {
   Clock,
   Zap
 } from "lucide-react";
+import ParrainageSection from '@/components/Home/ParrainageSection';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -144,7 +145,7 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 pb-20 md:pb-4">
+    <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
       {/* En-tête avec bienvenue et progression */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Bienvenue sur Wizi-Learn</h1>
@@ -172,9 +173,15 @@ const HomePage: React.FC = () => {
         </div>
         
         <div className="grid gap-4 md:grid-cols-3">
-          {formateurs?.slice(0, 3).map((contact) => (
-            <ContactCard key={contact.id} contact={contact} />
-          ))}
+          {commerciaux?.[0] && (
+            <ContactCard contact={commerciaux[0]} />
+          )}
+          {formateurs?.[0] && (
+            <ContactCard contact={formateurs[0]} />
+          )}
+          {poleRelation?.[0] && (
+            <ContactCard contact={poleRelation[0]} />
+          )}
         </div>
       </div>
 
@@ -233,7 +240,7 @@ const HomePage: React.FC = () => {
           </Link>
         </div>
         
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {quizLevels.map((level) => (
             <Card key={level.id} className="text-center">
               <CardHeader className="p-4">
@@ -288,85 +295,40 @@ const HomePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Section du parrainage */}
-      <div className="mb-8">
-        <Card className="bg-primary/5 border-primary/20">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Users className="h-5 w-5 mr-2" />
-              Système de parrainage
-            </CardTitle>
-            <CardDescription>
-              Invitez vos amis et gagnez des récompenses
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="mb-4">
-              Partagez votre lien de parrainage unique et gagnez des points pour chaque filleul qui s'inscrit.
-            </p>
-            <div className="flex items-center space-x-2">
-              <div className="flex-1 p-2 bg-background rounded border">
-                {window.location.origin}/inscription?ref=USER123
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <ParrainageSection />
+        <Link to="/profile#parrainage" className="block">
+          <Card className="h-full hover:bg-accent transition-colors">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-medium">Voir mes filleuls</h3>
+                  <p className="text-sm text-muted-foreground">Consultez votre programme de parrainage complet</p>
+                </div>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </div>
-              <Button variant="outline">Copier</Button>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Link to="/parrainage" className="w-full">
-              <Button className="w-full">Voir mes filleuls</Button>
-            </Link>
-          </CardFooter>
-        </Card>
-      </div>
-
-      {/* Section du classement */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Classement</h2>
-          <Link to="/classement">
-            <Button variant="ghost" size="sm">
-              Voir le classement complet <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          </Link>
-        </div>
-        
+            </CardContent>
+          </Card>
+        </Link>
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Trophy className="h-5 w-5 mr-2 text-yellow-500" />
-              Top 5 des stagiaires
-            </CardTitle>
+            <CardTitle>Classement</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {[1, 2, 3, 4, 5].map((rank) => (
-                <div key={rank} className="flex items-center justify-between p-2 rounded bg-muted/50">
-                  <div className="flex items-center">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-2 ${
-                      rank === 1 ? 'bg-yellow-500 text-white' : 
-                      rank === 2 ? 'bg-gray-300 text-gray-700' : 
-                      rank === 3 ? 'bg-amber-600 text-white' : 
-                      'bg-muted text-muted-foreground'
-                    }`}>
-                      {rank}
-                    </div>
-                    <div>
-                      <p className="font-medium">Stagiaire {rank}</p>
-                      <p className="text-xs text-muted-foreground">{1000 - (rank * 50)} points</p>
-                    </div>
+                <div key={rank} className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className="font-bold">{rank}.</span>
+                    <span>Stagiaire {rank}</span>
                   </div>
-                  {rank <= 3 && (
-                    <Award className={`h-5 w-5 ${
-                      rank === 1 ? 'text-yellow-500' : 
-                      rank === 2 ? 'text-gray-400' : 
-                      'text-amber-600'
-                    }`} />
-                  )}
+                  <span className="text-primary">{1000 - (rank * 50)} pts</span>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
+    
       </div>
 
       {/* Section de l'agenda */}
@@ -405,6 +367,8 @@ const HomePage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+
+     
     </div>
   );
 };

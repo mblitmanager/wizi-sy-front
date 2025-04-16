@@ -46,7 +46,7 @@ const ContactsPage = () => {
         </TabsList>
 
         <TabsContent value="commerciaux">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {isLoading ? (
               <p className="col-span-full text-center font-roboto">Chargement des commerciaux...</p>
             ) : commerciaux?.map((contact: Contact) => (
@@ -56,7 +56,7 @@ const ContactsPage = () => {
         </TabsContent>
 
         <TabsContent value="formateurs">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {isLoading ? (
               <p className="col-span-full text-center font-roboto">Chargement des formateurs...</p>
             ) : formateurs?.map((contact: Contact) => (
@@ -66,7 +66,7 @@ const ContactsPage = () => {
         </TabsContent>
 
         <TabsContent value="pole-relation">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {isLoading ? (
               <p className="col-span-full text-center font-roboto">Chargement du pôle relation...</p>
             ) : poleRelation?.map((contact: Contact) => (

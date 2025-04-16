@@ -180,47 +180,49 @@ export const QuizComponent: React.FC<QuizProps> = ({ level, mode, category }) =>
   const currentQuestionData = questions[currentQuestion];
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <CardTitle>Question {currentQuestion + 1}/{questions.length}</CardTitle>
-          <div className="flex gap-2">
-            <Badge variant="outline">
-              {level.charAt(0).toUpperCase() + level.slice(1)}
-            </Badge>
-            {streak > 0 && (
-              <Badge variant="secondary">
-                Streak: {streak}
+    <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
+      <Card className="w-full max-w-2xl mx-auto flex flex-col">
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle>Question {currentQuestion + 1}/{questions.length}</CardTitle>
+            <div className="flex gap-2">
+              <Badge variant="outline">
+                {level.charAt(0).toUpperCase() + level.slice(1)}
               </Badge>
-            )}
+              {streak > 0 && (
+                <Badge variant="secondary">
+                  Streak: {streak}
+                </Badge>
+              )}
+            </div>
           </div>
-        </div>
-        <Timer timeLeft={timeLeft} onTimeUp={() => setShowResults(true)} />
-      </CardHeader>
-      <CardContent>
-        <QuizQuestion
-          question={currentQuestionData}
-          totalQuestions={questions.length}
-          currentQuestion={currentQuestion + 1}
-          onAnswer={handleAnswerSelect}
-          timeLimit={timeLeft}
-        />
-        
-        <div className="flex justify-between mt-4">
-          <Progress 
-            value={(currentQuestion / questions.length) * 100} 
-            className="w-full"
+          <Timer timeLeft={timeLeft} onTimeUp={() => setShowResults(true)} />
+        </CardHeader>
+        <CardContent>
+          <QuizQuestion
+            question={currentQuestionData}
+            totalQuestions={questions.length}
+            currentQuestion={currentQuestion + 1}
+            onAnswer={handleAnswerSelect}
+            timeLimit={timeLeft}
           />
-        </div>
+          
+          <div className="flex justify-between mt-4">
+            <Progress 
+              value={(currentQuestion / questions.length) * 100} 
+              className="w-full"
+            />
+          </div>
 
-        <Button 
-          className="w-full mt-4"
-          onClick={handleNext}
-          disabled={!showExplanation && selectedAnswers.length === 0}
-        >
-          {currentQuestion === questions.length - 1 ? 'Terminer' : 'Suivant'}
-        </Button>
-      </CardContent>
-    </Card>
+          <Button 
+            className="w-full mt-4"
+            onClick={handleNext}
+            disabled={!showExplanation && selectedAnswers.length === 0}
+          >
+            {currentQuestion === questions.length - 1 ? 'Terminer' : 'Suivant'}
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
   );
 }; 

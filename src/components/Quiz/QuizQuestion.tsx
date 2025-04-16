@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Question } from '@/types/quiz';
 import { Answer as QuizAnswer } from '@/types/quiz';
@@ -112,7 +111,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
   }
 
   return (
-    <div className="max-w-xl mx-auto">
+    <div className="max-w-xl mx-auto px-4 w-full h-full flex flex-col">
       <div className="mb-6">
         <div className="flex justify-between items-center text-sm text-gray-500 mb-1 font-roboto">
           <span>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Navigate } from 'react-router-dom';
@@ -62,18 +61,18 @@ const StatsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
       <h1 className="text-2xl font-bold font-montserrat">Statistiques</h1>
 
       <Tabs defaultValue="summary">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
           <TabsTrigger value="summary" className="font-nunito">Résumé</TabsTrigger>
           <TabsTrigger value="courses" className="font-nunito">Formations</TabsTrigger>
           <TabsTrigger value="users" className="font-nunito">Utilisateurs</TabsTrigger>
         </TabsList>
 
         <TabsContent value="summary" className="space-y-4 mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
                 <CardTitle className="font-montserrat">Complétion des Quiz</CardTitle>

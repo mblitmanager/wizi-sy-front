@@ -143,11 +143,11 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
       {user && <ProfileHeader user={user} />}
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
-        <TabsList className="grid grid-cols-3 md:grid-cols-6 w-full">
+        <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 w-full">
           <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
           <TabsTrigger value="progress">Progression</TabsTrigger>
           <TabsTrigger value="results">Résultats</TabsTrigger>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Category, Quiz } from '@/types';
@@ -91,7 +90,7 @@ const CategoryPage: React.FC = () => {
           {level.charAt(0).toUpperCase() + level.slice(1)}
           {level === 'super' && ' Quiz'}
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
           {filteredQuizzes.map(quiz => (
             <Link to={`/quiz/${quiz.id}`} key={quiz.id}>
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform hover:shadow-md hover:translate-y-[-2px]">

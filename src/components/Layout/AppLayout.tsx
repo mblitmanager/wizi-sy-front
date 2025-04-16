@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, BarChart2, User, Menu, Settings, Users } from 'lucide-react';
+import { Home, BookOpen, BarChart2, User, Menu, Settings, Users, LogOut } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -84,6 +84,7 @@ export const AppLayout: React.FC = () => {
                 </nav>
                 <div className="mt-10">
                   <Button variant="outline" className="w-full font-nunito" onClick={() => logout()}>
+                    <LogOut className="h-4 w-4 mr-2" />
                     Déconnexion
                   </Button>
                 </div>
@@ -93,6 +94,7 @@ export const AppLayout: React.FC = () => {
           <h1 className="text-lg font-bold ml-2 font-montserrat">Wizi Learn</h1>
           {isAdmin && <span className="ml-2 text-sm bg-red-500 text-white px-2 py-0.5 rounded font-nunito">Admin</span>}
         </div>
+        
         <div className="flex items-center">
           {user && (
             <div className="flex items-center">
@@ -112,13 +114,49 @@ export const AppLayout: React.FC = () => {
 
       <SessionTimeoutIndicator />
 
-      <main className="flex-grow container mx-auto py-4 px-4">
-        <Outlet />
-      </main>
+      <div className="flex flex-1">
+        {/* Sidebar pour tablette et desktop */}
+        <nav className="hidden md:block w-64 bg-white border-r border-gray-200 pt-4 pb-4">
+          <div className="p-4">
+            <div className="space-y-1">
+              {navItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center space-x-2 py-2 px-3 rounded-md font-nunito ${
+                    isActive(item.path)
+                      ? 'bg-blue-50 text-blue-600'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  {item.icon}
+                  <span>{item.name}</span>
+                </Link>
+              ))}
+            </div>
+            <div className="pt-8 border-t border-gray-200 mt-8">
+              <Button 
+                variant="outline" 
+                className="w-full font-nunito" 
+                onClick={() => logout()}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Déconnexion
+              </Button>
+            </div>
+          </div>
+        </nav>
 
+        {/* Contenu principal */}
+        <main className="flex-1 p-4 md:p-6">
+          <Outlet />
+        </main>
+      </div>
+
+      {/* Navigation mobile en bas */}
       <nav className="bg-white border-t border-gray-200 fixed bottom-0 left-0 right-0 md:hidden z-10">
         <div className="flex justify-around items-center h-16">
-          {navItems.map((item) => (
+          {navItems.slice(0, 5).map((item) => (
             <Link
               key={item.path}
               to={item.path}
@@ -130,36 +168,6 @@ export const AppLayout: React.FC = () => {
               <span className="mt-1">{item.name}</span>
             </Link>
           ))}
-        </div>
-      </nav>
-
-      <nav className="hidden md:block fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-gray-200 pt-16 z-10">
-        <div className="p-4">
-          <div className="space-y-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center space-x-2 py-2 px-3 rounded-md font-nunito ${
-                  isActive(item.path)
-                    ? 'bg-blue-50 text-blue-600'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                {item.icon}
-                <span>{item.name}</span>
-              </Link>
-            ))}
-          </div>
-          <div className="pt-8 border-t border-gray-200 mt-8">
-            <Button 
-              variant="outline" 
-              className="w-full font-nunito" 
-              onClick={() => logout()}
-            >
-              Déconnexion
-            </Button>
-          </div>
         </div>
       </nav>
     </div>

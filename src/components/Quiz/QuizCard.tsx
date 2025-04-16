@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Quiz } from '@/types';
@@ -30,7 +29,7 @@ const QuizCard: React.FC<QuizCardProps> = ({ quiz, categoryColor }) => {
 
   return (
     <Link to={`/quiz/${quiz.id}`}>
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform hover:shadow-md hover:translate-y-[-2px]">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform hover:shadow-md hover:translate-y-[-2px] w-full h-full flex flex-col">
         <div className="h-2" style={{ backgroundColor: categoryColor }}></div>
         <div className="p-4">
           <div className="flex justify-between items-start">
