@@ -1,11 +1,13 @@
-
 export interface Contact {
-  id: string;
+  id: number;
   name: string;
-  role: string;
   email: string;
-  phone?: string;
-  photo?: string;
+  phone: string;
+  role: string;
+  formations?: string[];
+  avatar: string;
+  created_at: string;
+  specialites?: string[];
 }
 
 export interface ContactsData {

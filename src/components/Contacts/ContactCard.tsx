@@ -1,7 +1,8 @@
-
 import { Mail, Phone, User } from "lucide-react";
 import { Contact } from "@/types/contact";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 interface ContactCardProps {
   contact: Contact;
@@ -9,42 +10,45 @@ interface ContactCardProps {
 
 export const ContactCard = ({ contact }: ContactCardProps) => {
   return (
-    <Card className="hover:shadow-lg transition-shadow">
-      <CardContent className="p-4">
-        <div className="flex items-center space-x-4">
-          {contact.photo ? (
-            <img 
-              src={contact.photo} 
-              alt={contact.name} 
-              className="w-12 h-12 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-              <User className="w-6 h-6 text-gray-500" />
-            </div>
-          )}
-          <div className="flex-1">
-            <h3 className="font-montserrat font-semibold text-lg">{contact.name}</h3>
-            <p className="text-sm text-muted-foreground font-roboto">{contact.role}</p>
-          </div>
+    <Card className="w-full">
+      <CardHeader className="flex flex-row items-center gap-4">
+        <Avatar>
+          <AvatarImage src={contact.avatar} alt={contact.name} />
+          <AvatarFallback>{contact.name.charAt(0)}</AvatarFallback>
+        </Avatar>
+        <div>
+          <h3 className="font-semibold">{contact.name}</h3>
+          <p className="text-sm text-muted-foreground">{contact.role}</p>
         </div>
-        <div className="mt-4 space-y-2">
-          <div className="flex items-center space-x-2 text-sm">
-            <Mail className="w-4 h-4" />
-            <a href={`mailto:${contact.email}`} className="text-blue-600 hover:underline font-roboto">
-              {contact.email}
-            </a>
-          </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          <p className="text-sm">
+            <span className="font-medium">Email:</span> {contact.email}
+          </p>
           {contact.phone && (
-            <div className="flex items-center space-x-2 text-sm">
-              <Phone className="w-4 h-4" />
-              <a href={`tel:${contact.phone}`} className="text-blue-600 hover:underline font-roboto">
-                {contact.phone}
-              </a>
+            <p className="text-sm">
+              <span className="font-medium">Téléphone:</span> {contact.phone}
+            </p>
+          )}
+          {contact.formations && contact.formations.length > 0 && (
+            <div className="mt-2">
+              {contact.formations.length > 1 ? (
+                <p className="text-sm font-medium mb-1">Formations proposées:</p>
+              ) : (
+                <p className="text-sm font-medium mb-1">Formation proposée:</p>
+              )}
+              <div className="flex flex-wrap gap-1">
+                {contact.formations.map((formation, index) => (
+                  <Badge key={index} variant="secondary">
+                    {formation}
+                  </Badge>
+                ))}
+              </div>
             </div>
           )}
         </div>
       </CardContent>
     </Card>
-  );
+  );console.log(contact);
 };

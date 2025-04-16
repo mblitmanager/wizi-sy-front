@@ -124,9 +124,9 @@ const QuizCatalogPage: React.FC = () => {
     // Default colors for categories
     const categoryColors: Record<string, string> = {
       'Bureautique': '#3D9BE9',
-      'Création': '#FF6B6B',
-      'Internet': '#4ECDC4',
-      'Langues': '#FFD166',
+      'Création': '#9392BE',
+      'Internet': '#FFC533',
+      'Langues': '#A55E6E',
       'Autre': '#9B59B6'
     };
     return categoryColors[categoryName] || '#3D9BE9';

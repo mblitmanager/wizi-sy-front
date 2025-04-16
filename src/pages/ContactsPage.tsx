@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Contact } from "@/types/contact";
 import { ContactCard } from "@/components/Contacts/ContactCard";
@@ -8,8 +7,8 @@ import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const fetchContacts = async (endpoint: string) => {
-  const response = await axios.get(`${API_URL}/stagiaire/contacts/${endpoint}`, {
+const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
+  const response = await axios.get<Contact[]>(`${API_URL}/stagiaire/contacts/${endpoint}`, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`,
     }
@@ -18,17 +17,17 @@ const fetchContacts = async (endpoint: string) => {
 };
 
 const ContactsPage = () => {
-  const { data: commerciaux, isLoading: loadingCommerciaux } = useQuery({
+  const { data: commerciaux, isLoading: loadingCommerciaux } = useQuery<Contact[]>({
     queryKey: ['contacts', 'commerciaux'],
     queryFn: () => fetchContacts('commerciaux'),
   });
 
-  const { data: formateurs, isLoading: loadingFormateurs } = useQuery({
+  const { data: formateurs, isLoading: loadingFormateurs } = useQuery<Contact[]>({
     queryKey: ['contacts', 'formateurs'],
     queryFn: () => fetchContacts('formateurs'),
   });
 
-  const { data: poleRelation, isLoading: loadingPoleRelation } = useQuery({
+  const { data: poleRelation, isLoading: loadingPoleRelation } = useQuery<Contact[]>({
     queryKey: ['contacts', 'pole-relation'],
     queryFn: () => fetchContacts('pole-relation'),
   });
