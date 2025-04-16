@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { quizService } from '../services/quizService';
 import { Question, QuestionAnswer, Quiz } from '../types/quiz';
@@ -7,9 +7,21 @@ import { Timer } from '@/components/ui/timer';
 import QuestionRenderer from '../components/questions/QuestionRenderer';
 import { quizAPI } from '../api';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  BookOpen, 
+  Zap, 
+  History, 
+  Trophy, 
+  ChevronRight,
+  Clock,
+  CheckCircle,
+  XCircle,
+  BarChart
+} from "lucide-react";
 
 const QuizPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();
@@ -22,6 +34,57 @@ const QuizPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showExplanation, setShowExplanation] = useState(false);
+
+  // Données fictives pour les quiz
+  const [quizLevels] = useState([
+    { id: 1, name: "Débutant", questions: 5, icon: <BookOpen className="h-5 w-5" /> },
+    { id: 2, name: "Intermédiaire", questions: 10, icon: <BookOpen className="h-5 w-5" /> },
+    { id: 3, name: "Avancé", questions: 15, icon: <BookOpen className="h-5 w-5" /> },
+    { id: 4, name: "Super Quiz", questions: 20, icon: <Zap className="h-5 w-5" /> },
+  ]);
+
+  // Données fictives pour l'historique des quiz
+  const [quizHistory] = useState([
+    { 
+      id: 1, 
+      name: "Quiz Word - Débutant", 
+      date: "15/04/2024", 
+      score: 80, 
+      questions: 5,
+      correct: 4,
+      incorrect: 1,
+      time: "2:30"
+    },
+    { 
+      id: 2, 
+      name: "Quiz Excel - Intermédiaire", 
+      date: "10/04/2024", 
+      score: 60, 
+      questions: 10,
+      correct: 6,
+      incorrect: 4,
+      time: "5:15"
+    },
+    { 
+      id: 3, 
+      name: "Quiz Photoshop - Débutant", 
+      date: "05/04/2024", 
+      score: 100, 
+      questions: 5,
+      correct: 5,
+      incorrect: 0,
+      time: "1:45"
+    },
+  ]);
+
+  // Données fictives pour le classement
+  const [ranking] = useState([
+    { id: 1, name: "Stagiaire 1", points: 950, quizzes: 12 },
+    { id: 2, name: "Stagiaire 2", points: 900, quizzes: 10 },
+    { id: 3, name: "Stagiaire 3", points: 850, quizzes: 9 },
+    { id: 4, name: "Stagiaire 4", points: 800, quizzes: 8 },
+    { id: 5, name: "Stagiaire 5", points: 750, quizzes: 7 },
+  ]);
 
   useEffect(() => {
     const fetchQuiz = async () => {
@@ -168,48 +231,150 @@ const QuizPage: React.FC = () => {
   const progress = ((currentQuestionIndex) / questions.length) * 100;
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle>{quiz?.title || 'Quiz'}</CardTitle>
-            <Badge variant="outline">{quiz?.level || 'Standard'}</Badge>
-          </div>
-          <div className="mb-2">
-            <div className="flex justify-between items-center text-sm text-gray-500 mb-1">
-              <span>Question {currentQuestionIndex + 1} sur {questions.length}</span>
-              <span>{timeLeft} secondes</span>
-            </div>
-            <Progress value={progress} className="h-2" />
-          </div>
-        </CardHeader>
-        <CardContent>
-          <QuestionRenderer
-            question={currentQuestion}
-            onAnswer={(answer) => handleAnswer(currentQuestion.id, answer)}
-            isAnswerChecked={showExplanation}
-            selectedAnswer={answers[currentQuestion.id] || null}
-            timeRemaining={timeLeft}
-          />
+    <div className="container mx-auto p-4 pb-20 md:pb-4">
+      <h1 className="text-3xl font-bold mb-6">Quiz</h1>
+      
+      <Tabs defaultValue="available" className="w-full">
+        <TabsList className="w-full justify-start mb-6">
+          <TabsTrigger value="available">Quiz disponibles</TabsTrigger>
+          <TabsTrigger value="history">Historique</TabsTrigger>
+          <TabsTrigger value="ranking">Classement</TabsTrigger>
+        </TabsList>
 
-          <div className="flex justify-between mt-6">
-            <Button
-              onClick={handlePrevious}
-              disabled={currentQuestionIndex === 0}
-              variant="outline"
-            >
-              Précédent
-            </Button>
-
-            <Button
-              onClick={handleNext}
-              disabled={!answers[currentQuestion.id] && !showExplanation}
-            >
-              {currentQuestionIndex === questions.length - 1 ? 'Terminer' : 'Suivant'}
-            </Button>
+        {/* Onglet des quiz disponibles */}
+        <TabsContent value="available">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {quizLevels.map((level) => (
+              <Card key={level.id} className="text-center">
+                <CardHeader className="p-4">
+                  <div className="mx-auto mb-2 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    {level.icon}
+                  </div>
+                  <CardTitle className="text-lg">{level.name}</CardTitle>
+                  <CardDescription>{level.questions} questions</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    {level.name === "Super Quiz" 
+                      ? "Questions aléatoires sur toutes les thématiques" 
+                      : `Questions sur la formation en cours`}
+                  </p>
+                  <Badge variant="outline" className="mb-2">
+                    {level.questions * 2} points possibles
+                  </Badge>
+                </CardContent>
+                <CardFooter className="p-4 pt-0">
+                  <Button className="w-full">Commencer</Button>
+                </CardFooter>
+              </Card>
+            ))}
           </div>
-        </CardContent>
-      </Card>
+        </TabsContent>
+
+        {/* Onglet de l'historique */}
+        <TabsContent value="history">
+          <div className="space-y-4">
+            {quizHistory.map((quiz) => (
+              <Card key={quiz.id}>
+                <CardHeader className="p-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-lg">{quiz.name}</CardTitle>
+                      <CardDescription>Complété le {quiz.date}</CardDescription>
+                    </div>
+                    <Badge 
+                      variant={quiz.score >= 80 ? "default" : quiz.score >= 60 ? "secondary" : "destructive"}
+                      className="text-lg px-3 py-1"
+                    >
+                      {quiz.score}%
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+                      <div>
+                        <p className="text-sm font-medium">Correctes</p>
+                        <p className="text-lg">{quiz.correct}/{quiz.questions}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <XCircle className="h-5 w-5 text-red-500 mr-2" />
+                      <div>
+                        <p className="text-sm font-medium">Incorrectes</p>
+                        <p className="text-lg">{quiz.incorrect}/{quiz.questions}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <Clock className="h-5 w-5 text-blue-500 mr-2" />
+                      <div>
+                        <p className="text-sm font-medium">Temps</p>
+                        <p className="text-lg">{quiz.time}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <BarChart className="h-5 w-5 text-purple-500 mr-2" />
+                      <div>
+                        <p className="text-sm font-medium">Points</p>
+                        <p className="text-lg">{quiz.questions * 2 * (quiz.score / 100)}</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="p-4 pt-0">
+                  <Button variant="outline" className="w-full">Revoir les réponses</Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        {/* Onglet du classement */}
+        <TabsContent value="ranking">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Trophy className="h-5 w-5 mr-2 text-yellow-500" />
+                Classement général
+              </CardTitle>
+              <CardDescription>
+                Basé sur le nombre de quiz joués et les scores réalisés
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {ranking.map((rank, index) => (
+                  <div key={rank.id} className="flex items-center justify-between p-3 rounded bg-muted/50">
+                    <div className="flex items-center">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
+                        index === 0 ? 'bg-yellow-500 text-white' : 
+                        index === 1 ? 'bg-gray-300 text-gray-700' : 
+                        index === 2 ? 'bg-amber-600 text-white' : 
+                        'bg-muted text-muted-foreground'
+                      }`}>
+                        {index + 1}
+                      </div>
+                      <div>
+                        <p className="font-medium">{rank.name}</p>
+                        <p className="text-xs text-muted-foreground">{rank.quizzes} quiz joués</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold">{rank.points} points</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Link to="/recompenses" className="w-full">
+                <Button className="w-full">Voir les récompenses</Button>
+              </Link>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

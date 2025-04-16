@@ -36,8 +36,9 @@ export const AppLayout: React.FC = () => {
 
   const stagiairesNavItems = [
     { name: 'Accueil', path: '/', icon: <Home className="h-5 w-5" /> },
+    { name: 'Formations', path: '/formations', icon: <BookOpen className="h-5 w-5" /> },
     { name: 'Quiz', path: '/quiz', icon: <BookOpen className="h-5 w-5" /> },
-    { name: 'Classement', path: '/leaderboard', icon: <BarChart2 className="h-5 w-5" /> },
+    { name: 'Classement', path: '/classement', icon: <BarChart2 className="h-5 w-5" /> },
     { name: 'Contacts', path: '/contacts', icon: <Users className="h-5 w-5" /> },
     { name: 'Profil', path: '/profile', icon: <User className="h-5 w-5" /> },
   ];
@@ -96,7 +97,7 @@ export const AppLayout: React.FC = () => {
           {user && (
             <div className="flex items-center">
               <div className="mr-2 hidden md:block text-right">
-                <div className="text-sm font-medium font-nunito">{user.username || "Utilisateur"}</div>
+                <div className="text-sm font-medium font-nunito">{user.email || "Utilisateur"}</div>
                 <div className="text-xs text-gray-500 font-roboto">
                   {isAdmin ? 'Administrateur' : `Niveau ${user.level || 1}`}
                 </div>

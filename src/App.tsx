@@ -22,6 +22,7 @@ import RegisterPage from "@/pages/auth/RegisterPage";
 import NotFound from "@/pages/NotFound";
 import ErrorPage from "@/pages/ErrorPage";
 import ContactsPage from "@/pages/ContactsPage";
+import FormationsPage from "@/pages/FormationsPage";
 
 // Admin Pages
 import AdminPage from "@/pages/AdminPage";
@@ -46,9 +47,10 @@ const App = () => (
                 <Route path="category/:id" element={<CategoryPage />} />
                 <Route path="quiz/:id" element={<QuizPage />} />
                 <Route path="quiz" element={<QuizCatalogPage />} />
-                <Route path="leaderboard" element={<LeaderboardPage />} />
+                <Route path="classement" element={<LeaderboardPage />} />
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="contacts" element={<ContactsPage />} />
+                <Route path="formations" element={<FormationsPage />} />
                 
                 {/* Admin Routes */}
                 <Route path="admin" element={<AdminPage />} />

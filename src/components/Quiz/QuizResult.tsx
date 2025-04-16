@@ -79,7 +79,7 @@ const QuizResultComponent: React.FC<QuizResultProps> = ({ result, onRetry }) => 
         </Button>
         <Button 
           variant="outline" 
-          onClick={() => navigate('/leaderboard')}
+          onClick={() => navigate('/classement')}
           className="flex items-center justify-center font-nunito"
         >
           <BarChart2 className="h-4 w-4 mr-2" />
