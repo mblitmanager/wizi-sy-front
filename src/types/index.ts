@@ -1,63 +1,49 @@
+
+// User types
 export interface User {
   id: string;
+  username: string;
   email: string;
-  roles: string[];
-  firstName: string;
-  lastName: string;
+  role: string;
+  level: number;
+  points: number;
+  avatar?: string;
+  name?: string;
 }
 
-export interface Quiz {
-  id: string;
-  title: string;
-  description: string;
-  level: 'débutant' | 'intermédiaire' | 'avancé' | 'super';
-  questions: Question[];
-  category: 'creation' | 'internet' | 'langues' | 'bureautique';
+// Re-export all types from other type files
+export type {
+  Answer,
+  Category,
+  Formation,
+  Question,
+  // Fix: QuestionType doesn't exist in the quiz.ts file
+  // QuestionType,
+  QuestionAnswer,
+  QuizResult,
+  UserProgress,
+  LeaderboardEntry,
+  Quiz
+} from './quiz';
+
+// Export types related to the API
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
 }
 
-export interface Question {
-  id: string;
-  text: string;
-  type: string;
-  options: string[];
-  correctAnswer: string | string[];
-  explanation?: string;
-  media?: {
-    type: 'image' | 'video';
-    url: string;
-  };
+// Auth types
+export interface LoginCredentials {
+  email: string;
+  password: string;
+  remember?: boolean;
 }
 
-export interface Formation {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  duration: number;
-  level: string;
-  thumbnail: string;
-}
-
-export interface QuizAttempt {
-  id: string;
-  quizId: string;
-  score: number;
-  maxScore: number;
-  completed: boolean;
-  createdAt: string;
-}
-
-export interface Contact {
-  id: string;
-  type: 'trainer' | 'commercial' | 'support';
-  user: User;
-}
-
-export interface Event {
-  id: string;
-  title: string;
-  description?: string;
-  startTime: string;
-  endTime: string;
-  trainerId: string;
+export interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
 }
