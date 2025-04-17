@@ -15,7 +15,7 @@ export interface LoginResponse {
 
 export const authService = {
   async login(email: string, password: string): Promise<LoginResponse> {
-    const response = await api.post<LoginResponse>('/auth/login', {
+    const response = await api.post<LoginResponse>('/login', {
       email,
       password
     });
@@ -23,16 +23,16 @@ export const authService = {
   },
 
   async logout(): Promise<void> {
-    await api.post('/api/logout');
+    await api.post('/logout');
   },
 
   async getCurrentUser(): Promise<User> {
-    const response = await api.get<User>('/api/me');
+    const response = await api.get<User>('/me');
     return response.data;
   },
 
   async refreshToken(): Promise<{ token: string }> {
-    const response = await api.post<{ token: string }>('/api/refresh-token');
+    const response = await api.post<{ token: string }>('/refresh-token');
     return response.data;
   }
 }; 

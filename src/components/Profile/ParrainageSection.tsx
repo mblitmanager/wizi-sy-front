@@ -6,7 +6,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { parrainageService } from '../../services/parrainageService';
 import { ParrainageStats as ParrainageStatsType } from '../../services/parrainageService';
 
-const API_URL = process.env.VITE_API_URL || 'http://localhost:8000/api';
+const API_URL = process.env.VITE_API_URL || 'https://www.wizi-learn.com/public/api';
 
 const ParrainageSection = () => {
   const [parrainageLink, setParrainageLink] = useState<string>('');

@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 export const api = axios.create({
-  baseURL: process.env.VITE_API_URL || 'http://localhost:8000/api',
+  baseURL: process.env.VITE_API_URL || 'https://www.wizi-learn.com/public/api',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',

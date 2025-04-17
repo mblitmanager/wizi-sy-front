@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.VITE_API_URL || 'http://localhost:8000/api';
+const API_URL = process.env.VITE_API_URL || 'https://wizi-learn.com/public/api';
 
 // Log the current API URL to help with debugging
 console.log('Using API URL:', API_URL);
@@ -9,7 +9,9 @@ export const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
   },
+  withCredentials: true
 });
 
 // Intercepteur pour ajouter le token d'authentification
