@@ -102,28 +102,9 @@ const LoginForm: React.FC = () => {
         )}
       </Button>
 
-      <div className="text-center text-sm font-roboto">
-        <span className="text-gray-600">Pas encore de compte? </span>
-        <Link to="/auth/register" className="text-blue-600 hover:underline font-nunito">
-          S'inscrire
-        </Link>
-      </div>
+     
 
-      {/* Demo login for testing */}
-      <div className="mt-4">
-        <Button
-          variant="outline"
-          className="w-full font-nunito"
-          onClick={() => {
-            setEmail('demo@example.com');
-            setPassword('password');
-          }}
-          type="button"
-          disabled={isLoading}
-        >
-          Remplir avec un compte démo
-        </Button>
-      </div>
+     
     </form>
   );
 };

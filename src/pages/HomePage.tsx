@@ -15,6 +15,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+
 import { 
   BookOpen, 
   Trophy, 
@@ -148,6 +149,7 @@ const HomePage: React.FC = () => {
     <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
       {/* En-tête avec bienvenue et progression */}
       <div className="mb-8">
+      <img src="/assets/wizi-learn-logo.png" alt="Wizi Learn Logo" className="w-32 mb-6" />
         <h1 className="text-3xl font-bold mb-2">Bienvenue sur Wizi-Learn</h1>
         <p className="text-muted-foreground mb-4">Votre plateforme d'apprentissage personnalisée</p>
         
