@@ -1,8 +1,7 @@
-
 import axios from 'axios';
 
 export const api = axios.create({
-  baseURL: process.env.VITE_API_URL || 'https://www.wizi-learn.com/public/api',
+  baseURL: process.env.VITE_API_URL || 'https://wizi-learn.com/public/api',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -36,4 +35,4 @@ api.interceptors.response.use(
     }
     return Promise.reject(error);
   }
-); 
+);

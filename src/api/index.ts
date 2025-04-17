@@ -2,7 +2,7 @@ import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry, Quest
 import { Answer, QuizSubmitData } from '../types/quiz';
 import { decodeToken } from '@/utils/tokenUtils';
 
-const API_URL = process.env.VITE_API_URL || 'https://www.wizi-learn.com/public/api';
+const API_URL = process.env.VITE_API_URL || 'https://wizi-learn.com/public/api';
 
 // Log the current API URL to help with debugging
 console.log('Using API URL:', API_URL);
