@@ -1,21 +1,37 @@
-import { User } from './index';
+import { User } from "./index";
 
 export interface Question {
   id: string;
   quiz_id: string;
   text: string;
   media?: {
-    type: 'image' | 'video' | 'audio';
+    type: "image" | "video" | "audio";
     url: string;
   };
-  type: 'vrai faux' | 'choix multiples' | 'remplir le champ vide' | 'correspondance' | 'commander' | 'banque de mots' | 'carte flash' | 'question audio';
+  type:
+    | "vrai faux"
+    | "choix multiples"
+    | "remplir le champ vide"
+    | "correspondance"
+    | "commander"
+    | "banque de mots"
+    | "carte flash"
+    | "question audio";
   media_url?: string;
   explication?: string;
   points: number;
   astuce?: string;
   options?: string[];
   categories?: string[];
-  correct_answer: string | number | boolean | string[] | number[] | Record<string, string> | Record<string, string[]> | Record<string, number[]>;
+  correct_answer:
+    | string
+    | number
+    | boolean
+    | string[]
+    | number[]
+    | Record<string, string>
+    | Record<string, string[]>
+    | Record<string, number[]>;
   time_limit?: number;
 }
 
@@ -36,8 +52,8 @@ export interface Quiz {
   description: string;
   category: string;
   categoryId?: string;
-  level?: 'débutant' | 'intermédiaire' | 'avancé' | 'super';
-  niveau?: 'débutant' | 'intermédiaire' | 'avancé' | 'super';
+  level?: "débutant" | "intermédiaire" | "avancé" | "super";
+  niveau?: "débutant" | "intermédiaire" | "avancé" | "super";
   questions: Question[];
   points: number;
   nb_points_total?: number;
@@ -66,7 +82,15 @@ export interface QuizSubmitResponse {
     results: {
       questionId: string;
       isCorrect: boolean;
-      correctAnswer: string | number | boolean | string[] | number[] | Record<string, string> | Record<string, string[]> | Record<string, number[]>;
+      correctAnswer:
+        | string
+        | number
+        | boolean
+        | string[]
+        | number[]
+        | Record<string, string>
+        | Record<string, string[]>
+        | Record<string, number[]>;
     }[];
   };
 }
@@ -102,6 +126,9 @@ export interface UserProgress {
   points?: number;
   badges?: string[];
   streak?: number;
+  stagiaire?: {
+    id: number;
+  };
 }
 
 export interface LeaderboardEntry {
@@ -138,7 +165,7 @@ type WordBankAnswer = { [key: string]: string[] };
 type FlashcardAnswer = boolean;
 type AudioQuestionAnswer = string;
 
-export type QuestionAnswer = 
+export type QuestionAnswer =
   | MultipleChoiceAnswer
   | TrueFalseAnswer
   | FillBlankAnswer
