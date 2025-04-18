@@ -1,5 +1,5 @@
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
 import {
   Card,
   CardHeader,
@@ -10,6 +10,15 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Loader2, AlertTriangle } from "lucide-react";
 import { catalogueFormationApi } from "@/services/catalogueFormationApi";
+import {
+  BUREAUTIQUE,
+  CATALOGUE_FORMATION_DETAILS,
+  CREATION,
+  INTERNET,
+  LANGUES,
+  RETOUR,
+} from "@/utils/langue-type";
+import HeaderSection from "../features/HeaderSection";
 
 export default function CatalogueFormationDetails() {
   const { id } = useParams();
@@ -36,6 +45,21 @@ export default function CatalogueFormationDetails() {
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const getCategoryColor = useCallback((category?: string): string => {
+    switch (category) {
+      case BUREAUTIQUE:
+        return "#3D9BE9";
+      case LANGUES:
+        return "#A55E6E";
+      case INTERNET:
+        return "#FFC533";
+      case CREATION:
+        return "#9392BE";
+      default:
+        return "#E0E0E0";
+    }
+  }, []);
 
   useEffect(() => {
     if (id) {
@@ -84,10 +108,7 @@ export default function CatalogueFormationDetails() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
-      <h1 className="text-3xl font-bold mb-6 text-primary">
-        Détails de la formation
-      </h1>
-
+      <HeaderSection titre={CATALOGUE_FORMATION_DETAILS} buttonText={RETOUR} />
       <Card className="overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-3">
           <img
@@ -97,10 +118,10 @@ export default function CatalogueFormationDetails() {
           />
           <div className="md:col-span-2 p-6 space-y-4">
             <CardHeader className="p-0 space-y-1">
-              <CardTitle className="text-2xl font-bold">
+              <CardTitle className="text-2xl font-bold text-gray-900">
                 {details.catalogueFormation.titre}
               </CardTitle>
-              <CardDescription className="text-muted-foreground">
+              <CardDescription className="text-gray-700">
                 {details.catalogueFormation.prerequis
                   ? `Pré-requis : ${details.catalogueFormation.prerequis}`
                   : "Aucun pré-requis"}
@@ -113,15 +134,15 @@ export default function CatalogueFormationDetails() {
               </p>
 
               <ul className="text-sm space-y-1">
-                <li>
+                <li className="text-gray-500">
                   <strong>Durée :</strong> {details.catalogueFormation.duree}{" "}
                   heures
                 </li>
-                <li>
+                <li className="text-gray-500">
                   <strong>Tarif :</strong> {details.catalogueFormation.tarif} €
                   HT
                 </li>
-                <li>
+                <li className="text-gray-500">
                   <strong>Certification :</strong>{" "}
                   {details.catalogueFormation.certification}
                 </li>
@@ -129,7 +150,15 @@ export default function CatalogueFormationDetails() {
             </CardContent>
 
             <div className="pt-4">
-              <Badge variant="outline" className="text-sm">
+              <Badge
+                variant="outline"
+                className="text-sm"
+                style={{
+                  backgroundColor: getCategoryColor(
+                    details.catalogueFormation.formation?.categorie
+                  ),
+                  color: "#fff", // Couleur du texte pour un bon contraste
+                }}>
                 Catégorie :{" "}
                 {details.catalogueFormation.formation?.categorie ||
                   "Non spécifiée"}
@@ -142,11 +171,11 @@ export default function CatalogueFormationDetails() {
       {/* Bloc secondaire : infos pédagogiques de la formation liée */}
       {details.catalogueFormation.formation && (
         <div className="mt-8">
-          <h2 className="text-2xl font-semibold mb-4 text-primary">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-700">
             Détails pédagogiques : {details.catalogueFormation.formation.titre}
           </h2>
           <Card className="p-6">
-            <p className="text-gray-700 dark:text-gray-300 mb-2">
+            <p className="text-gray-500 dark:text-gray-500 mb-2">
               {details.catalogueFormation.formation.description}
             </p>
           </Card>

@@ -11,6 +11,11 @@ import { Button } from "../ui/button"; // Remplacez par le bon chemin
 import { Formation, CatalogueFormationResponse } from "@/types/stagiaire";
 import { Progress } from "../ui/progress";
 import { ArrowRight, Badge, BookOpen } from "lucide-react";
+import {
+  CATALOGUE_FORMATION,
+  EN_COURS,
+  VOIR_LES_DETAILS,
+} from "@/utils/langue-type";
 
 const VITE_API_URL_IMG = process.env.VITE_API_URL_IMG;
 
@@ -23,7 +28,7 @@ export default function CatalogueFormation({
 
   return (
     <div className="mb-8 p-4 bg-background rounded-lg shadow">
-      <h2 className="text-2xl font-bold mb-6">Catalogue de Formations</h2>
+      <h2 className="text-2xl font-bold mb-6">{CATALOGUE_FORMATION}</h2>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {catalogueData.stagiaire.formations.map((formation: Formation) => {
           const progress = Math.floor(Math.random() * 100); // À remplacer par une vraie donnée
@@ -45,7 +50,7 @@ export default function CatalogueFormation({
                 />
                 {isInProgress && (
                   <div className="absolute top-2 left-2">
-                    <Badge variant="secondary">En cours</Badge>
+                    <Badge className="bg-primary">{EN_COURS}</Badge>
                   </div>
                 )}
               </div>
@@ -80,7 +85,7 @@ export default function CatalogueFormation({
                       `/catalogue_formation/${formation.catalogue_formation.id}`
                     )
                   }>
-                  Voir les détails <ArrowRight className="w-4 h-4" />
+                  {VOIR_LES_DETAILS} <ArrowRight className="w-4 h-4" />
                 </Button>
               </CardFooter>
             </Card>
