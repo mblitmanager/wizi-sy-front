@@ -43,6 +43,7 @@ import { CatalogueFormationResponse } from "@/types/stagiaire";
 import { stagiaireAPI } from "@/services/api";
 import CatalogueFormation from "@/components/catalogueFormation/CatalogueFoamtion";
 import LoadingCatalogue from "@/components/catalogueFormation/LoadingCatalogue";
+import { quizService, progressService } from "@/services/api";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_IMG;
@@ -146,84 +147,45 @@ const HomePage: React.FC = () => {
   const fetchData = async () => {
     setIsLoading(true);
     setError(null);
-
     try {
-      // Étape 1 : Récupération des catégories
+      // Get categories
       try {
-        const fetchedCategories = await quizAPI.getCategories();
-        const colors = [
-          "#4F46E5",
-          "#10B981",
-          "#F59E0B",
-          "#EF4444",
-          "#8B5CF6",
-          "#EC4899",
-        ];
-        const colorClasses = [
-          "category-blue-500",
-          "category-green-500",
-          "category-yellow-500",
-          "category-red-500",
-          "category-purple-500",
-          "category-pink-500",
-        ];
-
-        const categoriesWithColors = fetchedCategories.map((name, index) => ({
-          id: name,
-          name: name,
-          description: `Quizzes dans la catégorie ${name}`,
-          color: colors[index % colors.length],
-          colorClass: colorClasses[index % colorClasses.length],
-          quizCount: Math.floor(Math.random() * 10) + 1,
-        }));
-
+        const fetchedCategories = await quizService.getCategories();
+        const categoriesWithColors = fetchedCategories.map((name, index) => {
+          const colors = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+          const colorClasses = ['category-blue-500', 'category-green-500', 'category-yellow-500', 'category-red-500', 'category-purple-500', 'category-pink-500'];
+          
+          return {
+            id: name,
+            name: name,
+            description: `Quizzes dans la catégorie ${name}`,
+            color: colors[index % colors.length],
+            colorClass: colorClasses[index % colorClasses.length],
+            quizCount: Math.floor(Math.random() * 10) + 1, // Sample data
+          };
+        });
+        
         setCategories(categoriesWithColors);
       } catch (categoriesError) {
-        console.error(
-          "Erreur lors de la récupération des catégories:",
-          categoriesError
-        );
-        setError(
-          "Impossible de charger les catégories. Veuillez vérifier votre connexion ou réessayer plus tard."
-        );
+        console.error('Erreur lors de la récupération des catégories:', categoriesError);
+        setError('Impossible de charger les catégories. Veuillez vérifier votre connexion ou réessayer plus tard.');
       }
-
+      
+      // Get user progress
       try {
         const progress = await progressService.getUserProgress();
         setUserProgress(progress);
-        const stagiaireId = progress?.stagiaire?.id;
-
-        if (stagiaireId) {
-          try {
-            const response = await stagiaireAPI.getCatalogueFormations(
-              stagiaireId
-            );
-            const catalogueResponse: CatalogueFormationResponse =
-              response.data as CatalogueFormationResponse;
-            setCatalogueData(catalogueResponse);
-          } catch (catalogueError) {
-            console.error(
-              "Erreur lors de la récupération du catalogue formations:",
-              catalogueError
-            );
-          }
-        }
       } catch (progressError) {
-        console.error(
-          "Erreur lors de la récupération des progrès:",
-          progressError
-        );
+        console.error('Erreur lors de la récupération des progrès:', progressError);
         setUserProgress({
           quizzes_completed: 0,
           total_points: 0,
-          average_score: 0,
+          average_score: 0
         });
       }
     } catch (error) {
-      console.error("Erreur lors de la récupération des données:", error);
-      setError(
-        "Impossible de charger les données. Veuillez vérifier votre connexion ou réessayer plus tard."
-      );
+      console.error('Erreur lors de la récupération des données:', error);
+      setError('Impossible de charger les données. Veuillez vérifier votre connexion ou réessayer plus tard.');
     } finally {
       setIsLoading(false);
     }
