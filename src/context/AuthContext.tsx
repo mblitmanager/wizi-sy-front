@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@/types';
-import { authAPI } from '@/api';
+import { authService } from '@/services/api';
 import { decodeToken } from '@/utils/tokenUtils';
 
 export interface AuthContextType {
@@ -43,7 +43,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          const userData = await authAPI.getCurrentUser();
+          const userData = await authService.getCurrentUser();
           // Transforme les données utilisateur en User
           if (userData) {
             const typedUserData = userData as any;
@@ -71,7 +71,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Login function
   const login = async (email: string, password: string) => {
     try {
-      const response = await authAPI.login(email, password);
+      const response = await authService.login(email, password);
       if (response && (response as any).token) {
         const typedResponse = response as any;
         localStorage.setItem('token', typedResponse.token);
@@ -116,7 +116,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Logout function
   const logout = async () => {
     try {
-      await authAPI.logout();
+      await authService.logout();
     } catch (error) {
       console.error('Erreur lors de la déconnexion:', error);
     } finally {
@@ -145,7 +145,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log('Refreshing session');
       
       // For now, just check current user to validate the token
-      const userData = await authAPI.getCurrentUser();
+      const userData = await authService.getCurrentUser();
       // Transforme les données utilisateur en User
       if (userData) {
         const typedUserData = userData as any;

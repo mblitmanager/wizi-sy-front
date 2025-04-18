@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { formationAPI } from '@/api';
+import { formationService, quizService } from '@/services/api';
 import { Quiz, Question, Formation } from '@/types';
 import { Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,6 @@ import QuizCard from '@/components/Quiz/QuizCard';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/context/AuthContext';
-import { quizAPI } from '@/api';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -27,7 +26,7 @@ const QuizCatalogPage: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const categories = await formationAPI.getCategories();
+      const categories = await formationService.getCategories();
       // categories will be an array of strings directly from the API
       // no need for Set or filter
       return categories;
@@ -50,7 +49,7 @@ const QuizCatalogPage: React.FC = () => {
       try {
         console.log('User:', user);
         // Récupérer les formations du stagiaire (sans utiliser user.stagiaire.id)
-        const formationsResponse = await formationAPI.getFormationsByStagiaire();
+        const formationsResponse = await formationService.getFormationsByStagiaire();
         const formations = formationsResponse.data;
         console.log('Formations:', formations);
 
@@ -71,7 +70,7 @@ const QuizCatalogPage: React.FC = () => {
             console.log('Quiz:', quiz);
             try {
               // Récupérer les questions pour chaque quiz
-              const questions = await quizAPI.getQuizQuestions(quiz.id.toString());
+              const questions = await quizService.getQuizQuestions(quiz.id.toString());
               
               return {
                 id: quiz.id.toString(),
@@ -141,7 +140,7 @@ const QuizCatalogPage: React.FC = () => {
         
         try {
           // ... same logic as above
-          const formationsResponse = await formationAPI.getFormationsByStagiaire();
+          const formationsResponse = await formationService.getFormationsByStagiaire();
           const formations = formationsResponse.data;
           // ... remainder of data fetching logic
         } catch (error) {

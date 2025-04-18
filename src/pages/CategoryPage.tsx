@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Category, Quiz } from '@/types';
-import { quizAPI } from '@/api';
+import { quizService } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +19,7 @@ const CategoryPage: React.FC = () => {
         if (!id) return;
         
         // Get category information
-        const categories = await quizAPI.getCategories();
+        const categories = await quizService.getCategories();
         const foundCategory = categories.find(cat => cat === id) || null;
         setCategory(foundCategory ? { 
           id: id,
@@ -30,7 +30,7 @@ const CategoryPage: React.FC = () => {
         } : null);
         
         // Get quizzes for this category
-        const categoryQuizzes = await quizAPI.getQuizzesByCategory(id);
+        const categoryQuizzes = await quizService.getQuizzesByCategory(id);
         setQuizzes(categoryQuizzes);
       } catch (error) {
         console.error('Failed to fetch category data:', error);

@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { progressAPI } from '@/api';
+import { progressService } from '@/services/api';
 import { LeaderboardEntry } from '@/types/quiz';
 import RankingComponent from '@/components/Ranking/RankingComponent';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -16,7 +15,7 @@ const LeaderboardPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await progressAPI.getLeaderboard();
+      const data = await progressService.getLeaderboard();
       console.log("Leaderboard data:", data);
       setLeaderboard(Array.isArray(data) ? data : []);
     } catch (error) {

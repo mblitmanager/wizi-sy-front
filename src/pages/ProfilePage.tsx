@@ -8,7 +8,7 @@ import BadgesDisplay from '@/components/Profile/BadgesDisplay';
 import CategoryProgress from '@/components/Profile/CategoryProgress';
 import NotificationSettings from '@/components/Profile/NotificationSettings';
 import ParrainageSection from '@/components/Profile/ParrainageSection';
-import { quizAPI, progressAPI } from '@/api';
+import { quizService, progressService } from '@/services/api';
 import { User } from '@/types';
 import { QuizResult, Category, UserProgress } from '@/types/quiz';
 import { useToast } from '@/components/ui/use-toast';
@@ -65,7 +65,7 @@ const ProfilePage = () => {
           setUser(userData);
           
           // Fetch categories
-          const categoriesData = await quizAPI.getCategories();
+          const categoriesData = await quizService.getCategories();
           setCategories(categoriesData);
           
           // Mock quiz results (in a real app, you would fetch this from an API)

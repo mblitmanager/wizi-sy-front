@@ -4,7 +4,7 @@ import { Answer as QuizAnswer } from '@/types/quiz';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle2, XCircle } from 'lucide-react';
-import { quizAPI } from '@/api';
+import { quizService } from '@/services/api';
 import QuestionRenderer from '@/components/questions/QuestionRenderer';
 
 interface QuizQuestionProps {
@@ -35,7 +35,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
     const fetchAnswers = async () => {
       try {
         setLoading(true);
-        const fetchedAnswers = await quizAPI.getReponsesByQuestion(question.id);
+        const fetchedAnswers = await quizService.getReponsesByQuestion(question.id);
         setAnswers(fetchedAnswers);
       } catch (error) {
         console.error('Erreur lors de la récupération des réponses:', error);

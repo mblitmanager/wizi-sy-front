@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { QuizResult } from '@/types';
 import { Check, X } from 'lucide-react';
-import { quizAPI } from '@/api';
+import { quizService } from '@/services/api';
 
 const RecentResults: React.FC = () => {
   const [results, setResults] = useState<QuizResult[]>([]);

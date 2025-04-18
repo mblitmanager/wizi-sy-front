@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry, Question, Formation } from '../types';
+import { Answer } from '../types/quiz';
 
 const API_URL = process.env.VITE_API_URL || 'https://wizi-learn.com/public/api';
 
@@ -11,7 +13,7 @@ export const api = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  withCredentials: true
+  withCredentials: process.env.NODE_ENV === 'production'
 });
 
 // Intercepteur pour ajouter le token d'authentification
@@ -32,7 +34,6 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Additional handling for 401 errors
     if (error.response?.status === 401) {
       console.log('Unauthorized access detected, redirecting to login');
       localStorage.removeItem('token');
@@ -44,31 +45,100 @@ api.interceptors.response.use(
 
 // Auth services
 export const authService = {
-  login: (credentials: { email: string; password: string }) =>
-    api.post('/login', credentials),
-  forgotPassword: (email: string) =>
-    api.post('/auth/forgot-password', { email }),
-  resetPassword: (data: { token: string; password: string }) =>
-    api.post('/auth/reset-password', data),
+  login: async (email: string, password: string) => {
+    const response = await api.post('/login', { email, password });
+    return response.data;
+  },
+
+  getCurrentUser: async () => {
+    const response = await api.get('/me');
+    return response.data;
+  },
+
+  logout: async () => {
+    await api.post('/logout');
+    localStorage.removeItem('token');
+  },
+};
+
+// Quiz services
+export const quizService = {
+  getCategories: async (): Promise<string[]> => {
+    const response = await api.get('/quiz/categories');
+    return response.data;
+  },
+  
+  getQuizzesByCategory: async (categoryId: string): Promise<Quiz[]> => {
+    const response = await api.get(`/formations/categories/${categoryId}`);
+    return response.data;
+  },
+
+  getQuizById: async (quizId: string): Promise<Quiz> => {
+    const response = await api.get(`/quizzes/${quizId}`);
+    return response.data;
+  },
+
+  getQuizQuestions: async (quizId: string): Promise<Question[]> => {
+    const response = await api.get(`/quiz/${quizId}/questions`);
+    return response.data;
+  },
+
+  getReponsesByQuestion: async (questionId: string): Promise<Answer[]> => {
+    const response = await api.get(`/questions/${questionId}/reponses`);
+    return response.data.map((answer: Answer) => ({
+      ...answer,
+      is_correct: answer.is_correct
+    }));
+  },
+
+  submitQuiz: async (quizId: string, answers: Record<string, string>, score: number, timeSpent: number): Promise<QuizResult> => {
+    const response = await api.post(`/quizzes/${quizId}/submit`, { answers, score, timeSpent });
+    return response.data;
+  },
+};
+
+// Progress services
+export const progressService = {
+  getUserProgress: async (): Promise<UserProgress> => {
+    const response = await api.get('/stagiaire/progress');
+    return response.data;
+  },
+
+  getLeaderboard: async (): Promise<LeaderboardEntry[]> => {
+    const response = await api.get('/stagiaire/ranking/global');
+    return response.data;
+  },
+};
+
+// Formation services
+export const formationService = {
+  getCategories: async (): Promise<string[]> => {
+    const response = await api.get('/formation/categories');
+    return response.data;
+  },
+
+  getFormationsByStagiaire: async (): Promise<{ data: Formation[] }> => {
+    const meResponse = await api.get('/me');
+    const meData = meResponse.data;
+    const response = await api.get(`/stagiaire/${meData.stagiaire.id}/formations`);
+    return response.data;
+  },
+  
+  getFormationsByCategory: async (categoryId: string): Promise<Formation[]> => {
+    const response = await api.get(`/formations/categories/${categoryId}`);
+    return response.data;
+  },
+  
+  getFormationById: async (formationId: string): Promise<Formation> => {
+    const response = await api.get(`/formations/${formationId}`);
+    return response.data;
+  }
 };
 
 // User services
 export const userService = {
   getProfile: () => api.get('/user/profile'),
   updateProfile: (data: any) => api.put('/user/profile', data),
-};
-
-// Quiz services
-export const quizService = {
-  getQuizzes: () => api.get('/quizzes'),
-  getQuiz: (id: string) => api.get(`/quizzes/${id}`),
-  getQuestions: (id: string) => api.get(`/quiz/${id}/questions`),
-  getCategories: () => api.get('/quiz/categories'),
-  playQuiz: (id: string) => api.post(`/quizzes/${id}/play`),
-  submitQuiz: (id: string, answers: any, score: number, timeSpent: number) =>
-    api.post(`/quizzes/${id}/submit`, { answers, score, timeSpent }),
-  getReponsesByQuestion: (questionId: string) => 
-    api.get(`/questions/${questionId}/reponses`),
 };
 
 // Training services
@@ -81,8 +151,7 @@ export const trainingService = {
 // Ranking services
 export const rankingService = {
   getRankings: () => api.get('/stagiaire/ranking/global'),
-  getTrainingRankings: (trainingId: string) =>
-    api.get(`/stagiaire/ranking/formation/${trainingId}`),
+  getTrainingRankings: (trainingId: string) => api.get(`/stagiaire/ranking/formation/${trainingId}`),
   getRewards: () => api.get('/stagiaire/rewards'),
 };
 
@@ -128,8 +197,8 @@ export const contactService = {
   }
 };
 
-// Stagiaire API
-export const stagiaireAPI = {
+// Stagiaire services
+export const stagiaireService = {
   getFormations: () => api.get('/stagiaire/formations'),
   getFormationById: (formationId: string) => api.get(`/formations/${formationId}`),
   getProgressById: (formationId: string) => api.get(`/stagiaire/progress/${formationId}`),

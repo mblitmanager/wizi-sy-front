@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Category, UserProgress } from '@/types';
-import { quizAPI, progressAPI } from '@/api';
+import { quizService, progressService } from '@/services/api';
 import CategoryCard from '@/components/Home/CategoryCard';
 import ProgressCard from '@/components/Home/ProgressCard';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -96,7 +96,7 @@ const HomePage: React.FC = () => {
     try {
       // Get categories
       try {
-        const fetchedCategories = await quizAPI.getCategories();
+        const fetchedCategories = await quizService.getCategories();
         const categoriesWithColors = fetchedCategories.map((name, index) => {
           const colors = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
           const colorClasses = ['category-blue-500', 'category-green-500', 'category-yellow-500', 'category-red-500', 'category-purple-500', 'category-pink-500'];
@@ -119,7 +119,7 @@ const HomePage: React.FC = () => {
       
       // Get user progress
       try {
-        const progress = await progressAPI.getUserProgress();
+        const progress = await progressService.getUserProgress();
         setUserProgress(progress);
       } catch (progressError) {
         console.error('Erreur lors de la récupération des progrès:', progressError);

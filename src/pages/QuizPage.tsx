@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { quizService } from '../services/quizService';
+import { quizService } from '@/services/api';
 import { Question, QuestionAnswer, Quiz } from '../types/quiz';
 import { Timer } from '@/components/ui/timer';
 import QuestionRenderer from '../components/questions/QuestionRenderer';
-import { quizAPI } from '../api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -94,13 +93,13 @@ const QuizPage: React.FC = () => {
         console.log('Récupération du quiz:', quizId);
         
         // Fetch quiz details first
-        const quizData = await quizAPI.getQuizById(quizId);
+        const quizData = await quizService.getQuizById(quizId);
         console.log('Quiz récupéré:', quizData);
         setQuiz(quizData);
         
         // Then fetch questions
         console.log('Récupération des questions pour le quiz:', quizId);
-        const quizQuestions = await quizAPI.getQuizQuestions(quizId);
+        const quizQuestions = await quizService.getQuizQuestions(quizId);
         console.log('Questions récupérées:', quizQuestions);
         
         if (!quizQuestions || quizQuestions.length === 0) {
