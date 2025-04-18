@@ -5,12 +5,17 @@ const API_URL = process.env.VITE_API_URL || "http://localhost:8000/api";
 // Log the current API URL to help with debugging
 console.log("Using API URL:", API_URL);
 
+// Déterminer si nous sommes en développement ou en production
+const isDevelopment = process.env.NODE_ENV === 'development';
+const isPreview = window.location.hostname.includes('lovable.app');
+
 export const api = axios.create({
   baseURL: API_URL,
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: process.env.NODE_ENV === 'production'
+  // Désactiver withCredentials en développement et en preview
+  withCredentials: !isDevelopment && !isPreview
 });
 
 // Intercepteur pour ajouter le token d'authentification
