@@ -2,7 +2,7 @@ import axios from "axios";
 import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry, Question, Formation } from '../types';
 import { Answer } from '../types/quiz';
 
-const API_URL = process.env.VITE_API_URL || "http://localhost:8000/api";
+const API_URL = process.env.VITE_API_URL || "http://wizi-learn.com/public/api";
 
 // Log the current API URL to help with debugging
 console.log("Using API URL:", API_URL);
@@ -50,18 +50,42 @@ api.interceptors.response.use(
 // Auth services
 export const authService = {
   login: async (email: string, password: string) => {
-    const response = await api.post('/login', { email, password });
-    return response.data;
+    try {
+      console.log('Tentative de connexion avec:', { email });
+      const response = await api.post('/login', { email, password });
+      console.log('Réponse de connexion:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la connexion:', error);
+      if (error.response) {
+        console.error('Détails de l\'erreur:', {
+          status: error.response.status,
+          data: error.response.data,
+          headers: error.response.headers
+        });
+      }
+      throw error;
+    }
   },
 
   getCurrentUser: async () => {
-    const response = await api.get('/me');
-    return response.data;
+    try {
+      const response = await api.get('/me');
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération de l\'utilisateur:', error);
+      throw error;
+    }
   },
 
   logout: async () => {
-    await api.post('/logout');
-    localStorage.removeItem('token');
+    try {
+      await api.post('/logout');
+      localStorage.removeItem('token');
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion:', error);
+      throw error;
+    }
   },
 };
 
