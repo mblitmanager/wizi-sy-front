@@ -1,4 +1,6 @@
 import axios from "axios";
+import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry, Question, Formation } from '../types';
+import { Answer } from '../types/quiz';
 
 const API_URL = process.env.VITE_API_URL || "http://localhost:8000/api";
 
@@ -97,6 +99,11 @@ export const quizService = {
     const response = await api.post(`/quizzes/${quizId}/submit`, { answers, score, timeSpent });
     return response.data;
   },
+
+  // Méthodes de la deuxième définition
+  getQuizzes: () => api.get("/quizzes"),
+  getQuiz: (id: string) => api.get(`/quizzes/${id}`),
+  getQuestions: (id: string) => api.get(`/quiz/${id}/questions`),
 };
 
 // Progress services
@@ -141,19 +148,6 @@ export const formationService = {
 export const userService = {
   getProfile: () => api.get("/user/profile"),
   updateProfile: (data: any) => api.put("/user/profile", data),
-};
-
-// Quiz services
-export const quizService = {
-  getQuizzes: () => api.get("/quizzes"),
-  getQuiz: (id: string) => api.get(`/quizzes/${id}`),
-  getQuestions: (id: string) => api.get(`/quiz/${id}/questions`),
-  getCategories: () => api.get("/quiz/categories"),
-  playQuiz: (id: string) => api.post(`/quizzes/${id}/play`),
-  submitQuiz: (id: string, answers: any, score: number, timeSpent: number) =>
-    api.post(`/quizzes/${id}/submit`, { answers, score, timeSpent }),
-  getReponsesByQuestion: (questionId: string) =>
-    api.get(`/questions/${questionId}/reponses`),
 };
 
 // Training services
