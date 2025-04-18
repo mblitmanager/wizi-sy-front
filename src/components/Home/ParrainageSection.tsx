@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Users, Link as LinkIcon, Copy, ChevronRight } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
-import { parrainageService } from '../../services/parrainageService';
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Users, Link as LinkIcon, Copy, ChevronRight } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { parrainageService } from "../../services/parrainageService";
+import { Link } from "react-router-dom";
 
 const ParrainageSection = () => {
-  const [parrainageLink, setParrainageLink] = useState<string>('');
+  const [parrainageLink, setParrainageLink] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  
+
   const generateLink = async () => {
     try {
       setIsLoading(true);
@@ -20,7 +20,7 @@ const ParrainageSection = () => {
       toast({
         title: "Erreur",
         description: "Impossible de générer le lien de parrainage",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -37,9 +37,10 @@ const ParrainageSection = () => {
 
   return (
     <section className="mb-6">
-      <h2 className="text-xl font-semibold mb-4 font-montserrat">Programme de parrainage</h2>
-      
-      
+      <h2 className="text-xl font-semibold mb-4 font-montserrat text-yellow-400">
+        Programme de parrainage
+      </h2>
+
       {/* Génération de lien de parrainage */}
       <Card>
         <CardContent className="p-6">
@@ -47,19 +48,19 @@ const ParrainageSection = () => {
             <Users className="h-6 w-6 text-blue-500 mr-2" />
             <h3 className="text-lg font-medium">Invitez vos amis</h3>
           </div>
-          
+
           <p className="text-gray-600 mb-4">
-            Partagez votre lien de parrainage et gagnez des points à chaque fois qu'un ami s'inscrit et commence à apprendre !
+            Partagez votre lien de parrainage et gagnez des points à chaque fois
+            qu'un ami s'inscrit et commence à apprendre !
           </p>
 
           <div className="space-y-4">
-            <Button 
-              onClick={generateLink} 
+            <Button
+              onClick={generateLink}
               disabled={isLoading}
-              className="w-full"
-            >
+              className="w-full">
               <LinkIcon className="h-4 w-4 mr-2" />
-              {isLoading ? 'Génération...' : 'Générer mon lien de parrainage'}
+              {isLoading ? "Génération..." : "Générer mon lien de parrainage"}
             </Button>
 
             {parrainageLink && (
@@ -75,8 +76,7 @@ const ParrainageSection = () => {
                   variant="outline"
                   size="icon"
                   onClick={copyToClipboard}
-                  aria-label="Copier le lien"
-                >
+                  aria-label="Copier le lien">
                   <Copy className="h-4 w-4" />
                 </Button>
               </div>
@@ -95,4 +95,4 @@ const ParrainageSection = () => {
   );
 };
 
-export default ParrainageSection; 
+export default ParrainageSection;
