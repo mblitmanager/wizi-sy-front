@@ -139,7 +139,7 @@ export const stagiaireAPI = {
 };
 export const catalogueFormationApi = {
   getCatalogueFometionById: (catFormationId: number) =>
-    api.get(`/catalogue_formations/${catFormationId}`),
+    api.get(`/catalogue_formations/formations/${catFormationId}`),
 };
 // Export all services
 export default api;
