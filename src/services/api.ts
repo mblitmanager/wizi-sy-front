@@ -2,7 +2,7 @@ import axios from "axios";
 import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry, Question, Formation } from '../types';
 import { Answer } from '../types/quiz';
 
-const API_URL = process.env.VITE_API_URL || "http://wizi-learn.com/public/api";
+const API_URL = process.env.VITE_API_URL || "https://wizi-learn.com/public/api";
 
 // Log the current API URL to help with debugging
 console.log("Using API URL:", API_URL);
