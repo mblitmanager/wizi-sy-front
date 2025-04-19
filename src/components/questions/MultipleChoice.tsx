@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Question, Answer } from '@/types/quiz';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { quizService } from '@/services/api';
+import { quizService } from '@/services/quizService';
 
 interface MultipleChoiceProps {
   question: Question;
@@ -27,7 +27,7 @@ const MultipleChoice: React.FC<MultipleChoiceProps> = ({
     const fetchAnswers = async () => {
       try {
         setLoading(true);
-        const fetchedAnswers = await quizService.getReponsesByQuestion(question.id);
+        const fetchedAnswers = await quizService.getQuizAnswers(question.id);
         setAnswers(fetchedAnswers);
       } catch (error) {
         console.error('Failed to fetch answers:', error);

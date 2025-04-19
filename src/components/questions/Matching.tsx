@@ -3,7 +3,7 @@ import { Question } from '../../types';
 import { Answer } from '../../types/quiz';
 import BaseQuestion from './BaseQuestion';
 import { GripVertical } from 'lucide-react';
-import { getReponsesByQuestion } from '../../api';
+import { quizService } from '../../services/quizService';
 
 interface MatchingProps {
   question: Question;
@@ -30,12 +30,8 @@ const Matching: React.FC<MatchingProps> = ({
     const fetchResponses = async () => {
       try {
         setLoading(true);
-        const fetchedResponses = await getReponsesByQuestion(question.id);
-        setResponses(fetchedResponses.map(r => ({
-          ...r,
-          question_id: question.id,
-          is_correct: 1
-        })) as Answer[]);
+        const fetchedResponses = await quizService.getQuizAnswers(question.id);
+        setResponses(fetchedResponses);
       } catch (error) {
         console.error('Erreur lors de la récupération des réponses:', error);
       } finally {
