@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Card,
@@ -24,6 +24,8 @@ import {
   Star,
 } from "lucide-react";
 import HeaderSection from "@/components/features/HeaderSection";
+import { catalogueFormationApi } from "@/services/api";
+import { progressAPI } from "@/api";
 
 const FormationsPage = () => {
   // Données fictives pour les formations
@@ -87,6 +89,25 @@ const FormationsPage = () => {
       ],
     },
   ]);
+
+  const [completedFormations, setCompletedFormations] = useState([]);
+
+  useEffect(() => {
+    getFormationByStagiaire();
+  }, []);
+
+  const getFormationByStagiaire = async () => {
+    try {
+      const progress = await progressAPI.getUserProgress();
+      const stagiaireId = progress?.stagiaire?.id;
+      const response = await catalogueFormationApi.getFomationByStagiaireId(
+        stagiaireId
+      );
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error fetching formations:", error);
+    }
+  };
 
   return (
     <div className="container mx-auto p-4 pb-20 md:pb-4">
