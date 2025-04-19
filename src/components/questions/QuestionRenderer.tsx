@@ -12,108 +12,78 @@ import Classification from './Classification';
 
 interface QuestionRendererProps {
   question: Question;
-  onAnswer: (answer: QuestionAnswer) => void;
-  isAnswerChecked: boolean;
-  selectedAnswer: QuestionAnswer | null;
-  showHint?: boolean;
-  timeRemaining?: number;
+  selectedAnswer: string;
+  onAnswerSelect: (questionId: string, answerId: string) => void;
 }
 
 const QuestionRenderer: React.FC<QuestionRendererProps> = ({
   question,
-  onAnswer,
-  isAnswerChecked,
   selectedAnswer,
-  showHint,
-  timeRemaining
+  onAnswerSelect
 }) => {
   switch (question.type) {
     case 'choix multiples':
       return (
         <MultipleChoice
           question={question}
-          onAnswer={onAnswer}
-          isAnswerChecked={isAnswerChecked}
-          selectedAnswer={selectedAnswer as number | null}
-          showHint={showHint}
-          timeRemaining={timeRemaining}
+          selectedAnswer={selectedAnswer}
+          onAnswerSelect={onAnswerSelect}
         />
       );
     case 'vrai faux':
       return (
         <TrueFalse
           question={question}
-          onAnswer={onAnswer}
-          isAnswerChecked={isAnswerChecked}
-          selectedAnswer={selectedAnswer as number | null}
-          showHint={showHint}
-          timeRemaining={timeRemaining}
+          selectedAnswer={selectedAnswer}
+          onAnswerSelect={onAnswerSelect}
         />
       );
     case 'remplir le champ vide':
       return (
         <FillBlank
           question={question}
-          onAnswer={onAnswer}
-          isAnswerChecked={isAnswerChecked}
-          selectedAnswer={selectedAnswer as Record<string, string> | null}
-          showHint={showHint}
-          timeRemaining={timeRemaining}
+          selectedAnswer={selectedAnswer}
+          onAnswerSelect={onAnswerSelect}
         />
       );
     case 'correspondance':
       return (
         <Matching
           question={question}
-          onAnswer={onAnswer}
-          isAnswerChecked={isAnswerChecked}
-          selectedAnswer={selectedAnswer as number[] | null}
-          showHint={showHint}
-          timeRemaining={timeRemaining}
+          selectedAnswer={selectedAnswer}
+          onAnswerSelect={onAnswerSelect}
         />
       );
     case 'commander':
       return (
         <Ordering
           question={question}
-          onAnswer={onAnswer}
-          isAnswerChecked={isAnswerChecked}
-          selectedAnswer={selectedAnswer as number[] | null}
-          showHint={showHint}
-          timeRemaining={timeRemaining}
+          selectedAnswer={selectedAnswer}
+          onAnswerSelect={onAnswerSelect}
         />
       );
     case 'banque de mots':
       return (
         <WordBank
           question={question}
-          onAnswer={onAnswer}
-          isAnswerChecked={isAnswerChecked}
-          selectedAnswer={selectedAnswer as Record<string, string[]> | null}
-          showHint={showHint}
-          timeRemaining={timeRemaining}
+          selectedAnswer={selectedAnswer}
+          onAnswerSelect={onAnswerSelect}
         />
       );
     case 'carte flash':
       return (
         <Flashcard
           question={question}
-          onAnswer={onAnswer}
-          isAnswerChecked={isAnswerChecked}
-          selectedAnswer={selectedAnswer as boolean | null}
-          showHint={showHint}
-          timeRemaining={timeRemaining}
+          selectedAnswer={selectedAnswer}
+          onAnswerSelect={onAnswerSelect}
         />
       );
     case 'question audio':
       return (
         <AudioQuestion
           question={question}
-          onAnswer={onAnswer}
-          isAnswerChecked={isAnswerChecked}
-          selectedAnswer={selectedAnswer as string | null}
-          showHint={showHint}
-          timeRemaining={timeRemaining}
+          selectedAnswer={selectedAnswer}
+          onAnswerSelect={onAnswerSelect}
         />
       );
     default:

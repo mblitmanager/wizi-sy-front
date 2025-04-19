@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Category, UserProgress } from "@/types";
-import { quizAPI, progressAPI } from "@/api";
+import { UserProgress } from "@/types/quiz";
 import CategoryCard from "@/components/Home/CategoryCard";
 import ProgressCard from "@/components/Home/ProgressCard";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -40,13 +39,22 @@ import {
 import ParrainageSection from "@/components/Home/ParrainageSection";
 import { DETAILS, VOS_FORMATION } from "@/utils/langue-type";
 import { CatalogueFormationResponse } from "@/types/stagiaire";
-import { stagiaireAPI } from "@/services/api";
 import CatalogueFormation from "@/components/catalogueFormation/CatalogueFoamtion";
 import LoadingCatalogue from "@/components/catalogueFormation/LoadingCatalogue";
-import { quizService, progressService } from "@/services/api";
+import { quizService, progressService, contactService, stagiaireAPI } from "@/services";
+import { formationService } from '../services/formationService';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_IMG;
+
+interface Category {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+  colorClass: string;
+  quizCount: number;
+}
 
 const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
   const response = await axios.get<Contact[]>(
@@ -150,8 +158,8 @@ const HomePage: React.FC = () => {
     try {
       // Get categories
       try {
-        const fetchedCategories = await quizService.getCategories();
-        const categoriesWithColors = fetchedCategories.map((name, index) => {
+        const categories = await formationService.getCategories();
+        const categoriesWithColors = categories.map((name, index) => {
           const colors = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
           const colorClasses = ['category-blue-500', 'category-green-500', 'category-yellow-500', 'category-red-500', 'category-purple-500', 'category-pink-500'];
           

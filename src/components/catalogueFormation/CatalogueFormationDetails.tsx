@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, AlertTriangle } from "lucide-react";
-import { catalogueFormationApi } from "@/services/api";
+import { catalogueFormationApi } from "@/services/catalogueFormationApi";
 
 export default function CatalogueFormationDetails() {
   const { id } = useParams();
@@ -40,7 +40,7 @@ export default function CatalogueFormationDetails() {
   useEffect(() => {
     if (id) {
       catalogueFormationApi
-        .getCatalogueFometionById(Number(id))
+        .getCatalogueFormationById(Number(id))
         .then((response) => {
           setDetails(response.data as CatalogueFormationDetailsType);
           setLoading(false);

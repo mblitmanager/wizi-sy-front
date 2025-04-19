@@ -1,63 +1,55 @@
 import { User } from "./index";
 
 export interface Question {
-  id: string;
-  quiz_id: string;
+  id: number;
+  quiz_id: number;
   text: string;
-  media?: {
-    type: "image" | "video" | "audio";
-    url: string;
-  };
-  type:
-    | "vrai faux"
-    | "choix multiples"
-    | "remplir le champ vide"
-    | "correspondance"
-    | "commander"
-    | "banque de mots"
-    | "carte flash"
-    | "question audio";
-  media_url?: string;
-  explication?: string;
-  points: number;
-  astuce?: string;
-  options?: string[];
-  categories?: string[];
-  correct_answer:
-    | string
-    | number
-    | boolean
-    | string[]
-    | number[]
-    | Record<string, string>
-    | Record<string, string[]>
-    | Record<string, number[]>;
-  time_limit?: number;
+  type: string;
+  explication: string | null;
+  points: string;
+  astuce: string | null;
+  media_url: string | null;
+  created_at: string;
+  updated_at: string;
+  reponses: Reponse[];
+}
+
+export interface Reponse {
+  id: number;
+  text: string;
+  is_correct: number;
+  position: number | null;
+  match_pair: string | null;
+  bank_group: string | null;
+  flashcard_back: string | null;
+  question_id: number;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export interface Answer {
-  id: string;
+  id: number;
   text: string;
   is_correct: number;
-  question_id?: string;
-  match_pair?: string;
-  bank_group?: string;
-  flashcard_back?: string;
+  position: string | null;
+  match_pair: string | null;
+  bank_group: string | null;
+  flashcard_back: string | null;
+  question_id: number;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export interface Quiz {
-  id: string;
-  title: string;
-  titre?: string;
+  id: number;
+  titre: string;
   description: string;
-  category: string;
-  categoryId?: string;
-  level?: "débutant" | "intermédiaire" | "avancé" | "super";
-  niveau?: "débutant" | "intermédiaire" | "avancé" | "super";
-  questions: Question[];
-  points: number;
+  niveau: string;
+  formation_id: number;
+  created_at: string;
+  updated_at: string;
+  questions?: Question[];
   nb_points_total?: number;
-  timeLimit?: number;
 }
 
 export interface QuizSubmitData {
@@ -108,27 +100,22 @@ export interface Category {
 export interface QuizResult {
   id: string;
   quizId: string;
+  quizName: string;
   userId: string;
   score: number;
   correctAnswers: number;
   totalQuestions: number;
   completedAt: string;
   timeSpent: number;
-  quizName?: string;
-  answers?: Record<string, string>;
 }
 
 export interface UserProgress {
   quizzes_completed: number;
   total_points: number;
   average_score: number;
-  categoryProgress?: Record<string, number>;
-  points?: number;
   badges?: string[];
   streak?: number;
-  stagiaire?: {
-    id: number;
-  };
+  categoryProgress?: Record<string, number>;
 }
 
 export interface LeaderboardEntry {
@@ -146,14 +133,47 @@ export interface Formation {
   titre: string;
   description: string;
   categorie: string;
-  image?: string;
+  image: string | null;
   statut: number;
   duree: string;
   created_at: string;
   updated_at: string;
-  formateurs: User[];
-  stagiaires: User[];
+  formateurs: Formateur[];
+  stagiaires: Stagiaire[];
   quizzes: Quiz[];
+}
+
+export interface Formateur {
+  id: number;
+  role: string;
+  prenom: string;
+  user_id: number;
+  created_at: string;
+  updated_at: string;
+  pivot: {
+    formation_id: number;
+    formateur_id: number;
+  };
+}
+
+export interface Stagiaire {
+  id: number;
+  prenom: string;
+  civilite: string;
+  telephone: string;
+  adresse: string;
+  date_naissance: string;
+  ville: string;
+  code_postal: string;
+  role: string;
+  statut: number;
+  user_id: number;
+  created_at: string;
+  updated_at: string;
+  pivot: {
+    formation_id: number;
+    stagiaire_id: number;
+  };
 }
 
 type MultipleChoiceAnswer = number;

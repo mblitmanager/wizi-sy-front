@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Question, Answer } from '../../types';
 import BaseQuestion from './BaseQuestion';
 import { CheckCircle2, XCircle } from 'lucide-react';
-import { getReponsesByQuestion } from '../../api';
+import { quizService } from '../../services/quizService';
 
 interface TrueFalseProps {
   question: Question;
@@ -28,7 +28,7 @@ const TrueFalse: React.FC<TrueFalseProps> = ({
     const fetchReponses = async () => {
       try {
         setLoading(true);
-        const fetchedReponses = await getReponsesByQuestion(question.id);
+        const fetchedReponses = await quizService.getQuizAnswers(question.id);
         setReponses(fetchedReponses);
       } catch (error) {
         console.error('Erreur lors de la récupération des réponses:', error);

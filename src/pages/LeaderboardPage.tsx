@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { progressService } from '@/services/api';
+import { progressService } from '@/services/progressService';
 import { LeaderboardEntry } from '@/types/quiz';
 import RankingComponent from '@/components/Ranking/RankingComponent';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';

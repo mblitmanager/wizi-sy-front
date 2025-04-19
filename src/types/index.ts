@@ -1,4 +1,3 @@
-
 // User types
 export interface User {
   id: string;
@@ -17,8 +16,6 @@ export type {
   Category,
   Formation,
   Question,
-  // Fix: QuestionType doesn't exist in the quiz.ts file
-  // QuestionType,
   QuestionAnswer,
   QuizResult,
   UserProgress,

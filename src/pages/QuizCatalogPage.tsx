@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { formationService, quizService } from '@/services/api';
-import { Quiz, Question, Formation } from '@/types';
+import { useAuth } from '@/context/AuthContext';
+import { Formation, Quiz } from '@/types';
+import { quizService } from '@/services/quizService';
+import { formationService } from '@/services/formationService';
 import { Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import QuizCard from '@/components/Quiz/QuizCard';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { useAuth } from '@/context/AuthContext';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,105 +16,50 @@ import { Button } from '@/components/ui/button';
 const QuizCatalogPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
-  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [formations, setFormations] = useState<Formation[]>([]);
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [formationsByCategory, setFormationsByCategory] = useState<Record<string, Formation[]>>({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
 
-  const fetchCategories = async () => {
+  const fetchFormations = async () => {
     try {
-      const categories = await formationService.getCategories();
-      // categories will be an array of strings directly from the API
-      // no need for Set or filter
-      return categories;
-    } catch (error) {
-      console.error('Failed to fetch categories:', error);
-      return [];
+      const { data } = await formationService.getFormationsByStagiaire();
+      setFormations(data);
+      
+      // Extraire les catégories uniques
+      const uniqueCategories = [...new Set(data.map(formation => formation.categorie))];
+      setCategories(uniqueCategories);
+      
+      // Extraire tous les quiz
+      const allQuizzes = data.flatMap(formation => formation.quizzes);
+      setQuizzes(allQuizzes);
+    } catch (err) {
+      setError('Erreur lors de la récupération des formations');
+      console.error('Erreur lors de la récupération des formations:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!isAuthenticated || !user) {
-      navigate('/auth/login');
-      return;
-    }
-
-    const fetchData = async () => {
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        console.log('User:', user);
-        // Récupérer les formations du stagiaire (sans utiliser user.stagiaire.id)
-        const formationsResponse = await formationService.getFormationsByStagiaire();
-        const formations = formationsResponse.data;
-        console.log('Formations:', formations);
-
-        // Fetch categories using the new function
-        const fetchedCategories = await fetchCategories();
-        setCategories(fetchedCategories);
-
-        // Organiser les formations par catégorie
-        const formationsByCategory: Record<string, Formation[]> = {};
-        fetchedCategories.forEach(category => {
-          formationsByCategory[category] = formations.filter(f => f.categorie === category);
-        });
-        setFormationsByCategory(formationsByCategory);
-
-        // Convertir les formations en quizzes avec les bons types
-        const quizzesData = await Promise.all(formations.flatMap(async formation => 
-          Promise.all(formation.quizzes.map(async quiz => {
-            console.log('Quiz:', quiz);
-            try {
-              // Récupérer les questions pour chaque quiz
-              const questions = await quizService.getQuizQuestions(quiz.id.toString());
-              
-              return {
-                id: quiz.id.toString(),
-                title: quiz.titre || quiz.title,
-                description: quiz.description,
-                category: formation.categorie,
-                categoryId: formation.id.toString(),
-                level: quiz.niveau || quiz.level,
-                questions,
-                points: quiz.nb_points_total || quiz.points || 0
-              };
-            } catch (error) {
-              console.error(`Impossible de charger les questions pour le quiz ${quiz.id}:`, error);
-              return null;
-            }
-          }))
-        ));
-
-        // Aplatir le tableau de quiz et filtrer les quiz null
-        const validQuizzes = quizzesData.flat().filter(Boolean) as Quiz[];
-        console.log('Valid quizzes:', validQuizzes);
-        setQuizzes(validQuizzes);
-      } catch (error) {
-        console.error('Failed to fetch formations:', error);
-        setError('Impossible de charger les formations. Veuillez réessayer plus tard.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [user, isAuthenticated, navigate]);
+    fetchFormations();
+  }, []);
 
   // Filter quizzes based on search criteria
   const filteredQuizzes = quizzes.filter(quiz => {
-    if (!quiz || !quiz.title || !quiz.description) return false;
+    if (!quiz || !quiz.titre || !quiz.description) return false;
     
-    const matchesSearch = quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = quiz.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
                         quiz.description.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesCategory = selectedCategory ? quiz.category === selectedCategory : true;
+    const matchesCategory = selectedCategory ? 
+      formations.some(f => f.categorie === selectedCategory && f.quizzes.some(q => q.id === quiz.id)) : true;
     
-    const matchesLevel = selectedLevel ? quiz.level === selectedLevel : true;
+    const matchesLevel = selectedLevel ? quiz.niveau === selectedLevel : true;
     
     return matchesSearch && matchesCategory && matchesLevel;
   });
@@ -132,30 +78,12 @@ const QuizCatalogPage: React.FC = () => {
   };
 
   const handleRetry = () => {
-    if (user) {
-      // Refresh the data
-      const fetchData = async () => {
-        setIsLoading(true);
-        setError(null);
-        
-        try {
-          // ... same logic as above
-          const formationsResponse = await formationService.getFormationsByStagiaire();
-          const formations = formationsResponse.data;
-          // ... remainder of data fetching logic
-        } catch (error) {
-          console.error('Failed to fetch formations:', error);
-          setError('Impossible de charger les formations. Veuillez réessayer plus tard.');
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      
-      fetchData();
-    }
+    setLoading(true);
+    setError(null);
+    fetchFormations();
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
         <h1 className="text-2xl font-bold mb-6 font-montserrat">Catalogue de Quiz</h1>
@@ -166,11 +94,10 @@ const QuizCatalogPage: React.FC = () => {
     );
   }
 
-  return (
-    <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
-      <h1 className="text-2xl font-bold mb-6 font-montserrat">Catalogue de Quiz</h1>
-      
-      {error && (
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
+        <h1 className="text-2xl font-bold mb-6 font-montserrat">Catalogue de Quiz</h1>
         <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Erreur</AlertTitle>
@@ -184,7 +111,13 @@ const QuizCatalogPage: React.FC = () => {
             <RefreshCw className="h-4 w-4" /> Réessayer
           </Button>
         </Alert>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
+      <h1 className="text-2xl font-bold mb-6 font-montserrat">Catalogue de Quiz</h1>
       
       {/* Search bar */}
       <div className="relative mb-6">
@@ -208,9 +141,9 @@ const QuizCatalogPage: React.FC = () => {
         {/* Category filter */}
         <Badge
           key="all-categories"
-          variant={selectedCategory === null ? "default" : "outline"}
+          variant={selectedCategory === '' ? "default" : "outline"}
           className="cursor-pointer font-nunito"
-          onClick={() => setSelectedCategory(null)}
+          onClick={() => setSelectedCategory('')}
         >
           Toutes les catégories
         </Badge>
@@ -265,27 +198,21 @@ const QuizCatalogPage: React.FC = () => {
         >
           Avancé
         </Badge>
-        
-        <Badge
-          key="super"
-          variant={selectedLevel === 'super' ? "default" : "outline"}
-          className={`cursor-pointer font-nunito ${selectedLevel === 'super' ? 'bg-yellow-500' : ''}`}
-          onClick={() => setSelectedLevel('super')}
-        >
-          Super Quiz
-        </Badge>
       </div>
       
       {/* Quiz list */}
       {filteredQuizzes.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredQuizzes.map(quiz => (
-            <QuizCard
-              key={`quiz-${quiz.id}`}
-              quiz={quiz}
-              categoryColor={getCategoryColor(quiz.category)}
-            />
-          ))}
+          {filteredQuizzes.map(quiz => {
+            const formation = formations.find(f => f.quizzes.some(q => q.id === quiz.id));
+            return (
+              <QuizCard
+                key={`quiz-${quiz.id}`}
+                quiz={quiz}
+                categoryColor={formation ? getCategoryColor(formation.categorie) : '#3D9BE9'}
+              />
+            );
+          })}
         </div>
       ) : (
         <div className="text-center py-12">

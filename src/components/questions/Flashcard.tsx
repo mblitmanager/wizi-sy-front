@@ -3,7 +3,7 @@ import { Question } from '../../types';
 import { Answer } from '../../types/quiz';
 import BaseQuestion from './BaseQuestion';
 import { RotateCw } from 'lucide-react';
-import { getReponsesByQuestion } from '../../api';
+import { quizService } from '../../services/quizService';
 
 interface FlashcardProps {
   question: Question;
@@ -30,7 +30,7 @@ const Flashcard: React.FC<FlashcardProps> = ({
     const fetchResponses = async () => {
       try {
         setLoading(true);
-        const fetchedResponses = await getReponsesByQuestion(question.id);
+        const fetchedResponses = await quizService.getQuizAnswers(question.id);
         setResponses(fetchedResponses.map(r => ({
           ...r,
           question_id: question.id,

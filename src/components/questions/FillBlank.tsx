@@ -3,7 +3,7 @@ import { Question } from '../../types';
 import { Answer } from '../../types/quiz';
 import BaseQuestion from './BaseQuestion';
 import { CheckCircle2, XCircle } from 'lucide-react';
-import { getReponsesByQuestion } from '../../api';
+import { quizService } from '../../services/quizService';
 
 interface FillBlankProps {
   question: Question;
@@ -30,7 +30,7 @@ const FillBlank: React.FC<FillBlankProps> = ({
     const fetchResponses = async () => {
       try {
         setLoading(true);
-        const fetchedResponses = await getReponsesByQuestion(question.id);
+        const fetchedResponses = await quizService.getQuizAnswers(question.id);
         setResponses(fetchedResponses.map(r => ({
           ...r,
           question_id: question.id,

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Category, Quiz } from '@/types';
-import { quizService } from '@/services/api';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { Category, Quiz } from '@/types/quiz';
+import { quizService } from '@/services/quizService';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +11,8 @@ const CategoryPage: React.FC = () => {
   const [category, setCategory] = useState<Category | null>(null);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLevel, setSelectedLevel] = useState('all');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -19,7 +21,7 @@ const CategoryPage: React.FC = () => {
         if (!id) return;
         
         // Get category information
-        const categories = await quizService.getCategories();
+        const categories = await quizService.getQuizCategories();
         const foundCategory = categories.find(cat => cat === id) || null;
         setCategory(foundCategory ? { 
           id: id,
@@ -30,7 +32,7 @@ const CategoryPage: React.FC = () => {
         } : null);
         
         // Get quizzes for this category
-        const categoryQuizzes = await quizService.getQuizzesByCategory(id);
+        const categoryQuizzes = await quizService.getQuizByCategory(id);
         setQuizzes(categoryQuizzes);
       } catch (error) {
         console.error('Failed to fetch category data:', error);
@@ -80,7 +82,7 @@ const CategoryPage: React.FC = () => {
   };
 
   const renderQuizzesByLevel = (level: 'débutant' | 'intermédiaire' | 'avancé' | 'super') => {
-    const filteredQuizzes = quizzes.filter(quiz => quiz.level === level || quiz.niveau === level);
+    const filteredQuizzes = quizzes.filter(quiz => quiz.niveau === level);
     
     if (filteredQuizzes.length === 0) return null;
     
@@ -97,12 +99,12 @@ const CategoryPage: React.FC = () => {
                 <div className="h-2" style={{ backgroundColor: category.color }}></div>
                 <div className="p-4">
                   <div className="flex justify-between items-start">
-                    <h3 className="font-semibold text-gray-800 font-montserrat">{quiz.title || quiz.titre}</h3>
-                    {getLevelBadge(quiz.level || quiz.niveau as any)}
+                    <h3 className="font-semibold text-gray-800 font-montserrat">{quiz.titre}</h3>
+                    {getLevelBadge(quiz.niveau)}
                   </div>
                   <p className="text-sm text-gray-600 mt-2 mb-3 font-roboto">{quiz.description}</p>
                   <div className="flex items-center text-xs text-gray-500 font-nunito">
-                    <span>{quiz.questions?.length || 0} questions • {quiz.points || quiz.nb_points_total || 0} points</span>
+                    <span>{quiz.questions?.length || 0} questions • {quiz.nb_points_total} points</span>
                   </div>
                 </div>
               </div>
@@ -111,6 +113,31 @@ const CategoryPage: React.FC = () => {
         </div>
       </div>
     );
+  };
+
+  const filteredQuizzes = quizzes.filter(quiz => {
+    const matchesSearch = searchQuery === '' || 
+      quiz.titre.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      quiz.description.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesLevel = selectedLevel === 'all' || quiz.niveau === selectedLevel;
+    
+    return matchesSearch && matchesLevel;
+  });
+
+  const getCategoryColor = (niveau: Quiz['niveau']) => {
+    switch (niveau) {
+      case 'débutant':
+        return 'bg-green-100 text-green-800';
+      case 'intermédiaire':
+        return 'bg-blue-100 text-blue-800';
+      case 'avancé':
+        return 'bg-purple-100 text-purple-800';
+      case 'super':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
   };
 
   return (

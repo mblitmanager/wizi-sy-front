@@ -1,17 +1,21 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Quiz } from '@/types';
+import { QuizData } from '@/services/quizService';
 import { Clock, Award } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
+type QuizType = Quiz | QuizData;
+
 interface QuizCardProps {
-  quiz: Quiz;
+  quiz: QuizType;
   categoryColor: string;
 }
 
 const QuizCard: React.FC<QuizCardProps> = ({ quiz, categoryColor }) => {
   const getLevelBadge = () => {
-    switch (quiz.level) {
+    const level = 'level' in quiz ? quiz.level : quiz.niveau;
+    switch (level) {
       case 'débutant':
         return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">Débutant</Badge>;
       case 'intermédiaire':
@@ -26,6 +30,8 @@ const QuizCard: React.FC<QuizCardProps> = ({ quiz, categoryColor }) => {
   };
 
   const questionCount = quiz.questions.length;
+  const title = 'title' in quiz ? quiz.title : quiz.titre;
+  const description = quiz.description;
 
   return (
     <Link to={`/quiz/${quiz.id}`}>
@@ -33,10 +39,10 @@ const QuizCard: React.FC<QuizCardProps> = ({ quiz, categoryColor }) => {
         <div className="h-2" style={{ backgroundColor: categoryColor }}></div>
         <div className="p-4">
           <div className="flex justify-between items-start">
-            <h3 className="font-semibold text-gray-800">{quiz.title}</h3>
+            <h3 className="font-semibold text-gray-800">{title}</h3>
             {getLevelBadge()}
           </div>
-          <p className="text-sm text-gray-600 mt-2 mb-3">{quiz.description}</p>
+          <p className="text-sm text-gray-600 mt-2 mb-3">{description}</p>
           <div className="flex items-center justify-between text-xs text-gray-500">
             <div className="flex items-center">
               <Clock className="h-3 w-3 mr-1" />
@@ -44,7 +50,7 @@ const QuizCard: React.FC<QuizCardProps> = ({ quiz, categoryColor }) => {
             </div>
             <div className="flex items-center">
               <Award className="h-3 w-3 mr-1" />
-              <span>{quiz.points} points</span>
+              <span>{'points' in quiz ? quiz.points : quiz.nb_points_total} points</span>
             </div>
           </div>
         </div>

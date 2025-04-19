@@ -3,7 +3,7 @@ import { Question } from '../../types';
 import { Answer } from '../../types/quiz';
 import BaseQuestion from './BaseQuestion';
 import { GripVertical } from 'lucide-react';
-import { getReponsesByQuestion } from '../../api';
+import { quizService } from '../../services/quizService';
 
 interface WordBankProps {
   question: Question;
@@ -30,11 +30,12 @@ const WordBank: React.FC<WordBankProps> = ({
     const fetchResponses = async () => {
       setLoading(true);
       try {
-        const data = await getReponsesByQuestion(question.id);
+        const data = await quizService.getQuizAnswers(question.id);
         setResponses(data.map(r => ({
           ...r,
           question_id: question.id,
-          is_correct: 1
+          is_correct: 1,
+          position: r.position?.toString() || null
         })) as Answer[]);
       } catch (error) {
         console.error('Error fetching responses:', error);

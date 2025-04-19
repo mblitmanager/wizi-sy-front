@@ -3,15 +3,30 @@ import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ProfileHeader from '@/components/Profile/ProfileHeader';
 import UserStats from '@/components/Profile/UserStats';
-import RecentResults from '@/components/Profile/RecentResults';
+import { RecentResults } from '@/components/Profile/RecentResults';
 import BadgesDisplay from '@/components/Profile/BadgesDisplay';
 import CategoryProgress from '@/components/Profile/CategoryProgress';
 import NotificationSettings from '@/components/Profile/NotificationSettings';
 import ParrainageSection from '@/components/Profile/ParrainageSection';
-import { quizService, progressService } from '@/services/api';
-import { User } from '@/types';
+import { quizService } from '@/services/quizService';
+import { progressService } from '@/services/progressService';
+import { User } from '@/types/index';
 import { QuizResult, Category, UserProgress } from '@/types/quiz';
 import { useToast } from '@/components/ui/use-toast';
+import { userService } from '../services/userService';
+import { formationService } from '../services/formationService';
+import { Formation } from '../types';
+import { Stagiaire } from '../types/stagiaire';
+
+const mapStagiaireToUser = (stagiaire: Stagiaire): User => ({
+  id: stagiaire.id.toString(),
+  username: stagiaire.prenom,
+  email: '', // Email not available in Stagiaire type
+  role: stagiaire.role,
+  level: 1, // Default level since not available in Stagiaire type
+  points: 0, // Default points since not available in Stagiaire type
+  name: stagiaire.prenom
+});
 
 const ProfilePage = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -29,6 +44,9 @@ const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [profile, setProfile] = useState<User | null>(null);
+  const [formations, setFormations] = useState<Formation[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -55,20 +73,29 @@ const ProfilePage = () => {
           
           const userData: User = {
             id: stagiaire.id.toString(),
-            username: stagiaire.user.name,
-            email: stagiaire.user.email,
+            username: stagiaire.prenom,
+            email: '', // Email not available in Stagiaire type
             role: stagiaire.role,
-            level: parseInt(data.progress.level),
-            points: data.progress.total_points
+            level: 1, // Default level since not available in Stagiaire type
+            points: 0, // Default points since not available in Stagiaire type
+            name: stagiaire.prenom
           };
           
           setUser(userData);
           
           // Fetch categories
-          const categoriesData = await quizService.getCategories();
-          setCategories(categoriesData);
+          const categoriesData = await quizService.getQuizCategories();
+          const categoriesWithColors = categoriesData.map((name, index) => ({
+            id: name,
+            name: name,
+            description: `Quizzes dans la catégorie ${name}`,
+            color: ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'][index % 6],
+            colorClass: ['category-blue-500', 'category-green-500', 'category-yellow-500', 'category-red-500', 'category-purple-500', 'category-pink-500'][index % 6],
+            quizCount: 0
+          }));
+          setCategories(categoriesWithColors);
           
-          // Mock quiz results (in a real app, you would fetch this from an API)
+          // Mock quiz results (in a real app, you should fetch this from an API)
           const mockResults: QuizResult[] = [
             {
               id: 'result-1',
@@ -107,21 +134,17 @@ const ProfilePage = () => {
           
           setResults(mockResults);
           
-          // Mock user progress
-          const mockProgress: UserProgress = {
-            quizzes_completed: 12,
-            total_points: data.progress.total_points,
+          // Update user progress with API data
+          const progress: UserProgress = {
+            quizzes_completed: data.progress.quizzes_completed || 0,
+            total_points: data.progress.total_points || 0,
             average_score: data.progress.average_score || 0,
-            badges: ['beginner', 'quick_learner'],
-            streak: 5,
-            categoryProgress: {
-              'excel': { points: 85, quizzes_completed: 3 },
-              'security': { points: 92, quizzes_completed: 2 },
-              'english': { points: 75, quizzes_completed: 1 }
-            }
+            badges: data.progress.badges || [],
+            streak: data.progress.streak || 0,
+            categoryProgress: data.progress.categoryProgress || {}
           };
           
-          setUserProgress(mockProgress);
+          setUserProgress(progress);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -138,8 +161,56 @@ const ProfilePage = () => {
     fetchUserData();
   }, [navigate, toast]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const [profileData, formationsData] = await Promise.all([
+          userService.getProfile(),
+          formationService.getFormationsByStagiaire()
+        ]);
+
+        const mapStagiaireToUser = (stagiaire: Stagiaire): User => ({
+          id: stagiaire.id.toString(),
+          username: stagiaire.prenom,
+          email: '', // Email not available in Stagiaire type
+          role: stagiaire.role,
+          level: 1, // Default level since not available in Stagiaire type
+          points: 0, // Default points since not available in Stagiaire type
+          name: stagiaire.prenom
+        });
+
+        setProfile(mapStagiaireToUser(profileData.stagiaire));
+        setFormations(formationsData.data as Formation[]);
+      } catch (err) {
+        setError('Failed to fetch profile data');
+        console.error('Error fetching profile data:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleProfileUpdate = async (data: Partial<User>) => {
+    try {
+      await userService.updateProfile(data);
+      // Refresh profile data
+      const updatedProfile = await userService.getProfile();
+      setProfile(mapStagiaireToUser(updatedProfile.stagiaire));
+    } catch (err) {
+      setError('Failed to update profile');
+      console.error('Error updating profile:', err);
+    }
+  };
+
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen">Chargement...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
   }
 
   return (
@@ -181,6 +252,25 @@ const ProfilePage = () => {
           <NotificationSettings />
         </TabsContent>
       </Tabs>
+
+      <div>
+        <h2>Formations</h2>
+        {formations.map((formation) => (
+          <div key={formation.id}>
+            <h3>{formation.titre}</h3>
+            <p>{formation.description}</p>
+          </div>
+        ))}
+      </div>
+
+      {userProgress && (
+        <div>
+          <h2>Progress</h2>
+          <p>Quizzes completed: {userProgress.quizzes_completed}</p>
+          <p>Total points: {userProgress.total_points}</p>
+          <p>Average score: {userProgress.average_score}%</p>
+        </div>
+      )}
     </div>
   );
 };
