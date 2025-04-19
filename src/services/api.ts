@@ -87,6 +87,24 @@ export const authService = {
   },
 };
 
+// User services
+export const userService = {
+  getProfile: () => api.get("/user/profile"),
+  updateProfile: (data: any) => api.put("/user/profile", data),
+};
+
+// Quiz services
+export const quizService = {
+  getQuizzes: () => api.get("/quizzes"),
+  getQuiz: (id: string) => api.get(`/quizzes/${id}`),
+  getQuestions: (id: string) => api.get(`/quiz/${id}/questions`),
+  getCategories: () => api.get("/quiz/categories"),
+  playQuiz: (id: string) => api.post(`/quizzes/${id}/play`),
+  submitQuiz: (id: string, answers: any, score: number, timeSpent: number) =>
+    api.post(`/quizzes/${id}/submit`, { answers, score, timeSpent }),
+  getReponsesByQuestion: (questionId: string) =>
+    api.get(`/questions/${questionId}/reponses`),
+};
 interface QuestionData {
   text: string;
   type: string;
@@ -147,7 +165,6 @@ const questionService = {
     return response.data;
   }
 };
-
 // Service pour les réponses
 const responseService = {
   // Récupérer toutes les réponses
@@ -259,10 +276,26 @@ const sponsorshipService = {
   }
 };
 
-export {
-  api,
-  questionService,
-  responseService,
-  quizService,
-  sponsorshipService
+// Stagiaire API
+export const stagiaireAPI = {
+  getFormations: () => api.get("/stagiaire/formations"),
+  getFormationById: (formationId: string) =>
+    api.get(`/formations/${formationId}`),
+  getProgressById: (formationId: string) =>
+    api.get(`/stagiaire/progress/${formationId}`),
+  getCatalogueFormations: (stagiaireId: number) =>
+    api.get(`/catalogue_formations/stagiaire/${stagiaireId}`),
 };
+export const catalogueFormationApi = {
+  getCatalogueFometionById: (catFormationId: number) =>
+    api.get(`/catalogue_formations/formations/${catFormationId}`),
+
+  getFomationByStagiaireId: (stagiaireId: number) =>
+    api.get(`stagiaire/${stagiaireId}/formations`),
+};
+
+export const formationApi = {
+  getFormations: () => api.get("formation/listFormation"),
+};
+// Export all services
+export default api;
