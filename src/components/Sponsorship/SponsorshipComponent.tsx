@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { sponsorshipService } from '../../services/api';
+import sponsorshipService from '../../services/api';
 import { SponsorshipResponse, Referral, SponsorshipStats, SponsorshipLink } from '../../types/sponsorship';
 
 const SponsorshipComponent: React.FC = () => {

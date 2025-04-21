@@ -8,6 +8,7 @@ import BadgesDisplay from '@/components/Profile/BadgesDisplay';
 import CategoryProgress from '@/components/Profile/CategoryProgress';
 import NotificationSettings from '@/components/Profile/NotificationSettings';
 import ParrainageSection from '@/components/Profile/ParrainageSection';
+import ContactsSection from '@/components/Profile/ContactsSection';
 import { quizService } from '@/services/quizService';
 import { progressService } from '@/services/progressService';
 import { User } from '@/types/index';
@@ -218,59 +219,98 @@ const ProfilePage = () => {
       {user && <ProfileHeader user={user} />}
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
-        <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 w-full">
-          <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
-          <TabsTrigger value="progress">Progression</TabsTrigger>
-          <TabsTrigger value="results">Résultats</TabsTrigger>
-          <TabsTrigger value="parrainage">Parrainage</TabsTrigger>
-          <TabsTrigger value="badges">Badges</TabsTrigger>
-          <TabsTrigger value="settings">Paramètres</TabsTrigger>
+        <TabsList className="flex flex-wrap justify-start gap-2 mb-6">
+          <TabsTrigger value="overview" className="text-xs sm:text-sm px-3 py-2">Vue d'ensemble</TabsTrigger>
+          <TabsTrigger value="progress" className="text-xs sm:text-sm px-3 py-2">Progression</TabsTrigger>
+          <TabsTrigger value="results" className="text-xs sm:text-sm px-3 py-2">Résultats</TabsTrigger>
+          <TabsTrigger value="contacts" className="text-xs sm:text-sm px-3 py-2">Contacts</TabsTrigger>
+          <TabsTrigger value="parrainage" className="text-xs sm:text-sm px-3 py-2">Parrainage</TabsTrigger>
+          <TabsTrigger value="badges" className="text-xs sm:text-sm px-3 py-2">Badges</TabsTrigger>
+          <TabsTrigger value="settings" className="text-xs sm:text-sm px-3 py-2">Paramètres</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="overview" className="space-y-8 mt-6">
-          <UserStats user={user} userProgress={userProgress} />
-          <RecentResults results={results} isLoading={isLoading} />
+        <TabsContent value="overview" className="space-y-6 mt-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="bg-white p-4 rounded-lg shadow-sm">
+              <UserStats user={user} userProgress={userProgress} />
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm">
+              <h3 className="text-lg font-semibold mb-4 font-montserrat">Résultats récents</h3>
+              <RecentResults results={results} isLoading={isLoading} />
+            </div>
+          </div>
         </TabsContent>
         
         <TabsContent value="progress" className="mt-6">
-          <CategoryProgress categories={categories} userProgress={userProgress} />
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <CategoryProgress categories={categories} userProgress={userProgress} />
+          </div>
         </TabsContent>
         
         <TabsContent value="results" className="mt-6">
-          <RecentResults results={results} isLoading={isLoading} showAll />
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <RecentResults results={results} isLoading={isLoading} showAll />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="contacts" className="mt-6">
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <ContactsSection />
+          </div>
         </TabsContent>
         
         <TabsContent value="parrainage" className="mt-6">
-          <ParrainageSection />
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <ParrainageSection />
+          </div>
         </TabsContent>
         
         <TabsContent value="badges" className="mt-6">
-          <BadgesDisplay badges={userProgress.badges} />
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <BadgesDisplay badges={userProgress.badges} />
+          </div>
         </TabsContent>
         
         <TabsContent value="settings" className="mt-6">
-          <NotificationSettings />
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <NotificationSettings />
+          </div>
         </TabsContent>
       </Tabs>
 
-      <div>
-        <h2>Formations</h2>
-        {formations.map((formation) => (
-          <div key={formation.id}>
-            <h3>{formation.titre}</h3>
-            <p>{formation.description}</p>
+      <div className="mt-16 space-y-12">
+        <div className="bg-white p-4 rounded-lg shadow-sm">
+          <h2 className="text-xl font-semibold font-montserrat mb-4">Mes formations</h2>
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {formations.map((formation) => (
+              <div key={formation.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                <h3 className="font-medium font-nunito">{formation.titre}</h3>
+                <p className="text-sm text-muted-foreground mt-1">{formation.description}</p>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-
-      {userProgress && (
-        <div>
-          <h2>Progress</h2>
-          <p>Quizzes completed: {userProgress.quizzes_completed}</p>
-          <p>Total points: {userProgress.total_points}</p>
-          <p>Average score: {userProgress.average_score}%</p>
         </div>
-      )}
+
+        {userProgress && (
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <h2 className="text-xl font-semibold font-montserrat mb-4">Progression globale</h2>
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <p className="text-sm text-muted-foreground">Quizzes complétés</p>
+                <p className="text-lg font-semibold font-nunito">{userProgress.quizzes_completed}</p>
+              </div>
+              <div className="text-center p-4 bg-green-50 rounded-lg">
+                <p className="text-sm text-muted-foreground">Points totaux</p>
+                <p className="text-lg font-semibold font-nunito">{userProgress.total_points}</p>
+              </div>
+              <div className="text-center p-4 bg-yellow-50 rounded-lg">
+                <p className="text-sm text-muted-foreground">Score moyen</p>
+                <p className="text-lg font-semibold font-nunito">{userProgress.average_score}%</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

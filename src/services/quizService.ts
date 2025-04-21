@@ -1,51 +1,82 @@
-import { api } from "@/lib/api";
-import { Formation, Question, Quiz, Reponse } from "@/types";
-import { QuizResult } from "@/types/quiz";
+import { api } from './api';
 
-class QuizService {
-  async getFormations(): Promise<Formation[]> {
-    const response = await api.get<Formation[]>("/stagiaire/formations");
-    return response.data;
-  }
-
-  async getQuizCategories(): Promise<string[]> {
-    const formations = await this.getFormations();
-    return [...new Set(formations.map(formation => formation.categorie))];
-  }
-
-  async getQuizByCategory(category: string): Promise<Quiz[]> {
-    const formations = await this.getFormations();
-    return formations
-      .filter(formation => formation.categorie === category)
-      .flatMap(formation => formation.quizzes);
-  }
-
-  async getQuizById(quizId: number): Promise<Quiz | undefined> {
-    const formations = await this.getFormations();
-    return formations
-      .flatMap(formation => formation.quizzes)
-      .find(quiz => quiz.id === quizId);
-  }
-
-  async getQuizQuestions(quizId: number): Promise<Question[]> {
-    const quiz = await this.getQuizById(quizId);
-    return quiz?.questions || [];
-  }
-
-  async getQuizAnswers(questionId: number): Promise<Reponse[]> {
-    const response = await api.get<Reponse[]>(`/quiz/questions/${questionId}/answers`);
-    return response.data;
-  }
-
-  async getFormationQuizzes(formationId: number): Promise<Quiz[]> {
-    const formation = (await this.getFormations()).find(f => f.id === formationId);
-    return formation?.quizzes || [];
-  }
-
-  async getQuizResults(quizId: number): Promise<QuizResult[]> {
-    const response = await api.get<QuizResult[]>(`/quiz/${quizId}/results`);
-    return response.data;
-  }
+interface ApiResponse<T> {
+  data: T;
+  message?: string;
+  status?: string;
 }
 
-export const quizService = new QuizService(); 
+export interface Quiz {
+  id: string;
+  title: string;
+  description: string;
+  duration: number;
+  questions: Question[];
+}
+
+export interface Question {
+  id: string;
+  title: string;
+  content: string;
+  type: 'multiple_choice' | 'true_false' | 'open_ended';
+  difficulty: 'easy' | 'medium' | 'hard';
+  category: string;
+  responses: Response[];
+}
+
+export interface Response {
+  id: string;
+  content: string;
+  isCorrect: boolean;
+  questionId: string;
+}
+
+export interface QuizCategory {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  quizzes: Quiz[];
+}
+
+export const QuizService = {
+  getQuizCategories: async (): Promise<QuizCategory[]> => {
+    try {
+      const response = await api.get<ApiResponse<QuizCategory[]>>('/quiz/categories');
+      const formations = response.data?.data || [];
+      return Array.isArray(formations) ? formations.map((formation) => ({
+        id: formation.id,
+        name: formation.name,
+        description: formation.description,
+        icon: formation.icon,
+        quizzes: formation.quizzes || []
+      })) : [];
+    } catch (error) {
+      console.error('Error fetching quiz categories:', error);
+      return [];
+    }
+  },
+
+  getQuizById: async (id: string): Promise<Quiz | null> => {
+    try {
+      const response = await api.get<ApiResponse<Quiz>>(`/quiz/${id}`);
+      return response.data?.data || null;
+    } catch (error) {
+      console.error('Error fetching quiz:', error);
+      return null;
+    }
+  },
+
+  submitQuiz: async (quizId: string, answers: Record<string, string>): Promise<any> => {
+    try {
+      const response = await api.post<ApiResponse<any>>(`/quiz/${quizId}/submit`, { answers });
+      return response.data;
+    } catch (error) {
+      console.error('Error submitting quiz:', error);
+      throw error;
+    }
+  }
+};
+
+// Export nommé pour maintenir la compatibilité avec les imports existants
+export const quizService = QuizService; 
