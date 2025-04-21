@@ -1,8 +1,13 @@
 import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
-export function Footer() {
+interface FooterProps {
+  className?: string;
+}
+
+export function Footer({ className }: FooterProps) {
   return (
-    <footer className="bg-gray-100 py-8 mt-auto">
+    <footer className={cn("bg-gray-100 py-8 mt-auto", className)}>
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
