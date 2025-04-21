@@ -28,9 +28,11 @@ export function Navbar() {
       <div className="flex justify-between items-center max-w-7xl mx-auto">
         <div className="flex items-center gap-2">
           <Link to="/" className="flex items-center gap-2">
-            <span className="font-astria text-2xl font-bold bg-gradient-to-r from-bureautique to-creation bg-clip-text text-transparent">
-              Quizzy
-            </span>
+            <img 
+              src="/lovable-uploads/e4aa6740-d9f0-40d2-a150-efc75ae46692.png" 
+              alt="Wizi Learn" 
+              className="h-10"
+            />
           </Link>
         </div>
 

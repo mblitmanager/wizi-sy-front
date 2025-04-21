@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 
 export function Footer() {
@@ -7,9 +6,13 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="font-semibold text-lg mb-4">Quizzy</h3>
+            <img 
+              src="/lovable-uploads/e4aa6740-d9f0-40d2-a150-efc75ae46692.png" 
+              alt="Wizi Learn" 
+              className="h-10 mb-4"
+            />
             <p className="text-gray-600">
-              Plateforme de quiz interactive et ludique pour les stagiaires d'AOPIA.
+              Plateforme d'apprentissage interactive et ludique pour développer vos compétences.
             </p>
           </div>
           <div>
@@ -70,7 +73,7 @@ export function Footer() {
         </div>
         <div className="mt-8 pt-6 border-t border-gray-200">
           <p className="text-center text-gray-500">
-            © {new Date().getFullYear()} AOPIA - Tous droits réservés
+            © {new Date().getFullYear()} Wizi Learn - Tous droits réservés
           </p>
         </div>
       </div>

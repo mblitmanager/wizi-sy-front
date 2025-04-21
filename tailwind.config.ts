@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -75,6 +74,12 @@ export default {
 				langues: '#A55E6E',
 				internet: '#FFC533',
 				creation: '#9392BE',
+				// Wizi brand colors
+				wizi: {
+					DEFAULT: '#FFC533',
+					'dark': '#F97316',
+					'light': '#FEF7CD'
+				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
