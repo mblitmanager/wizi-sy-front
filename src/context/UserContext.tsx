@@ -1,7 +1,5 @@
-
 import { User } from "@/types";
 import { createContext, useContext, useState, ReactNode } from "react";
-import { currentUser } from "@/data/mockData";
 import { toast } from "sonner";
 
 interface UserContextType {
@@ -15,21 +13,38 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(currentUser);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // For demo purposes, we'll just use the mock data
-      // In a real application, this would make an API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      if (email === "demo@aopia.fr" && password === "password") {
-        setUser(currentUser);
+      const response = await fetch('https://wizi-learn.com/public/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Save token to localStorage
+        localStorage.setItem('token', data.token);
+        
+        // Fetch user details
+        const userResponse = await fetch('https://wizi-learn.com/public/api/me', {
+          headers: {
+            'Authorization': `Bearer ${data.token}`,
+          },
+        });
+        
+        const userData = await userResponse.json();
+        setUser(userData);
         toast.success("Connexion réussie");
       } else {
-        toast.error("Email ou mot de passe incorrect");
+        toast.error(data.message || "Email ou mot de passe incorrect");
       }
     } catch (error) {
       toast.error("Erreur lors de la connexion");
@@ -39,9 +54,24 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    toast.success("Déconnexion réussie");
+  const logout = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (token) {
+        await fetch('https://wizi-learn.com/public/api/logout', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      localStorage.removeItem('token');
+      setUser(null);
+      toast.success("Déconnexion réussie");
+    }
   };
 
   const updateUser = (updatedUser: Partial<User>) => {
