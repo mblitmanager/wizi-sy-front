@@ -1,4 +1,3 @@
-
 import { Layout } from "@/components/layout/Layout";
 import { useUser } from "@/context/UserContext";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,7 @@ import { RankingCard } from "@/components/dashboard/RankingCard";
 import { AgendaCard } from "@/components/dashboard/AgendaCard";
 import { categories, formations, challenges, rankings, agendaEvents } from "@/data/mockData";
 
-const Index = () => {
+export function Index() {
   const { user } = useUser();
 
   if (!user) {
@@ -177,6 +176,4 @@ const Index = () => {
       </div>
     </Layout>
   );
-};
-
-export default Index;
+}

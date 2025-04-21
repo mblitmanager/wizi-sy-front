@@ -6,7 +6,7 @@ import { Category } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
-const backendUrl = "https://wizi-learn.com/public/api";
+const backendUrl = "http://localhost:8000/api";
 
 async function fetchCategories(): Promise<Category[]> {
   try {

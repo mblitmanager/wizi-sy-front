@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
-const backendUrl = "https://wizi-learn.com/public/api";
+const backendUrl = "http://localhost:8000/api";
 
 async function fetchFormations(categoryId: string): Promise<Formation[]> {
   try {

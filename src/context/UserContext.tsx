@@ -19,7 +19,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch('https://wizi-learn.com/public/api/login', {
+      const response = await fetch('http://localhost:8000/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('token', data.token);
         
         // Fetch user details
-        const userResponse = await fetch('https://wizi-learn.com/public/api/me', {
+        const userResponse = await fetch('http://localhost:8000/api/me', {
           headers: {
             'Authorization': `Bearer ${data.token}`,
           },

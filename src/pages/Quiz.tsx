@@ -10,7 +10,7 @@ const Quiz = () => {
   const { data: questions, isLoading } = useQuery({
     queryKey: ["quiz", quizId],
     queryFn: async () => {
-      const response = await fetch(`https://wizi-learn.com/public/api/quiz/${quizId}/questions`);
+      const response = await fetch(`http://localhost:8000/api/quiz/${quizId}/questions`);
       if (!response.ok) throw new Error("Failed to fetch questions");
       return response.json();
     },
