@@ -17,6 +17,12 @@ import { Badge } from "@/components/ui/badge";
 export function Navbar() {
   const { user, logout } = useUser();
 
+  // Function to safely get the first letter of the user's name
+  const getInitial = () => {
+    if (!user || !user.name) return "U"; // Default fallback if user or user.name is missing
+    return user.name.charAt(0).toUpperCase();
+  };
+
   return (
     <nav className="border-b bg-white px-4 py-3 sticky top-0 z-50">
       <div className="flex justify-between items-center max-w-7xl mx-auto">
@@ -45,9 +51,9 @@ export function Navbar() {
                     className="relative h-10 w-10 rounded-full"
                   >
                     <Avatar>
-                      <AvatarImage src={user.avatar} alt={user.name} />
+                      <AvatarImage src={user.avatar} alt={user.name || "User"} />
                       <AvatarFallback>
-                        {user.name.charAt(0).toUpperCase()}
+                        {getInitial()}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
