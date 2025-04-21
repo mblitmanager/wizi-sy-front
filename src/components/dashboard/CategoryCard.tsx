@@ -27,10 +27,10 @@ export function CategoryCard({ category }: CategoryCardProps) {
         <CardHeader
           className={cn(
             "text-white",
-            category.slug === "bureautique" && "bg-bureautique",
-            category.slug === "langues" && "bg-langues",
-            category.slug === "internet" && "bg-internet text-black",
-            category.slug === "creation" && "bg-creation"
+            category.slug === "bureautique" && "bg-[#3D9BE9]",
+            category.slug === "langues" && "bg-[#A55E6E]",
+            category.slug === "internet" && "bg-[#FFC533] text-black",
+            category.slug === "creation" && "bg-[#9392BE]"
           )}
         >
           <div className="flex items-center gap-2">
