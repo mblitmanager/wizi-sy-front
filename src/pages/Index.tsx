@@ -25,7 +25,7 @@ export function Index() {
                   Apprenez de façon interactive et ludique
                 </h1>
                 <p className="text-lg text-gray-600">
-                  Bienvenue sur Quizzy, la plateforme de quiz éducatifs d'AOPIA pour les stagiaires. Testez vos connaissances, suivez votre progression et développez vos compétences professionnelles.
+                  Bienvenue sur Wizi Learn, la plateforme de quiz éducatifs d'AOPIA pour les stagiaires. Testez vos connaissances, suivez votre progression et développez vos compétences professionnelles.
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <Button size="lg" asChild>

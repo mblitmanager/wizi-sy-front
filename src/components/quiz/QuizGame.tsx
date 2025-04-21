@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Question } from "@/types";
 import { MultipleChoice } from "./question-types/MultipleChoice";
@@ -16,9 +15,20 @@ interface QuizGameProps {
 
 export function QuizGame({ questions }: QuizGameProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  
+  if (!questions || questions.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <p>Aucune question disponible</p>
+      </div>
+    );
+  }
+
   const currentQuestion = questions[currentQuestionIndex];
 
   const renderQuestion = () => {
+    if (!currentQuestion) return null;
+    
     switch (currentQuestion.type) {
       case "multiple-choice":
         return <MultipleChoice question={currentQuestion} onAnswer={handleAnswer} />;

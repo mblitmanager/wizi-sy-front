@@ -26,9 +26,8 @@ const ReferralSystem = ({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "Rejoignez-moi sur Quizzy Training Hub",
-          text: `Utilisez mon code de parrainage ${referralCode} pour rejoindre Quizzy Training Hub et gagner des récompenses !`,
-          url: window.location.origin,
+          title: "Rejoignez-moi sur Wizi Learn",
+          text: `Utilisez mon code de parrainage ${referralCode} pour rejoindre Wizi Learn et gagner des récompenses !`,
         });
       } catch (error) {
         console.error("Erreur lors du partage:", error);

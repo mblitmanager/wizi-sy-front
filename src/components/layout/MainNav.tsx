@@ -13,7 +13,11 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@/context/UserContext";
 import { useState } from "react";
 
-const MainNav = () => {
+interface MainNavProps {
+  showBottomNav?: boolean;
+}
+
+const MainNav = ({ showBottomNav = false }: MainNavProps) => {
   const location = useLocation();
   const { user, logout } = useUser();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -31,7 +35,7 @@ const MainNav = () => {
   return (
     <>
       {/* Menu mobile (visible uniquement sur mobile) */}
-      <div className="md:hidden">
+      <div className="hidden">
         <Button
           variant="ghost"
           size="icon"
@@ -97,7 +101,7 @@ const MainNav = () => {
       {/* Menu desktop et tablette (caché sur mobile) */}
       <nav className="hidden md:flex flex-col h-full border-r bg-background">
         <div className="p-4">
-          <h2 className="text-lg font-semibold mb-4">Quizzy Training Hub</h2>
+          <h2 className="text-lg font-semibold mb-4">Wizi Learn</h2>
           <div className="space-y-1">
             {navItems.map((item) => (
               <Link
@@ -129,23 +133,25 @@ const MainNav = () => {
       </nav>
       
       {/* Menu mobile en bas de l'écran */}
-      <div className="md:hidden flex justify-around items-center w-full">
-        {navItems.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={cn(
-              "flex flex-col items-center justify-center text-xs",
-              isActive(item.path)
-                ? "text-primary font-medium"
-                : "text-muted-foreground"
-            )}
-          >
-            {item.icon}
-            <span className="mt-1">{item.name}</span>
-          </Link>
-        ))}
-      </div>
+      {showBottomNav && (
+        <div className="md:hidden flex justify-around items-center w-full">
+          {navItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={cn(
+                "flex flex-col items-center justify-center text-xs",
+                isActive(item.path)
+                  ? "text-primary font-medium"
+                  : "text-muted-foreground"
+              )}
+            >
+              {item.icon}
+              <span className="mt-1">{item.name}</span>
+            </Link>
+          ))}
+        </div>
+      )}
     </>
   );
 };

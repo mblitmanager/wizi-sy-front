@@ -26,12 +26,12 @@ const PlatformInfo = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Bienvenue sur Quizzy Training Hub</CardTitle>
+          <CardTitle>Bienvenue sur Wizi Learn</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="prose prose-sm max-w-none">
             <p>
-              Quizzy Training Hub est votre plateforme d'apprentissage interactive. Notre
+              Wizi Learn est votre plateforme d'apprentissage interactive. Notre
               objectif est de rendre l'apprentissage amusant et efficace grâce à des quiz
               interactifs et des formations personnalisées.
             </p>

@@ -16,9 +16,9 @@ export function Layout({ children }: LayoutProps) {
 
         {/* Contenu principal */}
         <div className="flex-1 flex flex-col">
-          {/* En-tête avec menu mobile */}
+          {/* En-tête */}
           <header className="h-16 border-b bg-background flex items-center px-4 md:px-6">
-            <MainNav />
+            <h1 className="text-lg font-semibold">Wizi Learn</h1>
           </header>
 
           {/* Contenu de la page */}
@@ -29,7 +29,7 @@ export function Layout({ children }: LayoutProps) {
           {/* Navigation mobile en bas */}
           <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10">
             <div className="flex justify-around items-center h-16">
-              <MainNav />
+              <MainNav showBottomNav={true} />
             </div>
           </nav>
         </div>

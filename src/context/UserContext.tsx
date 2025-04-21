@@ -1,20 +1,60 @@
 import { User } from "@/types";
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { toast } from "sonner";
 
 interface UserContextType {
   user: User | null;
+  token: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   updateUser: (updatedUser: Partial<User>) => void;
 }
 
-const UserContext = createContext<UserContextType | undefined>(undefined);
+export const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Vérifier le token au chargement de l'application
+  useEffect(() => {
+    const checkAuth = async () => {
+      const storedToken = localStorage.getItem('token');
+      
+      if (storedToken) {
+        try {
+          // Vérifier si le token est valide
+          const response = await fetch('http://localhost:8000/api/me', {
+            headers: {
+              'Authorization': `Bearer ${storedToken}`,
+            },
+          });
+          
+          if (response.ok) {
+            const userData = await response.json();
+            setUser(userData);
+            setToken(storedToken);
+          } else {
+            // Token invalide ou expiré
+            localStorage.removeItem('token');
+            setUser(null);
+            setToken(null);
+          }
+        } catch (error) {
+          console.error("Auth check error:", error);
+          localStorage.removeItem('token');
+          setUser(null);
+          setToken(null);
+        }
+      }
+      
+      setIsLoading(false);
+    };
+    
+    checkAuth();
+  }, []);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
@@ -42,6 +82,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         
         const userData = await userResponse.json();
         setUser(userData);
+        setToken(data.token);
         toast.success("Connexion réussie");
       } else {
         toast.error(data.message || "Email ou mot de passe incorrect");
@@ -58,7 +99,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     try {
       const token = localStorage.getItem('token');
       if (token) {
-        await fetch('https://wizi-learn.com/public/api/logout', {
+        await fetch('http://localhost:8000/api/logout', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -70,6 +111,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     } finally {
       localStorage.removeItem('token');
       setUser(null);
+      setToken(null);
       toast.success("Déconnexion réussie");
     }
   };
@@ -84,6 +126,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     <UserContext.Provider
       value={{
         user,
+        token,
         isLoading,
         login,
         logout,

@@ -1,16 +1,21 @@
-
 import { Layout } from "@/components/layout/Layout";
 import { CategoryCard } from "@/components/dashboard/CategoryCard";
 import { useQuery } from "@tanstack/react-query";
 import { Category } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 const backendUrl = "http://localhost:8000/api";
 
-async function fetchCategories(): Promise<Category[]> {
+async function fetchCategories(token: string): Promise<Category[]> {
   try {
-    const response = await fetch(`${backendUrl}/quiz/categories`);
+    const response = await fetch(`${backendUrl}/quiz/categories`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
     if (!response.ok) {
       throw new Error("Failed to fetch categories");
     }
@@ -22,9 +27,12 @@ async function fetchCategories(): Promise<Category[]> {
 }
 
 export default function Catalogue() {
+  const { token } = useAuth();
+  
   const { data: categories, isLoading, error } = useQuery({
     queryKey: ["categories"],
-    queryFn: fetchCategories,
+    queryFn: () => fetchCategories(token),
+    enabled: !!token
   });
 
   if (error) {

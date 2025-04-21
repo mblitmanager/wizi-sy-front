@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Category } from "@/types";
 import { cn } from "@/lib/utils";
@@ -19,7 +18,7 @@ export function CategoryCard({ category }: CategoryCardProps) {
 
   const icon = icons[category.icon as keyof typeof icons] || <FileText className="h-5 w-5" />;
   
-  const totalFormations = category.formations.length;
+  const totalFormations = category.formations?.length || 0;
   
   return (
     <Link to={`/catalogue/${category.slug}`}>

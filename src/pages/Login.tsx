@@ -1,14 +1,13 @@
-
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Link, Navigate } from "react-router-dom";
-import { useUser } from "@/context/UserContext";
+import { useAuth } from "@/hooks/useAuth";
 
 const Login = () => {
-  const { user, login, isLoading } = useUser();
+  const { user, login, isLoading } = useAuth();
   const [email, setEmail] = useState("demo@aopia.fr");
   const [password, setPassword] = useState("password");
 
@@ -45,6 +44,7 @@ const Login = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="exemple@aopia.fr"
                   required
+                  autoComplete="email"
                 />
               </div>
               <div className="space-y-2">
@@ -66,6 +66,7 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
+                  autoComplete="current-password"
                 />
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
