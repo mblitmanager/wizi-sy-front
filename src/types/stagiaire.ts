@@ -27,6 +27,7 @@ export interface Formation {
     stagiaire_id: number;
     formation_id: number;
   };
+  catalogue_formation?: CatalogueFormation;
 }
 
 export interface Stagiaire {

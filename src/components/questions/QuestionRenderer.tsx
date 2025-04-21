@@ -1,5 +1,5 @@
 import React from 'react';
-import { Question, QuestionAnswer } from '@/types/quiz';
+import { Question } from '@/types/quiz';
 import MultipleChoice from './MultipleChoice';
 import TrueFalse from './TrueFalse';
 import FillBlank from './FillBlank';
@@ -9,86 +9,109 @@ import WordBank from './WordBank';
 import Flashcard from './Flashcard';
 import AudioQuestion from './AudioQuestion';
 import Classification from './Classification';
+import BaseQuestion from './BaseQuestion';
 
 interface QuestionRendererProps {
   question: Question;
-  selectedAnswer: string;
   onAnswerSelect: (questionId: string, answerId: string) => void;
+  isAnswerChecked?: boolean;
+  selectedAnswer?: string | string[] | boolean | null;
+  showHint?: boolean;
+  timeRemaining?: number;
 }
 
 const QuestionRenderer: React.FC<QuestionRendererProps> = ({
   question,
+  onAnswerSelect,
+  isAnswerChecked = false,
   selectedAnswer,
-  onAnswerSelect
+  showHint,
+  timeRemaining
 }) => {
-  switch (question.type) {
-    case 'choix multiples':
-      return (
-        <MultipleChoice
-          question={question}
-          selectedAnswer={selectedAnswer}
-          onAnswerSelect={onAnswerSelect}
-        />
-      );
-    case 'vrai faux':
-      return (
-        <TrueFalse
-          question={question}
-          selectedAnswer={selectedAnswer}
-          onAnswerSelect={onAnswerSelect}
-        />
-      );
-    case 'remplir le champ vide':
-      return (
-        <FillBlank
-          question={question}
-          selectedAnswer={selectedAnswer}
-          onAnswerSelect={onAnswerSelect}
-        />
-      );
-    case 'correspondance':
-      return (
-        <Matching
-          question={question}
-          selectedAnswer={selectedAnswer}
-          onAnswerSelect={onAnswerSelect}
-        />
-      );
-    case 'commander':
-      return (
-        <Ordering
-          question={question}
-          selectedAnswer={selectedAnswer}
-          onAnswerSelect={onAnswerSelect}
-        />
-      );
-    case 'banque de mots':
-      return (
-        <WordBank
-          question={question}
-          selectedAnswer={selectedAnswer}
-          onAnswerSelect={onAnswerSelect}
-        />
-      );
-    case 'carte flash':
-      return (
-        <Flashcard
-          question={question}
-          selectedAnswer={selectedAnswer}
-          onAnswerSelect={onAnswerSelect}
-        />
-      );
-    case 'question audio':
-      return (
-        <AudioQuestion
-          question={question}
-          selectedAnswer={selectedAnswer}
-          onAnswerSelect={onAnswerSelect}
-        />
-      );
-    default:
-      return <div>Type de question non pris en charge: {question.type}</div>;
-  }
+  const renderQuestion = () => {
+    switch (question.type) {
+      case 'multiple_choice':
+        return (
+          <MultipleChoice
+            question={question}
+            onAnswerSelect={onAnswerSelect}
+            isAnswerChecked={isAnswerChecked}
+            selectedAnswer={selectedAnswer as string | null}
+          />
+        );
+      case 'true_false':
+        return (
+          <TrueFalse
+            question={question}
+            onAnswerSelect={onAnswerSelect}
+            isAnswerChecked={isAnswerChecked}
+            selectedAnswer={selectedAnswer as string | null}
+          />
+        );
+      case 'fill_blank':
+        return (
+          <FillBlank
+            question={question}
+            onAnswerSelect={onAnswerSelect}
+            isAnswerChecked={isAnswerChecked}
+            selectedAnswer={selectedAnswer as string | null}
+          />
+        );
+      case 'matching':
+        return (
+          <Matching
+            question={question}
+            onAnswerSelect={onAnswerSelect}
+            isAnswerChecked={isAnswerChecked}
+            selectedAnswer={selectedAnswer as string[] | null}
+          />
+        );
+      case 'ordering':
+        return (
+          <Ordering
+            question={question}
+            onAnswerSelect={onAnswerSelect}
+            isAnswerChecked={isAnswerChecked}
+            selectedAnswer={selectedAnswer as string[] | null}
+          />
+        );
+      case 'flashcard':
+        return (
+          <Flashcard
+            question={question}
+            onAnswerSelect={onAnswerSelect}
+            isAnswerChecked={isAnswerChecked}
+            selectedAnswer={selectedAnswer as boolean | null}
+          />
+        );
+      case 'audio':
+        return (
+          <AudioQuestion
+            question={question}
+            onAnswerSelect={onAnswerSelect}
+            isAnswerChecked={isAnswerChecked}
+            selectedAnswer={selectedAnswer as string | null}
+          />
+        );
+      case 'classification':
+        return (
+          <Classification
+            question={question}
+            onAnswerSelect={onAnswerSelect}
+            isAnswerChecked={isAnswerChecked}
+            selectedAnswer={selectedAnswer ? (selectedAnswer as unknown as { [key: string]: string[] }) : null}
+          />
+        );
+      default:
+        return <div>Type de question non supporté</div>;
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {renderQuestion()}
+    </div>
+  );
 };
 
 export default QuestionRenderer;

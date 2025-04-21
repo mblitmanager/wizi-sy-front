@@ -11,6 +11,7 @@ import { calendarService } from './calendarService';
 import { stagiaireAPI } from './stagiaireAPI';
 import { catalogueFormationApi } from './catalogueFormationApi';
 import { contactService } from './contactService';
+import { quizFormationService } from './quizFormationService';
 
 export {
   api,
@@ -25,5 +26,6 @@ export {
   calendarService,
   stagiaireAPI,
   catalogueFormationApi,
-  contactService
+  contactService,
+  quizFormationService
 }; 

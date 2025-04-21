@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../services/authService';
+import { authService, LoginResponse } from '../services/authService';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -15,7 +15,7 @@ const LoginPage = () => {
     setError(null);
 
     try {
-      const response = await authService.login(email, password);
+      const response = await authService.login(email, password) as LoginResponse;
       localStorage.setItem('token', response.token);
       navigate('/dashboard');
     } catch (err) {
@@ -38,6 +38,8 @@ const LoginPage = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            title="Email"
+            placeholder="Entrez votre email"
           />
         </div>
         <div>
@@ -47,6 +49,8 @@ const LoginPage = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            title="Mot de passe"
+            placeholder="Entrez votre mot de passe"
           />
         </div>
         <button type="submit" disabled={loading}>

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { quizService } from '../services/quizService';
-import { Question, Reponse, QuizResult, Quiz } from '../types/quiz';
+import { quizService } from '@/services/quizService';
+import { Quiz, Question, QuizResult } from '@/types/quiz';
 import { Timer } from '@/components/ui/timer';
 import QuestionRenderer from '../components/questions/QuestionRenderer';
 import { Button } from '@/components/ui/button';
@@ -19,10 +19,13 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  BarChart
+  BarChart,
+  Loader2
 } from "lucide-react";
+import { api } from '@/services/api';
+import { Formation } from '@/types/formation';
 
-const QuizPage: React.FC = () => {
+export const QuizPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
   const [quiz, setQuiz] = useState<Quiz | null>(null);
@@ -34,6 +37,7 @@ const QuizPage: React.FC = () => {
   const [timeSpent, setTimeSpent] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<QuizResult | null>(null);
 
   // Données fictives pour les quiz
   const [quizLevels] = useState([
@@ -88,24 +92,40 @@ const QuizPage: React.FC = () => {
 
   useEffect(() => {
     const fetchQuizData = async () => {
+      if (!quizId) return;
+      
       try {
-        if (!quizId) return;
+        setLoading(true);
+        setError(null);
         
-        const quizData = await quizService.getQuizById(Number(quizId));
-        const questionsData = await quizService.getQuizQuestions(Number(quizId));
+        // Utiliser la route /api/stagiaire/formations pour récupérer les formations avec leurs quiz
+        const response = await api.get<{ data: Formation[] }>('/stagiaire/formations');
+        const formations = response.data.data;
         
-        // Convertir nb_points_total en number si nécessaire
-        const formattedQuizData = {
-          ...quizData,
-          nb_points_total: Number(quizData.nb_points_total)
-        };
+        // Trouver la formation qui contient le quiz recherché
+        const formation = formations.find(f => 
+          f.quizzes && f.quizzes.some(q => q.id.toString() === quizId)
+        );
         
-        setQuiz(formattedQuizData);
-        setQuestions(questionsData);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching quiz:', error);
+        if (!formation) {
+          setError('Quiz non trouvé');
+          return;
+        }
+        
+        // Trouver le quiz spécifique
+        const quiz = formation.quizzes.find(q => q.id.toString() === quizId);
+        
+        if (!quiz) {
+          setError('Quiz non trouvé');
+          return;
+        }
+        
+        setQuiz(quiz);
+        setQuestions(quiz.questions || []);
+      } catch (err) {
         setError('Erreur lors du chargement du quiz');
+        console.error('Error fetching quiz:', err);
+      } finally {
         setLoading(false);
       }
     };
@@ -113,18 +133,16 @@ const QuizPage: React.FC = () => {
     fetchQuizData();
   }, [quizId]);
 
-  const handleAnswerSelect = (questionId: string, answerId: string) => {
+  const handleAnswer = (questionId: string, answer: string) => {
     setAnswers(prev => ({
       ...prev,
-      [questionId]: answerId
+      [questionId]: answer
     }));
   };
 
   const handleNext = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
-    } else {
-      handleSubmit();
     }
   };
 
@@ -135,83 +153,108 @@ const QuizPage: React.FC = () => {
   };
 
   const handleSubmit = async () => {
+    if (!quizId) return;
+
     try {
-      if (!quizId) return;
-      
-      const results = await quizService.getQuizResults(Number(quizId));
-      setResults(results);
-      // Calculer le score
-      const correctAnswers = Object.entries(answers).filter(([questionId, answerId]) => {
-        const question = questions.find(q => q.id === questionId);
-        return question?.reponses.find(r => r.id === answerId)?.is_correct;
-      }).length;
-      
-      const totalScore = (correctAnswers / questions.length) * 100;
-      setScore(totalScore);
-    } catch (error) {
-      console.error('Error submitting quiz:', error);
+      setLoading(true);
+      const quizResult = await quizService.submitQuiz(quizId, answers);
+      setResult(quizResult);
+    } catch (err) {
+      setError('Erreur lors de la soumission du quiz');
+      console.error('Error submitting quiz:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Chargement...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="flex items-center justify-center min-h-screen text-red-500">{error}</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <p className="text-red-500 mb-4">{error}</p>
+        <Button onClick={() => navigate('/quiz')}>Retour aux quiz</Button>
+      </div>
+    );
   }
 
-  if (!quiz || !questions.length) {
-    return <div className="flex items-center justify-center min-h-screen">Aucune donnée de quiz disponible</div>;
+  if (!quiz || questions.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <p className="text-gray-500 mb-4">Aucun quiz disponible</p>
+        <Button onClick={() => navigate('/quiz')}>Retour aux quiz</Button>
+      </div>
+    );
   }
 
   const currentQuestion = questions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex) / questions.length) * 100;
+  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 
   return (
-    <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">{quiz.titre}</h1>
-        <p className="text-muted-foreground mb-4">{quiz.description}</p>
-        <div className="flex items-center gap-4 mb-4">
-          <Badge variant="outline">{quiz.niveau}</Badge>
-          <Badge variant="outline">{quiz.nb_points_total} points</Badge>
+    <div className="container mx-auto px-4 py-8">
+      <Card className="max-w-2xl mx-auto p-6">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold mb-2">{quiz.titre}</h1>
+          <Progress value={progress} className="w-full" />
+          <p className="text-sm text-gray-500 mt-2">
+            Question {currentQuestionIndex + 1} sur {questions.length}
+          </p>
         </div>
-      </div>
 
-      <div className="mb-6">
-        <Progress value={progress} className="h-2" />
-        <div className="flex justify-between mt-2 text-sm text-muted-foreground">
-          <span>Question {currentQuestionIndex + 1} sur {questions.length}</span>
-          <span>{Math.round(progress)}% complété</span>
-        </div>
-      </div>
+        {result ? (
+          <div className="text-center">
+            <h2 className="text-xl font-bold mb-4">Résultats</h2>
+            <p className="text-lg mb-4">
+              Score: {result.score}%
+            </p>
+            <Button onClick={() => navigate('/quiz')}>Retour aux quiz</Button>
+          </div>
+        ) : (
+          <>
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold mb-4">{currentQuestion.text}</h2>
+              <div className="space-y-4">
+                {currentQuestion.reponses.map((option) => (
+                  <Button
+                    key={option.id}
+                    variant={answers[currentQuestion.id] === option.id ? "default" : "outline"}
+                    className="w-full justify-start"
+                    onClick={() => handleAnswer(currentQuestion.id, option.id)}
+                  >
+                    {option.text}
+                  </Button>
+                ))}
+              </div>
+            </div>
 
-      <Card className="mb-6">
-        <CardContent className="pt-6">
-          <QuestionRenderer
-            question={currentQuestion}
-            selectedAnswer={answers[currentQuestion.id]}
-            onAnswerSelect={handleAnswerSelect}
-          />
-        </CardContent>
+            <div className="flex justify-between">
+              <Button
+                variant="outline"
+                onClick={handlePrevious}
+                disabled={currentQuestionIndex === 0}
+              >
+                Précédent
+              </Button>
+              {currentQuestionIndex === questions.length - 1 ? (
+                <Button
+                  onClick={handleSubmit}
+                  disabled={Object.keys(answers).length !== questions.length}
+                >
+                  Terminer
+                </Button>
+              ) : (
+                <Button onClick={handleNext}>Suivant</Button>
+              )}
+            </div>
+          </>
+        )}
       </Card>
-
-      <div className="flex justify-between">
-        <Button
-          variant="outline"
-          onClick={handlePrevious}
-          disabled={currentQuestionIndex === 0}
-        >
-          Précédent
-        </Button>
-        <Button
-          onClick={handleNext}
-          disabled={!answers[currentQuestion.id]}
-        >
-          {currentQuestionIndex === questions.length - 1 ? 'Terminer' : 'Suivant'}
-        </Button>
-      </div>
     </div>
   );
 };

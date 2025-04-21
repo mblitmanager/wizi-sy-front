@@ -1,32 +1,57 @@
-
 import React, { useState } from 'react';
-import { Question } from '../../types/quiz';
+import { Question } from '@/types/quiz';
 import BaseQuestion from './BaseQuestion';
 import { GripVertical } from 'lucide-react';
 
+interface ClassificationData {
+  categories: string[];
+  items: Array<{ id: string; text: string }>;
+  correct_categories: { [key: string]: string[] };
+}
+
 interface ClassificationProps {
   question: Question;
-  onAnswer: (answer: { [key: string]: number[] }) => void;
+  onAnswerSelect: (questionId: string, answerId: string) => void;
   isAnswerChecked: boolean;
-  selectedAnswer: { [key: string]: number[] } | null;
+  selectedAnswer: { [key: string]: string[] } | null;
   showHint?: boolean;
   timeRemaining?: number;
 }
 
 const Classification: React.FC<ClassificationProps> = ({
   question,
-  onAnswer,
+  onAnswerSelect,
   isAnswerChecked,
   selectedAnswer,
   showHint,
   timeRemaining
 }) => {
-  const [categories, setCategories] = useState<{ [key: string]: number[] }>(
-    selectedAnswer || question.categories?.reduce((acc, cat) => ({ ...acc, [cat]: [] }), {}) || {}
+  const parseClassificationData = (): ClassificationData => {
+    try {
+      const data = JSON.parse(question.text) as ClassificationData;
+      return {
+        categories: data.categories || [],
+        items: data.items || [],
+        correct_categories: data.correct_categories || {}
+      };
+    } catch (e) {
+      console.error('Error parsing classification data:', e);
+      return {
+        categories: [],
+        items: [],
+        correct_categories: {}
+      };
+    }
+  };
+
+  const { categories: questionCategories, items: questionItems, correct_categories } = parseClassificationData();
+  
+  const [categories, setCategories] = useState<{ [key: string]: string[] }>(
+    selectedAnswer || questionCategories.reduce((acc, cat) => ({ ...acc, [cat]: [] }), {})
   );
 
-  const handleDragStart = (e: React.DragEvent, itemIndex: number) => {
-    e.dataTransfer.setData('text/plain', itemIndex.toString());
+  const handleDragStart = (e: React.DragEvent, itemId: string) => {
+    e.dataTransfer.setData('text/plain', itemId);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -37,107 +62,92 @@ const Classification: React.FC<ClassificationProps> = ({
     e.preventDefault();
     if (isAnswerChecked) return;
 
-    const itemIndex = parseInt(e.dataTransfer.getData('text/plain'));
+    const itemId = e.dataTransfer.getData('text/plain');
     const newCategories = { ...categories };
     
     // Remove item from previous category if it exists
     Object.keys(newCategories).forEach(cat => {
-      newCategories[cat] = newCategories[cat].filter(i => i !== itemIndex);
+      newCategories[cat] = newCategories[cat].filter(id => id !== itemId);
     });
     
     // Add item to new category
-    newCategories[category] = [...newCategories[category], itemIndex];
+    newCategories[category] = [...newCategories[category], itemId];
     setCategories(newCategories);
-    onAnswer(newCategories);
-  };
-
-  // Convert correct_answer to appropriate type if needed
-  const getCorrectAnswers = (): { [key: string]: number[] } => {
-    if (typeof question.correct_answer === 'object' && question.correct_answer !== null && !Array.isArray(question.correct_answer)) {
-      // This is a record/object type, check if it matches our needed structure
-      // We need to ensure it's a Record<string, number[]>
-      const result: { [key: string]: number[] } = {};
-      
-      for (const [key, value] of Object.entries(question.correct_answer)) {
-        if (Array.isArray(value)) {
-          // Type assertion to tell TypeScript this is a number[]
-          result[key] = value as number[];
-        } else {
-          // If it's not an array, create a single-item array
-          result[key] = [typeof value === 'number' ? value : 0];
-        }
-      }
-      
-      return result;
-    }
-    
-    // Fallback empty object if correct_answer is not in expected format
-    return {};
+    onAnswerSelect(question.id, JSON.stringify(newCategories));
   };
 
   return (
-    <>
-      <BaseQuestion
-        question={question}
-        onAnswer={onAnswer}
-        isAnswerChecked={isAnswerChecked}
-        selectedAnswer={selectedAnswer}
-        showHint={showHint}
-        timeRemaining={timeRemaining}
-      />
-      
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-        {question.categories?.map((category, catIndex) => (
+    <div className="space-y-4">
+      <div className="text-lg font-medium">{question.text}</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {questionCategories.map((category) => (
           <div
-            key={catIndex}
+            key={category}
+            className="p-4 bg-white rounded-lg shadow"
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, category)}
-            className={`p-4 rounded-xl border-2 min-h-[200px] ${
-              isAnswerChecked ? 'border-gray-200' : 'border-dashed border-gray-300 hover:border-blue-300'
-            }`}
           >
-            <h3 className="font-medium text-lg mb-4">{category}</h3>
-            <div className="space-y-2">
-              {categories[category]?.map((itemIndex) => (
-                <div
-                  key={itemIndex}
-                  draggable={!isAnswerChecked}
-                  onDragStart={(e) => handleDragStart(e, itemIndex)}
-                  className={`flex items-center p-3 rounded-lg border ${
-                    isAnswerChecked
-                      ? getCorrectAnswers()[category]?.includes(itemIndex)
-                        ? 'border-green-500 bg-green-50'
-                        : 'border-red-500 bg-red-50'
-                      : 'border-gray-200 bg-white'
-                  }`}
-                >
-                  <GripVertical className="h-4 w-4 text-gray-400 mr-2" />
-                  <span>{question.options?.[itemIndex]}</span>
-                </div>
-              ))}
+            <h3 className="font-medium mb-2">{category}</h3>
+            <div className="min-h-[100px] space-y-2">
+              {categories[category]?.map((itemId) => {
+                const item = questionItems.find((i) => i.id === itemId);
+                return item ? (
+                  <div
+                    key={item.id}
+                    className={`p-2 rounded-lg ${
+                      isAnswerChecked
+                        ? correct_categories[category]?.includes(item.id)
+                          ? 'bg-green-100'
+                          : 'bg-red-100'
+                        : 'bg-gray-100'
+                    }`}
+                  >
+                    {item.text}
+                  </div>
+                ) : null;
+              })}
             </div>
           </div>
         ))}
       </div>
-
-      {isAnswerChecked && (
-        <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-          <h3 className="font-medium text-blue-800 mb-2">Classification correcte :</h3>
-          {Object.entries(getCorrectAnswers()).map(([category, items]) => (
-            <div key={category} className="mb-2">
-              <h4 className="font-medium text-blue-700">{category}:</h4>
-              <div className="ml-4">
-                {items.map(itemIndex => (
-                  <div key={itemIndex} className="text-blue-600">
-                    {question.options?.[itemIndex]}
-                  </div>
-                ))}
+      <div className="p-4 bg-white rounded-lg shadow">
+        <h3 className="font-medium mb-2">Items à classer</h3>
+        <div className="flex flex-wrap gap-2">
+          {questionItems
+            .filter((item) => !Object.values(categories).flat().includes(item.id))
+            .map((item) => (
+              <div
+                key={item.id}
+                draggable
+                onDragStart={(e) => handleDragStart(e, item.id)}
+                className="p-2 bg-gray-100 rounded-lg cursor-move"
+              >
+                {item.text}
               </div>
-            </div>
-          ))}
+            ))}
+        </div>
+      </div>
+      {isAnswerChecked && (
+        <div className="mt-4 p-4 rounded-lg bg-muted">
+          <div className="font-medium">Classement correct:</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-2">
+            {Object.entries(correct_categories).map(([category, itemIds]) => (
+              <div key={category} className="space-y-2">
+                <h4 className="font-medium">{category}</h4>
+                {itemIds.map((itemId) => {
+                  const item = questionItems.find((i) => i.id === itemId);
+                  return item ? (
+                    <div key={item.id} className="p-2 bg-green-100 rounded-lg">
+                      {item.text}
+                    </div>
+                  ) : null;
+                })}
+              </div>
+            ))}
+          </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

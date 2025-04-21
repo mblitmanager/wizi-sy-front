@@ -1,5 +1,5 @@
 import { api } from './api';
-import { UserProgress, LeaderboardEntry } from '../types';
+import { UserProgress, LeaderboardEntry } from '@/types/quiz';
 
 export const progressService = {
   getUserProgress: async (): Promise<UserProgress> => {

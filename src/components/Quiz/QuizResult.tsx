@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { QuizResult } from '@/types';
+import { QuizResult } from '@/types/quiz';
 import { Button } from '@/components/ui/button';
 import { Award, Clock, BarChart2, Home, Redo } from 'lucide-react';
 
@@ -11,7 +11,7 @@ interface QuizResultProps {
 
 const QuizResultComponent: React.FC<QuizResultProps> = ({ result, onRetry }) => {
   const navigate = useNavigate();
-  const scorePercentage = Math.round((result.correctAnswers / result.totalQuestions) * 100);
+  const scorePercentage = Math.round((result.correct_answers / result.total_questions) * 100);
   
   const getScoreMessage = () => {
     if (scorePercentage >= 90) return "Excellent !";
@@ -41,7 +41,7 @@ const QuizResultComponent: React.FC<QuizResultProps> = ({ result, onRetry }) => 
           <div className="flex flex-col items-center">
             <div className="text-5xl font-bold mb-2 text-blue-600 font-nunito">{scorePercentage}%</div>
             <div className="text-sm text-gray-600 font-roboto">
-              {result.correctAnswers} sur {result.totalQuestions} questions correctes
+              {result.correct_answers} sur {result.total_questions} questions correctes
             </div>
 
             <div className="w-full bg-gray-200 rounded-full h-4 mt-4">
@@ -66,7 +66,7 @@ const QuizResultComponent: React.FC<QuizResultProps> = ({ result, onRetry }) => 
             <div>
               <div className="text-sm text-gray-600 font-roboto">Temps écoulé</div>
               <div className="text-lg font-semibold font-nunito">
-                {Math.floor(result.timeSpent / 60)}:{(result.timeSpent % 60).toString().padStart(2, '0')}
+                {Math.floor(result.time_spent / 60)}:{(result.time_spent % 60).toString().padStart(2, '0')}
               </div>
             </div>
           </div>

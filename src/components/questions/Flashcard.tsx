@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Question } from '../../types';
-import { Answer } from '../../types/quiz';
+import { Question, Response } from '@/types/quiz';
 import BaseQuestion from './BaseQuestion';
 import { RotateCw } from 'lucide-react';
-import { quizService } from '../../services/quizService';
+import { questionService } from '@/services/api';
 
 interface FlashcardProps {
   question: Question;
-  onAnswer: (answer: boolean) => void;
+  onAnswerSelect: (questionId: string, answerId: string) => void;
   isAnswerChecked: boolean;
   selectedAnswer: boolean | null;
   showHint?: boolean;
@@ -16,112 +15,63 @@ interface FlashcardProps {
 
 const Flashcard: React.FC<FlashcardProps> = ({
   question,
-  onAnswer,
+  onAnswerSelect,
   isAnswerChecked,
   selectedAnswer,
   showHint,
   timeRemaining
 }) => {
-  const [responses, setResponses] = useState<Answer[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [responses, setResponses] = useState<Response[]>([]);
   const [isFlipped, setIsFlipped] = useState(false);
 
   useEffect(() => {
     const fetchResponses = async () => {
       try {
-        setLoading(true);
-        const fetchedResponses = await quizService.getQuizAnswers(question.id);
-        setResponses(fetchedResponses.map(r => ({
-          ...r,
-          question_id: question.id,
-          is_correct: true
-        })) as Answer[]);
+        const fetchedResponses = await questionService.getQuestionResponses(question.id);
+        setResponses(fetchedResponses as Response[]);
       } catch (error) {
-        console.error('Erreur lors de la récupération des réponses:', error);
-      } finally {
-        setLoading(false);
+        console.error('Error fetching responses:', error);
       }
     };
-
     fetchResponses();
   }, [question.id]);
 
-  useEffect(() => {
-    if (selectedAnswer !== null) {
-      setIsFlipped(selectedAnswer);
-    }
-  }, [selectedAnswer]);
-
-  if (loading) {
-    return <div className="text-center">Chargement des réponses...</div>;
-  }
-
-  if (!responses || responses.length === 0) {
-    return <div className="text-center text-red-500">Aucune réponse disponible pour cette question.</div>;
-  }
-
-  const frontContent = responses[0]?.text;
-  const backContent = responses[0]?.flashcard_back;
-
   const handleFlip = () => {
     if (!isAnswerChecked) {
-      const newFlipped = !isFlipped;
-      setIsFlipped(newFlipped);
-      onAnswer(newFlipped);
+      setIsFlipped(!isFlipped);
+      onAnswerSelect(question.id, (!isFlipped).toString());
     }
   };
 
   return (
-    <BaseQuestion
-      question={question}
-      onAnswer={onAnswer}
-      isAnswerChecked={isAnswerChecked}
-      selectedAnswer={selectedAnswer}
-      showHint={showHint}
-      timeRemaining={timeRemaining}
-    >
+    <div className="space-y-4">
+      <div className="text-lg font-medium">{question.text}</div>
       <div
-        className={`relative w-full aspect-[3/2] cursor-pointer perspective-1000`}
+        className={`relative p-6 bg-white rounded-lg shadow cursor-pointer transition-transform duration-500 transform ${
+          isFlipped ? 'scale-[-1]' : ''
+        }`}
         onClick={handleFlip}
       >
+        <div className={`transition-opacity duration-500 ${isFlipped ? 'opacity-0' : 'opacity-100'}`}>
+          <div className="text-center">{responses[0]?.text}</div>
+        </div>
         <div
-          className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${
-            isFlipped ? 'rotate-y-180' : ''
+          className={`absolute inset-0 p-6 bg-white rounded-lg transform scale-x-[-1] transition-opacity duration-500 ${
+            isFlipped ? 'opacity-100' : 'opacity-0'
           }`}
         >
-          {/* Face avant */}
-          <div
-            className={`absolute w-full h-full backface-hidden bg-white rounded-xl border-2 p-6 flex items-center justify-center text-center ${
-              !isFlipped ? 'border-blue-500' : ''
-            }`}
-          >
-            <div className="text-xl font-medium">{frontContent}</div>
-          </div>
-
-          {/* Face arrière */}
-          <div
-            className={`absolute w-full h-full backface-hidden bg-white rounded-xl border-2 p-6 flex items-center justify-center text-center rotate-y-180 ${
-              isFlipped ? 'border-green-500' : ''
-            }`}
-          >
-            <div className="text-xl font-medium">{backContent}</div>
-          </div>
+          <div className="text-center">{responses[1]?.text}</div>
         </div>
-
-        {!isAnswerChecked && (
-          <button
-            className="absolute bottom-4 right-4 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleFlip();
-            }}
-            title="Retourner la carte"
-          >
-            <RotateCw className="h-6 w-6" />
-          </button>
-        )}
       </div>
-    </BaseQuestion>
+      <button
+        onClick={handleFlip}
+        disabled={isAnswerChecked}
+        className="flex items-center gap-2 mx-auto px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+      >
+        <RotateCw className="h-4 w-4" />
+        <span>Retourner</span>
+      </button>
+    </div>
   );
 };
 

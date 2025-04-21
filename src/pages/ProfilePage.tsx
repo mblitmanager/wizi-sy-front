@@ -87,8 +87,8 @@ const ProfilePage = () => {
           // Fetch categories
           const categoriesData = await quizService.getQuizCategories();
           const categoriesWithColors = categoriesData.map((name, index) => ({
-            id: name,
-            name: name,
+            id: name.toString(),
+            name: name.toString(),
             description: `Quizzes dans la catégorie ${name}`,
             color: ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'][index % 6],
             colorClass: ['category-blue-500', 'category-green-500', 'category-yellow-500', 'category-red-500', 'category-purple-500', 'category-pink-500'][index % 6],
@@ -100,36 +100,39 @@ const ProfilePage = () => {
           const mockResults: QuizResult[] = [
             {
               id: 'result-1',
-              quizId: 'quiz-1',
-              quizName: 'Introduction à Excel',
-              userId: userData.id,
+              quiz_id: 'quiz-1',
+              user_id: userData.id,
               score: 85,
-              correctAnswers: 17,
-              totalQuestions: 20,
-              completedAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-              timeSpent: 720
+              correct_answers: 17,
+              total_questions: 20,
+              completed_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+              time_spent: 720,
+              max_streak: 5,
+              mode: 'normal'
             },
             {
               id: 'result-2',
-              quizId: 'quiz-2',
-              quizName: 'Sécurité sur Internet',
-              userId: userData.id,
+              quiz_id: 'quiz-2',
+              user_id: userData.id,
               score: 92,
-              correctAnswers: 11,
-              totalQuestions: 12,
-              completedAt: new Date(Date.now() - 86400000 * 3).toISOString(), // 3 days ago
-              timeSpent: 540
+              correct_answers: 11,
+              total_questions: 12,
+              completed_at: new Date(Date.now() - 86400000 * 3).toISOString(), // 3 days ago
+              time_spent: 540,
+              max_streak: 8,
+              mode: 'normal'
             },
             {
               id: 'result-3',
-              quizId: 'quiz-3',
-              quizName: 'Vocabulaire anglais pour débutants',
-              userId: userData.id,
+              quiz_id: 'quiz-3',
+              user_id: userData.id,
               score: 75,
-              correctAnswers: 15,
-              totalQuestions: 20,
-              completedAt: new Date(Date.now() - 86400000 * 5).toISOString(), // 5 days ago
-              timeSpent: 900
+              correct_answers: 15,
+              total_questions: 20,
+              completed_at: new Date(Date.now() - 86400000 * 5).toISOString(), // 5 days ago
+              time_spent: 900,
+              max_streak: 3,
+              mode: 'normal'
             }
           ];
           

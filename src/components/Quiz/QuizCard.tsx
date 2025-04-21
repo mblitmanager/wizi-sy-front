@@ -1,11 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Quiz } from '@/types';
-import { QuizData } from '@/services/quizService';
 import { Clock, Award } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
-type QuizType = Quiz | QuizData;
+type QuizType = Quiz;
 
 interface QuizCardProps {
   quiz: QuizType;
@@ -14,8 +13,7 @@ interface QuizCardProps {
 
 const QuizCard: React.FC<QuizCardProps> = ({ quiz, categoryColor }) => {
   const getLevelBadge = () => {
-    const level = 'level' in quiz ? quiz.level : quiz.niveau;
-    switch (level) {
+    switch (quiz.niveau) {
       case 'débutant':
         return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">Débutant</Badge>;
       case 'intermédiaire':
@@ -30,7 +28,7 @@ const QuizCard: React.FC<QuizCardProps> = ({ quiz, categoryColor }) => {
   };
 
   const questionCount = quiz.questions.length;
-  const title = 'title' in quiz ? quiz.title : quiz.titre;
+  const title = quiz.titre;
   const description = quiz.description;
 
   return (
@@ -50,7 +48,7 @@ const QuizCard: React.FC<QuizCardProps> = ({ quiz, categoryColor }) => {
             </div>
             <div className="flex items-center">
               <Award className="h-3 w-3 mr-1" />
-              <span>{'points' in quiz ? quiz.points : quiz.nb_points_total} points</span>
+              <span>{quiz.nb_points_total} points</span>
             </div>
           </div>
         </div>

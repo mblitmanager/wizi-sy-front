@@ -1,120 +1,71 @@
 import React, { useState, useEffect } from 'react';
-import { Question, Answer } from '@/types/quiz';
+import { Question, Response } from '@/types/quiz';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { quizService } from '@/services/quizService';
+import { questionService } from '@/services/api';
+import { Label } from '@/components/ui/label';
 
 interface MultipleChoiceProps {
   question: Question;
-  onAnswer: (answer: number) => void;
-  isAnswerChecked: boolean;
-  selectedAnswer: number | null;
-  showHint?: boolean;
-  timeRemaining?: number;
+  selectedAnswer: string | null;
+  onAnswerSelect: (questionId: string, answerId: string) => void;
+  isAnswerChecked?: boolean;
 }
 
 const MultipleChoice: React.FC<MultipleChoiceProps> = ({
   question,
-  onAnswer,
-  isAnswerChecked,
   selectedAnswer,
-  showHint,
-  timeRemaining,
+  onAnswerSelect,
+  isAnswerChecked = false
 }) => {
-  const [answers, setAnswers] = useState<Answer[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [responses, setResponses] = useState<Response[]>([]);
+  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchAnswers = async () => {
+    const fetchResponses = async () => {
       try {
-        setLoading(true);
-        const fetchedAnswers = await quizService.getQuizAnswers(question.id);
-        setAnswers(fetchedAnswers);
+        const fetchedResponses = await questionService.getQuestionResponses(question.id);
+        setResponses(fetchedResponses as Response[]);
       } catch (error) {
-        console.error('Failed to fetch answers:', error);
-      } finally {
-        setLoading(false);
+        console.error('Error fetching responses:', error);
       }
     };
-
-    fetchAnswers();
+    fetchResponses();
   }, [question.id]);
 
-  const handleSelect = (answerId: string) => {
-    if (isAnswerChecked) return;
-    onAnswer(Number(answerId));
+  useEffect(() => {
+    if (question.media_url) {
+      setMediaUrl(question.media_url);
+    }
+  }, [question.media_url]);
+
+  const handleSelect = (responseId: string) => {
+    onAnswerSelect(question.id, responseId);
   };
 
-  if (loading) {
-    return <div>Chargement des réponses...</div>;
-  }
-
   return (
-    <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200 my-4">
-      <div className="mb-4 font-medium text-gray-800 font-montserrat">
-        {question.text}
-      </div>
-      
-      {question.media && question.media.type === 'image' && (
-        <div className="mb-4">
-          <img 
-            src={question.media.url} 
-            alt="Question illustration" 
-            className="max-w-full mx-auto rounded-lg" 
-          />
+    <div className="space-y-4">
+      <div className="text-lg font-medium">{question.text}</div>
+      {mediaUrl && (
+        <div className="my-4">
+          <img src={mediaUrl} alt="Question media" className="max-w-full h-auto rounded-lg" />
         </div>
       )}
-      
-      <RadioGroup 
-        value={selectedAnswer?.toString()} 
-        onValueChange={handleSelect}
-        disabled={isAnswerChecked}
-        className="space-y-2"
-      >
-        {answers.map((answer) => (
-          <div 
-            key={answer.id}
-            className={`p-3 rounded-md cursor-pointer transition-colors
-              ${String(selectedAnswer) === answer.id 
-                ? isAnswerChecked 
-                  ? answer.is_correct === 1 
-                    ? 'bg-green-50 border border-green-200'
-                    : 'bg-red-50 border border-red-200'
-                  : 'bg-blue-50 border border-blue-200'
-                : isAnswerChecked && answer.is_correct === 1
-                  ? 'bg-green-50 border border-green-200'
-                  : 'hover:bg-gray-50 border border-transparent hover:border-gray-200'
-              }`}
-          >
-            <div className="flex items-start">
-              <RadioGroupItem 
-                value={answer.id} 
-                id={`answer-${answer.id}`} 
-                className="mt-0.5"
-              />
-              <label 
-                htmlFor={`answer-${answer.id}`}
-                className="ml-2 text-gray-700 cursor-pointer font-roboto"
-              >
-                {answer.text}
-              </label>
+      <RadioGroup value={selectedAnswer || ''} onValueChange={handleSelect}>
+        <div className="space-y-2">
+          {responses.map((response) => (
+            <div key={response.id} className="flex items-center space-x-2">
+              <RadioGroupItem value={response.id} id={response.id} />
+              <Label htmlFor={response.id}>{response.text}</Label>
             </div>
-          </div>
-        ))}
-      </RadioGroup>
-      
-      {showHint && question.astuce && (
-        <div className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-md">
-          <p className="text-amber-800 text-sm font-nunito">
-            <strong>Indice:</strong> {question.astuce}
-          </p>
+          ))}
         </div>
-      )}
-      
-      {isAnswerChecked && question.explication && (
-        <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-md">
-          <p className="text-blue-800 text-sm font-nunito">
-            <strong>Explication:</strong> {question.explication}
-          </p>
+      </RadioGroup>
+      {isAnswerChecked && (
+        <div className="mt-4 p-4 rounded-lg bg-muted">
+          <div className="font-medium">Réponse correcte:</div>
+          <div>
+            {responses.find(r => r.is_correct)?.text}
+          </div>
         </div>
       )}
     </div>

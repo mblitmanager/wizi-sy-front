@@ -1,37 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { Question } from '../../types';
-import { Answer } from '../../types/quiz';
+import { Question, Response } from '@/types/quiz';
 import BaseQuestion from './BaseQuestion';
 import { GripVertical } from 'lucide-react';
-import { quizService } from '../../services/quizService';
+import { questionService } from '@/services/api';
 
 interface MatchingProps {
   question: Question;
-  onAnswer: (answer: number[]) => void;
+  selectedAnswer: string[] | null;
+  onAnswerSelect: (questionId: string, answerId: string) => void;
   isAnswerChecked: boolean;
-  selectedAnswer: number[] | null;
   showHint?: boolean;
   timeRemaining?: number;
 }
 
 const Matching: React.FC<MatchingProps> = ({
   question,
-  onAnswer,
-  isAnswerChecked,
   selectedAnswer,
+  onAnswerSelect,
+  isAnswerChecked,
   showHint,
   timeRemaining
 }) => {
-  const [responses, setResponses] = useState<Answer[]>([]);
+  const [responses, setResponses] = useState<Response[]>([]);
   const [loading, setLoading] = useState(true);
-  const [matches, setMatches] = useState<number[]>([]);
+  const [matches, setMatches] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchResponses = async () => {
       try {
         setLoading(true);
-        const fetchedResponses = await quizService.getQuizAnswers(question.id);
-        setResponses(fetchedResponses);
+        const fetchedResponses = await questionService.getQuestionResponses(question.id);
+        setResponses(fetchedResponses as Response[]);
       } catch (error) {
         console.error('Erreur lors de la récupération des réponses:', error);
       } finally {
@@ -47,7 +46,7 @@ const Matching: React.FC<MatchingProps> = ({
       setMatches(selectedAnswer);
     } else if (responses.length > 0) {
       // Initialiser avec les indices dans un ordre aléatoire
-      const indices = responses.map((_, index) => index);
+      const indices = responses.map((_, index) => index.toString());
       setMatches(indices.sort(() => Math.random() - 0.5));
     } else {
       // S'assurer que matches est toujours un tableau
@@ -64,8 +63,10 @@ const Matching: React.FC<MatchingProps> = ({
   }
 
   // Séparer les éléments et leurs correspondances
-  const items = responses.filter(r => !r.match_pair);
-  const pairs = responses.filter(r => r.match_pair);
+  // Assuming first half are items and second half are pairs
+  const halfLength = Math.floor(responses.length / 2);
+  const items = responses.slice(0, halfLength);
+  const pairs = responses.slice(halfLength);
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
     e.dataTransfer.setData('text/plain', index.toString());
@@ -77,7 +78,7 @@ const Matching: React.FC<MatchingProps> = ({
     const newMatches = [...matches];
     [newMatches[sourceIndex], newMatches[targetIndex]] = [newMatches[targetIndex], newMatches[sourceIndex]];
     setMatches(newMatches);
-    onAnswer(newMatches);
+    onAnswerSelect(question.id, pairs[parseInt(newMatches[targetIndex])]?.id || '');
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -85,15 +86,14 @@ const Matching: React.FC<MatchingProps> = ({
   };
 
   const isMatchCorrect = (itemIndex: number, pairIndex: number) => {
-    const item = items[itemIndex];
-    const pair = pairs[pairIndex];
-    return item && pair && item.text === pair.match_pair;
+    // For matching questions, we assume the correct match is at the same index
+    return itemIndex === pairIndex;
   };
 
   return (
     <BaseQuestion
       question={question}
-      onAnswer={onAnswer}
+      onAnswerSelect={onAnswerSelect}
       isAnswerChecked={isAnswerChecked}
       selectedAnswer={selectedAnswer}
       showHint={showHint}
@@ -110,7 +110,7 @@ const Matching: React.FC<MatchingProps> = ({
               onDragOver={handleDragOver}
               className={`flex items-center p-4 rounded-xl border-2 transition-all duration-200 ${
                 isAnswerChecked
-                  ? isMatchCorrect(index, matches[index])
+                  ? isMatchCorrect(index, parseInt(matches[index]))
                     ? 'border-green-500 bg-green-50'
                     : 'border-red-500 bg-red-50'
                   : 'border-gray-200 hover:border-blue-300'
@@ -124,21 +124,21 @@ const Matching: React.FC<MatchingProps> = ({
         <div className="space-y-4">
           {matches.map((matchIndex, index) => (
             <div
-              key={pairs[matchIndex]?.id || matchIndex}
+              key={pairs[parseInt(matchIndex)]?.id || matchIndex}
               draggable={!isAnswerChecked}
               onDragStart={(e) => handleDragStart(e, index)}
               onDrop={(e) => handleDrop(e, index)}
               onDragOver={handleDragOver}
               className={`flex items-center p-4 rounded-xl border-2 transition-all duration-200 ${
                 isAnswerChecked
-                  ? isMatchCorrect(index, matchIndex)
+                  ? isMatchCorrect(index, parseInt(matchIndex))
                     ? 'border-green-500 bg-green-50'
                     : 'border-red-500 bg-red-50'
                   : 'border-gray-200 hover:border-blue-300'
               }`}
             >
               <GripVertical className="h-6 w-6 text-gray-400 mr-4" />
-              <span className="flex-1">{pairs[matchIndex]?.text}</span>
+              <span className="flex-1">{pairs[parseInt(matchIndex)]?.text}</span>
             </div>
           ))}
         </div>

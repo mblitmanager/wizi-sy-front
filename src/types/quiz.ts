@@ -1,30 +1,26 @@
 import { User } from "./index";
 
 export interface Question {
-  id: number;
-  quiz_id: number;
+  id: string;
   text: string;
   type: string;
-  explication: string | null;
-  points: string;
-  astuce: string | null;
-  media_url: string | null;
-  created_at: string;
-  updated_at: string;
-  reponses: Reponse[];
+  media_url?: string;
+  explication?: string;
+  points: number;
+  astuce?: string;
+  quiz_id: string;
+  created_at?: string;
+  updated_at?: string;
+  reponses: Response[];
 }
 
-export interface Reponse {
-  id: number;
+export interface Response {
+  id: string;
   text: string;
-  is_correct: number;
-  position: number | null;
-  match_pair: string | null;
-  bank_group: string | null;
-  flashcard_back: string | null;
-  question_id: number;
-  created_at: string | null;
-  updated_at: string | null;
+  is_correct: boolean;
+  question_id: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Answer {
@@ -41,15 +37,16 @@ export interface Answer {
 }
 
 export interface Quiz {
-  id: number;
+  id: string;
   titre: string;
   description: string;
+  duree: number;
   niveau: string;
-  formation_id: number;
-  created_at: string;
-  updated_at: string;
-  questions?: Question[];
-  nb_points_total?: number;
+  nb_points_total: number;
+  formation_id: string;
+  questions: Question[];
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface QuizSubmitData {
@@ -99,14 +96,17 @@ export interface Category {
 
 export interface QuizResult {
   id: string;
-  quizId: string;
-  quizName: string;
-  userId: string;
+  quiz_id: string;
+  user_id: string;
   score: number;
-  correctAnswers: number;
-  totalQuestions: number;
-  completedAt: string;
-  timeSpent: number;
+  correct_answers: number;
+  total_questions: number;
+  completed_at: string;
+  time_spent: number;
+  max_streak: number;
+  mode: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface UserProgress {

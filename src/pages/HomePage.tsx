@@ -78,8 +78,23 @@ const HomePage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [catalogueData, setCatalogueData] =
-    useState<CatalogueFormationResponse | null>(null);
+  const { data: catalogueData, isLoading: isLoadingCatalogue } = useQuery({
+    queryKey: ['catalogue'],
+    queryFn: async (): Promise<CatalogueFormationResponse> => {
+      try {
+        const response = await axios.get<CatalogueFormationResponse>(`${API_URL}/stagiaire/catalogue_formation`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        return response.data;
+      } catch (error) {
+        console.error('Erreur lors de la récupération du catalogue:', error);
+        throw error;
+      }
+    },
+    retry: 1,
+  });
 
   // Récupération des contacts
   const { data: commerciaux, isLoading: loadingCommerciaux } = useQuery<
@@ -259,10 +274,18 @@ const HomePage: React.FC = () => {
           </Button>
         </Link>
       </div>
-      {isLoading ? (
+      {isLoadingCatalogue ? (
         <LoadingCatalogue />
+      ) : catalogueData ? (
+        <CatalogueFormation catalogueData={catalogueData} />
       ) : (
-        catalogueData && <CatalogueFormation catalogueData={catalogueData} />
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Erreur</AlertTitle>
+          <AlertDescription>
+            Impossible de charger le catalogue de formations. Veuillez réessayer plus tard.
+          </AlertDescription>
+        </Alert>
       )}
 
       {/* Section des quiz */}

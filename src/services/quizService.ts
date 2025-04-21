@@ -1,4 +1,5 @@
 import { api } from './api';
+import { Quiz, Question, QuizResult } from '@/types/quiz';
 
 interface ApiResponse<T> {
   data: T;
@@ -6,51 +7,11 @@ interface ApiResponse<T> {
   status?: string;
 }
 
-export interface Quiz {
-  id: string;
-  title: string;
-  description: string;
-  duration: number;
-  questions: Question[];
-}
-
-export interface Question {
-  id: string;
-  title: string;
-  content: string;
-  type: 'multiple_choice' | 'true_false' | 'open_ended';
-  difficulty: 'easy' | 'medium' | 'hard';
-  category: string;
-  responses: Response[];
-}
-
-export interface Response {
-  id: string;
-  content: string;
-  isCorrect: boolean;
-  questionId: string;
-}
-
-export interface QuizCategory {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  quizzes: Quiz[];
-}
-
 export const QuizService = {
-  getQuizCategories: async (): Promise<QuizCategory[]> => {
+  getQuizCategories: async (): Promise<Quiz[]> => {
     try {
-      const response = await api.get<ApiResponse<QuizCategory[]>>('/quiz/categories');
-      const formations = response.data?.data || [];
-      return Array.isArray(formations) ? formations.map((formation) => ({
-        id: formation.id,
-        name: formation.name,
-        description: formation.description,
-        icon: formation.icon,
-        quizzes: formation.quizzes || []
-      })) : [];
+      const response = await api.get<ApiResponse<Quiz[]>>('/quiz/categories');
+      return response.data?.data || [];
     } catch (error) {
       console.error('Error fetching quiz categories:', error);
       return [];
@@ -67,13 +28,35 @@ export const QuizService = {
     }
   },
 
-  submitQuiz: async (quizId: string, answers: Record<string, string>): Promise<any> => {
+  getQuizQuestions: async (quizId: string): Promise<Question[]> => {
     try {
-      const response = await api.post<ApiResponse<any>>(`/quiz/${quizId}/submit`, { answers });
-      return response.data;
+      const response = await api.get<ApiResponse<Question[]>>(`/quiz/${quizId}/questions`);
+      return response.data?.data || [];
+    } catch (error) {
+      console.error('Error fetching quiz questions:', error);
+      return [];
+    }
+  },
+
+  getQuiz: async (level: string, count: number, category: string): Promise<Quiz | null> => {
+    try {
+      const response = await api.get<ApiResponse<Quiz>>(`/quiz/random`, {
+        params: { level, count, category }
+      });
+      return response.data?.data || null;
+    } catch (error) {
+      console.error('Error fetching quiz:', error);
+      return null;
+    }
+  },
+
+  submitQuiz: async (quizId: string, answers: Record<string, string>): Promise<QuizResult | null> => {
+    try {
+      const response = await api.post<ApiResponse<QuizResult>>(`/quiz/${quizId}/submit`, { answers });
+      return response.data?.data || null;
     } catch (error) {
       console.error('Error submitting quiz:', error);
-      throw error;
+      return null;
     }
   }
 };

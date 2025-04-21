@@ -6,24 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Timer } from '@/components/ui/timer';
-import QuizQuestion from './QuizQuestion';
-import QuizResult from './QuizResult';
-import QuizCard from './QuizCard';
-import { Question, Answer } from '@/types/quiz';
-import { QuizResult as QuizResultType } from '@/services/quizService';
-
-interface QuizData {
-  id: number;
-  title: string;
-  description: string;
-  questions: Question[];
-  duration: number;
-  level: 'débutant' | 'intermédiaire' | 'avancé' | 'super';
-  mode: 'normal' | 'challenge' | 'discovery';
-  category: string;
-  categoryId: number;
-  points: number;
-}
+import { Question, Quiz, QuizResult } from '@/types/quiz';
 
 interface QuizProps {
   level: 'beginner' | 'intermediate' | 'advanced' | 'super';
@@ -31,8 +14,8 @@ interface QuizProps {
   category?: string;
 }
 
-const mapLevel = (level: QuizProps['level']): QuizData['level'] => {
-  const levelMap: Record<QuizProps['level'], QuizData['level']> = {
+const mapLevel = (level: QuizProps['level']): string => {
+  const levelMap: Record<QuizProps['level'], string> = {
     beginner: 'débutant',
     intermediate: 'intermédiaire',
     advanced: 'avancé',
@@ -54,7 +37,7 @@ export const QuizComponent: React.FC<QuizProps> = ({ level, mode, category }) =>
   const [streak, setStreak] = useState(0);
   const [maxStreak, setMaxStreak] = useState(0);
   const [correctAnswers, setCorrectAnswers] = useState<string[]>([]);
-  const [quizData, setQuizData] = useState<QuizData | null>(null);
+  const [quizData, setQuizData] = useState<Quiz | null>(null);
 
   const questionCount = {
     beginner: 5,
@@ -68,11 +51,14 @@ export const QuizComponent: React.FC<QuizProps> = ({ level, mode, category }) =>
       try {
         setIsLoading(true);
         const data = await quizService.getQuiz(mapLevel(level), questionCount, category);
-        setQuizData(data);
-        setQuestions(data.questions);
-        setTimeLeft(data.duration);
+        if (data) {
+          setQuizData(data);
+          setQuestions(data.questions);
+          setTimeLeft(data.duree);
+        }
       } catch (error) {
         console.error('Erreur lors du chargement du quiz:', error);
+        setError('Erreur lors du chargement du quiz');
       } finally {
         setIsLoading(false);
       }
@@ -99,8 +85,11 @@ export const QuizComponent: React.FC<QuizProps> = ({ level, mode, category }) =>
   const checkAnswer = (selectedIds: string[]) => {
     const currentQuestionData = questions[currentQuestion];
     
-    // La réponse correcte est stockée dans correct_answer
-    const isCorrect = selectedIds.some(id => id === currentQuestionData.correct_answer);
+    // Vérifier si toutes les réponses sélectionnées sont correctes
+    const isCorrect = selectedIds.every(id => {
+      const response = currentQuestionData.reponses.find(r => r.id === id);
+      return response?.is_correct;
+    });
 
     if (isCorrect) {
       setScore(prev => prev + currentQuestionData.points);
@@ -127,19 +116,19 @@ export const QuizComponent: React.FC<QuizProps> = ({ level, mode, category }) =>
     } else {
       setShowResults(true);
       // Sauvegarder le résultat du quiz
-      const result: QuizResultType = {
+      const result: QuizResult = {
         id: `result_${Date.now()}`,
-        quizId: questions[0]?.quiz_id || '',
-        userId: 'current-user',
+        quiz_id: quizData?.id || '',
+        user_id: 'current-user',
         score: calculateScore(),
-        correctAnswers: correctAnswers.length,
-        totalQuestions: questions.length,
-        completedAt: new Date().toISOString(),
-        timeSpent: quizData?.duration - timeLeft || 0,
-        maxStreak,
+        correct_answers: correctAnswers.length,
+        total_questions: questions.length,
+        completed_at: new Date().toISOString(),
+        time_spent: quizData?.duree - timeLeft || 0,
+        max_streak: maxStreak,
         mode
       };
-      quizService.saveQuizResult(result);
+      quizService.submitQuiz(quizData?.id || '', {});
     }
   };
 
@@ -148,7 +137,11 @@ export const QuizComponent: React.FC<QuizProps> = ({ level, mode, category }) =>
   };
 
   if (isLoading) {
-    return <QuizCard quiz={null} categoryColor="bg-blue-500" />;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
 
   if (error) {
@@ -156,24 +149,24 @@ export const QuizComponent: React.FC<QuizProps> = ({ level, mode, category }) =>
   }
 
   if (showResults) {
-    const result: QuizResultType = {
-      id: `result_${Date.now()}`,
-      quizId: questions[0]?.quiz_id || '',
-      userId: 'current-user',
-      score: calculateScore(),
-      correctAnswers: correctAnswers.length,
-      totalQuestions: questions.length,
-      completedAt: new Date().toISOString(),
-      timeSpent: quizData?.duration - timeLeft || 0,
-      maxStreak,
-      mode
-    };
-
     return (
-      <QuizResult
-        result={result}
-        onRetry={() => window.location.reload()}
-      />
+      <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
+        <Card className="w-full max-w-2xl mx-auto">
+          <CardHeader>
+            <CardTitle>Résultats du Quiz</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <p>Score: {calculateScore()}%</p>
+              <p>Réponses correctes: {correctAnswers.length}/{questions.length}</p>
+              <p>Meilleur streak: {maxStreak}</p>
+              <Button onClick={() => window.location.reload()}>
+                Réessayer
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
@@ -199,28 +192,46 @@ export const QuizComponent: React.FC<QuizProps> = ({ level, mode, category }) =>
           <Timer timeLeft={timeLeft} onTimeUp={() => setShowResults(true)} />
         </CardHeader>
         <CardContent>
-          <QuizQuestion
-            question={currentQuestionData}
-            totalQuestions={questions.length}
-            currentQuestion={currentQuestion + 1}
-            onAnswer={handleAnswerSelect}
-            timeLimit={timeLeft}
-          />
-          
-          <div className="flex justify-between mt-4">
-            <Progress 
-              value={(currentQuestion / questions.length) * 100} 
-              className="w-full"
-            />
+          <div className="space-y-4">
+            <p className="text-lg font-medium">{currentQuestionData.text}</p>
+            {currentQuestionData.media_url && (
+              <img 
+                src={currentQuestionData.media_url} 
+                alt="Question media" 
+                className="max-w-full h-auto rounded-lg"
+              />
+            )}
+            <div className="space-y-2">
+              {currentQuestionData.reponses.map((response) => (
+                <Button
+                  key={response.id}
+                  variant={selectedAnswers.includes(response.id) ? "default" : "outline"}
+                  className="w-full justify-start"
+                  onClick={() => handleAnswerSelect(response.id)}
+                >
+                  {response.text}
+                </Button>
+              ))}
+            </div>
+            {showExplanation && currentQuestionData.explication && (
+              <div className="mt-4 p-4 bg-muted rounded-lg">
+                <p className="font-medium">Explication :</p>
+                <p>{currentQuestionData.explication}</p>
+              </div>
+            )}
+            <div className="flex justify-between mt-4">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentQuestion(prev => Math.max(0, prev - 1))}
+                disabled={currentQuestion === 0}
+              >
+                Précédent
+              </Button>
+              <Button onClick={handleNext}>
+                {currentQuestion === questions.length - 1 ? 'Terminer' : 'Suivant'}
+              </Button>
+            </div>
           </div>
-
-          <Button 
-            className="w-full mt-4"
-            onClick={handleNext}
-            disabled={!showExplanation && selectedAnswers.length === 0}
-          >
-            {currentQuestion === questions.length - 1 ? 'Terminer' : 'Suivant'}
-          </Button>
         </CardContent>
       </Card>
     </div>

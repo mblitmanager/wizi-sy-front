@@ -1,11 +1,11 @@
-import React, { useState, useRef } from 'react';
-import { Question } from '../../types';
-import BaseQuestion from './BaseQuestion';
+import React, { useState, useRef, useEffect } from 'react';
+import { Question, Response } from '@/types/quiz';
 import { Play, Pause, Volume2 } from 'lucide-react';
+import { questionService } from '@/services/api';
 
 interface AudioQuestionProps {
   question: Question;
-  onAnswer: (answer: string) => void;
+  onAnswerSelect: (questionId: string, answerId: string) => void;
   isAnswerChecked: boolean;
   selectedAnswer: string | null;
   showHint?: boolean;
@@ -14,102 +14,90 @@ interface AudioQuestionProps {
 
 const AudioQuestion: React.FC<AudioQuestionProps> = ({
   question,
-  onAnswer,
+  onAnswerSelect,
   isAnswerChecked,
   selectedAnswer,
   showHint,
   timeRemaining
 }) => {
+  const [responses, setResponses] = useState<Response[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [userAnswer, setUserAnswer] = useState<string>(selectedAnswer || '');
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  const handlePlay = () => {
+  useEffect(() => {
+    const fetchResponses = async () => {
+      try {
+        const fetchedResponses = await questionService.getQuestionResponses(question.id);
+        setResponses(fetchedResponses as Response[]);
+      } catch (error) {
+        console.error('Error fetching responses:', error);
+      }
+    };
+    fetchResponses();
+  }, [question.id]);
+
+  const handlePlayPause = () => {
     if (audioRef.current) {
-      audioRef.current.play();
-      setIsPlaying(true);
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
     }
   };
 
-  const handlePause = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    }
-  };
-
-  const handleAnswer = (answer: string) => {
+  const handleSelect = (responseId: string) => {
     if (!isAnswerChecked) {
-      setUserAnswer(answer);
-      onAnswer(answer);
+      onAnswerSelect(question.id, responseId);
     }
   };
 
   return (
-    <>
-      <BaseQuestion
-        question={question}
-        onAnswer={onAnswer}
-        isAnswerChecked={isAnswerChecked}
-        selectedAnswer={selectedAnswer}
-        showHint={showHint}
-        timeRemaining={timeRemaining}
-      />
-      
-      <div className="mt-6">
-        <div className="flex items-center justify-center space-x-4 mb-6">
+    <div className="space-y-4">
+      <div className="text-lg font-medium">{question.text}</div>
+      {question.media_url && (
+        <div className="flex items-center gap-4 p-4 bg-muted rounded-lg">
           <button
-            onClick={isPlaying ? handlePause : handlePlay}
-            disabled={isAnswerChecked}
-            className={`p-3 rounded-full ${
-              isAnswerChecked
-                ? 'bg-gray-100 text-gray-400'
-                : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
-            }`}
+            onClick={handlePlayPause}
+            className="p-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
           </button>
-          <Volume2 className="h-6 w-6 text-gray-400" />
-        </div>
-
-        <audio
-          ref={audioRef}
-          src={question.media_url}
-          onEnded={() => setIsPlaying(false)}
-          className="hidden"
-        />
-
-        <div className="space-y-4">
-          {question.options?.map((option, index) => (
-            <button
-              key={index}
-              onClick={() => handleAnswer(option)}
-              disabled={isAnswerChecked}
-              className={`w-full p-4 rounded-xl border-2 transition-all duration-200 ${
-                isAnswerChecked
-                  ? option === question.correct_answer
-                    ? 'border-green-500 bg-green-50'
-                    : userAnswer === option
-                    ? 'border-red-500 bg-red-50'
-                    : 'border-gray-200'
-                  : userAnswer === option
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 hover:border-blue-300'
-              }`}
-            >
-              {option}
-            </button>
-          ))}
-        </div>
-
-        {isAnswerChecked && (
-          <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-            <h3 className="font-medium text-blue-800 mb-2">Explication:</h3>
-            <p className="text-blue-700">{question.explication}</p>
+          <div className="flex-1">
+            <audio
+              ref={audioRef}
+              src={question.media_url}
+              onEnded={() => setIsPlaying(false)}
+              className="w-full"
+            />
           </div>
-        )}
+          <Volume2 className="h-6 w-6 text-muted-foreground" />
+        </div>
+      )}
+      <div className="space-y-2">
+        {responses.map((response) => (
+          <button
+            key={response.id}
+            onClick={() => handleSelect(response.id)}
+            disabled={isAnswerChecked}
+            className={`w-full p-4 text-left rounded-lg border transition-colors ${
+              selectedAnswer === response.id
+                ? 'bg-primary/10 border-primary'
+                : 'bg-white hover:bg-muted/50'
+            } ${isAnswerChecked && response.is_correct ? 'bg-green-100 border-green-500' : ''}`}
+          >
+            {response.text}
+          </button>
+        ))}
       </div>
-    </>
+      {isAnswerChecked && (
+        <div className="mt-4 p-4 rounded-lg bg-muted">
+          <div className="font-medium">Réponse correcte:</div>
+          <div>{responses.find(r => r.is_correct)?.text}</div>
+        </div>
+      )}
+    </div>
   );
 };
 
