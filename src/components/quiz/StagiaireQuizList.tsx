@@ -10,6 +10,57 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Category } from "@/services/QuizService";
 
+// Fonction pour obtenir la couleur du niveau
+const getLevelColor = (level: string) => {
+  switch (level.toLowerCase()) {
+    case 'débutant':
+      return 'secondary';
+    case 'intermédiaire':
+      return 'default';
+    case 'avancé':
+    case 'super quiz':
+      return 'destructive';
+    default:
+      return 'outline';
+  }
+};
+
+// Fonction pour obtenir la couleur de fond du niveau
+const getLevelBackgroundColor = (level: string) => {
+  switch (level.toLowerCase()) {
+    case 'débutant':
+      return 'bg-green-100 text-green-800';
+    case 'intermédiaire':
+      return 'bg-blue-100 text-blue-800';
+    case 'avancé':
+    case 'super quiz':
+      return 'bg-yellow-100 text-yellow-800';
+    default:
+      return '';
+  }
+};
+
+// Modifier la fonction getCategoryColor pour utiliser l'ID de la catégorie
+const getCategoryColor = (categoryId: string, categories: Category[] | undefined) => {
+  if (!categories) return '#000000';
+  
+  const category = categories.find(c => c.id === categoryId);
+  if (!category) return '#000000';
+
+  switch (category.name.toLowerCase()) {
+    case 'bureautique':
+      return '#3D9BE9';
+    case 'langues':
+      return '#A55E6E';
+    case 'internet':
+      return '#FFC533';
+    case 'création':
+      return '#9392BE';
+    default:
+      return '#000000';
+  }
+};
+
 export function StagiaireQuizList() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedLevel, setSelectedLevel] = useState<string>("all");
@@ -146,14 +197,23 @@ export function StagiaireQuizList() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredQuizzes.map((quiz) => (
             <Link key={quiz.id} to={`/quiz/${quiz.id}`}>
-              <Card className="h-full hover:shadow-lg transition-shadow">
+              <Card className="h-full hover:shadow-lg transition-shadow relative">
+                <div 
+                  className="absolute top-0 left-0 right-0 h-1 rounded-t-lg"
+                  style={{ 
+                    backgroundColor: getCategoryColor(quiz.categorieId, categories)
+                  }}
+                />
                 <CardHeader>
                   <CardTitle className="text-xl">{quiz.titre}</CardTitle>
                   <CardDescription>{quiz.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center space-x-4">
-                    <Badge variant="outline" className="text-sm">
+                    <Badge 
+                      variant={getLevelColor(quiz.niveau)} 
+                      className={`text-sm ${getLevelBackgroundColor(quiz.niveau)}`}
+                    >
                       <BookOpen className="w-4 h-4 mr-2" />
                       {quiz.niveau}
                     </Badge>
