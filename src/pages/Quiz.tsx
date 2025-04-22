@@ -35,16 +35,20 @@ const Quiz = () => {
         return response.json();
       } catch (error) {
         console.error("Error fetching quiz questions:", error);
+        throw error;
+      }
+    },
+    enabled: !!token && !!quizId,
+    retry: 1,
+    onSettled: (_, error) => {
+      if (error) {
         toast({
           title: "Erreur",
           description: "Impossible de charger les questions. Veuillez réessayer.",
           variant: "destructive"
         });
-        throw error;
       }
-    },
-    enabled: !!token && !!quizId,
-    retry: 1
+    }
   });
 
   // Si l'authentification est en cours de chargement, afficher un écran de chargement

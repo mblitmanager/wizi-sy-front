@@ -19,7 +19,14 @@ import Classement from "./pages/Classement";
 import Quizzes from "./pages/Quizzes";
 import { QuizDetail } from "@/components/quiz/QuizDetail";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => (
   <ErrorBoundary>

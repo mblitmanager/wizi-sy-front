@@ -12,21 +12,23 @@ import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { useToast } from "@/hooks/use-toast";
 
 export function QuizDetail() {
-  const { id } = useParams<{ id: string }>();
+  const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const { data: quiz, isLoading, error } = useQuery({
-    queryKey: ["quiz", id],
-    queryFn: () => quizService.getQuizById(id!),
-    enabled: !!id && !!localStorage.getItem('token'),
+    queryKey: ["quiz", quizId],
+    queryFn: () => quizService.getQuizById(quizId!),
+    enabled: !!quizId && !!localStorage.getItem('token'),
     retry: 1,
-    onError: () => {
-      toast({
-        title: "Erreur",
-        description: "Impossible de charger ce quiz. Veuillez réessayer.",
-        variant: "destructive"
-      });
+    onSettled: (_, error) => {
+      if (error) {
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger ce quiz. Veuillez réessayer.",
+          variant: "destructive"
+        });
+      }
     }
   });
 
