@@ -1,13 +1,12 @@
-
 import { useState } from "react";
 import { MultipleChoice } from "./question-types/MultipleChoice";
 import { TrueFalse } from "./question-types/TrueFalse";
-import { FillInBlank } from "./question-types/FillInBlank";
+import { FillBlank } from "./question-types/FillBlank";
 import { AudioQuestion } from "./question-types/AudioQuestion";
-import { FlashCard } from "./question-types/FlashCard";
+import { Flashcard } from './question-types/FlashCard';
 import { WordBank } from "./question-types/WordBank";
 import { Matching } from "./question-types/Matching";
-import { Rearrangement } from "./question-types/Rearrangement";
+import { Ordering } from "./question-types/Ordering";
 
 interface QuizGameProps {
   questions: any[];
@@ -44,7 +43,7 @@ export function QuizGame({ questions }: QuizGameProps) {
       "carte flash": "flash-card",
       "banque de mots": "word-bank",
       "correspondance": "matching",
-      "réorganisation": "rearrangement"
+      "réorganisation": "ordering"
     };
     
     return typeMap[type] || type;
@@ -72,17 +71,17 @@ export function QuizGame({ questions }: QuizGameProps) {
       case "true-false":
         return <TrueFalse question={adaptedQuestion} onAnswer={handleAnswer} />;
       case "fill-in-blank":
-        return <FillInBlank question={adaptedQuestion} onAnswer={handleAnswer} />;
+        return <FillBlank question={adaptedQuestion} onAnswer={handleAnswer} />;
       case "audio-question":
         return <AudioQuestion question={adaptedQuestion} onAnswer={handleAnswer} />;
       case "flash-card":
-        return <FlashCard question={adaptedQuestion} onAnswer={handleAnswer} />;
+        return <Flashcard question={adaptedQuestion} onAnswer={handleAnswer} />;
       case "word-bank":
         return <WordBank question={adaptedQuestion} onAnswer={handleAnswer} />;
       case "matching":
         return <Matching question={adaptedQuestion} onAnswer={handleAnswer} />;
-      case "rearrangement":
-        return <Rearrangement question={adaptedQuestion} onAnswer={handleAnswer} />;
+      case "ordering":
+        return <Ordering question={adaptedQuestion} onAnswer={handleAnswer} />;
       default:
         return <div>Type de question non supporté: {currentQuestion.type}</div>;
     }

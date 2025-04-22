@@ -1,17 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { quizService } from "@/services/QuizService";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, BookOpen, Award, AlertCircle, Filter } from "lucide-react";
+import { Loader2, AlertCircle, Filter } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useState, useMemo } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Category, Quiz } from "@/services/QuizService";
+import { QuizCard } from "./QuizCard";
 
-function QuizListByCategory({ categoryId }: { categoryId: string }) {
+function QuizListByCategory({ categoryId, categories }: { categoryId: string, categories: Category[] }) {
   const [selectedLevel, setSelectedLevel] = useState<string>("all");
   
   const { data: quizzes, isLoading, error } = useQuery({
@@ -75,13 +74,41 @@ function QuizListByCategory({ categoryId }: { categoryId: string }) {
           <span className="text-sm text-gray-500">Filtrer par niveau:</span>
           <Select value={selectedLevel} onValueChange={setSelectedLevel}>
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Niveau" />
+              <SelectValue>
+                {selectedLevel === "all" ? (
+                  "Tous les niveaux"
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-2 h-2 rounded-full"
+                      style={{ 
+                        backgroundColor: selectedLevel.toLowerCase() === 'débutant' ? '#22C55E' : 
+                                      selectedLevel.toLowerCase() === 'intermédiaire' ? '#3B82F6' : 
+                                      '#EF4444'
+                      }}
+                    />
+                    {selectedLevel}
+                  </div>
+                )}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Tous les niveaux</SelectItem>
+              <SelectItem value="all">
+                <span className="text-gray-600">Tous les niveaux</span>
+              </SelectItem>
               {levels.map((level) => (
                 <SelectItem key={level} value={level}>
-                  {level}
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-2 h-2 rounded-full"
+                      style={{ 
+                        backgroundColor: level.toLowerCase() === 'débutant' ? '#22C55E' : 
+                                      level.toLowerCase() === 'intermédiaire' ? '#3B82F6' : 
+                                      '#EF4444'
+                      }}
+                    />
+                    {level}
+                  </div>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -106,24 +133,7 @@ function QuizListByCategory({ categoryId }: { categoryId: string }) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredQuizzes.map((quiz) => (
             <Link key={quiz.id} to={`/quiz/${quiz.id}`}>
-              <Card className="h-full hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <CardTitle className="text-xl">{quiz.titre}</CardTitle>
-                  <CardDescription>{quiz.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center space-x-4">
-                    <Badge variant="outline" className="text-sm">
-                      <BookOpen className="w-4 h-4 mr-2" />
-                      {quiz.niveau}
-                    </Badge>
-                    <Badge variant="outline" className="text-sm">
-                      <Award className="w-4 h-4 mr-2" />
-                      {quiz.points} pts
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
+              <QuizCard quiz={quiz} categories={categories} />
             </Link>
           ))}
         </div>
@@ -187,7 +197,7 @@ export function QuizList() {
         </TabsList>
         {categories.map((category) => (
           <TabsContent key={category.id} value={category.id}>
-            <QuizListByCategory categoryId={category.id} />
+            <QuizListByCategory categoryId={category.id} categories={categories} />
           </TabsContent>
         ))}
       </Tabs>

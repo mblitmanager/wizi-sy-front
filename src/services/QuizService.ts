@@ -32,6 +32,16 @@ api.interceptors.response.use(
   }
 );
 
+export type QuestionType = 
+  | 'question audio'
+  | 'remplir le champ vide'
+  | 'carte flash'
+  | 'correspondance'
+  | 'choix multiples'
+  | 'rearrangement'
+  | 'vrai/faux'
+  | 'banque de mots';
+
 export interface Category {
   id: string;
   name: string;
@@ -55,26 +65,34 @@ export interface Quiz {
 
 export interface Question {
   id: string;
+  quizId: string;
   text: string;
-  type: string;
+  type: QuestionType;
   answers?: Answer[];
   blanks?: Blank[];
   wordbank?: WordBankItem[];
   flashcard?: Flashcard;
   matching?: MatchingItem[];
   audioUrl?: string;
+  explication?: string;
+  points?: number;
+  astuce?: string;
+  media_url?: string;
 }
 
 export interface Answer {
   id: string;
   text: string;
-  isCorrect: boolean;
+  isCorrect?: boolean;
+  position?: number;
+  reponse_correct?: boolean;
 }
 
 export interface Blank {
   id: string;
   text: string;
-  bankGroup: string;
+  position?: number;
+  bankGroup?: string;
 }
 
 export interface WordBankItem {
@@ -100,6 +118,7 @@ export interface QuizSubmission {
   answers: {
     questionId: number;
     answer: string;
+    timeSpent: number;
   }[];
 }
 
@@ -122,23 +141,111 @@ export interface QuizStats {
 }
 
 class QuizService {
+  // Méthode utilitaire pour formater un quiz avec sa catégorie
+  private async formatQuiz(quiz: any, categories?: Category[]) {
+    // Si les catégories ne sont pas fournies, les récupérer
+    if (!categories) {
+      categories = await this.getCategories();
+    }
+
+    // Déterminer la catégorie en fonction du titre
+    let categorieId = '';
+    let categorie = '';
+    
+    const titre = (quiz.titre || quiz.title || '').toLowerCase();
+    if (titre.includes('excel') || titre.includes('bureautique')) {
+      const bureautique = categories.find(c => c.name.toLowerCase() === 'bureautique');
+      if (bureautique) {
+        categorieId = bureautique.id;
+        categorie = bureautique.name;
+      }
+    } else if (titre.includes('anglais') || titre.includes('français') || titre.includes('langues')) {
+      const langues = categories.find(c => c.name.toLowerCase() === 'langues');
+      if (langues) {
+        categorieId = langues.id;
+        categorie = langues.name;
+      }
+    }
+
+    // Formater les questions
+    const formattedQuestions = (quiz.questions || []).map((question: any) => ({
+      ...question,
+      type: this.mapQuestionType(question.type),
+      audioUrl: question.media_url || question.audioUrl,
+      explication: question.explication || '',
+      points: question.points || 0,
+      astuce: question.astuce || '',
+      answers: question.answers?.map((answer: any) => ({
+        ...answer,
+        isCorrect: answer.reponse_correct || answer.isCorrect
+      }))
+    }));
+
+    return {
+      id: quiz.id,
+      titre: quiz.titre || quiz.title || '',
+      description: quiz.description || '',
+      categorie: quiz.categorie || quiz.category || categorie,
+      categorieId: quiz.categorieId || quiz.category_id || quiz.categoryId || categorieId,
+      niveau: quiz.niveau || quiz.level || '',
+      questions: formattedQuestions,
+      points: quiz.points || 0
+    };
+  }
+
+  private mapQuestionType(type: string): QuestionType {
+    const typeMap: Record<string, QuestionType> = {
+      'multiple-choice': 'choix multiples',
+      'true-false': 'vrai/faux',
+      'fill-in-blank': 'remplir le champ vide',
+      'rearrangement': 'rearrangement',
+      'matching': 'correspondance',
+      'flash-card': 'carte flash',
+      'word-bank': 'banque de mots',
+      'audio-question': 'question audio'
+    };
+    return typeMap[type] || type as QuestionType;
+  }
+
   async getCategories() {
     try {
       const response = await api.get('/quiz/categories');
-      return (response.data || []) as Category[];
+      console.log('API Response for categories:', response.data);
+      
+      const categories = response.data.data || response.data || [];
+      
+      const formattedCategories = categories.map(category => ({
+        id: category.id,
+        name: category.name || category.nom || '',
+        color: category.color || category.couleur || '#3B82F6',
+        icon: category.icon || category.icone || '',
+        description: category.description || '',
+        quizCount: category.quizCount || category.quiz_count || 0,
+        colorClass: category.colorClass || ''
+      }));
+
+      console.log('Formatted categories:', formattedCategories);
+      return formattedCategories;
     } catch (error) {
       console.error('Error fetching quiz categories:', error);
-      return [] as Category[];
+      return [];
     }
   }
 
   async getQuizzesByCategory(categoryId: string) {
     try {
       const response = await api.get(`/quiz/category/${categoryId}`);
-      return (response.data || []) as Quiz[];
+      const quizzes = response.data || [];
+      const categories = await this.getCategories();
+      
+      const formattedQuizzes = await Promise.all(
+        quizzes.map(quiz => this.formatQuiz(quiz, categories))
+      );
+      
+      return formattedQuizzes;
     } catch (error) {
       console.error('Error fetching quizzes by category:', error);
-      return [] as Quiz[];
+      return [];
     }
   }
 
@@ -166,16 +273,7 @@ class QuizService {
     try {
       const response = await api.get(`/quiz/${quizId}`);
       const quizData = response.data;
-      return {
-        id: quizData.id,
-        titre: quizData.titre,
-        description: quizData.description,
-        categorie: quizData.categorie,
-        categorieId: quizData.categorieId,
-        niveau: quizData.niveau,
-        questions: quizData.questions || [],
-        points: quizData.points || 0
-      } as Quiz;
+      return await this.formatQuiz(quizData);
     } catch (error) {
       console.error('Error fetching quiz:', error);
       throw error;
@@ -185,7 +283,12 @@ class QuizService {
   async getQuizQuestions(quizId: number) {
     try {
       const response = await api.get(`/quiz/${quizId}/questions`);
-      return response.data.data as Question[];
+      const questions = response.data.data || [];
+      return questions.map((question: any) => ({
+        ...question,
+        type: this.mapQuestionType(question.type),
+        audioUrl: question.media_url || question.audioUrl
+      })) as Question[];
     } catch (error) {
       console.error('Error fetching quiz questions:', error);
       throw new Error('Failed to fetch quiz questions');
@@ -194,10 +297,17 @@ class QuizService {
 
   async submitQuiz(quizId: string, answers: Record<string, string[]>, timeSpent: number) {
     try {
-      const response = await api.post(`/quiz/${quizId}/submit`, {
-        answers,
+      const formattedAnswers = Object.entries(answers).map(([questionId, answer]) => ({
+        questionId: parseInt(questionId),
+        answer: Array.isArray(answer) ? answer.join(',') : answer,
         timeSpent
+      }));
+
+      const response = await api.post(`/quizzes/${quizId}/submit`, {
+        quizId: parseInt(quizId),
+        answers: formattedAnswers
       });
+
       return response.data;
     } catch (error) {
       console.error('Error submitting quiz:', error);
@@ -208,20 +318,27 @@ class QuizService {
   async submitQuizResult(quizId: number, result: any) {
     try {
       const response = await api.post(`/quiz/${quizId}/result`, result);
-      return response.data.data;
+      return response.data;
     } catch (error) {
       console.error('Error submitting quiz result:', error);
-      throw new Error('Failed to submit quiz result');
+      throw error;
     }
   }
 
   async getStagiaireQuizzes() {
     try {
       const response = await api.get('/stagiaire/quizzes');
-      return (response.data.data || []) as Quiz[];
+      const quizzes = response.data.data || [];
+      const categories = await this.getCategories();
+      
+      const formattedQuizzes = await Promise.all(
+        quizzes.map(quiz => this.formatQuiz(quiz, categories))
+      );
+      
+      return formattedQuizzes;
     } catch (error) {
       console.error('Error fetching stagiaire quizzes:', error);
-      return [] as Quiz[];
+      return [];
     }
   }
 }

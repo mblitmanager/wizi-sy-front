@@ -4,8 +4,7 @@ import { BookOpen, Award } from "lucide-react";
 import type { Quiz, Category } from "@/services/QuizService";
 import React from "react";
 
-// Helpers copied from original file for detaching style logic
-
+// Helpers pour la coloration
 const getLevelColor = (level: string) => {
   switch (level.toLowerCase()) {
     case 'débutant':
@@ -34,9 +33,8 @@ const getLevelBackgroundColor = (level: string) => {
   }
 };
 
-// Use the same rules as before for category color
 const getCategoryColor = (quiz: Quiz, categories: Category[] | undefined) => {
-  if (!categories) return '#3B82F6'; // Couleur par défaut bleu
+  if (!categories) return '#3B82F6';
   
   // D'abord essayer de trouver par l'ID
   const categoryById = categories.find(c => c.id === quiz.categorieId);
@@ -70,16 +68,15 @@ const getCategoryColor = (quiz: Quiz, categories: Category[] | undefined) => {
     return '#8B5CF6'; // Violet
   }
   
-  // Couleur par défaut
   return '#3B82F6';
 };
 
-interface StagiaireQuizCardProps {
+interface QuizCardProps {
   quiz: Quiz;
   categories: Category[] | undefined;
 }
 
-export function StagiaireQuizCard({ quiz, categories }: StagiaireQuizCardProps) {
+export function QuizCard({ quiz, categories }: QuizCardProps) {
   const category = categories?.find(c => 
     c.id === quiz.categorieId || 
     c.name.toLowerCase() === quiz.categorie.toLowerCase()
@@ -133,4 +130,4 @@ export function StagiaireQuizCard({ quiz, categories }: StagiaireQuizCardProps) 
       </CardContent>
     </Card>
   );
-}
+} 

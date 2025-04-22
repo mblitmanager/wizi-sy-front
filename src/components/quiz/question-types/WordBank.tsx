@@ -1,59 +1,169 @@
-
-import { Question } from "@/types";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { Card } from "@/components/ui/card";
+import type { Question } from "@/services/QuizService";
+import { CheckCircle2, XCircle, Sparkles } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface WordBankProps {
   question: Question;
-  onAnswer: (answer: string[]) => void;
+  onAnswer: (value: Record<string, string>) => void;
 }
 
 export function WordBank({ question, onAnswer }: WordBankProps) {
-  const [selectedWords, setSelectedWords] = useState<string[]>([]);
-  const availableWords = question.answers.map(a => a.text);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [usedWords, setUsedWords] = useState<Set<string>>(new Set());
+  const [shuffledWords, setShuffledWords] = useState<string[]>([]);
+  const [points, setPoints] = useState(0);
+  const [streak, setStreak] = useState(0);
 
-  const toggleWord = (word: string) => {
-    if (selectedWords.includes(word)) {
-      setSelectedWords(selectedWords.filter(w => w !== word));
+  useEffect(() => {
+    // Mélanger les mots disponibles
+    const words = question.wordbank?.map(item => item.text) || [];
+    setShuffledWords(words.sort(() => Math.random() - 0.5));
+  }, [question.wordbank]);
+
+  const handleWordSelect = (blankId: string, word: string) => {
+    const newAnswers = { ...answers, [blankId]: word };
+    setAnswers(newAnswers);
+    onAnswer(newAnswers);
+    setUsedWords(prev => new Set(prev).add(word));
+    
+    // Animation et feedback immédiat
+    const element = document.getElementById(`blank-${blankId}`);
+    if (element) {
+      element.classList.add('animate-bounce-once');
+      setTimeout(() => element.classList.remove('animate-bounce-once'), 1000);
+    }
+  };
+
+  const checkAnswers = () => {
+    const isAllCorrect = question.wordbank?.every(item => {
+      const userAnswer = answers[item.bankGroup || '']?.toLowerCase().trim();
+      const correctAnswer = item.text.toLowerCase().trim();
+      return userAnswer === correctAnswer;
+    }) || false;
+
+    setIsCorrect(isAllCorrect);
+    setShowFeedback(true);
+
+    if (isAllCorrect) {
+      setPoints(prev => prev + 10);
+      setStreak(prev => prev + 1);
     } else {
-      setSelectedWords([...selectedWords, word]);
+      setStreak(0);
     }
   };
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold">{question.text}</h2>
-      
-      {question.media && (
-        <div className="my-4">
-          {question.media.type === "image" && (
-            <img src={question.media.url} alt="Question" className="max-w-full rounded-lg" />
+      <div className="flex justify-between items-center">
+        <div className="text-lg font-medium leading-relaxed">
+          {question.text}
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1 text-yellow-500">
+            <Sparkles className="h-5 w-5" />
+            <span className="font-bold">{points}</span>
+          </div>
+          {streak > 0 && (
+            <div className="text-green-500 font-bold">
+              {streak}x streak!
+            </div>
           )}
         </div>
-      )}
+      </div>
 
-      <div className="p-4 border rounded-md bg-gray-50">
+      <div className="space-y-4">
+        {question.wordbank?.map((item) => {
+          const userAnswer = answers[item.bankGroup || ''] || '';
+          const isAnswerCorrect = showFeedback && 
+            userAnswer.toLowerCase().trim() === item.text.toLowerCase().trim();
+
+          return (
+            <div 
+              key={item.id} 
+              id={`blank-${item.bankGroup}`}
+              className="flex items-center gap-4"
+            >
+              <div className={`
+                flex-1 px-4 py-2 border rounded-lg
+                transition-all duration-300
+                ${userAnswer ? 'bg-white shadow-sm' : 'bg-gray-50'}
+                ${showFeedback && isAnswerCorrect ? 'bg-green-50 border-green-500' : ''}
+                ${showFeedback && !isAnswerCorrect ? 'bg-red-50 border-red-500' : ''}
+              `}>
+                {userAnswer || '...'}
+              </div>
+              {showFeedback && (
+                <div className="w-8 h-8 flex items-center justify-center">
+                  {isAnswerCorrect ? (
+                    <CheckCircle2 className="h-5 w-5 text-green-500 animate-bounce-once" />
+                  ) : (
+                    <XCircle className="h-5 w-5 text-red-500 animate-shake" />
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-6">
+        <p className="text-sm font-medium text-muted-foreground mb-3">
+          Mots disponibles :
+        </p>
         <div className="flex flex-wrap gap-2">
-          {availableWords.map((word, index) => (
-            <Button
-              key={index}
-              variant={selectedWords.includes(word) ? "default" : "outline"}
-              size="sm"
-              onClick={() => toggleWord(word)}
+          {shuffledWords.map((word) => (
+            <button
+              key={word}
+              onClick={() => handleWordSelect(question.wordbank?.find(w => w.text === word)?.bankGroup || '', word)}
+              disabled={usedWords.has(word) || showFeedback}
+              className={`
+                px-3 py-1 rounded-full text-sm transition-all duration-300
+                ${usedWords.has(word) 
+                  ? 'bg-primary/20 text-primary cursor-default' 
+                  : 'bg-primary/10 hover:bg-primary/20 cursor-pointer hover:scale-105'
+                }
+                ${showFeedback ? 'opacity-50 cursor-default' : ''}
+              `}
             >
               {word}
-            </Button>
+            </button>
           ))}
         </div>
       </div>
 
-      <Button 
-        onClick={() => onAnswer(selectedWords)}
-        disabled={selectedWords.length === 0}
-        className="w-full mt-6"
-      >
-        Valider
-      </Button>
+      <div className="flex justify-end">
+        <button
+          onClick={checkAnswers}
+          className={`
+            px-4 py-2 bg-primary text-white rounded-lg
+            transition-all duration-300
+            hover:bg-primary/90 hover:scale-105
+            ${Object.keys(answers).length === question.wordbank?.length ? '' : 'opacity-50 cursor-not-allowed'}
+          `}
+          disabled={Object.keys(answers).length !== question.wordbank?.length}
+        >
+          Vérifier les réponses
+        </button>
+      </div>
+
+      {showFeedback && (
+        <div className="text-center text-sm text-muted-foreground">
+          {isCorrect ? (
+            <div className="flex items-center justify-center gap-2 text-green-600">
+              <CheckCircle2 className="h-5 w-5" />
+              <span>Toutes les réponses sont correctes ! +10 points</span>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center gap-2 text-red-600">
+              <XCircle className="h-5 w-5" />
+              <span>Certaines réponses sont incorrectes. Essayez encore !</span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
