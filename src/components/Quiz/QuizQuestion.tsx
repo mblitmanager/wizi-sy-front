@@ -20,6 +20,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
   currentQuestion,
   onAnswer,
 }): JSX.Element => {
+  
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [rearrangedAnswers, setRearrangedAnswers] = useState<string[]>([]);
   const [filledBlanks, setFilledBlanks] = useState<Record<string, string>>({});
@@ -47,7 +48,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
   };
 
   const moveAnswer = (index: number, direction: 'up' | 'down') => {
-    if (!question.reponses || isAnswerSubmitted) return;
+    if (!question.answers || isAnswerSubmitted) return;
     
     const newAnswers = [...rearrangedAnswers];
     const newIndex = direction === 'up' ? index - 1 : index + 1;
@@ -108,7 +109,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
         break;
       case 'rearrangement':
         isCorrectOrder = rearrangedAnswers.every((answerId, index) => {
-          return question.reponses?.[index]?.id === answerId;
+          return question.answers?.[index]?.id === answerId;
         });
         onAnswer('rearrangement', isCorrectOrder);
         break;
@@ -117,15 +118,15 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
 
   const renderMultipleChoice = (): JSX.Element => (
     <div className="space-y-2">
-      {question.reponses?.map((reponse) => (
+      {question.answers?.map((answer) => (
         <Button
-          key={reponse.id}
-          variant={selectedAnswer === reponse.id ? 'default' : 'outline'}
+          key={answer.id}
+          variant={selectedAnswer === answer.id ? 'default' : 'outline'}
           className="w-full mb-2"
-          onClick={() => handleAnswerClick(reponse.id, reponse.isCorrect)}
+          onClick={() => handleAnswerClick(answer.id, answer.isCorrect)}
           disabled={isAnswerSubmitted}
         >
-          {reponse.text}
+          {answer.text}
         </Button>
       ))}
     </div>
@@ -136,7 +137,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
       <Button
         variant={selectedAnswer === 'true' ? 'default' : 'outline'}
         className="w-full mb-2"
-        onClick={() => handleAnswerClick('true', question.reponses?.[0]?.isCorrect ?? false)}
+        onClick={() => handleAnswerClick('true', question.answers?.[0]?.isCorrect ?? false)}
         disabled={isAnswerSubmitted}
       >
         Vrai
@@ -144,7 +145,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
       <Button
         variant={selectedAnswer === 'false' ? 'default' : 'outline'}
         className="w-full mb-2"
-        onClick={() => handleAnswerClick('false', question.reponses?.[1]?.isCorrect ?? false)}
+        onClick={() => handleAnswerClick('false', question.answers?.[1]?.isCorrect ?? false)}
         disabled={isAnswerSubmitted}
       >
         Faux
@@ -154,10 +155,10 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
 
   const renderRearrangement = (): JSX.Element => (
     <div className="space-y-2">
-      {question.reponses?.map((reponse, index) => (
-        <div key={reponse.id} className="flex items-center space-x-2">
+      {question.answers?.map((answer, index) => (
+        <div key={answer.id} className="flex items-center space-x-2">
           <div className="flex-1 p-2 border rounded">
-            {reponse.text}
+            {answer.text}
           </div>
           <div className="flex flex-col">
             <Button
@@ -172,7 +173,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
               variant="ghost"
               size="icon"
               onClick={() => moveAnswer(index, 'down')}
-              disabled={index === question.reponses!.length - 1 || isAnswerSubmitted}
+              disabled={index === question.answers!.length - 1 || isAnswerSubmitted}
             >
               <ChevronDown className="h-4 w-4" />
             </Button>
@@ -292,15 +293,15 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
   const renderAudioQuestion = (): JSX.Element => (
     <div className="space-y-4">
       <audio src={question.audioUrl} controls className="w-full mb-4" />
-      {question.reponses?.map((reponse) => (
+      {question.answers?.map((answer) => (
         <Button
-          key={reponse.id}
-          variant={selectedAnswer === reponse.id ? 'default' : 'outline'}
+          key={answer.id}
+          variant={selectedAnswer === answer.id ? 'default' : 'outline'}
           className="w-full mb-2"
-          onClick={() => handleAnswerClick(reponse.id, reponse.isCorrect)}
+          onClick={() => handleAnswerClick(answer.id, answer.isCorrect)}
           disabled={isAnswerSubmitted}
         >
-          {reponse.text}
+          {answer.text}
         </Button>
       ))}
     </div>

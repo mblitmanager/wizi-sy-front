@@ -43,7 +43,19 @@ export const quizApi = {
     totalQuestions: number;
     timeSpent: number;
   }): Promise<QuizResult> => {
-    const response = await api.post<QuizResult>(`/quiz/${quizId}/result`, result);
+    console.log('API Request:', {
+      url: `/quiz/${quizId}/result`,
+      method: 'POST',
+      data: {
+        quiz_id: quizId,
+        ...result
+      }
+    });
+    
+    const response = await api.post<QuizResult>(`/quiz/${quizId}/result`, {
+      quiz_id: quizId,
+      ...result
+    });
     return response.data;
   }
 }; 

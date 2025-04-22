@@ -34,6 +34,7 @@ const QuizCatalogPage: React.FC = () => {
         const allQuizzes: Quiz[] = [];
         for (const category of allCategories) {
           const categoryQuizzes = await quizApi.getQuizzesByCategory(category.id);
+          console.log('Quiz de la catégorie:', category.name, categoryQuizzes);
           allQuizzes.push(...categoryQuizzes);
         }
         
@@ -55,18 +56,19 @@ const QuizCatalogPage: React.FC = () => {
 
   const filteredQuizzes = quizzes.filter(quiz => {
     const matchesSearch = searchTerm === '' || 
-      quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      quiz.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
       quiz.description.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesCategory = selectedCategory === 'all' || quiz.categoryId === selectedCategory;
+    const matchesCategory = selectedCategory === 'all' || quiz.categorieId === selectedCategory;
     
-    const matchesLevel = selectedLevel === 'all' || quiz.level === selectedLevel;
+    const matchesLevel = selectedLevel === 'all' || quiz.niveau === selectedLevel;
     
     return matchesSearch && matchesCategory && matchesLevel;
   });
 
-  const getLevelBadge = (level: string) => {
-    switch (level) {
+  const getLevelBadge = (niveau: string) => {
+    console.log('Niveau reçu:', niveau);
+    switch (niveau) {
       case 'débutant':
         return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200 font-nunito">Débutant</Badge>;
       case 'intermédiaire':
@@ -76,6 +78,7 @@ const QuizCatalogPage: React.FC = () => {
       case 'super':
         return <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200 font-nunito">Super Quiz</Badge>;
       default:
+        console.log('Niveau non reconnu:', niveau);
         return null;
     }
   };
@@ -151,16 +154,16 @@ const QuizCatalogPage: React.FC = () => {
           {filteredQuizzes.map(quiz => (
             <Link to={`/quiz/${quiz.id}`} key={quiz.id}>
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform hover:shadow-md hover:translate-y-[-2px]">
-                <div className="h-2" style={{ backgroundColor: getCategoryColor(quiz.categoryId) }}></div>
+                <div className="h-2" style={{ backgroundColor: getCategoryColor(quiz.categorieId) }}></div>
                 <div className="p-4">
                   <div className="flex justify-between items-start">
-                    <h3 className="font-semibold text-gray-800 font-montserrat">{quiz.title}</h3>
-                    {getLevelBadge(quiz.level)}
+                    <h3 className="font-semibold text-gray-800 font-montserrat">{quiz.titre}</h3>
+                    {getLevelBadge(quiz.niveau)}
                   </div>
                   <p className="text-sm text-gray-600 mt-2 mb-3 font-roboto">{quiz.description}</p>
                   <div className="flex justify-between items-center text-xs text-gray-500 font-nunito">
-                    <span>{quiz.category}</span>
-                    <span>{quiz.points} points</span>
+                    <span>{quiz.categorie}</span>
+                    <span>{quiz.nbPointsTotal} points</span>
                   </div>
                 </div>
               </div>

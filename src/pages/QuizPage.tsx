@@ -34,6 +34,7 @@ const QuizPage: React.FC = () => {
         if (!id) return;
         
         const quizData = await quizApi.getQuizById(id);
+        console.log('Quiz data:', quizData);
         setQuiz(quizData);
         setQuestions(quizData.questions);
       } catch (error) {
@@ -86,22 +87,32 @@ const QuizPage: React.FC = () => {
     if (!quiz) return;
     
     const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-    const score = Math.round((correctAnswers / questions.length) * quiz.nbPointsTotal);
+    const score = questions.length > 0 
+      ? Math.round((correctAnswers / questions.length) * quiz.nbPointsTotal)
+      : 0;
+    
+    // Préparer les réponses dans le format attendu par l'API
+    const formattedAnswers = {};
+    Object.entries(answers).forEach(([questionId, answerId]) => {
+      formattedAnswers[questionId] = [answerId]; // Convertir en tableau car l'API attend un tableau de réponses
+    });
+    
+    const resultData = {
+      answers: formattedAnswers,
+      timeSpent,
+    };
+    
+    console.log('Submitting quiz result:', resultData);
     
     try {
-      const quizResult = await quizApi.submitQuizResult(quiz.id, {
-        score,
-        correctAnswers,
-        totalQuestions: questions.length,
-        timeSpent,
-      });
+      const quizResult = await quizApi.submitQuizResult(quiz.id, resultData);
       
       setResult(quizResult);
       setIsQuizCompleted(true);
       
       toast({
         title: "Quiz terminé",
-        description: `Vous avez obtenu ${score} points!`,
+        description: `Vous avez obtenu ${quizResult.score}%!`,
       });
     } catch (error) {
       console.error('Erreur lors de la soumission du résultat:', error);

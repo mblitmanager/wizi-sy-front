@@ -39,7 +39,7 @@ export interface Question {
   id: string;
   text: string;
   type: QuestionType;
-  reponses?: Reponse[];
+  answers?: Reponse[];
   blanks?: Array<{
     id: string;
     text: string;
