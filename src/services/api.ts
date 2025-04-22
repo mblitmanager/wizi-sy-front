@@ -90,7 +90,8 @@ export const authService = {
 // User services
 export const userService = {
   getProfile: () => api.get("/user/profile"),
-  updateProfile: (data: any) => api.put("/user/profile", data),
+  updateProfile: (data: { name: string; email: string; password?: string }) =>
+    api.put("/user/profile", data),
 };
 
 // Quiz services
@@ -100,8 +101,12 @@ export const quizService = {
   getQuestions: (id: string) => api.get(`/quiz/${id}/questions`),
   getCategories: () => api.get("/quiz/categories"),
   playQuiz: (id: string) => api.post(`/quizzes/${id}/play`),
-  submitQuiz: (id: string, answers: any, score: number, timeSpent: number) =>
-    api.post(`/quizzes/${id}/submit`, { answers, score, timeSpent }),
+  submitQuiz: (
+    id: string,
+    answers: Record<string, string>,
+    score: number,
+    timeSpent: number
+  ) => api.post(`/quizzes/${id}/submit`, { answers, score, timeSpent }),
   getReponsesByQuestion: (questionId: string) =>
     api.get(`/questions/${questionId}/reponses`),
 };
