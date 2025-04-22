@@ -18,6 +18,7 @@ export interface Reponse {
   position?: number;
   bankGroup?: string;
   matchPair?: string;
+  flashcardBack?: string;
 }
 
 export interface Media {
@@ -48,7 +49,7 @@ export interface Question {
   wordbank?: Array<{
     id: string;
     text: string;
-    isCorrect: boolean;
+    isCorrect?: boolean;
     bankGroup: string;
   }>;
   flashcard?: {

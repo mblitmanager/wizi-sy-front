@@ -9,6 +9,7 @@ import QuizQuestion from '@/components/Quiz/QuizQuestion';
 import QuizResultComponent from '@/components/Quiz/QuizResult';
 import { useToast } from '@/hooks/use-toast';
 import { quizApi } from '@/api/quizApi';
+import QuizSummary from '@/components/Quiz/QuizSummary';
 
 const QuizPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,8 +20,8 @@ const QuizPage: React.FC = () => {
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [correctAnswers, setCorrectAnswers] = useState<number>(0);
+  const [answers, setAnswers] = useState<Record<string, string[]>>({});
+  const [correctAnswers, setCorrectAnswers] = useState<Record<string, string[]>>({});
   const [isQuizStarted, setIsQuizStarted] = useState(false);
   const [isQuizCompleted, setIsQuizCompleted] = useState(false);
   const [result, setResult] = useState<QuizResult | null>(null);
@@ -56,7 +57,7 @@ const QuizPage: React.FC = () => {
     setIsQuizStarted(true);
     setCurrentQuestionIndex(0);
     setAnswers({});
-    setCorrectAnswers(0);
+    setCorrectAnswers({});
     setIsQuizCompleted(false);
     setResult(null);
     setStartTime(Date.now());
@@ -67,17 +68,21 @@ const QuizPage: React.FC = () => {
     
     setAnswers(prev => ({
       ...prev,
-      [questionId]: answerId
+      [questionId]: [...(prev[questionId] || []), answerId]
     }));
-    
+
+    // Stocker les bonnes réponses
     if (isCorrect) {
-      setCorrectAnswers(prev => prev + 1);
+      setCorrectAnswers(prev => ({
+        ...prev,
+        [questionId]: [...(prev[questionId] || []), answerId]
+      }));
     }
     
     if (currentQuestionIndex < questions.length - 1) {
       setTimeout(() => {
         setCurrentQuestionIndex(prev => prev + 1);
-      }, 500);
+      }, 3000);
     } else {
       completeQuiz();
     }
@@ -90,8 +95,8 @@ const QuizPage: React.FC = () => {
     
     // Préparer les réponses dans le format attendu par l'API
     const formattedAnswers = {};
-    Object.entries(answers).forEach(([questionId, answerId]) => {
-      formattedAnswers[questionId] = [answerId]; // Convertir en tableau car l'API attend un tableau de réponses
+    Object.entries(answers).forEach(([questionId, answerIds]) => {
+      formattedAnswers[questionId] = answerIds;
     });
     
     const resultData = {
@@ -153,7 +158,11 @@ const QuizPage: React.FC = () => {
   if (isQuizCompleted && result) {
     return (
       <div className="pb-20 md:pb-0 md:pl-64">
-        <QuizResultComponent result={result} onRetry={startQuiz} />
+        <QuizSummary
+          questions={questions}
+          userAnswers={answers}
+          correctAnswers={correctAnswers}
+        />
       </div>
     );
   }
