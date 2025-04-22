@@ -9,7 +9,7 @@ console.log("Using API URL:", API_URL);
 const isDevelopment = process.env.NODE_ENV === 'development';
 const isPreview = window.location.hostname.includes('lovable.app');
 
-const api = axios.create({
+export const api = axios.create({
   baseURL: API_URL,
   headers: {
     "Content-Type": "application/json",
@@ -96,6 +96,7 @@ export const userService = {
 
 // Quiz services
 export const quizService = {
+  // Basic quiz operations
   getQuizzes: () => api.get("/quizzes"),
   getQuiz: (id: string) => api.get(`/quizzes/${id}`),
   getQuestions: (id: string) => api.get(`/quiz/${id}/questions`),
@@ -109,7 +110,29 @@ export const quizService = {
   ) => api.post(`/quizzes/${id}/submit`, { answers, score, timeSpent }),
   getReponsesByQuestion: (questionId: string) =>
     api.get(`/questions/${questionId}/reponses`),
+
+  // Additional quiz operations
+  getAllQuizzes: async () => {
+    const response = await api.get('/quizzes');
+    return response.data;
+  },
+  
+  getQuizById: async (id: string) => {
+    const response = await api.get(`/quizzes/${id}`);
+    return response.data;
+  },
+  
+  getQuizQuestions: async (quizId: string) => {
+    const response = await api.get(`/quiz/${quizId}/questions`);
+    return response.data;
+  },
+  
+  getQuizCategories: async () => {
+    const response = await api.get('/quiz/categories');
+    return response.data;
+  }
 };
+
 interface QuestionData {
   text: string;
   type: string;
@@ -170,6 +193,7 @@ const questionService = {
     return response.data;
   }
 };
+
 // Service pour les réponses
 const responseService = {
   // Récupérer toutes les réponses
@@ -199,39 +223,6 @@ const responseService = {
   // Supprimer une réponse
   deleteResponse: async (id: string) => {
     const response = await api.delete(`/reponses/${id}`);
-    return response.data;
-  }
-};
-
-// Service pour les quiz
-const quizService = {
-  // Récupérer tous les quiz
-  getAllQuizzes: async () => {
-    const response = await api.get('/quizzes');
-    return response.data;
-  },
-  
-  // Récupérer un quiz par ID
-  getQuizById: async (id: string) => {
-    const response = await api.get(`/quizzes/${id}`);
-    return response.data;
-  },
-  
-  // Récupérer les questions d'un quiz
-  getQuizQuestions: async (quizId: string) => {
-    const response = await api.get(`/quiz/${quizId}/questions`);
-    return response.data;
-  },
-  
-  // Soumettre un quiz
-  submitQuiz: async (quizId: string, answers: QuizAnswer[]) => {
-    const response = await api.post(`/quizzes/${quizId}/submit`, answers);
-    return response.data;
-  },
-  
-  // Récupérer les catégories de quiz
-  getQuizCategories: async () => {
-    const response = await api.get('/quiz/categories');
     return response.data;
   }
 };
@@ -291,6 +282,7 @@ export const stagiaireAPI = {
   getCatalogueFormations: (stagiaireId: number) =>
     api.get(`/catalogue_formations/stagiaire/${stagiaireId}`),
 };
+
 export const catalogueFormationApi = {
   getCatalogueFometionById: (catFormationId: number) =>
     api.get(`/catalogue_formations/formations/${catFormationId}`),
@@ -302,5 +294,16 @@ export const catalogueFormationApi = {
 export const formationApi = {
   getFormations: () => api.get("formation/listFormation"),
 };
+
+// Progress API
+export const progressAPI = {
+  getProgress: (formationId: string) => api.get(`/stagiaire/progress/${formationId}`),
+  updateProgress: (formationId: string, progress: number) => 
+    api.post(`/stagiaire/progress/${formationId}`, { progress }),
+  getFormationProgress: (formationId: string) => 
+    api.get(`/formations/${formationId}/progress`),
+  getUserProgress: () => api.get('/stagiaire/progress')
+};
+
 // Export all services
 export default api;

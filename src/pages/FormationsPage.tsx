@@ -24,8 +24,7 @@ import {
   Star,
 } from "lucide-react";
 import HeaderSection from "@/components/features/HeaderSection";
-import { catalogueFormationApi } from "@/services/api";
-import { progressAPI } from "@/api";
+import { catalogueFormationApi, progressAPI } from "@/services/api";
 
 const FormationsPage = () => {
   // Données fictives pour les formations

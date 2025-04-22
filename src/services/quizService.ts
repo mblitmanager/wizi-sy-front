@@ -1,4 +1,4 @@
-import { api } from './api';
+import { api } from '@/services/api';
 import { Quiz, Question, QuizResult } from '@/types/quiz';
 
 interface ApiResponse<T> {
