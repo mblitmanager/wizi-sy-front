@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -58,6 +59,11 @@ const App = () => (
               <Route path="/quiz/:quizId" element={
                 <ProtectedRoute>
                   <QuizDetail />
+                </ProtectedRoute>
+              } />
+              <Route path="/quiz/:quizId/start" element={
+                <ProtectedRoute>
+                  <Quiz />
                 </ProtectedRoute>
               } />
               <Route path="/profile" element={

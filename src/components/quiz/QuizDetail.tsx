@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -7,17 +8,26 @@ import { Button } from '../ui/button';
 import { Loader2, Award, BookOpen, AlertCircle } from 'lucide-react';
 import { Layout } from '../layout/Layout';
 import { Badge } from '../ui/badge';
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { useToast } from "@/hooks/use-toast";
 
 export function QuizDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const { data: quiz, isLoading, error } = useQuery({
     queryKey: ["quiz", id],
     queryFn: () => quizService.getQuizById(id!),
     enabled: !!id && !!localStorage.getItem('token'),
-    retry: 1
+    retry: 1,
+    onError: () => {
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger ce quiz. Veuillez réessayer.",
+        variant: "destructive"
+      });
+    }
   });
 
   if (isLoading) {
@@ -57,6 +67,14 @@ export function QuizDetail() {
               Le quiz que vous recherchez n'existe pas ou n'est pas accessible.
             </AlertDescription>
           </Alert>
+          <div className="mt-4 flex justify-center">
+            <Button 
+              onClick={() => navigate('/quizzes')}
+              variant="outline"
+            >
+              Retourner à la liste des quiz
+            </Button>
+          </div>
         </div>
       </Layout>
     );
@@ -104,4 +122,4 @@ export function QuizDetail() {
       </div>
     </Layout>
   );
-} 
+}
