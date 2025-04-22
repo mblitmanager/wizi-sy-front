@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { quizService } from "@/services/QuizService";
@@ -5,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Loader2, BookOpen, Award, AlertCircle, Filter } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Category } from "@/services/QuizService";
@@ -80,6 +81,15 @@ export function StagiaireQuizList() {
   const isLoading = quizzesLoading || categoriesLoading;
   const error = quizzesError;
 
+  // Debug console logs to help diagnose the filtering issue
+  useEffect(() => {
+    if (quizzes) {
+      console.log("All quizzes:", quizzes);
+      console.log("Selected category:", selectedCategory);
+      console.log("Categories data:", categories);
+    }
+  }, [quizzes, selectedCategory, categories]);
+
   // Extraire les niveaux uniques des quizzes
   const levels = useMemo(() => {
     if (!quizzes) return [];
@@ -95,8 +105,13 @@ export function StagiaireQuizList() {
     if (!quizzes) return [];
     
     return quizzes.filter(quiz => {
-      const categoryMatch = selectedCategory === "all" || quiz.categorieId === selectedCategory;
+      // Debug the quiz and category matching
+      console.log(`Quiz ${quiz.titre} - categorieId: ${quiz.categorieId}, selected: ${selectedCategory}`);
+      
+      const categoryMatch = selectedCategory === "all" || 
+                          quiz.categorieId === selectedCategory;
       const levelMatch = selectedLevel === "all" || quiz.niveau === selectedLevel;
+      
       return categoryMatch && levelMatch;
     });
   }, [quizzes, selectedCategory, selectedLevel]);
