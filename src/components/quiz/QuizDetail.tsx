@@ -21,8 +21,8 @@ export function QuizDetail() {
     queryFn: () => quizService.getQuizById(quizId!),
     enabled: !!quizId && !!localStorage.getItem('token'),
     retry: 1,
-    onSettled: (_, error) => {
-      if (error) {
+    meta: {
+      onError: () => {
         toast({
           title: "Erreur",
           description: "Impossible de charger ce quiz. Veuillez réessayer.",

@@ -1,5 +1,5 @@
+
 import { useState } from "react";
-import { Question } from "@/types";
 import { MultipleChoice } from "./question-types/MultipleChoice";
 import { TrueFalse } from "./question-types/TrueFalse";
 import { FillInBlank } from "./question-types/FillInBlank";
@@ -10,7 +10,7 @@ import { Matching } from "./question-types/Matching";
 import { Rearrangement } from "./question-types/Rearrangement";
 
 interface QuizGameProps {
-  questions: Question[];
+  questions: any[];
 }
 
 export function QuizGame({ questions }: QuizGameProps) {
@@ -25,37 +25,79 @@ export function QuizGame({ questions }: QuizGameProps) {
   }
 
   const currentQuestion = questions[currentQuestionIndex];
+  
+  if (!currentQuestion) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <p>Question non disponible</p>
+      </div>
+    );
+  }
+
+  // Map API question types to component types
+  const getQuestionType = (type: string) => {
+    const typeMap: Record<string, string> = {
+      "choix multiples": "multiple-choice",
+      "vrai/faux": "true-false",
+      "remplir le champ vide": "fill-in-blank",
+      "audio": "audio-question",
+      "carte flash": "flash-card",
+      "banque de mots": "word-bank",
+      "correspondance": "matching",
+      "réorganisation": "rearrangement"
+    };
+    
+    return typeMap[type] || type;
+  };
 
   const renderQuestion = () => {
     if (!currentQuestion) return null;
     
-    switch (currentQuestion.type) {
+    const questionType = getQuestionType(currentQuestion.type);
+    
+    // Adapt the question format from API to component format
+    const adaptedQuestion = {
+      ...currentQuestion,
+      type: questionType,
+      answers: currentQuestion.reponses || [],
+      media: currentQuestion.media_url ? {
+        type: "image",
+        url: currentQuestion.media_url
+      } : null
+    };
+    
+    switch (questionType) {
       case "multiple-choice":
-        return <MultipleChoice question={currentQuestion} onAnswer={handleAnswer} />;
+        return <MultipleChoice question={adaptedQuestion} onAnswer={handleAnswer} />;
       case "true-false":
-        return <TrueFalse question={currentQuestion} onAnswer={handleAnswer} />;
+        return <TrueFalse question={adaptedQuestion} onAnswer={handleAnswer} />;
       case "fill-in-blank":
-        return <FillInBlank question={currentQuestion} onAnswer={handleAnswer} />;
+        return <FillInBlank question={adaptedQuestion} onAnswer={handleAnswer} />;
       case "audio-question":
-        return <AudioQuestion question={currentQuestion} onAnswer={handleAnswer} />;
+        return <AudioQuestion question={adaptedQuestion} onAnswer={handleAnswer} />;
       case "flash-card":
-        return <FlashCard question={currentQuestion} onAnswer={handleAnswer} />;
+        return <FlashCard question={adaptedQuestion} onAnswer={handleAnswer} />;
       case "word-bank":
-        return <WordBank question={currentQuestion} onAnswer={handleAnswer} />;
+        return <WordBank question={adaptedQuestion} onAnswer={handleAnswer} />;
       case "matching":
-        return <Matching question={currentQuestion} onAnswer={handleAnswer} />;
+        return <Matching question={adaptedQuestion} onAnswer={handleAnswer} />;
       case "rearrangement":
-        return <Rearrangement question={currentQuestion} onAnswer={handleAnswer} />;
+        return <Rearrangement question={adaptedQuestion} onAnswer={handleAnswer} />;
       default:
-        return <div>Type de question non supporté</div>;
+        return <div>Type de question non supporté: {currentQuestion.type}</div>;
     }
   };
 
   const handleAnswer = async (answer: any) => {
     // TODO: Implement answer submission
     // POST to /api/quizzes/{quizId}/submit
+    console.log("Answer submitted:", answer);
+    
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
+    } else {
+      // Last question handled - could redirect to results page
+      console.log("Quiz completed!");
     }
   };
 

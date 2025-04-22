@@ -40,8 +40,8 @@ const Quiz = () => {
     },
     enabled: !!token && !!quizId,
     retry: 1,
-    onSettled: (_, error) => {
-      if (error) {
+    meta: {
+      onError: () => {
         toast({
           title: "Erreur",
           description: "Impossible de charger les questions. Veuillez réessayer.",
@@ -81,7 +81,7 @@ const Quiz = () => {
   }
 
   // Si une erreur s'est produite lors du chargement des questions
-  if (error || !questions || questions.length === 0) {
+  if (error || !questions || !questions.data || questions.data.length === 0) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
@@ -108,7 +108,7 @@ const Quiz = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <QuizGame questions={questions || []} />
+        <QuizGame questions={questions.data || []} />
       </div>
     </Layout>
   );
