@@ -1,10 +1,13 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 // Créer une instance axios avec la configuration de base
 const api = axios.create({
   baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 // Intercepteur pour ajouter le token JWT à chaque requête
@@ -15,6 +18,19 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Intercepteur pour gérer les erreurs
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Rediriger vers la page de connexion si non authentifié
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
 
 export interface Formation {
   id: number;
@@ -87,7 +103,7 @@ class QuizService {
       return response.data;
     } catch (error) {
       console.error('Error fetching quiz categories:', error);
-      throw error;
+      throw new Error('Failed to fetch categories');
     }
   }
 

@@ -5,39 +5,26 @@ import { Category } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-
-const backendUrl = "http://localhost:8000/api";
-
-async function fetchCategories(token: string): Promise<Category[]> {
-  try {
-    const response = await fetch(`${backendUrl}/quiz/categories`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    if (!response.ok) {
-      throw new Error("Failed to fetch categories");
-    }
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching categories:", error);
-    throw error;
-  }
-}
+import { quizService } from "@/services/QuizService";
 
 export default function Catalogue() {
   const { token } = useAuth();
   
   const { data: categories, isLoading, error } = useQuery({
     queryKey: ["categories"],
-    queryFn: () => fetchCategories(token),
-    enabled: !!token
+    queryFn: async () => {
+      try {
+        const data = await quizService.getCategories();
+        return data;
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        toast.error("Impossible de charger les catégories. Veuillez réessayer plus tard.");
+        throw error;
+      }
+    },
+    enabled: !!token,
+    retry: 1
   });
-
-  if (error) {
-    toast.error("Failed to load categories");
-  }
 
   return (
     <Layout>
@@ -56,6 +43,16 @@ export default function Catalogue() {
                 <Skeleton className="h-4 w-3/4" />
               </div>
             ))}
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-red-500 mb-4">Une erreur est survenue lors du chargement des catégories.</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Réessayer
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
