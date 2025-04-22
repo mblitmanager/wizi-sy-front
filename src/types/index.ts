@@ -7,11 +7,11 @@ export interface User {
   level: number;
   role?: 'stagiaire' | 'admin';
   avatar?: string;
-  token?: string; // Ajout du token pour l'authentification
+  token?: string;
 }
 
 // Quiz and Question types
-export interface Answer {
+export interface Reponse {
   id: string;
   text: string;
   isCorrect: boolean;
@@ -25,11 +25,21 @@ export interface Media {
   url: string;
 }
 
+export type QuestionType = 
+  | 'question audio'
+  | 'remplir le champ vide'
+  | 'carte flash'
+  | 'correspondance'
+  | 'choix multiples'
+  | 'rearrangement'
+  | 'vrai/faux'
+  | 'banque de mots';
+
 export interface Question {
   id: string;
   text: string;
-  type: 'multiplechoice' | 'truefalse' | 'ordering' | 'fillblank' | 'wordbank' | 'flashcard' | 'matching' | 'audioquestion';
-  answers?: Answer[];
+  type: QuestionType;
+  reponses?: Reponse[];
   blanks?: Array<{
     id: string;
     text: string;
@@ -55,13 +65,13 @@ export interface Question {
 
 export interface Quiz {
   id: string;
-  title: string;
+  titre: string;
   description: string;
-  category: string;
-  categoryId: string;
-  level: string;
+  categorie: string;
+  categorieId: string;
+  niveau: string;
   questions: Question[];
-  points: number;
+  nbPointsTotal: number;
 }
 
 export interface QuizResult {
