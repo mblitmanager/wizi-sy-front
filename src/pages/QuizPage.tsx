@@ -86,7 +86,7 @@ const QuizPage: React.FC = () => {
     if (!quiz) return;
     
     const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-    const score = Math.round((correctAnswers / questions.length) * quiz.points);
+    const score = Math.round((correctAnswers / questions.length) * quiz.nbPointsTotal);
     
     try {
       const quizResult = await quizApi.submitQuizResult(quiz.id, {
@@ -144,14 +144,14 @@ const QuizPage: React.FC = () => {
   if (!isQuizStarted) {
     return (
       <div className="pb-20 md:pb-0 md:pl-64">
-        <Link to={`/category/${quiz.category.charAt(0)}`} className="inline-flex items-center text-gray-500 hover:text-gray-700 mb-4 font-nunito">
+        <Link to={`/category/${quiz.categorie.charAt(0)}`} className="inline-flex items-center text-gray-500 hover:text-gray-700 mb-4 font-nunito">
           <ChevronLeft className="h-4 w-4 mr-1" />
           Retour
         </Link>
         
         <Card className="max-w-xl mx-auto">
           <CardContent className="p-6">
-            <h1 className="text-2xl font-bold mb-2 font-montserrat">{quiz.title}</h1>
+            <h1 className="text-2xl font-bold mb-2 font-montserrat">{quiz.titre}</h1>
             <p className="text-gray-600 mb-6 font-roboto">{quiz.description}</p>
             
             <div className="mb-6">
@@ -159,11 +159,11 @@ const QuizPage: React.FC = () => {
                 <div className="grid grid-cols-2 gap-4 text-sm font-roboto">
                   <div>
                     <span className="text-gray-500">Niveau:</span>
-                    <span className="font-semibold ml-1">{quiz.level.charAt(0).toUpperCase() + quiz.level.slice(1)}</span>
+                    <span className="font-semibold ml-1">{quiz.niveau.charAt(0).toUpperCase() + quiz.niveau.slice(1)}</span>
                   </div>
                   <div>
                     <span className="text-gray-500">Points:</span>
-                    <span className="font-semibold ml-1">{quiz.points}</span>
+                    <span className="font-semibold ml-1">{quiz.nbPointsTotal}</span>
                   </div>
                   <div>
                     <span className="text-gray-500">Questions:</span>
