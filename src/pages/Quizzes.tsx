@@ -1,13 +1,16 @@
 import { Layout } from "@/components/layout/Layout";
 import { QuizList } from "@/components/quiz/QuizList";
+import { StagiaireQuizList } from "@/components/quiz/StagiaireQuizList";
 import { useQuery } from "@tanstack/react-query";
 import { quizService } from "@/services/QuizService";
 import { Loader2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Quizzes() {
   const { data: categories, isLoading: categoriesLoading } = useQuery({
     queryKey: ["quiz-categories"],
-    queryFn: () => quizService.getCategories()
+    queryFn: () => quizService.getCategories(),
+    enabled: !!localStorage.getItem('token')
   });
 
   return (
@@ -20,7 +23,18 @@ export default function Quizzes() {
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : (
-          <QuizList />
+          <Tabs defaultValue="mes-quizzes" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="mes-quizzes">Mes Quiz</TabsTrigger>
+              <TabsTrigger value="tous-quizzes">Tous les Quiz</TabsTrigger>
+            </TabsList>
+            <TabsContent value="mes-quizzes">
+              <StagiaireQuizList />
+            </TabsContent>
+            <TabsContent value="tous-quizzes">
+              <QuizList />
+            </TabsContent>
+          </Tabs>
         )}
       </div>
     </Layout>

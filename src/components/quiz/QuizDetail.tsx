@@ -1,21 +1,23 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { quizService } from '../../services/QuizService';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
+import { quizService } from '@/services/QuizService';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
-import { Loader2, Clock, Award, BookOpen } from 'lucide-react';
+import { Loader2, Award, BookOpen, AlertCircle } from 'lucide-react';
 import { Layout } from '../layout/Layout';
 import { Badge } from '../ui/badge';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-export const QuizDetail: React.FC = () => {
-  const { quizId } = useParams<{ quizId: string }>();
+export function QuizDetail() {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   const { data: quiz, isLoading, error } = useQuery({
-    queryKey: ['quiz', quizId],
-    queryFn: () => quizService.getQuizById(Number(quizId)),
-    enabled: !!quizId,
+    queryKey: ["quiz", id],
+    queryFn: () => quizService.getQuizById(id!),
+    enabled: !!id && !!localStorage.getItem('token'),
+    retry: 1
   });
 
   if (isLoading) {
@@ -28,11 +30,33 @@ export const QuizDetail: React.FC = () => {
     );
   }
 
-  if (error || !quiz) {
+  if (error) {
     return (
       <Layout>
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <p className="text-red-500">Une erreur est survenue lors du chargement du quiz.</p>
+        <div className="container mx-auto py-8">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Erreur</AlertTitle>
+            <AlertDescription>
+              Une erreur est survenue lors du chargement du quiz. Veuillez réessayer plus tard.
+            </AlertDescription>
+          </Alert>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!quiz) {
+    return (
+      <Layout>
+        <div className="container mx-auto py-8">
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Quiz non trouvé</AlertTitle>
+            <AlertDescription>
+              Le quiz que vous recherchez n'existe pas ou n'est pas accessible.
+            </AlertDescription>
+          </Alert>
         </div>
       </Layout>
     );
@@ -44,52 +68,40 @@ export const QuizDetail: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="text-2xl">{quiz.titre}</CardTitle>
-            <CardDescription className="text-lg">{quiz.description}</CardDescription>
+            <CardDescription>{quiz.description}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-6">
-              <div className="flex items-center space-x-4">
-                <Badge variant="outline" className="text-base">
-                  <BookOpen className="w-4 h-4 mr-2" />
-                  {quiz.niveau}
-                </Badge>
-                <Badge variant="outline" className="text-base">
-                  <Clock className="w-4 h-4 mr-2" />
-                  {quiz.duree} minutes
-                </Badge>
-                <Badge variant="outline" className="text-base">
-                  <Award className="w-4 h-4 mr-2" />
-                  {quiz.nb_points_total} points
-                </Badge>
-              </div>
-
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Questions</h3>
-                <div className="grid gap-4">
-                  {quiz.questions.map((question, index) => (
-                    <div key={question.id} className="p-4 border rounded-lg">
-                      <p className="font-medium">Question {index + 1}</p>
-                      <p className="text-gray-600">{question.text}</p>
-                      <p className="text-sm text-gray-500 mt-2">
-                        Type: {question.type} • Points: {question.points}
-                      </p>
-                    </div>
-                  ))}
+                <div className="flex items-center space-x-4">
+                  <Badge variant="outline" className="text-sm">
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    {quiz.niveau}
+                  </Badge>
+                  <Badge variant="outline" className="text-sm">
+                    <Award className="w-4 h-4 mr-2" />
+                    {quiz.points} pts
+                  </Badge>
                 </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Questions</h3>
+                  <p className="text-sm text-gray-500">
+                    {quiz.questions?.length || 0} question{(quiz.questions?.length || 0) > 1 ? 's' : ''}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center justify-end">
+                <Button 
+                  size="lg"
+                  onClick={() => navigate(`/quiz/${quiz.id}/start`)}
+                >
+                  Commencer le quiz
+                </Button>
               </div>
             </div>
           </CardContent>
-          <CardFooter>
-            <Button 
-              onClick={() => navigate(`/quiz/${quizId}/start`)}
-              className="w-full"
-              size="lg"
-            >
-              Commencer le quiz
-            </Button>
-          </CardFooter>
         </Card>
       </div>
     </Layout>
   );
-}; 
+} 
