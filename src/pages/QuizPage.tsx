@@ -1,8 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Quiz, Question, QuizResult } from '@/types';
-import { mockAPI } from '@/api/mockAPI';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,6 +8,7 @@ import { ChevronLeft } from 'lucide-react';
 import QuizQuestion from '@/components/Quiz/QuizQuestion';
 import QuizResultComponent from '@/components/Quiz/QuizResult';
 import { useToast } from '@/hooks/use-toast';
+import { quizApi } from '@/api/quizApi';
 
 const QuizPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -34,16 +33,9 @@ const QuizPage: React.FC = () => {
       try {
         if (!id) return;
         
-        // Dans une vraie application, nous utiliserions des appels API
-        const categories = mockAPI.getCategories();
-        const categoryId = id.charAt(0);
-        const categoryQuizzes = mockAPI.getQuizzesByCategory(categoryId);
-        const foundQuiz = categoryQuizzes.find(q => q.id === id) || null;
-        
-        if (foundQuiz) {
-          setQuiz(foundQuiz);
-          setQuestions(foundQuiz.questions);
-        }
+        const quizData = await quizApi.getQuizById(id);
+        setQuiz(quizData);
+        setQuestions(quizData.questions);
       } catch (error) {
         console.error('Échec de récupération des données du quiz:', error);
         toast({
@@ -72,18 +64,15 @@ const QuizPage: React.FC = () => {
   const handleAnswer = (answerId: string, isCorrect: boolean) => {
     const questionId = questions[currentQuestionIndex].id;
     
-    // Enregistrement de la réponse
     setAnswers(prev => ({
       ...prev,
       [questionId]: answerId
     }));
     
-    // Mise à jour du compteur de réponses correctes
     if (isCorrect) {
       setCorrectAnswers(prev => prev + 1);
     }
     
-    // Passage à la question suivante ou fin du quiz
     if (currentQuestionIndex < questions.length - 1) {
       setTimeout(() => {
         setCurrentQuestionIndex(prev => prev + 1);
@@ -93,30 +82,35 @@ const QuizPage: React.FC = () => {
     }
   };
 
-  const completeQuiz = () => {
+  const completeQuiz = async () => {
     if (!quiz) return;
     
     const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+    const score = Math.round((correctAnswers / questions.length) * quiz.points);
     
-    // Dans une application réelle, nous soumettrions le résultat à l'API
-    const quizResult = {
-      id: `result_${Date.now()}`,
-      quizId: quiz.id,
-      userId: user?.id || 'anonymous',
-      score: Math.round((correctAnswers / questions.length) * quiz.points),
-      correctAnswers,
-      totalQuestions: questions.length,
-      completedAt: new Date().toISOString(),
-      timeSpent,
-    };
-    
-    setResult(quizResult);
-    setIsQuizCompleted(true);
-    
-    toast({
-      title: "Quiz terminé",
-      description: `Vous avez obtenu ${quizResult.score} points!`,
-    });
+    try {
+      const quizResult = await quizApi.submitQuizResult(quiz.id, {
+        score,
+        correctAnswers,
+        totalQuestions: questions.length,
+        timeSpent,
+      });
+      
+      setResult(quizResult);
+      setIsQuizCompleted(true);
+      
+      toast({
+        title: "Quiz terminé",
+        description: `Vous avez obtenu ${score} points!`,
+      });
+    } catch (error) {
+      console.error('Erreur lors de la soumission du résultat:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de sauvegarder votre résultat",
+        variant: "destructive",
+      });
+    }
   };
 
   if (isLoading) {

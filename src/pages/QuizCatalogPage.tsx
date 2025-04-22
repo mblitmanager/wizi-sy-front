@@ -1,6 +1,4 @@
-
 import React, { useState, useEffect } from 'react';
-import { mockAPI } from '@/api/mockAPI';
 import { Quiz, Category } from '@/types';
 import { Input } from '@/components/ui/input';
 import { 
@@ -13,6 +11,8 @@ import {
 import { Search, Filter } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
+import { quizApi } from '@/api/quizApi';
+import { useToast } from '@/hooks/use-toast';
 
 const QuizCatalogPage: React.FC = () => {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
@@ -21,31 +21,37 @@ const QuizCatalogPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedLevel, setSelectedLevel] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const allCategories = mockAPI.getCategories();
+        const allCategories = await quizApi.getCategories();
         setCategories(allCategories);
         
         // Récupérer tous les quiz de toutes les catégories
         const allQuizzes: Quiz[] = [];
-        allCategories.forEach(category => {
-          const categoryQuizzes = mockAPI.getQuizzesByCategory(category.id);
+        for (const category of allCategories) {
+          const categoryQuizzes = await quizApi.getQuizzesByCategory(category.id);
           allQuizzes.push(...categoryQuizzes);
-        });
+        }
         
         setQuizzes(allQuizzes);
       } catch (error) {
         console.error('Échec de récupération des données de quiz:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les quiz",
+          variant: "destructive",
+        });
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [toast]);
 
   const filteredQuizzes = quizzes.filter(quiz => {
     const matchesSearch = searchTerm === '' || 

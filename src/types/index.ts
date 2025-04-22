@@ -15,6 +15,9 @@ export interface Answer {
   id: string;
   text: string;
   isCorrect: boolean;
+  position?: number;
+  bankGroup?: string;
+  matchPair?: string;
 }
 
 export interface Media {
@@ -25,8 +28,29 @@ export interface Media {
 export interface Question {
   id: string;
   text: string;
-  answers: Answer[];
-  media?: Media;
+  type: 'multiplechoice' | 'truefalse' | 'ordering' | 'fillblank' | 'wordbank' | 'flashcard' | 'matching' | 'audioquestion';
+  answers?: Answer[];
+  blanks?: Array<{
+    id: string;
+    text: string;
+    bankGroup: string;
+  }>;
+  wordbank?: Array<{
+    id: string;
+    text: string;
+    isCorrect: boolean;
+    bankGroup: string;
+  }>;
+  flashcard?: {
+    front: string;
+    back: string;
+  };
+  matching?: Array<{
+    id: string;
+    text: string;
+    matchPair: string;
+  }>;
+  audioUrl?: string;
 }
 
 export interface Quiz {
@@ -34,8 +58,8 @@ export interface Quiz {
   title: string;
   description: string;
   category: string;
-  categoryId?: string; // Pour faciliter le filtrage
-  level: 'débutant' | 'intermédiaire' | 'avancé' | 'super';
+  categoryId: string;
+  level: string;
   questions: Question[];
   points: number;
 }
@@ -48,18 +72,18 @@ export interface QuizResult {
   correctAnswers: number;
   totalQuestions: number;
   completedAt: string;
-  timeSpent: number; // en secondes
+  timeSpent: number;
 }
 
 // Category types
 export interface Category {
   id: string;
   name: string;
-  description: string;
-  icon: string;
   color: string;
-  colorClass: string;
+  icon: string;
+  description: string;
   quizCount: number;
+  colorClass: string;
 }
 
 // Progress types
