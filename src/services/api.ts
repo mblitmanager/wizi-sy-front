@@ -87,41 +87,63 @@ export const authService = {
   },
 };
 
+interface QuestionData {
+  text: string;
+  type: string;
+  category_id: number;
+  difficulty: number;
+  points: number;
+  reponses: Array<{
+    text: string;
+    is_correct: boolean;
+  }>;
+}
+
+interface QuizAnswer {
+  questionId: string;
+  answer: string;
+}
+
+interface SponsorshipData {
+  code: string;
+  email: string;
+}
+
 // Service pour les questions
 const questionService = {
   // Récupérer toutes les questions
   getAllQuestions: async () => {
-    const response = await api.get('/api/questions');
+    const response = await api.get('/questions');
     return response.data;
   },
   
   // Récupérer une question par ID
   getQuestionById: async (id: string) => {
-    const response = await api.get(`/api/questions/${id}`);
+    const response = await api.get(`/questions/${id}`);
     return response.data;
   },
   
   // Récupérer les réponses d'une question
   getQuestionResponses: async (questionId: string) => {
-    const response = await api.get(`/api/questions/${questionId}/reponses`);
+    const response = await api.get(`/questions/${questionId}/reponses`);
     return response.data;
   },
   
   // Créer une nouvelle question
-  createQuestion: async (questionData: any) => {
-    const response = await api.post('/api/questions', questionData);
+  createQuestion: async (questionData: QuestionData) => {
+    const response = await api.post('/questions', questionData);
     return response.data;
   },
   
   // Mettre à jour une question
-  updateQuestion: async (id: string, questionData: any) => {
-    const response = await api.patch(`/api/questions/${id}`, questionData);
+  updateQuestion: async (id: string, questionData: QuestionData) => {
+    const response = await api.patch(`/questions/${id}`, questionData);
     return response.data;
   },
   
   // Supprimer une question
   deleteQuestion: async (id: string) => {
-    const response = await api.delete(`/api/questions/${id}`);
+    const response = await api.delete(`/questions/${id}`);
     return response.data;
   }
 };
@@ -130,31 +152,31 @@ const questionService = {
 const responseService = {
   // Récupérer toutes les réponses
   getAllResponses: async () => {
-    const response = await api.get('/api/reponses');
+    const response = await api.get('/reponses');
     return response.data;
   },
   
   // Récupérer une réponse par ID
   getResponseById: async (id: string) => {
-    const response = await api.get(`/api/reponses/${id}`);
+    const response = await api.get(`/reponses/${id}`);
     return response.data;
   },
   
   // Créer une nouvelle réponse
-  createResponse: async (responseData: any) => {
-    const response = await api.post('/api/reponses', responseData);
+  createResponse: async (responseData: QuestionData['reponses'][0]) => {
+    const response = await api.post('/reponses', responseData);
     return response.data;
   },
   
   // Mettre à jour une réponse
-  updateResponse: async (id: string, responseData: any) => {
-    const response = await api.patch(`/api/reponses/${id}`, responseData);
+  updateResponse: async (id: string, responseData: QuestionData['reponses'][0]) => {
+    const response = await api.patch(`/reponses/${id}`, responseData);
     return response.data;
   },
   
   // Supprimer une réponse
   deleteResponse: async (id: string) => {
-    const response = await api.delete(`/api/reponses/${id}`);
+    const response = await api.delete(`/reponses/${id}`);
     return response.data;
   }
 };
@@ -163,31 +185,31 @@ const responseService = {
 const quizService = {
   // Récupérer tous les quiz
   getAllQuizzes: async () => {
-    const response = await api.get('/api/quizzes');
+    const response = await api.get('/quizzes');
     return response.data;
   },
   
   // Récupérer un quiz par ID
   getQuizById: async (id: string) => {
-    const response = await api.get(`/api/quizzes/${id}`);
+    const response = await api.get(`/quizzes/${id}`);
     return response.data;
   },
   
   // Récupérer les questions d'un quiz
   getQuizQuestions: async (quizId: string) => {
-    const response = await api.get(`/api/quiz/${quizId}/questions`);
+    const response = await api.get(`/quiz/${quizId}/questions`);
     return response.data;
   },
   
   // Soumettre un quiz
-  submitQuiz: async (quizId: string, answers: any) => {
-    const response = await api.post(`/api/quizzes/${quizId}/submit`, answers);
+  submitQuiz: async (quizId: string, answers: QuizAnswer[]) => {
+    const response = await api.post(`/quizzes/${quizId}/submit`, answers);
     return response.data;
   },
   
   // Récupérer les catégories de quiz
   getQuizCategories: async () => {
-    const response = await api.get('/api/quiz/categories');
+    const response = await api.get('/quiz/categories');
     return response.data;
   }
 };
@@ -196,43 +218,43 @@ const quizService = {
 const sponsorshipService = {
   // Récupérer le lien de parrainage
   getLink: async () => {
-    const response = await api.get('/api/stagiaire/parrainage/link');
+    const response = await api.get('/stagiaire/parrainage/link');
     return response.data;
   },
   
   // Générer un lien de parrainage
   generateLink: async () => {
-    const response = await api.post('/api/stagiaire/parrainage/generate-link');
+    const response = await api.post('/stagiaire/parrainage/generate-link');
     return response.data;
   },
   
   // Récupérer les statistiques de parrainage
   getStats: async () => {
-    const response = await api.get('/api/stagiaire/parrainage/stats');
+    const response = await api.get('/stagiaire/parrainage/stats');
     return response.data;
   },
   
   // Récupérer l'historique de parrainage
   getHistory: async () => {
-    const response = await api.get('/api/stagiaire/parrainage/history');
+    const response = await api.get('/stagiaire/parrainage/history');
     return response.data;
   },
   
   // Récupérer les filleuls
   getFilleuls: async () => {
-    const response = await api.get('/api/stagiaire/parrainage/filleuls');
+    const response = await api.get('/stagiaire/parrainage/filleuls');
     return response.data;
   },
   
   // Récupérer les récompenses
   getRewards: async () => {
-    const response = await api.get('/api/stagiaire/parrainage/rewards');
+    const response = await api.get('/stagiaire/parrainage/rewards');
     return response.data;
   },
   
   // Accepter un parrainage
-  acceptSponsorship: async (data: any) => {
-    const response = await api.post('/api/stagiaire/parrainage/accept', data);
+  acceptSponsorship: async (data: SponsorshipData) => {
+    const response = await api.post('/stagiaire/parrainage/accept', data);
     return response.data;
   }
 };

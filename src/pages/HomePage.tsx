@@ -43,6 +43,7 @@ import CatalogueFormation from "@/components/catalogueFormation/CatalogueFoamtio
 import LoadingCatalogue from "@/components/catalogueFormation/LoadingCatalogue";
 import { quizService, progressService, contactService, stagiaireAPI } from "@/services";
 import { formationService } from '../services/formationService';
+import { useAuth } from '@/context/AuthContext';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_IMG;
@@ -69,6 +70,7 @@ const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
 };
 
 const HomePage: React.FC = () => {
+  const { user } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [userProgress, setUserProgress] = useState<UserProgress>({
     quizzes_completed: 0,
@@ -80,9 +82,10 @@ const HomePage: React.FC = () => {
 
   const { data: catalogueData, isLoading: isLoadingCatalogue } = useQuery({
     queryKey: ['catalogue'],
+
     queryFn: async (): Promise<CatalogueFormationResponse> => {
       try {
-        const response = await axios.get<CatalogueFormationResponse>(`${API_URL}/stagiaire/catalogue_formation`, {
+        const response = await axios.get<CatalogueFormationResponse>(`${API_URL}/catalogueFormations/stagiaire/${user?.stagiaire?.id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
