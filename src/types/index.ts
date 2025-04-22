@@ -77,12 +77,26 @@ export interface Quiz {
 export interface QuizResult {
   id: string;
   quizId: string;
-  userId: string;
+  stagiaireId: string;
+  formationId: string;
   score: number;
   correctAnswers: number;
   totalQuestions: number;
   completedAt: string;
   timeSpent: number;
+  questions: Array<{
+    id: string;
+    text: string;
+    type: string;
+    selectedAnswers: string[];
+    correctAnswers: string[];
+    answers: Array<{
+      id: string;
+      text: string;
+      isCorrect: boolean;
+    }>;
+    isCorrect: boolean;
+  }>;
 }
 
 // Category types

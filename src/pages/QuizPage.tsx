@@ -87,9 +87,6 @@ const QuizPage: React.FC = () => {
     if (!quiz) return;
     
     const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-    const score = questions.length > 0 
-      ? Math.round((correctAnswers / questions.length) * quiz.nbPointsTotal)
-      : 0;
     
     // Préparer les réponses dans le format attendu par l'API
     const formattedAnswers = {};
@@ -102,7 +99,12 @@ const QuizPage: React.FC = () => {
       timeSpent,
     };
     
-    console.log('Submitting quiz result:', resultData);
+    // Logs détaillés
+    console.log('Raw answers:', answers);
+    console.log('Question IDs:', Object.keys(answers));
+    console.log('Answer IDs:', Object.values(answers));
+    console.log('Formatted answers:', formattedAnswers);
+    console.log('Full request data:', resultData);
     
     try {
       const quizResult = await quizApi.submitQuizResult(quiz.id, resultData);
@@ -116,6 +118,10 @@ const QuizPage: React.FC = () => {
       });
     } catch (error) {
       console.error('Erreur lors de la soumission du résultat:', error);
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+      }
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder votre résultat",

@@ -38,24 +38,16 @@ export const quizApi = {
   },
 
   submitQuizResult: async (quizId: string, result: {
-    score: number;
-    correctAnswers: number;
-    totalQuestions: number;
+    answers: Record<string, string[]>;
     timeSpent: number;
   }): Promise<QuizResult> => {
     console.log('API Request:', {
       url: `/quiz/${quizId}/result`,
       method: 'POST',
-      data: {
-        quiz_id: quizId,
-        ...result
-      }
+      data: result
     });
     
-    const response = await api.post<QuizResult>(`/quiz/${quizId}/result`, {
-      quiz_id: quizId,
-      ...result
-    });
+    const response = await api.post<QuizResult>(`/quiz/${quizId}/result`, result);
     return response.data;
   }
 }; 
