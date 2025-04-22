@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Award } from "lucide-react";
@@ -37,21 +36,36 @@ const getLevelBackgroundColor = (level: string) => {
 
 // Use the same rules as before for category color
 const getCategoryColor = (categoryId: string, categories: Category[] | undefined) => {
-  if (!categories) return '#000000';
+  if (!categories) return '#3B82F6'; // Couleur par défaut bleu
   const category = categories.find(c => c.id === categoryId);
-  if (!category) return '#000000';
-  switch (category.name.toLowerCase()) {
-    case 'bureautique':
-      return '#3D9BE9';
-    case 'langues':
-      return '#A55E6E';
-    case 'internet':
-      return '#FFC533';
-    case 'création':
-      return '#9392BE';
-    default:
-      return '#000000';
+  
+  // Si on a la couleur de la catégorie depuis l'API, on l'utilise
+  if (category?.color) return category.color;
+  
+  // Sinon on utilise des couleurs par défaut selon le nom de la catégorie
+  if (category?.name) {
+    switch (category.name.toLowerCase()) {
+      case 'bureautique':
+        return '#3B82F6'; // Bleu
+      case 'langues':
+        return '#EC4899'; // Rose
+      case 'internet':
+        return '#F59E0B'; // Orange
+      case 'création':
+        return '#8B5CF6'; // Violet
+      case 'anglais':
+        return '#10B981'; // Vert
+      case 'français':
+        return '#EF4444'; // Rouge
+      case 'excel':
+        return '#6366F1'; // Indigo
+      default:
+        return '#3B82F6'; // Bleu par défaut
+    }
   }
+  
+  // Si on n'a pas de catégorie, on utilise la couleur par défaut
+  return '#3B82F6';
 };
 
 interface StagiaireQuizCardProps {
@@ -60,15 +74,36 @@ interface StagiaireQuizCardProps {
 }
 
 export function StagiaireQuizCard({ quiz, categories }: StagiaireQuizCardProps) {
+  const category = categories?.find(c => c.id === quiz.categorieId);
+  const categoryName = category?.name || quiz.categorie;
+  const categoryColor = getCategoryColor(quiz.categorieId, categories);
+
   return (
     <Card className="h-full hover:shadow-lg transition-shadow relative">
       <div
         className="absolute top-0 left-0 right-0 h-1 rounded-t-lg"
         style={{
-          backgroundColor: getCategoryColor(quiz.categorieId, categories)
+          backgroundColor: categoryColor
         }}
       />
       <CardHeader>
+        <div className="flex items-center gap-2 mb-2">
+          <Badge
+            variant="outline"
+            className="text-sm flex items-center gap-1.5 font-medium"
+            style={{
+              borderColor: categoryColor,
+              color: categoryColor,
+              backgroundColor: `${categoryColor}10`
+            }}
+          >
+            <div
+              className="w-2 h-2 rounded-full"
+              style={{ backgroundColor: categoryColor }}
+            />
+            {categoryName}
+          </Badge>
+        </div>
         <CardTitle className="text-xl">{quiz.titre}</CardTitle>
         <CardDescription>{quiz.description}</CardDescription>
       </CardHeader>
@@ -85,18 +120,6 @@ export function StagiaireQuizCard({ quiz, categories }: StagiaireQuizCardProps) 
             <Award className="w-4 h-4 mr-2" />
             {quiz.points} pts
           </Badge>
-          {categories && (
-            <Badge
-              variant="outline"
-              className="text-sm"
-              style={{
-                borderColor: categories.find(c => c.id === quiz.categorieId)?.color || '#000',
-                color: categories.find(c => c.id === quiz.categorieId)?.color || '#000'
-              }}
-            >
-              {categories.find(c => c.id === quiz.categorieId)?.name || quiz.categorie}
-            </Badge>
-          )}
         </div>
       </CardContent>
     </Card>
