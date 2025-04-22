@@ -1,73 +1,43 @@
-import { Layout } from "@/components/layout/Layout";
-import { CategoryCard } from "@/components/dashboard/CategoryCard";
-import { useQuery } from "@tanstack/react-query";
-import { Category } from "@/types";
-import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
-import { useAuth } from "@/hooks/useAuth";
-import { quizService } from "@/services/QuizService";
 
-export default function Catalogue() {
-  const { token } = useAuth();
-  
-  const { data: categories, isLoading, error } = useQuery({
-    queryKey: ["categories"],
-    queryFn: async () => {
-      try {
-        const data = await quizService.getCategories();
-        return data;
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-        toast.error("Impossible de charger les catégories. Veuillez réessayer plus tard.");
-        throw error;
-      }
-    },
-    enabled: !!token,
-    retry: 1
+import { Layout } from "@/components/layout/Layout";
+import { QuizList } from "@/components/quiz/QuizList";
+import { StagiaireQuizList } from "@/components/quiz/StagiaireQuizList";
+import { useQuery } from "@tanstack/react-query";
+import { quizService } from "@/services/QuizService";
+import { Loader2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+export default function Quizzes() {
+  const { data: categories, isLoading: categoriesLoading } = useQuery({
+    queryKey: ["quiz-categories"],
+    queryFn: () => quizService.getCategories(),
+    enabled: !!localStorage.getItem('token')
   });
 
   return (
     <Layout>
-      <div className="container py-8">
-        <h1 className="text-3xl font-bold mb-8">Catalogue de formations</h1>
-        <p className="text-gray-600 mb-8">
-          Découvrez toutes nos formations disponibles par catégorie
-        </p>
-
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, index) => (
-              <div key={index} className="space-y-3">
-                <Skeleton className="h-40 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
-              </div>
-            ))}
-          </div>
-        ) : error ? (
-          <div className="text-center py-12">
-            <p className="text-red-500 mb-4">Une erreur est survenue lors du chargement des catégories.</p>
-            <button 
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Réessayer
-            </button>
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-8">Quiz disponibles</h1>
+        
+        {categoriesLoading ? (
+          <div className="flex items-center justify-center min-h-[50vh]">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories && categories.length > 0 ? (
-              categories.map((category) => (
-                <CategoryCard key={category.id} category={category} />
-              ))
-            ) : (
-              <p className="col-span-full text-center py-12 text-gray-500">
-                Aucune catégorie de formation n'est disponible pour le moment.
-              </p>
-            )}
-          </div>
+          <Tabs defaultValue="mes-quizzes" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="mes-quizzes">Mes Quiz</TabsTrigger>
+              <TabsTrigger value="tous-quizzes">Tous les Quiz</TabsTrigger>
+            </TabsList>
+            <TabsContent value="mes-quizzes">
+              <StagiaireQuizList />
+            </TabsContent>
+            <TabsContent value="tous-quizzes">
+              <QuizList />
+            </TabsContent>
+          </Tabs>
         )}
       </div>
     </Layout>
   );
-}
+} 
