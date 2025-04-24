@@ -41,8 +41,9 @@ import ParrainageSection from "@/components/Home/ParrainageSection";
 import { DETAILS, VOS_FORMATION } from "@/utils/langue-type";
 import { CatalogueFormationResponse } from "@/types/stagiaire";
 import { stagiaireAPI } from "@/services/api";
-import CatalogueFormation from "@/components/catalogueFormation/CatalogueFoamtion";
-import LoadingCatalogue from "@/components/catalogueFormation/LoadingCatalogue";
+import CatalogueFormation from "@/components/catalogueFormation/CatalogueFormation";
+import LoadingCatalogue from "@/components/catalogueFormation/LoadingCustom";
+import LoadingCustom from "@/components/catalogueFormation/LoadingCustom";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_IMG;
@@ -289,7 +290,7 @@ const HomePage: React.FC = () => {
         </Link>
       </div>
       {isLoading ? (
-        <LoadingCatalogue />
+        <LoadingCustom />
       ) : (
         catalogueData && <CatalogueFormation catalogueData={catalogueData} />
       )}

@@ -140,14 +140,18 @@ export const stagiaireAPI = {
   getProgressById: (formationId: string) =>
     api.get(`/stagiaire/progress/${formationId}`),
   getCatalogueFormations: (stagiaireId: number) =>
-    api.get(`/catalogue_formations/stagiaire/${stagiaireId}`),
+    api.get(`/catalogueFormations/stagiaire/${stagiaireId}`),
 };
 export const catalogueFormationApi = {
   getCatalogueFometionById: (catFormationId: number) =>
-    api.get(`/catalogue_formations/formations/${catFormationId}`),
+    api.get(`/catalogueFormations/formations/${catFormationId}`),
 
   getFomationByStagiaireId: (stagiaireId: number) =>
     api.get(`stagiaire/${stagiaireId}/formations`),
+
+  getAllCatalogueFormation: () => {
+    return api.get("catalogueFormations/formations");
+  },
 };
 
 export const formationApi = {

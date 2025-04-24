@@ -1,112 +1,73 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  BookOpen,
-  Clock,
-  Calendar,
-  Users,
-  ChevronRight,
-  Play,
-  CheckCircle,
-  Lock,
-  Star,
-} from "lucide-react";
-import HeaderSection from "@/components/features/HeaderSection";
 import { catalogueFormationApi } from "@/services/api";
 import { progressAPI } from "@/api";
+import { stagiaireAPI } from "@/services/api";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import HeaderSection from "@/components/features/HeaderSection";
+import LoadingCustom from "@/components/catalogueFormation/LoadingCustom";
+import { CatalogueFormationResponse } from "@/types/stagiaire";
+const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_IMG;
 
 const FormationsPage = () => {
-  // Données fictives pour les formations
-  const [formations] = useState([
-    {
-      id: 1,
-      name: "Word",
-      description:
-        "Apprenez à utiliser Microsoft Word de manière professionnelle",
-      progress: 75,
-      image: "/images/word.jpg",
-      duration: "20h",
-      level: "Débutant",
-      instructor: "John Doe",
-      students: 120,
-      rating: 4.8,
-      modules: [
-        { id: 1, name: "Introduction à Word", completed: true },
-        { id: 2, name: "Mise en forme du texte", completed: true },
-        { id: 3, name: "Insertion d'éléments", completed: true },
-        { id: 4, name: "Mise en page avancée", completed: false },
-        { id: 5, name: "Styles et modèles", completed: false },
-      ],
-    },
-    {
-      id: 2,
-      name: "Excel",
-      description: "Maîtrisez les tableurs et l'analyse de données",
-      progress: 30,
-      image: "/images/excel.jpg",
-      duration: "25h",
-      level: "Intermédiaire",
-      instructor: "Jane Smith",
-      students: 85,
-      rating: 4.9,
-      modules: [
-        { id: 1, name: "Les bases d'Excel", completed: true },
-        { id: 2, name: "Formules et fonctions", completed: false },
-        { id: 3, name: "Tableaux croisés", completed: false },
-        { id: 4, name: "Graphiques", completed: false },
-        { id: 5, name: "Macros", completed: false },
-      ],
-    },
-    {
-      id: 3,
-      name: "Photoshop",
-      description: "Créez et modifiez des images professionnelles",
-      progress: 0,
-      image: "/images/photoshop.jpg",
-      duration: "30h",
-      level: "Avancé",
-      instructor: "Mike Johnson",
-      students: 45,
-      rating: 4.7,
-      modules: [
-        { id: 1, name: "Interface et outils", completed: false },
-        { id: 2, name: "Calques et masques", completed: false },
-        { id: 3, name: "Retouche photo", completed: false },
-        { id: 4, name: "Effets et filtres", completed: false },
-        { id: 5, name: "Composition avancée", completed: false },
-      ],
-    },
-  ]);
+  const [formationsDisponibles, setFormationsDisponibles] = useState([]);
+  const [mesFormations, setMesFormations] =
+    useState<CatalogueFormationResponse | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [completedFormations, setCompletedFormations] = useState([]);
+  const fetchData = async (page = 1) => {
+    setIsLoading(true); // Active le loading
 
-  useEffect(() => {
-    getFormationByStagiaire();
-  }, []);
-
-  const getFormationByStagiaire = async () => {
     try {
       const progress = await progressAPI.getUserProgress();
       const stagiaireId = progress?.stagiaire?.id;
-      const response = await catalogueFormationApi.getFomationByStagiaireId(
-        stagiaireId
-      );
-      console.log(response.data);
+
+      if (stagiaireId) {
+        try {
+          const response = await stagiaireAPI.getCatalogueFormations(
+            stagiaireId
+          );
+          const catalogueResponse: CatalogueFormationResponse = response.data;
+          setMesFormations(catalogueResponse);
+        } catch (catalogueError) {
+          console.error("Erreur formations stagiaire:", catalogueError);
+        }
+      }
+
+      try {
+        const catalogueResponse =
+          await catalogueFormationApi.getAllCatalogueFormation(page);
+        const { data, last_page } = catalogueResponse.data as {
+          data: any[];
+          last_page: number;
+        };
+        setFormationsDisponibles(data);
+        setLastPage(last_page);
+      } catch (catalogueListError) {
+        console.error("Erreur catalogue global:", catalogueListError);
+      }
     } catch (error) {
-      console.error("Error fetching formations:", error);
+      console.error("Erreur générale de récupération:", error);
+    } finally {
+      setIsLoading(false); // Désactive le loading une fois tout terminé
     }
+  };
+
+  useEffect(() => {
+    fetchData(currentPage);
+  }, [currentPage]);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= lastPage) {
+      setCurrentPage(page);
+    }
+  };
+
+  const stripHtml = (html) => {
+    const tmp = document.createElement("div");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
   };
 
   return (
@@ -116,126 +77,98 @@ const FormationsPage = () => {
       <Tabs defaultValue="available" className="w-full">
         <TabsList className="w-full justify-start mb-6">
           <TabsTrigger value="available">Formations disponibles</TabsTrigger>
-          <TabsTrigger value="completed">Formations terminées</TabsTrigger>
+          <TabsTrigger value="completed">Mes Formations</TabsTrigger>
         </TabsList>
 
-        {/* Onglet des formations disponibles */}
+        {/* Formations disponibles */}
         <TabsContent value="available">
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {formations.map((formation) => (
-              <Card key={formation.id} className="overflow-hidden">
-                <div className="h-48 bg-muted relative">
+          {isLoading ? (
+            <LoadingCustom />
+          ) : (
+            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {formationsDisponibles.map((formation: any) => (
+                <div
+                  key={formation.id}
+                  className="p-4 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col">
                   <img
-                    src={formation.image}
-                    alt={formation.name}
-                    className="w-full h-full object-cover"
+                    src={`${VITE_API_URL_IMG}/${formation.image_url}`}
+                    alt={formation.titre}
+                    className="h-40 w-full object-cover rounded-lg mb-4"
                   />
-                  {formation.progress > 0 && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-2">
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm">Progression</span>
-                        <span className="text-sm font-medium">
-                          {formation.progress}%
-                        </span>
-                      </div>
-                      <Progress value={formation.progress} className="h-1" />
-                    </div>
-                  )}
+
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">
+                    {formation.titre.trim()}
+                  </h3>
+
+                  <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                    {stripHtml(formation.description)}
+                  </p>
+
+                  <h4 className="font-bold text-gray-700 mb-4 line-clamp-3">
+                    {formation.certification}
+                  </h4>
+
+                  <p className="text-gray-600 mb-4 line-clamp-3">
+                    {formation.prerequis}
+                  </p>
+
+                  <div className="flex justify-between items-center text-sm text-gray-700 mb-4">
+                    <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-md">
+                      Durée : {formation.duree}h
+                    </span>
+                    <span className="bg-green-100 text-green-700 px-2 py-1 rounded-md">
+                      {formation.tarif} €
+                    </span>
+                  </div>
+
+                  <button className="mt-auto px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors duration-200">
+                    Voir la formation
+                  </button>
                 </div>
-                <CardHeader className="p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <CardTitle className="text-lg">{formation.name}</CardTitle>
-                    <Badge variant="outline">{formation.level}</Badge>
-                  </div>
-                  <CardDescription className="line-clamp-2">
-                    {formation.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-4 pt-0">
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div className="flex items-center">
-                      <Clock className="h-4 w-4 text-muted-foreground mr-2" />
-                      <span className="text-sm">{formation.duration}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Users className="h-4 w-4 text-muted-foreground mr-2" />
-                      <span className="text-sm">
-                        {formation.students} apprenants
-                      </span>
-                    </div>
-                    <div className="flex items-center">
-                      <Calendar className="h-4 w-4 text-muted-foreground mr-2" />
-                      <span className="text-sm">Prochain cours: 15/04</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Star className="h-4 w-4 text-yellow-500 mr-2" />
-                      <span className="text-sm">{formation.rating}/5</span>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    {formation.modules.map((module) => (
-                      <div
-                        key={module.id}
-                        className="flex items-center justify-between p-2 rounded bg-muted/50">
-                        <span className="text-sm">{module.name}</span>
-                        {module.completed ? (
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                        ) : (
-                          <Lock className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-                <CardFooter className="p-4 pt-0">
-                  <Button
-                    className="w-full"
-                    variant={formation.progress > 0 ? "default" : "outline"}>
-                    {formation.progress > 0 ? "Continuer" : "Commencer"}
-                  </Button>
-                </CardFooter>
-              </Card>
+              ))}
+            </div>
+          )}
+
+          {/* Pagination */}
+          <div className="flex justify-center gap-2 mt-6">
+            <button
+              className="px-3 py-1 border rounded"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}>
+              Précédent
+            </button>
+
+            {[...Array(lastPage)].map((_, index) => (
+              <button
+                key={index}
+                onClick={() => handlePageChange(index + 1)}
+                className={`px-3 py-1 border rounded ${
+                  currentPage === index + 1 ? "bg-blue-500 text-white" : ""
+                }`}>
+                {index + 1}
+              </button>
             ))}
+
+            <button
+              className="px-3 py-1 border rounded"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === lastPage}>
+              Suivant
+            </button>
           </div>
         </TabsContent>
 
-        {/* Onglet des formations terminées */}
+        {/* Formations du stagiaire */}
         <TabsContent value="completed">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {formations
-              .filter((f) => f.progress === 100)
-              .map((formation) => (
-                <Card key={formation.id} className="overflow-hidden">
-                  <div className="h-48 bg-muted relative">
-                    <img
-                      src={formation.image}
-                      alt={formation.name}
-                      className="w-full h-full object-cover opacity-75"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Badge className="text-lg px-4 py-2">
-                        Formation terminée
-                      </Badge>
-                    </div>
-                  </div>
-                  <CardHeader className="p-4">
-                    <CardTitle className="text-lg">{formation.name}</CardTitle>
-                    <CardDescription>Terminée le 01/04/2024</CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-4 pt-0">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center">
-                        <Star className="h-5 w-5 text-yellow-500 mr-2" />
-                        <span className="font-medium">Votre note: 18/20</span>
-                      </div>
-                      <Badge variant="secondary">Certifié</Badge>
-                    </div>
-                    <Button variant="outline" className="w-full">
-                      Voir le certificat
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+            {mesFormations?.formations?.map((formation: any) => (
+              <div
+                key={formation.id}
+                className="p-4 border rounded-xl shadow-sm">
+                <h3 className="text-lg font-semibold">{formation.titre}</h3>
+                <p className="text-sm text-gray-600">{formation.description}</p>
+              </div>
+            ))}
           </div>
         </TabsContent>
       </Tabs>

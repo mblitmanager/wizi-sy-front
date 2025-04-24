@@ -49,6 +49,6 @@ export interface Stagiaire {
 
 export interface CatalogueFormationResponse {
   stagiaire: Stagiaire;
-  formations: Formation[]; // doublon avec stagiaire.formations mais utile
+  formations: Formation[];
   catalogues: CatalogueFormation[];
 }
