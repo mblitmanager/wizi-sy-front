@@ -1,17 +1,39 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import { User } from '../types';
-import { authAPI } from '../api';
-import { toast } from '@/hooks/use-toast';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { User, Stagiaire } from '@/types';
+import { authService } from '@/services/api';
+import { decodeToken } from '@/utils/tokenUtils';
 
-interface AuthContextType {
+interface ApiUser {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+  role: string;
+}
+
+interface ProgressResponse {
+  stagiaire: Stagiaire;
+  progress: {
+    level: string;
+    total_points: number;
+  };
+}
+
+interface AuthResponse {
+  token: string;
+  user: ApiUser;
+}
+
+export interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   isAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (username: string, email: string, password: string) => Promise<void>;
-  logout: () => void;
-  refreshSession: () => Promise<boolean>;
+  logout: () => Promise<void>;
+  register: (userData: any) => Promise<void>;
+  refreshSession: () => Promise<void>;
+  getRedirectPath: () => string;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -20,233 +42,254 @@ const AuthContext = createContext<AuthContextType>({
   isLoading: true,
   isAdmin: false,
   login: async () => {},
+  logout: async () => {},
   register: async () => {},
-  logout: () => {},
-  refreshSession: async () => false,
+  refreshSession: async () => {},
+  getRedirectPath: () => '/',
 });
 
-// Session expiration time in milliseconds (2 hours)
-const SESSION_EXPIRATION = 2 * 60 * 60 * 1000;
+export const useAuth = () => useContext(AuthContext);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [sessionTimer, setSessionTimer] = useState<NodeJS.Timeout | null>(null);
 
-  // Function to refresh the session
-  const refreshSession = async (): Promise<boolean> => {
-    const token = localStorage.getItem('token');
-    if (!token) return false;
-    
-    try {
-      // Tenter de récupérer l'utilisateur courant via l'API
-      const userData = await authAPI.getCurrentUser();
-      setUser(userData);
-      
-      // Update session timestamp
-      localStorage.setItem('sessionTimestamp', Date.now().toString());
-      startSessionTimer();
-      
-      return true;
-    } catch (error) {
-      console.error('Session refresh error:', error);
-      handleSessionExpiration();
-      return false;
-    }
-  };
-
-  // Function to start the session timer
-  const startSessionTimer = () => {
-    // Clear any existing timer
-    if (sessionTimer) {
-      clearTimeout(sessionTimer);
-    }
-    
-    // Set new timer for session expiration
-    const timer = setTimeout(() => {
-      handleSessionExpiration();
-    }, SESSION_EXPIRATION);
-    
-    setSessionTimer(timer);
-  };
-
-  // Function to handle session expiration
-  const handleSessionExpiration = () => {
-    // Clear user data and token
-    localStorage.removeItem('token');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('sessionTimestamp');
-    setUser(null);
-    
-    toast({
-      title: "Session expirée",
-      description: "Votre session a expiré. Veuillez vous reconnecter.",
-      variant: "destructive",
-    });
-  };
-
-  // Check for session validity on initial load
+  // Check if the user is authenticated on mount
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('token');
-      const timestamp = localStorage.getItem('sessionTimestamp');
-      
       if (token) {
-        // Check if session is expired
-        if (timestamp && Date.now() - parseInt(timestamp) > SESSION_EXPIRATION) {
-          handleSessionExpiration();
-          setIsLoading(false);
-          return;
-        }
-
         try {
-          // Tenter de récupérer l'utilisateur via l'API
-          const userData = await authAPI.getCurrentUser();
-          setUser(userData);
-          
-          // Update session timestamp
-          localStorage.setItem('sessionTimestamp', Date.now().toString());
-          startSessionTimer();
+          const userData = await authService.getCurrentUser() as ApiUser;
+          if (userData) {
+            try {
+              const progressResponse = await fetch(`${import.meta.env.VITE_API_URL}/stagiaire/progress`, {
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                },
+              });
+              
+              if (progressResponse.ok) {
+                const data = await progressResponse.json() as ProgressResponse;
+                if (data && data.stagiaire && data.progress) {
+                  const stagiaire = data.stagiaire;
+                  
+                  const formattedUser: User = {
+                    id: userData.id.toString(),
+                    username: userData.name || userData.username || 'Utilisateur',
+                    email: userData.email,
+                    role: userData.role,
+                    level: parseInt(data.progress.level) || 1,
+                    points: data.progress.total_points || 0,
+                    stagiaire: {
+                      id: stagiaire.id,
+                      prenom: stagiaire.prenom || '',
+                      civilite: stagiaire.civilite || '',
+                      telephone: stagiaire.telephone || '',
+                      adresse: stagiaire.adresse || '',
+                      date_naissance: stagiaire.date_naissance || '',
+                      ville: stagiaire.ville || '',
+                      code_postal: stagiaire.code_postal || '',
+                      role: stagiaire.role || 'stagiaire',
+                      statut: stagiaire.statut || 'actif',
+                      user_id: stagiaire.user_id || userData.id
+                    }
+                  };
+                  
+                  setUser(formattedUser);
+                } else {
+                  console.error('Données de progression invalides:', data);
+                  throw new Error('Données de progression invalides');
+                }
+              } else {
+                console.error('Erreur lors de la récupération de la progression:', progressResponse.status);
+                throw new Error('Erreur lors de la récupération de la progression');
+              }
+            } catch (error) {
+              console.error('Erreur lors de la récupération des données de progression:', error);
+              // En cas d'erreur, on crée un utilisateur basique sans données de progression
+              const basicUser: User = {
+                id: userData.id.toString(),
+                username: userData.name || userData.username || 'Utilisateur',
+                email: userData.email,
+                role: userData.role,
+                level: 1,
+                points: 0,
+                stagiaire: {
+                  id: userData.id,
+                  prenom: '',
+                  civilite: '',
+                  telephone: '',
+                  adresse: '',
+                  date_naissance: '',
+                  ville: '',
+                  code_postal: '',
+                  role: 'stagiaire',
+                  statut: 'actif',
+                  user_id: userData.id
+                }
+              };
+              setUser(basicUser);
+            }
+          }
         } catch (error) {
+          console.error('Erreur lors de la récupération de l\'utilisateur actuel:', error);
           localStorage.removeItem('token');
-          localStorage.removeItem('userId');
-          localStorage.removeItem('sessionTimestamp');
-          console.error('Authentication error:', error);
         }
       }
       setIsLoading(false);
     };
 
     checkAuth();
-
-    // Cleanup function to clear timer
-    return () => {
-      if (sessionTimer) {
-        clearTimeout(sessionTimer);
-      }
-    };
   }, []);
 
-  // Set up event listeners for user activity
-  useEffect(() => {
-    if (user) {
-      const handleUserActivity = () => {
-        // Only refresh if we have a current session
-        const token = localStorage.getItem('token');
-        if (token) {
-          localStorage.setItem('sessionTimestamp', Date.now().toString());
-          startSessionTimer();
-        }
-      };
-
-      // Add event listeners to track user activity
-      window.addEventListener('click', handleUserActivity);
-      window.addEventListener('keypress', handleUserActivity);
-      window.addEventListener('scroll', handleUserActivity);
-      window.addEventListener('mousemove', handleUserActivity);
-
-      return () => {
-        // Clean up event listeners
-        window.removeEventListener('click', handleUserActivity);
-        window.removeEventListener('keypress', handleUserActivity);
-        window.removeEventListener('scroll', handleUserActivity);
-        window.removeEventListener('mousemove', handleUserActivity);
-      };
-    }
-  }, [user]);
-
+  // Login function
   const login = async (email: string, password: string) => {
-    setIsLoading(true);
     try {
-      // Utiliser l'API réelle pour la connexion
-      const response = await authAPI.login(email, password);
-      
-      // Store user data in localStorage
-      localStorage.setItem('token', response.token || 'default-token');
-      localStorage.setItem('userId', response.id);
-      localStorage.setItem('sessionTimestamp', Date.now().toString());
-      
-      setUser(response);
-      startSessionTimer();
-      
-      toast({
-        title: "Connexion réussie",
-        description: `Bienvenue sur Wizi Learn${response.role === 'admin' ? ' - Mode Administrateur' : ''}!`,
-      });
+      const response = await authService.login(email, password);
+      if (response && (response as any).token) {
+        const typedResponse = response as any;
+        localStorage.setItem('token', typedResponse.token);
+        
+        // Récupérer les données du stagiaire depuis l'API
+        const progressResponse = await fetch(`${import.meta.env.VITE_API_URL}/stagiaire/progress`, {
+          headers: {
+            'Authorization': `Bearer ${typedResponse.token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (progressResponse.ok) {
+          const data = await progressResponse.json();
+          const stagiaire = data.stagiaire;
+          
+          const formattedUser: User = {
+            id: stagiaire.id.toString(),
+            username: stagiaire.user.name,
+            email: stagiaire.user.email,
+            role: stagiaire.role,
+            level: parseInt(data.progress.level),
+            points: data.progress.total_points,
+            stagiaire: {
+              id: stagiaire.id,
+              prenom: stagiaire.prenom,
+              civilite: stagiaire.civilite,
+              telephone: stagiaire.telephone,
+              adresse: stagiaire.adresse,
+              date_naissance: stagiaire.date_naissance,
+              ville: stagiaire.ville,
+              code_postal: stagiaire.code_postal,
+              role: stagiaire.role,
+              statut: stagiaire.statut,
+              user_id: stagiaire.user_id
+            }
+          };
+          
+          setUser(formattedUser);
+          localStorage.setItem('userName', formattedUser.username);
+          localStorage.setItem('userEmail', formattedUser.email);
+          localStorage.setItem('userRole', formattedUser.role);
+          localStorage.setItem('userLevel', formattedUser.level.toString());
+          localStorage.setItem('userPoints', formattedUser.points.toString());
+        }
+      } else {
+        throw new Error('Aucun jeton reçu');
+      }
     } catch (error) {
-      toast({
-        title: "Erreur de connexion",
-        description: error instanceof Error ? error.message : "Une erreur est survenue",
-        variant: "destructive",
-      });
+      console.error('Erreur lors de la connexion:', error);
       throw error;
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  const register = async (username: string, email: string, password: string) => {
-    setIsLoading(true);
+  // Logout function
+  const logout = async () => {
     try {
-      // Utiliser l'API réelle pour l'inscription
-      const response = await authAPI.register(username, email, password);
-      
-      // Store user data in localStorage
-      localStorage.setItem('token', response.token || 'default-token');
-      localStorage.setItem('userId', response.id);
-      localStorage.setItem('sessionTimestamp', Date.now().toString());
-      
-      setUser(response);
-      startSessionTimer();
-      
-      toast({
-        title: "Inscription réussie",
-        description: "Bienvenue sur Wizi Learn!",
-      });
+      await authService.logout();
     } catch (error) {
-      toast({
-        title: "Erreur d'inscription",
-        description: error instanceof Error ? error.message : "Une erreur est survenue",
-        variant: "destructive",
-      });
-      throw error;
+      console.error('Erreur lors de la déconnexion:', error);
     } finally {
-      setIsLoading(false);
+      localStorage.removeItem('token');
+      setUser(null);
     }
   };
 
-  const logout = () => {
-    authAPI.logout();
-    localStorage.removeItem('sessionTimestamp');
-    setUser(null);
-    
-    if (sessionTimer) {
-      clearTimeout(sessionTimer);
-      setSessionTimer(null);
+  // Mock register function (to be implemented with real API)
+  const register = async (userData: any) => {
+    try {
+      // TODO: Implement real registration API call
+      console.log('Enregistrement de l\'utilisateur avec les données:', userData);  
+      // Mock successful registration
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    } catch (error) {
+      console.error('Erreur lors de l\'enregistrement:', error);
+      throw error;
     }
-    
-    toast({
-      title: "Déconnexion",
-      description: "Vous avez été déconnecté avec succès",
-    });
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: !!user,
-        isLoading,
-        isAdmin: user?.role === 'admin',
-        login,
-        register,
-        logout,
-        refreshSession,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  // Session refresh function
+  const refreshSession = async () => {
+    try {
+      // TODO: Implement real session refresh API call
+      console.log('Refreshing session');
+      
+      // For now, just check current user to validate the token
+      const userData = await authService.getCurrentUser();
+      // Transforme les données utilisateur en User
+      if (userData) {
+        const typedUserData = userData as any;
+        const formattedUser: User = {
+          id: typedUserData.id || '',
+          username: typedUserData.name || typedUserData.username || 'Utilisateur',
+          email: typedUserData.email || '',
+          role: typedUserData.role || 'stagiaire',
+          level: typedUserData.level || 1,
+          points: typedUserData.points || 0
+        };
+        setUser(formattedUser);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de la session:', error);
+      throw error;
+    }
+  };
+
+  // Get redirect path based on user role
+  const getRedirectPath = () => {
+    if (!user) return '/auth/login';
+    
+    switch (user.role) {
+      case 'admin':
+        return '/admin';
+      case 'formateur':
+        return '/formateur';
+      case 'commercial':
+        return '/commercial';
+      case 'pole_relation_client':
+        return '/pole-relation';
+      default:
+        return '/';
+    }
+  };
+
+  // Value object to be provided by context
+  const value = {
+    user,
+    isAuthenticated: !!user,
+    isLoading,
+    isAdmin: user?.role === 'admin',
+    login,
+    logout,
+    register,
+    refreshSession,
+    getRedirectPath,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => useContext(AuthContext);
+export default AuthContext;

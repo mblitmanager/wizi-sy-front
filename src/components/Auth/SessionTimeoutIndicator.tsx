@@ -1,57 +1,81 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
-// Session warning time in milliseconds (show warning 5 minutes before expiration)
-const WARNING_TIME = 5 * 60 * 1000;
-const SESSION_EXPIRATION = 2 * 60 * 60 * 1000;
+const SESSION_TIMEOUT = 15 * 600; // 15 minutes en secondes
+const WARNING_TIME = 5 * 600; // 5 minutes en secondes
 
 export const SessionTimeoutIndicator: React.FC = () => {
+  const { refreshSession } = useAuth();
+  const [timeLeft, setTimeLeft] = useState(SESSION_TIMEOUT);
   const [showWarning, setShowWarning] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(0);
-  const { refreshSession, isAuthenticated } = useAuth();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    let timer: NodeJS.Timeout;
 
-    const checkSessionStatus = () => {
-      const sessionTimestamp = localStorage.getItem('sessionTimestamp');
-      if (!sessionTimestamp) return;
-
-      const elapsed = Date.now() - parseInt(sessionTimestamp);
-      const remaining = SESSION_EXPIRATION - elapsed;
-
-      if (remaining <= WARNING_TIME && remaining > 0) {
-        setShowWarning(true);
-        setTimeLeft(Math.floor(remaining / 1000));
-      } else {
-        setShowWarning(false);
-      }
+    const resetTimer = () => {
+      setTimeLeft(SESSION_TIMEOUT);
+      setShowWarning(false);
     };
 
-    // Check every minute
-    const intervalId = setInterval(checkSessionStatus, 60 * 1000);
-    checkSessionStatus(); // Check immediately
+    const handleUserActivity = () => {
+      resetTimer();
+    };
 
-    return () => clearInterval(intervalId);
-  }, [isAuthenticated]);
+    // Écouter les événements d'activité utilisateur
+    window.addEventListener('mousemove', handleUserActivity);
+    window.addEventListener('keydown', handleUserActivity);
+    window.addEventListener('click', handleUserActivity);
+    window.addEventListener('scroll', handleUserActivity);
 
-  // Count down every second when warning is showing
+    // Mettre à jour le timer
+    timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 0) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('mousemove', handleUserActivity);
+      window.removeEventListener('keydown', handleUserActivity);
+      window.removeEventListener('click', handleUserActivity);
+      window.removeEventListener('scroll', handleUserActivity);
+    };
+  }, []);
+
   useEffect(() => {
-    if (showWarning && timeLeft > 0) {
-      const countDownInterval = setInterval(() => {
-        setTimeLeft(prev => prev - 1);
-      }, 1000);
-
-      return () => clearInterval(countDownInterval);
+    if (timeLeft <= WARNING_TIME && !showWarning) {
+      setShowWarning(true);
     }
-  }, [showWarning, timeLeft]);
+  }, [timeLeft, showWarning]);
 
   const handleContinue = async () => {
-    await refreshSession();
-    setShowWarning(false);
+    setIsRefreshing(true);
+    try {
+      await refreshSession();
+      setTimeLeft(SESSION_TIMEOUT);
+      setShowWarning(false);
+    } catch (error) {
+      console.error('Error refreshing session:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -73,7 +97,20 @@ export const SessionTimeoutIndicator: React.FC = () => {
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button onClick={handleContinue}>Continuer ma session</Button>
+          <Button 
+            onClick={handleContinue} 
+            disabled={isRefreshing}
+            className="w-full"
+          >
+            {isRefreshing ? (
+              <span className="flex items-center">
+                <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                Rafraîchissement...
+              </span>
+            ) : (
+              'Continuer ma session'
+            )}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

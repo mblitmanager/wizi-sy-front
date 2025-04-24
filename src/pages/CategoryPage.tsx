@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Category, Quiz } from '@/types';
-import { mockAPI } from '@/api/mockAPI';
+import { quizApi } from '@/api/quizApi';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -20,13 +19,13 @@ const CategoryPage: React.FC = () => {
         if (!id) return;
         
         // Récupération des informations de la catégorie
-        const categories = mockAPI.getCategories();
+        const categories = await quizApi.getCategories();
         const foundCategory = categories.find(cat => cat.id === id) || null;
         setCategory(foundCategory);
         
         // Récupération des quiz pour cette catégorie
         if (foundCategory) {
-          const categoryQuizzes = mockAPI.getQuizzesByCategory(id);
+          const categoryQuizzes = await quizApi.getQuizzesByCategory(id);
           setQuizzes(categoryQuizzes);
         }
       } catch (error) {

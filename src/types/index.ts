@@ -36,32 +36,27 @@ export type QuestionType =
   | 'vrai/faux'
   | 'banque de mots';
 
-export interface Question {
+export interface Response {
   id: string;
   text: string;
-  type: QuestionType;
-  answers?: Reponse[];
-  blanks?: Array<{
-    id: string;
-    text: string;
-    bankGroup: string;
-  }>;
-  wordbank?: Array<{
-    id: string;
-    text: string;
-    isCorrect?: boolean;
-    bankGroup: string;
-  }>;
-  flashcard?: {
-    front: string;
-    back: string;
-  };
-  matching?: Array<{
-    id: string;
-    text: string;
-    matchPair: string;
-  }>;
-  audioUrl?: string;
+  is_correct: boolean;
+  question_id: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface Question {
+  id: number;
+  quiz_id: number;
+  text: string;
+  type: string;
+  explication: string | null;
+  points: string;
+  astuce: string | null;
+  media_url: string | null;
+  created_at: string;
+  updated_at: string;
+  reponses: Reponse[];
 }
 
 export interface Quiz {
@@ -72,7 +67,11 @@ export interface Quiz {
   categorieId: string;
   niveau: string;
   questions: Question[];
-  nbPointsTotal: number;
+  nb_points_total: number;
+  duree: number;
+  formation_id: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface QuizResult {

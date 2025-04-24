@@ -1,168 +1,443 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { UserProgress } from "@/types/quiz";
+import CategoryCard from "@/components/Home/CategoryCard";
+import ProgressCard from "@/components/Home/ProgressCard";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { Contact } from "@/types/contact";
+import { ContactCard } from "@/components/Contacts/ContactCard";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import {
+  BookOpen,
+  Trophy,
+  Users,
+  Calendar,
+  Bell,
+  Play,
+  Star,
+  Award,
+  ChevronRight,
+  Book,
+  GraduationCap,
+  Clock,
+  Zap,
+} from "lucide-react";
+import { DETAILS, VOS_FORMATION } from "@/utils/langue-type";
+import { CatalogueFormationResponse } from "@/types/stagiaire";
+import CatalogueFormation from "@/components/catalogueFormation/CatalogueFormationDetails";
+import LoadingCatalogue from "@/components/catalogueFormation/LoadingCatalogue";
+import { quizService, progressService, contactService, stagiaireAPI } from "@/services";
+import { formationService } from '../services/formationService';
 import { useAuth } from '@/context/AuthContext';
-import { Category, UserProgress } from '@/types';
-import { mockAPI } from '@/api/mockAPI';
-import CategoryCard from '@/components/Home/CategoryCard';
-import { Award, Flame, Star, Trophy } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+
+const API_URL = import.meta.env.VITE_API_URL;
+const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_IMG;
+
+interface Category {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+  colorClass: string;
+  quizCount: number;
+}
+
+const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
+  const response = await axios.get<Contact[]>(
+    `${API_URL}/stagiaire/contacts/${endpoint}`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+  return response.data;
+};
 
 const HomePage: React.FC = () => {
   const { user } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [userProgress, setUserProgress] = useState<UserProgress | null>(null);
+  const [userProgress, setUserProgress] = useState<UserProgress>({
+    quizzes_completed: 0,
+    total_points: 0,
+    average_score: 0,
+  });
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Récupération des catégories et de la progression de l'utilisateur
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
+  const { data: catalogueData, isLoading: isLoadingCatalogue } = useQuery({
+    queryKey: ['catalogue'],
+
+    queryFn: async (): Promise<CatalogueFormationResponse> => {
       try {
-        // Dans une vraie application, nous utiliserions des appels API au lieu de mockAPI
-        const categoriesData = mockAPI.getCategories();
-        setCategories(categoriesData);
-
-        if (user) {
-          // Ceci serait un vrai appel API en production
-          // const userProgressData = await progressAPI.getUserProgress(user.id);
-          // setUserProgress(userProgressData);
-          
-          // Utilisation de données mock pour l'instant
-          setUserProgress({
-            userId: user.id,
-            categoryProgress: {
-              '1': { completedQuizzes: 3, totalQuizzes: 8, points: 150 },
-              '2': { completedQuizzes: 2, totalQuizzes: 6, points: 100 },
-              '3': { completedQuizzes: 1, totalQuizzes: 5, points: 50 },
-              '4': { completedQuizzes: 0, totalQuizzes: 7, points: 0 },
-            },
-            badges: ['beginner', 'quick_learner'],
-            streak: 3,
-            lastActive: new Date().toISOString(),
-          });
-        }
+        const response = await axios.get<CatalogueFormationResponse>(`${API_URL}/catalogueFormations/stagiaire/${user?.stagiaire?.id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        return response.data;
       } catch (error) {
-        console.error('Échec de récupération des données:', error);
-      } finally {
-        setIsLoading(false);
+        console.error('Erreur lors de la récupération du catalogue:', error);
+        throw error;
       }
-    };
+    },
+    retry: 1,
+  });
 
+  // Récupération des contacts
+  const { data: commerciaux, isLoading: loadingCommerciaux } = useQuery<
+    Contact[]
+  >({
+    queryKey: ["contacts", "commerciaux"],
+    queryFn: () => fetchContacts("commerciaux"),
+  });
+
+  const { data: formateurs, isLoading: loadingFormateurs } = useQuery<
+    Contact[]
+  >({
+    queryKey: ["contacts", "formateurs"],
+    queryFn: () => fetchContacts("formateurs"),
+  });
+
+  const { data: poleRelation, isLoading: loadingPoleRelation } = useQuery<
+    Contact[]
+  >({
+    queryKey: ["contacts", "pole-relation"],
+    queryFn: () => fetchContacts("pole-relation"),
+  });
+
+  // Données fictives pour les quiz et formations
+  const [quizLevels] = useState([
+    {
+      id: 1,
+      name: "Débutant",
+      questions: 5,
+      icon: <BookOpen className="h-5 w-5" />,
+    },
+    {
+      id: 2,
+      name: "Intermédiaire",
+      questions: 10,
+      icon: <BookOpen className="h-5 w-5" />,
+    },
+    {
+      id: 3,
+      name: "Avancé",
+      questions: 15,
+      icon: <BookOpen className="h-5 w-5" />,
+    },
+    {
+      id: 4,
+      name: "Super Quiz",
+      questions: 20,
+      icon: <Zap className="h-5 w-5" />,
+    },
+  ]);
+
+  const [tutoriels] = useState([
+    {
+      id: 1,
+      title: "Comment utiliser la plateforme",
+      duration: "30s",
+      thumbnail: "/images/tuto1.jpg",
+    },
+    {
+      id: 2,
+      title: "Astuces pour réussir vos quiz",
+      duration: "30s",
+      thumbnail: "/images/tuto2.jpg",
+    },
+    {
+      id: 3,
+      title: "Système de parrainage",
+      duration: "30s",
+      thumbnail: "/images/tuto3.jpg",
+    },
+  ]);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // Get categories
+      try {
+        const categories = await formationService.getCategories();
+        const categoriesWithColors = categories.map((name, index) => {
+          const colors = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+          const colorClasses = ['category-blue-500', 'category-green-500', 'category-yellow-500', 'category-red-500', 'category-purple-500', 'category-pink-500'];
+          
+          return {
+            id: name,
+            name: name,
+            description: `Quizzes dans la catégorie ${name}`,
+            color: colors[index % colors.length],
+            colorClass: colorClasses[index % colorClasses.length],
+            quizCount: Math.floor(Math.random() * 10) + 1, // Sample data
+          };
+        });
+        
+        setCategories(categoriesWithColors);
+      } catch (categoriesError) {
+        console.error('Erreur lors de la récupération des catégories:', categoriesError);
+        setError('Impossible de charger les catégories. Veuillez vérifier votre connexion ou réessayer plus tard.');
+      }
+      
+      // Get user progress
+      try {
+        const progress = await progressService.getUserProgress();
+        setUserProgress(progress);
+      } catch (progressError) {
+        console.error('Erreur lors de la récupération des progrès:', progressError);
+        setUserProgress({
+          quizzes_completed: 0,
+          total_points: 0,
+          average_score: 0
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération des données:', error);
+      setError('Impossible de charger les données. Veuillez vérifier votre connexion ou réessayer plus tard.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
-  }, [user]);
+  }, []);
 
-  // Calcul du pourcentage de progression total
-  const calculateTotalCompletion = () => {
-    if (!userProgress) return 0;
-    
-    let completed = 0;
-    let total = 0;
-    
-    Object.values(userProgress.categoryProgress).forEach(progress => {
-      completed += progress.completedQuizzes;
-      total += progress.totalQuizzes;
-    });
-    
-    return total > 0 ? Math.round((completed / total) * 100) : 0;
+  const handleRetry = () => {
+    fetchData();
   };
-
-  // Récupération des catégories commencées par l'utilisateur
-  const getInProgressCategories = () => {
-    if (!userProgress) return [];
-    
-    return categories.filter(category => {
-      const progress = userProgress.categoryProgress[category.id];
-      return progress && progress.completedQuizzes > 0 && progress.completedQuizzes < progress.totalQuizzes;
-    });
-  };
-
-  const inProgressCategories = getInProgressCategories();
-  const totalCompletion = calculateTotalCompletion();
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
 
   return (
-    <div className="pb-20 md:pb-0 md:pl-64">
-      {/* Section d'accueil */}
-      <section className="mb-8">
-        <h1 className="text-2xl font-bold mb-2 font-montserrat">Bonjour, {user?.username}!</h1>
-        <p className="text-gray-600 font-roboto">Continuez votre apprentissage là où vous l'avez laissé.</p>
-      </section>
+    <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
+      {/* En-tête avec bienvenue et progression */}
+      <div className="mb-8">
+      <img src="/assets/wizi-learn-logo.png" alt="Wizi Learn Logo" className="w-32 mb-6" />
+        <h1 className="text-3xl font-bold mb-2">Bienvenue sur Wizi-Learn</h1>
+        <p className="text-muted-foreground mb-4">
+          Votre plateforme d'apprentissage personnalisée
+        </p>
 
-      {/* Cartes de statistiques */}
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <Card>
-          <CardContent className="p-4 flex flex-col items-center justify-center">
-            <Trophy className="h-6 w-6 text-yellow-500 mb-2" />
-            <div className="text-xl font-bold font-nunito">{user?.points}</div>
-            <div className="text-xs text-gray-500 font-roboto">Points</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex flex-col items-center justify-center">
-            <Award className="h-6 w-6 text-blue-500 mb-2" />
-            <div className="text-xl font-bold font-nunito">{user?.level}</div>
-            <div className="text-xs text-gray-500 font-roboto">Niveau</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex flex-col items-center justify-center">
-            <Flame className="h-6 w-6 text-red-500 mb-2" />
-            <div className="text-xl font-bold font-nunito">{userProgress?.streak || 0}</div>
-            <div className="text-xs text-gray-500 font-roboto">Jours consécutifs</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex flex-col items-center justify-center">
-            <Star className="h-6 w-6 text-purple-500 mb-2" />
-            <div className="text-xl font-bold font-nunito">{totalCompletion}%</div>
-            <div className="text-xs text-gray-500 font-roboto">Complété</div>
-          </CardContent>
-        </Card>
-      </section>
-
-      {/* Section "Continuez votre apprentissage" */}
-      {inProgressCategories.length > 0 && (
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4 font-montserrat">Continuez votre apprentissage</h2>
-          <div className="space-y-3">
-            {inProgressCategories.map(category => {
-              const progress = userProgress?.categoryProgress[category.id];
-              if (!progress) return null;
-              
-              const percentage = (progress.completedQuizzes / progress.totalQuizzes) * 100;
-              
-              return (
-                <div key={category.id} className="bg-white p-4 rounded-lg shadow-sm">
-                  <h3 className="text-sm font-medium text-gray-700 mb-1 font-montserrat">{category.name}</h3>
-                  <div className="flex justify-between items-center mb-1 text-xs text-gray-500 font-roboto">
-                    <span>{progress.completedQuizzes} terminés</span>
-                    <span>{progress.totalQuizzes} total</span>
-                  </div>
-                  <Progress value={percentage} className="h-2" />
-                </div>
-              );
-            })}
+        <div className="bg-card rounded-lg p-4 shadow-sm">
+          <div className="flex justify-between items-center mb-2">
+            <h2 className="text-lg font-semibold">Votre progression</h2>
+            <Badge variant="outline">Niveau 3</Badge>
           </div>
-        </section>
+          <Progress value={65} className="mb-2" />
+          <p className="text-sm text-muted-foreground">
+            65% complété - 350 points
+          </p>
+        </div>
+      </div>
+
+      {/* Section des contacts */}
+      <div className="mb-8 p-4 bg-card rounded-lg shadow-sm">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-yellow-400">
+            Vos contacts
+          </h2>
+          <Link to="/contacts">
+            <Button className="text-blue-400" variant="ghost" size="sm">
+              Voir tous <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </Link>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {commerciaux?.[0] && <ContactCard contact={commerciaux[0]} />}
+          {formateurs?.[0] && <ContactCard contact={formateurs[0]} />}
+          {poleRelation?.[0] && <ContactCard contact={poleRelation[0]} />}
+        </div>
+      </div>
+
+      {/* Section des formations */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold text-yellow-400">
+          {VOS_FORMATION}
+        </h2>
+        <Link to="/formations">
+          <Button variant="ghost" className="text-blue-400" size="sm">
+            Voir tous <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
+        </Link>
+      </div>
+      {isLoadingCatalogue ? (
+        <LoadingCatalogue />
+      ) : catalogueData ? (
+        <CatalogueFormation catalogueData={catalogueData} />
+      ) : (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Erreur</AlertTitle>
+          <AlertDescription>
+            Impossible de charger le catalogue de formations. Veuillez réessayer plus tard.
+          </AlertDescription>
+        </Alert>
       )}
 
-      {/* Section Catégories */}
-      <section>
-        <h2 className="text-xl font-semibold mb-4 font-montserrat">Catégories</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {categories.map(category => (
-            <CategoryCard key={category.id} category={category} />
+      {/* Section des quiz */}
+      <div className="mb-8 p-4 bg-card rounded-lg shadow-sm">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-yellow-400">
+            Quiz disponibles
+          </h2>
+          <Link to="/quiz">
+            <Button className="text-blue-400" variant="ghost" size="sm">
+              Voir tous <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </Link>
+        </div>
+
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {quizLevels.map((level) => (
+            <Card key={level.id} className="text-center">
+              <CardHeader className="p-4">
+                <div className="mx-auto mb-2 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  {level.icon}
+                </div>
+                <CardTitle className="text-lg">{level.name}</CardTitle>
+                <CardDescription>{level.questions} questions</CardDescription>
+              </CardHeader>
+              <CardFooter className="p-4 pt-0">
+                <Button className="w-full">Commencer</Button>
+              </CardFooter>
+            </Card>
           ))}
         </div>
-      </section>
+      </div>
+
+      {/* Section des tutoriels */}
+      <div className="mb-8 p-4 bg-card rounded-lg shadow-sm">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-yellow-400">
+            Tutoriels et astuces
+          </h2>
+          <Link to="/tutoriels">
+            <Button className="text-blue-400" variant="ghost" size="sm">
+              Voir tous <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </Link>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          {tutoriels.map((tutoriel) => (
+            <Card key={tutoriel.id} className="overflow-hidden">
+              <div className="h-32 bg-muted relative">
+                <img
+                  src={tutoriel.thumbnail}
+                  alt={tutoriel.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center">
+                    <Play className="h-5 w-5 text-primary" />
+                  </div>
+                </div>
+                <div className="absolute bottom-0 right-0 bg-black/50 text-white p-1 text-xs">
+                  {tutoriel.duration}
+                </div>
+              </div>
+              <CardHeader className="p-4">
+                <CardTitle className="text-lg">{tutoriel.title}</CardTitle>
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <Link to="/profile#parrainage" className="block">
+          <Card className="h-full hover:bg-accent transition-colors">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-medium ">Voir mes filleuls</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Consultez votre programme de parrainage complet
+                  </p>
+                </div>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Card>
+          <CardHeader>
+            <CardTitle>Classement</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[1, 2, 3, 4, 5].map((rank) => (
+                <div key={rank} className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className="font-bold">{rank}.</span>
+                    <span>Stagiaire {rank}</span>
+                  </div>
+                  <span className="text-primary">{1000 - rank * 50} pts</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Section de l'agenda */}
+      <div className="mb-8 p-4 bg-card rounded-lg shadow-sm">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-yellow-400">Agenda</h2>
+          <Link to="/agenda">
+            <Button variant="ghost" size="sm">
+              Voir l'agenda complet <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </Link>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Calendar className="h-5 w-5 mr-2" />
+              Prochains cours
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[1, 2, 3].map((event) => (
+                <div
+                  key={event}
+                  className="flex items-start p-2 rounded bg-muted/50">
+                  <div className="w-12 h-12 rounded bg-primary/10 flex items-center justify-center mr-3">
+                    <Clock className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Cours de Word</p>
+                    <p className="text-xs text-muted-foreground">
+                      Aujourd'hui, 14h00 - 16h00
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Formateur: John Doe
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

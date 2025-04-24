@@ -148,6 +148,14 @@
   animation: float 3s ease-in-out infinite;
 }
 
+/* Styles personnalisés pour notre application */
+
+/* Style pour la barre de progression */
+.progress-fill {
+  @apply h-full rounded-full animate-progress-fill;
+  background-color: var(--progress-background);
+}
+
 /* Animations pour la transition des pages */
 .page-enter {
   opacity: 0;
