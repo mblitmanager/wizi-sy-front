@@ -30,6 +30,7 @@ import UsersPage from "@/pages/admin/UsersPage";
 import CoursesPage from "@/pages/admin/CoursesPage";
 import QuizzesPage from "@/pages/admin/QuizzesPage";
 import StatsPage from "@/pages/admin/StatsPage";
+import CatalogueFormationDetails from "./components/catalogueFormation/CatalogueFormationDetails";
 
 const queryClient = new QueryClient();
 
@@ -51,7 +52,11 @@ const App = () => (
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="contacts" element={<ContactsPage />} />
                 <Route path="formations" element={<FormationsPage />} />
-                
+                <Route
+                  path="catalogue_formation/:id"
+                  element={<CatalogueFormationDetails />}
+                />
+
                 {/* Admin Routes */}
                 <Route path="admin" element={<AdminPage />} />
                 <Route path="admin/users" element={<UsersPage />} />
