@@ -1,4 +1,3 @@
-
 import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry } from '../types';
 
 // Base URL of our API
@@ -134,6 +133,3 @@ export const progressAPI = {
     return handleResponse(response);
   },
 };
-
-// Continuer à utiliser le mockAPI pour le développement tant que l'API n'est pas complètement disponible
-export { mockAPI } from './mockAPI';

@@ -1,12 +1,12 @@
 import axios from "axios";
 
-const API_URL = process.env.VITE_API_URL || "http://localhost:8000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 // Log the current API URL to help with debugging
 console.log("Using API URL:", API_URL);
 
 // Déterminer si nous sommes en développement ou en production
-const isDevelopment = process.env.NODE_ENV === 'development';
+const isDevelopment = import.meta.env.MODE === 'development';
 const isPreview = window.location.hostname.includes('lovable.app');
 
 export const api = axios.create({
@@ -69,6 +69,9 @@ export const authService = {
   getCurrentUser: async () => {
     try {
       const response = await api.get('/me');
+      if (!response.data) {
+        throw new Error('No user data received');
+      }
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la récupération de l\'utilisateur:', error);

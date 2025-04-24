@@ -19,8 +19,13 @@ import {
   RETOUR,
 } from "@/utils/langue-type";
 import HeaderSection from "../features/HeaderSection";
+import { CatalogueFormationResponse } from "@/types/stagiaire";
 
-export default function CatalogueFormationDetails() {
+interface CatalogueFormationDetailsProps {
+  catalogueData: CatalogueFormationResponse;
+}
+
+export default function CatalogueFormationDetails({ catalogueData }: CatalogueFormationDetailsProps) {
   const { id } = useParams();
   interface CatalogueFormationDetailsType {
     catalogueFormation: {
@@ -40,9 +45,7 @@ export default function CatalogueFormationDetails() {
     };
   }
 
-  const [details, setDetails] = useState<CatalogueFormationDetailsType | null>(
-    null
-  );
+  const [details, setDetails] = useState<CatalogueFormationDetailsType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -64,11 +67,11 @@ export default function CatalogueFormationDetails() {
   useEffect(() => {
     if (id) {
       catalogueFormationApi
-        .getCatalogueFormationById(Number(id))
+        .getFormationDetails(id)
         .then((response) => {
-          setDetails(response.data as CatalogueFormationDetailsType);
+          setDetails(response as CatalogueFormationDetailsType);
           setLoading(false);
-          console.log("Détails de la formation:", response.data);
+          console.log("Détails de la formation:", response);
         })
         .catch((err) => {
           console.error("Error fetching details:", err);

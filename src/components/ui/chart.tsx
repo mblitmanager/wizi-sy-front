@@ -353,6 +353,159 @@ function getPayloadConfigFromPayload(
     : config[key as keyof typeof config]
 }
 
+export const BarChart = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof ChartContainer> & {
+    data: {
+      labels: string[];
+      datasets: {
+        label: string;
+        data: number[];
+        backgroundColor?: string;
+        borderColor?: string;
+        borderWidth?: number;
+      }[];
+    };
+  }
+>(({ data, ...props }, ref) => {
+  const chartData = data.labels.map((label, index) => ({
+    name: label,
+    value: data.datasets[0].data[index],
+  }));
+
+  return (
+    <ChartContainer
+      ref={ref}
+      config={{
+        value: {
+          label: data.datasets[0].label,
+          color: data.datasets[0].backgroundColor,
+        },
+      }}
+      {...props}
+    >
+      <RechartsPrimitive.BarChart data={chartData}>
+        <RechartsPrimitive.XAxis dataKey="name" />
+        <RechartsPrimitive.YAxis />
+        <RechartsPrimitive.Tooltip />
+        <RechartsPrimitive.Bar
+          dataKey="value"
+          fill={data.datasets[0].backgroundColor}
+          stroke={data.datasets[0].borderColor}
+          strokeWidth={data.datasets[0].borderWidth}
+        />
+      </RechartsPrimitive.BarChart>
+    </ChartContainer>
+  );
+});
+
+export const LineChart = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof ChartContainer> & {
+    data: {
+      labels: string[];
+      datasets: {
+        label: string;
+        data: number[];
+        borderColor?: string;
+        backgroundColor?: string;
+        tension?: number;
+        fill?: boolean;
+      }[];
+    };
+  }
+>(({ data, ...props }, ref) => {
+  const chartData = data.labels.map((label, index) => ({
+    name: label,
+    value: data.datasets[0].data[index],
+  }));
+
+  return (
+    <ChartContainer
+      ref={ref}
+      config={{
+        value: {
+          label: data.datasets[0].label,
+          color: data.datasets[0].borderColor,
+        },
+      }}
+      {...props}
+    >
+      <RechartsPrimitive.LineChart data={chartData}>
+        <RechartsPrimitive.XAxis dataKey="name" />
+        <RechartsPrimitive.YAxis />
+        <RechartsPrimitive.Tooltip />
+        <RechartsPrimitive.Line
+          type="monotone"
+          dataKey="value"
+          stroke={data.datasets[0].borderColor}
+          fill={data.datasets[0].backgroundColor}
+          strokeWidth={2}
+          dot={{ r: 4 }}
+          activeDot={{ r: 6 }}
+        />
+      </RechartsPrimitive.LineChart>
+    </ChartContainer>
+  );
+});
+
+export const PieChart = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof ChartContainer> & {
+    data: {
+      labels: string[];
+      datasets: {
+        label: string;
+        data: number[];
+        backgroundColor?: string[];
+        borderWidth?: number;
+      }[];
+    };
+  }
+>(({ data, ...props }, ref) => {
+  const chartData = data.labels.map((label, index) => ({
+    name: label,
+    value: data.datasets[0].data[index],
+    fill: data.datasets[0].backgroundColor?.[index],
+  }));
+
+  return (
+    <ChartContainer
+      ref={ref}
+      config={chartData.reduce((acc, item) => ({
+        ...acc,
+        [item.name]: {
+          label: item.name,
+          color: item.fill,
+        },
+      }), {})}
+      {...props}
+    >
+      <RechartsPrimitive.PieChart>
+        <RechartsPrimitive.Pie
+          data={chartData}
+          dataKey="value"
+          nameKey="name"
+          cx="50%"
+          cy="50%"
+          outerRadius={80}
+          label
+        >
+          {chartData.map((entry, index) => (
+            <RechartsPrimitive.Cell
+              key={`cell-${index}`}
+              fill={entry.fill}
+              strokeWidth={data.datasets[0].borderWidth}
+            />
+          ))}
+        </RechartsPrimitive.Pie>
+        <RechartsPrimitive.Tooltip />
+        <RechartsPrimitive.Legend />
+      </RechartsPrimitive.PieChart>
+    </ChartContainer>
+  );
+});
+
 export {
   ChartContainer,
   ChartTooltip,

@@ -36,10 +36,9 @@ import {
   Clock,
   Zap,
 } from "lucide-react";
-import ParrainageSection from "@/components/Home/ParrainageSection";
 import { DETAILS, VOS_FORMATION } from "@/utils/langue-type";
 import { CatalogueFormationResponse } from "@/types/stagiaire";
-import CatalogueFormation from "@/components/catalogueFormation/CatalogueFoamtion";
+import CatalogueFormation from "@/components/catalogueFormation/CatalogueFormationDetails";
 import LoadingCatalogue from "@/components/catalogueFormation/LoadingCatalogue";
 import { quizService, progressService, contactService, stagiaireAPI } from "@/services";
 import { formationService } from '../services/formationService';
@@ -362,7 +361,6 @@ const HomePage: React.FC = () => {
       </div>
 
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        <ParrainageSection />
         <Link to="/profile#parrainage" className="block">
           <Card className="h-full hover:bg-accent transition-colors">
             <CardContent className="p-6">

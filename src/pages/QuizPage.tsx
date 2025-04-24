@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Quiz, Question, QuizResult } from '@/types';
+import { Quiz, Question, QuizResult } from '@/types/index';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -189,7 +189,7 @@ const QuizPage: React.FC = () => {
                   </div>
                   <div>
                     <span className="text-gray-500">Points:</span>
-                    <span className="font-semibold ml-1">{quiz.nbPointsTotal}</span>
+                    <span className="font-semibold ml-1">{quiz.nb_points_total}</span>
                   </div>
                   <div>
                     <span className="text-gray-500">Questions:</span>

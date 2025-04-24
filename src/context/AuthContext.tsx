@@ -66,40 +66,75 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         try {
           const userData = await authService.getCurrentUser() as ApiUser;
           if (userData) {
-            const progressResponse = await fetch(`${import.meta.env.VITE_API_URL}/stagiaire/progress`, {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
-            });
-            
-            if (progressResponse.ok) {
-              const data = await progressResponse.json() as ProgressResponse;
-              const stagiaire = data.stagiaire;
+            try {
+              const progressResponse = await fetch(`${import.meta.env.VITE_API_URL}/stagiaire/progress`, {
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                },
+              });
               
-              const formattedUser: User = {
+              if (progressResponse.ok) {
+                const data = await progressResponse.json() as ProgressResponse;
+                if (data && data.stagiaire && data.progress) {
+                  const stagiaire = data.stagiaire;
+                  
+                  const formattedUser: User = {
+                    id: userData.id.toString(),
+                    username: userData.name || userData.username || 'Utilisateur',
+                    email: userData.email,
+                    role: userData.role,
+                    level: parseInt(data.progress.level) || 1,
+                    points: data.progress.total_points || 0,
+                    stagiaire: {
+                      id: stagiaire.id,
+                      prenom: stagiaire.prenom || '',
+                      civilite: stagiaire.civilite || '',
+                      telephone: stagiaire.telephone || '',
+                      adresse: stagiaire.adresse || '',
+                      date_naissance: stagiaire.date_naissance || '',
+                      ville: stagiaire.ville || '',
+                      code_postal: stagiaire.code_postal || '',
+                      role: stagiaire.role || 'stagiaire',
+                      statut: stagiaire.statut || 'actif',
+                      user_id: stagiaire.user_id || userData.id
+                    }
+                  };
+                  
+                  setUser(formattedUser);
+                } else {
+                  console.error('Données de progression invalides:', data);
+                  throw new Error('Données de progression invalides');
+                }
+              } else {
+                console.error('Erreur lors de la récupération de la progression:', progressResponse.status);
+                throw new Error('Erreur lors de la récupération de la progression');
+              }
+            } catch (error) {
+              console.error('Erreur lors de la récupération des données de progression:', error);
+              // En cas d'erreur, on crée un utilisateur basique sans données de progression
+              const basicUser: User = {
                 id: userData.id.toString(),
                 username: userData.name || userData.username || 'Utilisateur',
                 email: userData.email,
                 role: userData.role,
-                level: parseInt(data.progress.level),
-                points: data.progress.total_points,
+                level: 1,
+                points: 0,
                 stagiaire: {
-                  id: stagiaire.id,
-                  prenom: stagiaire.prenom,
-                  civilite: stagiaire.civilite,
-                  telephone: stagiaire.telephone,
-                  adresse: stagiaire.adresse,
-                  date_naissance: stagiaire.date_naissance,
-                  ville: stagiaire.ville,
-                  code_postal: stagiaire.code_postal,
-                  role: stagiaire.role,
-                  statut: stagiaire.statut,
-                  user_id: stagiaire.user_id
+                  id: userData.id,
+                  prenom: '',
+                  civilite: '',
+                  telephone: '',
+                  adresse: '',
+                  date_naissance: '',
+                  ville: '',
+                  code_postal: '',
+                  role: 'stagiaire',
+                  statut: 'actif',
+                  user_id: userData.id
                 }
               };
-              
-              setUser(formattedUser);
+              setUser(basicUser);
             }
           }
         } catch (error) {
