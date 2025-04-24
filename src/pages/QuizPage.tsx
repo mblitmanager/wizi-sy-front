@@ -1,259 +1,232 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
-import { quizService } from '@/services/quizService';
-import { Quiz, Question, QuizResult } from '@/types/quiz';
-import { Timer } from '@/components/ui/timer';
-import QuestionRenderer from '../components/questions/QuestionRenderer';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Quiz, Question, QuizResult } from '@/types';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  BookOpen, 
-  Zap, 
-  History, 
-  Trophy, 
-  ChevronRight,
-  Clock,
-  CheckCircle,
-  XCircle,
-  BarChart,
-  Loader2
-} from "lucide-react";
-import { api } from '@/services/api';
-import { Formation } from '@/types/formation';
+import { Card, CardContent } from '@/components/ui/card';
+import { ChevronLeft } from 'lucide-react';
+import QuizQuestion from '@/components/Quiz/QuizQuestion';
+import QuizResultComponent from '@/components/Quiz/QuizResult';
+import { useToast } from '@/hooks/use-toast';
+import { quizApi } from '@/api/quizApi';
+import QuizSummary from '@/components/Quiz/QuizSummary';
 
-export const QuizPage: React.FC = () => {
-  const { quizId } = useParams<{ quizId: string }>();
+const QuizPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [results, setResults] = useState<QuizResult[]>([]);
-  const [score, setScore] = useState(0);
-  const [timeSpent, setTimeSpent] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [answers, setAnswers] = useState<Record<string, string[]>>({});
+  const [correctAnswers, setCorrectAnswers] = useState<Record<string, string[]>>({});
+  const [isQuizStarted, setIsQuizStarted] = useState(false);
+  const [isQuizCompleted, setIsQuizCompleted] = useState(false);
   const [result, setResult] = useState<QuizResult | null>(null);
-
-  // Données fictives pour les quiz
-  const [quizLevels] = useState([
-    { id: 1, name: "Débutant", questions: 5, icon: <BookOpen className="h-5 w-5" /> },
-    { id: 2, name: "Intermédiaire", questions: 10, icon: <BookOpen className="h-5 w-5" /> },
-    { id: 3, name: "Avancé", questions: 15, icon: <BookOpen className="h-5 w-5" /> },
-    { id: 4, name: "Super Quiz", questions: 20, icon: <Zap className="h-5 w-5" /> },
-  ]);
-
-  // Données fictives pour l'historique des quiz
-  const [quizHistory] = useState([
-    { 
-      id: 1, 
-      name: "Quiz Word - Débutant", 
-      date: "15/04/2024", 
-      score: 80, 
-      questions: 5,
-      correct: 4,
-      incorrect: 1,
-      time: "2:30"
-    },
-    { 
-      id: 2, 
-      name: "Quiz Excel - Intermédiaire", 
-      date: "10/04/2024", 
-      score: 60, 
-      questions: 10,
-      correct: 6,
-      incorrect: 4,
-      time: "5:15"
-    },
-    { 
-      id: 3, 
-      name: "Quiz Photoshop - Débutant", 
-      date: "05/04/2024", 
-      score: 100, 
-      questions: 5,
-      correct: 5,
-      incorrect: 0,
-      time: "1:45"
-    },
-  ]);
-
-  // Données fictives pour le classement
-  const [ranking] = useState([
-    { id: 1, name: "Stagiaire 1", points: 950, quizzes: 12 },
-    { id: 2, name: "Stagiaire 2", points: 900, quizzes: 10 },
-    { id: 3, name: "Stagiaire 3", points: 850, quizzes: 9 },
-    { id: 4, name: "Stagiaire 4", points: 800, quizzes: 8 },
-    { id: 5, name: "Stagiaire 5", points: 750, quizzes: 7 },
-  ]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [startTime, setStartTime] = useState<number>(0);
 
   useEffect(() => {
     const fetchQuizData = async () => {
-      if (!quizId) return;
-      
+      setIsLoading(true);
       try {
-        setLoading(true);
-        setError(null);
+        if (!id) return;
         
-        // Utiliser la route /api/stagiaire/formations pour récupérer les formations avec leurs quiz
-        const response = await api.get<{ data: Formation[] }>('/stagiaire/formations');
-        const formations = response.data.data;
-        
-        // Trouver la formation qui contient le quiz recherché
-        const formation = formations.find(f => 
-          f.quizzes && f.quizzes.some(q => q.id.toString() === quizId)
-        );
-        
-        if (!formation) {
-          setError('Quiz non trouvé');
-          return;
-        }
-        
-        // Trouver le quiz spécifique
-        const quiz = formation.quizzes.find(q => q.id.toString() === quizId);
-        
-        if (!quiz) {
-          setError('Quiz non trouvé');
-          return;
-        }
-        
-        setQuiz(quiz);
-        setQuestions(quiz.questions || []);
-      } catch (err) {
-        setError('Erreur lors du chargement du quiz');
-        console.error('Error fetching quiz:', err);
+        const quizData = await quizApi.getQuizById(id);
+        console.log('Quiz data:', quizData);
+        setQuiz(quizData);
+        setQuestions(quizData.questions);
+      } catch (error) {
+        console.error('Échec de récupération des données du quiz:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger le quiz",
+          variant: "destructive",
+        });
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchQuizData();
-  }, [quizId]);
+  }, [id, toast]);
 
-  const handleAnswer = (questionId: string, answer: string) => {
+  const startQuiz = () => {
+    setIsQuizStarted(true);
+    setCurrentQuestionIndex(0);
+    setAnswers({});
+    setCorrectAnswers({});
+    setIsQuizCompleted(false);
+    setResult(null);
+    setStartTime(Date.now());
+  };
+
+  const handleAnswer = (answerId: string, isCorrect: boolean) => {
+    const questionId = questions[currentQuestionIndex].id;
+    
     setAnswers(prev => ({
       ...prev,
-      [questionId]: answer
+      [questionId]: [...(prev[questionId] || []), answerId]
     }));
-  };
 
-  const handleNext = () => {
+    // Stocker les bonnes réponses
+    if (isCorrect) {
+      setCorrectAnswers(prev => ({
+        ...prev,
+        [questionId]: [...(prev[questionId] || []), answerId]
+      }));
+    }
+    
     if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
+      setTimeout(() => {
+        setCurrentQuestionIndex(prev => prev + 1);
+      }, 3000);
+    } else {
+      completeQuiz();
     }
   };
 
-  const handlePrevious = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1);
-    }
-  };
-
-  const handleSubmit = async () => {
-    if (!quizId) return;
-
+  const completeQuiz = async () => {
+    if (!quiz) return;
+    
+    const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+    
+    // Préparer les réponses dans le format attendu par l'API
+    const formattedAnswers = {};
+    Object.entries(answers).forEach(([questionId, answerIds]) => {
+      formattedAnswers[questionId] = answerIds;
+    });
+    
+    const resultData = {
+      answers: formattedAnswers,
+      timeSpent,
+    };
+    
+    // Logs détaillés
+    console.log('Raw answers:', answers);
+    console.log('Question IDs:', Object.keys(answers));
+    console.log('Answer IDs:', Object.values(answers));
+    console.log('Formatted answers:', formattedAnswers);
+    console.log('Full request data:', resultData);
+    
     try {
-      setLoading(true);
-      const quizResult = await quizService.submitQuiz(quizId, answers);
+      const quizResult = await quizApi.submitQuizResult(quiz.id, resultData);
+      
       setResult(quizResult);
-    } catch (err) {
-      setError('Erreur lors de la soumission du quiz');
-      console.error('Error submitting quiz:', err);
-    } finally {
-      setLoading(false);
+      setIsQuizCompleted(true);
+      
+      toast({
+        title: "Quiz terminé",
+        description: `Vous avez obtenu ${quizResult.score}%!`,
+      });
+    } catch (error) {
+      console.error('Erreur lors de la soumission du résultat:', error);
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+      }
+      toast({
+        title: "Erreur",
+        description: "Impossible de sauvegarder votre résultat",
+        variant: "destructive",
+      });
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin" />
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
   }
 
-  if (error) {
+  if (!quiz) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <p className="text-red-500 mb-4">{error}</p>
-        <Button onClick={() => navigate('/quiz')}>Retour aux quiz</Button>
+      <div className="text-center py-12">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4 font-montserrat">Quiz non trouvé</h2>
+        <p className="text-gray-600 mb-8 font-roboto">Le quiz que vous recherchez n'existe pas.</p>
+        <Link to="/">
+          <Button className="font-nunito">Retour à l'accueil</Button>
+        </Link>
       </div>
     );
   }
 
-  if (!quiz || questions.length === 0) {
+  if (isQuizCompleted && result) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <p className="text-gray-500 mb-4">Aucun quiz disponible</p>
-        <Button onClick={() => navigate('/quiz')}>Retour aux quiz</Button>
+      <div className="pb-20 md:pb-0 md:pl-64">
+        <QuizSummary
+          questions={questions}
+          userAnswers={answers}
+          correctAnswers={correctAnswers}
+        />
       </div>
     );
   }
 
-  const currentQuestion = questions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <Card className="max-w-2xl mx-auto p-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold mb-2">{quiz.titre}</h1>
-          <Progress value={progress} className="w-full" />
-          <p className="text-sm text-gray-500 mt-2">
-            Question {currentQuestionIndex + 1} sur {questions.length}
-          </p>
-        </div>
-
-        {result ? (
-          <div className="text-center">
-            <h2 className="text-xl font-bold mb-4">Résultats</h2>
-            <p className="text-lg mb-4">
-              Score: {result.score}%
-            </p>
-            <Button onClick={() => navigate('/quiz')}>Retour aux quiz</Button>
-          </div>
-        ) : (
-          <>
+  if (!isQuizStarted) {
+    return (
+      <div className="pb-20 md:pb-0 md:pl-64">
+        <Link to={`/category/${quiz.categorie.charAt(0)}`} className="inline-flex items-center text-gray-500 hover:text-gray-700 mb-4 font-nunito">
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          Retour
+        </Link>
+        
+        <Card className="max-w-xl mx-auto">
+          <CardContent className="p-6">
+            <h1 className="text-2xl font-bold mb-2 font-montserrat">{quiz.titre}</h1>
+            <p className="text-gray-600 mb-6 font-roboto">{quiz.description}</p>
+            
             <div className="mb-6">
-              <h2 className="text-lg font-semibold mb-4">{currentQuestion.text}</h2>
-              <div className="space-y-4">
-                {currentQuestion.reponses.map((option) => (
-                  <Button
-                    key={option.id}
-                    variant={answers[currentQuestion.id] === option.id ? "default" : "outline"}
-                    className="w-full justify-start"
-                    onClick={() => handleAnswer(currentQuestion.id, option.id)}
-                  >
-                    {option.text}
-                  </Button>
-                ))}
+              <div className="bg-gray-100 p-4 rounded-lg">
+                <div className="grid grid-cols-2 gap-4 text-sm font-roboto">
+                  <div>
+                    <span className="text-gray-500">Niveau:</span>
+                    <span className="font-semibold ml-1">{quiz.niveau.charAt(0).toUpperCase() + quiz.niveau.slice(1)}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Points:</span>
+                    <span className="font-semibold ml-1">{quiz.nbPointsTotal}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Questions:</span>
+                    <span className="font-semibold ml-1">{quiz.questions.length}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Temps estimé:</span>
+                    <span className="font-semibold ml-1">{quiz.questions.length * 30} secondes</span>
+                  </div>
+                </div>
               </div>
             </div>
-
-            <div className="flex justify-between">
-              <Button
-                variant="outline"
-                onClick={handlePrevious}
-                disabled={currentQuestionIndex === 0}
-              >
-                Précédent
+            
+            <div className="text-center">
+              <Button onClick={startQuiz} size="lg" className="font-nunito">
+                Commencer le quiz
               </Button>
-              {currentQuestionIndex === questions.length - 1 ? (
-                <Button
-                  onClick={handleSubmit}
-                  disabled={Object.keys(answers).length !== questions.length}
-                >
-                  Terminer
-                </Button>
-              ) : (
-                <Button onClick={handleNext}>Suivant</Button>
-              )}
             </div>
-          </>
-        )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="pb-20 md:pb-0 md:pl-64">
+      <Card className="max-w-2xl mx-auto">
+        <CardContent className="p-6">
+          {questions.length > 0 && currentQuestionIndex < questions.length && (
+            <QuizQuestion
+              question={questions[currentQuestionIndex]}
+              totalQuestions={questions.length}
+              currentQuestion={currentQuestionIndex + 1}
+              onAnswer={handleAnswer}
+            />
+          )}
+        </CardContent>
       </Card>
     </div>
   );
