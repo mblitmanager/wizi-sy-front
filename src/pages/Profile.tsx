@@ -1,3 +1,4 @@
+
 import { Layout } from "@/components/layout/Layout";
 import ContactSection from "@/components/profile/ContactSection";
 import CurrentFormation from "@/components/profile/CurrentFormation";
@@ -6,91 +7,53 @@ import PlatformInfo from "@/components/profile/PlatformInfo";
 import ReferralSystem from "@/components/profile/ReferralSystem";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUser } from "@/context/UserContext";
+import { useQuery } from "@tanstack/react-query";
+import { profileService } from "@/services/ProfileService";
+import { Loader2 } from "lucide-react";
 
 const Profile = () => {
   const { user } = useUser();
 
-  // Données mockées pour la démonstration
-  const mockData = {
-    contacts: {
-      formateur: {
-        name: "Jean Dupont",
-        role: "Formateur",
-        email: "jean.dupont@example.com",
-        phone: "01 23 45 67 89",
-      },
-      commercial: {
-        name: "Marie Martin",
-        role: "Commercial",
-        email: "marie.martin@example.com",
-        phone: "01 98 76 54 32",
-      },
-      relationClient: {
-        name: "Sophie Bernard",
-        role: "Relation Client",
-        email: "sophie.bernard@example.com",
-        phone: "01 11 22 33 44",
-      },
-    },
-    currentFormation: {
-      id: "1",
-      title: "Formation Excel Avancé",
-      progress: 65,
-      startDate: "2024-03-01",
-      endDate: "2024-04-30",
-      status: "current" as const,
-    },
-    completedFormations: [
-      {
-        id: "2",
-        title: "Formation Word",
-        progress: 100,
-        startDate: "2024-01-01",
-        endDate: "2024-02-28",
-        status: "completed" as const,
-      },
-    ],
-    recentQuizzes: [
-      {
-        id: "1",
-        title: "Excel - Formules avancées",
-        category: "Excel",
-      },
-      {
-        id: "2",
-        title: "Excel - Tableaux croisés",
-        category: "Excel",
-      },
-    ],
-    demoQuizzes: [
-      {
-        id: "3",
-        title: "PowerPoint - Introduction",
-        category: "PowerPoint",
-        isDemo: true,
-      },
-      {
-        id: "4",
-        title: "Access - Bases de données",
-        category: "Access",
-        isDemo: true,
-      },
-      {
-        id: "5",
-        title: "Word - Mise en page",
-        category: "Word",
-        isDemo: true,
-      },
-    ],
-    totalScore: 1250,
-    rank: 42,
-    referralCode: "QUIZZY2024",
-    totalReferrals: 3,
-    referralRewards: {
-      points: 150,
-      quizzes: 2,
-    },
-  };
+  const { data: contacts, isLoading: contactsLoading } = useQuery({
+    queryKey: ["contacts"],
+    queryFn: () => profileService.getContacts(),
+  });
+
+  const { data: formations, isLoading: formationsLoading } = useQuery({
+    queryKey: ["formations"],
+    queryFn: () => profileService.getFormations(),
+  });
+
+  const { data: progress, isLoading: progressLoading } = useQuery({
+    queryKey: ["progress"],
+    queryFn: () => profileService.getProgress(),
+  });
+
+  const { data: parrainageStats, isLoading: parrainageLoading } = useQuery({
+    queryKey: ["parrainage"],
+    queryFn: () => profileService.getParrainageStats(),
+  });
+
+  const { data: quizzes, isLoading: quizzesLoading } = useQuery({
+    queryKey: ["stagiaire-quizzes"],
+    queryFn: () => profileService.getQuizzes(),
+  });
+
+  const isLoading = contactsLoading || formationsLoading || progressLoading || 
+                    parrainageLoading || quizzesLoading;
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
+
+  const currentFormation = formations?.find(f => f.status === 'current');
+  const completedFormations = formations?.filter(f => f.status === 'completed') || [];
 
   return (
     <Layout>
@@ -112,27 +75,29 @@ const Profile = () => {
 
           <TabsContent value="overview" className="space-y-6">
             <QuickAccess
-              recentQuizzes={mockData.recentQuizzes}
-              demoQuizzes={mockData.demoQuizzes}
-              totalScore={mockData.totalScore}
-              rank={mockData.rank}
+              recentQuizzes={quizzes || []}
+              demoQuizzes={[]}
+              totalScore={progress?.totalPoints || 0}
+              rank={progress?.rank || 0}
             />
-            <ReferralSystem
-              referralCode={mockData.referralCode}
-              totalReferrals={mockData.totalReferrals}
-              referralRewards={mockData.referralRewards}
-            />
+            {parrainageStats && (
+              <ReferralSystem
+                referralCode={parrainageStats.referralCode}
+                totalReferrals={parrainageStats.totalReferrals}
+                referralRewards={parrainageStats.rewards}
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="formation" className="space-y-6">
             <CurrentFormation
-              currentFormation={mockData.currentFormation}
-              completedFormations={mockData.completedFormations}
+              currentFormation={currentFormation}
+              completedFormations={completedFormations}
             />
           </TabsContent>
 
           <TabsContent value="contacts">
-            <ContactSection contacts={mockData.contacts} />
+            {contacts && <ContactSection contacts={contacts} />}
           </TabsContent>
 
           <TabsContent value="platform">
