@@ -11,7 +11,7 @@ export interface Question {
   quiz_id: string;
   created_at?: string;
   updated_at?: string;
-  reponses: Response[];
+  reponses: Answer[];
 }
 
 export interface Response {
@@ -21,6 +21,10 @@ export interface Response {
   question_id: string;
   created_at?: string;
   updated_at?: string;
+  position?: number;
+  match_pair?: string;
+  bank_group?: string;
+  flashcard_back?: string;
 }
 
 export interface Answer {
@@ -109,23 +113,31 @@ export interface QuizResult {
   updated_at?: string;
 }
 
-export interface UserProgress {
-  quizzes_completed: number;
-  total_points: number;
+export interface LeaderboardEntry {
+  id: string;
+  stagiaire_id: string;
+  prenom: string;
+  points: number;
+  rank: number;
+  completed_quizzes: number;
   average_score: number;
-  badges?: string[];
-  streak?: number;
-  categoryProgress?: Record<string, number>;
+  last_activity: string;
 }
 
-export interface LeaderboardEntry {
-  user_id: string;
-  username: string;
-  avatar?: string;
+export interface UserProgress {
+  id: string;
+  stagiaire_id: string;
   total_points: number;
-  quizzes_completed: number;
-  average_score?: number;
-  rank?: number;
+  completed_quizzes: number;
+  average_score: number;
+  current_streak: number;
+  longest_streak: number;
+  last_quiz_date: string;
+  category_progress: Record<string, {
+    completed: number;
+    total: number;
+    average_score: number;
+  }>;
 }
 
 export interface Formation {

@@ -163,7 +163,7 @@ const QuizCatalogPage: React.FC = () => {
                   <p className="text-sm text-gray-600 mt-2 mb-3 font-roboto">{quiz.description}</p>
                   <div className="flex justify-between items-center text-xs text-gray-500 font-nunito">
                     <span>{quiz.categorie}</span>
-                    <span>{quiz.nbPointsTotal} points</span>
+                    <span>{quiz.nb_points_total} points</span>
                   </div>
                 </div>
               </div>

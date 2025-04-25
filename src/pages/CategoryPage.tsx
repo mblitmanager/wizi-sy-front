@@ -74,7 +74,7 @@ const CategoryPage: React.FC = () => {
   };
 
   const renderQuizzesByLevel = (level: 'débutant' | 'intermédiaire' | 'avancé' | 'super') => {
-    const filteredQuizzes = quizzes.filter(quiz => quiz.level === level);
+    const filteredQuizzes = quizzes.filter(quiz => quiz.niveau === level);
     
     if (filteredQuizzes.length === 0) return null;
     
@@ -91,12 +91,12 @@ const CategoryPage: React.FC = () => {
                 <div className="h-2" style={{ backgroundColor: category.color }}></div>
                 <div className="p-4">
                   <div className="flex justify-between items-start">
-                    <h3 className="font-semibold text-gray-800 font-montserrat">{quiz.title}</h3>
-                    {getLevelBadge(quiz.level)}
+                    <h3 className="font-semibold text-gray-800 font-montserrat">{quiz.titre}</h3>
+                    {getLevelBadge(quiz.niveau)}
                   </div>
                   <p className="text-sm text-gray-600 mt-2 mb-3 font-roboto">{quiz.description}</p>
                   <div className="flex items-center text-xs text-gray-500 font-nunito">
-                    <span>{quiz.questions.length} questions • {quiz.points} points</span>
+                    <span>{quiz.questions.length} questions • {quiz.nb_points_total} points</span>
                   </div>
                 </div>
               </div>

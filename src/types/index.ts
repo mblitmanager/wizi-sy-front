@@ -43,8 +43,24 @@ export interface Response {
   question_id: string;
   created_at?: string;
   updated_at?: string;
+  position?: number;
+  match_pair?: string;
+  bank_group?: string;
+  flashcard_back?: string;
 }
 
+export interface Answer {
+  id: number;
+  text: string;
+  is_correct: number;
+  position: string | null;
+  match_pair: string | null;
+  bank_group: string | null;
+  flashcard_back: string | null;
+  question_id: number;
+  created_at: string | null;
+  updated_at: string | null;
+}
 export interface Question {
   id: number;
   quiz_id: number;
@@ -56,7 +72,7 @@ export interface Question {
   media_url: string | null;
   created_at: string;
   updated_at: string;
-  reponses: Reponse[];
+  reponses: Answer[];
 }
 
 export interface Quiz {

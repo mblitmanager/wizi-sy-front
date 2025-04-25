@@ -51,7 +51,7 @@ const App = () => (
                 <Route path="formations" element={<FormationsPage />} />
                 <Route
                   path="catalogue_formation/:id"
-                  element={<CatalogueFormationDetails />}
+                  element={<CatalogueFormationDetails/>}
                 />
 
                 {/* Admin Routes */}
