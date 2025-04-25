@@ -15,41 +15,39 @@ const FormationsPage = () => {
   const [mesFormations, setMesFormations] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
+  const [nextPageUrl, setNextPageUrl] = useState<string | null>(null);
+  const [prevPageUrl, setPrevPageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [tabsValue, setTabsValue] = useState("available");
   const [isLoadingMesFormations, setIsLoadingMesFormations] = useState(false);
   const [hasLoadedMesFormations, setHasLoadedMesFormations] = useState(false);
-  const [pageCache, setPageCache] = useState<Record<number, Formation[]>>({});
 
+  // Fonction pour récupérer les formations disponibles et les formations de l'utilisateur
   const fetchPage = async (page = 1) => {
     setIsLoading(true);
     try {
       const [progress, catalogueResponse] = await Promise.all([
         progressAPI.getUserProgress(),
-        catalogueFormationApi.getAllCatalogueFormation(),
+        catalogueFormationApi.getAllCatalogueFormation(page),
       ]);
 
       interface CatalogueResponse {
         data: CatalogueFormationWithFormation[];
+        current_page: number;
         last_page: number;
+        total: number;
+        next_page_url: string | null;
+        prev_page_url: string | null;
       }
 
-      const { data, last_page } = catalogueResponse.data as CatalogueResponse;
+      const { data, current_page, last_page, next_page_url, prev_page_url } =
+        catalogueResponse.data as CatalogueResponse;
+
       setFormationsDisponibles(data);
       setLastPage(last_page);
-      setPageCache((prev) => ({ ...prev, [page]: data }));
-
-      const stagiaireId = progress?.stagiaire?.id;
-      if (stagiaireId) {
-        try {
-          const response = await stagiaireAPI.getCatalogueFormations(
-            stagiaireId
-          );
-          setMesFormations(response.data);
-        } catch (e) {
-          console.error("Erreur formations stagiaire:", e);
-        }
-      }
+      setCurrentPage(current_page);
+      setNextPageUrl(next_page_url);
+      setPrevPageUrl(prev_page_url);
     } catch (e) {
       console.error("Erreur générale de récupération:", e);
     } finally {
@@ -57,55 +55,34 @@ const FormationsPage = () => {
     }
   };
 
-  const fetchMesFormationsOnly = async () => {
-    setIsLoadingMesFormations(true);
-    try {
-      const progress = await progressAPI.getUserProgress();
-      const stagiaireId = progress?.stagiaire?.id;
-      if (stagiaireId) {
-        const response = await stagiaireAPI.getCatalogueFormations(stagiaireId);
-        setMesFormations(response.data);
-      }
-    } catch (e) {
-      console.error("Erreur formations stagiaire:", e);
-    } finally {
-      setIsLoadingMesFormations(false);
-    }
-  };
-
-  useEffect(() => {
-    if (pageCache[currentPage]) {
-      setFormationsDisponibles(pageCache[currentPage]);
-      setIsLoading(false);
-    } else {
-      fetchPage(currentPage);
-    }
-  }, [currentPage]);
-
-  useEffect(() => {
-    if (tabsValue === "completed" && !hasLoadedMesFormations) {
-      fetchMesFormationsOnly();
-      setHasLoadedMesFormations(true);
-    }
-  }, [tabsValue]);
-
+  // Gestion de la pagination
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= lastPage) {
-      setCurrentPage(page);
+      setCurrentPage(page); // Met à jour la page actuelle
+      fetchPage(page); // Recharge les formations pour la nouvelle page
     }
   };
 
+  // Utilisation de useMemo pour éviter de re-calculer les formations à chaque rendu
   const formationsRender = useMemo(() => {
     return formationsDisponibles
       .map(mapCatalogueToFormation)
       .map((formation: Formation) => (
-        <FormationCard key={formation.id} formation={formation} />
+        <FormationCard
+          key={`available-${formation.catalogue_formation.id}-${formation.id}`}
+          formation={formation}
+        />
       ));
   }, [formationsDisponibles]);
 
+  // Récupérer les formations à chaque changement de page
+  useEffect(() => {
+    fetchPage(currentPage);
+  }, [currentPage]);
+
   return (
     <div className="container mx-auto p-4 pb-20 md:pb-4">
-      <HeaderSection titre="Formations" buttonText="Retour" />
+      <HeaderSection titre="Catalogue des Formations" buttonText="Retour" />
 
       <Tabs
         value={tabsValue}
@@ -114,15 +91,11 @@ const FormationsPage = () => {
           if (value === "completed" && !hasLoadedMesFormations) {
             setHasLoadedMesFormations(true);
             setIsLoadingMesFormations(true);
-            fetchMesFormationsOnly().finally(() => {
-              setIsLoadingMesFormations(false);
-            });
           }
         }}
         className="w-full">
         <TabsList className="w-full justify-start mb-6">
           <TabsTrigger value="available">Formations disponibles</TabsTrigger>
-          <TabsTrigger value="completed">Mes Formations</TabsTrigger>
         </TabsList>
 
         {/* Formations disponibles */}
@@ -135,26 +108,14 @@ const FormationsPage = () => {
               : formationsRender}
           </div>
 
+          {/* Pagination */}
           <PaginationControls
             currentPage={currentPage}
             lastPage={lastPage}
             onPageChange={handlePageChange}
+            nextPageUrl={nextPageUrl}
+            prevPageUrl={prevPageUrl}
           />
-        </TabsContent>
-
-        {/* Mes formations */}
-        <TabsContent value="completed">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {isLoadingMesFormations
-              ? Array.from({ length: 6 }).map((_, idx) => (
-                  <SkeletonCard key={idx} />
-                ))
-              : mesFormations?.formations
-                  ?.filter((f: Formation) => !!f.catalogue_formation)
-                  ?.map((formation: Formation) => (
-                    <FormationCard key={formation.id} formation={formation} />
-                  ))}
-          </div>
         </TabsContent>
       </Tabs>
     </div>

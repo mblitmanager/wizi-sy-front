@@ -142,15 +142,16 @@ export const stagiaireAPI = {
   getCatalogueFormations: (stagiaireId: number) =>
     api.get(`/catalogueFormations/stagiaire/${stagiaireId}`),
 };
+
 export const catalogueFormationApi = {
-  getCatalogueFometionById: (catFormationId: number) =>
+  getCatalogueFormationById: (catFormationId: number) =>
     api.get(`/catalogueFormations/formations/${catFormationId}`),
 
-  getFomationByStagiaireId: (stagiaireId: number) =>
+  getFormationByStagiaireId: (stagiaireId: number) =>
     api.get(`stagiaire/${stagiaireId}/formations`),
 
-  getAllCatalogueFormation: () => {
-    return api.get("catalogueFormations/formations");
+  getAllCatalogueFormation: (page = 1) => {
+    return api.get(`catalogueFormations/formations?page=${page}`);
   },
 };
 

@@ -19,6 +19,7 @@ import {
   RETOUR,
 } from "@/utils/langue-type";
 import HeaderSection from "../features/HeaderSection";
+import SkeletonCard from "../ui/SkeletonCard";
 
 export default function CatalogueFormationDetails() {
   const { id } = useParams();
@@ -64,7 +65,7 @@ export default function CatalogueFormationDetails() {
   useEffect(() => {
     if (id) {
       catalogueFormationApi
-        .getCatalogueFometionById(Number(id))
+        .getCatalogueFormationById(Number(id))
         .then((response) => {
           setDetails(response.data as CatalogueFormationDetailsType);
           setLoading(false);
@@ -79,12 +80,7 @@ export default function CatalogueFormationDetails() {
   }, [id]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-6 h-6 animate-spin mr-2" />
-        Chargement en cours...
-      </div>
-    );
+    return <SkeletonCard />;
   }
 
   if (error) {

@@ -38,12 +38,17 @@ import {
   Zap,
 } from "lucide-react";
 import ParrainageSection from "@/components/Home/ParrainageSection";
-import { DETAILS, VOS_FORMATION } from "@/utils/langue-type";
+import {
+  CATALOGUE_FORMATION,
+  DETAILS,
+  VOS_FORMATION,
+} from "@/utils/langue-type";
 import { CatalogueFormationResponse } from "@/types/stagiaire";
-import { stagiaireAPI } from "@/services/api";
+import { catalogueFormationApi, stagiaireAPI } from "@/services/api";
 import CatalogueFormation from "@/components/catalogueFormation/CatalogueFormation";
 import LoadingCatalogue from "@/components/catalogueFormation/LoadingCustom";
 import LoadingCustom from "@/components/catalogueFormation/LoadingCustom";
+import SkeletonCard from "@/components/ui/SkeletonCard";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_IMG;
@@ -70,8 +75,9 @@ const HomePage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [catalogueData, setCatalogueData] =
-    useState<CatalogueFormationResponse | null>(null);
+  const [catalogueData, setCatalogueData] = useState<
+    CatalogueFormationResponse[] | null
+  >(null);
 
   // Récupération des contacts
   const { data: commerciaux, isLoading: loadingCommerciaux } = useQuery<
@@ -152,33 +158,7 @@ const HomePage: React.FC = () => {
       // Étape 1 : Récupération des catégories
       try {
         const fetchedCategories = await quizAPI.getCategories();
-        const colors = [
-          "#4F46E5",
-          "#10B981",
-          "#F59E0B",
-          "#EF4444",
-          "#8B5CF6",
-          "#EC4899",
-        ];
-        const colorClasses = [
-          "category-blue-500",
-          "category-green-500",
-          "category-yellow-500",
-          "category-red-500",
-          "category-purple-500",
-          "category-pink-500",
-        ];
-
-        const categoriesWithColors = fetchedCategories.map((name, index) => ({
-          id: name,
-          name: name,
-          description: `Quizzes dans la catégorie ${name}`,
-          color: colors[index % colors.length],
-          colorClass: colorClasses[index % colorClasses.length],
-          quizCount: Math.floor(Math.random() * 10) + 1,
-        }));
-
-        setCategories(categoriesWithColors);
+        // ... gestion des catégories...
       } catch (categoriesError) {
         console.error(
           "Erreur lors de la récupération des catégories:",
@@ -190,25 +170,32 @@ const HomePage: React.FC = () => {
       }
 
       try {
+        const response = await catalogueFormationApi.getAllCatalogueFormation();
+
+        // Vérification du type de 'data' dans la réponse
+        if (response && Array.isArray(response.data)) {
+          const formations = response.data.slice(0, 3); // Limite à 3 formations
+          setCatalogueData(formations);
+        } else {
+          console.error(
+            "Les données récupérées ne sont pas un tableau:",
+            response
+          );
+          setError(
+            "Impossible de charger les formations. La structure des données est incorrecte."
+          );
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération des formations:", error);
+        setError(
+          "Impossible de charger les formations. Veuillez vérifier votre connexion ou réessayer plus tard."
+        );
+      }
+
+      // Étape 3 : Récupération des progrès utilisateur
+      try {
         const progress = await progressAPI.getUserProgress();
         setUserProgress(progress);
-        const stagiaireId = progress?.stagiaire?.id;
-
-        if (stagiaireId) {
-          try {
-            const response = await stagiaireAPI.getCatalogueFormations(
-              stagiaireId
-            );
-            const catalogueResponse: CatalogueFormationResponse =
-              response.data as CatalogueFormationResponse;
-            setCatalogueData(catalogueResponse);
-          } catch (catalogueError) {
-            console.error(
-              "Erreur lors de la récupération du catalogue formations:",
-              catalogueError
-            );
-          }
-        }
       } catch (progressError) {
         console.error(
           "Erreur lors de la récupération des progrès:",
@@ -233,10 +220,6 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, []);
-
-  const handleRetry = () => {
-    fetchData();
-  };
 
   return (
     <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
@@ -281,7 +264,7 @@ const HomePage: React.FC = () => {
       {/* Section des formations */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold text-yellow-400">
-          {VOS_FORMATION}
+          {CATALOGUE_FORMATION}
         </h2>
         <Link to="/formations">
           <Button variant="ghost" className="text-blue-400" size="sm">
@@ -290,9 +273,12 @@ const HomePage: React.FC = () => {
         </Link>
       </div>
       {isLoading ? (
-        <LoadingCustom />
+        <SkeletonCard />
       ) : (
-        catalogueData && <CatalogueFormation catalogueData={catalogueData} />
+        catalogueData &&
+        catalogueData.map((data, index) => (
+          <CatalogueFormation key={index} catalogueData={data} />
+        ))
       )}
 
       {/* Section des quiz */}

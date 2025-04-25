@@ -17,7 +17,7 @@ const FormationCard = ({ formation }: { formation: Formation }) => (
       loading="lazy"
     />
     <h3 className="text-xl font-bold text-gray-800 mb-2">
-      {formation.titre.trim()}
+      {formation.catalogue_formation.titre}
     </h3>
     <p className="text-sm text-gray-600 mb-4 line-clamp-3">
       {stripHtml(formation.description)}
