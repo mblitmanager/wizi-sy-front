@@ -23,7 +23,7 @@ export interface Formation {
   duree: string;
   created_at: string;
   updated_at: string;
-  pivot: {
+  pivot?: {
     stagiaire_id: number;
     formation_id: number;
   };
@@ -51,4 +51,8 @@ export interface CatalogueFormationResponse {
   stagiaire: Stagiaire;
   formations: Formation[];
   catalogues: CatalogueFormation[];
+}
+
+export interface CatalogueFormationWithFormation extends CatalogueFormation {
+  formation: Omit<Formation, "catalogue_formation" | "pivot">;
 }

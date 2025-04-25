@@ -1,62 +1,93 @@
-import { useEffect, useState } from "react";
-import { catalogueFormationApi } from "@/services/api";
-import { progressAPI } from "@/api";
-import { stagiaireAPI } from "@/services/api";
+import { useEffect, useState, useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import HeaderSection from "@/components/features/HeaderSection";
-import LoadingCustom from "@/components/catalogueFormation/LoadingCustom";
-import { CatalogueFormationResponse } from "@/types/stagiaire";
-const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_IMG;
+
+import FormationCard from "@/components/catalogueFormation/FormationCard";
+import PaginationControls from "@/components/catalogueFormation/PaginationControls";
+import SkeletonCard from "@/components/ui/SkeletonCard";
+import { progressAPI } from "@/api";
+import { catalogueFormationApi, stagiaireAPI } from "@/services/api";
+import { CatalogueFormationWithFormation, Formation } from "@/types/stagiaire";
+import { mapCatalogueToFormation } from "@/utils/mapCatalogueToFormation";
 
 const FormationsPage = () => {
   const [formationsDisponibles, setFormationsDisponibles] = useState([]);
-  const [mesFormations, setMesFormations] =
-    useState<CatalogueFormationResponse | null>(null);
+  const [mesFormations, setMesFormations] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [tabsValue, setTabsValue] = useState("available");
+  const [isLoadingMesFormations, setIsLoadingMesFormations] = useState(false);
+  const [hasLoadedMesFormations, setHasLoadedMesFormations] = useState(false);
+  const [pageCache, setPageCache] = useState<Record<number, Formation[]>>({});
 
-  const fetchData = async (page = 1) => {
-    setIsLoading(true); // Active le loading
-
+  const fetchPage = async (page = 1) => {
+    setIsLoading(true);
     try {
-      const progress = await progressAPI.getUserProgress();
-      const stagiaireId = progress?.stagiaire?.id;
+      const [progress, catalogueResponse] = await Promise.all([
+        progressAPI.getUserProgress(),
+        catalogueFormationApi.getAllCatalogueFormation(),
+      ]);
 
+      interface CatalogueResponse {
+        data: CatalogueFormationWithFormation[];
+        last_page: number;
+      }
+
+      const { data, last_page } = catalogueResponse.data as CatalogueResponse;
+      setFormationsDisponibles(data);
+      setLastPage(last_page);
+      setPageCache((prev) => ({ ...prev, [page]: data }));
+
+      const stagiaireId = progress?.stagiaire?.id;
       if (stagiaireId) {
         try {
           const response = await stagiaireAPI.getCatalogueFormations(
             stagiaireId
           );
-          const catalogueResponse: CatalogueFormationResponse = response.data;
-          setMesFormations(catalogueResponse);
-        } catch (catalogueError) {
-          console.error("Erreur formations stagiaire:", catalogueError);
+          setMesFormations(response.data);
+        } catch (e) {
+          console.error("Erreur formations stagiaire:", e);
         }
       }
-
-      try {
-        const catalogueResponse =
-          await catalogueFormationApi.getAllCatalogueFormation(page);
-        const { data, last_page } = catalogueResponse.data as {
-          data: any[];
-          last_page: number;
-        };
-        setFormationsDisponibles(data);
-        setLastPage(last_page);
-      } catch (catalogueListError) {
-        console.error("Erreur catalogue global:", catalogueListError);
-      }
-    } catch (error) {
-      console.error("Erreur générale de récupération:", error);
+    } catch (e) {
+      console.error("Erreur générale de récupération:", e);
     } finally {
-      setIsLoading(false); // Désactive le loading une fois tout terminé
+      setIsLoading(false);
+    }
+  };
+
+  const fetchMesFormationsOnly = async () => {
+    setIsLoadingMesFormations(true);
+    try {
+      const progress = await progressAPI.getUserProgress();
+      const stagiaireId = progress?.stagiaire?.id;
+      if (stagiaireId) {
+        const response = await stagiaireAPI.getCatalogueFormations(stagiaireId);
+        setMesFormations(response.data);
+      }
+    } catch (e) {
+      console.error("Erreur formations stagiaire:", e);
+    } finally {
+      setIsLoadingMesFormations(false);
     }
   };
 
   useEffect(() => {
-    fetchData(currentPage);
+    if (pageCache[currentPage]) {
+      setFormationsDisponibles(pageCache[currentPage]);
+      setIsLoading(false);
+    } else {
+      fetchPage(currentPage);
+    }
   }, [currentPage]);
+
+  useEffect(() => {
+    if (tabsValue === "completed" && !hasLoadedMesFormations) {
+      fetchMesFormationsOnly();
+      setHasLoadedMesFormations(true);
+    }
+  }, [tabsValue]);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= lastPage) {
@@ -64,17 +95,31 @@ const FormationsPage = () => {
     }
   };
 
-  const stripHtml = (html) => {
-    const tmp = document.createElement("div");
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || "";
-  };
+  const formationsRender = useMemo(() => {
+    return formationsDisponibles
+      .map(mapCatalogueToFormation)
+      .map((formation: Formation) => (
+        <FormationCard key={formation.id} formation={formation} />
+      ));
+  }, [formationsDisponibles]);
 
   return (
     <div className="container mx-auto p-4 pb-20 md:pb-4">
       <HeaderSection titre="Formations" buttonText="Retour" />
 
-      <Tabs defaultValue="available" className="w-full">
+      <Tabs
+        value={tabsValue}
+        onValueChange={(value) => {
+          setTabsValue(value);
+          if (value === "completed" && !hasLoadedMesFormations) {
+            setHasLoadedMesFormations(true);
+            setIsLoadingMesFormations(true);
+            fetchMesFormationsOnly().finally(() => {
+              setIsLoadingMesFormations(false);
+            });
+          }
+        }}
+        className="w-full">
         <TabsList className="w-full justify-start mb-6">
           <TabsTrigger value="available">Formations disponibles</TabsTrigger>
           <TabsTrigger value="completed">Mes Formations</TabsTrigger>
@@ -82,93 +127,33 @@ const FormationsPage = () => {
 
         {/* Formations disponibles */}
         <TabsContent value="available">
-          {isLoading ? (
-            <LoadingCustom />
-          ) : (
-            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {formationsDisponibles.map((formation: any) => (
-                <div
-                  key={formation.id}
-                  className="p-4 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col">
-                  <img
-                    src={`${VITE_API_URL_IMG}/${formation.image_url}`}
-                    alt={formation.titre}
-                    className="h-40 w-full object-cover rounded-lg mb-4"
-                  />
-
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">
-                    {formation.titre.trim()}
-                  </h3>
-
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-3">
-                    {stripHtml(formation.description)}
-                  </p>
-
-                  <h4 className="font-bold text-gray-700 mb-4 line-clamp-3">
-                    {formation.certification}
-                  </h4>
-
-                  <p className="text-gray-600 mb-4 line-clamp-3">
-                    {formation.prerequis}
-                  </p>
-
-                  <div className="flex justify-between items-center text-sm text-gray-700 mb-4">
-                    <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-md">
-                      Durée : {formation.duree}h
-                    </span>
-                    <span className="bg-green-100 text-green-700 px-2 py-1 rounded-md">
-                      {formation.tarif} €
-                    </span>
-                  </div>
-
-                  <button className="mt-auto px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors duration-200">
-                    Voir la formation
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Pagination */}
-          <div className="flex justify-center gap-2 mt-6">
-            <button
-              className="px-3 py-1 border rounded"
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}>
-              Précédent
-            </button>
-
-            {[...Array(lastPage)].map((_, index) => (
-              <button
-                key={index}
-                onClick={() => handlePageChange(index + 1)}
-                className={`px-3 py-1 border rounded ${
-                  currentPage === index + 1 ? "bg-blue-500 text-white" : ""
-                }`}>
-                {index + 1}
-              </button>
-            ))}
-
-            <button
-              className="px-3 py-1 border rounded"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === lastPage}>
-              Suivant
-            </button>
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {isLoading
+              ? Array.from({ length: 6 }).map((_, idx) => (
+                  <SkeletonCard key={idx} />
+                ))
+              : formationsRender}
           </div>
+
+          <PaginationControls
+            currentPage={currentPage}
+            lastPage={lastPage}
+            onPageChange={handlePageChange}
+          />
         </TabsContent>
 
-        {/* Formations du stagiaire */}
+        {/* Mes formations */}
         <TabsContent value="completed">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {mesFormations?.formations?.map((formation: any) => (
-              <div
-                key={formation.id}
-                className="p-4 border rounded-xl shadow-sm">
-                <h3 className="text-lg font-semibold">{formation.titre}</h3>
-                <p className="text-sm text-gray-600">{formation.description}</p>
-              </div>
-            ))}
+            {isLoadingMesFormations
+              ? Array.from({ length: 6 }).map((_, idx) => (
+                  <SkeletonCard key={idx} />
+                ))
+              : mesFormations?.formations
+                  ?.filter((f: Formation) => !!f.catalogue_formation)
+                  ?.map((formation: Formation) => (
+                    <FormationCard key={formation.id} formation={formation} />
+                  ))}
           </div>
         </TabsContent>
       </Tabs>
