@@ -1,5 +1,6 @@
-
-import axios from 'axios';
+import { quizManagementService } from './quiz/QuizManagementService';
+import { contactService } from './ContactService';
+import apiClient from '../lib/api-client';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -43,26 +44,69 @@ export interface Progress {
 }
 
 class ProfileService {
-  async getContacts(): Promise<Contacts> {
-    const response = await axios.get(`${API_URL}/stagiaire/contacts`);
-    return response.data;
+  async getContacts(): Promise<any> {
+    const response = await apiClient.get('/stagiaire/contacts');
+    const data = response.data;
+
+    return {
+      formateurs: data.formateurs.map((formateur: any) => ({
+        id: formateur.id,
+        role: formateur.role,
+        prenom: formateur.prenom,
+        user: {
+          id: formateur.user.id,
+          name: formateur.user.name,
+          email: formateur.user.email,
+          image: formateur.user.image,
+        },
+        formations: formateur.formations.map((formation: any) => ({
+          id: formation.id,
+          titre: formation.titre,
+          description: formation.description,
+          categorie: formation.categorie,
+          duree: formation.duree,
+        })),
+      })),
+      commerciaux: data.commerciaux.map((commercial: any) => ({
+        id: commercial.id,
+        prenom: commercial.prenom,
+        role: commercial.role,
+        user: {
+          id: commercial.user.id,
+          name: commercial.user.name,
+          email: commercial.user.email,
+          image: commercial.user.image,
+        },
+      })),
+      pole_relation: data.pole_relation.map((relation: any) => ({
+        id: relation.id,
+        prenom: relation.prenom,
+        role: relation.role,
+        user: {
+          id: relation.user.id,
+          name: relation.user.name,
+          email: relation.user.email,
+          image: relation.user.image,
+        },
+      })),
+    };
   }
 
   async getFormations(): Promise<Formation[]> {
-    const response = await axios.get(`${API_URL}/stagiaire/formations`);
-    return response.data;
+    const response = await apiClient.get('/stagiaire/formations');
+    return Array.isArray(response.data) ? response.data : [];
   }
 
   async getProgress(): Promise<Progress> {
-    const response = await axios.get(`${API_URL}/stagiaire/progress`);
+    const response = await apiClient.get('/stagiaire/progress');
     return response.data;
   }
 
   async getParrainageStats(): Promise<ParrainageStats> {
     const [statsResponse, rewardsResponse, linkResponse] = await Promise.all([
-      axios.get(`${API_URL}/stagiaire/parrainage/stats`),
-      axios.get(`${API_URL}/stagiaire/parrainage/rewards`),
-      axios.get(`${API_URL}/stagiaire/parrainage/link`)
+      apiClient.get('/stagiaire/parrainage/stats'),
+      apiClient.get('/stagiaire/parrainage/rewards'),
+      apiClient.get('/stagiaire/parrainage/link')
     ]);
 
     return {
@@ -73,8 +117,13 @@ class ProfileService {
   }
 
   async getQuizzes() {
-    const response = await axios.get(`${API_URL}/stagiaire/quizzes`);
-    return response.data;
+    const response = await apiClient.get('/stagiaire/quizzes');
+    const quizzes = response.data.data || [];
+    const categories = await quizManagementService.getCategories();
+
+    return Promise.all(
+      quizzes.map(quiz => quizManagementService['formatQuiz'](quiz, categories))
+    );
   }
 }
 
