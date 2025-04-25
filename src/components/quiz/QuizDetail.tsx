@@ -1,8 +1,8 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { quizService } from '@/services/QuizService';
+import { quizManagementService } from '@/services/quiz/QuizManagementService';
+import type { Quiz } from '@/types/quiz';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Loader2, Award, BookOpen, AlertCircle } from 'lucide-react';
@@ -18,7 +18,7 @@ export function QuizDetail() {
 
   const { data: quiz, isLoading, error } = useQuery({
     queryKey: ["quiz", quizId],
-    queryFn: () => quizService.getQuizById(quizId!),
+    queryFn: () => quizManagementService.getQuizById(quizId!),
     enabled: !!quizId && !!localStorage.getItem('token'),
     retry: 1,
     meta: {

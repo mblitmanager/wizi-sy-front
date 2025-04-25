@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import type { Question } from "@/services/QuizService";
+import type { Question } from "@/types/quiz";
 import { CheckCircle2, XCircle, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -18,10 +18,8 @@ export function MultipleChoice({ question, onAnswer }: MultipleChoiceProps) {
   const [answerStatus, setAnswerStatus] = useState<Record<string, 'correct' | 'incorrect' | null>>({});
 
   useEffect(() => {
-    // Mélanger les réponses
     const answers = question.answers?.map(a => a.text) || [];
     setShuffledAnswers(answers.sort(() => Math.random() - 0.5));
-    // Réinitialiser le statut des réponses
     setAnswerStatus({});
   }, [question.answers]);
 
@@ -32,7 +30,6 @@ export function MultipleChoice({ question, onAnswer }: MultipleChoiceProps) {
     const correctAnswer = question.answers?.find(a => a.isCorrect)?.text;
     const isAnswerCorrect = answer === correctAnswer;
 
-    // Mettre à jour le statut de toutes les réponses
     const newStatus: Record<string, 'correct' | 'incorrect' | null> = {};
     question.answers?.forEach(a => {
       if (a.text === answer) {

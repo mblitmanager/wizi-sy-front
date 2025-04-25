@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Award } from "lucide-react";
-import type { Quiz, Category } from "@/services/QuizService";
+import type { Quiz, Category } from "@/types/quiz";
 import React from "react";
 
 // Helpers pour la coloration
@@ -130,4 +130,4 @@ export function QuizCard({ quiz, categories }: QuizCardProps) {
       </CardContent>
     </Card>
   );
-} 
+}

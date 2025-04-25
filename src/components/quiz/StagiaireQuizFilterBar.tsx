@@ -1,7 +1,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
-import type { Category } from "@/services/QuizService";
+import type { Category } from "@/types/quiz";
 import React from "react";
 
 // Helpers pour la coloration

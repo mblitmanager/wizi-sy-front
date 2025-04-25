@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import type { Question } from "@/services/QuizService";
+import type { Question } from "@/types/quiz";
 import { CheckCircle2, GripVertical } from "lucide-react";
 import { useState, useRef } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -110,4 +110,4 @@ export function Ordering({ question, onAnswer }: OrderingProps) {
       )}
     </div>
   );
-} 
+}

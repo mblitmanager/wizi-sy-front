@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Question, Answer } from "@/services/QuizService";
+import type { Question, Answer } from "@/types/quiz";
 
 interface QuizSummaryProps {
   questions: Question[];
@@ -87,4 +87,4 @@ export function QuizSummary({ questions, userAnswers, score, totalQuestions }: Q
       </div>
     </div>
   );
-} 
+}

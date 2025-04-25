@@ -1,108 +1,87 @@
 
-export type QuestionType = 
-  | 'question audio'
-  | 'remplir le champ vide'
-  | 'carte flash'
-  | 'correspondance'
-  | 'choix multiples'
-  | 'rearrangement'
-  | 'vrai/faux'
-  | 'banque de mots';
-
 export interface Category {
   id: string;
   name: string;
-  color: string;
-  icon: string;
-  description: string;
-  quizCount: number;
-  colorClass: string;
+  color?: string;
+  icon?: string;
+  description?: string;
+  quizCount?: number;
+  colorClass?: string;
 }
 
 export interface Quiz {
   id: string;
   titre: string;
-  description: string;
+  description?: string;
+  niveau: string;
+  points: number;
   categorie: string;
   categorieId: string;
-  niveau: string;
-  questions: Question[];
-  points: number;
+  questions?: Question[];
 }
 
 export interface Question {
   id: string;
-  quizId: string;
   text: string;
   type: QuestionType;
-  answers?: Answer[];
-  blanks?: Blank[];
-  wordbank?: WordBankItem[];
-  flashcard?: Flashcard;
-  matching?: MatchingItem[];
-  audioUrl?: string;
-  explication?: string;
   points?: number;
   astuce?: string;
+  explication?: string;
+  audioUrl?: string;
   media_url?: string;
+  answers?: Answer[];
+  blanks?: Blank[];
+  matching?: MatchingItem[];
+  flashcard?: FlashCard;
 }
 
 export interface Answer {
   id: string;
   text: string;
   isCorrect?: boolean;
-  position?: number;
   reponse_correct?: boolean;
+  position?: number;
 }
 
 export interface Blank {
   id: string;
   text: string;
-  position?: number;
-  bankGroup?: string;
-}
-
-export interface WordBankItem {
-  id: string;
-  text: string;
-  isCorrect: boolean;
+  position: number;
   bankGroup: string;
-}
-
-export interface Flashcard {
-  front: string;
-  back: string;
 }
 
 export interface MatchingItem {
   id: string;
   text: string;
   matchPair: string;
+  position?: number;
 }
 
-export interface QuizSubmission {
-  quizId: number;
-  answers: {
-    questionId: number;
-    answer: string;
-    timeSpent: number;
-  }[];
+export interface FlashCard {
+  front: string;
+  back: string;
 }
+
+export type QuestionType = 
+  | 'choix multiples'
+  | 'vrai/faux'
+  | 'remplir le champ vide'
+  | 'rearrangement'
+  | 'correspondance'
+  | 'carte flash'
+  | 'banque de mots'
+  | 'question audio';
 
 export interface QuizHistory {
-  id: number;
-  quiz_id: number;
-  user_id: number;
+  id: string;
+  quizId: string;
   score: number;
-  completed_at: string;
-  created_at: string;
-  updated_at: string;
+  completedAt: string;
 }
 
 export interface QuizStats {
-  total_quizzes: number;
-  completed_quizzes: number;
-  average_score: number;
-  total_points: number;
-  points_earned: number;
+  totalQuizzes: number;
+  totalScore: number;
+  averageScore: number;
+  completedQuizzes: number;
 }

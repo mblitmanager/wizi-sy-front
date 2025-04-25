@@ -1,6 +1,5 @@
-
 import { StagiaireQuizCard } from "./StagiaireQuizCard";
-import type { Quiz, Category } from "@/services/QuizService";
+import type { Quiz, Category } from "@/types/quiz";
 import { Link } from "react-router-dom";
 import React from "react";
 

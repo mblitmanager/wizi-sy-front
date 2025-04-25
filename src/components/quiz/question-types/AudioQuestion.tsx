@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import type { Question } from "@/services/QuizService";
+import type { Question } from "@/types/quiz";
 import { CheckCircle2, XCircle, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 

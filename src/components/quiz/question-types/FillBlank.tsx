@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import type { Question } from "@/services/QuizService";
+import type { Question } from "@/types/quiz";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { useState } from "react";
 
@@ -98,4 +98,4 @@ export function FillBlank({ question, onAnswer }: FillBlankProps) {
       )}
     </div>
   );
-} 
+}

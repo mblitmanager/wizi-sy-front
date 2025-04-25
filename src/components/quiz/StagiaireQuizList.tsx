@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { quizService, type Category } from "@/services/QuizService";
+import { stagiaireQuizService } from "@/services/quiz/StagiaireQuizService";
+import { categoryService } from "@/services/quiz/CategoryService";
+import type { Category } from "@/types/quiz";
 import { Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useState, useMemo } from "react";
@@ -12,13 +14,13 @@ export function StagiaireQuizList() {
   
   const { data: quizzes, isLoading: quizzesLoading, error: quizzesError } = useQuery({
     queryKey: ["stagiaire-quizzes"],
-    queryFn: () => quizService.getStagiaireQuizzes(),
+    queryFn: () => stagiaireQuizService.getStagiaireQuizzes(),
     enabled: !!localStorage.getItem('token')
   });
 
   const { data: categories, isLoading: categoriesLoading } = useQuery({
     queryKey: ["quiz-categories"],
-    queryFn: () => quizService.getCategories(),
+    queryFn: () => categoryService.getCategories(),
     enabled: !!localStorage.getItem('token')
   });
 

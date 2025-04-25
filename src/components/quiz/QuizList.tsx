@@ -1,13 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { quizService } from "@/services/QuizService";
+import { quizManagementService } from "@/services/quiz/QuizManagementService";
+import { categoryService } from "@/services/quiz/CategoryService";
+import type { Quiz, Category } from "@/types/quiz";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, AlertCircle, Filter } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useState, useMemo } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Category, Quiz } from "@/services/QuizService";
 import { QuizCard } from "./QuizCard";
 
 function QuizListByCategory({ categoryId, categories }: { categoryId: string, categories: Category[] }) {
@@ -15,7 +16,7 @@ function QuizListByCategory({ categoryId, categories }: { categoryId: string, ca
   
   const { data: quizzes, isLoading, error } = useQuery({
     queryKey: ["quizzes", categoryId],
-    queryFn: () => quizService.getQuizzesByCategory(categoryId),
+    queryFn: () => quizManagementService.getQuizzesByCategory(categoryId),
     enabled: !!categoryId && !!localStorage.getItem('token')
   });
   
@@ -145,7 +146,7 @@ function QuizListByCategory({ categoryId, categories }: { categoryId: string, ca
 export function QuizList() {
   const { data: categories, isLoading, error } = useQuery({
     queryKey: ["categories"],
-    queryFn: () => quizService.getCategories(),
+    queryFn: () => categoryService.getCategories(),
     enabled: !!localStorage.getItem('token')
   });
 
@@ -203,4 +204,4 @@ export function QuizList() {
       </Tabs>
     </div>
   );
-} 
+}

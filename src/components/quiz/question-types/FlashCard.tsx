@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import type { Question } from "@/services/QuizService";
+import type { Question } from "@/types/quiz";
 import { CheckCircle2, XCircle, RotateCw, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -18,7 +18,6 @@ export function Flashcard({ question, onAnswer }: FlashcardProps) {
   const [shuffledAnswers, setShuffledAnswers] = useState<string[]>([]);
 
   useEffect(() => {
-    // Mélanger les réponses
     const answers = question.answers?.map(a => a.text) || [];
     setShuffledAnswers(answers.sort(() => Math.random() - 0.5));
   }, [question.answers]);
@@ -144,7 +143,6 @@ export function Flashcard({ question, onAnswer }: FlashcardProps) {
             setShowFeedback(false);
             setIsCorrect(null);
             setUserAnswer('');
-            // Mélanger à nouveau les réponses
             const answers = question.answers?.map(a => a.text) || [];
             setShuffledAnswers(answers.sort(() => Math.random() - 0.5));
           }}

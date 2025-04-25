@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import type { Question } from "@/services/QuizService";
+import type { Question } from "@/types/quiz";
 import { CheckCircle2, XCircle, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -18,7 +18,6 @@ export function WordBank({ question, onAnswer }: WordBankProps) {
   const [streak, setStreak] = useState(0);
 
   useEffect(() => {
-    // Mélanger les mots disponibles
     const words = question.wordbank?.map(item => item.text) || [];
     setShuffledWords(words.sort(() => Math.random() - 0.5));
   }, [question.wordbank]);
@@ -29,7 +28,6 @@ export function WordBank({ question, onAnswer }: WordBankProps) {
     onAnswer(newAnswers);
     setUsedWords(prev => new Set(prev).add(word));
     
-    // Animation et feedback immédiat
     const element = document.getElementById(`blank-${blankId}`);
     if (element) {
       element.classList.add('animate-bounce-once');

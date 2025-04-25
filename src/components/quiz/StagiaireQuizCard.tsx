@@ -1,10 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Award } from "lucide-react";
-import type { Quiz, Category } from "@/services/QuizService";
+import type { Quiz, Category } from "@/types/quiz";
 import React from "react";
-
-// Helpers copied from original file for detaching style logic
 
 const getLevelColor = (level: string) => {
   switch (level.toLowerCase()) {
@@ -34,21 +32,17 @@ const getLevelBackgroundColor = (level: string) => {
   }
 };
 
-// Use the same rules as before for category color
 const getCategoryColor = (quiz: Quiz, categories: Category[] | undefined) => {
   if (!categories) return '#3B82F6'; // Couleur par défaut bleu
   
-  // D'abord essayer de trouver par l'ID
   const categoryById = categories.find(c => c.id === quiz.categorieId);
   if (categoryById?.color) return categoryById.color;
   
-  // Ensuite essayer de trouver par le nom
   const categoryByName = categories.find(c => 
     c.name.toLowerCase() === quiz.categorie.toLowerCase()
   );
   if (categoryByName?.color) return categoryByName.color;
   
-  // Sinon utiliser des couleurs par défaut selon le titre ou la catégorie
   const searchText = (quiz.titre + ' ' + quiz.categorie).toLowerCase();
   
   if (searchText.includes('excel') || searchText.includes('bureautique')) {
@@ -70,7 +64,6 @@ const getCategoryColor = (quiz: Quiz, categories: Category[] | undefined) => {
     return '#8B5CF6'; // Violet
   }
   
-  // Couleur par défaut
   return '#3B82F6';
 };
 

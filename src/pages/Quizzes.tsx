@@ -2,14 +2,14 @@ import { Layout } from "@/components/layout/Layout";
 import { QuizList } from "@/components/quiz/QuizList";
 import { StagiaireQuizList } from "@/components/quiz/StagiaireQuizList";
 import { useQuery } from "@tanstack/react-query";
-import { quizService } from "@/services/QuizService";
+import { categoryService } from "@/services/quiz/CategoryService";
 import { Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Quizzes() {
   const { data: categories, isLoading: categoriesLoading } = useQuery({
     queryKey: ["quiz-categories"],
-    queryFn: () => quizService.getCategories(),
+    queryFn: () => categoryService.getCategories(),
     enabled: !!localStorage.getItem('token')
   });
 
@@ -39,4 +39,4 @@ export default function Quizzes() {
       </div>
     </Layout>
   );
-} 
+}

@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { quizService, type Question, type QuestionType } from "@/services/QuizService";
+import { quizSubmissionService } from "@/services/quiz/QuizSubmissionService";
+import type { Question, QuestionType } from "@/types/quiz";
 import { Loader2, AlertCircle, Timer, Info } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,7 @@ export function QuizPlay() {
 
   const { data: quiz, isLoading, error } = useQuery({
     queryKey: ["quiz", id],
-    queryFn: () => quizService.getQuizById(id!),
+    queryFn: () => quizSubmissionService.getQuizQuestions(parseInt(id!)),
     enabled: !!id && !!localStorage.getItem('token')
   });
 
@@ -129,7 +130,7 @@ export function QuizPlay() {
         }
       });
 
-      await quizService.submitQuiz(id!, formattedAnswers, timeSpent);
+      await quizSubmissionService.submitQuiz(id!, formattedAnswers, timeSpent);
       navigate('/quiz/history');
     } catch (error) {
       console.error('Error submitting quiz:', error);
@@ -367,4 +368,4 @@ const getAnswerText = (question: Question, answerId: string | string[] | Record<
   }
   
   return "Réponse non valide";
-}; 
+};
