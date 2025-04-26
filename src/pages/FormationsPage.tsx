@@ -1,241 +1,122 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { useEffect, useState, useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  BookOpen,
-  Clock,
-  Calendar,
-  Users,
-  ChevronRight,
-  Play,
-  CheckCircle,
-  Lock,
-  Star,
-} from "lucide-react";
 import HeaderSection from "@/components/features/HeaderSection";
+
+import FormationCard from "@/components/catalogueFormation/FormationCard";
+import PaginationControls from "@/components/catalogueFormation/PaginationControls";
+import SkeletonCard from "@/components/ui/SkeletonCard";
+import { progressAPI } from "@/api";
+import { catalogueFormationApi, stagiaireAPI } from "@/services/api";
+import { CatalogueFormationWithFormation, Formation } from "@/types/stagiaire";
+import { mapCatalogueToFormation } from "@/utils/mapCatalogueToFormation";
 import { catalogueFormationApi, progressAPI } from "@/services/api";
 
 const FormationsPage = () => {
-  // Données fictives pour les formations
-  const [formations] = useState([
-    {
-      id: 1,
-      name: "Word",
-      description:
-        "Apprenez à utiliser Microsoft Word de manière professionnelle",
-      progress: 75,
-      image: "/images/word.jpg",
-      duration: "20h",
-      level: "Débutant",
-      instructor: "John Doe",
-      students: 120,
-      rating: 4.8,
-      modules: [
-        { id: 1, name: "Introduction à Word", completed: true },
-        { id: 2, name: "Mise en forme du texte", completed: true },
-        { id: 3, name: "Insertion d'éléments", completed: true },
-        { id: 4, name: "Mise en page avancée", completed: false },
-        { id: 5, name: "Styles et modèles", completed: false },
-      ],
-    },
-    {
-      id: 2,
-      name: "Excel",
-      description: "Maîtrisez les tableurs et l'analyse de données",
-      progress: 30,
-      image: "/images/excel.jpg",
-      duration: "25h",
-      level: "Intermédiaire",
-      instructor: "Jane Smith",
-      students: 85,
-      rating: 4.9,
-      modules: [
-        { id: 1, name: "Les bases d'Excel", completed: true },
-        { id: 2, name: "Formules et fonctions", completed: false },
-        { id: 3, name: "Tableaux croisés", completed: false },
-        { id: 4, name: "Graphiques", completed: false },
-        { id: 5, name: "Macros", completed: false },
-      ],
-    },
-    {
-      id: 3,
-      name: "Photoshop",
-      description: "Créez et modifiez des images professionnelles",
-      progress: 0,
-      image: "/images/photoshop.jpg",
-      duration: "30h",
-      level: "Avancé",
-      instructor: "Mike Johnson",
-      students: 45,
-      rating: 4.7,
-      modules: [
-        { id: 1, name: "Interface et outils", completed: false },
-        { id: 2, name: "Calques et masques", completed: false },
-        { id: 3, name: "Retouche photo", completed: false },
-        { id: 4, name: "Effets et filtres", completed: false },
-        { id: 5, name: "Composition avancée", completed: false },
-      ],
-    },
-  ]);
+  const [formationsDisponibles, setFormationsDisponibles] = useState([]);
+  const [mesFormations, setMesFormations] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [nextPageUrl, setNextPageUrl] = useState<string | null>(null);
+  const [prevPageUrl, setPrevPageUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [tabsValue, setTabsValue] = useState("available");
+  const [isLoadingMesFormations, setIsLoadingMesFormations] = useState(false);
+  const [hasLoadedMesFormations, setHasLoadedMesFormations] = useState(false);
 
-  const [completedFormations, setCompletedFormations] = useState([]);
-
-  useEffect(() => {
-    getFormationByStagiaire();
-  }, []);
-
-  const getFormationByStagiaire = async () => {
+  // Fonction pour récupérer les formations disponibles et les formations de l'utilisateur
+  const fetchPage = async (page = 1) => {
+    setIsLoading(true);
     try {
-      const progress = await progressAPI.getUserProgress();
-      const stagiaireId = progress?.stagiaire?.id;
-      const response = await catalogueFormationApi.getFomationByStagiaireId(
-        stagiaireId
-      );
-      console.log(response.data);
-    } catch (error) {
-      console.error("Error fetching formations:", error);
+      const [progress, catalogueResponse] = await Promise.all([
+        progressAPI.getUserProgress(),
+        catalogueFormationApi.getAllCatalogueFormation(page),
+      ]);
+
+      interface CatalogueResponse {
+        data: CatalogueFormationWithFormation[];
+        current_page: number;
+        last_page: number;
+        total: number;
+        next_page_url: string | null;
+        prev_page_url: string | null;
+      }
+
+      const { data, current_page, last_page, next_page_url, prev_page_url } =
+        catalogueResponse.data as CatalogueResponse;
+
+      setFormationsDisponibles(data);
+      setLastPage(last_page);
+      setCurrentPage(current_page);
+      setNextPageUrl(next_page_url);
+      setPrevPageUrl(prev_page_url);
+    } catch (e) {
+      console.error("Erreur générale de récupération:", e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  // Gestion de la pagination
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= lastPage) {
+      setCurrentPage(page); // Met à jour la page actuelle
+      fetchPage(page); // Recharge les formations pour la nouvelle page
+    }
+  };
+
+  // Utilisation de useMemo pour éviter de re-calculer les formations à chaque rendu
+  const formationsRender = useMemo(() => {
+    return formationsDisponibles
+      .map(mapCatalogueToFormation)
+      .map((formation: Formation) => (
+        <FormationCard
+          key={`available-${formation.catalogue_formation.id}-${formation.id}`}
+          formation={formation}
+        />
+      ));
+  }, [formationsDisponibles]);
+
+  // Récupérer les formations à chaque changement de page
+  useEffect(() => {
+    fetchPage(currentPage);
+  }, [currentPage]);
+
   return (
     <div className="container mx-auto p-4 pb-20 md:pb-4">
-      <HeaderSection titre="Formations" buttonText="Retour" />
+      <HeaderSection titre="Catalogue des Formations" buttonText="Retour" />
 
-      <Tabs defaultValue="available" className="w-full">
+      <Tabs
+        value={tabsValue}
+        onValueChange={(value) => {
+          setTabsValue(value);
+          if (value === "completed" && !hasLoadedMesFormations) {
+            setHasLoadedMesFormations(true);
+            setIsLoadingMesFormations(true);
+          }
+        }}
+        className="w-full">
         <TabsList className="w-full justify-start mb-6">
           <TabsTrigger value="available">Formations disponibles</TabsTrigger>
-          <TabsTrigger value="completed">Formations terminées</TabsTrigger>
         </TabsList>
 
-        {/* Onglet des formations disponibles */}
+        {/* Formations disponibles */}
         <TabsContent value="available">
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {formations.map((formation) => (
-              <Card key={formation.id} className="overflow-hidden">
-                <div className="h-48 bg-muted relative">
-                  <img
-                    src={formation.image}
-                    alt={formation.name}
-                    className="w-full h-full object-cover"
-                  />
-                  {formation.progress > 0 && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-2">
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm">Progression</span>
-                        <span className="text-sm font-medium">
-                          {formation.progress}%
-                        </span>
-                      </div>
-                      <Progress value={formation.progress} className="h-1" />
-                    </div>
-                  )}
-                </div>
-                <CardHeader className="p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <CardTitle className="text-lg">{formation.name}</CardTitle>
-                    <Badge variant="outline">{formation.level}</Badge>
-                  </div>
-                  <CardDescription className="line-clamp-2">
-                    {formation.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-4 pt-0">
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div className="flex items-center">
-                      <Clock className="h-4 w-4 text-muted-foreground mr-2" />
-                      <span className="text-sm">{formation.duration}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Users className="h-4 w-4 text-muted-foreground mr-2" />
-                      <span className="text-sm">
-                        {formation.students} apprenants
-                      </span>
-                    </div>
-                    <div className="flex items-center">
-                      <Calendar className="h-4 w-4 text-muted-foreground mr-2" />
-                      <span className="text-sm">Prochain cours: 15/04</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Star className="h-4 w-4 text-yellow-500 mr-2" />
-                      <span className="text-sm">{formation.rating}/5</span>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    {formation.modules.map((module) => (
-                      <div
-                        key={module.id}
-                        className="flex items-center justify-between p-2 rounded bg-muted/50">
-                        <span className="text-sm">{module.name}</span>
-                        {module.completed ? (
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                        ) : (
-                          <Lock className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-                <CardFooter className="p-4 pt-0">
-                  <Button
-                    className="w-full"
-                    variant={formation.progress > 0 ? "default" : "outline"}>
-                    {formation.progress > 0 ? "Continuer" : "Commencer"}
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
+            {isLoading
+              ? Array.from({ length: 6 }).map((_, idx) => (
+                  <SkeletonCard key={idx} />
+                ))
+              : formationsRender}
           </div>
-        </TabsContent>
 
-        {/* Onglet des formations terminées */}
-        <TabsContent value="completed">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {formations
-              .filter((f) => f.progress === 100)
-              .map((formation) => (
-                <Card key={formation.id} className="overflow-hidden">
-                  <div className="h-48 bg-muted relative">
-                    <img
-                      src={formation.image}
-                      alt={formation.name}
-                      className="w-full h-full object-cover opacity-75"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Badge className="text-lg px-4 py-2">
-                        Formation terminée
-                      </Badge>
-                    </div>
-                  </div>
-                  <CardHeader className="p-4">
-                    <CardTitle className="text-lg">{formation.name}</CardTitle>
-                    <CardDescription>Terminée le 01/04/2024</CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-4 pt-0">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center">
-                        <Star className="h-5 w-5 text-yellow-500 mr-2" />
-                        <span className="font-medium">Votre note: 18/20</span>
-                      </div>
-                      <Badge variant="secondary">Certifié</Badge>
-                    </div>
-                    <Button variant="outline" className="w-full">
-                      Voir le certificat
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-          </div>
+          {/* Pagination */}
+          <PaginationControls
+            currentPage={currentPage}
+            lastPage={lastPage}
+            onPageChange={handlePageChange}
+            nextPageUrl={nextPageUrl}
+            prevPageUrl={prevPageUrl}
+          />
         </TabsContent>
       </Tabs>
     </div>

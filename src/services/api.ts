@@ -283,15 +283,19 @@ export const stagiaireAPI = {
   getProgressById: (formationId: string) =>
     api.get(`/stagiaire/progress/${formationId}`),
   getCatalogueFormations: (stagiaireId: number) =>
-    api.get(`/catalogue_formations/stagiaire/${stagiaireId}`),
+    api.get(`/catalogueFormations/stagiaire/${stagiaireId}`),
 };
 
 export const catalogueFormationApi = {
-  getCatalogueFometionById: (catFormationId: number) =>
-    api.get(`/catalogue_formations/formations/${catFormationId}`),
+  getCatalogueFormationById: (catFormationId: number) =>
+    api.get(`/catalogueFormations/formations/${catFormationId}`),
 
-  getFomationByStagiaireId: (stagiaireId: number) =>
+  getFormationByStagiaireId: (stagiaireId: number) =>
     api.get(`stagiaire/${stagiaireId}/formations`),
+
+  getAllCatalogueFormation: (page = 1) => {
+    return api.get(`catalogueFormations/formations?page=${page}`);
+  },
 };
 
 export const formationApi = {

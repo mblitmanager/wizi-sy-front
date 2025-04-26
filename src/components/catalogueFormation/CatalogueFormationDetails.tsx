@@ -19,13 +19,9 @@ import {
   RETOUR,
 } from "@/utils/langue-type";
 import HeaderSection from "../features/HeaderSection";
-import { CatalogueFormationResponse } from "@/types/stagiaire";
+import SkeletonCard from "../ui/SkeletonCard";
 
-interface CatalogueFormationDetailsProps {
-  catalogueData: CatalogueFormationResponse;
-}
-
-export default function CatalogueFormationDetails({ catalogueData }: CatalogueFormationDetailsProps) {
+export default function CatalogueFormationDetails() {
   const { id } = useParams();
   interface CatalogueFormationDetailsType {
     catalogueFormation: {
@@ -67,7 +63,7 @@ export default function CatalogueFormationDetails({ catalogueData }: CatalogueFo
   useEffect(() => {
     if (id) {
       catalogueFormationApi
-        .getFormationDetails(id)
+        .getCatalogueFormationById(Number(id))
         .then((response) => {
           setDetails(response as CatalogueFormationDetailsType);
           setLoading(false);
@@ -82,12 +78,7 @@ export default function CatalogueFormationDetails({ catalogueData }: CatalogueFo
   }, [id]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-6 h-6 animate-spin mr-2" />
-        Chargement en cours...
-      </div>
-    );
+    return <SkeletonCard />;
   }
 
   if (error) {

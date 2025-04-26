@@ -6,43 +6,26 @@ import ProgressCard from "@/components/Home/ProgressCard";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link, useNavigate } from "react-router-dom";
+import { Category, UserProgress } from "@/types";
+import { quizAPI, progressAPI } from "@/api";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Contact } from "@/types/contact";
-import { ContactCard } from "@/components/Contacts/ContactCard";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { BookOpen, Zap } from "lucide-react";
+
+import { CatalogueFormation } from "@/types/stagiaire";
+import { catalogueFormationApi } from "@/services/api";
+import ContactSection from "@/components/FeatureHomePage/ContactSection";
 import {
-  BookOpen,
-  Trophy,
-  Users,
-  Calendar,
-  Bell,
-  Play,
-  Star,
-  Award,
-  ChevronRight,
-  Book,
-  GraduationCap,
-  Clock,
-  Zap,
-} from "lucide-react";
-import { DETAILS, VOS_FORMATION } from "@/utils/langue-type";
-import { CatalogueFormationResponse } from "@/types/stagiaire";
-import CatalogueFormation from "@/components/catalogueFormation/CatalogueFormationDetails";
-import LoadingCatalogue from "@/components/catalogueFormation/LoadingCatalogue";
-import { quizService, progressService, contactService, stagiaireAPI } from "@/services";
-import { formationService } from '../services/formationService';
-import { useAuth } from '@/context/AuthContext';
+  AgendaSection,
+  CatalogueFormationSection,
+  ClassementSection,
+  QuizSection,
+  TutorielSection,
+} from "@/components/FeatureHomePage";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_IMG;
@@ -78,7 +61,11 @@ const HomePage: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
+  const [catalogueData, setCatalogueData] = useState<
+    CatalogueFormation[] | null
+  >(null);
   const { data: catalogueData, isLoading: isLoadingCatalogue } = useQuery({
     queryKey: ['catalogue'],
 
@@ -97,7 +84,6 @@ const HomePage: React.FC = () => {
     },
     retry: 1,
   });
-
   // Récupération des contacts
   const { data: commerciaux, isLoading: loadingCommerciaux } = useQuery<
     Contact[]
@@ -175,28 +161,45 @@ const HomePage: React.FC = () => {
     try {
       // Get categories
       try {
-        const categories = await formationService.getCategories();
-        const categoriesWithColors = categories.map((name, index) => {
-          const colors = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
-          const colorClasses = ['category-blue-500', 'category-green-500', 'category-yellow-500', 'category-red-500', 'category-purple-500', 'category-pink-500'];
-          
-          return {
-            id: name,
-            name: name,
-            description: `Quizzes dans la catégorie ${name}`,
-            color: colors[index % colors.length],
-            colorClass: colorClasses[index % colorClasses.length],
-            quizCount: Math.floor(Math.random() * 10) + 1, // Sample data
-          };
-        });
-        
-        setCategories(categoriesWithColors);
+        const fetchedCategories = await quizAPI.getCategories();
+        // ... gestion des catégories...
       } catch (categoriesError) {
-        console.error('Erreur lors de la récupération des catégories:', categoriesError);
-        setError('Impossible de charger les catégories. Veuillez vérifier votre connexion ou réessayer plus tard.');
+        console.error(
+          "Erreur lors de la récupération des catégories:",
+          categoriesError
+        );
+        setError(
+          "Impossible de charger les catégories. Veuillez vérifier votre connexion ou réessayer plus tard."
+        );
       }
-      
-      // Get user progress
+
+      try {
+        const response =
+          (await catalogueFormationApi.getAllCatalogueFormation()) as {
+            data: { data: CatalogueFormation[] };
+          };
+
+        // Vérification du type de 'data' dans la réponse
+        if (response && Array.isArray(response.data.data)) {
+          const firstThreeFormations = response.data.data.slice(0, 3);
+          setCatalogueData(firstThreeFormations);
+        } else {
+          console.error(
+            "Les données récupérées ne sont pas un tableau:",
+            response
+          );
+          setError(
+            "Impossible de charger les formations. La structure des données est incorrecte."
+          );
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération des formations:", error);
+        setError(
+          "Impossible de charger les formations. Veuillez vérifier votre connexion ou réessayer plus tard."
+        );
+      }
+
+      // Étape 3 : Récupération des progrès utilisateur
       try {
         const progress = await progressService.getUserProgress();
         setUserProgress(progress);
@@ -219,10 +222,6 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, []);
-
-  const handleRetry = () => {
-    fetchData();
-  };
 
   return (
     <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
@@ -247,197 +246,32 @@ const HomePage: React.FC = () => {
       </div>
 
       {/* Section des contacts */}
-      <div className="mb-8 p-4 bg-card rounded-lg shadow-sm">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-yellow-400">
-            Vos contacts
-          </h2>
-          <Link to="/contacts">
-            <Button className="text-blue-400" variant="ghost" size="sm">
-              Voir tous <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          </Link>
-        </div>
-        <div className="grid gap-4 md:grid-cols-3">
-          {commerciaux?.[0] && <ContactCard contact={commerciaux[0]} />}
-          {formateurs?.[0] && <ContactCard contact={formateurs[0]} />}
-          {poleRelation?.[0] && <ContactCard contact={poleRelation[0]} />}
-        </div>
-      </div>
+      <ContactSection
+        commerciaux={commerciaux}
+        formateurs={formateurs}
+        poleRelation={poleRelation}
+      />
 
       {/* Section des formations */}
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-yellow-400">
-          {VOS_FORMATION}
-        </h2>
-        <Link to="/formations">
-          <Button variant="ghost" className="text-blue-400" size="sm">
-            Voir tous <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-        </Link>
-      </div>
-      {isLoadingCatalogue ? (
-        <LoadingCatalogue />
-      ) : catalogueData ? (
-        <CatalogueFormation catalogueData={catalogueData} />
-      ) : (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Erreur</AlertTitle>
-          <AlertDescription>
-            Impossible de charger le catalogue de formations. Veuillez réessayer plus tard.
-          </AlertDescription>
-        </Alert>
-      )}
+      <CatalogueFormationSection
+        CATALOGUE_FORMATION="Catalogue des formations"
+        catalogueData={catalogueData}
+        isLoading={isLoading}
+        VITE_API_URL_IMG={import.meta.env.VITE_API_URL_IMG} // Utilise l'URL de ton environnement
+      />
 
       {/* Section des quiz */}
-      <div className="mb-8 p-4 bg-card rounded-lg shadow-sm">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-yellow-400">
-            Quiz disponibles
-          </h2>
-          <Link to="/quiz">
-            <Button className="text-blue-400" variant="ghost" size="sm">
-              Voir tous <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          </Link>
-        </div>
-
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {quizLevels.map((level) => (
-            <Card key={level.id} className="text-center">
-              <CardHeader className="p-4">
-                <div className="mx-auto mb-2 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  {level.icon}
-                </div>
-                <CardTitle className="text-lg">{level.name}</CardTitle>
-                <CardDescription>{level.questions} questions</CardDescription>
-              </CardHeader>
-              <CardFooter className="p-4 pt-0">
-                <Button className="w-full">Commencer</Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      </div>
+      <QuizSection quizLevels={quizLevels} />
 
       {/* Section des tutoriels */}
-      <div className="mb-8 p-4 bg-card rounded-lg shadow-sm">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-yellow-400">
-            Tutoriels et astuces
-          </h2>
-          <Link to="/tutoriels">
-            <Button className="text-blue-400" variant="ghost" size="sm">
-              Voir tous <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          </Link>
-        </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          {tutoriels.map((tutoriel) => (
-            <Card key={tutoriel.id} className="overflow-hidden">
-              <div className="h-32 bg-muted relative">
-                <img
-                  src={tutoriel.thumbnail}
-                  alt={tutoriel.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center">
-                    <Play className="h-5 w-5 text-primary" />
-                  </div>
-                </div>
-                <div className="absolute bottom-0 right-0 bg-black/50 text-white p-1 text-xs">
-                  {tutoriel.duration}
-                </div>
-              </div>
-              <CardHeader className="p-4">
-                <CardTitle className="text-lg">{tutoriel.title}</CardTitle>
-              </CardHeader>
-            </Card>
-          ))}
-        </div>
-      </div>
+      <TutorielSection tutoriels={tutoriels} />
 
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        <Link to="/profile#parrainage" className="block">
-          <Card className="h-full hover:bg-accent transition-colors">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-medium ">Voir mes filleuls</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Consultez votre programme de parrainage complet
-                  </p>
-                </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-        <Card>
-          <CardHeader>
-            <CardTitle>Classement</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[1, 2, 3, 4, 5].map((rank) => (
-                <div key={rank} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <span className="font-bold">{rank}.</span>
-                    <span>Stagiaire {rank}</span>
-                  </div>
-                  <span className="text-primary">{1000 - rank * 50} pts</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Section Filleuls */}
+      <ClassementSection />
 
       {/* Section de l'agenda */}
-      <div className="mb-8 p-4 bg-card rounded-lg shadow-sm">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-yellow-400">Agenda</h2>
-          <Link to="/agenda">
-            <Button variant="ghost" size="sm">
-              Voir l'agenda complet <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          </Link>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Calendar className="h-5 w-5 mr-2" />
-              Prochains cours
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[1, 2, 3].map((event) => (
-                <div
-                  key={event}
-                  className="flex items-start p-2 rounded bg-muted/50">
-                  <div className="w-12 h-12 rounded bg-primary/10 flex items-center justify-center mr-3">
-                    <Clock className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Cours de Word</p>
-                    <p className="text-xs text-muted-foreground">
-                      Aujourd'hui, 14h00 - 16h00
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Formateur: John Doe
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <AgendaSection />
     </div>
   );
 };
