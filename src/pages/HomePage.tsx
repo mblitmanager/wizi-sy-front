@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UserProgress } from "@/types/quiz";
 import CategoryCard from "@/components/Home/CategoryCard";
 import ProgressCard from "@/components/Home/ProgressCard";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link, useNavigate } from "react-router-dom";
-import { Category, UserProgress } from "@/types";
 import { quizAPI, progressAPI } from "@/api";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -16,8 +14,9 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { BookOpen, Zap } from "lucide-react";
 
-import { CatalogueFormation } from "@/types/stagiaire";
+import { CatalogueFormation, CatalogueFormationResponse } from "@/types/stagiaire";
 import { catalogueFormationApi } from "@/services/api";
+import { progressService } from "@/services/progressService";
 import ContactSection from "@/components/FeatureHomePage/ContactSection";
 import {
   AgendaSection,
@@ -30,7 +29,7 @@ import {
 const API_URL = import.meta.env.VITE_API_URL;
 const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_IMG;
 
-interface Category {
+interface LocalCategory {
   id: string;
   name: string;
   description: string;
@@ -38,6 +37,9 @@ interface Category {
   colorClass: string;
   quizCount: number;
 }
+
+// Temporary mock user object
+const user = { stagiaire: { id: "123" } };
 
 const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
   const response = await axios.get<Contact[]>(
@@ -52,8 +54,7 @@ const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
 };
 
 const HomePage: React.FC = () => {
-  const { user } = useAuth();
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<LocalCategory[]>([]);
   const [userProgress, setUserProgress] = useState<UserProgress>({
     quizzes_completed: 0,
     total_points: 0,
@@ -66,7 +67,7 @@ const HomePage: React.FC = () => {
   const [catalogueData, setCatalogueData] = useState<
     CatalogueFormation[] | null
   >(null);
-  const { data: catalogueData, isLoading: isLoadingCatalogue } = useQuery({
+  const { data: queriedCatalogueData, isLoading: isLoadingCatalogue } = useQuery({
     queryKey: ['catalogue'],
 
     queryFn: async (): Promise<CatalogueFormationResponse> => {

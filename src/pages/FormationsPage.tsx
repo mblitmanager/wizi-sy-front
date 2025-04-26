@@ -5,11 +5,9 @@ import HeaderSection from "@/components/features/HeaderSection";
 import FormationCard from "@/components/catalogueFormation/FormationCard";
 import PaginationControls from "@/components/catalogueFormation/PaginationControls";
 import SkeletonCard from "@/components/ui/SkeletonCard";
-import { progressAPI } from "@/api";
-import { catalogueFormationApi, stagiaireAPI } from "@/services/api";
+import { catalogueFormationApi, progressAPI, stagiaireAPI } from "@/services/api";
 import { CatalogueFormationWithFormation, Formation } from "@/types/stagiaire";
 import { mapCatalogueToFormation } from "@/utils/mapCatalogueToFormation";
-import { catalogueFormationApi, progressAPI } from "@/services/api";
 
 const FormationsPage = () => {
   const [formationsDisponibles, setFormationsDisponibles] = useState([]);
