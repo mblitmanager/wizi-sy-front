@@ -1,69 +1,24 @@
 import axios from 'axios';
+import { Quiz as QuizType, Question as QuestionType, Answer as AnswerType } from '@/types/quiz';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
-export interface Quiz {
-  id: number;
+interface Quiz {
+  id: string;
   titre: string;
   description: string;
-  time_limit: number;
+  duree: number;
+  points: number;
   created_at: string;
   updated_at: string;
+  questions: Question[];
 }
 
-export type QuestionType = 
-  | 'choix multiples'
-  | 'vrai/faux'
-  | 'remplir le champ vide'
-  | 'rearrangement'
-  | 'banque de mots'
-  | 'correspondance'
-  | 'question audio'
-  | 'flashcard';
-
-export interface BaseAnswer {
-  id: number;
-  question_id: number;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface MultipleChoiceAnswer extends BaseAnswer {
-  text: string;
-  is_correct: number;
-}
-
-export interface OrderingAnswer extends BaseAnswer {
-  text: string;
-  position: number;
-}
-
-export interface FillInBlankAnswer extends BaseAnswer {
-  text: string;
-  bank_group: string;
-}
-
-export interface WordBankAnswer extends BaseAnswer {
-  text: string;
-  is_correct?: number;
-  bank_group: string;
-}
-
-export interface FlashcardAnswer extends BaseAnswer {
-  text: string;
-  flashcard_back: string;
-}
-
-export interface MatchingAnswer extends BaseAnswer {
-  text: string;
-  match_pair: string;
-}
-
-export interface Question {
+interface Question {
   id: number;
   quiz_id: number;
   text: string;
-  type: QuestionType;
+  type: string;
   explication: string;
   points: string;
   astuce: string;
@@ -71,23 +26,29 @@ export interface Question {
   created_at: string;
   updated_at: string;
   reponse_correct: string | null;
-  reponses: (
-    | MultipleChoiceAnswer
-    | OrderingAnswer
-    | FillInBlankAnswer
-    | WordBankAnswer
-    | FlashcardAnswer
-    | MatchingAnswer
-  )[];
+  reponses: Answer[];
 }
 
-export interface QuizSubmission {
+interface Answer {
+  id: number;
+  text: string;
+  is_correct: number | null;
+  position: number | null;
+  match_pair: string | null;
+  bank_group: string | null;
+  flashcard_back: string | null;
+  question_id: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface QuizSubmission {
   quiz_id: number;
   answers: Record<number, any>;
   time_spent: number;
 }
 
-export interface QuizResult {
+interface QuizResult {
   score: number;
   total_questions: number;
   correct_answers: number;
@@ -97,7 +58,11 @@ export interface QuizResult {
 
 class QuizService {
   private static instance: QuizService;
-  private constructor() {}
+  private baseUrl: string;
+
+  constructor() {
+    this.baseUrl = import.meta.env.VITE_API_URL;
+  }
 
   public static getInstance(): QuizService {
     if (!QuizService.instance) {
@@ -111,15 +76,101 @@ class QuizService {
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
-  async getQuizQuestions(quizId: number): Promise<{ data: Question[] }> {
-    try {
-      const response = await axios.get(`${API_URL}/quiz/${quizId}/questions`, {
-        headers: this.getAuthHeader(),
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching quiz questions:', error);
-      throw error;
+  async getAllQuizzes(): Promise<QuizType[]> {
+    const response = await fetch(`${this.baseUrl}/quiz`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch quizzes');
+    }
+    return response.json();
+  }
+
+  async getQuizById(id: string): Promise<QuizType> {
+    const response = await fetch(`${this.baseUrl}/quiz/${id}/questions`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch quiz ${id}`);
+    }
+    return response.json();
+  }
+
+  async getQuizQuestions(quizId: string): Promise<QuestionType[]> {
+    const response = await fetch(`${this.baseUrl}/quiz/${quizId}/questions`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch questions for quiz ${quizId}`);
+    }
+    return response.json();
+  }
+
+  async createQuiz(quiz: Omit<QuizType, 'id' | 'questions'>): Promise<QuizType> {
+    const response = await fetch(`${this.baseUrl}/quiz`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(quiz),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create quiz');
+    }
+    return response.json();
+  }
+
+  async updateQuiz(id: string, quiz: Partial<QuizType>): Promise<QuizType> {
+    const response = await fetch(`${this.baseUrl}/quiz/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(quiz),
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to update quiz ${id}`);
+    }
+    return response.json();
+  }
+
+  async deleteQuiz(id: string): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/quiz/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to delete quiz ${id}`);
+    }
+  }
+
+  async addQuestion(quizId: string, question: Omit<QuestionType, 'id'>): Promise<QuestionType> {
+    const response = await fetch(`${this.baseUrl}/quiz/${quizId}/questions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(question),
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to add question to quiz ${quizId}`);
+    }
+    return response.json();
+  }
+
+  async updateQuestion(quizId: string, questionId: string, question: Partial<QuestionType>): Promise<QuestionType> {
+    const response = await fetch(`${this.baseUrl}/quiz/${quizId}/questions/${questionId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(question),
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to update question ${questionId}`);
+    }
+    return response.json();
+  }
+
+  async deleteQuestion(quizId: string, questionId: string): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/quiz/${quizId}/questions/${questionId}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to delete question ${questionId}`);
     }
   }
 

@@ -19,16 +19,8 @@ import {
 } from '@mui/material';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Timer, HelpCircle, CheckCircle, XCircle, History, BarChart, ChevronLeft, ChevronRight } from 'lucide-react';
-import Question from './Question';
-import quizService, {
-  Question as QuizQuestion,
-  MultipleChoiceAnswer,
-  OrderingAnswer,
-  FillInBlankAnswer,
-  WordBankAnswer,
-  FlashcardAnswer,
-  MatchingAnswer,
-} from '@/services/QuizService';
+import { Question } from './Question';
+import quizService from '@/services/QuizService';
 
 interface Answer {
   questionId: number;
@@ -138,7 +130,7 @@ export const QuizPlay: React.FC = () => {
         return newAnswers;
       }
       return [
-        ...prev,
+      ...prev,
         {
           questionId: currentQuestion.id,
           value: answer,
@@ -149,55 +141,32 @@ export const QuizPlay: React.FC = () => {
     });
   };
 
-  const checkAnswer = (question: QuizQuestion, answer: any): boolean => {
+  const checkAnswer = (question: any, answer: any): boolean => {
     switch (question.type) {
       case 'choix multiples':
+        return question.reponses.every((r: any) => 
+          (r.is_correct === 1) === answer.includes(r.id)
+        );
       case 'vrai/faux':
-        return question.reponses.every((r) => {
-          const multipleChoiceAnswer = r as MultipleChoiceAnswer;
-          return (multipleChoiceAnswer.is_correct === 1) === answer.includes(r.id);
-        });
-
+        return question.reponses[0].is_correct === 1 && answer === question.reponses[0].id;
       case 'remplir le champ vide':
-        return Object.entries(answer).every(([key, value]) => {
-          const fillInBlankAnswer = question.reponses.find(
-            (r) => (r as FillInBlankAnswer).bank_group === key
-          ) as FillInBlankAnswer;
-          return fillInBlankAnswer?.text === value;
-        });
-
+        return Object.entries(answer).every(([key, value]) => 
+          question.reponses.find((r: any) => r.bank_group === key)?.text === value
+        );
       case 'rearrangement':
-        return answer.every((id: number, index: number) => {
-          const orderingAnswer = question.reponses.find(
-            (r) => r.id === id
-          ) as OrderingAnswer;
-          return orderingAnswer?.position === index + 1;
-        });
-
+        return answer.every((id: number, index: number) => 
+          question.reponses.find((r: any) => r.id === id)?.position === index + 1
+        );
       case 'banque de mots':
-        return Object.entries(answer).every(([key, value]) => {
-          const wordBankAnswer = question.reponses.find(
-            (r) => (r as WordBankAnswer).bank_group === key
-          ) as WordBankAnswer;
-          return wordBankAnswer?.text === value;
-        });
-
+        return Object.entries(answer).every(([key, value]) => 
+          question.reponses.find((r: any) => r.bank_group === key)?.text === value
+        );
       case 'correspondance':
-        return Object.entries(answer).every(([key, value]) => {
-          const matchingAnswer = question.reponses.find(
-            (r) => (r as MatchingAnswer).text === key
-          ) as MatchingAnswer;
-          return matchingAnswer?.match_pair === value;
-        });
-
+        return Object.entries(answer).every(([key, value]) => 
+          question.reponses.find((r: any) => r.text === key)?.match_pair === value
+        );
       case 'question audio':
-        const audioAnswer = question.reponses.find((r) => r.id === answer) as MultipleChoiceAnswer;
-        return audioAnswer?.is_correct === 1;
-
-      case 'flashcard':
-        const flashcardAnswer = question.reponses[0] as FlashcardAnswer;
-        return flashcardAnswer?.flashcard_back === answer;
-
+        return question.reponses.find((r: any) => r.id === answer)?.is_correct === 1;
       default:
         return false;
     }
@@ -206,7 +175,7 @@ export const QuizPlay: React.FC = () => {
   const handleNext = () => {
     if (activeStep < (quizQuestions?.data.length || 0) - 1) {
       setActiveStep((prev) => prev + 1);
-      setShowHint(false);
+        setShowHint(false);
     }
   };
 

@@ -1,16 +1,16 @@
 import { Card } from "@/components/ui/card";
-import type { Question } from "@/types/quiz";
+import { Question as QuizQuestion } from "@/types/quiz";
 import { CheckCircle2, XCircle, RotateCw, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 
 interface FlashcardProps {
-  question: Question;
+  question: QuizQuestion;
   onAnswer: (value: string) => void;
+  showFeedback?: boolean;
 }
 
-export function Flashcard({ question, onAnswer }: FlashcardProps) {
+export function Flashcard({ question, onAnswer, showFeedback = false }: FlashcardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
-  const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [userAnswer, setUserAnswer] = useState('');
   const [points, setPoints] = useState(0);
@@ -33,7 +33,6 @@ export function Flashcard({ question, onAnswer }: FlashcardProps) {
     const isAnswerCorrect = answer.toLowerCase().trim() === 
       question.flashcard?.back.toLowerCase().trim();
     setIsCorrect(isAnswerCorrect);
-    setShowFeedback(true);
 
     if (isAnswerCorrect) {
       setPoints(prev => prev + 10);
@@ -140,7 +139,6 @@ export function Flashcard({ question, onAnswer }: FlashcardProps) {
         <button
           onClick={() => {
             setIsFlipped(false);
-            setShowFeedback(false);
             setIsCorrect(null);
             setUserAnswer('');
             const answers = question.answers?.map(a => a.text) || [];

@@ -1,131 +1,153 @@
-import { Card } from "@/components/ui/card";
-import type { Question } from "@/types/quiz";
-import { CheckCircle2, GripVertical } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import React, { useState, useEffect } from 'react';
+import {
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  Box,
+  Paper,
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { GripVertical, Check, X } from 'lucide-react';
+import { Question as QuizQuestion } from '@/types/quiz';
 
 interface OrderingProps {
-  question: Question;
-  onAnswer: (value: string[]) => void;
-  currentAnswer?: string | string[] | Record<string, string>;
+  question: QuizQuestion;
+  onAnswer: (answers: string[]) => void;
+  showFeedback?: boolean;
 }
 
-export function Ordering({ question, onAnswer, currentAnswer }: OrderingProps) {
-  const [items, setItems] = useState(question.answers || []);
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [showFeedback, setShowFeedback] = useState(false);
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(2),
+  backgroundColor: theme.palette.background.paper,
+}));
+
+const StyledListItem = styled(ListItem)<{ isDragging: boolean }>(({ theme, isDragging }) => ({
+  marginBottom: theme.spacing(1),
+  padding: theme.spacing(2),
+  backgroundColor: isDragging ? theme.palette.action.hover : theme.palette.background.paper,
+  borderRadius: theme.shape.borderRadius,
+  border: `1px solid ${theme.palette.divider}`,
+  '&:hover': {
+    backgroundColor: theme.palette.action.hover,
+  },
+  transition: theme.transitions.create(['background-color', 'box-shadow']),
+  ...(isDragging && {
+    boxShadow: theme.shadows[3],
+  }),
+}));
+
+export const Ordering: React.FC<OrderingProps> = ({
+  question,
+  onAnswer,
+  showFeedback = false,
+}) => {
+  const [orderedAnswers, setOrderedAnswers] = useState(question.answers || []);
 
   useEffect(() => {
-    // Si currentAnswer est fourni, l'utiliser pour réorganiser les items
-    if (currentAnswer) {
-      if (Array.isArray(currentAnswer)) {
-        const newItems = [...items];
-        currentAnswer.forEach((answerId, index) => {
-          const itemIndex = newItems.findIndex(item => item.id === answerId);
-          if (itemIndex !== -1) {
-            const [item] = newItems.splice(itemIndex, 1);
-            newItems.splice(index, 0, item);
-          }
-        });
-        setItems(newItems);
-      }
+    // Mélanger les réponses au chargement initial
+    if (!showFeedback) {
+      const shuffled = [...(question.answers || [])].sort(() => Math.random() - 0.5);
+      setOrderedAnswers(shuffled);
     }
-  }, [currentAnswer, items]);
+  }, [question.answers, showFeedback]);
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
 
-    const newItems = Array.from(items);
-    const [removed] = newItems.splice(result.source.index, 1);
-    newItems.splice(result.destination.index, 0, removed);
+    const items = Array.from(orderedAnswers);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
 
-    setItems(newItems);
-    onAnswer(newItems.map(item => item.id));
+    setOrderedAnswers(items);
+    onAnswer(items.map(item => item.id));
   };
 
-  const checkOrder = () => {
-    const isOrderCorrect = items.every((item, index) => 
-      item.position === index + 1
-    );
-    setIsCorrect(isOrderCorrect);
-    setShowFeedback(true);
+  const isCorrectPosition = (answer: { id: string; position?: number }, index: number) => {
+    if (!showFeedback) return undefined;
+    return answer.position === index + 1;
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-lg font-medium leading-relaxed">
-        {question.text}
-      </div>
-
+    <StyledPaper>
       <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="ordering-list">
+        <Droppable droppableId="answers">
           {(provided) => (
-            <div
+            <List
               {...provided.droppableProps}
               ref={provided.innerRef}
-              className="space-y-2"
+              sx={{ padding: 0 }}
             >
-              {items.map((item, index) => (
-                <Draggable
-                  key={item.id}
-                  draggableId={item.id}
-                  index={index}
-                >
-                  {(provided) => (
-                    <Card
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      className={`
-                        p-4 flex items-center gap-4
-                        transition-all duration-300
-                        hover:shadow-md
-                        ${showFeedback && isCorrect ? 'bg-green-50 border-green-500' : ''}
-                        ${showFeedback && !isCorrect ? 'bg-red-50 border-red-500' : ''}
-                      `}
-                    >
-                      <div
-                        {...provided.dragHandleProps}
-                        className="cursor-grab active:cursor-grabbing"
+              {orderedAnswers.map((answer, index) => {
+                const isCorrect = isCorrectPosition(answer, index);
+                return (
+                  <Draggable
+                    key={answer.id}
+                    draggableId={answer.id}
+                    index={index}
+                    isDragDisabled={showFeedback}
+                  >
+                    {(provided, snapshot) => (
+                      <StyledListItem
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        isDragging={snapshot.isDragging}
                       >
-                        <GripVertical className="h-5 w-5 text-muted-foreground" />
-                      </div>
-                      <span className="flex-1">{item.text}</span>
-                      {showFeedback && isCorrect && (
-                        <CheckCircle2 className="h-5 w-5 text-green-500 animate-bounce-once" />
-                      )}
-                    </Card>
-                  )}
-                </Draggable>
-              ))}
+                        <ListItemIcon
+                          {...provided.dragHandleProps}
+                          sx={{ cursor: showFeedback ? 'default' : 'grab' }}
+                        >
+                          <GripVertical size={20} />
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={answer.text}
+                          sx={{
+                            '& .MuiListItemText-primary': {
+                              color: showFeedback
+                                ? isCorrect
+                                  ? 'success.main'
+                                  : 'error.main'
+                                : 'text.primary',
+                            },
+                          }}
+                        />
+                        {showFeedback && (
+                          <Box display="flex" alignItems="center" ml={2}>
+                            {isCorrect ? (
+                              <Check color="green" size={20} />
+                            ) : (
+                              <X color="red" size={20} />
+                            )}
+                          </Box>
+                        )}
+                      </StyledListItem>
+                    )}
+                  </Draggable>
+                );
+              })}
               {provided.placeholder}
-            </div>
+            </List>
           )}
         </Droppable>
       </DragDropContext>
-
-      <div className="flex justify-end">
-        <button
-          onClick={checkOrder}
-          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-        >
-          Vérifier l'ordre
-        </button>
-      </div>
-
       {showFeedback && (
-        <div className="text-center text-sm text-muted-foreground">
-          {isCorrect ? (
-            <div className="flex items-center justify-center gap-2 text-green-600">
-              <CheckCircle2 className="h-5 w-5" />
-              <span>Ordre correct !</span>
-            </div>
-          ) : (
-            <div className="flex items-center justify-center gap-2 text-red-600">
-              <span>L'ordre n'est pas correct. Essayez encore !</span>
-            </div>
+        <Box mt={2}>
+          {!orderedAnswers.every((answer, index) => isCorrectPosition(answer, index)) && (
+            <Box sx={{ color: 'error.main', mt: 2 }}>
+              L'ordre correct était :
+              {(question.answers || [])
+                .slice()
+                .sort((a, b) => (a.position || 0) - (b.position || 0))
+                .map((answer, index) => (
+                  <Box key={answer.id} sx={{ ml: 2, mt: 1 }}>
+                    {index + 1}. {answer.text}
+                  </Box>
+                ))}
+            </Box>
           )}
-        </div>
+        </Box>
       )}
-    </div>
+    </StyledPaper>
   );
-}
+};

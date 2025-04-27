@@ -1,180 +1,151 @@
-import { Card } from "@/components/ui/card";
-import type { Question, WordBankItem } from "@/types/quiz";
-import { CheckCircle2, XCircle, Sparkles } from "lucide-react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
+import {
+  Box,
+  Typography,
+  Paper,
+  Chip,
+  Stack,
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { Check, X } from 'lucide-react';
+import { Question as QuizQuestion } from '@/types/quiz';
 
 interface WordBankProps {
-  question: Question;
-  onAnswer: (value: Record<string, string>) => void;
-  currentAnswer?: string | string[] | Record<string, string>;
+  question: QuizQuestion;
+  onAnswer: (answers: Record<string, string>) => void;
+  showFeedback?: boolean;
 }
 
-export function WordBank({ question, onAnswer, currentAnswer }: WordBankProps) {
-  const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [usedWords, setUsedWords] = useState<Set<string>>(new Set());
-  const [shuffledWords, setShuffledWords] = useState<WordBankItem[]>([]);
-  const [points, setPoints] = useState(0);
-  const [streak, setStreak] = useState(0);
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(3),
+  marginBottom: theme.spacing(2),
+  backgroundColor: theme.palette.background.paper,
+}));
+
+const StyledChip = styled(Chip)<{ isSelected?: boolean; isCorrect?: boolean }>(
+  ({ theme, isSelected, isCorrect }) => ({
+    margin: theme.spacing(0.5),
+    cursor: isSelected ? 'default' : 'pointer',
+    backgroundColor: isSelected
+      ? isCorrect
+        ? theme.palette.success.light
+        : theme.palette.error.light
+      : theme.palette.background.paper,
+    '&:hover': {
+      backgroundColor: isSelected
+        ? undefined
+        : theme.palette.action.hover,
+    },
+  })
+);
+
+export const WordBank: React.FC<WordBankProps> = ({
+  question,
+  onAnswer,
+  showFeedback = false,
+}) => {
+  const [selectedWords, setSelectedWords] = useState<Record<string, string>>({});
+  const [availableWords, setAvailableWords] = useState<string[]>([]);
 
   useEffect(() => {
-    // Initialiser les mots de la banque de mots
-    if (question.wordbank && question.wordbank.length > 0) {
-      setShuffledWords([...question.wordbank].sort(() => Math.random() - 0.5));
-    }
-  }, [question.wordbank]);
-
-  useEffect(() => {
-    // Si currentAnswer est fourni, l'utiliser comme réponses
-    if (currentAnswer) {
-      if (typeof currentAnswer === 'object' && !Array.isArray(currentAnswer)) {
-        setAnswers(currentAnswer as Record<string, string>);
-        setUsedWords(new Set(Object.values(currentAnswer as Record<string, string>)));
-      }
-    }
-  }, [currentAnswer]);
-
-  const handleWordSelect = (blankId: string, word: string) => {
-    const newAnswers = { ...answers, [blankId]: word };
-    setAnswers(newAnswers);
-    onAnswer(newAnswers);
-    setUsedWords(prev => new Set(prev).add(word));
+    // Initialiser les mots disponibles
+    const words = question.answers?.map(answer => answer.text) || [];
+    setAvailableWords(words.sort(() => Math.random() - 0.5));
     
-    const element = document.getElementById(`blank-${blankId}`);
-    if (element) {
-      element.classList.add('animate-bounce-once');
-      setTimeout(() => element.classList.remove('animate-bounce-once'), 1000);
-    }
+    // Initialiser les réponses vides
+    const initialAnswers: Record<string, string> = {};
+    question.blanks?.forEach(blank => {
+      if (blank.bankGroup) {
+        initialAnswers[blank.bankGroup] = '';
+      }
+    });
+    setSelectedWords(initialAnswers);
+  }, [question]);
+
+  const handleWordSelect = (word: string, group: string) => {
+    if (showFeedback) return;
+
+    const newSelectedWords = { ...selectedWords };
+    newSelectedWords[group] = word;
+    setSelectedWords(newSelectedWords);
+    onAnswer(newSelectedWords);
   };
 
-  const checkAnswers = () => {
-    const isAllCorrect = question.wordbank?.every(item => {
-      const userAnswer = answers[item.bankGroup || '']?.toLowerCase().trim();
-      const correctAnswer = item.text.toLowerCase().trim();
-      return userAnswer === correctAnswer;
-    }) || false;
+  const isCorrectAnswer = (group: string, word: string) => {
+    if (!showFeedback) return undefined;
+    const correctAnswer = question.blanks?.find(b => b.bankGroup === group);
+    return correctAnswer && word.toLowerCase() === correctAnswer.text.toLowerCase();
+  };
 
-    setIsCorrect(isAllCorrect);
-    setShowFeedback(true);
-
-    if (isAllCorrect) {
-      setPoints(prev => prev + 10);
-      setStreak(prev => prev + 1);
-    } else {
-      setStreak(0);
-    }
+  const isWordUsed = (word: string) => {
+    return Object.values(selectedWords).includes(word);
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div className="text-lg font-medium leading-relaxed">
-          {question.text}
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1 text-yellow-500">
-            <Sparkles className="h-5 w-5" />
-            <span className="font-bold">{points}</span>
-          </div>
-          {streak > 0 && (
-            <div className="text-green-500 font-bold">
-              {streak}x streak!
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        {question.wordbank?.map((item) => {
-          const userAnswer = answers[item.bankGroup || ''] || '';
-          const isAnswerCorrect = showFeedback && 
-            userAnswer.toLowerCase().trim() === item.text.toLowerCase().trim();
-
-          return (
-            <div 
-              key={item.id} 
-              id={`blank-${item.bankGroup}`}
-              className="flex items-center gap-4"
-            >
-              <div className={`
-                flex-1 px-4 py-2 border rounded-lg
-                transition-all duration-300
-                ${userAnswer ? 'bg-white shadow-sm' : 'bg-gray-50'}
-                ${showFeedback && isAnswerCorrect ? 'bg-green-50 border-green-500' : ''}
-                ${showFeedback && !isAnswerCorrect ? 'bg-red-50 border-red-500' : ''}
-              `}>
-                {userAnswer || '...'}
-              </div>
-              {showFeedback && (
-                <div className="w-8 h-8 flex items-center justify-center">
-                  {isAnswerCorrect ? (
-                    <CheckCircle2 className="h-5 w-5 text-green-500 animate-bounce-once" />
-                  ) : (
-                    <XCircle className="h-5 w-5 text-red-500 animate-shake" />
-                  )}
-                </div>
+    <StyledPaper>
+      <Box>
+        {question.blanks?.map((blank, index) => (
+          <Box key={index} mb={2}>
+            <Typography variant="body1" component="span">
+              {blank.bankGroup}:
+            </Typography>
+            <Box display="inline-flex" alignItems="center" ml={1}>
+              {selectedWords[blank.bankGroup || ''] ? (
+                <StyledChip
+                  label={selectedWords[blank.bankGroup || '']}
+                  onDelete={showFeedback ? undefined : () => {
+                    const newSelectedWords = { ...selectedWords };
+                    delete newSelectedWords[blank.bankGroup || ''];
+                    setSelectedWords(newSelectedWords);
+                    onAnswer(newSelectedWords);
+                  }}
+                  isSelected={true}
+                  isCorrect={showFeedback ? isCorrectAnswer(blank.bankGroup || '', selectedWords[blank.bankGroup || '']) : undefined}
+                />
+              ) : (
+                <Typography variant="body1" color="textSecondary">
+                  Sélectionnez un mot
+                </Typography>
               )}
-            </div>
-          );
-        })}
-      </div>
+            </Box>
+          </Box>
+        ))}
+      </Box>
 
-      <div className="mt-6">
-        <p className="text-sm font-medium text-muted-foreground mb-3">
-          Mots disponibles :
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {shuffledWords.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => handleWordSelect(item.bankGroup || '', item.text)}
-              disabled={usedWords.has(item.text) || showFeedback}
-              className={`
-                px-3 py-1 rounded-full text-sm transition-all duration-300
-                ${usedWords.has(item.text) 
-                  ? 'bg-primary/20 text-primary cursor-default' 
-                  : 'bg-primary/10 hover:bg-primary/20 cursor-pointer hover:scale-105'
+      <Box mt={3}>
+        <Typography variant="subtitle2" gutterBottom>
+          Mots disponibles:
+        </Typography>
+        <Stack direction="row" spacing={1} flexWrap="wrap">
+          {availableWords.map((word, index) => (
+            <StyledChip
+              key={index}
+              label={word}
+              onClick={() => {
+                const emptyGroup = question.blanks?.find(
+                  blank => !selectedWords[blank.bankGroup || '']
+                );
+                if (emptyGroup) {
+                  handleWordSelect(word, emptyGroup.bankGroup || '');
                 }
-                ${showFeedback ? 'opacity-50 cursor-default' : ''}
-              `}
-            >
-              {item.text}
-            </button>
+              }}
+              disabled={isWordUsed(word) || showFeedback}
+            />
           ))}
-        </div>
-      </div>
-
-      <div className="flex justify-end">
-        <button
-          onClick={checkAnswers}
-          className={`
-            px-4 py-2 bg-primary text-white rounded-lg
-            transition-all duration-300
-            hover:bg-primary/90 hover:scale-105
-            ${Object.keys(answers).length === question.wordbank?.length ? '' : 'opacity-50 cursor-not-allowed'}
-          `}
-          disabled={Object.keys(answers).length !== question.wordbank?.length}
-        >
-          Vérifier les réponses
-        </button>
-      </div>
+        </Stack>
+      </Box>
 
       {showFeedback && (
-        <div className="text-center text-sm text-muted-foreground">
-          {isCorrect ? (
-            <div className="flex items-center justify-center gap-2 text-green-600">
-              <CheckCircle2 className="h-5 w-5" />
-              <span>Toutes les réponses sont correctes ! +10 points</span>
-            </div>
-          ) : (
-            <div className="flex items-center justify-center gap-2 text-red-600">
-              <XCircle className="h-5 w-5" />
-              <span>Certaines réponses sont incorrectes. Essayez encore !</span>
-            </div>
-          )}
-        </div>
+        <Box mt={2}>
+          {question.blanks?.map((blank, index) => (
+            blank.bankGroup && !isCorrectAnswer(blank.bankGroup, selectedWords[blank.bankGroup]) && (
+              <Typography key={index} color="error" variant="body2">
+                La réponse correcte pour {blank.bankGroup} était : {blank.text}
+              </Typography>
+            )
+          ))}
+        </Box>
       )}
-    </div>
+    </StyledPaper>
   );
-}
+};
