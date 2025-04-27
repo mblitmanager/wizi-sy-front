@@ -1,3 +1,4 @@
+
 import { quizManagementService } from './quiz/QuizManagementService';
 import { contactService } from './ContactService';
 import apiClient from '../lib/api-client';
@@ -117,13 +118,22 @@ class ProfileService {
   }
 
   async getQuizzes() {
-    const response = await apiClient.get('/stagiaire/quizzes');
-    const quizzes = response.data.data || [];
-    const categories = await quizManagementService.getCategories();
+    try {
+      const response = await apiClient.get('/stagiaire/quizzes');
+      console.info('Quiz response from API:', response.data);
+      
+      const quizzes = response.data.data || [];
+      const categories = await quizManagementService.getCategories();
+      
+      console.info('Categories from API:', categories);
 
-    return Promise.all(
-      quizzes.map(quiz => quizManagementService['formatQuiz'](quiz, categories))
-    );
+      return Promise.all(
+        quizzes.map((quiz: any) => quizManagementService['formatQuiz'](quiz, categories))
+      );
+    } catch (error) {
+      console.error('Error fetching quizzes:', error);
+      throw error;
+    }
   }
 }
 

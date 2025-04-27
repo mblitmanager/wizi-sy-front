@@ -3,7 +3,7 @@ import apiClient from '@/lib/api-client';
 import type { Question } from '@/types/quiz';
 
 class QuizSubmissionService {
-  async getQuizQuestions(quizId: number): Promise<Question[]> {
+  async getQuizQuestions(quizId: number): Promise<any> {
     try {
       const response = await apiClient.get(`/quiz/${quizId}/questions`);
       const questions = response.data.data || [];
@@ -20,13 +20,20 @@ class QuizSubmissionService {
 
   private mapQuestionType(type: string): Question['type'] {
     const typeMap: Record<string, Question['type']> = {
+      'multiplechoice': 'choix multiples',
       'multiple-choice': 'choix multiples',
+      'truefalse': 'vrai/faux',
       'true-false': 'vrai/faux',
+      'fillblank': 'remplir le champ vide',
       'fill-in-blank': 'remplir le champ vide',
+      'ordering': 'rearrangement',
       'rearrangement': 'rearrangement',
       'matching': 'correspondance',
       'flash-card': 'carte flash',
+      'flashcard': 'carte flash',
+      'wordbank': 'banque de mots',
       'word-bank': 'banque de mots',
+      'audioquestion': 'question audio',
       'audio-question': 'question audio'
     };
     return typeMap[type] || type as Question['type'];

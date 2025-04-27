@@ -4,7 +4,7 @@ import type { Quiz, Question, QuizHistory, QuizStats } from '@/types/quiz';
 import { categoryService } from './CategoryService';
 
 class QuizManagementService {
-  private async formatQuiz(quiz: any, categories?: any[]) {
+  async formatQuiz(quiz: any, categories?: any[]) {
     if (!categories) {
       categories = await categoryService.getCategories();
     }
@@ -49,20 +49,27 @@ class QuizManagementService {
       astuce: question.astuce || '',
       answers: question.answers?.map((answer: any) => ({
         ...answer,
-        isCorrect: answer.reponse_correct || answer.isCorrect
+        isCorrect: answer.reponse_correct || answer.isCorrect || false
       }))
     }));
   }
 
   private mapQuestionType(type: string): Question['type'] {
     const typeMap: Record<string, Question['type']> = {
+      'multiplechoice': 'choix multiples',
       'multiple-choice': 'choix multiples',
+      'truefalse': 'vrai/faux',
       'true-false': 'vrai/faux',
+      'fillblank': 'remplir le champ vide',
       'fill-in-blank': 'remplir le champ vide',
+      'ordering': 'rearrangement',
       'rearrangement': 'rearrangement',
       'matching': 'correspondance',
+      'flashcard': 'carte flash',
       'flash-card': 'carte flash',
+      'wordbank': 'banque de mots',
       'word-bank': 'banque de mots',
+      'audioquestion': 'question audio',
       'audio-question': 'question audio'
     };
     return typeMap[type] || type as Question['type'];
@@ -74,7 +81,7 @@ class QuizManagementService {
       const quizzes = response.data || [];
       const categories = await categoryService.getCategories();
       
-      return Promise.all(quizzes.map(quiz => this.formatQuiz(quiz, categories)));
+      return Promise.all(quizzes.map((quiz: any) => this.formatQuiz(quiz, categories)));
     } catch (error) {
       console.error('Error fetching quizzes by category:', error);
       return [];
@@ -108,6 +115,16 @@ class QuizManagementService {
     } catch (error) {
       console.error('Error fetching quiz stats:', error);
       throw new Error('Failed to fetch quiz stats');
+    }
+  }
+
+  async getCategories() {
+    try {
+      const response = await apiClient.get('/quiz/categories');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching quiz categories:', error);
+      return [];
     }
   }
 }
