@@ -1,17 +1,38 @@
 import { Card } from "@/components/ui/card";
 import type { Question } from "@/types/quiz";
 import { CheckCircle2, XCircle } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-interface FillBlankProps {
-  question: Question;
-  onAnswer: (value: Record<string, string>) => void;
+interface Reponse {
+  id: number;
+  text: string;
+  is_correct: boolean | null;
+  position: number | null;
+  match_pair: string | null;
+  bank_group: string | null;
 }
 
-export function FillBlank({ question, onAnswer }: FillBlankProps) {
+interface FillBlankProps {
+  question: Question & {
+    reponses?: Reponse[];
+  };
+  onAnswer: (value: Record<string, string>) => void;
+  currentAnswer?: string | string[] | Record<string, string>;
+}
+
+export function FillBlank({ question, onAnswer, currentAnswer }: FillBlankProps) {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    // Si currentAnswer est fourni, l'utiliser comme réponses
+    if (currentAnswer) {
+      if (typeof currentAnswer === 'object' && !Array.isArray(currentAnswer)) {
+        setAnswers(currentAnswer as Record<string, string>);
+      }
+    }
+  }, [currentAnswer]);
 
   const handleInputChange = (blankId: string, value: string) => {
     const newAnswers = { ...answers, [blankId]: value };
@@ -20,11 +41,13 @@ export function FillBlank({ question, onAnswer }: FillBlankProps) {
   };
 
   const checkAnswers = () => {
-    const isAllCorrect = question.blanks?.every(blank => {
-      const userAnswer = answers[blank.id]?.toLowerCase().trim();
-      const correctAnswer = blank.text.toLowerCase().trim();
+    if (!question.reponses) return;
+
+    const isAllCorrect = question.reponses.every(reponse => {
+      const userAnswer = answers[reponse.id.toString()]?.toLowerCase().trim();
+      const correctAnswer = reponse.text.toLowerCase().trim();
       return userAnswer === correctAnswer;
-    }) || false;
+    });
 
     setIsCorrect(isAllCorrect);
     setShowFeedback(true);
@@ -37,17 +60,17 @@ export function FillBlank({ question, onAnswer }: FillBlankProps) {
       </div>
 
       <div className="space-y-4">
-        {question.blanks?.map((blank) => {
-          const userAnswer = answers[blank.id] || '';
+        {question.reponses?.map((reponse) => {
+          const userAnswer = answers[reponse.id.toString()] || '';
           const isAnswerCorrect = showFeedback && 
-            userAnswer.toLowerCase().trim() === blank.text.toLowerCase().trim();
+            userAnswer.toLowerCase().trim() === reponse.text.toLowerCase().trim();
 
           return (
-            <div key={blank.id} className="flex items-center gap-4">
+            <div key={reponse.id} className="flex items-center gap-4">
               <input
                 type="text"
                 value={userAnswer}
-                onChange={(e) => handleInputChange(blank.id, e.target.value)}
+                onChange={(e) => handleInputChange(reponse.id.toString(), e.target.value)}
                 className={`
                   flex-1 px-4 py-2 border rounded-lg
                   transition-all duration-300
@@ -55,7 +78,7 @@ export function FillBlank({ question, onAnswer }: FillBlankProps) {
                   ${showFeedback && isAnswerCorrect ? 'bg-green-50 border-green-500' : ''}
                   ${showFeedback && !isAnswerCorrect ? 'bg-red-50 border-red-500' : ''}
                 `}
-                placeholder={`Réponse ${blank.position}`}
+                placeholder={`Réponse ${reponse.position || ''}`}
                 disabled={showFeedback}
               />
               {showFeedback && (

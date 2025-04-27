@@ -1,26 +1,39 @@
 import { Card } from "@/components/ui/card";
-import type { Question } from "@/types/quiz";
+import type { Question, WordBankItem } from "@/types/quiz";
 import { CheckCircle2, XCircle, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 
 interface WordBankProps {
   question: Question;
   onAnswer: (value: Record<string, string>) => void;
+  currentAnswer?: string | string[] | Record<string, string>;
 }
 
-export function WordBank({ question, onAnswer }: WordBankProps) {
+export function WordBank({ question, onAnswer, currentAnswer }: WordBankProps) {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [usedWords, setUsedWords] = useState<Set<string>>(new Set());
-  const [shuffledWords, setShuffledWords] = useState<string[]>([]);
+  const [shuffledWords, setShuffledWords] = useState<WordBankItem[]>([]);
   const [points, setPoints] = useState(0);
   const [streak, setStreak] = useState(0);
 
   useEffect(() => {
-    const words = question.wordbank?.map(item => item.text) || [];
-    setShuffledWords(words.sort(() => Math.random() - 0.5));
+    // Initialiser les mots de la banque de mots
+    if (question.wordbank && question.wordbank.length > 0) {
+      setShuffledWords([...question.wordbank].sort(() => Math.random() - 0.5));
+    }
   }, [question.wordbank]);
+
+  useEffect(() => {
+    // Si currentAnswer est fourni, l'utiliser comme réponses
+    if (currentAnswer) {
+      if (typeof currentAnswer === 'object' && !Array.isArray(currentAnswer)) {
+        setAnswers(currentAnswer as Record<string, string>);
+        setUsedWords(new Set(Object.values(currentAnswer as Record<string, string>)));
+      }
+    }
+  }, [currentAnswer]);
 
   const handleWordSelect = (blankId: string, word: string) => {
     const newAnswers = { ...answers, [blankId]: word };
@@ -112,21 +125,21 @@ export function WordBank({ question, onAnswer }: WordBankProps) {
           Mots disponibles :
         </p>
         <div className="flex flex-wrap gap-2">
-          {shuffledWords.map((word) => (
+          {shuffledWords.map((item) => (
             <button
-              key={word}
-              onClick={() => handleWordSelect(question.wordbank?.find(w => w.text === word)?.bankGroup || '', word)}
-              disabled={usedWords.has(word) || showFeedback}
+              key={item.id}
+              onClick={() => handleWordSelect(item.bankGroup || '', item.text)}
+              disabled={usedWords.has(item.text) || showFeedback}
               className={`
                 px-3 py-1 rounded-full text-sm transition-all duration-300
-                ${usedWords.has(word) 
+                ${usedWords.has(item.text) 
                   ? 'bg-primary/20 text-primary cursor-default' 
                   : 'bg-primary/10 hover:bg-primary/20 cursor-pointer hover:scale-105'
                 }
                 ${showFeedback ? 'opacity-50 cursor-default' : ''}
               `}
             >
-              {word}
+              {item.text}
             </button>
           ))}
         </div>

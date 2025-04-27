@@ -1,20 +1,31 @@
-
 import type { Question, Answer } from "@/types/quiz";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CheckCircle2, XCircle, Sparkles } from "lucide-react";
 
 interface TrueFalseProps {
   question: Question;
   onAnswer: (answer: string) => void;
+  currentAnswer?: string | string[] | Record<string, string>;
 }
 
-export function TrueFalse({ question, onAnswer }: TrueFalseProps) {
+export function TrueFalse({ question, onAnswer, currentAnswer }: TrueFalseProps) {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [points, setPoints] = useState(0);
   const [streak, setStreak] = useState(0);
+
+  useEffect(() => {
+    // Si currentAnswer est fourni, l'utiliser comme réponse sélectionnée
+    if (currentAnswer) {
+      if (typeof currentAnswer === 'string') {
+        setSelectedAnswer(currentAnswer);
+      } else if (Array.isArray(currentAnswer) && currentAnswer.length > 0) {
+        setSelectedAnswer(currentAnswer[0]);
+      }
+    }
+  }, [currentAnswer]);
 
   const handleAnswer = (answer: string) => {
     if (showFeedback) return;

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,6 +15,7 @@ import CategoryFormations from "./pages/CategoryFormations";
 import Quiz from "./pages/Quiz";
 import Profile from "./pages/Profile";
 import Classement from "./pages/Classement";
+import { Classement as QuizClassement } from "@/components/quiz/Classement";
 import Quizzes from "./pages/Quizzes";
 import { QuizDetail } from "@/components/quiz/QuizDetail";
 
@@ -81,6 +81,11 @@ const App = () => (
               <Route path="/classement" element={
                 <ProtectedRoute>
                   <Classement />
+                </ProtectedRoute>
+              } />
+              <Route path="/quiz/:quizId/classement" element={
+                <ProtectedRoute>
+                  <QuizClassement />
                 </ProtectedRoute>
               } />
               <Route path="*" element={<NotFound />} />

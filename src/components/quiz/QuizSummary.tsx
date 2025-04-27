@@ -1,8 +1,7 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, XCircle, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Question, Quiz } from "@/types/quiz";
+import type { Question, Quiz, QuestionType } from "@/types/quiz";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +24,49 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
     score >= 60 ? "Bien" :
     score >= 50 ? "Moyen" :
     "À améliorer";
+
+  const formatAnswer = (question: Question, userAnswerIds: string[]) => {
+    switch (question.type) {
+      case 'remplir le champ vide':
+        // Pour les questions fillblank, on affiche directement les réponses
+        return userAnswerIds.join(', ');
+      
+      case 'correspondance':
+        // Pour les questions matching, on affiche les paires
+        const pairs = userAnswerIds.map(id => {
+          const [leftId, rightId] = id.split('-');
+          const leftItem = question.matching?.find(r => r.id === leftId);
+          const rightItem = question.matching?.find(r => r.id === rightId);
+          return `${leftItem?.text} → ${rightItem?.text}`;
+        });
+        return pairs.join('; ');
+      
+      default:
+        // Pour les autres types de questions
+        return userAnswerIds.map(id => {
+          const answer = question.answers?.find(a => a.id === id);
+          return answer?.text || id;
+        }).join(', ');
+    }
+  };
+
+  const formatCorrectAnswer = (question: Question) => {
+    switch (question.type) {
+      case 'remplir le champ vide':
+        // Pour les questions fillblank, on affiche les réponses correctes
+        return question.blanks?.map(b => b.text).join(', ') || "Aucune réponse correcte définie";
+      
+      case 'correspondance':
+        // Pour les questions matching, on affiche les paires correctes
+        const pairs = question.matching?.map(r => `${r.text} → ${r.matchPair}`) || [];
+        return pairs.join('; ') || "Aucune réponse correcte définie";
+      
+      default:
+        // Pour les autres types de questions
+        const correctAnswers = question.answers?.filter(a => a.isCorrect || a.reponse_correct) || [];
+        return correctAnswers.map(a => a.text).join(', ') || "Aucune réponse correcte définie";
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -78,23 +120,24 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
         
         {questions.map((question, index) => {
           const userAnswerIds = userAnswers[question.id] || [];
-          const correctAnswerIds = question.correctAnswers || question.answers?.filter(a => a.isCorrect || a.reponse_correct).map(a => a.id) || [];
-          
-          // Recherche des objets de réponse correspondants
-          const userAnswerTexts = userAnswerIds.map(id => {
-            const answer = question.answers?.find(a => a.id === id);
-            return answer?.text || id;
-          });
-          
-          const correctAnswerTexts = correctAnswerIds.map(id => {
-            const answer = question.answers?.find(a => a.id === id);
-            return answer?.text || id;
-          });
-          
-          // Détermine si la réponse de l'utilisateur est correcte
           const isCorrect = question.isCorrect !== undefined 
             ? question.isCorrect 
-            : JSON.stringify(userAnswerIds.sort()) === JSON.stringify(correctAnswerIds.sort());
+            : question.type === 'correspondance'
+              ? userAnswerIds.every(id => {
+                  const [leftId, rightId] = id.split('-');
+                  const leftItem = question.matching?.find(r => r.id === leftId);
+                  const rightItem = question.matching?.find(r => r.id === rightId);
+                  return leftItem?.matchPair === rightItem?.text;
+                })
+              : question.type === 'remplir le champ vide'
+                ? userAnswerIds.every((answer, i) => {
+                    const correctAnswer = question.blanks?.[i]?.text;
+                    return answer.toLowerCase() === correctAnswer?.toLowerCase();
+                  })
+                : JSON.stringify(userAnswerIds.sort()) === JSON.stringify(
+                    question.answers?.filter(a => a.isCorrect || a.reponse_correct)
+                      .map(a => a.id).sort() || []
+                  );
 
           return (
             <Card key={question.id} className={cn(
@@ -124,7 +167,7 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
                     "p-3 rounded-lg",
                     isCorrect ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
                   )}>
-                    {userAnswerTexts.length > 0 ? userAnswerTexts.join(', ') : "Aucune réponse"}
+                    {userAnswerIds.length > 0 ? formatAnswer(question, userAnswerIds) : "Aucune réponse"}
                   </div>
                 </div>
 
@@ -134,7 +177,7 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
                       Bonne réponse :
                     </p>
                     <div className="p-3 rounded-lg bg-green-50 text-green-800">
-                      {correctAnswerTexts.length > 0 ? correctAnswerTexts.join(', ') : "Aucune réponse correcte définie"}
+                      {formatCorrectAnswer(question)}
                     </div>
                   </div>
                 )}

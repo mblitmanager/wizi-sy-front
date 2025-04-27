@@ -45,19 +45,13 @@ export function Matching({ question, onAnswer }: MatchingProps) {
     if (!question.reponses) return;
 
     const uniquePairs = question.reponses.reduce((acc, reponse) => {
-      const pairExists = acc.some(item => 
-        (item.text === reponse.match_pair && item.matchPair === reponse.text) ||
-        (item.text === reponse.text && item.matchPair === reponse.match_pair)
-      );
-
-      if (!pairExists && reponse.text && reponse.match_pair) {
+      if (reponse.text && reponse.match_pair) {
         acc.push({
           id: reponse.id.toString(),
           text: reponse.text,
           matchPair: reponse.match_pair
         });
       }
-
       return acc;
     }, [] as MatchingItem[]);
 
@@ -80,6 +74,12 @@ export function Matching({ question, onAnswer }: MatchingProps) {
     const sourceIndex = result.source.index;
     const destIndex = result.destination.index;
 
+    if (sourceIndex < 0 || destIndex < 0 || 
+        sourceIndex >= shuffledLeft.length || 
+        destIndex >= shuffledRight.length) {
+      return;
+    }
+
     if (sourceId === destId) {
       // Réorganisation dans la même colonne
       const items = sourceId === 'left' ? [...shuffledLeft] : [...shuffledRight];
@@ -95,6 +95,9 @@ export function Matching({ question, onAnswer }: MatchingProps) {
       // Tentative de correspondance
       const leftItem = shuffledLeft[sourceIndex];
       const rightItem = shuffledRight[destIndex];
+
+      if (!leftItem || !rightItem) return;
+
       const pairId = `${leftItem.id}-${rightItem.id}`;
 
       if (leftItem.matchPair === rightItem.text) {

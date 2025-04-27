@@ -1,4 +1,3 @@
-
 import { Question } from "@/types/quiz";
 import { MultipleChoice } from "../question-types/MultipleChoice";
 import { Ordering } from "../question-types/Ordering";
@@ -14,9 +13,10 @@ import { AlertCircle } from "lucide-react";
 interface QuestionDisplayProps {
   question: Question;
   onAnswer: (value: string | string[] | Record<string, string>) => void;
+  currentAnswer?: string | string[] | Record<string, string>;
 }
 
-export function QuestionDisplay({ question, onAnswer }: QuestionDisplayProps) {
+export function QuestionDisplay({ question, onAnswer, currentAnswer }: QuestionDisplayProps) {
   const questionType = question.type ? question.type.toLowerCase() : '';
   
   // Normaliser le type de question
@@ -33,21 +33,21 @@ export function QuestionDisplay({ question, onAnswer }: QuestionDisplayProps) {
   
   switch (normalizedType) {
     case 'choix multiples':
-      return <MultipleChoice question={question} onAnswer={onAnswer} />;
+      return <MultipleChoice question={question} onAnswer={onAnswer} currentAnswer={currentAnswer} />;
     case 'vrai/faux':
-      return <TrueFalse question={question} onAnswer={onAnswer} />;
+      return <TrueFalse question={question} onAnswer={onAnswer} currentAnswer={currentAnswer} />;
     case 'rearrangement':
-      return <Ordering question={question} onAnswer={onAnswer} />;
+      return <Ordering question={question} onAnswer={onAnswer} currentAnswer={currentAnswer} />;
     case 'remplir le champ vide':
-      return <FillBlank question={question} onAnswer={onAnswer} />;
+      return <FillBlank question={question} onAnswer={onAnswer} currentAnswer={currentAnswer} />;
     case 'banque de mots':
-      return <WordBank question={question} onAnswer={onAnswer} />;
+      return <WordBank question={question} onAnswer={onAnswer} currentAnswer={currentAnswer} />;
     case 'carte flash':
-      return <Flashcard question={question} onAnswer={onAnswer} />;
+      return <Flashcard question={question} onAnswer={onAnswer} currentAnswer={currentAnswer} />;
     case 'correspondance':
-      return <Matching question={question} onAnswer={onAnswer} />;
+      return <Matching question={question} onAnswer={onAnswer} currentAnswer={currentAnswer} />;
     case 'question audio':
-      return <AudioQuestion question={question} onAnswer={onAnswer} />;
+      return <AudioQuestion question={question} onAnswer={onAnswer} currentAnswer={currentAnswer} />;
     default:
       return (
         <Alert variant="destructive">

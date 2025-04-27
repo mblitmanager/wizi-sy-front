@@ -5,11 +5,12 @@ import { useState, useEffect } from "react";
 
 interface MultipleChoiceProps {
   question: Question;
-  onAnswer: (value: string) => void;
+  onAnswer: (value: string[]) => void;
+  currentAnswer?: string | string[] | Record<string, string>;
 }
 
-export function MultipleChoice({ question, onAnswer }: MultipleChoiceProps) {
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+export function MultipleChoice({ question, onAnswer, currentAnswer }: MultipleChoiceProps) {
+  const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [points, setPoints] = useState(0);
@@ -21,20 +22,42 @@ export function MultipleChoice({ question, onAnswer }: MultipleChoiceProps) {
     const answers = question.answers?.map(a => a.text) || [];
     setShuffledAnswers(answers.sort(() => Math.random() - 0.5));
     setAnswerStatus({});
-  }, [question.answers]);
+    
+    // Si currentAnswer est fourni, l'utiliser comme réponses sélectionnées
+    if (currentAnswer) {
+      if (Array.isArray(currentAnswer)) {
+        setSelectedAnswers(currentAnswer);
+      } else if (typeof currentAnswer === 'string') {
+        setSelectedAnswers([currentAnswer]);
+      }
+    }
+  }, [question.answers, currentAnswer]);
 
   const handleAnswerSelect = (answer: string) => {
     if (showFeedback) return;
 
-    setSelectedAnswer(answer);
-    const correctAnswer = question.answers?.find(a => a.isCorrect)?.text;
-    const isAnswerCorrect = answer === correctAnswer;
+    let newSelectedAnswers: string[];
+    if (selectedAnswers.includes(answer)) {
+      // Désélectionner la réponse
+      newSelectedAnswers = selectedAnswers.filter(a => a !== answer);
+    } else {
+      // Ajouter la réponse
+      newSelectedAnswers = [...selectedAnswers, answer];
+    }
+
+    setSelectedAnswers(newSelectedAnswers);
+    onAnswer(newSelectedAnswers);
+
+    const correctAnswers = question.answers?.filter(a => a.isCorrect)?.map(a => a.text) || [];
+    const isAnswerCorrect = newSelectedAnswers.length === correctAnswers.length &&
+      newSelectedAnswers.every(answer => correctAnswers.includes(answer)) &&
+      correctAnswers.every(answer => newSelectedAnswers.includes(answer));
 
     const newStatus: Record<string, 'correct' | 'incorrect' | null> = {};
     question.answers?.forEach(a => {
-      if (a.text === answer) {
-        newStatus[a.text] = isAnswerCorrect ? 'correct' : 'incorrect';
-      } else if (a.isCorrect) {
+      if (newSelectedAnswers.includes(a.text)) {
+        newStatus[a.text] = correctAnswers.includes(a.text) ? 'correct' : 'incorrect';
+      } else if (correctAnswers.includes(a.text)) {
         newStatus[a.text] = 'correct';
       }
     });
@@ -49,8 +72,6 @@ export function MultipleChoice({ question, onAnswer }: MultipleChoiceProps) {
     } else {
       setStreak(0);
     }
-
-    onAnswer(answer);
   };
 
   return (
@@ -75,7 +96,7 @@ export function MultipleChoice({ question, onAnswer }: MultipleChoiceProps) {
       <div className="space-y-4">
         {shuffledAnswers.map((answer) => {
           const status = answerStatus[answer];
-          const isSelected = selectedAnswer === answer;
+          const isSelected = selectedAnswers.includes(answer);
 
           return (
             <button

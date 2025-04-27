@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -31,6 +30,7 @@ export function QuizPlay({ quizId, quiz }: QuizPlayProps) {
   const [showAnswerDialog, setShowAnswerDialog] = useState(false);
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
   const [currentAnswer, setCurrentAnswer] = useState<string | string[] | Record<string, string>>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch quiz questions
   const { data: questions, isLoading, error } = useQuery({
@@ -62,7 +62,7 @@ export function QuizPlay({ quizId, quiz }: QuizPlayProps) {
     }));
   };
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = async () => {
     const currentQuestion = questions?.[currentQuestionIndex];
     if (!currentQuestion) return;
     
@@ -78,11 +78,14 @@ export function QuizPlay({ quizId, quiz }: QuizPlayProps) {
       }, 3000);
     } else {
       // C'est la dernière question, soumettre le quiz
-      handleSubmitQuiz();
+      await handleSubmitQuiz();
     }
   };
 
   const handleSubmitQuiz = async () => {
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
     try {
       const result = await quizSubmissionService.submitQuiz(quizId, userAnswers, timeSpent);
       setQuizResult(result);
@@ -101,6 +104,8 @@ export function QuizPlay({ quizId, quiz }: QuizPlayProps) {
         description: "Une erreur est survenue lors de la soumission du quiz",
         variant: "destructive"
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -117,7 +122,13 @@ export function QuizPlay({ quizId, quiz }: QuizPlayProps) {
   // Vérifier si la réponse actuelle est correcte
   const isCurrentAnswerCorrect = currentUserAnswers && 
     correctAnswers.length > 0 && 
-    correctAnswers.every(answer => currentUserAnswers.includes(answer.id));
+    currentUserAnswers.length === correctAnswers.length &&
+    currentUserAnswers.every(answerId => 
+      correctAnswers.some(correctAnswer => correctAnswer.id === answerId)
+    ) &&
+    correctAnswers.every(correctAnswer => 
+      currentUserAnswers.includes(correctAnswer.id)
+    );
 
   if (showSummary && quizResult) {
     return (
@@ -145,7 +156,7 @@ export function QuizPlay({ quizId, quiz }: QuizPlayProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {currentQuestion.astuce && (
+          {currentQuestion?.astuce && (
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <Info className="h-4 w-4" />
               <button 
@@ -159,18 +170,19 @@ export function QuizPlay({ quizId, quiz }: QuizPlayProps) {
           )}
 
           <div className="text-lg font-medium mb-6">
-            {currentQuestion.text}
+            {currentQuestion?.text}
           </div>
 
           <QuestionDisplay 
             question={currentQuestion} 
             onAnswer={handleAnswerChange}
+            currentAnswer={currentAnswer}
           />
 
           <div className="flex justify-end">
             <Button
               onClick={handleNextQuestion}
-              disabled={!isAnswered}
+              disabled={!isAnswered || isSubmitting}
             >
               {currentQuestionIndex === questions.length - 1
                 ? "Terminer"

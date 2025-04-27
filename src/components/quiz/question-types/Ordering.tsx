@@ -1,18 +1,36 @@
 import { Card } from "@/components/ui/card";
 import type { Question } from "@/types/quiz";
 import { CheckCircle2, GripVertical } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 interface OrderingProps {
   question: Question;
   onAnswer: (value: string[]) => void;
+  currentAnswer?: string | string[] | Record<string, string>;
 }
 
-export function Ordering({ question, onAnswer }: OrderingProps) {
+export function Ordering({ question, onAnswer, currentAnswer }: OrderingProps) {
   const [items, setItems] = useState(question.answers || []);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
+
+  useEffect(() => {
+    // Si currentAnswer est fourni, l'utiliser pour réorganiser les items
+    if (currentAnswer) {
+      if (Array.isArray(currentAnswer)) {
+        const newItems = [...items];
+        currentAnswer.forEach((answerId, index) => {
+          const itemIndex = newItems.findIndex(item => item.id === answerId);
+          if (itemIndex !== -1) {
+            const [item] = newItems.splice(itemIndex, 1);
+            newItems.splice(index, 0, item);
+          }
+        });
+        setItems(newItems);
+      }
+    }
+  }, [currentAnswer, items]);
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
