@@ -8,6 +8,7 @@ import { Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { quizManagementService } from "@/services/quiz/QuizManagementService";
 
 const Quiz = () => {
   const { quizId } = useParams();
@@ -15,6 +16,23 @@ const Quiz = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
+  // Fetch quiz details to validate if it exists
+  const { data: quiz, isLoading: quizLoading, error: quizError } = useQuery({
+    queryKey: ["quiz", quizId],
+    queryFn: () => quizManagementService.getQuizById(quizId!),
+    enabled: !!quizId && !!token,
+    retry: 1,
+    meta: {
+      onError: (error) => {
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger ce quiz. Veuillez réessayer.",
+          variant: "destructive"
+        });
+      }
+    }
+  });
+
   // Si l'authentification est en cours de chargement, afficher un écran de chargement
   if (authLoading) {
     return (
@@ -32,10 +50,47 @@ const Quiz = () => {
     return <Navigate to="/login" replace />;
   }
 
+  // Si le quiz est en cours de chargement
+  if (quizLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="ml-2">Chargement du quiz...</p>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Si une erreur s'est produite lors du chargement du quiz
+  if (quizError) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Erreur lors du chargement du quiz</AlertTitle>
+            <AlertDescription>
+              Nous n'avons pas pu charger ce quiz. Il est possible que le quiz n'existe pas ou que vous n'ayez pas accès à celui-ci.
+            </AlertDescription>
+          </Alert>
+          <div className="mt-4 flex justify-center">
+            <Button 
+              onClick={() => navigate('/quizzes')}
+              variant="outline"
+            >
+              Retourner à la liste des quiz
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <QuizPlay />
+        <QuizPlay quizId={quizId!} quiz={quiz} />
       </div>
     </Layout>
   );

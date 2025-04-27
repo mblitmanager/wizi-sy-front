@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { quizSubmissionService } from "@/services/quiz/QuizSubmissionService";
 import type { Question, Quiz, QuizResult } from "@/types/quiz";
@@ -15,8 +15,12 @@ import { QuizTimer } from "./quiz-play/Timer";
 import { QuizSummary } from "./QuizSummary";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
-export function QuizPlay() {
-  const { id } = useParams();
+interface QuizPlayProps {
+  quizId: string;
+  quiz: Quiz;
+}
+
+export function QuizPlay({ quizId, quiz }: QuizPlayProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -26,18 +30,17 @@ export function QuizPlay() {
   const [showHint, setShowHint] = useState(false);
   const [showAnswerDialog, setShowAnswerDialog] = useState(false);
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
+  const [currentAnswer, setCurrentAnswer] = useState<string | string[] | Record<string, string>>([]);
 
+  // Fetch quiz questions
   const { data: questions, isLoading, error } = useQuery({
-    queryKey: ["quiz", id, "questions"],
-    queryFn: () => quizSubmissionService.getQuizQuestions(parseInt(id!)),
-    enabled: !!id && !!localStorage.getItem('token')
+    queryKey: ["quiz", quizId, "questions"],
+    queryFn: () => quizSubmissionService.getQuizQuestions(parseInt(quizId)),
+    enabled: !!quizId && !!localStorage.getItem('token')
   });
 
-  if (isLoading) return <LoadingState />;
-  if (error || !questions || questions.length === 0) return <ErrorState />;
-
   const handleAnswerChange = (value: string | string[] | Record<string, string>) => {
-    const currentQuestion = questions[currentQuestionIndex];
+    const currentQuestion = questions?.[currentQuestionIndex];
     if (!currentQuestion) return;
     
     let formattedValue: string[];
@@ -52,6 +55,7 @@ export function QuizPlay() {
       formattedValue = Object.values(value);
     }
     
+    setCurrentAnswer(value);
     setUserAnswers(prev => ({
       ...prev,
       [currentQuestion.id]: formattedValue
@@ -59,17 +63,18 @@ export function QuizPlay() {
   };
 
   const handleNextQuestion = () => {
-    const currentQuestion = questions[currentQuestionIndex];
+    const currentQuestion = questions?.[currentQuestionIndex];
     if (!currentQuestion) return;
     
     setShowAnswerDialog(true);
 
     // Passer à la question suivante après un délai
-    if (currentQuestionIndex < questions.length - 1) {
+    if (currentQuestionIndex < (questions?.length || 0) - 1) {
       setTimeout(() => {
         setShowAnswerDialog(false);
         setCurrentQuestionIndex(prev => prev + 1);
         setShowHint(false);
+        setCurrentAnswer([]);
       }, 3000);
     } else {
       // C'est la dernière question, soumettre le quiz
@@ -79,10 +84,16 @@ export function QuizPlay() {
 
   const handleSubmitQuiz = async () => {
     try {
-      const result = await quizSubmissionService.submitQuiz(id!, userAnswers, timeSpent);
+      const result = await quizSubmissionService.submitQuiz(quizId, userAnswers, timeSpent);
       setQuizResult(result);
       setShowAnswerDialog(false);
       setShowSummary(true);
+      
+      toast({
+        title: "Quiz terminé",
+        description: `Votre score: ${result.score}%`,
+        variant: result.score >= 70 ? "default" : "destructive"
+      });
     } catch (error) {
       console.error('Error submitting quiz:', error);
       toast({
@@ -93,19 +104,25 @@ export function QuizPlay() {
     }
   };
 
+  if (isLoading) return <LoadingState />;
+  if (error || !questions || questions.length === 0) return <ErrorState />;
+
   const currentQuestion = questions[currentQuestionIndex];
   const currentUserAnswers = userAnswers[currentQuestion?.id || ''];
   const isAnswered = !!currentUserAnswers && currentUserAnswers.length > 0;
 
-  // Trouver la bonne réponse pour la question actuelle
-  const correctAnswer = currentQuestion?.answers?.find(a => a.isCorrect);
+  // Trouver les bonnes réponses pour la question actuelle
+  const correctAnswers = currentQuestion?.answers?.filter(a => a.isCorrect || a.reponse_correct) || [];
+  
+  // Vérifier si la réponse actuelle est correcte
   const isCurrentAnswerCorrect = currentUserAnswers && 
-    correctAnswer && 
-    currentUserAnswers.includes(correctAnswer.id);
+    correctAnswers.length > 0 && 
+    correctAnswers.every(answer => currentUserAnswers.includes(answer.id));
 
   if (showSummary && quizResult) {
     return (
       <QuizSummary
+        quiz={quiz}
         questions={quizResult.questions || questions}
         userAnswers={userAnswers}
         score={quizResult.score}
@@ -117,7 +134,7 @@ export function QuizPlay() {
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Quiz</h1>
+        <h1 className="text-2xl font-bold">{quiz.titre || "Quiz"}</h1>
         <QuizTimer timeSpent={timeSpent} setTimeSpent={setTimeSpent} isActive={!showSummary} />
       </div>
 
@@ -173,9 +190,13 @@ export function QuizPlay() {
             </h3>
             <div className="space-y-2">
               <p>La bonne réponse était :</p>
-              <p className="font-medium text-green-600">
-                {correctAnswer?.text}
-              </p>
+              <div className="font-medium text-green-600">
+                {correctAnswers.map(answer => (
+                  <div key={answer.id} className="py-1">
+                    {answer.text}
+                  </div>
+                ))}
+              </div>
               {currentQuestion.explication && (
                 <div className="mt-4">
                   <p className="font-medium">Explication :</p>

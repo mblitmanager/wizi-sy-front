@@ -17,7 +17,21 @@ interface QuestionDisplayProps {
 }
 
 export function QuestionDisplay({ question, onAnswer }: QuestionDisplayProps) {
-  switch (question.type) {
+  const questionType = question.type ? question.type.toLowerCase() : '';
+  
+  // Normaliser le type de question
+  const normalizedType = 
+    questionType.includes('multiple') || questionType.includes('choix') ? 'choix multiples' :
+    questionType.includes('true') || questionType.includes('false') || questionType.includes('vrai') || questionType.includes('faux') ? 'vrai/faux' :
+    questionType.includes('fill') || questionType.includes('blank') || questionType.includes('remplir') ? 'remplir le champ vide' :
+    questionType.includes('order') || questionType.includes('rearrange') || questionType === 'ordering' ? 'rearrangement' :
+    questionType.includes('match') || questionType === 'matching' ? 'correspondance' :
+    questionType.includes('flash') ? 'carte flash' :
+    questionType.includes('word') || questionType.includes('bank') ? 'banque de mots' :
+    questionType.includes('audio') ? 'question audio' :
+    question.type;
+  
+  switch (normalizedType) {
     case 'choix multiples':
       return <MultipleChoice question={question} onAnswer={onAnswer} />;
     case 'vrai/faux':
