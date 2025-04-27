@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, CircularProgress } from '@mui/material';
+import { Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { quizSubmissionService } from '../../services/quiz/QuizSubmissionService';
+import QuizService from '@/services/QuizService';
+import { QuizSummary } from './QuizSummary';
 
 interface QuizResult {
   id: string;
@@ -42,6 +44,9 @@ export const QuizResults: React.FC = () => {
   const [globalClassement, setGlobalClassement] = useState<GlobalClassementEntry[]>([]);
   const [loading, setLoading] = useState(!location.state?.result);
   const [error, setError] = useState<string | null>(null);
+  const [showSummary, setShowSummary] = useState(false);
+  const [summaryData, setSummaryData] = useState<any>(null);
+  const [loadingSummary, setLoadingSummary] = useState(false);
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -76,6 +81,20 @@ export const QuizResults: React.FC = () => {
   const handleRestartQuiz = () => {
     if (quizId) {
       navigate(`/quiz/${quizId}`);
+    }
+  };
+
+  const handleShowSummary = async () => {
+    if (!result?.id) return;
+    setLoadingSummary(true);
+    try {
+      const data = await QuizService.getInstance().getParticipationResume(Number(result.id));
+      setSummaryData(data);
+      setShowSummary(true);
+    } catch (e) {
+      setError('Erreur lors du chargement du résumé');
+    } finally {
+      setLoadingSummary(false);
     }
   };
 
@@ -182,6 +201,17 @@ export const QuizResults: React.FC = () => {
           </Paper>
         </Box>
 
+        {/* Bouton pour consulter le résumé */}
+        <Box display="flex" justifyContent="center" mt={2}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={handleShowSummary}
+            disabled={loadingSummary}
+          >
+            {loadingSummary ? 'Chargement...' : 'Consulter le résumé'}
+          </Button>
+        </Box>
         {/* Bouton pour recommencer */}
         <Box display="flex" justifyContent="center" mt={3}>
           <Button
@@ -193,6 +223,24 @@ export const QuizResults: React.FC = () => {
             Recommencer le Quiz
           </Button>
         </Box>
+        {/* Modale de résumé */}
+        {showSummary && summaryData && (
+          <Dialog open={showSummary} onClose={() => setShowSummary(false)} maxWidth="md" fullWidth>
+            <DialogTitle>Résumé du Quiz</DialogTitle>
+            <DialogContent>
+              <QuizSummary
+                quiz={summaryData.quiz}
+                questions={summaryData.questions}
+                userAnswers={Object.fromEntries(summaryData.questions.map((q: any) => [q.question_id, q.userAnswers]))}
+                score={summaryData.score}
+                totalQuestions={summaryData.totalQuestions}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setShowSummary(false)}>Fermer</Button>
+            </DialogActions>
+          </Dialog>
+        )}
       </Box>
     </Box>
   );

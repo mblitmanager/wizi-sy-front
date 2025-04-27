@@ -370,6 +370,18 @@ class QuizService {
       throw error;
     }
   }
+
+  async getParticipationResume(participationId: number): Promise<any> {
+    try {
+      const response = await axios.get(`${this.baseUrl}/quiz-participations/${participationId}/resume`, {
+        headers: this.getAuthHeader(),
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching participation resume:', error);
+      throw error;
+    }
+  }
 }
 
 export default QuizService.getInstance(); 
