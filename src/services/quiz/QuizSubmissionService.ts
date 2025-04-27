@@ -1,16 +1,21 @@
 
 import apiClient from '@/lib/api-client';
-import type { Question } from '@/types/quiz';
+import type { Question, QuizResult } from '@/types/quiz';
 
 class QuizSubmissionService {
-  async getQuizQuestions(quizId: number): Promise<any> {
+  async getQuizQuestions(quizId: number): Promise<Question[]> {
     try {
       const response = await apiClient.get(`/quiz/${quizId}/questions`);
       const questions = response.data.data || [];
       return questions.map((question: any) => ({
         ...question,
         type: this.mapQuestionType(question.type),
-        audioUrl: question.media_url || question.audioUrl
+        audioUrl: question.media_url || question.audioUrl,
+        answers: question.reponses ? question.reponses.map((reponse: any) => ({
+          id: String(reponse.id),
+          text: reponse.text,
+          isCorrect: Boolean(reponse.is_correct)
+        })) : []
       }));
     } catch (error) {
       console.error('Error fetching quiz questions:', error);
@@ -36,35 +41,26 @@ class QuizSubmissionService {
       'audioquestion': 'question audio',
       'audio-question': 'question audio'
     };
-    return typeMap[type] || type as Question['type'];
+    return typeMap[type.toLowerCase()] || type as Question['type'];
   }
 
-  async submitQuiz(quizId: string, answers: Record<string, string[]>, timeSpent: number) {
+  async submitQuiz(quizId: string, answers: Record<string, string[]>, timeSpent: number): Promise<QuizResult> {
     try {
-      const formattedAnswers = Object.entries(answers).map(([questionId, answer]) => ({
-        questionId: parseInt(questionId),
-        answer: Array.isArray(answer) ? answer.join(',') : answer,
-        timeSpent
-      }));
+      const formattedAnswers: Record<string, any> = {};
+      
+      // Format answers for API
+      Object.entries(answers).forEach(([questionId, answer]) => {
+        formattedAnswers[questionId] = answer;
+      });
 
-      const response = await apiClient.post(`/quizzes/${quizId}/submit`, {
-        quizId: parseInt(quizId),
-        answers: formattedAnswers
+      const response = await apiClient.post(`/quiz/${quizId}/result`, {
+        answers: formattedAnswers,
+        timeSpent
       });
 
       return response.data;
     } catch (error) {
       console.error('Error submitting quiz:', error);
-      throw error;
-    }
-  }
-
-  async submitQuizResult(quizId: number, result: any) {
-    try {
-      const response = await apiClient.post(`/quiz/${quizId}/result`, result);
-      return response.data;
-    } catch (error) {
-      console.error('Error submitting quiz result:', error);
       throw error;
     }
   }

@@ -1,16 +1,21 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Question, Answer } from "@/types/quiz";
+import type { Question } from "@/types/quiz";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface QuizSummaryProps {
   questions: Question[];
-  userAnswers: Record<string, string>;
+  userAnswers: Record<string, string[]>;
   score: number;
   totalQuestions: number;
 }
 
 export function QuizSummary({ questions, userAnswers, score, totalQuestions }: QuizSummaryProps) {
+  const navigate = useNavigate();
+
   return (
     <div className="space-y-6">
       <Card className="bg-primary/5">
@@ -33,10 +38,24 @@ export function QuizSummary({ questions, userAnswers, score, totalQuestions }: Q
 
       <div className="space-y-4">
         {questions.map((question, index) => {
-          const userAnswer = userAnswers[question.id];
-          const userAnswerObj = question.answers?.find(a => a.id === userAnswer);
-          const correctAnswer = question.answers?.find(a => a.isCorrect);
-          const isCorrect = userAnswerObj?.isCorrect || false;
+          const userAnswerIds = userAnswers[question.id] || [];
+          const correctAnswerIds = question.correctAnswers || question.answers?.filter(a => a.isCorrect).map(a => a.id) || [];
+          
+          // Recherche des objets de réponse correspondants
+          const userAnswerTexts = userAnswerIds.map(id => {
+            const answer = question.answers?.find(a => a.id === id);
+            return answer?.text || id;
+          });
+          
+          const correctAnswerTexts = correctAnswerIds.map(id => {
+            const answer = question.answers?.find(a => a.id === id);
+            return answer?.text || id;
+          });
+          
+          // Détermine si la réponse de l'utilisateur est correcte
+          const isCorrect = question.isCorrect !== undefined 
+            ? question.isCorrect 
+            : JSON.stringify(userAnswerIds.sort()) === JSON.stringify(correctAnswerIds.sort());
 
           return (
             <Card key={question.id} className={cn(
@@ -66,17 +85,28 @@ export function QuizSummary({ questions, userAnswers, score, totalQuestions }: Q
                     "p-3 rounded-lg",
                     isCorrect ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                   )}>
-                    {userAnswerObj?.text}
+                    {userAnswerTexts.join(', ') || "Aucune réponse"}
                   </div>
                 </div>
 
-                {!isCorrect && correctAnswer && (
+                {!isCorrect && (
                   <div className="space-y-2">
                     <p className="text-sm font-medium text-muted-foreground">
                       Bonne réponse :
                     </p>
                     <div className="p-3 rounded-lg bg-green-100 text-green-800">
-                      {correctAnswer.text}
+                      {correctAnswerTexts.join(', ')}
+                    </div>
+                  </div>
+                )}
+                
+                {question.explication && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Explication :
+                    </p>
+                    <div className="p-3 rounded-lg bg-blue-50 text-blue-800">
+                      {question.explication}
                     </div>
                   </div>
                 )}
@@ -84,6 +114,12 @@ export function QuizSummary({ questions, userAnswers, score, totalQuestions }: Q
             </Card>
           );
         })}
+      </div>
+      
+      <div className="flex justify-center mt-6">
+        <Button onClick={() => navigate('/quizzes')}>
+          Retour à la liste des quiz
+        </Button>
       </div>
     </div>
   );

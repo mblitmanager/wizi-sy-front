@@ -1,13 +1,13 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { quizSubmissionService } from "@/services/quiz/QuizSubmissionService";
-import type { Question } from "@/types/quiz";
+import type { Question, Quiz, QuizResult } from "@/types/quiz";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Info } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useToast } from "@/hooks/use-toast";
 import { LoadingState } from "./quiz-play/LoadingState";
 import { ErrorState } from "./quiz-play/ErrorState";
 import { QuestionDisplay } from "./quiz-play/QuestionDisplay";
@@ -15,79 +15,101 @@ import { QuizTimer } from "./quiz-play/Timer";
 import { QuizSummary } from "./QuizSummary";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
-type QuestionValue = string | string[] | Record<string, string>;
-
 export function QuizPlay() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<Record<string, QuestionValue>>({});
+  const [userAnswers, setUserAnswers] = useState<Record<string, string[]>>({});
   const [showSummary, setShowSummary] = useState(false);
   const [timeSpent, setTimeSpent] = useState(0);
-  const [score, setScore] = useState(0);
   const [showHint, setShowHint] = useState(false);
   const [showAnswerDialog, setShowAnswerDialog] = useState(false);
+  const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
 
-  const { data: quiz, isLoading, error } = useQuery({
-    queryKey: ["quiz", id],
+  const { data: questions, isLoading, error } = useQuery({
+    queryKey: ["quiz", id, "questions"],
     queryFn: () => quizSubmissionService.getQuizQuestions(parseInt(id!)),
     enabled: !!id && !!localStorage.getItem('token')
   });
 
   if (isLoading) return <LoadingState />;
-  if (error || !quiz) return <ErrorState />;
+  if (error || !questions || questions.length === 0) return <ErrorState />;
 
-  const handleAnswerChange = (value: QuestionValue) => {
-    const currentQuestion = quiz?.questions[currentQuestionIndex];
-    if (currentQuestion) {
-      setUserAnswers(prev => ({
-        ...prev,
-        [currentQuestion.id]: value
-      }));
+  const handleAnswerChange = (value: string | string[] | Record<string, string>) => {
+    const currentQuestion = questions[currentQuestionIndex];
+    if (!currentQuestion) return;
+    
+    let formattedValue: string[];
+    
+    // Normaliser la valeur pour qu'elle soit toujours un tableau de chaînes
+    if (typeof value === 'string') {
+      formattedValue = [value];
+    } else if (Array.isArray(value)) {
+      formattedValue = value;
+    } else {
+      // Si c'est un objet, prendre les valeurs
+      formattedValue = Object.values(value);
     }
+    
+    setUserAnswers(prev => ({
+      ...prev,
+      [currentQuestion.id]: formattedValue
+    }));
   };
 
-  const handleNextQuestion = async () => {
-    const currentQuestion = quiz.questions[currentQuestionIndex];
+  const handleNextQuestion = () => {
+    const currentQuestion = questions[currentQuestionIndex];
+    if (!currentQuestion) return;
+    
     setShowAnswerDialog(true);
 
-    if (currentQuestionIndex < quiz.questions.length - 1) {
+    // Passer à la question suivante après un délai
+    if (currentQuestionIndex < questions.length - 1) {
       setTimeout(() => {
         setShowAnswerDialog(false);
         setCurrentQuestionIndex(prev => prev + 1);
         setShowHint(false);
       }, 3000);
     } else {
-      await handleSubmitQuiz();
+      // C'est la dernière question, soumettre le quiz
+      handleSubmitQuiz();
     }
   };
 
   const handleSubmitQuiz = async () => {
     try {
-      const formattedAnswers: Record<string, string[]> = {};
-      Object.entries(userAnswers).forEach(([questionId, answer]) => {
-        formattedAnswers[questionId] = Array.isArray(answer) ? answer : [answer as string];
-      });
-
-      const result = await quizSubmissionService.submitQuiz(id!, formattedAnswers, timeSpent);
-      setScore(result.score);
+      const result = await quizSubmissionService.submitQuiz(id!, userAnswers, timeSpent);
+      setQuizResult(result);
       setShowAnswerDialog(false);
       setShowSummary(true);
     } catch (error) {
       console.error('Error submitting quiz:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la soumission du quiz",
+        variant: "destructive"
+      });
     }
   };
 
-  const currentQuestion = quiz.questions[currentQuestionIndex];
-  const currentAnswer = userAnswers[currentQuestion.id];
+  const currentQuestion = questions[currentQuestionIndex];
+  const currentUserAnswers = userAnswers[currentQuestion?.id || ''];
+  const isAnswered = !!currentUserAnswers && currentUserAnswers.length > 0;
 
-  if (showSummary) {
+  // Trouver la bonne réponse pour la question actuelle
+  const correctAnswer = currentQuestion?.answers?.find(a => a.isCorrect);
+  const isCurrentAnswerCorrect = currentUserAnswers && 
+    correctAnswer && 
+    currentUserAnswers.includes(correctAnswer.id);
+
+  if (showSummary && quizResult) {
     return (
       <QuizSummary
-        questions={quiz.questions}
+        questions={quizResult.questions || questions}
         userAnswers={userAnswers}
-        score={score}
-        totalQuestions={quiz.questions.length}
+        score={quizResult.score}
+        totalQuestions={quizResult.totalQuestions || questions.length}
       />
     );
   }
@@ -95,14 +117,14 @@ export function QuizPlay() {
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">{quiz.titre}</h1>
+        <h1 className="text-2xl font-bold">Quiz</h1>
         <QuizTimer timeSpent={timeSpent} setTimeSpent={setTimeSpent} isActive={!showSummary} />
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>
-            Question {currentQuestionIndex + 1} sur {quiz.questions.length}
+            Question {currentQuestionIndex + 1} sur {questions.length}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -119,6 +141,10 @@ export function QuizPlay() {
             </div>
           )}
 
+          <div className="text-lg font-medium mb-6">
+            {currentQuestion.text}
+          </div>
+
           <QuestionDisplay 
             question={currentQuestion} 
             onAnswer={handleAnswerChange}
@@ -127,9 +153,9 @@ export function QuizPlay() {
           <div className="flex justify-end">
             <Button
               onClick={handleNextQuestion}
-              disabled={!currentAnswer}
+              disabled={!isAnswered}
             >
-              {currentQuestionIndex === quiz.questions.length - 1
+              {currentQuestionIndex === questions.length - 1
                 ? "Terminer"
                 : "Question suivante"}
             </Button>
@@ -141,14 +167,14 @@ export function QuizPlay() {
         <DialogContent>
           <div className="p-4">
             <h3 className="text-lg font-bold mb-4">
-              {currentAnswer === quiz.questions[currentQuestionIndex].answers?.find(a => a.isCorrect)?.id
+              {isCurrentAnswerCorrect
                 ? "Bonne réponse !"
                 : "Mauvaise réponse"}
             </h3>
             <div className="space-y-2">
               <p>La bonne réponse était :</p>
               <p className="font-medium text-green-600">
-                {quiz.questions[currentQuestionIndex].answers?.find(a => a.isCorrect)?.text}
+                {correctAnswer?.text}
               </p>
               {currentQuestion.explication && (
                 <div className="mt-4">

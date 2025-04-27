@@ -1,3 +1,4 @@
+
 export interface Category {
   id: string;
   name: string;
@@ -33,6 +34,9 @@ export interface Question {
   matching?: MatchingItem[];
   flashcard?: FlashCard;
   wordbank?: WordBankItem[];
+  correctAnswers?: string[]; // Pour le résumé du quiz
+  selectedAnswers?: string[]; // Pour le résumé du quiz
+  isCorrect?: boolean; // Pour le résumé du quiz
 }
 
 export interface Answer {
@@ -91,4 +95,17 @@ export interface WordBankItem {
   text: string;
   isCorrect?: boolean;
   bankGroup?: string;
+}
+
+export interface QuizResult {
+  id: string;
+  quizId: string;
+  stagiaireId: string;
+  formationId: string;
+  score: number;
+  correctAnswers: number;
+  totalQuestions: number;
+  completedAt: string;
+  timeSpent: number;
+  questions: Question[];
 }
