@@ -9,7 +9,7 @@ import { Trophy, Award, Clock, BarChart2, User, Crown, History } from "lucide-re
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export const Profil: React.FC = () => {
+export const Classement: React.FC = () => {
   const { data: stagiaireProfile, isLoading: isLoadingProfile } = useQuery({
     queryKey: ["stagiaireProfile"],
     queryFn: () => quizSubmissionService.getStagiaireProfile(),

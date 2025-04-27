@@ -9,7 +9,7 @@ import { useUser } from "@/context/UserContext";
 import { useQuery } from "@tanstack/react-query";
 import { profileService } from "@/services/ProfileService";
 import { Loader2 } from "lucide-react";
-import { Profil } from "@/components/quiz/Profil";
+import { Classement } from "@/components/quiz/classement";
 
 const Profile = () => {
   const { user } = useUser();
@@ -106,7 +106,7 @@ const Profile = () => {
           </TabsContent>
 
           <TabsContent value="classement">
-            <Profil />
+            <Classement />
           </TabsContent>
         </Tabs>
       </div>
