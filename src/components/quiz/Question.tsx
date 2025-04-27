@@ -119,23 +119,51 @@ export const Question: React.FC<QuestionProps> = ({ question, onAnswer, showFeed
   };
 
   return (
-    <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+    <Paper 
+      elevation={2} 
+      sx={{ 
+        p: { xs: 2, sm: 3 },
+        mb: 3,
+        width: '100%',
+        maxWidth: '100%',
+        overflow: 'hidden'
+      }}
+    >
       <Box mb={3}>
-        <Typography variant="h6" gutterBottom>
+        <Typography 
+          variant="h6" 
+          gutterBottom
+          sx={{
+            fontSize: { xs: '1.1rem', sm: '1.25rem' },
+            wordBreak: 'break-word'
+          }}
+        >
           {question.text}
         </Typography>
         {question.media_url && (
-          <Box mb={2}>
+          <Box 
+            mb={2}
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              '& img': {
+                maxWidth: '100%',
+                height: 'auto',
+                borderRadius: 1
+              }
+            }}
+          >
             {question.type === 'question audio' ? (
-              <audio controls>
-                <source src={question.media_url} type="audio/mpeg" />
-                Votre navigateur ne supporte pas l'élément audio.
-              </audio>
+              <Box sx={{ width: '100%', maxWidth: '400px' }}>
+                <audio controls style={{ width: '100%' }}>
+                  <source src={question.media_url} type="audio/mpeg" />
+                  Votre navigateur ne supporte pas l'élément audio.
+                </audio>
+              </Box>
             ) : (
               <img
                 src={question.media_url}
                 alt="Question media"
-                style={{ maxWidth: '100%', height: 'auto' }}
               />
             )}
           </Box>
@@ -143,7 +171,17 @@ export const Question: React.FC<QuestionProps> = ({ question, onAnswer, showFeed
       </Box>
       {renderQuestion()}
       {showFeedback && question.explication && (
-        <Box mt={3} p={2} bgcolor="info.light" borderRadius={1}>
+        <Box 
+          mt={3} 
+          p={2} 
+          bgcolor="info.light" 
+          borderRadius={1}
+          sx={{
+            '& .MuiTypography-root': {
+              fontSize: { xs: '0.875rem', sm: '1rem' }
+            }
+          }}
+        >
           <Typography variant="body2" color="info.contrastText">
             <strong>Explication:</strong> {question.explication}
           </Typography>

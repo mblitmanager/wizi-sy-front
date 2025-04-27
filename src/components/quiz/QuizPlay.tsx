@@ -343,92 +343,129 @@ export const QuizPlay: React.FC<QuizPlayProps> = () => {
   const currentAnswer = answers.find((a) => a.questionId === currentQuestion.id);
 
   return (
-    <Box p={3}>
-      <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-          <Typography variant="h5">
-            {quizDetails?.data?.titre || 'Quiz'}
+    <Box
+      sx={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        padding: { xs: 2, sm: 3, md: 4 },
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', sm: 'row' },
+          justifyContent: 'space-between',
+          alignItems: { xs: 'flex-start', sm: 'center' },
+          mb: 3,
+          gap: 2
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Timer size={24} />
+          <Typography variant="h6">
+            {timeLeft !== null ? formatTime(timeLeft) : '--:--'}
           </Typography>
-          <Box display="flex" gap={2}>
-            <IconButton onClick={() => setShowHistory(true)}>
-              <History />
-            </IconButton>
-            <IconButton onClick={() => setShowStats(true)}>
-              <BarChart />
-            </IconButton>
-            {timeLeft !== null && (
-              <Box display="flex" alignItems="center" gap={1}>
-                <Timer size={20} />
-                <Typography variant="h6">
-                  {formatTime(timeLeft)}
-                </Typography>
-              </Box>
-            )}
-          </Box>
         </Box>
-
-        <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 4 }}>
-          {quizQuestions.map((question, index) => (
-            <Step key={question.id}>
-              <StepLabel>
-                {answers.find((a) => a.questionId === question.id)?.isCorrect !== undefined && (
-                  <Box position="absolute" top={-8} right={-8}>
-                    {answers.find((a) => a.questionId === question.id)?.isCorrect ? (
-                      <CheckCircle color="success" size={20} />
-                    ) : (
-                      <XCircle color="error" size={20} />
-                    )}
-                  </Box>
-                )}
-              </StepLabel>
-            </Step>
-          ))}
-        </Stepper>
-
-        <Question
-          question={currentQuestion}
-          onAnswer={handleAnswer}
-          showFeedback={showResults}
-        />
-
-        <Box display="flex" justifyContent="space-between" mt={3}>
-          <Button
-            startIcon={<ChevronLeft />}
-            onClick={handleBack}
-            disabled={activeStep === 0}
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <IconButton
+            onClick={() => setShowHint(true)}
+            color="primary"
+            sx={{ display: { xs: 'none', sm: 'flex' } }}
           >
-            Précédent
-          </Button>
-          {currentQuestion.astuce && (
-            <IconButton
-              onClick={() => {
-                setShowHint(true);
-                setCurrentHint(currentQuestion.astuce);
+            <HelpCircle size={24} />
+          </IconButton>
+          <IconButton
+            onClick={() => setShowHistory(true)}
+            color="primary"
+            sx={{ display: { xs: 'none', sm: 'flex' } }}
+          >
+            <History size={24} />
+          </IconButton>
+          <IconButton
+            onClick={() => setShowStats(true)}
+            color="primary"
+            sx={{ display: { xs: 'none', sm: 'flex' } }}
+          >
+            <BarChart size={24} />
+          </IconButton>
+        </Box>
+      </Box>
+
+      <Stepper
+        activeStep={activeStep}
+        sx={{
+          mb: 4,
+          '& .MuiStepLabel-root': {
+            padding: { xs: 1, sm: 2 }
+          }
+        }}
+      >
+        {quizQuestions?.map((_, index) => (
+          <Step key={index}>
+            <StepLabel />
+          </Step>
+        ))}
+      </Stepper>
+
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 3
+        }}
+      >
+        {isLoadingQuestions ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+            <CircularProgress />
+          </Box>
+        ) : questionsError ? (
+          <Alert severity="error">
+            Erreur lors du chargement des questions
+          </Alert>
+        ) : (
+          <>
+            {quizQuestions && quizQuestions[activeStep] && (
+              <Question
+                question={quizQuestions[activeStep]}
+                onAnswer={handleAnswer}
+                showFeedback={showResults}
+              />
+            )}
+
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                mt: 'auto',
+                pt: 3,
+                gap: 2
               }}
             >
-              <HelpCircle />
-            </IconButton>
-          )}
-          {activeStep === totalQuestions - 1 ? (
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleFinish}
-              endIcon={<CheckCircle />}
-            >
-              Terminer
-            </Button>
-          ) : (
-            <Button
-              endIcon={<ChevronRight />}
-              onClick={handleNext}
-              disabled={!currentAnswer}
-            >
-              Suivant
-            </Button>
-          )}
-        </Box>
-      </Paper>
+              <Button
+                variant="outlined"
+                onClick={handleBack}
+                disabled={activeStep === 0}
+                startIcon={<ChevronLeft />}
+                sx={{ minWidth: { xs: 'auto', sm: '120px' } }}
+              >
+                Précédent
+              </Button>
+              <Button
+                variant="contained"
+                onClick={activeStep === quizQuestions?.length - 1 ? handleFinish : handleNext}
+                endIcon={activeStep === quizQuestions?.length - 1 ? null : <ChevronRight />}
+                sx={{ minWidth: { xs: 'auto', sm: '120px' } }}
+              >
+                {activeStep === quizQuestions?.length - 1 ? 'Terminer' : 'Suivant'}
+              </Button>
+            </Box>
+          </>
+        )}
+      </Box>
 
       <Dialog open={showHint} onClose={() => setShowHint(false)}>
         <DialogTitle>Astuce</DialogTitle>

@@ -25,6 +25,28 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
   '&:hover': {
     backgroundColor: theme.palette.action.hover,
   },
+  '& .MuiListItemButton-root': {
+    padding: theme.spacing(1, 2),
+    [theme.breakpoints.down('sm')]: {
+      padding: theme.spacing(1),
+    },
+  },
+  '& .MuiListItemText-root': {
+    margin: 0,
+    '& .MuiTypography-root': {
+      fontSize: theme.typography.body1.fontSize,
+      [theme.breakpoints.down('sm')]: {
+        fontSize: theme.typography.body2.fontSize,
+      },
+    },
+  },
+  '& .MuiListItemIcon-root': {
+    minWidth: 'auto',
+    marginRight: theme.spacing(2),
+    [theme.breakpoints.down('sm')]: {
+      marginRight: theme.spacing(1),
+    },
+  },
 }));
 
 export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
@@ -53,7 +75,7 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
   };
 
   return (
-    <List>
+    <List sx={{ width: '100%' }}>
       {question.reponses?.map((answer) => (
         <StyledListItem key={answer.id} disablePadding>
           <ListItemButton
@@ -74,15 +96,33 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
                 checked={isSelectedAnswer(answer.id.toString())}
                 tabIndex={-1}
                 disableRipple
+                size="small"
               />
             </ListItemIcon>
-            <ListItemText primary={answer.text} />
+            <ListItemText 
+              primary={answer.text}
+              sx={{
+                '& .MuiTypography-root': {
+                  wordBreak: 'break-word',
+                },
+              }}
+            />
             {showFeedback && (
-              <Box display="flex" alignItems="center">
+              <Box 
+                display="flex" 
+                alignItems="center"
+                sx={{
+                  ml: { xs: 1, sm: 2 },
+                  '& svg': {
+                    width: { xs: 16, sm: 20 },
+                    height: { xs: 16, sm: 20 },
+                  },
+                }}
+              >
                 {answer.is_correct === 1 ? (
-                  <Check color="green" size={20} />
+                  <Check color="green" />
                 ) : (
-                  isSelectedAnswer(answer.id.toString()) && <X color="red" size={20} />
+                  isSelectedAnswer(answer.id.toString()) && <X color="red" />
                 )}
               </Box>
             )}
