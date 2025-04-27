@@ -1,4 +1,3 @@
-
 import { Layout } from "@/components/layout/Layout";
 import ContactSection from "@/components/profile/ContactSection";
 import CurrentFormation from "@/components/profile/CurrentFormation";
@@ -10,6 +9,7 @@ import { useUser } from "@/context/UserContext";
 import { useQuery } from "@tanstack/react-query";
 import { profileService } from "@/services/ProfileService";
 import { Loader2 } from "lucide-react";
+import { Profil } from "@/components/quiz/Profil";
 
 const Profile = () => {
   const { user } = useUser();
@@ -71,6 +71,7 @@ const Profile = () => {
             <TabsTrigger value="formation">Formation</TabsTrigger>
             <TabsTrigger value="contacts">Contacts</TabsTrigger>
             <TabsTrigger value="platform">Plateforme</TabsTrigger>
+            <TabsTrigger value="classement">Classement</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -102,6 +103,10 @@ const Profile = () => {
 
           <TabsContent value="platform">
             <PlatformInfo />
+          </TabsContent>
+
+          <TabsContent value="classement">
+            <Profil />
           </TabsContent>
         </Tabs>
       </div>

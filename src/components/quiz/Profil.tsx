@@ -115,7 +115,9 @@ export const Profil: React.FC = () => {
                       <TableCell>{entry.stagiaire_prenom}</TableCell>
                       <TableCell align="right">{entry.total_points}</TableCell>
                       <TableCell align="right">{entry.quiz_count}</TableCell>
-                      <TableCell align="right">{entry.moyenne.toFixed(2)}</TableCell>
+                      <TableCell align="right">
+                        {entry.moyenne ? entry.moyenne.toFixed(2) : '0.00'}
+                      </TableCell>
                     </StyledTableRow>
                   ))}
                 </TableBody>

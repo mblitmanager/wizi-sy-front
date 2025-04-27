@@ -14,8 +14,7 @@ import Catalogue from "./pages/Catalogue";
 import CategoryFormations from "./pages/CategoryFormations";
 import Quiz from "./pages/Quiz";
 import Profile from "./pages/Profile";
-import Classement from "./pages/Classement";
-import { Classement as QuizClassement } from "@/components/quiz/Classement";
+import { Formation } from "@/components/quiz/Formation";
 import Quizzes from "./pages/Quizzes";
 import { QuizDetail } from "@/components/quiz/QuizDetail";
 
@@ -53,6 +52,11 @@ const App = () => (
                   <CategoryFormations />
                 </ProtectedRoute>
               } />
+              <Route path="/formations" element={
+                <ProtectedRoute>
+                  <Formation />
+                </ProtectedRoute>
+              } />
               <Route path="/quizzes" element={
                 <ProtectedRoute>
                   <Quizzes />
@@ -76,16 +80,6 @@ const App = () => (
               <Route path="/profile" element={
                 <ProtectedRoute>
                   <Profile />
-                </ProtectedRoute>
-              } />
-              <Route path="/classement" element={
-                <ProtectedRoute>
-                  <Classement />
-                </ProtectedRoute>
-              } />
-              <Route path="/quiz/:quizId/classement" element={
-                <ProtectedRoute>
-                  <QuizClassement />
                 </ProtectedRoute>
               } />
               <Route path="*" element={<NotFound />} />
