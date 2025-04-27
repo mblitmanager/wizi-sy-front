@@ -442,7 +442,13 @@ export const QuizPlay: React.FC<QuizPlayProps> = () => {
                 justifyContent: 'space-between',
                 mt: 'auto',
                 pt: 3,
-                gap: 2
+                gap: 2,
+                position: 'sticky',
+                bottom: 0,
+                backgroundColor: 'background.paper',
+                padding: 2,
+                boxShadow: '0 -2px 10px rgba(0,0,0,0.1)',
+                zIndex: 1000
               }}
             >
               <Button
@@ -450,7 +456,10 @@ export const QuizPlay: React.FC<QuizPlayProps> = () => {
                 onClick={handleBack}
                 disabled={activeStep === 0}
                 startIcon={<ChevronLeft />}
-                sx={{ minWidth: { xs: 'auto', sm: '120px' } }}
+                sx={{ 
+                  minWidth: { xs: 'auto', sm: '120px' },
+                  visibility: activeStep === 0 ? 'hidden' : 'visible'
+                }}
               >
                 Précédent
               </Button>
@@ -458,7 +467,10 @@ export const QuizPlay: React.FC<QuizPlayProps> = () => {
                 variant="contained"
                 onClick={activeStep === quizQuestions?.length - 1 ? handleFinish : handleNext}
                 endIcon={activeStep === quizQuestions?.length - 1 ? null : <ChevronRight />}
-                sx={{ minWidth: { xs: 'auto', sm: '120px' } }}
+                sx={{ 
+                  minWidth: { xs: 'auto', sm: '120px' },
+                  ml: 'auto'
+                }}
               >
                 {activeStep === quizQuestions?.length - 1 ? 'Terminer' : 'Suivant'}
               </Button>
