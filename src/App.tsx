@@ -14,7 +14,7 @@ import Catalogue from "./pages/Catalogue";
 import CategoryFormations from "./pages/CategoryFormations";
 import Quiz from "./pages/Quiz";
 import Profile from "./pages/Profile";
-import { Formation } from "@/components/quiz/Formation";
+import Formation from "./pages/Formation";
 import Quizzes from "./pages/Quizzes";
 import { QuizDetail } from "@/components/quiz/QuizDetail";
 

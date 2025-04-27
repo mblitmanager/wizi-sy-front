@@ -26,7 +26,7 @@ const MainNav = ({ showBottomNav = false }: MainNavProps) => {
     { name: "Accueil", path: "/", icon: <Home className="h-5 w-5" /> },
     { name: "Catalogue", path: "/catalogue", icon: <BookOpen className="h-5 w-5" /> },
     { name: "Quiz", path: "/quiz", icon: <BookOpen className="h-5 w-5" /> },
-    { name: "Classement", path: "/classement", icon: <Trophy className="h-5 w-5" /> },
+    { name: "Formations", path: "/formations", icon: <BookOpen className="h-5 w-5" /> },
     { name: "Profil", path: "/profile", icon: <User className="h-5 w-5" /> },
   ];
 
