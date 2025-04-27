@@ -113,7 +113,18 @@ export function QuizDetail() {
               <div className="flex items-center justify-end">
                 <Button 
                   size="lg"
-                  onClick={() => navigate(`/quiz/${quiz.id}/start`)}
+                  onClick={() => {
+                    if (!quiz.id) {
+                      console.error('Quiz ID is undefined:', quiz);
+                      toast({
+                        title: "Erreur",
+                        description: "Impossible de démarrer le quiz. ID manquant.",
+                        variant: "destructive"
+                      });
+                      return;
+                    }
+                    navigate(`/quiz/${quiz.id}/start`);
+                  }}
                 >
                   Commencer le quiz
                 </Button>

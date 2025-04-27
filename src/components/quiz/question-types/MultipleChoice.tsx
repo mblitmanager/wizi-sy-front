@@ -54,11 +54,11 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
 
   return (
     <List>
-      {question.answers?.map((answer) => (
+      {question.reponses?.map((answer) => (
         <StyledListItem key={answer.id} disablePadding>
           <ListItemButton
-            onClick={() => handleAnswerSelect(answer.id)}
-            selected={isSelectedAnswer(answer.id)}
+            onClick={() => handleAnswerSelect(answer.id.toString())}
+            selected={isSelectedAnswer(answer.id.toString())}
             sx={{
               '&.Mui-selected': {
                 backgroundColor: 'primary.light',
@@ -71,7 +71,7 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
             <ListItemIcon>
               <Checkbox
                 edge="start"
-                checked={isSelectedAnswer(answer.id)}
+                checked={isSelectedAnswer(answer.id.toString())}
                 tabIndex={-1}
                 disableRipple
               />
@@ -79,10 +79,10 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
             <ListItemText primary={answer.text} />
             {showFeedback && (
               <Box display="flex" alignItems="center">
-                {isCorrectAnswer(answer) ? (
+                {answer.is_correct === 1 ? (
                   <Check color="green" size={20} />
                 ) : (
-                  isSelectedAnswer(answer.id) && <X color="red" size={20} />
+                  isSelectedAnswer(answer.id.toString()) && <X color="red" size={20} />
                 )}
               </Box>
             )}

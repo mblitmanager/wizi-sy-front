@@ -190,13 +190,13 @@ export class QuizSubmissionService {
   }
 
   async getGlobalClassement(): Promise<any> {
-    try {
-      const response = await apiClient.get('/quiz/classement/global');
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching global ranking:', error);
-      throw new Error('Failed to fetch global ranking');
-    }
+    const response = await apiClient.get('/classement/global');
+    return response.data;
+  }
+
+  async getQuizResult(quizId: string): Promise<QuizResult> {
+    const response = await apiClient.get(`/quiz/${quizId}/result`);
+    return response.data;
   }
 }
 

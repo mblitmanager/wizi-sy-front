@@ -49,7 +49,7 @@ export const WordBank: React.FC<WordBankProps> = ({
 
   useEffect(() => {
     // Initialiser les mots disponibles
-    const words = question.answers?.map(answer => answer.text) || [];
+    const words = question.reponses?.map(answer => answer.text) || [];
     setAvailableWords(words.sort(() => Math.random() - 0.5));
     
     // Initialiser les réponses vides

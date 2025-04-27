@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, CircularProgress } from '@mui/material';
 import { quizSubmissionService } from '../../services/quiz/QuizSubmissionService';
 
@@ -36,10 +36,11 @@ interface GlobalClassementEntry {
 export const QuizResults: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
-  const [result, setResult] = useState<QuizResult | null>(null);
+  const location = useLocation();
+  const [result, setResult] = useState<QuizResult | null>(location.state?.result || null);
   const [quizClassement, setQuizClassement] = useState<ClassementEntry[]>([]);
   const [globalClassement, setGlobalClassement] = useState<GlobalClassementEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!location.state?.result);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -47,6 +48,12 @@ export const QuizResults: React.FC = () => {
       try {
         setLoading(true);
         if (quizId) {
+          // Si nous n'avons pas de résultat dans l'état de la navigation, on le récupère
+          if (!result) {
+            const quizResult = await quizSubmissionService.getQuizResult(quizId);
+            setResult(quizResult);
+          }
+          
           // Récupérer le classement du quiz
           const classementData = await quizSubmissionService.getClassement(quizId);
           setQuizClassement(classementData);
@@ -64,7 +71,7 @@ export const QuizResults: React.FC = () => {
     };
 
     fetchResults();
-  }, [quizId]);
+  }, [quizId, result]);
 
   const handleRestartQuiz = () => {
     if (quizId) {

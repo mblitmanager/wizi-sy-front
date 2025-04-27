@@ -61,7 +61,7 @@ class QuizService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_API_URL;
+    this.baseUrl = API_URL;
   }
 
   public static getInstance(): QuizService {
@@ -77,106 +77,144 @@ class QuizService {
   }
 
   async getAllQuizzes(): Promise<QuizType[]> {
-    const response = await fetch(`${this.baseUrl}/quiz`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch quizzes');
+    try {
+      const response = await axios.get(`${this.baseUrl}/quiz`, {
+        headers: this.getAuthHeader(),
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching quizzes:', error);
+      throw error;
     }
-    return response.json();
   }
 
   async getQuizById(id: string): Promise<QuizType> {
-    const response = await fetch(`${this.baseUrl}/quiz/${id}/questions`);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch quiz ${id}`);
+    try {
+      const response = await axios.get(`${this.baseUrl}/quiz/${id}/questions`, {
+        headers: this.getAuthHeader(),
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching quiz ${id}:`, error);
+      throw error;
     }
-    return response.json();
   }
 
   async getQuizQuestions(quizId: string): Promise<QuestionType[]> {
-    const response = await fetch(`${this.baseUrl}/quiz/${quizId}/questions`);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch questions for quiz ${quizId}`);
+    try {
+      console.log('Fetching questions for quiz:', quizId);
+      console.log('Using base URL:', this.baseUrl);
+      const response = await axios.get(`${this.baseUrl}/quiz/${quizId}/questions`, {
+        headers: this.getAuthHeader(),
+      });
+      console.log('API Response:', response);
+      console.log('Response data:', response.data);
+      
+      // S'assurer que nous retournons toujours un tableau
+      const questions = Array.isArray(response.data) ? response.data : 
+                       Array.isArray(response.data.data) ? response.data.data : 
+                       Array.isArray(response.data.questions) ? response.data.questions : [];
+      
+      console.log('Formatted questions:', questions);
+      return questions;
+    } catch (error) {
+      console.error(`Error fetching questions for quiz ${quizId}:`, error);
+      if (axios.isAxiosError(error)) {
+        console.error('Axios error details:', {
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data
+        });
+      }
+      throw error;
     }
-    return response.json();
   }
 
   async createQuiz(quiz: Omit<QuizType, 'id' | 'questions'>): Promise<QuizType> {
-    const response = await fetch(`${this.baseUrl}/quiz`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(quiz),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to create quiz');
+    try {
+      const response = await axios.post(`${this.baseUrl}/quiz`, quiz, {
+        headers: {
+          ...this.getAuthHeader(),
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error creating quiz:', error);
+      throw error;
     }
-    return response.json();
   }
 
   async updateQuiz(id: string, quiz: Partial<QuizType>): Promise<QuizType> {
-    const response = await fetch(`${this.baseUrl}/quiz/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(quiz),
-    });
-    if (!response.ok) {
-      throw new Error(`Failed to update quiz ${id}`);
+    try {
+      const response = await axios.put(`${this.baseUrl}/quiz/${id}`, quiz, {
+        headers: {
+          ...this.getAuthHeader(),
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating quiz ${id}:`, error);
+      throw error;
     }
-    return response.json();
   }
 
   async deleteQuiz(id: string): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/quiz/${id}`, {
-      method: 'DELETE',
-    });
-    if (!response.ok) {
-      throw new Error(`Failed to delete quiz ${id}`);
+    try {
+      await axios.delete(`${this.baseUrl}/quiz/${id}`, {
+        headers: this.getAuthHeader(),
+      });
+    } catch (error) {
+      console.error(`Error deleting quiz ${id}:`, error);
+      throw error;
     }
   }
 
   async addQuestion(quizId: string, question: Omit<QuestionType, 'id'>): Promise<QuestionType> {
-    const response = await fetch(`${this.baseUrl}/quiz/${quizId}/questions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(question),
-    });
-    if (!response.ok) {
-      throw new Error(`Failed to add question to quiz ${quizId}`);
+    try {
+      const response = await axios.post(`${this.baseUrl}/quiz/${quizId}/questions`, question, {
+        headers: {
+          ...this.getAuthHeader(),
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error adding question to quiz ${quizId}:`, error);
+      throw error;
     }
-    return response.json();
   }
 
   async updateQuestion(quizId: string, questionId: string, question: Partial<QuestionType>): Promise<QuestionType> {
-    const response = await fetch(`${this.baseUrl}/quiz/${quizId}/questions/${questionId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(question),
-    });
-    if (!response.ok) {
-      throw new Error(`Failed to update question ${questionId}`);
+    try {
+      const response = await axios.put(`${this.baseUrl}/quiz/${quizId}/questions/${questionId}`, question, {
+        headers: {
+          ...this.getAuthHeader(),
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating question ${questionId}:`, error);
+      throw error;
     }
-    return response.json();
   }
 
   async deleteQuestion(quizId: string, questionId: string): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/quiz/${quizId}/questions/${questionId}`, {
-      method: 'DELETE',
-    });
-    if (!response.ok) {
-      throw new Error(`Failed to delete question ${questionId}`);
+    try {
+      await axios.delete(`${this.baseUrl}/quiz/${quizId}/questions/${questionId}`, {
+        headers: this.getAuthHeader(),
+      });
+    } catch (error) {
+      console.error(`Error deleting question ${questionId}:`, error);
+      throw error;
     }
   }
 
   async getQuizDetails(quizId: number): Promise<{ data: Quiz }> {
     try {
-      const response = await axios.get(`${API_URL}/quiz/${quizId}`, {
+      const response = await axios.get(`${this.baseUrl}/quiz/${quizId}`, {
         headers: this.getAuthHeader(),
       });
       return response.data;
@@ -189,8 +227,11 @@ class QuizService {
   async submitQuiz(submission: QuizSubmission): Promise<{ data: QuizResult }> {
     try {
       const response = await axios.post(
-        `${API_URL}/quiz/submit`,
-        submission,
+        `${this.baseUrl}/quiz/${submission.quiz_id}/result`,
+        {
+          answers: submission.answers,
+          time_spent: submission.time_spent
+        },
         {
           headers: {
             ...this.getAuthHeader(),
@@ -207,7 +248,7 @@ class QuizService {
 
   async getQuizHistory(): Promise<{ data: QuizResult[] }> {
     try {
-      const response = await axios.get(`${API_URL}/quiz/history`, {
+      const response = await axios.get(`${this.baseUrl}/quiz/history`, {
         headers: this.getAuthHeader(),
       });
       return response.data;
@@ -219,7 +260,7 @@ class QuizService {
 
   async getQuizStatistics(quizId: number): Promise<{ data: any }> {
     try {
-      const response = await axios.get(`${API_URL}/quiz/${quizId}/statistics`, {
+      const response = await axios.get(`${this.baseUrl}/quiz/${quizId}/statistics`, {
         headers: this.getAuthHeader(),
       });
       return response.data;

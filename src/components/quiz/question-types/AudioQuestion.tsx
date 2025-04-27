@@ -75,7 +75,7 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
 
   const isCorrectAnswer = (answerId: string) => {
     if (!showFeedback) return undefined;
-    const answer = question.answers?.find(a => a.id === answerId);
+    const answer = question.reponses?.find(a => a.id === answerId);
     return answer?.isCorrect;
   };
 
@@ -117,7 +117,7 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
       </Box>
 
       <List>
-        {question.answers?.map((answer) => (
+        {question.reponses?.map((answer) => (
           <ListItem key={answer.id} disablePadding>
             <ListItemButton
               onClick={() => handleAnswer(answer.id)}
@@ -143,7 +143,7 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
         <Box mt={2}>
           <Typography color="error">
             La réponse correcte était :{' '}
-            {question.answers?.find(a => a.isCorrect)?.text}
+            {question.reponses?.find(a => a.isCorrect)?.text}
           </Typography>
         </Box>
       )}

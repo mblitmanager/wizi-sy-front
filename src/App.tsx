@@ -17,6 +17,7 @@ import Profile from "./pages/Profile";
 import Formation from "./pages/Formation";
 import Quizzes from "./pages/Quizzes";
 import { QuizDetail } from "@/components/quiz/QuizDetail";
+import { QuizResults } from "@/components/quiz/QuizResults";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -75,6 +76,11 @@ const App = () => (
               <Route path="/quiz/:quizId/start" element={
                 <ProtectedRoute>
                   <Quiz />
+                </ProtectedRoute>
+              } />
+              <Route path="/quiz/:quizId/results" element={
+                <ProtectedRoute>
+                  <QuizResults />
                 </ProtectedRoute>
               } />
               <Route path="/profile" element={

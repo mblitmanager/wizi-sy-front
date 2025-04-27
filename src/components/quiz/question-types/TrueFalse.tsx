@@ -46,7 +46,7 @@ export const TrueFalse: React.FC<TrueFalseProps> = ({
 
   return (
     <List>
-      {question.answers?.map((answer) => (
+      {question.reponses?.map((answer) => (
         <StyledListItem key={answer.id} disablePadding>
           <ListItemButton
             onClick={() => handleAnswerSelect(answer.id)}

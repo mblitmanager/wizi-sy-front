@@ -21,16 +21,19 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { Timer, HelpCircle, CheckCircle, XCircle, History, BarChart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Question } from './Question';
 import quizService from '@/services/QuizService';
+import { Quiz as QuizType, Question as QuestionType } from '@/types/quiz';
+
+interface QuizPlayProps {}
 
 interface Answer {
-  questionId: number;
+  questionId: string;
   value: any;
   isCorrect?: boolean;
   points?: number;
 }
 
-export const QuizPlay: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+export const QuizPlay: React.FC<QuizPlayProps> = () => {
+  const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
@@ -47,16 +50,30 @@ export const QuizPlay: React.FC = () => {
     severity: 'success',
   });
 
+  useEffect(() => {
+    if (!quizId) {
+      console.error('No quiz ID provided');
+      navigate('/quizzes');
+      return;
+    }
+  }, [quizId, navigate]);
+
   const { data: quizDetails, isLoading: isLoadingDetails } = useQuery({
-    queryKey: ['quizDetails', id],
-    queryFn: () => quizService.getQuizDetails(Number(id)),
-    enabled: !!id,
+    queryKey: ['quizDetails', quizId],
+    queryFn: () => {
+      if (!quizId) throw new Error('No quiz ID provided');
+      return quizService.getQuizDetails(Number(quizId));
+    },
+    enabled: !!quizId,
   });
 
-  const { data: quizQuestions, isLoading: isLoadingQuestions } = useQuery({
-    queryKey: ['quizQuestions', id],
-    queryFn: () => quizService.getQuizQuestions(Number(id)),
-    enabled: !!id,
+  const { data: quizQuestions, isLoading: isLoadingQuestions, error: questionsError } = useQuery({
+    queryKey: ['quizQuestions', quizId],
+    queryFn: () => {
+      if (!quizId) throw new Error('No quiz ID provided');
+      return quizService.getQuizQuestions(quizId);
+    },
+    enabled: !!quizId,
   });
 
   const { data: quizHistory } = useQuery({
@@ -65,19 +82,23 @@ export const QuizPlay: React.FC = () => {
   });
 
   const { data: quizStats } = useQuery({
-    queryKey: ['quizStats', id],
-    queryFn: () => quizService.getQuizStatistics(Number(id)),
-    enabled: !!id,
+    queryKey: ['quizStats', quizId],
+    queryFn: () => {
+      if (!quizId) throw new Error('No quiz ID provided');
+      return quizService.getQuizStatistics(Number(quizId));
+    },
+    enabled: !!quizId,
   });
 
   const submitQuizMutation = useMutation({
     mutationFn: (submission: any) => quizService.submitQuiz(submission),
-    onSuccess: () => {
+    onSuccess: (data) => {
       setSnackbar({
         open: true,
         message: 'Quiz soumis avec succès!',
         severity: 'success',
       });
+      navigate(`/quiz/${quizId}/results`, { state: { result: data.data } });
     },
     onError: () => {
       setSnackbar({
@@ -89,8 +110,8 @@ export const QuizPlay: React.FC = () => {
   });
 
   useEffect(() => {
-    if (quizDetails?.data?.time_limit) {
-      setTimeLeft(quizDetails.data.time_limit * 60);
+    if (quizDetails?.data?.duree) {
+      setTimeLeft(quizDetails.data.duree * 60);
       setStartTime(Date.now());
     }
   }, [quizDetails]);
@@ -113,16 +134,16 @@ export const QuizPlay: React.FC = () => {
   }, [timeLeft]);
 
   const handleAnswer = (answer: any) => {
-    const currentQuestion = quizQuestions?.data[activeStep];
+    const currentQuestion = quizQuestions?.[activeStep];
     const isCorrect = checkAnswer(currentQuestion, answer);
-    const points = isCorrect ? parseInt(currentQuestion.points) : 0;
+    const points = isCorrect ? parseInt(currentQuestion?.points?.toString() || '0') : 0;
 
     setAnswers((prev) => {
-      const existingAnswerIndex = prev.findIndex((a) => a.questionId === currentQuestion.id);
+      const existingAnswerIndex = prev.findIndex((a) => a.questionId === currentQuestion?.id);
       if (existingAnswerIndex >= 0) {
         const newAnswers = [...prev];
         newAnswers[existingAnswerIndex] = {
-          questionId: currentQuestion.id,
+          questionId: currentQuestion?.id || '',
           value: answer,
           isCorrect,
           points,
@@ -130,9 +151,9 @@ export const QuizPlay: React.FC = () => {
         return newAnswers;
       }
       return [
-      ...prev,
+        ...prev,
         {
-          questionId: currentQuestion.id,
+          questionId: currentQuestion?.id || '',
           value: answer,
           isCorrect,
           points,
@@ -173,9 +194,9 @@ export const QuizPlay: React.FC = () => {
   };
 
   const handleNext = () => {
-    if (activeStep < (quizQuestions?.data.length || 0) - 1) {
+    if (activeStep < (quizQuestions?.length || 0) - 1) {
       setActiveStep((prev) => prev + 1);
-        setShowHint(false);
+      setShowHint(false);
     }
   };
 
@@ -189,10 +210,10 @@ export const QuizPlay: React.FC = () => {
   const handleFinish = () => {
     const timeSpent = Math.floor((Date.now() - startTime) / 1000);
     const submission = {
-      quiz_id: Number(id),
+      quiz_id: Number(quizId),
       answers: answers.reduce((acc, answer) => ({
         ...acc,
-        [answer.questionId]: answer.value,
+        [Number(answer.questionId)]: answer.value,
       }), {}),
       time_spent: timeSpent,
     };
@@ -219,16 +240,26 @@ export const QuizPlay: React.FC = () => {
     );
   }
 
-  if (!quizQuestions?.data) {
+  if (questionsError) {
+    console.error('Error loading quiz questions:', questionsError);
     return (
       <Alert severity="error">
-        Quiz non trouvé
+        Erreur lors du chargement du quiz: {questionsError.message}
       </Alert>
     );
   }
 
-  const currentQuestion = quizQuestions.data[activeStep];
-  const totalQuestions = quizQuestions.data.length;
+  if (!quizQuestions || quizQuestions.length === 0) {
+    console.log('No questions found for quiz:', quizId);
+    return (
+      <Alert severity="warning">
+        Aucune question trouvée pour ce quiz. Veuillez vérifier que le quiz existe et contient des questions.
+      </Alert>
+    );
+  }
+
+  const currentQuestion = quizQuestions[activeStep];
+  const totalQuestions = quizQuestions.length;
   const currentAnswer = answers.find((a) => a.questionId === currentQuestion.id);
 
   return (
@@ -257,7 +288,7 @@ export const QuizPlay: React.FC = () => {
         </Box>
 
         <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 4 }}>
-          {quizQuestions.data.map((question, index) => (
+          {quizQuestions.map((question, index) => (
             <Step key={question.id}>
               <StepLabel>
                 {answers.find((a) => a.questionId === question.id)?.isCorrect !== undefined && (
@@ -342,7 +373,7 @@ export const QuizPlay: React.FC = () => {
           </Box>
           <Box mt={2}>
             {answers.map((answer) => {
-              const question = quizQuestions.data.find((q) => q.id === answer.questionId);
+              const question = quizQuestions.find((q) => q.id === answer.questionId);
               return (
                 <Box key={answer.questionId} mb={2}>
                   <Typography variant="subtitle1">{question?.text}</Typography>

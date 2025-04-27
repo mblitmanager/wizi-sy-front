@@ -18,9 +18,9 @@ export function Flashcard({ question, onAnswer, showFeedback = false }: Flashcar
   const [shuffledAnswers, setShuffledAnswers] = useState<string[]>([]);
 
   useEffect(() => {
-    const answers = question.answers?.map(a => a.text) || [];
+    const answers = question.reponses?.map(a => a.text) || [];
     setShuffledAnswers(answers.sort(() => Math.random() - 0.5));
-  }, [question.answers]);
+  }, [question.reponses]);
 
   const handleFlip = () => {
     if (!showFeedback) {
@@ -141,7 +141,7 @@ export function Flashcard({ question, onAnswer, showFeedback = false }: Flashcar
             setIsFlipped(false);
             setIsCorrect(null);
             setUserAnswer('');
-            const answers = question.answers?.map(a => a.text) || [];
+            const answers = question.reponses?.map(a => a.text) || [];
             setShuffledAnswers(answers.sort(() => Math.random() - 0.5));
           }}
           className="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:text-primary transition-colors"

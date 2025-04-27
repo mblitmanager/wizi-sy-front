@@ -43,15 +43,15 @@ export const Ordering: React.FC<OrderingProps> = ({
   onAnswer,
   showFeedback = false,
 }) => {
-  const [orderedAnswers, setOrderedAnswers] = useState(question.answers || []);
+  const [orderedAnswers, setOrderedAnswers] = useState(question.reponses || []);
 
   useEffect(() => {
     // Mélanger les réponses au chargement initial
     if (!showFeedback) {
-      const shuffled = [...(question.answers || [])].sort(() => Math.random() - 0.5);
+      const shuffled = [...(question.reponses || [])].sort(() => Math.random() - 0.5);
       setOrderedAnswers(shuffled);
     }
-  }, [question.answers, showFeedback]);
+  }, [question.reponses, showFeedback]);
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -136,7 +136,7 @@ export const Ordering: React.FC<OrderingProps> = ({
           {!orderedAnswers.every((answer, index) => isCorrectPosition(answer, index)) && (
             <Box sx={{ color: 'error.main', mt: 2 }}>
               L'ordre correct était :
-              {(question.answers || [])
+              {(question.reponses || [])
                 .slice()
                 .sort((a, b) => (a.position || 0) - (b.position || 0))
                 .map((answer, index) => (

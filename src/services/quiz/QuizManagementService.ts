@@ -1,4 +1,3 @@
-
 import apiClient from '@/lib/api-client';
 import type { Quiz, Question, QuizHistory, QuizStats } from '@/types/quiz';
 import { categoryService } from './CategoryService';
@@ -90,8 +89,12 @@ class QuizManagementService {
 
   async getQuizById(quizId: string): Promise<Quiz> {
     try {
+      console.log('Fetching quiz with ID:', quizId);
       const response = await apiClient.get(`/quiz/${quizId}`);
-      return await this.formatQuiz(response.data);
+      console.log('Quiz response:', response.data);
+      const formattedQuiz = await this.formatQuiz(response.data);
+      console.log('Formatted quiz:', formattedQuiz);
+      return formattedQuiz;
     } catch (error) {
       console.error('Error fetching quiz:', error);
       throw error;

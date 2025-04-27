@@ -1,4 +1,3 @@
-
 import { useParams, Navigate, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { useQuery } from "@tanstack/react-query";
@@ -9,17 +8,30 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { quizManagementService } from "@/services/quiz/QuizManagementService";
+import { useEffect } from "react";
 
 const Quiz = () => {
-  const { quizId } = useParams();
+  const { quizId } = useParams<{ quizId: string }>();
   const { token, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   
+  // Vérification de l'ID du quiz
+  useEffect(() => {
+    if (!quizId) {
+      console.error('No quiz ID provided');
+      navigate('/quizzes');
+      return;
+    }
+  }, [quizId, navigate]);
+
   // Fetch quiz details to validate if it exists
   const { data: quiz, isLoading: quizLoading, error: quizError } = useQuery({
     queryKey: ["quiz", quizId],
-    queryFn: () => quizManagementService.getQuizById(quizId!),
+    queryFn: () => {
+      if (!quizId) throw new Error('No quiz ID provided');
+      return quizManagementService.getQuizById(quizId);
+    },
     enabled: !!quizId && !!token,
     retry: 1,
     meta: {
@@ -87,10 +99,35 @@ const Quiz = () => {
     );
   }
 
+  // Si le quiz n'existe pas
+  if (!quiz) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Quiz non trouvé</AlertTitle>
+            <AlertDescription>
+              Le quiz que vous recherchez n'existe pas ou a été supprimé.
+            </AlertDescription>
+          </Alert>
+          <div className="mt-4 flex justify-center">
+            <Button 
+              onClick={() => navigate('/quizzes')}
+              variant="outline"
+            >
+              Retourner à la liste des quiz
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <QuizPlay quizId={quizId!} quiz={quiz} />
+        <QuizPlay />
       </div>
     </Layout>
   );

@@ -1,4 +1,3 @@
-
 export interface Category {
   id: string;
   name: string;
@@ -30,6 +29,7 @@ export interface Question {
   audioUrl?: string;
   media_url?: string;
   answers?: Answer[];
+  reponses?: Answer[];
   blanks?: Blank[];
   matching?: MatchingItem[];
   flashcard?: FlashCard;
