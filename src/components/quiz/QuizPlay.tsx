@@ -12,6 +12,8 @@ import { LoadingState } from "./quiz-play/LoadingState";
 import { ErrorState } from "./quiz-play/ErrorState";
 import { QuestionDisplay } from "./quiz-play/QuestionDisplay";
 import { QuizTimer } from "./quiz-play/Timer";
+import { QuizSummary } from "./QuizSummary";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 type QuestionValue = string | string[] | Record<string, string>;
 
@@ -24,6 +26,7 @@ export function QuizPlay() {
   const [timeSpent, setTimeSpent] = useState(0);
   const [score, setScore] = useState(0);
   const [showHint, setShowHint] = useState(false);
+  const [showAnswerDialog, setShowAnswerDialog] = useState(false);
 
   const { data: quiz, isLoading, error } = useQuery({
     queryKey: ["quiz", id],
@@ -31,7 +34,6 @@ export function QuizPlay() {
     enabled: !!id && !!localStorage.getItem('token')
   });
 
-  // Early returns for loading and error states
   if (isLoading) return <LoadingState />;
   if (error || !quiz) return <ErrorState />;
 
@@ -45,66 +47,19 @@ export function QuizPlay() {
     }
   };
 
-  const handleNextQuestion = () => {
-    if (currentQuestionIndex < (quiz?.questions.length || 0) - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
-      setShowHint(false);
+  const handleNextQuestion = async () => {
+    const currentQuestion = quiz.questions[currentQuestionIndex];
+    setShowAnswerDialog(true);
+
+    if (currentQuestionIndex < quiz.questions.length - 1) {
+      setTimeout(() => {
+        setShowAnswerDialog(false);
+        setCurrentQuestionIndex(prev => prev + 1);
+        setShowHint(false);
+      }, 3000);
     } else {
-      calculateAndSetScore();
-      setShowSummary(true);
+      await handleSubmitQuiz();
     }
-  };
-
-  const calculateAndSetScore = () => {
-    const newScore = quiz?.questions.reduce((acc, question) => {
-      const userAnswer = userAnswers[question.id];
-      let isCorrect = false;
-
-      switch (question.type) {
-        case 'choix multiples':
-        case 'vrai/faux':
-        case 'question audio':
-          isCorrect = question.answers?.find(a => 
-            a.id === userAnswer && (a.isCorrect || a.reponse_correct)
-          ) !== undefined;
-          break;
-
-        case 'rearrangement':
-          const userOrder = userAnswer as string[];
-          const correctOrder = question.answers?.sort((a, b) => 
-            (a.position || 0) - (b.position || 0)
-          ).map(a => a.id);
-          isCorrect = JSON.stringify(userOrder) === JSON.stringify(correctOrder);
-          break;
-
-        case 'remplir le champ vide':
-        case 'banque de mots':
-          const answers = userAnswer as Record<string, string>;
-          isCorrect = question.blanks?.every(blank => {
-            const userText = answers[blank.bankGroup];
-            return userText?.toLowerCase() === blank.text.toLowerCase();
-          }) || false;
-          break;
-
-        case 'correspondance':
-          const matches = userAnswer as Record<string, string>;
-          isCorrect = question.matching?.every(item => {
-            const matchedItem = question.matching?.find(m => 
-              matches[item.id] === m.id || matches[m.id] === item.id
-            );
-            return matchedItem?.matchPair === item.matchPair;
-          }) || false;
-          break;
-
-        case 'carte flash':
-          isCorrect = true;
-          break;
-      }
-
-      return acc + (isCorrect ? (question.points || 1) : 0);
-    }, 0) || 0;
-
-    setScore(newScore);
   };
 
   const handleSubmitQuiz = async () => {
@@ -114,8 +69,10 @@ export function QuizPlay() {
         formattedAnswers[questionId] = Array.isArray(answer) ? answer : [answer as string];
       });
 
-      await quizSubmissionService.submitQuiz(id!, formattedAnswers, timeSpent);
-      navigate('/quiz/history');
+      const result = await quizSubmissionService.submitQuiz(id!, formattedAnswers, timeSpent);
+      setScore(result.score);
+      setShowAnswerDialog(false);
+      setShowSummary(true);
     } catch (error) {
       console.error('Error submitting quiz:', error);
     }
@@ -123,6 +80,17 @@ export function QuizPlay() {
 
   const currentQuestion = quiz.questions[currentQuestionIndex];
   const currentAnswer = userAnswers[currentQuestion.id];
+
+  if (showSummary) {
+    return (
+      <QuizSummary
+        questions={quiz.questions}
+        userAnswers={userAnswers}
+        score={score}
+        totalQuestions={quiz.questions.length}
+      />
+    );
+  }
 
   return (
     <div className="container mx-auto py-8">
@@ -168,6 +136,30 @@ export function QuizPlay() {
           </div>
         </CardContent>
       </Card>
+
+      <Dialog open={showAnswerDialog} onOpenChange={setShowAnswerDialog}>
+        <DialogContent>
+          <div className="p-4">
+            <h3 className="text-lg font-bold mb-4">
+              {currentAnswer === quiz.questions[currentQuestionIndex].answers?.find(a => a.isCorrect)?.id
+                ? "Bonne réponse !"
+                : "Mauvaise réponse"}
+            </h3>
+            <div className="space-y-2">
+              <p>La bonne réponse était :</p>
+              <p className="font-medium text-green-600">
+                {quiz.questions[currentQuestionIndex].answers?.find(a => a.isCorrect)?.text}
+              </p>
+              {currentQuestion.explication && (
+                <div className="mt-4">
+                  <p className="font-medium">Explication :</p>
+                  <p>{currentQuestion.explication}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,30 +1,35 @@
 
-import { Timer } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect } from 'react';
 
-interface QuizTimerProps {
+interface TimerProps {
   timeSpent: number;
   setTimeSpent: (time: number) => void;
-  isActive?: boolean;
+  isActive: boolean;
 }
 
-export function QuizTimer({ timeSpent, setTimeSpent, isActive = true }: QuizTimerProps) {
+export function QuizTimer({ timeSpent, setTimeSpent, isActive }: TimerProps) {
   useEffect(() => {
-    if (!isActive) return;
+    let interval: number;
+    
+    if (isActive) {
+      interval = window.setInterval(() => {
+        setTimeSpent(timeSpent + 1);
+      }, 1000);
+    }
 
-    const timer = setInterval(() => {
-      setTimeSpent(prev => prev + 1);
-    }, 1000);
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [timeSpent, setTimeSpent, isActive]);
 
-    return () => clearInterval(timer);
-  }, [isActive, setTimeSpent]);
+  const minutes = Math.floor(timeSpent / 60);
+  const seconds = timeSpent % 60;
 
   return (
-    <div className="flex items-center gap-2">
-      <Timer className="h-5 w-5 text-primary" />
-      <span className="font-medium">
-        {Math.floor(timeSpent / 60)}:{(timeSpent % 60).toString().padStart(2, '0')}
-      </span>
+    <div className="text-lg font-mono">
+      {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
     </div>
   );
 }

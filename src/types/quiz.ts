@@ -1,4 +1,3 @@
-
 export interface Category {
   id: string;
   name: string;
@@ -33,6 +32,7 @@ export interface Question {
   blanks?: Blank[];
   matching?: MatchingItem[];
   flashcard?: FlashCard;
+  wordbank?: WordBankItem[];
 }
 
 export interface Answer {
@@ -84,4 +84,11 @@ export interface QuizStats {
   totalScore: number;
   averageScore: number;
   completedQuizzes: number;
+}
+
+export interface WordBankItem {
+  id: string;
+  text: string;
+  isCorrect?: boolean;
+  bankGroup?: string;
 }

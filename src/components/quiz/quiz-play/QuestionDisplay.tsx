@@ -1,5 +1,4 @@
-
-import { Question, QuestionType } from "@/types/quiz";
+import { Question } from "@/types/quiz";
 import { MultipleChoice } from "../question-types/MultipleChoice";
 import { Ordering } from "../question-types/Ordering";
 import { FillBlank } from "../question-types/FillBlank";
@@ -8,7 +7,8 @@ import { Flashcard } from "../question-types/FlashCard";
 import { Matching } from "../question-types/Matching";
 import { AudioQuestion } from "../question-types/AudioQuestion";
 import { TrueFalse } from "../question-types/TrueFalse";
-import { Alert, AlertCircle, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 interface QuestionDisplayProps {
   question: Question;
