@@ -56,6 +56,38 @@ interface QuizResult {
   questions: Question[];
 }
 
+interface QuizParticipation {
+  id: number;
+  stagiaire_id: number;
+  quiz_id: number;
+  termine: boolean;
+  created_at: string;
+  updated_at: string;
+  score: number;
+  correct_answers: number;
+  total_questions: number;
+  time_spent: number;
+  completion_time: string;
+}
+
+interface Progression {
+  id: number;
+  stagiaire_id: number;
+  quiz_id: number;
+  termine: boolean;
+  created_at: string;
+  updated_at: string;
+  score: number;
+  correct_answers: number;
+  total_questions: number;
+  time_spent: number;
+  completion_time: string;
+}
+
+interface ApiResponse<T> {
+  data: T;
+}
+
 class QuizService {
   private static instance: QuizService;
   private baseUrl: string;
@@ -224,13 +256,28 @@ class QuizService {
     }
   }
 
+  async getQuizResult(quizId: number): Promise<{ data: QuizResult }> {
+    try {
+      const response = await axios.post(`${this.baseUrl}/quiz/${quizId}/result`, {}, {
+        headers: {
+          ...this.getAuthHeader(),
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching quiz result:', error);
+      throw error;
+    }
+  }
+
   async submitQuiz(submission: QuizSubmission): Promise<{ data: QuizResult }> {
     try {
       const response = await axios.post(
         `${this.baseUrl}/quiz/${submission.quiz_id}/result`,
         {
           answers: submission.answers,
-          time_spent: submission.time_spent
+          timeSpent: submission.time_spent
         },
         {
           headers: {
@@ -266,6 +313,60 @@ class QuizService {
       return response.data;
     } catch (error) {
       console.error('Error fetching quiz statistics:', error);
+      throw error;
+    }
+  }
+
+  async startQuizParticipation(quizId: number): Promise<{ data: QuizParticipation }> {
+    try {
+      const response = await axios.post(
+        `${this.baseUrl}/quiz/${quizId}/participation`,
+        {},
+        {
+          headers: {
+            ...this.getAuthHeader(),
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error starting quiz participation:', error);
+      throw error;
+    }
+  }
+
+  async getCurrentParticipation(quizId: string): Promise<ApiResponse<Progression>> {
+    try {
+      const response = await axios.get<ApiResponse<Progression>>(
+        `${this.baseUrl}/quiz/${quizId}/participation`,
+        {
+          headers: this.getAuthHeader()
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error getting current participation:', error);
+      throw error;
+    }
+  }
+
+  async completeParticipation(quizId: string, data: {
+    score: number;
+    correct_answers: number;
+    time_spent: number;
+  }): Promise<ApiResponse<Progression>> {
+    try {
+      const response = await axios.post<ApiResponse<Progression>>(
+        `${this.baseUrl}/quiz/${quizId}/complete`,
+        data,
+        {
+          headers: this.getAuthHeader()
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error completing participation:', error);
       throw error;
     }
   }

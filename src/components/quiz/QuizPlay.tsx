@@ -56,6 +56,54 @@ export const QuizPlay: React.FC<QuizPlayProps> = () => {
       navigate('/quizzes');
       return;
     }
+
+    // Vérifier si une participation est en cours
+    const checkParticipation = async () => {
+      try {
+        const participation = await quizService.getCurrentParticipation(quizId);
+        if (participation.data) {
+          setStartTime(new Date(participation.data.created_at).getTime());
+        } else {
+          // Démarrer une nouvelle participation
+          const newParticipation = await quizService.startQuizParticipation(Number(quizId));
+          if (newParticipation.data) {
+            setStartTime(new Date(newParticipation.data.created_at).getTime());
+          } else {
+            setSnackbar({
+              open: true,
+              message: 'Erreur lors de la création de la participation',
+              severity: 'error',
+            });
+          }
+        }
+      } catch (error) {
+        if (error.response?.status === 404) {
+          // Si aucune participation n'existe, en créer une nouvelle
+          try {
+            const newParticipation = await quizService.startQuizParticipation(Number(quizId));
+            if (newParticipation.data) {
+              setStartTime(new Date(newParticipation.data.created_at).getTime());
+            }
+          } catch (startError) {
+            console.error('Error starting quiz participation:', startError);
+            setSnackbar({
+              open: true,
+              message: 'Erreur lors de la création de la participation',
+              severity: 'error',
+            });
+          }
+        } else {
+          console.error('Error checking participation:', error);
+          setSnackbar({
+            open: true,
+            message: 'Erreur lors de la vérification de la participation',
+            severity: 'error',
+          });
+        }
+      }
+    };
+
+    checkParticipation();
   }, [quizId, navigate]);
 
   const { data: quizDetails, isLoading: isLoadingDetails } = useQuery({
@@ -65,6 +113,15 @@ export const QuizPlay: React.FC<QuizPlayProps> = () => {
       return quizService.getQuizDetails(Number(quizId));
     },
     enabled: !!quizId,
+  });
+
+  const { data: quizResult, refetch: refetchQuizResult } = useQuery({
+    queryKey: ['quizResult', quizId],
+    queryFn: () => {
+      if (!quizId) throw new Error('No quiz ID provided');
+      return quizService.getQuizResult(Number(quizId));
+    },
+    enabled: false,
   });
 
   const { data: quizQuestions, isLoading: isLoadingQuestions, error: questionsError } = useQuery({
@@ -92,12 +149,13 @@ export const QuizPlay: React.FC<QuizPlayProps> = () => {
 
   const submitQuizMutation = useMutation({
     mutationFn: (submission: any) => quizService.submitQuiz(submission),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       setSnackbar({
         open: true,
         message: 'Quiz soumis avec succès!',
         severity: 'success',
       });
+      await refetchQuizResult();
       navigate(`/quiz/${quizId}/results`, { state: { result: data.data } });
     },
     onError: () => {
@@ -207,19 +265,41 @@ export const QuizPlay: React.FC<QuizPlayProps> = () => {
     }
   };
 
-  const handleFinish = () => {
-    const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-    const submission = {
-      quiz_id: Number(quizId),
-      answers: answers.reduce((acc, answer) => ({
-        ...acc,
-        [Number(answer.questionId)]: answer.value,
-      }), {}),
-      time_spent: timeSpent,
-    };
+  const handleFinish = async () => {
+    if (!quizId) return;
 
-    submitQuizMutation.mutate(submission);
-    setShowResults(true);
+    const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+    const score = calculateScore();
+    const correctAnswers = answers.filter(answer => answer.isCorrect).length;
+
+    try {
+      // Marquer la participation comme terminée
+      await quizService.completeParticipation(quizId, {
+        score,
+        correct_answers: correctAnswers,
+        time_spent: timeSpent
+      });
+
+      // Soumettre les réponses
+      await quizService.submitQuiz({
+        quiz_id: Number(quizId),
+        answers: answers.reduce((acc, answer) => {
+          acc[Number(answer.questionId)] = answer.value;
+          return acc;
+        }, {} as Record<number, any>),
+        time_spent: timeSpent
+      });
+
+      setShowResults(true);
+      refetchQuizResult();
+    } catch (error) {
+      console.error('Error submitting quiz:', error);
+      setSnackbar({
+        open: true,
+        message: 'Erreur lors de la soumission du quiz',
+        severity: 'error',
+      });
+    }
   };
 
   const calculateScore = () => {
