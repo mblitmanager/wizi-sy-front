@@ -1,3 +1,4 @@
+
 import { Layout } from "@/components/layout/Layout";
 import ContactSection from "@/components/profile/ContactSection";
 import CurrentFormation from "@/components/profile/CurrentFormation";
@@ -10,6 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import { profileService } from "@/services/ProfileService";
 import { Loader2 } from "lucide-react";
 import { Classement } from "@/components/quiz/classement";
+import { motion } from "framer-motion";
 
 const Profile = () => {
   const { user } = useUser();
@@ -57,59 +59,117 @@ const Profile = () => {
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">Mon profil</h1>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-7xl mx-auto px-4 py-8"
+      >
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="mb-8"
+        >
+          <h1 className="text-3xl font-bold hover:text-primary transition-colors">Mon profil</h1>
           <p className="text-muted-foreground">
             Bienvenue, {user?.name || "Stagiaire"}
           </p>
-        </div>
+        </motion.div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
-            <TabsTrigger value="formation">Formation</TabsTrigger>
-            <TabsTrigger value="contacts">Contacts</TabsTrigger>
-            <TabsTrigger value="platform">Plateforme</TabsTrigger>
-            <TabsTrigger value="classement">Classement</TabsTrigger>
+          <TabsList className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-4 z-10 w-full justify-start rounded-lg border p-1">
+            <TabsTrigger value="overview" className="relative">
+              Vue d'ensemble
+            </TabsTrigger>
+            <TabsTrigger value="formation" className="relative">
+              Formation
+            </TabsTrigger>
+            <TabsTrigger value="contacts" className="relative">
+              Contacts
+            </TabsTrigger>
+            <TabsTrigger value="platform" className="relative">
+              Plateforme
+            </TabsTrigger>
+            <TabsTrigger value="classement" className="relative">
+              Classement
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-6">
-            <QuickAccess
-              recentQuizzes={quizzes || []}
-              demoQuizzes={[]}
-              totalScore={progress?.totalPoints || 0}
-              rank={progress?.rank || 0}
-            />
-            {parrainageStats && (
-              <ReferralSystem
-                referralCode={parrainageStats.referralCode}
-                totalReferrals={parrainageStats.totalReferrals}
-                referralRewards={parrainageStats.rewards}
+          <TabsContent 
+            value="overview" 
+            className="space-y-6"
+          >
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <QuickAccess
+                recentQuizzes={quizzes || []}
+                demoQuizzes={[]}
+                totalScore={progress?.totalPoints || 0}
+                rank={progress?.rank || 0}
               />
+            </motion.div>
+            {parrainageStats && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <ReferralSystem
+                  referralCode={parrainageStats.referralCode}
+                  totalReferrals={parrainageStats.totalReferrals}
+                  referralRewards={parrainageStats.rewards}
+                />
+              </motion.div>
             )}
           </TabsContent>
 
-          <TabsContent value="formation" className="space-y-6">
-            <CurrentFormation
-              currentFormation={currentFormation}
-              completedFormations={completedFormations}
-            />
+          <TabsContent value="formation">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <CurrentFormation
+                currentFormation={currentFormation}
+                completedFormations={completedFormations}
+              />
+            </motion.div>
           </TabsContent>
 
           <TabsContent value="contacts">
-            {contacts && <ContactSection contacts={contacts} />}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {contacts && <ContactSection contacts={contacts} />}
+            </motion.div>
           </TabsContent>
 
           <TabsContent value="platform">
-            <PlatformInfo />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <PlatformInfo />
+            </motion.div>
           </TabsContent>
 
           <TabsContent value="classement">
-            <Classement />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Classement />
+            </motion.div>
           </TabsContent>
         </Tabs>
-      </div>
+      </motion.div>
     </Layout>
   );
 };
