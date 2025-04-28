@@ -190,7 +190,7 @@ export class QuizSubmissionService {
   }
 
   async getGlobalClassement(): Promise<any> {
-    const response = await apiClient.get('/classement/global');
+    const response = await apiClient.get('/quiz/classement/global');
     return response.data;
   }
 
