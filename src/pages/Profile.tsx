@@ -10,7 +10,7 @@ import { useUser } from "@/context/UserContext";
 import { useQuery } from "@tanstack/react-query";
 import { profileService } from "@/services/ProfileService";
 import { Loader2 } from "lucide-react";
-import { Classement } from "@/components/quiz/classement";
+import { Classement } from "@/components/quiz/Classement"; // Fixed: Correct capitalization
 import { motion } from "framer-motion";
 
 const Profile = () => {
