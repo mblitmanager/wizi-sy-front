@@ -1,3 +1,4 @@
+
 import { Question } from "@/types/quiz";
 import { MultipleChoice } from "../question-types/MultipleChoice";
 import { Ordering } from "../question-types/Ordering";
@@ -33,21 +34,21 @@ export function QuestionDisplay({ question, onAnswer, currentAnswer }: QuestionD
   
   switch (normalizedType) {
     case 'choix multiples':
-      return <MultipleChoice question={question} onAnswer={onAnswer} currentAnswer={currentAnswer} />;
+      return <MultipleChoice question={question} onAnswer={onAnswer} />;
     case 'vrai/faux':
-      return <TrueFalse question={question} onAnswer={onAnswer} currentAnswer={currentAnswer} />;
+      return <TrueFalse question={question} onAnswer={onAnswer} />;
     case 'rearrangement':
-      return <Ordering question={question} onAnswer={onAnswer} currentAnswer={currentAnswer} />;
+      return <Ordering question={question} onAnswer={onAnswer} />;
     case 'remplir le champ vide':
-      return <FillBlank question={question} onAnswer={onAnswer} currentAnswer={currentAnswer} />;
+      return <FillBlank question={question} onAnswer={onAnswer} />;
     case 'banque de mots':
-      return <WordBank question={question} onAnswer={onAnswer} currentAnswer={currentAnswer} />;
+      return <WordBank question={question} onAnswer={onAnswer} />;
     case 'carte flash':
-      return <Flashcard question={question} onAnswer={onAnswer} currentAnswer={currentAnswer} />;
+      return <Flashcard question={question} onAnswer={onAnswer} />;
     case 'correspondance':
-      return <Matching question={question} onAnswer={onAnswer} currentAnswer={currentAnswer} />;
+      return <Matching question={question} onAnswer={onAnswer} />;
     case 'question audio':
-      return <AudioQuestion question={question} onAnswer={onAnswer} currentAnswer={currentAnswer} />;
+      return <AudioQuestion question={question} onAnswer={onAnswer} />;
     default:
       return (
         <Alert variant="destructive">

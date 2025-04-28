@@ -142,7 +142,6 @@ class QuizService {
       console.log('API Response:', response);
       console.log('Response data:', response.data);
       
-      // S'assurer que nous retournons toujours un tableau
       const questions = Array.isArray(response.data) ? response.data : 
                        Array.isArray(response.data.data) ? response.data.data : 
                        Array.isArray(response.data.questions) ? response.data.questions : [];
@@ -338,8 +337,9 @@ class QuizService {
 
   async getCurrentParticipation(quizId: string): Promise<ApiResponse<Progression>> {
     try {
+      console.log('Fetching current participation for quiz:', quizId);
       const response = await axios.get<ApiResponse<Progression>>(
-        `${this.baseUrl}/quiz/${quizId}/participation`,
+        `${this.baseUrl}/quiz/${quizId}/current-participation`,
         {
           headers: this.getAuthHeader()
         }
@@ -384,4 +384,4 @@ class QuizService {
   }
 }
 
-export default QuizService.getInstance(); 
+export default QuizService.getInstance();

@@ -1,332 +1,298 @@
-import React, { useState } from 'react';
-import { Box, Typography, Card, CardContent, CardMedia, Button, Chip, CircularProgress, Tooltip, Badge } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
+
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { Card, CardContent, CardHeader, Tabs, Tab, Box, Typography, Avatar, Button } from '@mui/material';
+import { PlayCircle, Book, Video, FileText, Download, Clock, Calendar, Trophy } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { mediaService } from '@/services/MediaService';
-import formationService from '@/services/FormationService';
-import { Trophy, Clock, BookOpen, Star, ChevronRight, Play, Lock, Video } from 'lucide-react';
+import { FormationService } from '@/services/FormationService';
+import { MediaService } from '@/services/MediaService';
+import { QuizList } from './QuizList';
 
-const StyledCard = styled(Card)(({ theme }) => ({
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-  transition: 'all 0.3s ease',
-  animation: 'fadeIn 0.5s ease-in',
-  '&:hover': {
-    transform: 'translateY(-5px)',
-    boxShadow: theme.shadows[8],
-  },
-  '@keyframes fadeIn': {
-    from: { opacity: 0 },
-    to: { opacity: 1 },
-  },
-}));
-
-const StyledCardMedia = styled(CardMedia)({
-  height: 200,
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
-  position: 'relative',
-  '&::after': {
-    content: '""',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: 'linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.5))',
-  },
-});
-
-const ProgressBar = styled('div')<{ progress: number }>(({ progress, theme }) => ({
-  width: '100%',
-  height: '4px',
-  backgroundColor: theme.palette.grey[200],
-  borderRadius: '2px',
-  overflow: 'hidden',
-  '&::after': {
-    content: '""',
-    display: 'block',
-    width: `${progress}%`,
-    height: '100%',
-    backgroundColor: theme.palette.primary.main,
-    transition: 'width 0.3s ease',
-  },
-}));
-
-const GridContainer = styled('div')({
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-  gap: '24px',
-  padding: '24px',
-  animation: 'fadeIn 0.5s ease-in',
-  '@keyframes fadeIn': {
-    from: { opacity: 0 },
-    to: { opacity: 1 },
-  },
-});
-
-const LevelBadge = styled(Badge)(({ theme }) => ({
-  '& .MuiBadge-badge': {
-    right: 10,
-    top: 10,
-    padding: '0 4px',
-  },
-}));
-
-interface Media {
-  id: number;
-  titre: string;
-  description: string;
-  url: string;
-  type: 'video' | 'image' | 'document';
-  categorie: 'tutoriel' | 'astuce' | 'quiz';
-  duree: string | null;
-  ordre: number;
-  formation_id: number;
-  created_at: string;
-  updated_at: string;
+interface FormationProps {
+  id?: string;
 }
 
-interface Formation {
-  id: string;
-  titre: string;
-  description: string;
-  imageUrl: string;
-  duree: string;
-  niveau: 'Débutant' | 'Intermédiaire' | 'Avancé';
-  type: 'Tutoriel' | 'Astuce' | 'Quiz' | 'Exercice';
-  progression: number;
-  isLocked?: boolean;
-  medias?: Media[];
-}
+export const Formation: React.FC<FormationProps> = ({ id: propId }) => {
+  const { formationId } = useParams<{ formationId: string }>();
+  const id = propId || formationId;
+  const [tabValue, setTabValue] = useState(0);
+  const [progress, setProgress] = useState(0);
 
-const getLevelColor = (niveau: string) => {
-  switch (niveau) {
-    case 'Débutant':
-      return 'success';
-    case 'Intermédiaire':
-      return 'warning';
-    case 'Avancé':
-      return 'error';
-    default:
-      return 'default';
-  }
-};
-
-const getTypeIcon = (type: string) => {
-  switch (type) {
-    case 'Tutoriel':
-      return <BookOpen size={16} />;
-    case 'Astuce':
-      return <Star size={16} />;
-    case 'Quiz':
-      return <Trophy size={16} />;
-    case 'Exercice':
-      return <Play size={16} />;
-    default:
-      return null;
-  }
-};
-
-const MediaPreview = styled('div')({
-  height: 200,
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
-  position: 'relative',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  '&::after': {
-    content: '""',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: 'linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.5))',
-  },
-});
-
-const MediaIcon = styled('div')(({ theme }) => ({
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  zIndex: 1,
-  color: 'white',
-  fontSize: '48px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  width: '80px',
-  height: '80px',
-  borderRadius: '50%',
-  background: 'rgba(0, 0, 0, 0.5)',
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    background: 'rgba(0, 0, 0, 0.7)',
-    transform: 'translate(-50%, -50%) scale(1.1)',
-  },
-}));
-
-export const Formation: React.FC = () => {
-  const navigate = useNavigate();
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-
-  const { data: formations, isLoading: isLoadingFormations } = useQuery({
-    queryKey: ['formations'],
-    queryFn: () => formationService.getFormations(),
+  const { data: formation, isLoading: isLoadingFormation } = useQuery({
+    queryKey: ['formation', id],
+    queryFn: () => {
+      if (!id) throw new Error('Formation ID is required');
+      return FormationService.getFormationById(id);
+    },
+    enabled: !!id,
   });
 
-  const { data: tutoriels, isLoading: isLoadingTutoriels } = useQuery({
-    queryKey: ['tutoriels'],
-    queryFn: () => mediaService.getTutoriels(),
+  const { data: modules, isLoading: isLoadingModules } = useQuery({
+    queryKey: ['formation-modules', id],
+    queryFn: () => {
+      if (!id) throw new Error('Formation ID is required');
+      return FormationService.getFormationModules(id);
+    },
+    enabled: !!id,
   });
 
-  const { data: astuces, isLoading: isLoadingAstuces } = useQuery({
-    queryKey: ['astuces'],
-    queryFn: () => mediaService.getAstuces(),
+  // Query for videos (using MediaService.getVideos instead of getTutoriels)
+  const { data: videos, isLoading: isLoadingVideos } = useQuery({
+    queryKey: ['formation-videos', id],
+    queryFn: () => {
+      if (!id) throw new Error('Formation ID is required');
+      return MediaService.getVideos({ formationId: id });
+    },
+    enabled: !!id,
   });
 
-  const handleFormationClick = (formationId: string) => {
-    navigate(`/formation/${formationId}`);
-  };
+  // Query for documents (using MediaService.getDocuments instead of getAstuces)
+  const { data: documents, isLoading: isLoadingDocuments } = useQuery({
+    queryKey: ['formation-documents', id],
+    queryFn: () => {
+      if (!id) throw new Error('Formation ID is required');
+      return MediaService.getDocuments({ formationId: id });
+    },
+    enabled: !!id,
+  });
 
-  const renderMediaPreview = (media: Media) => {
-    if (media.type === 'video') {
-      return (
-        <MediaPreview>
-          <MediaIcon>
-            <Video size={32} />
-          </MediaIcon>
-          <CardMedia
-            component="img"
-            image={media.url}
-            alt={media.titre}
-            sx={{ height: '100%', objectFit: 'cover' }}
-          />
-        </MediaPreview>
-      );
+  useEffect(() => {
+    // Simulate progress calculation
+    if (formation) {
+      const completedModules = modules?.filter(m => m.completed) || [];
+      const newProgress = modules?.length ? Math.round((completedModules.length / modules.length) * 100) : 0;
+      setProgress(newProgress);
     }
-    return (
-      <CardMedia
-        component="img"
-        image={media.url}
-        alt={media.titre}
-        sx={{ height: 200, objectFit: 'cover' }}
-      />
-    );
+  }, [formation, modules]);
+
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
   };
 
-  if (isLoadingFormations || isLoadingTutoriels || isLoadingAstuces) {
+  if (isLoadingFormation) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-        <CircularProgress />
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+        <Typography>Chargement de la formation...</Typography>
+      </Box>
+    );
+  }
+
+  if (!formation) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+        <Typography>Formation non trouvée.</Typography>
       </Box>
     );
   }
 
   return (
-    <Box p={3}>
-      <Typography variant="h4" gutterBottom sx={{ mb: 4, fontWeight: 'bold' }}>
-        Formations Interactives
-      </Typography>
-      <GridContainer>
-        {formations?.data?.map((formation) => (
-          <div
-            key={formation.id}
-            onMouseEnter={() => setHoveredCard(formation.id)}
-            onMouseLeave={() => setHoveredCard(null)}
-            style={{
-              transform: hoveredCard === formation.id ? 'scale(1.02)' : 'scale(1)',
-              transition: 'transform 0.3s ease',
-            }}
-          >
-            <LevelBadge
-              badgeContent={formation.niveau}
-              color={getLevelColor(formation.niveau)}
+    <Box sx={{ maxWidth: '1200px', mx: 'auto', p: 2 }}>
+      <Card sx={{ mb: 4 }}>
+        <CardHeader
+          avatar={
+            <Avatar sx={{ bgcolor: 'primary.main' }}>
+              {formation.title ? formation.title.charAt(0) : 'F'}
+            </Avatar>
+          }
+          title={formation.title}
+          subheader={`${formation.category} • ${formation.level || 'Tous niveaux'}`}
+          action={
+            <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
+              <Typography variant="body2" sx={{ mr: 2 }}>
+                Progression: {progress}%
+              </Typography>
+              <Trophy size={18} />
+            </Box>
+          }
+        />
+        <CardContent>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body1">{formation.description}</Typography>
+          </Box>
+          
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Clock size={16} style={{ marginRight: '4px' }} />
+              <Typography variant="body2">{formation.duration} heures</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Calendar size={16} style={{ marginRight: '4px' }} />
+              <Typography variant="body2">Début: {new Date(formation.startDate).toLocaleDateString()}</Typography>
+            </Box>
+            {formation.endDate && (
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Calendar size={16} style={{ marginRight: '4px' }} />
+                <Typography variant="body2">Fin: {new Date(formation.endDate).toLocaleDateString()}</Typography>
+              </Box>
+            )}
+          </Box>
+
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+            <Button 
+              variant="contained" 
+              color="primary" 
+              startIcon={<PlayCircle />}
+              href={`/formation/${formation.id}/start`}
             >
-              <StyledCard onClick={() => handleFormationClick(formation.id)}>
-                {formation.medias && formation.medias.length > 0 ? (
-                  renderMediaPreview(formation.medias[0])
-                ) : (
-                  <StyledCardMedia
-                    image={formation.imageUrl}
-                    title={formation.titre}
-                  />
-                )}
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography gutterBottom variant="h5" component="h2" sx={{ fontWeight: 'bold' }}>
-                    {formation.titre}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" paragraph>
-                    {formation.description}
-                  </Typography>
-                  <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                    <Tooltip title={`Niveau ${formation.niveau}`}>
-                      <Chip
-                        icon={getTypeIcon(formation.type)}
-                        label={formation.type}
-                        size="small"
-                        color="primary"
-                        variant="outlined"
-                      />
-                    </Tooltip>
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <Clock size={16} />
-                      <Typography variant="caption" color="textSecondary">
-                        {formation.duree}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  {formation.medias && formation.medias.length > 0 && (
-                    <Box mb={2}>
-                      <Typography variant="caption" color="textSecondary" display="block" mb={1}>
-                        Contenu disponible
-                      </Typography>
-                      <Box display="flex" gap={1}>
-                        {formation.medias.map((media) => (
-                          <Chip
-                            key={media.id}
-                            icon={media.type === 'video' ? <Video size={16} /> : <BookOpen size={16} />}
-                            label={media.categorie}
-                            size="small"
-                            variant="outlined"
-                          />
-                        ))}
+              Continuer la formation
+            </Button>
+            <Button 
+              variant="outlined"
+              startIcon={<Book />}
+              href={`/formation/${formation.id}/modules`}
+            >
+              Voir les modules
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
+
+      <Box sx={{ width: '100%' }}>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <Tabs 
+            value={tabValue} 
+            onChange={handleTabChange} 
+            aria-label="formation tabs"
+            variant="scrollable"
+            scrollButtons="auto"
+          >
+            <Tab label="Modules" icon={<Book />} iconPosition="start" />
+            <Tab label="Quiz" icon={<Trophy />} iconPosition="start" />
+            <Tab label="Vidéos" icon={<Video />} iconPosition="start" />
+            <Tab label="Documents" icon={<FileText />} iconPosition="start" />
+          </Tabs>
+        </Box>
+        
+        <TabPanel value={tabValue} index={0}>
+          {isLoadingModules ? (
+            <Typography>Chargement des modules...</Typography>
+          ) : (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+              {modules?.map((module) => (
+                <Card key={module.id} sx={{ mb: 2 }}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Box>
+                        <Typography variant="h6">{module.title}</Typography>
+                        <Typography variant="body2" color="textSecondary">{module.description}</Typography>
                       </Box>
+                      <Button 
+                        variant="outlined"
+                        startIcon={<PlayCircle />}
+                        href={`/formation/module/${module.id}`}
+                      >
+                        {module.completed ? 'Revoir' : 'Commencer'}
+                      </Button>
                     </Box>
-                  )}
-                  <Box mb={2}>
-                    <Typography variant="caption" color="textSecondary" display="block" mb={1}>
-                      Progression
-                    </Typography>
-                    <ProgressBar progress={formation.progression} />
-                  </Box>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    endIcon={<ChevronRight />}
-                    fullWidth
-                    disabled={formation.isLocked}
-                    sx={{
-                      mt: 'auto',
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        transform: 'translateX(5px)',
-                      },
-                    }}
-                  >
-                    {formation.isLocked ? 'Formation verrouillée' : 'Commencer'}
-                  </Button>
-                </CardContent>
-              </StyledCard>
-            </LevelBadge>
-          </div>
-        ))}
-      </GridContainer>
+                  </CardContent>
+                </Card>
+              ))}
+              
+              {!modules?.length && (
+                <Typography>Aucun module disponible.</Typography>
+              )}
+            </Box>
+          )}
+        </TabPanel>
+        
+        <TabPanel value={tabValue} index={1}>
+          <Box sx={{ mt: 2 }}>
+            <QuizList formationId={id} />
+          </Box>
+        </TabPanel>
+        
+        <TabPanel value={tabValue} index={2}>
+          {isLoadingVideos ? (
+            <Typography>Chargement des vidéos...</Typography>
+          ) : (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+              {videos?.map((video) => (
+                <Card key={video.id} sx={{ mb: 2 }}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Box>
+                        <Typography variant="h6">{video.title}</Typography>
+                        <Typography variant="body2" color="textSecondary">{video.description}</Typography>
+                      </Box>
+                      <Button 
+                        variant="outlined"
+                        startIcon={<Video />}
+                        href={video.url}
+                        target="_blank"
+                      >
+                        Voir la vidéo
+                      </Button>
+                    </Box>
+                  </CardContent>
+                </Card>
+              ))}
+              
+              {!videos?.length && (
+                <Typography>Aucune vidéo disponible.</Typography>
+              )}
+            </Box>
+          )}
+        </TabPanel>
+        
+        <TabPanel value={tabValue} index={3}>
+          {isLoadingDocuments ? (
+            <Typography>Chargement des documents...</Typography>
+          ) : (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+              {documents?.map((document) => (
+                <Card key={document.id} sx={{ mb: 2 }}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Box>
+                        <Typography variant="h6">{document.title}</Typography>
+                        <Typography variant="body2" color="textSecondary">{document.description}</Typography>
+                      </Box>
+                      <Button 
+                        variant="outlined"
+                        startIcon={<Download />}
+                        href={document.url}
+                        target="_blank"
+                      >
+                        Télécharger
+                      </Button>
+                    </Box>
+                  </CardContent>
+                </Card>
+              ))}
+              
+              {!documents?.length && (
+                <Typography>Aucun document disponible.</Typography>
+              )}
+            </Box>
+          )}
+        </TabPanel>
+      </Box>
     </Box>
   );
-}; 
+};
+
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`tabpanel-${index}`}
+      aria-labelledby={`tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: 3 }}>
+          {children}
+        </Box>
+      )}
+    </div>
+  );
+}

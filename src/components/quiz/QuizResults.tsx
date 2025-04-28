@@ -1,247 +1,207 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import { quizSubmissionService } from '../../services/quiz/QuizSubmissionService';
-import QuizService from '@/services/QuizService';
-import { QuizSummary } from './QuizSummary';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import {
+  Container,
+  Box,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  Divider,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+} from '@mui/material';
+import { CheckCircle, XCircle, Clock, Trophy, BarChart, FileText, ArrowLeft } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import quizService from '@/services/QuizService';
 
-interface QuizResult {
-  id: string;
-  quizId: string;
-  score: number;
-  correctAnswers: number;
-  totalQuestions: number;
-  completedAt: string;
-  timeSpent: number;
-}
-
-interface ClassementEntry {
-  id: string;
-  stagiaire: {
-    id: string;
-    nom: string;
-    prenom: string;
-  };
-  points: number;
-  rang: number;
-}
-
-interface GlobalClassementEntry {
-  stagiaire_id: string;
-  nom: string;
-  prenom: string;
-  total_points: number;
-  quiz_count: number;
-  moyenne: number;
-}
-
-export const QuizResults: React.FC = () => {
+export const QuizResults = () => {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const [result, setResult] = useState<QuizResult | null>(location.state?.result || null);
-  const [quizClassement, setQuizClassement] = useState<ClassementEntry[]>([]);
-  const [globalClassement, setGlobalClassement] = useState<GlobalClassementEntry[]>([]);
-  const [loading, setLoading] = useState(!location.state?.result);
-  const [error, setError] = useState<string | null>(null);
-  const [showSummary, setShowSummary] = useState(false);
-  const [summaryData, setSummaryData] = useState<any>(null);
-  const [loadingSummary, setLoadingSummary] = useState(false);
+  const [result, setResult] = useState<any>(null);
 
   useEffect(() => {
-    const fetchResults = async () => {
-      try {
-        setLoading(true);
-        if (quizId) {
-          // Si nous n'avons pas de résultat dans l'état de la navigation, on le récupère
-          if (!result) {
-            const quizResult = await quizSubmissionService.getQuizResult(quizId);
-            setResult(quizResult);
-          }
-          
-          // Récupérer le classement du quiz
-          const classementData = await quizSubmissionService.getClassement(quizId);
-          setQuizClassement(classementData);
+    if (location.state?.result) {
+      setResult(location.state.result);
+    }
+  }, [location.state]);
 
-          // Récupérer le classement global
-          const globalData = await quizSubmissionService.getGlobalClassement();
-          setGlobalClassement(globalData);
-        }
-      } catch (err) {
-        setError('Erreur lors du chargement des résultats');
-        console.error(err);
-      } finally {
-        setLoading(false);
+  const { data: fetchedResult, isLoading } = useQuery({
+    queryKey: ['quiz-result', quizId],
+    queryFn: () => {
+      if (!quizId) throw new Error('Quiz ID is required');
+      return quizService.getQuizResult(Number(quizId));
+    },
+    enabled: !!quizId && !result,
+    onSuccess: (data) => {
+      if (!result) {
+        setResult(data.data);
       }
-    };
+    },
+  });
 
-    fetchResults();
-  }, [quizId, result]);
-
-  const handleRestartQuiz = () => {
-    if (quizId) {
-      navigate(`/quiz/${quizId}`);
-    }
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const handleShowSummary = async () => {
-    if (!result?.id) return;
-    setLoadingSummary(true);
-    try {
-      const data = await QuizService.getInstance().getParticipationResume(Number(result.id));
-      setSummaryData(data);
-      setShowSummary(true);
-    } catch (e) {
-      setError('Erreur lors du chargement du résumé');
-    } finally {
-      setLoadingSummary(false);
-    }
-  };
-
-  if (loading) {
+  if (isLoading || !result) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-        <CircularProgress />
-      </Box>
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+          <CircularProgress />
+        </Box>
+      </Container>
     );
   }
 
-  if (error) {
-    return (
-      <Box p={3}>
-        <Typography color="error">{error}</Typography>
-      </Box>
-    );
-  }
+  const score = result.score;
+  const totalQuestions = result.total_questions;
+  const correctAnswers = result.correct_answers;
+  const timeSpent = result.time_spent;
+  const questions = result.questions || [];
+
+  const scorePercentage = Math.round((score / (totalQuestions * 10)) * 100);
+  
+  const isPassing = scorePercentage >= 70;
 
   return (
-    <Box p={3}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-        {/* Résultats du quiz */}
-        <Paper elevation={3} sx={{ p: 3 }}>
-          <Typography variant="h4" gutterBottom>
-            Résultats du Quiz
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+        <Button
+          startIcon={<ArrowLeft />}
+          onClick={() => navigate('/quizzes')}
+          variant="outlined"
+        >
+          Retour aux quiz
+        </Button>
+        <Button
+          startIcon={<BarChart />}
+          onClick={() => navigate(`/quiz/${quizId}/statistics`)}
+          variant="outlined"
+        >
+          Statistiques
+        </Button>
+      </Box>
+
+      <Card variant="outlined" sx={{ mb: 4, overflow: 'hidden' }}>
+        <Box
+          sx={{
+            p: 3,
+            bgcolor: isPassing ? 'success.light' : 'warning.light',
+            color: isPassing ? 'success.contrastText' : 'warning.contrastText',
+            textAlign: 'center',
+          }}
+        >
+          <Typography variant="h5" gutterBottom>
+            {isPassing ? 'Félicitations !' : 'Vous pouvez faire mieux !'}
           </Typography>
-          {result && (
-            <Box>
-              <Typography variant="h6">
-                Score: {result.score}%
+          <Typography variant="body1">
+            {isPassing
+              ? 'Vous avez réussi ce quiz avec succès.'
+              : 'Continuez à vous entraîner pour améliorer votre score.'}
+          </Typography>
+        </Box>
+
+        <CardContent>
+          <Box
+            display="flex"
+            flexDirection={{ xs: 'column', sm: 'row' }}
+            justifyContent="space-around"
+            alignItems="center"
+            py={3}
+          >
+            <Box textAlign="center" mb={{ xs: 2, sm: 0 }}>
+              <Typography variant="h3" color="primary">
+                {score} / {totalQuestions * 10}
               </Typography>
-              <Typography>
-                Réponses correctes: {result.correctAnswers}/{result.totalQuestions}
-              </Typography>
-              <Typography>
-                Temps passé: {Math.floor(result.timeSpent / 60)} minutes {result.timeSpent % 60} secondes
+              <Typography variant="body2" color="text.secondary">
+                Points
               </Typography>
             </Box>
-          )}
-        </Paper>
 
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
-          {/* Classement du quiz */}
-          <Paper elevation={3} sx={{ p: 3, flex: 1 }}>
-            <Typography variant="h5" gutterBottom>
-              Classement du Quiz
-            </Typography>
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Rang</TableCell>
-                    <TableCell>Nom</TableCell>
-                    <TableCell>Prénom</TableCell>
-                    <TableCell align="right">Points</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {quizClassement.map((entry) => (
-                    <TableRow key={entry.id}>
-                      <TableCell>{entry.rang}</TableCell>
-                      <TableCell>{entry.stagiaire.nom}</TableCell>
-                      <TableCell>{entry.stagiaire.prenom}</TableCell>
-                      <TableCell align="right">{entry.points}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
+            <Divider orientation="vertical" flexItem sx={{ display: { xs: 'none', sm: 'block' } }} />
 
-          {/* Classement global */}
-          <Paper elevation={3} sx={{ p: 3, flex: 1 }}>
-            <Typography variant="h5" gutterBottom>
-              Classement Global
-            </Typography>
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Rang</TableCell>
-                    <TableCell>Nom</TableCell>
-                    <TableCell>Prénom</TableCell>
-                    <TableCell align="right">Total Points</TableCell>
-                    <TableCell align="right">Quiz Completés</TableCell>
-                    <TableCell align="right">Moyenne</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {globalClassement.map((entry, index) => (
-                    <TableRow key={entry.stagiaire_id}>
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell>{entry.nom}</TableCell>
-                      <TableCell>{entry.prenom}</TableCell>
-                      <TableCell align="right">{entry.total_points}</TableCell>
-                      <TableCell align="right">{entry.quiz_count}</TableCell>
-                      <TableCell align="right">{entry.moyenne.toFixed(2)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
-        </Box>
+            <Box textAlign="center" mb={{ xs: 2, sm: 0 }}>
+              <Typography variant="h3" color="primary">
+                {correctAnswers} / {totalQuestions}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Réponses correctes
+              </Typography>
+            </Box>
 
-        {/* Bouton pour consulter le résumé */}
-        <Box display="flex" justifyContent="center" mt={2}>
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={handleShowSummary}
-            disabled={loadingSummary}
+            <Divider orientation="vertical" flexItem sx={{ display: { xs: 'none', sm: 'block' } }} />
+
+            <Box textAlign="center">
+              <Typography variant="h3" color="primary">
+                {formatTime(timeSpent)}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Temps
+              </Typography>
+            </Box>
+          </Box>
+        </CardContent>
+      </Card>
+
+      <Typography variant="h6" gutterBottom>
+        Résumé des réponses
+      </Typography>
+
+      <List sx={{ mb: 4 }}>
+        {questions.map((question: any) => (
+          <ListItem
+            key={question.id}
+            sx={{
+              mb: 2,
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 1,
+              p: 2,
+              bgcolor: question.is_correct ? 'success.light' : 'error.light',
+              color: question.is_correct ? 'success.contrastText' : 'error.contrastText',
+            }}
           >
-            {loadingSummary ? 'Chargement...' : 'Consulter le résumé'}
-          </Button>
-        </Box>
-        {/* Bouton pour recommencer */}
-        <Box display="flex" justifyContent="center" mt={3}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleRestartQuiz}
-            size="large"
-          >
-            Recommencer le Quiz
-          </Button>
-        </Box>
-        {/* Modale de résumé */}
-        {showSummary && summaryData && (
-          <Dialog open={showSummary} onClose={() => setShowSummary(false)} maxWidth="md" fullWidth>
-            <DialogTitle>Résumé du Quiz</DialogTitle>
-            <DialogContent>
-              <QuizSummary
-                quiz={summaryData.quiz}
-                questions={summaryData.questions}
-                userAnswers={Object.fromEntries(summaryData.questions.map((q: any) => [q.question_id, q.userAnswers]))}
-                score={summaryData.score}
-                totalQuestions={summaryData.totalQuestions}
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setShowSummary(false)}>Fermer</Button>
-            </DialogActions>
-          </Dialog>
-        )}
+            <ListItemIcon>
+              {question.is_correct ? (
+                <CheckCircle color="success" />
+              ) : (
+                <XCircle color="error" />
+              )}
+            </ListItemIcon>
+            <ListItemText
+              primary={question.text}
+              secondary={
+                !question.is_correct && question.explication ? (
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    Explication: {question.explication}
+                  </Typography>
+                ) : null
+              }
+            />
+          </ListItem>
+        ))}
+      </List>
+
+      <Box display="flex" justifyContent="space-between" mt={4}>
+        <Button variant="outlined" onClick={() => navigate('/quizzes')}>
+          Retour aux quiz
+        </Button>
+        <Button
+          variant="contained"
+          startIcon={<Trophy />}
+          color="primary"
+          onClick={() => navigate(`/quiz/${quizId}/retry`)}
+        >
+          Réessayer
+        </Button>
       </Box>
-    </Box>
+    </Container>
   );
-}; 
+};

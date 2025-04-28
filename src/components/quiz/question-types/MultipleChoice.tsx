@@ -1,53 +1,25 @@
+
 import React, { useState } from 'react';
 import {
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
+  FormControl,
+  FormLabel,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
   Checkbox,
+  FormGroup,
   Box,
+  Typography,
+  Button,
+  Paper,
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { Check, X } from 'lucide-react';
-import { Question as QuizQuestion } from '@/types/quiz';
+import { CheckCircle, XCircle } from 'lucide-react';
 
 interface MultipleChoiceProps {
-  question: QuizQuestion;
-  onAnswer: (answer: string[]) => void;
+  question: any;
+  onAnswer: (selectedAnswers: string[]) => void;
   showFeedback?: boolean;
 }
-
-const StyledListItem = styled(ListItem)(({ theme }) => ({
-  marginBottom: theme.spacing(1),
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: theme.palette.background.paper,
-  '&:hover': {
-    backgroundColor: theme.palette.action.hover,
-  },
-  '& .MuiListItemButton-root': {
-    padding: theme.spacing(1, 2),
-    [theme.breakpoints.down('sm')]: {
-      padding: theme.spacing(1),
-    },
-  },
-  '& .MuiListItemText-root': {
-    margin: 0,
-    '& .MuiTypography-root': {
-      fontSize: theme.typography.body1.fontSize,
-      [theme.breakpoints.down('sm')]: {
-        fontSize: theme.typography.body2.fontSize,
-      },
-    },
-  },
-  '& .MuiListItemIcon-root': {
-    minWidth: 'auto',
-    marginRight: theme.spacing(2),
-    [theme.breakpoints.down('sm')]: {
-      marginRight: theme.spacing(1),
-    },
-  },
-}));
 
 export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
   question,
@@ -55,80 +27,158 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
   showFeedback = false,
 }) => {
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
+  const [submitted, setSubmitted] = useState(false);
 
-  const handleAnswerSelect = (answerId: string) => {
-    const newAnswers = selectedAnswers.includes(answerId)
-      ? selectedAnswers.filter(id => id !== answerId)
-      : [...selectedAnswers, answerId];
-    
-    setSelectedAnswers(newAnswers);
-    onAnswer(newAnswers);
+  const isMultipleAnswers = question.reponses?.filter((r: any) => r.isCorrect || r.is_correct === 1).length > 1;
+
+  const handleSingleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setSelectedAnswers([value]);
+    onAnswer([value]);
+    setSubmitted(true);
   };
 
-  const isCorrectAnswer = (answer: { id: string; isCorrect?: boolean }) => {
-    if (!showFeedback) return false;
-    return answer.isCorrect;
+  const handleMultipleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    const newSelected = [...selectedAnswers];
+
+    if (newSelected.includes(value)) {
+      setSelectedAnswers(newSelected.filter((id) => id !== value));
+    } else {
+      newSelected.push(value);
+      setSelectedAnswers(newSelected);
+    }
   };
 
-  const isSelectedAnswer = (answerId: string) => {
-    return selectedAnswers.includes(answerId);
+  const handleSubmitMultiple = () => {
+    onAnswer(selectedAnswers);
+    setSubmitted(true);
   };
 
-  return (
-    <List sx={{ width: '100%' }}>
-      {question.reponses?.map((answer) => (
-        <StyledListItem key={answer.id} disablePadding>
-          <ListItemButton
-            onClick={() => handleAnswerSelect(answer.id.toString())}
-            selected={isSelectedAnswer(answer.id.toString())}
-            sx={{
-              '&.Mui-selected': {
-                backgroundColor: 'primary.light',
-                '&:hover': {
-                  backgroundColor: 'primary.light',
-                },
-              },
-            }}
-          >
-            <ListItemIcon>
-              <Checkbox
-                edge="start"
-                checked={isSelectedAnswer(answer.id.toString())}
-                tabIndex={-1}
-                disableRipple
-                size="small"
-              />
-            </ListItemIcon>
-            <ListItemText 
-              primary={answer.text}
-              sx={{
-                '& .MuiTypography-root': {
-                  wordBreak: 'break-word',
-                },
-              }}
-            />
-            {showFeedback && (
-              <Box 
-                display="flex" 
-                alignItems="center"
+  const getCorrectAnswers = () => {
+    return question.reponses
+      .filter((r: any) => r.isCorrect || r.is_correct === 1)
+      .map((r: any) => r.id.toString());
+  };
+
+  const isCorrect = () => {
+    const correctAnswers = getCorrectAnswers();
+    if (correctAnswers.length !== selectedAnswers.length) return false;
+    return correctAnswers.every((id) => selectedAnswers.includes(id.toString()));
+  };
+
+  if (isMultipleAnswers) {
+    return (
+      <Box>
+        <FormControl component="fieldset" sx={{ width: '100%' }}>
+          <FormGroup>
+            {question.reponses?.map((reponse: any) => (
+              <FormControlLabel
+                key={reponse.id}
+                control={
+                  <Checkbox
+                    checked={selectedAnswers.includes(reponse.id.toString())}
+                    onChange={handleMultipleChange}
+                    value={reponse.id.toString()}
+                  />
+                }
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography>{reponse.text}</Typography>
+                    {submitted && showFeedback && (
+                      <>
+                        {(reponse.isCorrect || reponse.is_correct === 1) && (
+                          <CheckCircle color="success" size={18} />
+                        )}
+                        {!(reponse.isCorrect || reponse.is_correct === 1) &&
+                          selectedAnswers.includes(reponse.id.toString()) && (
+                            <XCircle color="error" size={18} />
+                          )}
+                      </>
+                    )}
+                  </Box>
+                }
                 sx={{
-                  ml: { xs: 1, sm: 2 },
-                  '& svg': {
-                    width: { xs: 16, sm: 20 },
-                    height: { xs: 16, sm: 20 },
+                  marginY: 1,
+                  padding: 1,
+                  borderRadius: 1,
+                  '&:hover': {
+                    backgroundColor: 'action.hover',
                   },
                 }}
-              >
-                {answer.is_correct === 1 ? (
-                  <Check color="green" />
-                ) : (
-                  isSelectedAnswer(answer.id.toString()) && <X color="red" />
-                )}
-              </Box>
-            )}
-          </ListItemButton>
-        </StyledListItem>
-      ))}
-    </List>
-  );
+              />
+            ))}
+          </FormGroup>
+          {!submitted && (
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSubmitMultiple}
+              sx={{ marginTop: 2 }}
+            >
+              Valider
+            </Button>
+          )}
+        </FormControl>
+        {submitted && showFeedback && (
+          <Box mt={2} p={2} bgcolor={isCorrect() ? 'success.light' : 'error.light'} borderRadius={1}>
+            <Typography color={isCorrect() ? 'success.contrastText' : 'error.contrastText'}>
+              {isCorrect() ? 'Bonne réponse !' : 'Réponse incorrecte.'}
+            </Typography>
+          </Box>
+        )}
+      </Box>
+    );
+  } else {
+    return (
+      <Box>
+        <FormControl component="fieldset" sx={{ width: '100%' }}>
+          <RadioGroup
+            value={selectedAnswers[0] || ''}
+            onChange={handleSingleChange}
+            sx={{ width: '100%' }}
+          >
+            {question.reponses?.map((reponse: any) => (
+              <FormControlLabel
+                key={reponse.id}
+                value={reponse.id.toString()}
+                control={<Radio />}
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography>{reponse.text}</Typography>
+                    {submitted && showFeedback && (
+                      <>
+                        {(reponse.isCorrect || reponse.is_correct === 1) && (
+                          <CheckCircle color="success" size={18} />
+                        )}
+                        {!(reponse.isCorrect || reponse.is_correct === 1) &&
+                          selectedAnswers.includes(reponse.id.toString()) && (
+                            <XCircle color="error" size={18} />
+                          )}
+                      </>
+                    )}
+                  </Box>
+                }
+                sx={{
+                  marginY: 1,
+                  padding: 1,
+                  borderRadius: 1,
+                  '&:hover': {
+                    backgroundColor: 'action.hover',
+                  },
+                }}
+              />
+            ))}
+          </RadioGroup>
+        </FormControl>
+        {submitted && showFeedback && (
+          <Box mt={2} p={2} bgcolor={isCorrect() ? 'success.light' : 'error.light'} borderRadius={1}>
+            <Typography color={isCorrect() ? 'success.contrastText' : 'error.contrastText'}>
+              {isCorrect() ? 'Bonne réponse !' : 'Réponse incorrecte.'}
+            </Typography>
+          </Box>
+        )}
+      </Box>
+    );
+  }
 };
