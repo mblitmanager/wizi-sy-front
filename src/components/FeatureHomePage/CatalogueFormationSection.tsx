@@ -103,9 +103,7 @@ export default function CatalogueFormationSection({
                       className="w-full flex items-center justify-center gap-2"
                       variant={isInProgress ? "default" : "outline"}
                       onClick={() =>
-                        navigate(
-                          `/catalogue_formation/${catalogue.formation_id}`
-                        )
+                        navigate(`/catalogue_formation/${catalogue.id}`)
                       }>
                       VOIR LES DÉTAILS <ArrowRight className="w-4 h-4" />
                     </Button>
