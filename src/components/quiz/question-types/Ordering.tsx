@@ -8,7 +8,7 @@ import {
   Paper,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { GripVertical, Check, X } from 'lucide-react';
 import { Question as QuizQuestion } from '@/types/quiz';
 
@@ -53,7 +53,7 @@ export const Ordering: React.FC<OrderingProps> = ({
     }
   }, [question.reponses, showFeedback]);
 
-  const handleDragEnd = (result: any) => {
+  const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
     const items = Array.from(orderedAnswers);
@@ -83,8 +83,8 @@ export const Ordering: React.FC<OrderingProps> = ({
                 const isCorrect = isCorrectPosition(answer, index);
                 return (
                   <Draggable
-                    key={answer.id}
-                    draggableId={answer.id}
+                    key={String(answer.id)}
+                    draggableId={String(answer.id)}
                     index={index}
                     isDragDisabled={showFeedback}
                   >

@@ -21,7 +21,8 @@ import {
   IconButton,
   Collapse,
 } from '@mui/material';
-import { FolderOpen, PlayCircle, Download, ExpandLess, ExpandMore } from 'lucide-react';
+import { FolderOpen, PlayCircle, Download } from 'lucide-react';
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import FormationService from '@/services/FormationService';
 import { useAuth } from '@/hooks/useAuth';

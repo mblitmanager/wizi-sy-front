@@ -62,8 +62,8 @@ export function QuizResultsDialog({
           })}
         </div>
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={() => navigate('/formations')}>
-            Retour aux formations
+          <Button variant="outline" onClick={() => navigate('/quizzes')}>
+            Retour aux quiz
           </Button>
           <Button onClick={onRestart}>
             Recommencer
