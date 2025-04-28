@@ -1,54 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import {
-  Box,
-  Typography,
-  Button,
-  Stepper,
-  Step,
-  StepLabel,
-  CircularProgress,
-  Paper,
-  Alert,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Snackbar,
-} from '@mui/material';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { Timer, HelpCircle, CheckCircle, XCircle, History, BarChart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Question } from './Question';
+import { useQuery } from '@tanstack/react-query';
+import { Timer, HelpCircle, History, BarChart } from 'lucide-react';
 import quizService from '@/services/QuizService';
-import { Quiz as QuizType, Question as QuestionType } from '@/types/quiz';
+import { LoadingState } from './quiz-play/LoadingState';
+import { ErrorState } from './quiz-play/ErrorState';
+import { QuizNavigation } from './quiz-play/QuizNavigation';
+import { QuizHistoryDialog } from './quiz-play/QuizHistoryDialog';
+import { QuizStatsDialog } from './quiz-play/QuizStatsDialog';
+import { QuizResultsDialog } from './quiz-play/QuizResultsDialog';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
-interface QuizPlayProps {}
-
-interface Answer {
-  questionId: string;
-  value: any;
-  isCorrect?: boolean;
-  points?: number;
-}
-
-export const QuizPlay: React.FC<QuizPlayProps> = () => {
+export function QuizPlay() {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [activeStep, setActiveStep] = useState(0);
-  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [answers, setAnswers] = useState<any[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [showHint, setShowHint] = useState(false);
-  const [currentHint, setCurrentHint] = useState<string>('');
-  const [startTime, setStartTime] = useState<number>(0);
   const [showHistory, setShowHistory] = useState(false);
   const [showStats, setShowStats] = useState(false);
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
-    open: false,
-    message: '',
-    severity: 'success',
-  });
+  const [startTime, setStartTime] = useState<number>(0);
 
   useEffect(() => {
     if (!quizId) {
@@ -69,10 +45,10 @@ export const QuizPlay: React.FC<QuizPlayProps> = () => {
           if (newParticipation.data) {
             setStartTime(new Date(newParticipation.data.created_at).getTime());
           } else {
-            setSnackbar({
-              open: true,
-              message: 'Erreur lors de la création de la participation',
-              severity: 'error',
+            toast({
+              title: 'Erreur',
+              description: 'Erreur lors de la création de la participation',
+              variant: 'destructive',
             });
           }
         }
@@ -86,50 +62,35 @@ export const QuizPlay: React.FC<QuizPlayProps> = () => {
             }
           } catch (startError) {
             console.error('Error starting quiz participation:', startError);
-            setSnackbar({
-              open: true,
-              message: 'Erreur lors de la création de la participation',
-              severity: 'error',
+            toast({
+              title: 'Erreur',
+              description: 'Erreur lors de la création de la participation',
+              variant: 'destructive',
             });
           }
         } else {
           console.error('Error checking participation:', error);
-          setSnackbar({
-            open: true,
-            message: 'Erreur lors de la vérification de la participation',
-            severity: 'error',
+          toast({
+            title: 'Erreur',
+            description: 'Erreur lors de la vérification de la participation',
+            variant: 'destructive',
           });
         }
       }
     };
 
     checkParticipation();
-  }, [quizId, navigate]);
+  }, [quizId, navigate, toast]);
 
   const { data: quizDetails, isLoading: isLoadingDetails } = useQuery({
     queryKey: ['quizDetails', quizId],
-    queryFn: () => {
-      if (!quizId) throw new Error('No quiz ID provided');
-      return quizService.getQuizDetails(Number(quizId));
-    },
+    queryFn: () => quizService.getQuizDetails(Number(quizId)),
     enabled: !!quizId,
-  });
-
-  const { data: quizResult, refetch: refetchQuizResult } = useQuery({
-    queryKey: ['quizResult', quizId],
-    queryFn: () => {
-      if (!quizId) throw new Error('No quiz ID provided');
-      return quizService.getQuizResult(Number(quizId));
-    },
-    enabled: false,
   });
 
   const { data: quizQuestions, isLoading: isLoadingQuestions, error: questionsError } = useQuery({
     queryKey: ['quizQuestions', quizId],
-    queryFn: () => {
-      if (!quizId) throw new Error('No quiz ID provided');
-      return quizService.getQuizQuestions(quizId);
-    },
+    queryFn: () => quizService.getQuizQuestions(quizId!),
     enabled: !!quizId,
   });
 
@@ -140,31 +101,8 @@ export const QuizPlay: React.FC<QuizPlayProps> = () => {
 
   const { data: quizStats } = useQuery({
     queryKey: ['quizStats', quizId],
-    queryFn: () => {
-      if (!quizId) throw new Error('No quiz ID provided');
-      return quizService.getQuizStatistics(Number(quizId));
-    },
+    queryFn: () => quizService.getQuizStatistics(Number(quizId)),
     enabled: !!quizId,
-  });
-
-  const submitQuizMutation = useMutation({
-    mutationFn: (submission: any) => quizService.submitQuiz(submission),
-    onSuccess: async (data) => {
-      setSnackbar({
-        open: true,
-        message: 'Quiz soumis avec succès!',
-        severity: 'success',
-      });
-      await refetchQuizResult();
-      navigate(`/quiz/${quizId}/results`, { state: { result: data.data } });
-    },
-    onError: () => {
-      setSnackbar({
-        open: true,
-        message: 'Erreur lors de la soumission du quiz',
-        severity: 'error',
-      });
-    },
   });
 
   useEffect(() => {
@@ -291,13 +229,12 @@ export const QuizPlay: React.FC<QuizPlayProps> = () => {
       });
 
       setShowResults(true);
-      refetchQuizResult();
     } catch (error) {
       console.error('Error submitting quiz:', error);
-      setSnackbar({
-        open: true,
-        message: 'Erreur lors de la soumission du quiz',
-        severity: 'error',
+      toast({
+        title: 'Erreur',
+        description: 'Erreur lors de la soumission du quiz',
+        variant: 'destructive',
       });
     }
   };
@@ -313,262 +250,85 @@ export const QuizPlay: React.FC<QuizPlayProps> = () => {
   };
 
   if (isLoadingDetails || isLoadingQuestions) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-        <CircularProgress />
-      </Box>
-    );
+    return <LoadingState />;
   }
 
-  if (questionsError) {
-    console.error('Error loading quiz questions:', questionsError);
-    return (
-      <Alert severity="error">
-        Erreur lors du chargement du quiz: {questionsError.message}
-      </Alert>
-    );
-  }
-
-  if (!quizQuestions || quizQuestions.length === 0) {
-    console.log('No questions found for quiz:', quizId);
-    return (
-      <Alert severity="warning">
-        Aucune question trouvée pour ce quiz. Veuillez vérifier que le quiz existe et contient des questions.
-      </Alert>
-    );
+  if (questionsError || !quizQuestions || quizQuestions.length === 0) {
+    return <ErrorState />;
   }
 
   const currentQuestion = quizQuestions[activeStep];
   const totalQuestions = quizQuestions.length;
-  const currentAnswer = answers.find((a) => a.questionId === currentQuestion.id);
 
   return (
-    <Box
-      sx={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: { xs: 2, sm: 3, md: 4 },
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column'
-      }}
-    >
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: { xs: 'column', sm: 'row' },
-          justifyContent: 'space-between',
-          alignItems: { xs: 'flex-start', sm: 'center' },
-          mb: 3,
-          gap: 2
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Timer size={24} />
-          <Typography variant="h6">
+    <div className="max-w-4xl mx-auto px-4 py-8 min-h-screen flex flex-col">
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-2">
+          <Timer className="h-5 w-5" />
+          <span className="font-mono">
             {timeLeft !== null ? formatTime(timeLeft) : '--:--'}
-          </Typography>
-        </Box>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <IconButton
+          </span>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setShowHint(true)}
-            color="primary"
-            sx={{ display: { xs: 'none', sm: 'flex' } }}
           >
-            <HelpCircle size={24} />
-          </IconButton>
-          <IconButton
-            onClick={() => setShowHistory(true)}
-            color="primary"
-            sx={{ display: { xs: 'none', sm: 'flex' } }}
-          >
-            <History size={24} />
-          </IconButton>
-          <IconButton
-            onClick={() => setShowStats(true)}
-            color="primary"
-            sx={{ display: { xs: 'none', sm: 'flex' } }}
-          >
-            <BarChart size={24} />
-          </IconButton>
-        </Box>
-      </Box>
-
-      <Stepper
-        activeStep={activeStep}
-        sx={{
-          mb: 4,
-          '& .MuiStepLabel-root': {
-            padding: { xs: 1, sm: 2 }
-          }
-        }}
-      >
-        {quizQuestions?.map((_, index) => (
-          <Step key={index}>
-            <StepLabel />
-          </Step>
-        ))}
-      </Stepper>
-
-      <Box
-        sx={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 3
-        }}
-      >
-        {isLoadingQuestions ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-            <CircularProgress />
-          </Box>
-        ) : questionsError ? (
-          <Alert severity="error">
-            Erreur lors du chargement des questions
-          </Alert>
-        ) : (
-          <>
-            {quizQuestions && quizQuestions[activeStep] && (
-              <Question
-                question={quizQuestions[activeStep]}
-                onAnswer={handleAnswer}
-                showFeedback={showResults}
-              />
-            )}
-
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                mt: 'auto',
-                pt: 3,
-                gap: 2,
-                position: 'sticky',
-                bottom: 0,
-                backgroundColor: 'background.paper',
-                padding: 2,
-                boxShadow: '0 -2px 10px rgba(0,0,0,0.1)',
-                zIndex: 1000
-              }}
-            >
-              <Button
-                variant="outlined"
-                onClick={handleBack}
-                disabled={activeStep === 0}
-                startIcon={<ChevronLeft />}
-                sx={{ 
-                  minWidth: { xs: 'auto', sm: '120px' },
-                  visibility: activeStep === 0 ? 'hidden' : 'visible'
-                }}
-              >
-                Précédent
-              </Button>
-              <Button
-                variant="contained"
-                onClick={activeStep === quizQuestions?.length - 1 ? handleFinish : handleNext}
-                endIcon={activeStep === quizQuestions?.length - 1 ? null : <ChevronRight />}
-                sx={{ 
-                  minWidth: { xs: 'auto', sm: '120px' },
-                  ml: 'auto'
-                }}
-              >
-                {activeStep === quizQuestions?.length - 1 ? 'Terminer' : 'Suivant'}
-              </Button>
-            </Box>
-          </>
-        )}
-      </Box>
-
-      <Dialog open={showHint} onClose={() => setShowHint(false)}>
-        <DialogTitle>Astuce</DialogTitle>
-        <DialogContent>
-          <Typography>{currentHint}</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowHint(false)}>Fermer</Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog open={showResults} onClose={() => setShowResults(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Résultats du Quiz</DialogTitle>
-        <DialogContent>
-          <Box textAlign="center" py={3}>
-            <Typography variant="h4" gutterBottom>
-              Score: {calculateScore()} points
-            </Typography>
-            <Typography variant="body1" color="textSecondary">
-              {answers.filter((a) => a.isCorrect).length} bonnes réponses sur {totalQuestions}
-            </Typography>
-          </Box>
-          <Box mt={2}>
-            {answers.map((answer) => {
-              const question = quizQuestions.find((q) => q.id === answer.questionId);
-              return (
-                <Box key={answer.questionId} mb={2}>
-                  <Typography variant="subtitle1">{question?.text}</Typography>
-                  <Box display="flex" alignItems="center" gap={1}>
-                    {answer.isCorrect ? (
-                      <CheckCircle color="success" size={20} />
-                    ) : (
-                      <XCircle color="error" size={20} />
-                    )}
-                    <Typography variant="body2">
-                      {answer.points} points
-                    </Typography>
-                  </Box>
-                </Box>
-              );
-            })}
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => navigate('/formations')}>Retour aux formations</Button>
-          <Button variant="contained" onClick={() => window.location.reload()}>
-            Recommencer
+            <HelpCircle className="h-5 w-5" />
           </Button>
-        </DialogActions>
-      </Dialog>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowHistory(true)}
+          >
+            <History className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowStats(true)}
+          >
+            <BarChart className="h-5 w-5" />
+          </Button>
+        </div>
+      </div>
 
-      <Dialog open={showHistory} onClose={() => setShowHistory(false)} maxWidth="md" fullWidth>
-        <DialogTitle>Historique des Quiz</DialogTitle>
-        <DialogContent>
-          {quizHistory?.data?.map((result, index) => (
-            <Box key={index} mb={2} p={2} border="1px solid" borderColor="divider" borderRadius={1}>
-              <Typography variant="h6">Quiz #{result.questions[0]?.quiz_id || 'Inconnu'}</Typography>
-              <Box display="flex" justifyContent="space-between" mt={1}>
-                <Typography>Score: {result.score}</Typography>
-                <Typography>Temps: {formatTime(result.time_spent)}</Typography>
-              </Box>
-            </Box>
-          ))}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowHistory(false)}>Fermer</Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog open={showStats} onClose={() => setShowStats(false)} maxWidth="md" fullWidth>
-        <DialogTitle>Statistiques du Quiz</DialogTitle>
-        <DialogContent>
-          {quizStats?.data && (
-            <Box>
-              <Typography variant="h6">Moyenne des scores: {quizStats.data.average_score}</Typography>
-              <Typography variant="h6">Temps moyen: {formatTime(quizStats.data.average_time)}</Typography>
-              <Typography variant="h6">Taux de réussite: {quizStats.data.success_rate}%</Typography>
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowStats(false)}>Fermer</Button>
-        </DialogActions>
-      </Dialog>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        message={snackbar.message}
+      <Question
+        question={currentQuestion}
+        onAnswer={(answer) => handleAnswer(answer)}
+        showFeedback={showResults}
       />
-    </Box>
+
+      <QuizNavigation
+        activeStep={activeStep}
+        totalSteps={totalQuestions}
+        onBack={handleBack}
+        onNext={handleNext}
+        onFinish={handleFinish}
+      />
+
+      <QuizHistoryDialog
+        open={showHistory}
+        onClose={() => setShowHistory(false)}
+        history={quizHistory?.data || []}
+      />
+
+      <QuizStatsDialog
+        open={showStats}
+        onClose={() => setShowStats(false)}
+        stats={quizStats?.data}
+      />
+
+      <QuizResultsDialog
+        open={showResults}
+        onClose={() => setShowResults(false)}
+        score={calculateScore()}
+        totalQuestions={totalQuestions}
+        answers={answers}
+        questions={quizQuestions}
+        onRestart={() => window.location.reload()}
+      />
+    </div>
   );
-};
+}
