@@ -1,298 +1,207 @@
-
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { Card, CardContent, CardHeader, Tabs, Tab, Box, Typography, Avatar, Button } from '@mui/material';
-import { PlayCircle, Book, Video, FileText, Download, Clock, Calendar, Trophy } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import {
+  Box,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  CardMedia,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
+  Paper,
+  IconButton,
+  Collapse,
+} from '@mui/material';
+import { FolderOpen, PlayCircle, Download, ExpandLess, ExpandMore } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import formationService from '@/services/FormationService';
-import { mediaService } from '@/services/MediaService';
-import { QuizList } from './QuizList';
+import FormationService from '@/services/FormationService';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
-interface FormationProps {
-  id?: string;
-}
+interface FormationProps {}
 
-export const Formation: React.FC<FormationProps> = ({ id: propId }) => {
+export const Formation: React.FC<FormationProps> = () => {
   const { formationId } = useParams<{ formationId: string }>();
-  const id = propId || formationId;
-  const [tabValue, setTabValue] = useState(0);
-  const [progress, setProgress] = useState(0);
-
-  const { data: formation, isLoading: isLoadingFormation } = useQuery({
-    queryKey: ['formation', id],
-    queryFn: () => {
-      if (!id) throw new Error('Formation ID is required');
-      return formationService.getFormationById(id);
-    },
-    enabled: !!id,
-  });
-
-  const { data: modules, isLoading: isLoadingModules } = useQuery({
-    queryKey: ['formation-modules', id],
-    queryFn: () => {
-      if (!id) throw new Error('Formation ID is required');
-      return formationService.getFormationProgress(id);
-    },
-    enabled: !!id,
-  });
-
-  // Query for videos 
-  const { data: videos, isLoading: isLoadingVideos } = useQuery({
-    queryKey: ['formation-videos', id],
-    queryFn: () => {
-      if (!id) throw new Error('Formation ID is required');
-      return mediaService.getMediasByType('video');
-    },
-    enabled: !!id,
-  });
-
-  // Query for documents
-  const { data: documents, isLoading: isLoadingDocuments } = useQuery({
-    queryKey: ['formation-documents', id],
-    queryFn: () => {
-      if (!id) throw new Error('Formation ID is required');
-      return mediaService.getMediasByType('document');
-    },
-    enabled: !!id,
-  });
+  const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
+  const { toast } = useToast();
+  const [open, setOpen] = useState({});
 
   useEffect(() => {
-    // Simulate progress calculation
-    if (formation) {
-      const completedModules = modules?.filter(m => m.completed) || [];
-      const newProgress = modules?.length ? Math.round((completedModules.length / modules.length) * 100) : 0;
-      setProgress(newProgress);
+    if (!isAuthenticated) {
+      navigate('/login');
     }
-  }, [formation, modules]);
+  }, [isAuthenticated, navigate]);
 
-  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
+  const { data: formation, isLoading, error } = useQuery({
+    queryKey: ['formation', formationId],
+    queryFn: () => {
+      if (!formationId) throw new Error('Formation ID is required');
+      return FormationService.getFormationById(formationId);
+    },
+    enabled: !!formationId && isAuthenticated,
+    meta: {
+      onError: (error: any) => {
+        toast({
+          title: 'Erreur',
+          description: 'Impossible de charger les détails de la formation.',
+          variant: 'destructive'
+        });
+        console.error('Error loading formation details:', error);
+      }
+    }
+  });
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+        <Typography>Chargement des détails de la formation...</Typography>
+      </Box>
+    );
+  }
+
+  if (error || !formation) {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 4 }}>
+        <Typography variant="h6" sx={{ mb: 2 }}>Formation non disponible</Typography>
+        <Button 
+          variant="contained" 
+          onClick={() => navigate('/formations')}
+          startIcon={<FolderOpen />}
+        >
+          Retour aux formations
+        </Button>
+      </Box>
+    );
+  }
+
+  const handleQuizStart = (quizId: string) => {
+    navigate(`/quiz/${quizId}`);
   };
 
-  if (isLoadingFormation) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-        <Typography>Chargement de la formation...</Typography>
-      </Box>
-    );
-  }
-
-  if (!formation) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-        <Typography>Formation non trouvée.</Typography>
-      </Box>
-    );
-  }
+  const handleToggleCollapse = (mediaId: string) => {
+    setOpen(prevState => ({
+      ...prevState,
+      [mediaId]: !prevState[mediaId],
+    }));
+  };
 
   return (
-    <Box sx={{ maxWidth: '1200px', mx: 'auto', p: 2 }}>
+    <Box sx={{ maxWidth: '800px', mx: 'auto', p: 2 }}>
       <Card sx={{ mb: 4 }}>
-        <CardHeader
-          avatar={
-            <Avatar sx={{ bgcolor: 'primary.main' }}>
-              {formation.title ? formation.title.charAt(0) : 'F'}
-            </Avatar>
-          }
-          title={formation.title}
-          subheader={`${formation.category} • ${formation.level || 'Tous niveaux'}`}
-          action={
-            <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
-              <Typography variant="body2" sx={{ mr: 2 }}>
-                Progression: {progress}%
-              </Typography>
-              <Trophy size={18} />
-            </Box>
-          }
+        <CardMedia
+          component="img"
+          height="240"
+          image={formation.image || "https://source.unsplash.com/random"}
+          alt={formation.name}
         />
         <CardContent>
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="body1">{formation.description}</Typography>
-          </Box>
-          
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Clock size={16} style={{ marginRight: '4px' }} />
-              <Typography variant="body2">{formation.duration} heures</Typography>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Calendar size={16} style={{ marginRight: '4px' }} />
-              <Typography variant="body2">Début: {new Date(formation.startDate).toLocaleDateString()}</Typography>
-            </Box>
-            {formation.endDate && (
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Calendar size={16} style={{ marginRight: '4px' }} />
-                <Typography variant="body2">Fin: {new Date(formation.endDate).toLocaleDateString()}</Typography>
-              </Box>
-            )}
-          </Box>
-
-          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            <Button 
-              variant="contained" 
-              color="primary" 
-              startIcon={<PlayCircle />}
-              href={`/formation/${formation.id}/start`}
-            >
-              Continuer la formation
-            </Button>
-            <Button 
-              variant="outlined"
-              startIcon={<Book />}
-              href={`/formation/${formation.id}/modules`}
-            >
-              Voir les modules
-            </Button>
+          <Typography variant="h4" component="div" sx={{ mb: 2 }}>
+            {formation.name}
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            {formation.description}
+          </Typography>
+          <Box sx={{ mt: 3 }}>
+            <Typography variant="h6">Quizzes:</Typography>
+            <List>
+              {formation.quizzes.map((quiz) => (
+                <ListItem 
+                  key={quiz.id} 
+                  button 
+                  onClick={() => handleQuizStart(quiz.id)}
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: 'action.hover',
+                      cursor: 'pointer',
+                    },
+                  }}
+                >
+                  <ListItemIcon>
+                    <PlayCircle />
+                  </ListItemIcon>
+                  <ListItemText primary={quiz.title} />
+                </ListItem>
+              ))}
+            </List>
           </Box>
         </CardContent>
       </Card>
 
-      <Box sx={{ width: '100%' }}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs 
-            value={tabValue} 
-            onChange={handleTabChange} 
-            aria-label="formation tabs"
-            variant="scrollable"
-            scrollButtons="auto"
-          >
-            <Tab label="Modules" icon={<Book />} iconPosition="start" />
-            <Tab label="Quiz" icon={<Trophy />} iconPosition="start" />
-            <Tab label="Vidéos" icon={<Video />} iconPosition="start" />
-            <Tab label="Documents" icon={<FileText />} iconPosition="start" />
-          </Tabs>
+      {formation.medias && formation.medias.length > 0 && (
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h5" sx={{ mb: 2 }}>Médias</Typography>
+          <Grid container spacing={2}>
+            {formation.medias.map((media) => (
+              <Grid item xs={12} sm={6} md={4} key={media.id}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" className="mb-1">
+                      {media.titre}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {media.description}
+                    </Typography>
+                    <Button size="small" href={media.url} target="_blank" rel="noopener noreferrer">
+                      Voir le média
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
         </Box>
-        
-        <TabPanel value={tabValue} index={0}>
-          {isLoadingModules ? (
-            <Typography>Chargement des modules...</Typography>
-          ) : (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-              {modules?.map((module) => (
-                <Card key={module.id} sx={{ mb: 2 }}>
-                  <CardContent>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Box>
-                        <Typography variant="h6">{module.title}</Typography>
-                        <Typography variant="body2" color="textSecondary">{module.description}</Typography>
-                      </Box>
-                      <Button 
-                        variant="outlined"
-                        startIcon={<PlayCircle />}
-                        href={`/formation/module/${module.id}`}
-                      >
-                        {module.completed ? 'Revoir' : 'Commencer'}
-                      </Button>
-                    </Box>
-                  </CardContent>
-                </Card>
-              ))}
-              
-              {!modules?.length && (
-                <Typography>Aucun module disponible.</Typography>
-              )}
-            </Box>
-          )}
-        </TabPanel>
-        
-        <TabPanel value={tabValue} index={1}>
-          <Box sx={{ mt: 2 }}>
-            <QuizList />
-          </Box>
-        </TabPanel>
-        
-        <TabPanel value={tabValue} index={2}>
-          {isLoadingVideos ? (
-            <Typography>Chargement des vidéos...</Typography>
-          ) : (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-              {videos?.map((video) => (
-                <Card key={video.id} sx={{ mb: 2 }}>
-                  <CardContent>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Box>
-                        <Typography variant="h6">{video.title}</Typography>
-                        <Typography variant="body2" color="textSecondary">{video.description}</Typography>
-                      </Box>
-                      <Button 
-                        variant="outlined"
-                        startIcon={<Video />}
-                        href={video.url}
-                        target="_blank"
-                      >
-                        Voir la vidéo
-                      </Button>
-                    </Box>
-                  </CardContent>
-                </Card>
-              ))}
-              
-              {!videos?.length && (
-                <Typography>Aucune vidéo disponible.</Typography>
-              )}
-            </Box>
-          )}
-        </TabPanel>
-        
-        <TabPanel value={tabValue} index={3}>
-          {isLoadingDocuments ? (
-            <Typography>Chargement des documents...</Typography>
-          ) : (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-              {documents?.map((document) => (
-                <Card key={document.id} sx={{ mb: 2 }}>
-                  <CardContent>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Box>
-                        <Typography variant="h6">{document.title}</Typography>
-                        <Typography variant="body2" color="textSecondary">{document.description}</Typography>
-                      </Box>
-                      <Button 
-                        variant="outlined"
-                        startIcon={<Download />}
-                        href={document.url}
-                        target="_blank"
-                      >
-                        Télécharger
-                      </Button>
-                    </Box>
-                  </CardContent>
-                </Card>
-              ))}
-              
-              {!documents?.length && (
-                <Typography>Aucun document disponible.</Typography>
-              )}
-            </Box>
-          )}
-        </TabPanel>
-      </Box>
+      )}
+
+      {formation.fichiers && formation.fichiers.length > 0 && (
+        <Box>
+          <Typography variant="h5" sx={{ mb: 2 }}>
+            Téléchargements
+            <IconButton
+              aria-label="expand"
+              size="small"
+              onClick={() => handleToggleCollapse('downloads')}
+            >
+              {open['downloads'] ? <ExpandLess /> : <ExpandMore />}
+            </IconButton>
+          </Typography>
+          <Collapse in={!!open['downloads']} timeout="auto" unmountOnExit>
+            <TableContainer component={Paper}>
+              <Table aria-label="downloads table">
+                <TableBody>
+                  {formation.fichiers.map((file) => (
+                    <TableRow key={file.id}>
+                      <TableCell component="th" scope="row">
+                        {file.titre}
+                      </TableCell>
+                      <TableCell align="right">
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          size="small"
+                          href={file.url}
+                          download
+                        >
+                          Télécharger
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Collapse>
+        </Box>
+      )}
     </Box>
   );
 };
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`tabpanel-${index}`}
-      aria-labelledby={`tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          {children}
-        </Box>
-      )}
-    </div>
-  );
-}

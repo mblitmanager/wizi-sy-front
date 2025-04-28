@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, Button, Box, Typography, Divider, List, ListItem, ListItemText, Chip } from '@mui/material';
@@ -13,14 +12,14 @@ interface QuizResultProps {}
 export const QuizResults: React.FC<QuizResultProps> = () => {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!user) {
       navigate('/login');
     }
-  }, [isAuthenticated, navigate]);
+  }, [user, navigate]);
 
   const { data: result, isLoading } = useQuery({
     queryKey: ['quiz-result', quizId],
@@ -28,7 +27,7 @@ export const QuizResults: React.FC<QuizResultProps> = () => {
       if (!quizId) throw new Error('Quiz ID is required');
       return QuizService.getQuizResult(Number(quizId));
     },
-    enabled: !!quizId && isAuthenticated,
+    enabled: !!quizId && !!user,
     meta: {
       onError: (error: any) => {
         toast({
