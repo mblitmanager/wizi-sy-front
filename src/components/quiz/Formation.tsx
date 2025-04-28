@@ -4,8 +4,8 @@ import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, Tabs, Tab, Box, Typography, Avatar, Button } from '@mui/material';
 import { PlayCircle, Book, Video, FileText, Download, Clock, Calendar, Trophy } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { FormationService } from '@/services/FormationService';
-import { MediaService } from '@/services/MediaService';
+import formationService from '@/services/FormationService';
+import { mediaService } from '@/services/MediaService';
 import { QuizList } from './QuizList';
 
 interface FormationProps {
@@ -22,7 +22,7 @@ export const Formation: React.FC<FormationProps> = ({ id: propId }) => {
     queryKey: ['formation', id],
     queryFn: () => {
       if (!id) throw new Error('Formation ID is required');
-      return FormationService.getFormationById(id);
+      return formationService.getFormationById(id);
     },
     enabled: !!id,
   });
@@ -31,27 +31,27 @@ export const Formation: React.FC<FormationProps> = ({ id: propId }) => {
     queryKey: ['formation-modules', id],
     queryFn: () => {
       if (!id) throw new Error('Formation ID is required');
-      return FormationService.getFormationModules(id);
+      return formationService.getFormationProgress(id);
     },
     enabled: !!id,
   });
 
-  // Query for videos (using MediaService.getVideos instead of getTutoriels)
+  // Query for videos 
   const { data: videos, isLoading: isLoadingVideos } = useQuery({
     queryKey: ['formation-videos', id],
     queryFn: () => {
       if (!id) throw new Error('Formation ID is required');
-      return MediaService.getVideos({ formationId: id });
+      return mediaService.getMediasByType('video');
     },
     enabled: !!id,
   });
 
-  // Query for documents (using MediaService.getDocuments instead of getAstuces)
+  // Query for documents
   const { data: documents, isLoading: isLoadingDocuments } = useQuery({
     queryKey: ['formation-documents', id],
     queryFn: () => {
       if (!id) throw new Error('Formation ID is required');
-      return MediaService.getDocuments({ formationId: id });
+      return mediaService.getMediasByType('document');
     },
     enabled: !!id,
   });
@@ -197,7 +197,7 @@ export const Formation: React.FC<FormationProps> = ({ id: propId }) => {
         
         <TabPanel value={tabValue} index={1}>
           <Box sx={{ mt: 2 }}>
-            <QuizList formationId={id} />
+            <QuizList />
           </Box>
         </TabPanel>
         

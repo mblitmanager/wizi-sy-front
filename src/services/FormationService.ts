@@ -1,3 +1,4 @@
+
 import axiosInstance from './axios';
 
 const formationService = {
@@ -14,7 +15,12 @@ const formationService = {
   async getFormationProgress(id: string) {
     const response = await axiosInstance.get(`/formations/${id}/progress`);
     return response.data;
+  },
+  
+  async getFormationModules(id: string) {
+    const response = await axiosInstance.get(`/formations/${id}/modules`);
+    return response.data;
   }
 };
 
-export default formationService; 
+export default formationService;

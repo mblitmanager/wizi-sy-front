@@ -1,207 +1,175 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import {
-  Container,
-  Box,
-  Typography,
-  Button,
-  Card,
-  CardContent,
-  Divider,
-  CircularProgress,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-} from '@mui/material';
-import { CheckCircle, XCircle, Clock, Trophy, BarChart, FileText, ArrowLeft } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import quizService from '@/services/QuizService';
 
-export const QuizResults = () => {
+import React, { useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, Button, Box, Typography, Divider, List, ListItem, ListItemText, Chip } from '@mui/material';
+import { Check, X, Award, Clock, BarChart2, ChevronRight, Home } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import QuizService from '@/services/QuizService';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+
+interface QuizResultProps {}
+
+export const QuizResults: React.FC<QuizResultProps> = () => {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [result, setResult] = useState<any>(null);
+  const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
-    if (location.state?.result) {
-      setResult(location.state.result);
+    if (!isAuthenticated) {
+      navigate('/login');
     }
-  }, [location.state]);
+  }, [isAuthenticated, navigate]);
 
-  const { data: fetchedResult, isLoading } = useQuery({
+  const { data: result, isLoading } = useQuery({
     queryKey: ['quiz-result', quizId],
     queryFn: () => {
       if (!quizId) throw new Error('Quiz ID is required');
-      return quizService.getQuizResult(Number(quizId));
+      return QuizService.getQuizResult(Number(quizId));
     },
-    enabled: !!quizId && !result,
-    onSuccess: (data) => {
-      if (!result) {
-        setResult(data.data);
+    enabled: !!quizId && isAuthenticated,
+    meta: {
+      onError: (error: any) => {
+        toast({
+          title: 'Erreur',
+          description: 'Impossible de charger les résultats du quiz.',
+          variant: 'destructive'
+        });
+        console.error('Error loading quiz results:', error);
       }
-    },
+    }
   });
 
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
-
-  if (isLoading || !result) {
+  if (isLoading) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
-          <CircularProgress />
-        </Box>
-      </Container>
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+        <Typography>Chargement des résultats...</Typography>
+      </Box>
     );
   }
 
-  const score = result.score;
-  const totalQuestions = result.total_questions;
-  const correctAnswers = result.correct_answers;
-  const timeSpent = result.time_spent;
-  const questions = result.questions || [];
-
-  const scorePercentage = Math.round((score / (totalQuestions * 10)) * 100);
-  
-  const isPassing = scorePercentage >= 70;
-
-  return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
-        <Button
-          startIcon={<ArrowLeft />}
+  if (!result || !result.data) {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 4 }}>
+        <Typography variant="h6" sx={{ mb: 2 }}>Résultats non disponibles</Typography>
+        <Button 
+          variant="contained" 
           onClick={() => navigate('/quizzes')}
-          variant="outlined"
+          startIcon={<Home />}
         >
-          Retour aux quiz
-        </Button>
-        <Button
-          startIcon={<BarChart />}
-          onClick={() => navigate(`/quiz/${quizId}/statistics`)}
-          variant="outlined"
-        >
-          Statistiques
+          Retour aux quizzes
         </Button>
       </Box>
+    );
+  }
 
-      <Card variant="outlined" sx={{ mb: 4, overflow: 'hidden' }}>
-        <Box
-          sx={{
-            p: 3,
-            bgcolor: isPassing ? 'success.light' : 'warning.light',
-            color: isPassing ? 'success.contrastText' : 'warning.contrastText',
-            textAlign: 'center',
-          }}
-        >
-          <Typography variant="h5" gutterBottom>
-            {isPassing ? 'Félicitations !' : 'Vous pouvez faire mieux !'}
-          </Typography>
-          <Typography variant="body1">
-            {isPassing
-              ? 'Vous avez réussi ce quiz avec succès.'
-              : 'Continuez à vous entraîner pour améliorer votre score.'}
-          </Typography>
-        </Box>
+  const quizResult = result.data;
+  const percentageScore = Math.round((quizResult.score / quizResult.total_questions) * 100);
+  const isPassing = percentageScore >= 70;
 
+  // Format time
+  const formatTime = (timeInSeconds: number) => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    return `${minutes}m ${seconds}s`;
+  };
+
+  return (
+    <Box sx={{ maxWidth: '800px', mx: 'auto', p: 2 }}>
+      <Card sx={{ mb: 4 }}>
+        <CardHeader 
+          title="Résultats du Quiz"
+          subheader={`Vous avez complété ce quiz le ${new Date().toLocaleDateString()}`}
+        />
         <CardContent>
-          <Box
-            display="flex"
-            flexDirection={{ xs: 'column', sm: 'row' }}
-            justifyContent="space-around"
-            alignItems="center"
-            py={3}
-          >
-            <Box textAlign="center" mb={{ xs: 2, sm: 0 }}>
-              <Typography variant="h3" color="primary">
-                {score} / {totalQuestions * 10}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Points
-              </Typography>
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <Typography 
+              variant="h1" 
+              sx={{ 
+                fontSize: '4rem',
+                color: isPassing ? 'success.main' : 'error.main',
+                mb: 1
+              }}
+            >
+              {percentageScore}%
+            </Typography>
+            <Typography variant="h6">
+              {quizResult.correct_answers} sur {quizResult.total_questions} réponses correctes
+            </Typography>
+            <Box sx={{ mt: 2, mb: 2 }}>
+              <Chip 
+                icon={isPassing ? <Check /> : <X />} 
+                label={isPassing ? "Réussi" : "À revoir"} 
+                color={isPassing ? "success" : "error"} 
+                sx={{ fontWeight: 'bold' }}
+              />
             </Box>
-
-            <Divider orientation="vertical" flexItem sx={{ display: { xs: 'none', sm: 'block' } }} />
-
-            <Box textAlign="center" mb={{ xs: 2, sm: 0 }}>
-              <Typography variant="h3" color="primary">
-                {correctAnswers} / {totalQuestions}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Réponses correctes
-              </Typography>
-            </Box>
-
-            <Divider orientation="vertical" flexItem sx={{ display: { xs: 'none', sm: 'block' } }} />
-
-            <Box textAlign="center">
-              <Typography variant="h3" color="primary">
-                {formatTime(timeSpent)}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Temps
-              </Typography>
-            </Box>
+          </Box>
+          
+          <Divider sx={{ my: 2 }} />
+          
+          <List>
+            <ListItem>
+              <ListItemText 
+                primary="Score total" 
+                secondary={`${quizResult.score} points`} 
+                primaryTypographyProps={{
+                  sx: { display: 'flex', alignItems: 'center' }
+                }}
+                secondaryTypographyProps={{
+                  sx: { fontWeight: 'bold' }
+                }}
+                sx={{ display: 'flex' }}
+              />
+              <Award />
+            </ListItem>
+            <ListItem>
+              <ListItemText 
+                primary="Temps utilisé" 
+                secondary={formatTime(quizResult.time_spent)} 
+                primaryTypographyProps={{
+                  sx: { display: 'flex', alignItems: 'center' }
+                }}
+                secondaryTypographyProps={{
+                  sx: { fontWeight: 'bold' }
+                }}
+              />
+              <Clock />
+            </ListItem>
+            <ListItem>
+              <ListItemText 
+                primary="Performance" 
+                secondary={`${isPassing ? 'Excellente' : 'À améliorer'}`} 
+                primaryTypographyProps={{
+                  sx: { display: 'flex', alignItems: 'center' }
+                }}
+                secondaryTypographyProps={{
+                  sx: { fontWeight: 'bold', color: isPassing ? 'success.main' : 'error.main' }
+                }}
+              />
+              <BarChart2 />
+            </ListItem>
+          </List>
+          
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+            <Button 
+              variant="outlined"
+              onClick={() => navigate('/quizzes')}
+              startIcon={<Home />}
+            >
+              Retour aux quizzes
+            </Button>
+            <Button 
+              variant="contained"
+              onClick={() => navigate(`/quiz/${quizId}/review`)}
+              endIcon={<ChevronRight />}
+            >
+              Revoir les questions
+            </Button>
           </Box>
         </CardContent>
       </Card>
-
-      <Typography variant="h6" gutterBottom>
-        Résumé des réponses
-      </Typography>
-
-      <List sx={{ mb: 4 }}>
-        {questions.map((question: any) => (
-          <ListItem
-            key={question.id}
-            sx={{
-              mb: 2,
-              border: '1px solid',
-              borderColor: 'divider',
-              borderRadius: 1,
-              p: 2,
-              bgcolor: question.is_correct ? 'success.light' : 'error.light',
-              color: question.is_correct ? 'success.contrastText' : 'error.contrastText',
-            }}
-          >
-            <ListItemIcon>
-              {question.is_correct ? (
-                <CheckCircle color="success" />
-              ) : (
-                <XCircle color="error" />
-              )}
-            </ListItemIcon>
-            <ListItemText
-              primary={question.text}
-              secondary={
-                !question.is_correct && question.explication ? (
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    Explication: {question.explication}
-                  </Typography>
-                ) : null
-              }
-            />
-          </ListItem>
-        ))}
-      </List>
-
-      <Box display="flex" justifyContent="space-between" mt={4}>
-        <Button variant="outlined" onClick={() => navigate('/quizzes')}>
-          Retour aux quiz
-        </Button>
-        <Button
-          variant="contained"
-          startIcon={<Trophy />}
-          color="primary"
-          onClick={() => navigate(`/quiz/${quizId}/retry`)}
-        >
-          Réessayer
-        </Button>
-      </Box>
-    </Container>
+    </Box>
   );
 };
