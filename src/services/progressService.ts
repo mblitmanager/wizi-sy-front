@@ -8,7 +8,7 @@ export const progressService = {
   },
 
   getLeaderboard: async (): Promise<LeaderboardEntry[]> => {
-    const response = await api.get<LeaderboardEntry[]>('/stagiaire/ranking/global');
+    const response = await api.get<LeaderboardEntry[]>('/quiz/classement/global');
     return response.data;
   },
 }; 
