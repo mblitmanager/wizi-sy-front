@@ -3,6 +3,7 @@ import apiClient from '@/lib/api-client';
 import type { Quiz, QuizHistory, QuizStats } from '@/types/quiz';
 import { quizFormatterService } from './QuizFormatterService';
 import { categoryService } from '../CategoryService';
+import { quizAnswerService } from '../submission/QuizAnswerService';
 
 export class QuizFetchService {
   async getQuizzesByCategory(categoryId: string): Promise<Quiz[]> {
@@ -23,7 +24,30 @@ export class QuizFetchService {
       console.log('Fetching quiz with ID:', quizId);
       const response = await apiClient.get(`/quiz/${quizId}`);
       console.log('Quiz response:', response.data);
-      const formattedQuiz = await quizFormatterService.formatQuiz(response.data);
+      
+      // Obtenir les questions directement de l'API
+      let questions = [];
+      try {
+        // Essayer de récupérer des questions détaillées via l'endpoint des questions
+        const questionsResponse = await apiClient.get(`/quiz/${quizId}/questions`);
+        if (questionsResponse.data && questionsResponse.data.data) {
+          questions = questionsResponse.data.data.map((q: any) => 
+            quizAnswerService['formatQuestion'](q)
+          );
+        }
+      } catch (err) {
+        console.log('Could not fetch detailed questions, using quiz questions:', err);
+        questions = response.data.questions || [];
+      }
+      
+      // Formater le quiz avec les questions détaillées
+      const quizData = response.data;
+      const formattedQuiz = {
+        ...quizData,
+        id: String(quizData.id),
+        questions: questions.length > 0 ? questions : quizData.questions || []
+      };
+      
       console.log('Formatted quiz:', formattedQuiz);
       return formattedQuiz;
     } catch (error) {

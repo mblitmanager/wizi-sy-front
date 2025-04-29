@@ -6,6 +6,7 @@ import {
   DialogHeader
 } from "@/components/ui/dialog";
 import { formatTime } from "@/lib/utils";
+import { QuizStats } from "@/types/quiz";
 
 interface QuizStatsDialogProps {
   open: boolean;
@@ -17,52 +18,72 @@ interface QuizStatsDialogProps {
       time_spent?: number;
     };
     success_rate?: number | null;
-  };
+  } | QuizStats;
 }
 
 export function QuizStatsDialog({ open, onClose, stats }: QuizStatsDialogProps) {
+  // Vérifier si stats est au format QuizStats ou au format personnalisé
+  const isCustomFormat = 'average_score' in stats;
+  
+  // Récupérer les valeurs selon le format
+  const averageScore = isCustomFormat 
+    ? stats.average_score 
+    : 'averageScore' in stats ? stats.averageScore : undefined;
+  
+  const averageTime = isCustomFormat 
+    ? stats.average_time 
+    : 'averageTimeSpent' in stats ? stats.averageTimeSpent : undefined;
+  
+  const lastAttemptTime = isCustomFormat && stats.last_attempt 
+    ? stats.last_attempt.time_spent 
+    : undefined;
+  
+  const successRate = isCustomFormat 
+    ? stats.success_rate 
+    : 'completedQuizzes' in stats && stats.totalQuizzes > 0 
+      ? Math.round((stats.completedQuizzes / stats.totalQuizzes) * 100) 
+      : undefined;
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Statistiques du Quiz</DialogTitle>
         </DialogHeader>
-        {stats && (
-          <div className="space-y-4">
-            <div className="grid gap-2">
-              <div className="flex justify-between">
-                <span>Moyenne des scores:</span>
-                <span className="font-semibold">{typeof stats.average_score !== 'undefined' ? `${stats.average_score}%` : '-'}</span>
-              </div>
-              {typeof stats.average_time !== 'undefined' && stats.average_time !== null ? (
-                <div className="flex justify-between">
-                  <span>Temps moyen:</span>
-                  <span className="font-semibold">{formatTime(stats.average_time)}</span>
-                </div>
-              ) : (
-                <div className="flex justify-between">
-                  <span>Temps moyen:</span>
-                  <span className="font-semibold text-muted-foreground">Non disponible</span>
-                </div>
-              )}
-              <div className="flex justify-between">
-                <span>Temps du dernier essai:</span>
-                <span className="font-semibold">{stats.last_attempt?.time_spent ? formatTime(stats.last_attempt.time_spent) : "-"}</span>
-              </div>
-              {typeof stats.success_rate !== 'undefined' && stats.success_rate !== null ? (
-                <div className="flex justify-between">
-                  <span>Taux de réussite:</span>
-                  <span className="font-semibold">{stats.success_rate}%</span>
-                </div>
-              ) : (
-                <div className="flex justify-between">
-                  <span>Taux de réussite:</span>
-                  <span className="font-semibold text-muted-foreground">Non disponible</span>
-                </div>
-              )}
+        <div className="space-y-4">
+          <div className="grid gap-2">
+            <div className="flex justify-between">
+              <span>Moyenne des scores:</span>
+              <span className="font-semibold">{typeof averageScore !== 'undefined' ? `${averageScore}%` : '-'}</span>
             </div>
+            {typeof averageTime !== 'undefined' && averageTime !== null ? (
+              <div className="flex justify-between">
+                <span>Temps moyen:</span>
+                <span className="font-semibold">{formatTime(averageTime)}</span>
+              </div>
+            ) : (
+              <div className="flex justify-between">
+                <span>Temps moyen:</span>
+                <span className="font-semibold text-muted-foreground">Non disponible</span>
+              </div>
+            )}
+            <div className="flex justify-between">
+              <span>Temps du dernier essai:</span>
+              <span className="font-semibold">{lastAttemptTime ? formatTime(lastAttemptTime) : "-"}</span>
+            </div>
+            {typeof successRate !== 'undefined' && successRate !== null ? (
+              <div className="flex justify-between">
+                <span>Taux de réussite:</span>
+                <span className="font-semibold">{successRate}%</span>
+              </div>
+            ) : (
+              <div className="flex justify-between">
+                <span>Taux de réussite:</span>
+                <span className="font-semibold text-muted-foreground">Non disponible</span>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </DialogContent>
     </Dialog>
   );

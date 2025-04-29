@@ -33,23 +33,30 @@ export function QuestionDisplay({ question, onAnswer, currentAnswer, showFeedbac
     questionType.includes('audio') ? 'question audio' :
     question.type;
   
+  // Préparer les props communs pour tous les composants de question
+  const commonProps = {
+    question,
+    onAnswer,
+    showFeedback
+  };
+
   switch (normalizedType) {
     case 'choix multiples':
-      return <MultipleChoice question={question} onAnswer={onAnswer} currentAnswer={currentAnswer} showFeedback={showFeedback} />;
+      return <MultipleChoice {...commonProps} />;
     case 'vrai/faux':
-      return <TrueFalse question={question} onAnswer={onAnswer} showFeedback={showFeedback} />;
+      return <TrueFalse {...commonProps} />;
     case 'rearrangement':
-      return <Ordering question={question} onAnswer={onAnswer} showFeedback={showFeedback} />;
+      return <Ordering {...commonProps} />;
     case 'remplir le champ vide':
-      return <FillBlank question={question} onAnswer={onAnswer} showFeedback={showFeedback} />;
+      return <FillBlank {...commonProps} />;
     case 'banque de mots':
-      return <WordBank question={question} onAnswer={onAnswer} showFeedback={showFeedback} />;
+      return <WordBank {...commonProps} />;
     case 'carte flash':
-      return <Flashcard question={question} onAnswer={onAnswer} showFeedback={showFeedback} />;
+      return <Flashcard {...commonProps} />;
     case 'correspondance':
-      return <Matching question={question} onAnswer={onAnswer} showFeedback={showFeedback} />;
+      return <Matching {...commonProps} />;
     case 'question audio':
-      return <AudioQuestion question={question} onAnswer={onAnswer} showFeedback={showFeedback} />;
+      return <AudioQuestion {...commonProps} />;
     default:
       return (
         <Alert variant="destructive">
