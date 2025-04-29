@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { FormControl, FormLabel, TextField, Box, Typography } from '@mui/material';
 import { Question } from '@/types/quiz';
@@ -30,13 +29,9 @@ export function FillBlank({ question, onAnswer, showFeedback = false }: FillBlan
   // Initialize answers from any existing selected answers
   useEffect(() => {
     if (question.selectedAnswers && typeof question.selectedAnswers === 'object' && !Array.isArray(question.selectedAnswers)) {
-      // Create a new object to store the answers
       const initialAnswers: Record<string, string> = {};
-      
-      // Safely handle the type casting
       const selectedAnswers = question.selectedAnswers as Record<string, string>;
       
-      // Copy the values
       Object.keys(selectedAnswers).forEach(key => {
         initialAnswers[key] = selectedAnswers[key];
       });
@@ -58,9 +53,9 @@ export function FillBlank({ question, onAnswer, showFeedback = false }: FillBlan
     return parts.map((part, index) => {
       if (part.match(/^{.*}$/)) {
         const blankId = part.substring(1, part.length - 1);
-        const correctAnswer = question.answers?.find(a => a.bank_group === blankId)?.text;
-        const isCorrect = showFeedback && answers[blankId] === correctAnswer;
-        const isIncorrect = showFeedback && answers[blankId] && answers[blankId] !== correctAnswer;
+        const correctAnswer = question.reponses?.find(a => a.text === blankId)?.text;
+        const isCorrect = showFeedback && answers[blankId]?.toLowerCase().trim() === correctAnswer?.toLowerCase().trim();
+        const isIncorrect = showFeedback && answers[blankId] && !isCorrect;
         
         return (
           <TextField
@@ -88,9 +83,9 @@ export function FillBlank({ question, onAnswer, showFeedback = false }: FillBlan
     if (!showFeedback) return null;
     
     return blanks.map(blankId => {
-      const correctAnswer = question.answers?.find(a => a.bank_group === blankId)?.text;
+      const correctAnswer = question.reponses?.find(a => a.text === blankId)?.text;
       const userAnswer = answers[blankId];
-      const isCorrect = userAnswer === correctAnswer;
+      const isCorrect = userAnswer?.toLowerCase().trim() === correctAnswer?.toLowerCase().trim();
       
       if (!isCorrect && correctAnswer) {
         return (

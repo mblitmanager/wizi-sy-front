@@ -489,7 +489,7 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
           Retour à la liste des quiz
         </Button>
         <Button onClick={() => navigate(`/quiz/${quiz.id}`)}>
-          Détails du quiz
+          Recommencer
         </Button>
       </div>
     </div>

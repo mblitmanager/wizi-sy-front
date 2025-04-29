@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   List,
@@ -24,22 +23,17 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
 }));
 
-// Create a properly typed styled component for ListItem
-interface StyledListItemProps {
-  $isDragging: boolean;  // Use $ prefix to avoid DOM attribute warnings
-}
-
-const StyledListItem = styled(ListItem)<StyledListItemProps>(({ theme, $isDragging }) => ({
+const StyledListItem = styled(ListItem)<{ isDragging: boolean }>(({ theme, isDragging }) => ({
   marginBottom: theme.spacing(1),
   padding: theme.spacing(2),
-  backgroundColor: $isDragging ? theme.palette.action.hover : theme.palette.background.paper,
+  backgroundColor: isDragging ? theme.palette.action.hover : theme.palette.background.paper,
   borderRadius: theme.shape.borderRadius,
   border: `1px solid ${theme.palette.divider}`,
   '&:hover': {
     backgroundColor: theme.palette.action.hover,
   },
   transition: theme.transitions.create(['background-color', 'box-shadow']),
-  ...($isDragging && {
+  ...(isDragging && {
     boxShadow: theme.shadows[3],
   }),
 }));
@@ -52,17 +46,13 @@ export const Ordering: React.FC<OrderingProps> = ({
   const [orderedAnswers, setOrderedAnswers] = useState<any[]>([]);
 
   useEffect(() => {
-    // Initialize answers from the question
     if (question.reponses && question.reponses.length > 0) {
-      // For initial display or when showFeedback is true, use the sorted list
       if (showFeedback) {
         const sorted = [...question.reponses].sort((a, b) => 
           (a.position || 0) - (b.position || 0)
         );
         setOrderedAnswers(sorted);
-      }
-      // For normal display, shuffle the answers
-      else {
+      } else {
         const shuffled = [...question.reponses].sort(() => Math.random() - 0.5);
         setOrderedAnswers(shuffled);
       }
@@ -77,10 +67,10 @@ export const Ordering: React.FC<OrderingProps> = ({
     items.splice(result.destination.index, 0, reorderedItem);
 
     setOrderedAnswers(items);
-    onAnswer(items.map(item => item.id));
+    onAnswer(items.map(item => item.text));
   };
 
-  const isCorrectPosition = (answer: { id: string; position?: number }, index: number) => {
+  const isCorrectPosition = (answer: { text: string; position?: number }, index: number) => {
     if (!showFeedback) return undefined;
     return answer.position === index + 1;
   };
@@ -88,7 +78,7 @@ export const Ordering: React.FC<OrderingProps> = ({
   return (
     <StyledPaper>
       <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="answers">
+        <Droppable droppableId={`ordering-${question.id}`}>
           {(provided) => (
             <List
               {...provided.droppableProps}
@@ -99,8 +89,8 @@ export const Ordering: React.FC<OrderingProps> = ({
                 const isCorrect = isCorrectPosition(answer, index);
                 return (
                   <Draggable
-                    key={String(answer.id)}
-                    draggableId={String(answer.id)}
+                    key={answer.text}
+                    draggableId={answer.text}
                     index={index}
                     isDragDisabled={showFeedback}
                   >
@@ -108,7 +98,7 @@ export const Ordering: React.FC<OrderingProps> = ({
                       <StyledListItem
                         ref={provided.innerRef}
                         {...provided.draggableProps}
-                        $isDragging={snapshot.isDragging}
+                        isDragging={snapshot.isDragging}
                       >
                         <ListItemIcon
                           {...provided.dragHandleProps}
@@ -156,7 +146,7 @@ export const Ordering: React.FC<OrderingProps> = ({
                 .slice()
                 .sort((a, b) => (a.position || 0) - (b.position || 0))
                 .map((answer, index) => (
-                  <Box key={answer.id} sx={{ ml: 2, mt: 1 }}>
+                  <Box key={answer.text} sx={{ ml: 2, mt: 1 }}>
                     {index + 1}. {answer.text}
                   </Box>
                 ))}

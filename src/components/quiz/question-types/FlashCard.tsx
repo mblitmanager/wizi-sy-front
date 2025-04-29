@@ -18,7 +18,6 @@ export function Flashcard({ question, onAnswer, showFeedback = false }: Flashcar
   const [shuffledAnswers, setShuffledAnswers] = useState<Answer[]>([]);
 
   useEffect(() => {
-    // Shuffle the reponses array
     const answers = (question.reponses || []).slice().sort(() => Math.random() - 0.5);
     setShuffledAnswers(answers);
   }, [question.reponses]);
@@ -44,7 +43,6 @@ export function Flashcard({ question, onAnswer, showFeedback = false }: Flashcar
     onAnswer(answerObj.text);
   };
 
-  // Find the correct answer for the back of the flashcard
   const correctAnswer = question.reponses?.find(r => r.is_correct === 1 || r.is_correct === true);
 
   return (
@@ -130,7 +128,7 @@ export function Flashcard({ question, onAnswer, showFeedback = false }: Flashcar
           <div className="grid grid-cols-2 gap-4">
             {shuffledAnswers.map((answer) => (
               <button
-                key={answer.id}
+                key={answer.text}
                 onClick={() => handleAnswer(answer)}
                 className="px-4 py-2 border rounded-lg hover:bg-gray-50 transition-all duration-300 hover:scale-105"
               >

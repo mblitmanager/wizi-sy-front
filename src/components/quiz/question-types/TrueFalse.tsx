@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -37,9 +36,9 @@ export const TrueFalse: React.FC<TrueFalseProps> = ({
     onAnswer(value); // Send string ID as response
   };
 
-  const isCorrectAnswer = (answerId: string) => {
+  const isCorrectAnswer = (answerText: string) => {
     if (!showFeedback) return undefined;
-    const answer = question.answers?.find(a => a.id === answerId);
+    const answer = question.reponses?.find(a => a.text === answerText);
     return answer?.isCorrect || answer?.is_correct === 1;
   };
 
@@ -51,14 +50,14 @@ export const TrueFalse: React.FC<TrueFalseProps> = ({
           onValueChange={handleAnswerSelect}
           className="space-y-3"
         >
-          {question.answers?.map((answer) => {
-            const isSelected = selectedAnswer === answer.id;
-            const isCorrect = isCorrectAnswer(answer.id);
+          {question.reponses?.map((answer) => {
+            const isSelected = selectedAnswer === answer.text;
+            const isCorrect = isCorrectAnswer(answer.text);
             const showCorrectIndicator = showFeedback && (isSelected || isCorrect);
 
             return (
               <div 
-                key={answer.id} 
+                key={answer.text} 
                 className={cn(
                   "flex items-center space-x-2 rounded-lg border p-4 hover:bg-accent transition-colors",
                   isSelected && !showFeedback && "bg-accent",
@@ -68,12 +67,12 @@ export const TrueFalse: React.FC<TrueFalseProps> = ({
                 )}
               >
                 <RadioGroupItem 
-                  value={answer.id} 
-                  id={`answer-${answer.id}`} 
+                  value={answer.text} 
+                  id={`answer-${answer.text}`} 
                   disabled={showFeedback}
                 />
                 <Label 
-                  htmlFor={`answer-${answer.id}`}
+                  htmlFor={`answer-${answer.text}`}
                   className="flex-grow cursor-pointer text-base"
                 >
                   {answer.text}
@@ -98,7 +97,7 @@ export const TrueFalse: React.FC<TrueFalseProps> = ({
               <p className="text-green-600 font-medium">Bonne réponse !</p>
             ) : (
               <p className="text-red-600 font-medium">
-                Réponse incorrecte. La bonne réponse était : {question.answers?.find(a => a.isCorrect || a.is_correct === 1)?.text}
+                Réponse incorrecte. La bonne réponse était : {question.reponses?.find(a => a.isCorrect || a.is_correct === 1)?.text}
               </p>
             )}
           </div>
