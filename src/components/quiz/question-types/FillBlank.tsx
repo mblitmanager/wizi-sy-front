@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { FormControl, FormLabel, TextField, Box, Typography } from '@mui/material';
-import { Question } from '@/types/quiz';
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Check, X } from 'lucide-react';
+import { Question as QuizQuestion } from '@/types/quiz';
+import { cn } from "@/lib/utils";
 
 interface FillBlankProps {
-  question: Question;
+  question: QuizQuestion;
   onAnswer: (answer: Record<string, string>) => void;
   showFeedback?: boolean;
 }
@@ -46,6 +50,16 @@ export function FillBlank({ question, onAnswer, showFeedback = false }: FillBlan
     onAnswer(newAnswers);
   };
 
+  const isCorrectAnswer = (blankId: string, userAnswer: string) => {
+    if (!showFeedback) return undefined;
+    const correctAnswer = question.reponses?.find(a => a.text === blankId)?.text;
+    return userAnswer?.toLowerCase().trim() === correctAnswer?.toLowerCase().trim();
+  };
+
+  const getCorrectAnswer = (blankId: string) => {
+    return question.reponses?.find(a => a.text === blankId)?.text || '';
+  };
+
   // Replace blanks in question text with input fields
   const renderQuestionWithInputs = () => {
     let parts = question.text.split(/({.*?})/g);
@@ -53,59 +67,64 @@ export function FillBlank({ question, onAnswer, showFeedback = false }: FillBlan
     return parts.map((part, index) => {
       if (part.match(/^{.*}$/)) {
         const blankId = part.substring(1, part.length - 1);
-        const correctAnswer = question.reponses?.find(a => a.text === blankId)?.text;
-        const isCorrect = showFeedback && answers[blankId]?.toLowerCase().trim() === correctAnswer?.toLowerCase().trim();
-        const isIncorrect = showFeedback && answers[blankId] && !isCorrect;
+        const userAnswer = answers[blankId] || '';
+        const isCorrect = isCorrectAnswer(blankId, userAnswer);
         
         return (
-          <TextField
-            key={index}
-            value={answers[blankId] || ''}
-            onChange={(e) => handleChange(blankId, e.target.value)}
-            variant="outlined"
-            size="small"
-            disabled={showFeedback}
-            error={isIncorrect}
-            sx={{
-              mx: 1,
-              width: '150px',
-              bgcolor: isCorrect ? 'rgba(0, 200, 0, 0.1)' : 'transparent',
-            }}
-          />
+          <div key={index} className="inline-flex items-center gap-2">
+            <Input
+              value={userAnswer}
+              onChange={(e) => handleChange(blankId, e.target.value)}
+              disabled={showFeedback}
+              className={cn(
+                "w-32",
+                showFeedback && isCorrect && "bg-green-50 border-green-200",
+                showFeedback && !isCorrect && userAnswer && "bg-red-50 border-red-200"
+              )}
+            />
+            {showFeedback && userAnswer && (
+              <span className="flex items-center">
+                {isCorrect ? (
+                  <Check className="h-5 w-5 text-green-600" />
+                ) : (
+                  <X className="h-5 w-5 text-red-600" />
+                )}
+              </span>
+            )}
+          </div>
         );
       }
       return <span key={index}>{part}</span>;
     });
   };
 
-  // Show feedback
-  const renderFeedback = () => {
-    if (!showFeedback) return null;
-    
-    return blanks.map(blankId => {
-      const correctAnswer = question.reponses?.find(a => a.text === blankId)?.text;
-      const userAnswer = answers[blankId];
-      const isCorrect = userAnswer?.toLowerCase().trim() === correctAnswer?.toLowerCase().trim();
-      
-      if (!isCorrect && correctAnswer) {
-        return (
-          <Typography key={blankId} color="error" sx={{ mt: 2 }}>
-            Pour {blankId}, la réponse correcte était: <strong>{correctAnswer}</strong>
-          </Typography>
-        );
-      }
-      return null;
-    });
-  };
-
   return (
-    <Box sx={{ p: 3 }}>
-      <FormControl fullWidth>
-        <FormLabel component="legend" sx={{ mb: 2 }}>
-          {renderQuestionWithInputs()}
-        </FormLabel>
-        {renderFeedback()}
-      </FormControl>
-    </Box>
+    <Card className="border-0 shadow-none">
+      <CardContent className="pt-4 px-2 md:px-6">
+        <div className="space-y-4">
+          <div className="text-base">
+            {renderQuestionWithInputs()}
+          </div>
+
+          {showFeedback && (
+            <div className="space-y-2">
+              {blanks.map(blankId => {
+                const userAnswer = answers[blankId];
+                const isCorrect = isCorrectAnswer(blankId, userAnswer || '');
+                
+                if (!isCorrect && userAnswer) {
+                  return (
+                    <div key={blankId} className="text-sm text-red-600">
+                      Pour {blankId}, la réponse correcte était: <strong>{getCorrectAnswer(blankId)}</strong>
+                    </div>
+                  );
+                }
+                return null;
+              })}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Check, X } from 'lucide-react';
 import { Question as QuizQuestion } from '@/types/quiz';
@@ -32,8 +32,9 @@ export const TrueFalse: React.FC<TrueFalseProps> = ({
   }, [question.selectedAnswers]);
 
   const handleAnswerSelect = (value: string) => {
+    if (showFeedback) return;
     setSelectedAnswer(value);
-    onAnswer(value); // Send string ID as response
+    onAnswer(value);
   };
 
   const isCorrectAnswer = (answerText: string) => {
@@ -42,15 +43,24 @@ export const TrueFalse: React.FC<TrueFalseProps> = ({
     return answer?.isCorrect || answer?.is_correct === 1;
   };
 
+  const getCorrectAnswer = () => {
+    return question.reponses?.find(a => a.isCorrect || a.is_correct === 1)?.text || '';
+  };
+
+  // Sort responses to ensure consistent order (True/Yes first, then False/No)
+  const sortedResponses = question.reponses?.sort((a, b) => {
+    const aText = a.text.toLowerCase();
+    const bText = b.text.toLowerCase();
+    if (aText === 'oui' || aText === 'vrai' || aText === 'true' || aText === 'yes') return -1;
+    if (bText === 'oui' || bText === 'vrai' || bText === 'true' || bText === 'yes') return 1;
+    return 0;
+  });
+
   return (
     <Card className="border-0 shadow-none">
       <CardContent className="pt-4 px-2 md:px-6">
-        <RadioGroup 
-          value={selectedAnswer || ''} 
-          onValueChange={handleAnswerSelect}
-          className="space-y-3"
-        >
-          {question.reponses?.map((answer) => {
+        <div className="space-y-3">
+          {sortedResponses?.map((answer) => {
             const isSelected = selectedAnswer === answer.text;
             const isCorrect = isCorrectAnswer(answer.text);
             const showCorrectIndicator = showFeedback && (isSelected || isCorrect);
@@ -66,9 +76,10 @@ export const TrueFalse: React.FC<TrueFalseProps> = ({
                   showFeedback && !isSelected && isCorrect && "bg-green-50 border-green-200"
                 )}
               >
-                <RadioGroupItem 
-                  value={answer.text} 
-                  id={`answer-${answer.text}`} 
+                <Checkbox
+                  id={`answer-${answer.text}`}
+                  checked={isSelected}
+                  onCheckedChange={() => handleAnswerSelect(answer.text)}
                   disabled={showFeedback}
                 />
                 <Label 
@@ -89,15 +100,15 @@ export const TrueFalse: React.FC<TrueFalseProps> = ({
               </div>
             );
           })}
-        </RadioGroup>
+        </div>
 
-        {showFeedback && selectedAnswer && (
+        {showFeedback && (
           <div className="mt-4 text-sm text-muted-foreground">
-            {isCorrectAnswer(selectedAnswer) ? (
+            {isCorrectAnswer(selectedAnswer || '') ? (
               <p className="text-green-600 font-medium">Bonne réponse !</p>
             ) : (
               <p className="text-red-600 font-medium">
-                Réponse incorrecte. La bonne réponse était : {question.reponses?.find(a => a.isCorrect || a.is_correct === 1)?.text}
+                Réponse incorrecte. La bonne réponse était : {getCorrectAnswer()}
               </p>
             )}
           </div>

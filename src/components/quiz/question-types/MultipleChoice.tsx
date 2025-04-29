@@ -1,22 +1,14 @@
-import React, { useState } from 'react';
-import {
-  FormControl,
-  FormLabel,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  Checkbox,
-  FormGroup,
-  Box,
-  Typography,
-  Button,
-  Paper,
-} from '@mui/material';
-import { CheckCircle, XCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Check, X } from 'lucide-react';
+import { Question as QuizQuestion } from '@/types/quiz';
+import { cn } from "@/lib/utils";
 
 interface MultipleChoiceProps {
-  question: any;
-  onAnswer: (selectedAnswers: string[]) => void;
+  question: QuizQuestion;
+  onAnswer: (answers: string[]) => void;
   showFeedback?: boolean;
 }
 
@@ -26,158 +18,119 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
   showFeedback = false,
 }) => {
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
-  const [submitted, setSubmitted] = useState(false);
 
-  const isMultipleAnswers = question.reponses?.filter((r: any) => r.isCorrect || r.is_correct === 1).length > 1;
+  // Initialize from existing answers if available
+  useEffect(() => {
+    if (question.selectedAnswers) {
+      if (Array.isArray(question.selectedAnswers)) {
+        setSelectedAnswers(question.selectedAnswers);
+      } else if (typeof question.selectedAnswers === 'string') {
+        setSelectedAnswers([question.selectedAnswers]);
+      }
+    }
+  }, [question.selectedAnswers]);
 
-  const handleSingleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setSelectedAnswers([value]);
-    onAnswer([value]);
-    setSubmitted(true);
-  };
+  const handleAnswerSelect = (answerId: string) => {
+    if (showFeedback) return;
 
-  const handleMultipleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    const newSelected = [...selectedAnswers];
-
-    if (newSelected.includes(value)) {
-      setSelectedAnswers(newSelected.filter((id) => id !== value));
-    } else {
-      newSelected.push(value);
+    const isMultipleAnswers = question.reponses?.filter(r => r.isCorrect || r.is_correct === 1).length > 1;
+    
+    if (isMultipleAnswers) {
+      // Toggle selection for multiple choice
+      const newSelected = selectedAnswers.includes(answerId)
+        ? selectedAnswers.filter(id => id !== answerId)
+        : [...selectedAnswers, answerId];
       setSelectedAnswers(newSelected);
+      onAnswer(newSelected);
+    } else {
+      // Single choice - replace selection
+      setSelectedAnswers([answerId]);
+      onAnswer([answerId]);
     }
   };
 
-  const handleSubmitMultiple = () => {
-    onAnswer(selectedAnswers);
-    setSubmitted(true);
+  const isCorrectAnswer = (answerId: string) => {
+    if (!showFeedback) return undefined;
+    const answer = question.reponses?.find(a => a.id === answerId);
+    return answer?.isCorrect || answer?.is_correct === 1;
   };
 
-  const getCorrectAnswers = () => {
-    return question.reponses
-      .filter((r: any) => r.is_correct === 1)
-      .map((r: any) => r.id.toString());
+  const isSelectedAnswerCorrect = (answerId: string) => {
+    if (!showFeedback) return undefined;
+    const isSelected = selectedAnswers.includes(answerId);
+    const isCorrect = isCorrectAnswer(answerId);
+    return isSelected && isCorrect;
   };
 
-  const isCorrect = () => {
-    const correctAnswers = getCorrectAnswers();
-    if (correctAnswers.length !== selectedAnswers.length) return false;
-    return correctAnswers.every((id) => selectedAnswers.includes(id.toString()));
+  const isSelectedAnswerIncorrect = (answerId: string) => {
+    if (!showFeedback) return undefined;
+    const isSelected = selectedAnswers.includes(answerId);
+    const isCorrect = isCorrectAnswer(answerId);
+    return isSelected && !isCorrect;
   };
 
-  if (isMultipleAnswers) {
-    return (
-      <Box>
-        <FormControl component="fieldset" sx={{ width: '100%' }}>
-          <FormGroup>
-            {question.reponses?.map((reponse: any) => (
-              <FormControlLabel
-                key={reponse.id}
-                control={
-                  <Checkbox
-                    checked={selectedAnswers.includes(reponse.id.toString())}
-                    onChange={handleMultipleChange}
-                    value={reponse.id.toString()}
-                  />
-                }
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography>{reponse.text}</Typography>
-                    {submitted && showFeedback && (
-                      <>
-                        {(reponse.isCorrect || reponse.is_correct === 1) && (
-                          <CheckCircle color="success" size={18} />
-                        )}
-                        {!(reponse.isCorrect || reponse.is_correct === 1) &&
-                          selectedAnswers.includes(reponse.id.toString()) && (
-                            <XCircle color="error" size={18} />
-                          )}
-                      </>
+  return (
+    <Card className="border-0 shadow-none">
+      <CardContent className="pt-4 px-2 md:px-6">
+        <div className="space-y-3">
+          {question.reponses?.map((answer) => {
+            const isSelected = selectedAnswers.includes(answer.id);
+            const isCorrect = isCorrectAnswer(answer.id);
+            const showCorrectIndicator = showFeedback && (isSelected || isCorrect);
+
+            return (
+              <div 
+                key={answer.id} 
+                className={cn(
+                  "flex items-center space-x-2 rounded-lg border p-4 hover:bg-accent transition-colors",
+                  isSelected && !showFeedback && "bg-accent",
+                  showFeedback && isSelected && isCorrect && "bg-green-50 border-green-200",
+                  showFeedback && isSelected && !isCorrect && "bg-red-50 border-red-200",
+                  showFeedback && !isSelected && isCorrect && "bg-green-50 border-green-200"
+                )}
+              >
+                <Checkbox
+                  id={`answer-${answer.id}`}
+                  checked={isSelected}
+                  onCheckedChange={() => handleAnswerSelect(answer.id)}
+                  disabled={showFeedback}
+                />
+                <Label 
+                  htmlFor={`answer-${answer.id}`}
+                  className="flex-grow cursor-pointer text-base"
+                >
+                  {answer.text}
+                </Label>
+                {showCorrectIndicator && (
+                  <span className="flex items-center">
+                    {isCorrect ? (
+                      <Check className="h-5 w-5 text-green-600" />
+                    ) : (
+                      <X className="h-5 w-5 text-red-600" />
                     )}
-                  </Box>
-                }
-                sx={{
-                  marginY: 1,
-                  padding: 1,
-                  borderRadius: 1,
-                  '&:hover': {
-                    backgroundColor: 'action.hover',
-                  },
-                }}
-              />
-            ))}
-          </FormGroup>
-          {!submitted && (
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSubmitMultiple}
-              sx={{ marginTop: 2 }}
-            >
-              Valider
-            </Button>
-          )}
-        </FormControl>
-        {submitted && showFeedback && (
-          <Box mt={2} p={2} bgcolor={isCorrect() ? 'success.light' : 'error.light'} borderRadius={1}>
-            <Typography color={isCorrect() ? 'success.contrastText' : 'error.contrastText'}>
-              {isCorrect() ? 'Bonne réponse !' : 'Réponse incorrecte.'}
-            </Typography>
-          </Box>
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {showFeedback && (
+          <div className="mt-4 text-sm text-muted-foreground">
+            {selectedAnswers.every(id => isCorrectAnswer(id)) ? (
+              <p className="text-green-600 font-medium">Bonne réponse !</p>
+            ) : (
+              <p className="text-red-600 font-medium">
+                Réponse incorrecte. Les bonnes réponses étaient:{" "}
+                {question.reponses
+                  ?.filter(a => a.isCorrect || a.is_correct === 1)
+                  .map(a => a.text)
+                  .join(", ")}
+              </p>
+            )}
+          </div>
         )}
-      </Box>
-    );
-  } else {
-    return (
-      <Box>
-        <FormControl component="fieldset" sx={{ width: '100%' }}>
-          <RadioGroup
-            value={selectedAnswers[0] || ''}
-            onChange={handleSingleChange}
-            sx={{ width: '100%' }}
-          >
-            {question.reponses?.map((reponse: any) => (
-              <FormControlLabel
-                key={reponse.id}
-                value={reponse.id.toString()}
-                control={<Radio />}
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography>{reponse.text}</Typography>
-                    {submitted && showFeedback && (
-                      <>
-                        {(reponse.isCorrect || reponse.is_correct === 1) && (
-                          <CheckCircle color="success" size={18} />
-                        )}
-                        {!(reponse.isCorrect || reponse.is_correct === 1) &&
-                          selectedAnswers.includes(reponse.id.toString()) && (
-                            <XCircle color="error" size={18} />
-                          )}
-                      </>
-                    )}
-                  </Box>
-                }
-                sx={{
-                  marginY: 1,
-                  padding: 1,
-                  borderRadius: 1,
-                  '&:hover': {
-                    backgroundColor: 'action.hover',
-                  },
-                }}
-              />
-            ))}
-          </RadioGroup>
-        </FormControl>
-        {submitted && showFeedback && (
-          <Box mt={2} p={2} bgcolor={isCorrect() ? 'success.light' : 'error.light'} borderRadius={1}>
-            <Typography color={isCorrect() ? 'success.contrastText' : 'error.contrastText'}>
-              {isCorrect() ? 'Bonne réponse !' : 'Réponse incorrecte.'}
-            </Typography>
-          </Box>
-        )}
-      </Box>
-    );
-  }
+      </CardContent>
+    </Card>
+  );
 };

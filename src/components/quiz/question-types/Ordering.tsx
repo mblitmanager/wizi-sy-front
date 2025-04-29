@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   List,
   ListItem,
@@ -23,19 +23,21 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
 }));
 
-const StyledListItem = styled(ListItem)<{ isDragging: boolean }>(({ theme, isDragging }) => ({
+const StyledListItem = styled(ListItem)(({ theme }) => ({
   marginBottom: theme.spacing(1),
   padding: theme.spacing(2),
-  backgroundColor: isDragging ? theme.palette.action.hover : theme.palette.background.paper,
+  backgroundColor: theme.palette.background.paper,
   borderRadius: theme.shape.borderRadius,
   border: `1px solid ${theme.palette.divider}`,
   '&:hover': {
     backgroundColor: theme.palette.action.hover,
   },
   transition: theme.transitions.create(['background-color', 'box-shadow']),
-  ...(isDragging && {
-    boxShadow: theme.shadows[3],
-  }),
+}));
+
+const DraggingListItem = styled(StyledListItem)(({ theme }) => ({
+  backgroundColor: theme.palette.action.hover,
+  boxShadow: theme.shadows[3],
 }));
 
 export const Ordering: React.FC<OrderingProps> = ({
@@ -59,7 +61,7 @@ export const Ordering: React.FC<OrderingProps> = ({
     }
   }, [question.reponses, showFeedback]);
 
-  const handleDragEnd = (result: DropResult) => {
+  const handleDragEnd = useCallback((result: DropResult) => {
     if (!result.destination || showFeedback) return;
 
     const items = Array.from(orderedAnswers);
@@ -68,22 +70,33 @@ export const Ordering: React.FC<OrderingProps> = ({
 
     setOrderedAnswers(items);
     onAnswer(items.map(item => item.text));
-  };
+  }, [orderedAnswers, onAnswer, showFeedback]);
 
   const isCorrectPosition = (answer: { text: string; position?: number }, index: number) => {
     if (!showFeedback) return undefined;
     return answer.position === index + 1;
   };
 
+  // Generate a stable droppable ID based on the question ID
+  const droppableId = React.useMemo(() => 
+    `ordering-${question.id || 'default'}-${question.reponses?.length || 0}`,
+    [question.id, question.reponses?.length]
+  );
+
   return (
     <StyledPaper>
       <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId={`ordering-${question.id}`}>
-          {(provided) => (
+        <Droppable droppableId={droppableId}>
+          {(provided, snapshot) => (
             <List
               {...provided.droppableProps}
               ref={provided.innerRef}
-              sx={{ padding: 0 }}
+              sx={{ 
+                padding: 0,
+                minHeight: '100px',
+                backgroundColor: snapshot.isDraggingOver ? 'rgba(0, 0, 0, 0.04)' : 'transparent',
+                transition: 'background-color 0.2s ease',
+              }}
             >
               {orderedAnswers.map((answer, index) => {
                 const isCorrect = isCorrectPosition(answer, index);
@@ -94,41 +107,43 @@ export const Ordering: React.FC<OrderingProps> = ({
                     index={index}
                     isDragDisabled={showFeedback}
                   >
-                    {(provided, snapshot) => (
-                      <StyledListItem
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        isDragging={snapshot.isDragging}
-                      >
-                        <ListItemIcon
-                          {...provided.dragHandleProps}
-                          sx={{ cursor: showFeedback ? 'default' : 'grab' }}
+                    {(provided, snapshot) => {
+                      const ListItemComponent = snapshot.isDragging ? DraggingListItem : StyledListItem;
+                      return (
+                        <ListItemComponent
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
                         >
-                          <GripVertical size={20} />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={answer.text}
-                          sx={{
-                            '& .MuiListItemText-primary': {
-                              color: showFeedback
-                                ? isCorrect
-                                  ? 'success.main'
-                                  : 'error.main'
-                                : 'text.primary',
-                            },
-                          }}
-                        />
-                        {showFeedback && (
-                          <Box display="flex" alignItems="center" ml={2}>
-                            {isCorrect ? (
-                              <Check color="green" size={20} />
-                            ) : (
-                              <X color="red" size={20} />
-                            )}
-                          </Box>
-                        )}
-                      </StyledListItem>
-                    )}
+                          <ListItemIcon
+                            {...provided.dragHandleProps}
+                            sx={{ cursor: showFeedback ? 'default' : 'grab' }}
+                          >
+                            <GripVertical size={20} />
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={answer.text}
+                            sx={{
+                              '& .MuiListItemText-primary': {
+                                color: showFeedback
+                                  ? isCorrect
+                                    ? 'success.main'
+                                    : 'error.main'
+                                  : 'text.primary',
+                              },
+                            }}
+                          />
+                          {showFeedback && (
+                            <Box display="flex" alignItems="center" ml={2}>
+                              {isCorrect ? (
+                                <Check color="green" size={20} />
+                              ) : (
+                                <X color="red" size={20} />
+                              )}
+                            </Box>
+                          )}
+                        </ListItemComponent>
+                      );
+                    }}
                   </Draggable>
                 );
               })}
