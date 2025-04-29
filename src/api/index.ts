@@ -1,31 +1,20 @@
-import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry, Question, Formation } from '../types';
-import { Answer, QuizSubmitData } from '../types/quiz';
-import { decodeToken } from '@/utils/tokenUtils';
+import { User, Quiz, Category, QuizResult, UserProgress, LeaderboardEntry } from '../types';
 
-const API_URL = process.env.VITE_API_URL || 'http://localhost:8000/api';
+// Base URL of our API
+const API_URL = 'http://localhost:8000/api';
 
-// Log the current API URL to help with debugging
-console.log('Using API URL:', API_URL);
-
-const handleResponse = async <T>(response: Response): Promise<T> => {
+// Helper function to handle API responses
+const handleResponse = async (response: Response) => {
   if (!response.ok) {
-    // If unauthorized, clear token and redirect to login
-    if (response.status === 401) {
-      console.log('Accès refusé, redirection vers la page de connexion');
-      localStorage.removeItem('token');
-      window.location.href = '/auth/login';
-      throw new Error('Accès refusé, veuillez vous reconnecter');
-    }
-    
-    const error = await response.json().catch(() => ({ message: 'Réponse réseau non valide' }));
-    throw new Error(error.message || 'Quelque chose s\'est mal passé');
+    const error = await response.json();
+    throw new Error(error.message || 'Something went wrong');
   }
   return response.json();
 };
 
-// Auth API
+// Authentication API
 export const authAPI = {
-  login: async (email: string, password: string) => {
+  login: async (email: string, password: string): Promise<User> => {
     const response = await fetch(`${API_URL}/login`, {
       method: 'POST',
       headers: {
@@ -33,192 +22,114 @@ export const authAPI = {
       },
       body: JSON.stringify({ email, password }),
     });
-    return handleResponse(response);
+    const data = await handleResponse(response);
+    // Assurer que la réponse contient un token et un ID
+    if (!data.token) {
+      data.token = data.token || 'default-token';
+    }
+    return data;
   },
 
-  getCurrentUser: async () => {
-    const token = localStorage.getItem('token');
-    if (!token) throw new Error('Non authentifié');
-    
-    const response = await fetch(`${API_URL}/me`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    return handleResponse(response);
-  },
-
-  logout: async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-    
-    await fetch(`${API_URL}/logout`, {
+  register: async (username: string, email: string, password: string): Promise<User> => {
+    const response = await fetch(`${API_URL}/stagiaire/ajouter`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify({ username, email, password }),
     });
+    const data = await handleResponse(response);
+    // Assurer que la réponse contient un token et un ID
+    if (!data.token) {
+      data.token = data.token || 'default-token';
+    }
+    return data;
+  },
+
+  getCurrentUser: async (): Promise<User> => {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('Not authenticated');
+    
+    // Nous pourrions utiliser un endpoint dédié pour récupérer l'utilisateur courant
+    // Mais comme ce n'est pas explicitement disponible dans les routes fournies,
+    // nous devons adapter ce code à votre API spécifique
+    const userId = localStorage.getItem('userId');
+    if (!userId) throw new Error('User ID not found');
+    
+    // Supposons que nous puissions récupérer un stagiaire par son ID
+    const response = await fetch(`${API_URL}/stagiaires/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    
+    const data = await handleResponse(response);
+    // Ajouter le token à l'objet utilisateur pour qu'il soit disponible dans l'application
+    data.token = token;
+    return data;
+  },
+
+  logout: () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('userId');
   },
 };
 
 // Quiz API
 export const quizAPI = {
-  getCategories: async (): Promise<string[]> => {
-    const token = localStorage.getItem('token');
-    const headers: HeadersInit = {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    };
-    
-    const response = await fetch(`${API_URL}/quiz/categories`, { headers });
+  getCategories: async (): Promise<Category[]> => {
+    const response = await fetch(`${API_URL}/formations`);
     return handleResponse(response);
   },
-  
+
   getQuizzesByCategory: async (categoryId: string): Promise<Quiz[]> => {
-    const token = localStorage.getItem('token');
-    const headers: HeadersInit = {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    };
-    
-    const response = await fetch(`${API_URL}/formations/categories/${categoryId}`, { headers });
+    const response = await fetch(`${API_URL}/formations/${categoryId}/quizzes`);
     return handleResponse(response);
   },
 
   getQuizById: async (quizId: string): Promise<Quiz> => {
-    const token = localStorage.getItem('token');
-    const headers: HeadersInit = {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    };
-    
-    const response = await fetch(`${API_URL}/quizzes/${quizId}`, { headers });
+    const response = await fetch(`${API_URL}/quizzes/${quizId}`);
     return handleResponse(response);
   },
 
-  getQuizQuestions: async (quizId: string): Promise<Question[]> => {
+  submitQuizResult: async (result: Omit<QuizResult, 'id' | 'completedAt'>): Promise<QuizResult> => {
     const token = localStorage.getItem('token');
-    const headers: HeadersInit = {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    };
-    
-    const response = await fetch(`${API_URL}/quiz/${quizId}/questions`, { headers });
-    return handleResponse(response);
-  },
-
-  getReponsesByQuestion: async (questionId: string): Promise<Answer[]> => {
-    const token = localStorage.getItem('token');
-    const headers: HeadersInit = {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    };
-    
-    const response = await fetch(`${API_URL}/questions/${questionId}/reponses`, { headers });
-    const data = await handleResponse<Answer[]>(response);
-    
-    // Convert is_correct from 0/1 to boolean for internal use if needed
-    return data.map(answer => ({
-      ...answer,
-      is_correct: answer.is_correct
-    }));
-  },
-
-  submitQuiz: async (quizId: string, answers: Record<string, string>, score: number, timeSpent: number): Promise<QuizResult> => {
-    const token = localStorage.getItem('token');
-    const headers: HeadersInit = {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    };
-    
-    const response = await fetch(`${API_URL}/quizzes/${quizId}/submit`, {
+    const response = await fetch(`${API_URL}/stats/quiz/${result.quizId}`, {
       method: 'POST',
-      headers,
-      body: JSON.stringify({ answers, score, timeSpent }),
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(result),
     });
     return handleResponse(response);
   },
 };
 
-// Progress API
+// User progress API
 export const progressAPI = {
-  getUserProgress: async (): Promise<UserProgress> => {
+  getUserProgress: async (userId: string): Promise<UserProgress> => {
     const token = localStorage.getItem('token');
-    const headers: HeadersInit = {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    };
-    
-    const response = await fetch(`${API_URL}/stagiaire/progress`, { headers });
+    const response = await fetch(`${API_URL}/stagiaire/${userId}/formations`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return handleResponse(response);
   },
 
   getLeaderboard: async (): Promise<LeaderboardEntry[]> => {
+    const response = await fetch(`${API_URL}/classement`);
+    return handleResponse(response);
+  },
+
+  getUserStats: async (userId: string): Promise<any> => {
     const token = localStorage.getItem('token');
-    const headers: HeadersInit = {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    };
-    
-    const response = await fetch(`${API_URL}/stagiaire/ranking/global`, { headers });
+    const response = await fetch(`${API_URL}/stats/compare/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return handleResponse(response);
   },
 };
-
-// Formation API
-export const formationAPI = {
-  getCategories: async (): Promise<string[]> => {
-    const token = localStorage.getItem('token');
-    const headers: HeadersInit = {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    };
-    
-    const response = await fetch(`${API_URL}/formation/categories`, { headers });
-    return handleResponse(response);
-  },
-
-  getFormationsByStagiaire: async (): Promise<{ data: Formation[] }> => {
-    const token = localStorage.getItem('token');
-    const headers: HeadersInit = {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    };
-    
-    // First get the stagiaire ID from /api/me
-    const meResponse = await fetch(`${API_URL}/me`, { headers });
-    const meData = await handleResponse<{ user: any; stagiaire: { id: number } }>(meResponse);
-    
-    // Then get the formations using the stagiaire ID
-    const response = await fetch(`${API_URL}/stagiaire/${meData.stagiaire.id}/formations`, { headers });
-    return handleResponse(response);
-  },
-  
-  getFormationsByCategory: async (categoryId: string): Promise<Formation[]> => {
-    const token = localStorage.getItem('token');
-    const headers: HeadersInit = {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    };
-    
-    const response = await fetch(`${API_URL}/formations/categories/${categoryId}`, { headers });
-    return handleResponse(response);
-  },
-  
-  getFormationById: async (formationId: string): Promise<Formation> => {
-    const token = localStorage.getItem('token');
-    const headers: HeadersInit = {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    };
-    
-    const response = await fetch(`${API_URL}/formations/${formationId}`, { headers });
-    return handleResponse(response);
-  }
-};
-
-// Making the function available for component imports
-export const getReponsesByQuestion = quizAPI.getReponsesByQuestion;

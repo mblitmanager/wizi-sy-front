@@ -3,15 +3,31 @@ import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ProfileHeader from '@/components/Profile/ProfileHeader';
 import UserStats from '@/components/Profile/UserStats';
-import RecentResults from '@/components/Profile/RecentResults';
+import { RecentResults } from '@/components/Profile/RecentResults';
 import BadgesDisplay from '@/components/Profile/BadgesDisplay';
 import CategoryProgress from '@/components/Profile/CategoryProgress';
 import NotificationSettings from '@/components/Profile/NotificationSettings';
 import ParrainageSection from '@/components/Profile/ParrainageSection';
-import { quizAPI, progressAPI } from '@/api';
-import { User } from '@/types';
+import ContactsSection from '@/components/Profile/ContactsSection';
+import { quizService } from '@/services/quizService';
+import { progressService } from '@/services/progressService';
+import { User } from '@/types/index';
 import { QuizResult, Category, UserProgress } from '@/types/quiz';
 import { useToast } from '@/components/ui/use-toast';
+import { userService } from '../services/userService';
+import { formationService } from '../services/formationService';
+import { Formation } from '../types';
+import { Stagiaire } from '../types/stagiaire';
+
+const mapStagiaireToUser = (stagiaire: Stagiaire): User => ({
+  id: stagiaire.id.toString(),
+  username: stagiaire.prenom,
+  email: '', // Email not available in Stagiaire type
+  role: stagiaire.role,
+  level: 1, // Default level since not available in Stagiaire type
+  points: 0, // Default points since not available in Stagiaire type
+  name: stagiaire.prenom
+});
 
 const ProfilePage = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -29,6 +45,9 @@ const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [profile, setProfile] = useState<User | null>(null);
+  const [formations, setFormations] = useState<Formation[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -55,73 +74,81 @@ const ProfilePage = () => {
           
           const userData: User = {
             id: stagiaire.id.toString(),
-            username: stagiaire.user.name,
-            email: stagiaire.user.email,
+            username: stagiaire.prenom,
+            email: '', // Email not available in Stagiaire type
             role: stagiaire.role,
-            level: parseInt(data.progress.level),
-            points: data.progress.total_points
+            level: 1, // Default level since not available in Stagiaire type
+            points: 0, // Default points since not available in Stagiaire type
+            name: stagiaire.prenom
           };
           
           setUser(userData);
           
           // Fetch categories
-          const categoriesData = await quizAPI.getCategories();
-          setCategories(categoriesData);
+          const categoriesData = await quizService.getQuizCategories();
+          const categoriesWithColors = categoriesData.map((name, index) => ({
+            id: name.toString(),
+            name: name.toString(),
+            description: `Quizzes dans la catégorie ${name}`,
+            color: ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'][index % 6],
+            colorClass: ['category-blue-500', 'category-green-500', 'category-yellow-500', 'category-red-500', 'category-purple-500', 'category-pink-500'][index % 6],
+            quizCount: 0
+          }));
+          setCategories(categoriesWithColors);
           
-          // Mock quiz results (in a real app, you would fetch this from an API)
+          // Mock quiz results (in a real app, you should fetch this from an API)
           const mockResults: QuizResult[] = [
             {
               id: 'result-1',
-              quizId: 'quiz-1',
-              quizName: 'Introduction à Excel',
-              userId: userData.id,
+              quiz_id: 'quiz-1',
+              user_id: userData.id,
               score: 85,
-              correctAnswers: 17,
-              totalQuestions: 20,
-              completedAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-              timeSpent: 720
+              correct_answers: 17,
+              total_questions: 20,
+              completed_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+              time_spent: 720,
+              max_streak: 5,
+              mode: 'normal'
             },
             {
               id: 'result-2',
-              quizId: 'quiz-2',
-              quizName: 'Sécurité sur Internet',
-              userId: userData.id,
+              quiz_id: 'quiz-2',
+              user_id: userData.id,
               score: 92,
-              correctAnswers: 11,
-              totalQuestions: 12,
-              completedAt: new Date(Date.now() - 86400000 * 3).toISOString(), // 3 days ago
-              timeSpent: 540
+              correct_answers: 11,
+              total_questions: 12,
+              completed_at: new Date(Date.now() - 86400000 * 3).toISOString(), // 3 days ago
+              time_spent: 540,
+              max_streak: 8,
+              mode: 'normal'
             },
             {
               id: 'result-3',
-              quizId: 'quiz-3',
-              quizName: 'Vocabulaire anglais pour débutants',
-              userId: userData.id,
+              quiz_id: 'quiz-3',
+              user_id: userData.id,
               score: 75,
-              correctAnswers: 15,
-              totalQuestions: 20,
-              completedAt: new Date(Date.now() - 86400000 * 5).toISOString(), // 5 days ago
-              timeSpent: 900
+              correct_answers: 15,
+              total_questions: 20,
+              completed_at: new Date(Date.now() - 86400000 * 5).toISOString(), // 5 days ago
+              time_spent: 900,
+              max_streak: 3,
+              mode: 'normal'
             }
           ];
           
           setResults(mockResults);
           
-          // Mock user progress
-          const mockProgress: UserProgress = {
-            quizzes_completed: 12,
-            total_points: data.progress.total_points,
+          // Update user progress with API data
+          const progress: UserProgress = {
+            quizzes_completed: data.progress.quizzes_completed || 0,
+            total_points: data.progress.total_points || 0,
             average_score: data.progress.average_score || 0,
-            badges: ['beginner', 'quick_learner'],
-            streak: 5,
-            categoryProgress: {
-              'excel': { points: 85, quizzes_completed: 3 },
-              'security': { points: 92, quizzes_completed: 2 },
-              'english': { points: 75, quizzes_completed: 1 }
-            }
+            badges: data.progress.badges || [],
+            streak: data.progress.streak || 0,
+            categoryProgress: data.progress.categoryProgress || {}
           };
           
-          setUserProgress(mockProgress);
+          setUserProgress(progress);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -138,8 +165,56 @@ const ProfilePage = () => {
     fetchUserData();
   }, [navigate, toast]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const [profileData, formationsData] = await Promise.all([
+          userService.getProfile(),
+          formationService.getFormationsByStagiaire()
+        ]);
+
+        const mapStagiaireToUser = (stagiaire: Stagiaire): User => ({
+          id: stagiaire.id.toString(),
+          username: stagiaire.prenom,
+          email: '', // Email not available in Stagiaire type
+          role: stagiaire.role,
+          level: 1, // Default level since not available in Stagiaire type
+          points: 0, // Default points since not available in Stagiaire type
+          name: stagiaire.prenom
+        });
+
+        setProfile(mapStagiaireToUser(profileData.stagiaire));
+        setFormations(formationsData.data as Formation[]);
+      } catch (err) {
+        setError('Failed to fetch profile data');
+        console.error('Error fetching profile data:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleProfileUpdate = async (data: Partial<User>) => {
+    try {
+      await userService.updateProfile(data);
+      // Refresh profile data
+      const updatedProfile = await userService.getProfile();
+      setProfile(mapStagiaireToUser(updatedProfile.stagiaire));
+    } catch (err) {
+      setError('Failed to update profile');
+      console.error('Error updating profile:', err);
+    }
+  };
+
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen">Chargement...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
   }
 
   return (
@@ -147,40 +222,98 @@ const ProfilePage = () => {
       {user && <ProfileHeader user={user} />}
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
-        <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 w-full">
-          <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
-          <TabsTrigger value="progress">Progression</TabsTrigger>
-          <TabsTrigger value="results">Résultats</TabsTrigger>
-          <TabsTrigger value="parrainage">Parrainage</TabsTrigger>
-          <TabsTrigger value="badges">Badges</TabsTrigger>
-          <TabsTrigger value="settings">Paramètres</TabsTrigger>
+        <TabsList className="flex flex-wrap justify-start gap-2 mb-6">
+          <TabsTrigger value="overview" className="text-xs sm:text-sm px-3 py-2">Vue d'ensemble</TabsTrigger>
+          <TabsTrigger value="progress" className="text-xs sm:text-sm px-3 py-2">Progression</TabsTrigger>
+          <TabsTrigger value="results" className="text-xs sm:text-sm px-3 py-2">Résultats</TabsTrigger>
+          <TabsTrigger value="contacts" className="text-xs sm:text-sm px-3 py-2">Contacts</TabsTrigger>
+          <TabsTrigger value="parrainage" className="text-xs sm:text-sm px-3 py-2">Parrainage</TabsTrigger>
+          <TabsTrigger value="badges" className="text-xs sm:text-sm px-3 py-2">Badges</TabsTrigger>
+          <TabsTrigger value="settings" className="text-xs sm:text-sm px-3 py-2">Paramètres</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="overview" className="space-y-8 mt-6">
-          <UserStats user={user} userProgress={userProgress} />
-          <RecentResults results={results} isLoading={isLoading} />
+        <TabsContent value="overview" className="space-y-6 mt-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="bg-white p-4 rounded-lg shadow-sm">
+              <UserStats user={user} userProgress={userProgress} />
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm">
+              <h3 className="text-lg font-semibold mb-4 font-montserrat">Résultats récents</h3>
+              <RecentResults results={results} isLoading={isLoading} />
+            </div>
+          </div>
         </TabsContent>
         
         <TabsContent value="progress" className="mt-6">
-          <CategoryProgress categories={categories} userProgress={userProgress} />
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <CategoryProgress categories={categories} userProgress={userProgress} />
+          </div>
         </TabsContent>
         
         <TabsContent value="results" className="mt-6">
-          <RecentResults results={results} isLoading={isLoading} showAll />
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <RecentResults results={results} isLoading={isLoading} showAll />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="contacts" className="mt-6">
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <ContactsSection />
+          </div>
         </TabsContent>
         
         <TabsContent value="parrainage" className="mt-6">
-          <ParrainageSection />
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <ParrainageSection />
+          </div>
         </TabsContent>
         
         <TabsContent value="badges" className="mt-6">
-          <BadgesDisplay badges={userProgress.badges} />
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <BadgesDisplay badges={userProgress.badges} />
+          </div>
         </TabsContent>
         
         <TabsContent value="settings" className="mt-6">
-          <NotificationSettings />
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <NotificationSettings />
+          </div>
         </TabsContent>
       </Tabs>
+
+      <div className="mt-16 space-y-12">
+        <div className="bg-white p-4 rounded-lg shadow-sm">
+          <h2 className="text-xl font-semibold font-montserrat mb-4">Mes formations</h2>
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {formations.map((formation) => (
+              <div key={formation.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                <h3 className="font-medium font-nunito">{formation.titre}</h3>
+                <p className="text-sm text-muted-foreground mt-1">{formation.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {userProgress && (
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <h2 className="text-xl font-semibold font-montserrat mb-4">Progression globale</h2>
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <p className="text-sm text-muted-foreground">Quizzes complétés</p>
+                <p className="text-lg font-semibold font-nunito">{userProgress.quizzes_completed}</p>
+              </div>
+              <div className="text-center p-4 bg-green-50 rounded-lg">
+                <p className="text-sm text-muted-foreground">Points totaux</p>
+                <p className="text-lg font-semibold font-nunito">{userProgress.total_points}</p>
+              </div>
+              <div className="text-center p-4 bg-yellow-50 rounded-lg">
+                <p className="text-sm text-muted-foreground">Score moyen</p>
+                <p className="text-lg font-semibold font-nunito">{userProgress.average_score}%</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

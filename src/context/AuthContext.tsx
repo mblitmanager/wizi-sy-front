@@ -1,7 +1,28 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User } from '@/types';
-import { authAPI } from '@/api';
+import { User, Stagiaire } from '@/types';
+import { authService } from '@/services/api';
 import { decodeToken } from '@/utils/tokenUtils';
+
+interface ApiUser {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+  role: string;
+}
+
+interface ProgressResponse {
+  stagiaire: Stagiaire;
+  progress: {
+    level: string;
+    total_points: number;
+  };
+}
+
+interface AuthResponse {
+  token: string;
+  user: ApiUser;
+}
 
 export interface AuthContextType {
   user: User | null;
@@ -43,19 +64,78 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          const userData = await authAPI.getCurrentUser();
-          // Transforme les données utilisateur en User
+          const userData = await authService.getCurrentUser() as ApiUser;
           if (userData) {
-            const typedUserData = userData as any;
-            const formattedUser: User = {
-              id: typedUserData.id || '',
-              username: typedUserData.name || typedUserData.username || 'Utilisateur',
-              email: typedUserData.email || '',
-              role: typedUserData.role || 'stagiaire',
-              level: typedUserData.level || 1,
-              points: typedUserData.points || 0
-            };
-            setUser(formattedUser);
+            try {
+              const progressResponse = await fetch(`${import.meta.env.VITE_API_URL}/stagiaire/progress`, {
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                },
+              });
+              
+              if (progressResponse.ok) {
+                const data = await progressResponse.json() as ProgressResponse;
+                if (data && data.stagiaire && data.progress) {
+                  const stagiaire = data.stagiaire;
+                  
+                  const formattedUser: User = {
+                    id: userData.id.toString(),
+                    username: userData.name || userData.username || 'Utilisateur',
+                    email: userData.email,
+                    role: userData.role,
+                    level: parseInt(data.progress.level) || 1,
+                    points: data.progress.total_points || 0,
+                    stagiaire: {
+                      id: stagiaire.id,
+                      prenom: stagiaire.prenom || '',
+                      civilite: stagiaire.civilite || '',
+                      telephone: stagiaire.telephone || '',
+                      adresse: stagiaire.adresse || '',
+                      date_naissance: stagiaire.date_naissance || '',
+                      ville: stagiaire.ville || '',
+                      code_postal: stagiaire.code_postal || '',
+                      role: stagiaire.role || 'stagiaire',
+                      statut: stagiaire.statut || 'actif',
+                      user_id: stagiaire.user_id || userData.id
+                    }
+                  };
+                  
+                  setUser(formattedUser);
+                } else {
+                  console.error('Données de progression invalides:', data);
+                  throw new Error('Données de progression invalides');
+                }
+              } else {
+                console.error('Erreur lors de la récupération de la progression:', progressResponse.status);
+                throw new Error('Erreur lors de la récupération de la progression');
+              }
+            } catch (error) {
+              console.error('Erreur lors de la récupération des données de progression:', error);
+              // En cas d'erreur, on crée un utilisateur basique sans données de progression
+              const basicUser: User = {
+                id: userData.id.toString(),
+                username: userData.name || userData.username || 'Utilisateur',
+                email: userData.email,
+                role: userData.role,
+                level: 1,
+                points: 0,
+                stagiaire: {
+                  id: userData.id,
+                  prenom: '',
+                  civilite: '',
+                  telephone: '',
+                  adresse: '',
+                  date_naissance: '',
+                  ville: '',
+                  code_postal: '',
+                  role: 'stagiaire',
+                  statut: 'actif',
+                  user_id: userData.id
+                }
+              };
+              setUser(basicUser);
+            }
           }
         } catch (error) {
           console.error('Erreur lors de la récupération de l\'utilisateur actuel:', error);
@@ -71,7 +151,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Login function
   const login = async (email: string, password: string) => {
     try {
-      const response = await authAPI.login(email, password);
+      const response = await authService.login(email, password);
       if (response && (response as any).token) {
         const typedResponse = response as any;
         localStorage.setItem('token', typedResponse.token);
@@ -94,7 +174,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             email: stagiaire.user.email,
             role: stagiaire.role,
             level: parseInt(data.progress.level),
-            points: data.progress.total_points
+            points: data.progress.total_points,
+            stagiaire: {
+              id: stagiaire.id,
+              prenom: stagiaire.prenom,
+              civilite: stagiaire.civilite,
+              telephone: stagiaire.telephone,
+              adresse: stagiaire.adresse,
+              date_naissance: stagiaire.date_naissance,
+              ville: stagiaire.ville,
+              code_postal: stagiaire.code_postal,
+              role: stagiaire.role,
+              statut: stagiaire.statut,
+              user_id: stagiaire.user_id
+            }
           };
           
           setUser(formattedUser);
@@ -116,7 +209,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Logout function
   const logout = async () => {
     try {
-      await authAPI.logout();
+      await authService.logout();
     } catch (error) {
       console.error('Erreur lors de la déconnexion:', error);
     } finally {
@@ -145,7 +238,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log('Refreshing session');
       
       // For now, just check current user to validate the token
-      const userData = await authAPI.getCurrentUser();
+      const userData = await authService.getCurrentUser();
       // Transforme les données utilisateur en User
       if (userData) {
         const typedUserData = userData as any;

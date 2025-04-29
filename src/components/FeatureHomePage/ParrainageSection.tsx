@@ -16,7 +16,7 @@ export default function ParrainageSection() {
           Invitez vos amis et gagnez des récompenses !
         </p>
         <ul className="mt-2 list-disc list-inside text-sm">
-          <li>1 filleul = 50 pts</li>
+          <li>1 filleul = 50 €</li>
           <li>Bonus si actif 1 mois</li>
         </ul>
       </CardContent>

@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Category, UserProgress } from "@/types";
+import { UserProgress } from "@/types/quiz";
+import CategoryCard from "@/components/Home/CategoryCard";
+import ProgressCard from "@/components/Home/ProgressCard";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { quizAPI, progressAPI } from "@/api";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -9,8 +14,9 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { BookOpen, Zap } from "lucide-react";
 
-import { CatalogueFormation } from "@/types/stagiaire";
+import { CatalogueFormation, CatalogueFormationResponse } from "@/types/stagiaire";
 import { catalogueFormationApi } from "@/services/api";
+import { progressService } from "@/services/progressService";
 import ContactSection from "@/components/FeatureHomePage/ContactSection";
 import {
   AgendaSection,
@@ -21,6 +27,19 @@ import {
 } from "@/components/FeatureHomePage";
 
 const API_URL = import.meta.env.VITE_API_URL;
+const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_IMG;
+
+interface LocalCategory {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+  colorClass: string;
+  quizCount: number;
+}
+
+// Temporary mock user object
+const user = { stagiaire: { id: "123" } };
 
 const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
   const response = await axios.get<Contact[]>(
@@ -35,7 +54,7 @@ const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
 };
 
 const HomePage: React.FC = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<LocalCategory[]>([]);
   const [userProgress, setUserProgress] = useState<UserProgress>({
     quizzes_completed: 0,
     total_points: 0,
@@ -48,7 +67,24 @@ const HomePage: React.FC = () => {
   const [catalogueData, setCatalogueData] = useState<
     CatalogueFormation[] | null
   >(null);
+  const { data: queriedCatalogueData, isLoading: isLoadingCatalogue } = useQuery({
+    queryKey: ['catalogue'],
 
+    queryFn: async (): Promise<CatalogueFormationResponse> => {
+      try {
+        const response = await axios.get<CatalogueFormationResponse>(`${API_URL}/catalogueFormations/stagiaire/${user?.stagiaire?.id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        return response.data;
+      } catch (error) {
+        console.error('Erreur lors de la récupération du catalogue:', error);
+        throw error;
+      }
+    },
+    retry: 1,
+  });
   // Récupération des contacts
   const { data: commerciaux, isLoading: loadingCommerciaux } = useQuery<
     Contact[]
@@ -123,9 +159,8 @@ const HomePage: React.FC = () => {
   const fetchData = async () => {
     setIsLoading(true);
     setError(null);
-
     try {
-      // Étape 1 : Récupération des catégories
+      // Get categories
       try {
         const fetchedCategories = await quizAPI.getCategories();
         // ... gestion des catégories...
@@ -167,24 +202,19 @@ const HomePage: React.FC = () => {
 
       // Étape 3 : Récupération des progrès utilisateur
       try {
-        const progress = await progressAPI.getUserProgress();
+        const progress = await progressService.getUserProgress();
         setUserProgress(progress);
       } catch (progressError) {
-        console.error(
-          "Erreur lors de la récupération des progrès:",
-          progressError
-        );
+        console.error('Erreur lors de la récupération des progrès:', progressError);
         setUserProgress({
           quizzes_completed: 0,
           total_points: 0,
-          average_score: 0,
+          average_score: 0
         });
       }
     } catch (error) {
-      console.error("Erreur lors de la récupération des données:", error);
-      setError(
-        "Impossible de charger les données. Veuillez vérifier votre connexion ou réessayer plus tard."
-      );
+      console.error('Erreur lors de la récupération des données:', error);
+      setError('Impossible de charger les données. Veuillez vérifier votre connexion ou réessayer plus tard.');
     } finally {
       setIsLoading(false);
     }
@@ -198,6 +228,7 @@ const HomePage: React.FC = () => {
     <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
       {/* En-tête avec bienvenue et progression */}
       <div className="mb-8">
+      <img src="/assets/wizi-learn-logo.png" alt="Wizi Learn Logo" className="w-32 mb-6" />
         <h1 className="text-3xl font-bold mb-2">Bienvenue sur Wizi-Learn</h1>
         <p className="text-muted-foreground mb-4">
           Votre plateforme d'apprentissage personnalisée

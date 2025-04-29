@@ -18,7 +18,7 @@ export interface Formation {
   titre: string;
   description: string;
   categorie: string;
-  image: string | null;
+  image: string;
   statut: number;
   duree: string;
   created_at: string;
@@ -27,7 +27,7 @@ export interface Formation {
     stagiaire_id: number;
     formation_id: number;
   };
-  catalogue_formation: CatalogueFormation;
+  catalogue_formation?: CatalogueFormation;
 }
 
 export interface Stagiaire {
