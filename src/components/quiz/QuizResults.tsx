@@ -98,7 +98,13 @@ export function QuizResults() {
           </div>
         </div>
         
-        <QuizSummary questions={result.questions} />
+        <QuizSummary 
+          questions={result.questions} 
+          quiz={result.quiz || {}} 
+          userAnswers={result.userAnswers || []} 
+          score={result.score} 
+          totalQuestions={result.totalQuestions}
+        />
       </div>
     </Layout>
   );

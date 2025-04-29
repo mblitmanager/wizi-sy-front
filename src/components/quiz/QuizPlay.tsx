@@ -139,7 +139,12 @@ export function QuizPlay() {
         onClose={closeResults}
         score={calculateScore()}
         totalQuestions={totalQuestions}
-        answers={answers}
+        answers={Object.entries(answers).map(([questionId, answer]) => ({
+          questionId,
+          selectedOptions: answer,
+          isCorrect: false, // Placeholder, would need actual validation
+          points: 0 // Placeholder, would need actual calculation
+        }))}
         questions={quizQuestions}
         onRestart={handleRestart}
       />

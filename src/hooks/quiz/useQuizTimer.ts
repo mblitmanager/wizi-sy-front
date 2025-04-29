@@ -21,6 +21,7 @@ export const useQuizTimer = (initialTime: number = 30 * 60) => {
     timeLeft,
     timeSpent,
     isPaused,
-    setIsPaused
+    setIsPaused,
+    setTimeLeft
   };
 };

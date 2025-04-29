@@ -2,13 +2,14 @@
 import { useState, useCallback } from 'react';
 import { quizSubmissionService } from '@/services/quiz/QuizSubmissionService';
 import { quizManagementService } from '@/services/quiz/QuizManagementService';
+import { QuizHistory, QuizStats } from '@/types/quiz';
 
 export const useQuizDialogs = (quizId: string) => {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isStatsOpen, setIsStatsOpen] = useState(false);
   const [isResultsOpen, setIsResultsOpen] = useState(false);
-  const [quizHistory, setQuizHistory] = useState([]);
-  const [quizStats, setQuizStats] = useState(null);
+  const [quizHistory, setQuizHistory] = useState<QuizHistory[]>([]);
+  const [quizStats, setQuizStats] = useState<QuizStats | null>(null);
 
   const loadQuizHistory = useCallback(async () => {
     try {

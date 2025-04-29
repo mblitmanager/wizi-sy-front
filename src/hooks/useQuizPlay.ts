@@ -32,7 +32,7 @@ export const useQuizPlay = (quizId: string) => {
     if (quiz?.duree) {
       timer.setTimeLeft(quiz.duree);
     }
-  }, [quiz]);
+  }, [quiz, timer]);
   
   // Check if the current question has been answered
   const isCurrentQuestionAnswered = () => {
