@@ -6,11 +6,15 @@ import { QuizSummary } from './QuizSummary';
 import { useToast } from '@/hooks/use-toast';
 import { quizSubmissionService } from '@/services/quiz/QuizSubmissionService';
 import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 
 export function QuizResults() {
   const { quizId } = useParams<{ quizId: string }>();
   const location = useLocation();
   const { toast } = useToast();
+  
+  // Store result state locally to avoid triggering re-renders
+  const [result, setResult] = useState<any>(null);
   
   // Check if the result was passed through navigation state
   const resultFromState = location.state?.result;
@@ -22,17 +26,25 @@ export function QuizResults() {
     enabled: !!quizId && !resultFromState && !!localStorage.getItem('token')
   });
 
-  // Use the result from state if available, otherwise use the result from API
-  const result = resultFromState || resultFromApi;
+  // Use useEffect to set the result once to avoid infinite loops
+  useEffect(() => {
+    if (resultFromState) {
+      setResult(resultFromState);
+    } else if (resultFromApi) {
+      setResult(resultFromApi);
+    }
+  }, [resultFromState, resultFromApi]);
 
   // Handle API errors
-  if (error) {
-    toast({
-      title: "Erreur",
-      description: "Impossible de charger les résultats du quiz.",
-      variant: "destructive",
-    });
-  }
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les résultats du quiz.",
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
 
   if (isLoading || (!result && !error)) {
     return (
@@ -101,7 +113,7 @@ export function QuizResults() {
         <QuizSummary 
           questions={result.questions} 
           quiz={result.quiz || {}} 
-          userAnswers={result.userAnswers || []} 
+          userAnswers={result.userAnswers || {}} 
           score={result.score} 
           totalQuestions={result.totalQuestions}
         />

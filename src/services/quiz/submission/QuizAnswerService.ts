@@ -16,18 +16,13 @@ export class QuizAnswerService {
     }
   }
 
-  async submitQuiz(quizId: string, answers: Record<string, string[] | string | Record<string, string>>, timeSpent: number): Promise<any> {
+  async submitQuiz(quizId: string, answers: Record<string, any>, timeSpent: number): Promise<any> {
     try {
       console.log('Submitting quiz answers:', { quizId, answers, timeSpent });
       
-      // Format answers for API
-      const formattedAnswers: Record<string, any> = {};
-      Object.entries(answers).forEach(([questionId, answerValue]) => {
-        formattedAnswers[questionId] = answerValue;
-      });
-
+      // Pas de formatage nécessaire, envoyer les réponses telles quelles
       const response = await apiClient.post(`/quiz/${quizId}/result`, {
-        answers: formattedAnswers,
+        answers,
         timeSpent
       });
 
@@ -45,10 +40,12 @@ export class QuizAnswerService {
       id: String(reponse.id),
       text: reponse.text || '',
       isCorrect: Boolean(reponse.is_correct),
+      is_correct: reponse.is_correct,
       position: reponse.position || null,
       match_pair: reponse.match_pair || null,
       bank_group: reponse.bank_group || null,
-      flashcard_back: reponse.flashcard_back || null
+      flashcard_back: reponse.flashcard_back || null,
+      question_id: reponse.question_id
     }));
 
     // Détecter le type de question et formater en conséquence
@@ -57,13 +54,16 @@ export class QuizAnswerService {
     // Créer des blancs pour les questions de type "remplir le champ vide"
     let blanks = undefined;
     if (questionType === 'remplir le champ vide') {
-      const blankMatches = question.text.match(/\{([^}]+)\}/g);
-      if (blankMatches) {
+      // Détecter les blancs dans le texte de la question
+      const blankMatches = question.text.match(/\{([^}]+)\}/g) || [];
+      if (blankMatches.length > 0) {
         blanks = blankMatches.map((match: string, index: number) => {
           const groupName = match.replace(/[{}]/g, '');
+          // Trouver la réponse correspondante si possible
+          const answer = answers.find(a => a.bank_group === groupName && (a.isCorrect || a.is_correct));
           return {
             id: `blank_${index}`,
-            text: answers.find((a) => a.isCorrect)?.text || '',
+            text: answer?.text || '',
             position: index,
             bankGroup: groupName
           };
@@ -74,7 +74,7 @@ export class QuizAnswerService {
     // Pour les flashcards, on doit ajouter les informations du verso
     let flashcard = undefined;
     if (questionType === 'carte flash' && answers.length > 0) {
-      const correctAnswer = answers.find(a => a.isCorrect);
+      const correctAnswer = answers.find(a => a.isCorrect || a.is_correct);
       if (correctAnswer) {
         flashcard = {
           front: correctAnswer.text,
@@ -99,7 +99,7 @@ export class QuizAnswerService {
       wordbank = answers.map(a => ({
         id: a.id,
         text: a.text,
-        isCorrect: a.isCorrect,
+        isCorrect: a.isCorrect || Boolean(a.is_correct),
         bankGroup: a.bank_group || null
       }));
     }
@@ -112,8 +112,8 @@ export class QuizAnswerService {
       points: question.points ? Number(question.points) : undefined,
       astuce: question.astuce || undefined,
       explication: question.explication || undefined,
-      audioUrl: question.type === 'question audio' ? question.media_url : undefined,
-      media_url: question.type !== 'question audio' ? question.media_url : undefined,
+      audioUrl: questionType === 'question audio' ? question.media_url : undefined,
+      media_url: question.media_url || undefined,
       reponses: answers,
       answers,
       blanks,
