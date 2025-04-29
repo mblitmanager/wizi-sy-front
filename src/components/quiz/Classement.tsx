@@ -46,7 +46,7 @@ export const Classement: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Profil et Statistiques */}
-      <ProfileStats profile={stagiaireProfile} stats={quizStats} />
+      <ProfileStats stats={quizStats || { totalQuizzes: 0, totalScore: 0, completedQuizzes: 0, averageScore: 0, totalPoints: 0, averageTimeSpent: 0 }} profile={stagiaireProfile} />
       
       {/* Onglets pour Classement et Historique */}
       <ClassementTabs 

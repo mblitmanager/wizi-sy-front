@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -6,9 +7,10 @@ import { QuizStats } from '@/types/quiz';
 
 interface ProfileStatsProps {
   stats: QuizStats;
+  profile?: any; // Ajout de la prop profile pour résoudre l'erreur
 }
 
-export const ProfileStats: React.FC<ProfileStatsProps> = ({ stats }) => {
+export const ProfileStats: React.FC<ProfileStatsProps> = ({ stats, profile }) => {
   const averageScore = stats?.averageScore ? Math.round(stats.averageScore) : 0;
 
   return (
@@ -18,6 +20,11 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ stats }) => {
           <Award className="h-4 w-4 text-gray-500 dark:text-gray-400" />
           <h4 className="text-sm font-medium">Statistiques du Profil</h4>
         </div>
+        {profile?.stagiaire?.nom && (
+          <div className="text-sm font-medium">
+            {profile.stagiaire.nom} {profile.stagiaire.prenom}
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         <div className="text-sm font-medium">Score Moyen</div>

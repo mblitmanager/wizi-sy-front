@@ -18,10 +18,28 @@ interface QuizStatsDialogProps {
       time_spent?: number;
     };
     success_rate?: number | null;
-  } | QuizStats;
+  } | QuizStats | null;
 }
 
 export function QuizStatsDialog({ open, onClose, stats }: QuizStatsDialogProps) {
+  // Si stats est null, utiliser un objet vide pour éviter les erreurs
+  if (!stats) {
+    return (
+      <Dialog open={open} onOpenChange={onClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Statistiques du Quiz</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-center text-muted-foreground">
+              Aucune statistique disponible pour ce quiz.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+  
   // Vérifier si stats est au format QuizStats ou au format personnalisé
   const isCustomFormat = 'average_score' in stats;
   
