@@ -43,8 +43,15 @@ export interface Answer {
   id: string;
   text: string;
   isCorrect?: boolean;
+  is_correct?: boolean | number; // backend compatibility
+  flashcard_back?: string | null; // backend compatibility
   reponse_correct?: boolean;
   position?: number;
+  match_pair?: string | null;
+  bank_group?: string | null;
+  question_id?: string;
+  created_at?: string | null;
+  updated_at?: string | null;
 }
 
 export interface Blank {

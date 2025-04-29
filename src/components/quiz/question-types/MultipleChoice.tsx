@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   FormControl,
@@ -57,7 +56,7 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
 
   const getCorrectAnswers = () => {
     return question.reponses
-      .filter((r: any) => r.isCorrect || r.is_correct === 1)
+      .filter((r: any) => r.is_correct === 1)
       .map((r: any) => r.id.toString());
   };
 
