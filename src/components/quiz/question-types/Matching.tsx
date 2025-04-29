@@ -2,14 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Check, X, ArrowRight } from 'lucide-react';
-import { Question as QuizQuestion } from '@/types/quiz';
+import { Question } from '@/types/quiz';
 import { cn } from "@/lib/utils";
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface MatchingProps {
-  question: QuizQuestion;
+  question: Question;
   onAnswer: (matches: Record<string, string>) => void;
   showFeedback?: boolean;
 }
@@ -33,13 +33,16 @@ export const Matching: React.FC<MatchingProps> = ({
     setAvailableOptions(rightOptions);
 
     // Initialize with existing answers if available
-    let initialMatches: Record<string, string> = { destination: 'destination' };
-    
     if (question.selectedAnswers && typeof question.selectedAnswers === 'object' && !Array.isArray(question.selectedAnswers)) {
-      initialMatches = { ...question.selectedAnswers, destination: 'destination' };
+      // Make a clean copy without spread to avoid TypeScript errors
+      const initialMatches: Record<string, string> = {};
+      for (const key in question.selectedAnswers) {
+        if (key !== 'destination') { // Skip the 'destination' property
+          initialMatches[key] = question.selectedAnswers[key];
+        }
+      }
+      setMatches(initialMatches);
     }
-    
-    setMatches(initialMatches);
   }, [question]);
 
   const handleMatchChange = (leftId: string, rightValue: string) => {

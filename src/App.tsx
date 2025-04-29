@@ -1,4 +1,5 @@
 
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,6 +21,7 @@ import Quizzes from "./pages/Quizzes";
 import { QuizDetail } from "@/components/quiz/QuizDetail";
 import { QuizResults } from "@/components/quiz/QuizResults";
 
+// Create a client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -30,72 +32,74 @@ const queryClient = new QueryClient({
 });
 
 const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <UserProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              {/* Routes publiques */}
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+  <React.StrictMode>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <UserProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                {/* Routes publiques */}
+                <Route path="/" element={<Index />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
 
-              {/* Routes protégées */}
-              <Route path="/catalogue" element={
-                <ProtectedRoute>
-                  <Catalogue />
-                </ProtectedRoute>
-              } />
-              <Route path="/catalogue/:categoryId" element={
-                <ProtectedRoute>
-                  <CategoryFormations />
-                </ProtectedRoute>
-              } />
-              <Route path="/formations" element={
-                <ProtectedRoute>
-                  <Formation />
-                </ProtectedRoute>
-              } />
-              <Route path="/quizzes" element={
-                <ProtectedRoute>
-                  <Quizzes />
-                </ProtectedRoute>
-              } />
-              <Route path="/quiz" element={
-                <ProtectedRoute>
-                  <Navigate to="/quizzes" replace />
-                </ProtectedRoute>
-              } />
-              <Route path="/quiz/:quizId" element={
-                <ProtectedRoute>
-                  <QuizDetail />
-                </ProtectedRoute>
-              } />
-              <Route path="/quiz/:quizId/start" element={
-                <ProtectedRoute>
-                  <Quiz />
-                </ProtectedRoute>
-              } />
-              <Route path="/quiz/:quizId/results" element={
-                <ProtectedRoute>
-                  <QuizResults />
-                </ProtectedRoute>
-              } />
-              <Route path="/profile" element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              } />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </UserProvider>
-    </QueryClientProvider>
-  </ErrorBoundary>
+                {/* Routes protégées */}
+                <Route path="/catalogue" element={
+                  <ProtectedRoute>
+                    <Catalogue />
+                  </ProtectedRoute>
+                } />
+                <Route path="/catalogue/:categoryId" element={
+                  <ProtectedRoute>
+                    <CategoryFormations />
+                  </ProtectedRoute>
+                } />
+                <Route path="/formations" element={
+                  <ProtectedRoute>
+                    <Formation />
+                  </ProtectedRoute>
+                } />
+                <Route path="/quizzes" element={
+                  <ProtectedRoute>
+                    <Quizzes />
+                  </ProtectedRoute>
+                } />
+                <Route path="/quiz" element={
+                  <ProtectedRoute>
+                    <Navigate to="/quizzes" replace />
+                  </ProtectedRoute>
+                } />
+                <Route path="/quiz/:quizId" element={
+                  <ProtectedRoute>
+                    <QuizDetail />
+                  </ProtectedRoute>
+                } />
+                <Route path="/quiz/:quizId/start" element={
+                  <ProtectedRoute>
+                    <Quiz />
+                  </ProtectedRoute>
+                } />
+                <Route path="/quiz/:quizId/results" element={
+                  <ProtectedRoute>
+                    <QuizResults />
+                  </ProtectedRoute>
+                } />
+                <Route path="/profile" element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                } />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </UserProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
+  </React.StrictMode>
 );
 
 export default App;

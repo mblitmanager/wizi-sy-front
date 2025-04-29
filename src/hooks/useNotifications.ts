@@ -60,9 +60,11 @@ export function useNotifications() {
   };
   
   const sendNotification = async (title: string, options?: NotificationOptions): Promise<boolean> => {
+    // Check if permission is not granted and try to request it
     if (permission !== 'granted') {
-      await requestPermission();
-      if (permission !== 'granted') return false;
+      const newPermission = await requestPermission();
+      // If permission is still not granted after request, return false
+      if (newPermission !== 'granted') return false;
     }
     
     const notification = await notificationService.sendNotification(title, options);

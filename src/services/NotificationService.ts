@@ -1,6 +1,13 @@
 
 type NotificationPermissionCallback = (permission: NotificationPermission) => void;
 
+interface ExtendedNotificationOptions extends NotificationOptions {
+  // Define additional properties needed but not in standard NotificationOptions
+  vibrate?: number[];
+  renotify?: boolean;
+  badge?: string;
+}
+
 export class NotificationService {
   private static instance: NotificationService;
   private isSupported: boolean;
@@ -38,7 +45,7 @@ export class NotificationService {
     return Notification.permission;
   }
   
-  async sendNotification(title: string, options?: NotificationOptions): Promise<Notification | null> {
+  async sendNotification(title: string, options?: ExtendedNotificationOptions): Promise<Notification | null> {
     if (!this.isSupported) return null;
     
     const permission = await this.getPermissionStatus();
@@ -48,7 +55,8 @@ export class NotificationService {
     }
     
     try {
-      const notification = new Notification(title, options);
+      // Cast to any to bypass TypeScript's strict checking on notification options
+      const notification = new Notification(title, options as NotificationOptions);
       return notification;
     } catch (error) {
       console.error('Error sending notification:', error);
@@ -73,32 +81,38 @@ export class NotificationService {
       icon = '/icons/quiz.png';
     }
     
-    await this.sendNotification('Quiz terminé', {
+    const options: ExtendedNotificationOptions = {
       body: message,
       icon: icon,
       badge: '/icons/badge.png',
       vibrate: [200, 100, 200],
       tag: 'quiz-result',
       renotify: true
-    });
+    };
+    
+    await this.sendNotification('Quiz terminé', options);
   }
   
   async notifyQuizAvailable(quizTitle: string): Promise<void> {
-    await this.sendNotification('Nouveau quiz disponible', {
+    const options: ExtendedNotificationOptions = {
       body: `Le quiz "${quizTitle}" est maintenant disponible`,
       icon: '/icons/notification.png',
       tag: 'quiz-available',
       renotify: true
-    });
+    };
+    
+    await this.sendNotification('Nouveau quiz disponible', options);
   }
   
   async notifyRewardEarned(points: number): Promise<void> {
-    await this.sendNotification('Récompense gagnée', {
+    const options: ExtendedNotificationOptions = {
       body: `Vous avez gagné ${points} points !`,
       icon: '/icons/reward.png',
       tag: 'reward',
       renotify: true
-    });
+    };
+    
+    await this.sendNotification('Récompense gagnée', options);
   }
 }
 
