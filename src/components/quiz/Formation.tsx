@@ -19,7 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-interface FormationProps {}
+type FormationProps = Record<string, never>;
 
 export const Formation: React.FC<FormationProps> = () => {
   const { formationId } = useParams<{ formationId: string }>();
