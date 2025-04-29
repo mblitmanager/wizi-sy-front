@@ -6,6 +6,7 @@ import type { Question, Quiz } from "@/types/quiz";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { Alert } from "@/components/ui/alert";
 
 interface QuizSummaryProps {
   quiz: Quiz;
@@ -76,10 +77,26 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
     switch (question.type) {
       case 'remplir le champ vide':
         // Trouver les réponses avec bank_group défini
-        const blanks = question.answers?.filter(a => a.bank_group && a.isCorrect);
+        const blanks = question.answers?.filter(a => a.bank_group && (a.isCorrect || a.is_correct === 1));
         if (blanks && blanks.length) {
-          return blanks.map(b => `${b.bank_group}: ${b.text}`).join(', ');
+          return blanks.map(b => `${b.bank_group || 'blank'}: ${b.text}`).join(', ');
         }
+        
+        // Si pas de bank_group, utiliser les réponses correctes
+        const correctFillAnswers = question.answers?.filter(a => a.isCorrect || a.is_correct === 1);
+        if (correctFillAnswers && correctFillAnswers.length) {
+          return correctFillAnswers.map(a => a.text).join(', ');
+        }
+        
+        // Si on a des correctAnswers disponibles
+        if (question.correctAnswers && question.correctAnswers.length) {
+          const answerTexts = question.correctAnswers.map(id => {
+            const answer = question.answers?.find(a => a.id === id || a.id === String(id));
+            return answer ? answer.text : id;
+          });
+          return answerTexts.join(', ');
+        }
+        
         return "Aucune réponse correcte définie";
       
       case 'correspondance':
@@ -92,7 +109,7 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
       
       case 'carte flash':
         // Pour les cartes flash, trouver la réponse correcte
-        const flashcard = question.answers?.find(a => a.isCorrect || a.is_correct);
+        const flashcard = question.answers?.find(a => a.isCorrect || a.is_correct === 1);
         if (flashcard) {
           return `${flashcard.text} (${flashcard.flashcard_back || 'Pas de détails'})`;
         }
@@ -107,17 +124,31 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
         
       default:
         // Pour les QCM et vrai/faux, trouver les réponses correctes
-        const correctAnswers = question.answers?.filter(a => a.isCorrect || a.is_correct);
-        return correctAnswers?.map(a => a.text).join(', ') || "Aucune réponse correcte définie";
+        const correctAnswers = question.answers?.filter(a => a.isCorrect || a.is_correct === 1);
+        if (correctAnswers && correctAnswers.length) {
+          return correctAnswers.map(a => a.text).join(', ');
+        }
+        
+        // Si on a des correctAnswers disponibles
+        if (question.correctAnswers && question.correctAnswers.length) {
+          const answerTexts = question.correctAnswers.map(id => {
+            const answer = question.answers?.find(a => a.id === id || a.id === String(id));
+            return answer ? answer.text : id;
+          });
+          return answerTexts.join(', ');
+        }
+        
+        return "Aucune réponse correcte définie";
     }
   };
 
-  const isAnswerCorrect = (question: Question, userAnswerData: any): boolean => {
+  const isAnswerCorrect = (question: Question): boolean => {
     if (question.isCorrect !== undefined) {
       // Si la question fournit déjà l'information
       return question.isCorrect;
     }
     
+    const userAnswerData = userAnswers[question.id];
     if (!userAnswerData) return false;
     
     switch (question.type) {
@@ -125,7 +156,7 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
         // Pour les questions à blancs, vérifier chaque champ
         if (typeof userAnswerData !== 'object' || Array.isArray(userAnswerData)) return false;
         
-        const blankAnswers = question.answers?.filter(a => a.bank_group && a.isCorrect);
+        const blankAnswers = question.answers?.filter(a => a.bank_group && (a.isCorrect || a.is_correct === 1));
         if (!blankAnswers) return false;
         
         return Object.entries(userAnswerData).every(([key, value]) => {
@@ -162,17 +193,29 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
       
       case 'carte flash': {
         // Pour les flashcards
-        const correctAnswer = question.answers?.find(a => a.isCorrect || a.is_correct);
+        const correctAnswer = question.answers?.find(a => a.isCorrect || a.is_correct === 1);
         return correctAnswer && correctAnswer.text === userAnswerData;
       }
       
       default: {
         // Pour QCM, vrai/faux
         const correctAnswerIds = question.answers
-          ?.filter(a => a.isCorrect || a.is_correct)
+          ?.filter(a => a.isCorrect || a.is_correct === 1)
           .map(a => a.id);
         
-        if (!correctAnswerIds?.length) return false;
+        if (!correctAnswerIds?.length) {
+          // Tenter d'utiliser correctAnswers si disponible
+          if (question.correctAnswers && question.correctAnswers.length) {
+            const correctIds = question.correctAnswers.map(id => String(id));
+            
+            if (Array.isArray(userAnswerData)) {
+              return JSON.stringify(userAnswerData.sort()) === JSON.stringify(correctIds.sort());
+            } else {
+              return correctIds.includes(String(userAnswerData));
+            }
+          }
+          return false;
+        }
         
         if (Array.isArray(userAnswerData)) {
           // Si plusieurs réponses sont attendues (QCM multi)
@@ -187,7 +230,7 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 flex-wrap">
         <Button 
           variant="outline" 
           onClick={() => navigate('/quizzes')}
@@ -236,9 +279,8 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
         <h2 className="text-xl font-bold">Détails des réponses</h2>
         
         {questions.map((question, index) => {
-          const questionId = question.id.toString();
-          const userAnswer = userAnswers[questionId];
-          const isCorrect = isAnswerCorrect(question, userAnswer);
+          const userAnswer = userAnswers[question.id];
+          const isCorrect = isAnswerCorrect(question);
 
           return (
             <Card key={question.id} className={cn(
@@ -252,16 +294,16 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
                   ) : (
                     <XCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
                   )}
-                  <CardTitle className="text-lg">
+                  <CardTitle className="text-base md:text-lg">
                     Question {index + 1}
                   </CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4 pt-0">
-                <p className="text-lg font-medium">{question.text}</p>
+                <p className="text-base md:text-lg font-medium">{question.text}</p>
                 
                 {question.media_url && (
-                  <div className="flex justify-center mb-4">
+                  <div className="flex justify-center my-4">
                     {question.type === 'question audio' ? (
                       <div className="w-full max-w-md">
                         <audio controls className="w-full">
@@ -284,7 +326,7 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
                     Votre réponse :
                   </p>
                   <div className={cn(
-                    "p-3 rounded-lg",
+                    "p-3 rounded-lg text-sm md:text-base",
                     isCorrect ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
                   )}>
                     {userAnswer ? formatAnswer(question, userAnswer) : "Aucune réponse"}
@@ -296,7 +338,7 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
                     <p className="text-sm font-medium text-muted-foreground">
                       Bonne réponse :
                     </p>
-                    <div className="p-3 rounded-lg bg-green-50 text-green-800">
+                    <div className="p-3 rounded-lg bg-green-50 text-green-800 text-sm md:text-base">
                       {formatCorrectAnswer(question)}
                     </div>
                   </div>
@@ -307,9 +349,9 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
                     <p className="text-sm font-medium text-muted-foreground">
                       Explication :
                     </p>
-                    <div className="p-3 rounded-lg bg-blue-50 text-blue-800">
+                    <Alert className="p-3 bg-blue-50 text-blue-800 text-sm md:text-base border-blue-200">
                       {question.explication}
-                    </div>
+                    </Alert>
                   </div>
                 )}
               </CardContent>
@@ -318,7 +360,7 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
         })}
       </div>
       
-      <div className="flex justify-center mt-6 gap-4">
+      <div className="flex justify-center mt-6 gap-4 flex-wrap">
         <Button onClick={() => navigate('/quizzes')} variant="outline">
           Retour à la liste des quiz
         </Button>

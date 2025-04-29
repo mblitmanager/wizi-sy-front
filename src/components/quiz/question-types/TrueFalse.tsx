@@ -1,31 +1,17 @@
+
 import React, { useState } from 'react';
-import {
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Radio,
-  Box,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { Card, CardContent } from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { Check, X } from 'lucide-react';
 import { Question as QuizQuestion } from '@/types/quiz';
+import { cn } from "@/lib/utils";
 
 interface TrueFalseProps {
   question: QuizQuestion;
   onAnswer: (answer: string) => void;
   showFeedback?: boolean;
 }
-
-const StyledListItem = styled(ListItem)(({ theme }) => ({
-  marginBottom: theme.spacing(1),
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: theme.palette.background.paper,
-  '&:hover': {
-    backgroundColor: theme.palette.action.hover,
-  },
-}));
 
 export const TrueFalse: React.FC<TrueFalseProps> = ({
   question,
@@ -34,53 +20,78 @@ export const TrueFalse: React.FC<TrueFalseProps> = ({
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 
-  const handleAnswerSelect = (answerId: string) => {
-    setSelectedAnswer(answerId);
-    onAnswer(answerId);
+  const handleAnswerSelect = (value: string) => {
+    setSelectedAnswer(value);
+    onAnswer(value);
   };
 
-  const isCorrectAnswer = (answer: { id: string; isCorrect?: boolean }) => {
-    if (!showFeedback) return false;
-    return answer.isCorrect;
+  const isCorrectAnswer = (answerId: string) => {
+    if (!showFeedback) return undefined;
+    const answer = question.answers?.find(a => a.id === answerId);
+    return answer?.isCorrect || answer?.is_correct === 1;
   };
 
   return (
-    <List>
-      {question.reponses?.map((answer) => (
-        <StyledListItem key={answer.id} disablePadding>
-          <ListItemButton
-            onClick={() => handleAnswerSelect(answer.id)}
-            selected={selectedAnswer === answer.id}
-            sx={{
-              '&.Mui-selected': {
-                backgroundColor: 'primary.light',
-                '&:hover': {
-                  backgroundColor: 'primary.light',
-                },
-              },
-            }}
-          >
-            <ListItemIcon>
-              <Radio
-                edge="start"
-                checked={selectedAnswer === answer.id}
-                tabIndex={-1}
-                disableRipple
-              />
-            </ListItemIcon>
-            <ListItemText primary={answer.text} />
-            {showFeedback && (
-              <Box display="flex" alignItems="center">
-                {isCorrectAnswer(answer) ? (
-                  <Check color="green" size={20} />
-                ) : (
-                  selectedAnswer === answer.id && <X color="red" size={20} />
+    <Card className="border-0 shadow-none">
+      <CardContent className="pt-4 px-2 md:px-6">
+        <RadioGroup 
+          value={selectedAnswer || ''} 
+          onValueChange={handleAnswerSelect}
+          className="space-y-3"
+        >
+          {question.answers?.map((answer) => {
+            const isSelected = selectedAnswer === answer.id;
+            const isCorrect = isCorrectAnswer(answer.id);
+            const showCorrectIndicator = showFeedback && (isSelected || isCorrect);
+
+            return (
+              <div 
+                key={answer.id} 
+                className={cn(
+                  "flex items-center space-x-2 rounded-lg border p-4 hover:bg-accent transition-colors",
+                  isSelected && !showFeedback && "bg-accent",
+                  showFeedback && isSelected && isCorrect && "bg-green-50 border-green-200",
+                  showFeedback && isSelected && !isCorrect && "bg-red-50 border-red-200",
+                  showFeedback && !isSelected && isCorrect && "bg-green-50 border-green-200"
                 )}
-              </Box>
+              >
+                <RadioGroupItem 
+                  value={answer.id} 
+                  id={`answer-${answer.id}`} 
+                  disabled={showFeedback}
+                />
+                <Label 
+                  htmlFor={`answer-${answer.id}`}
+                  className="flex-grow cursor-pointer text-base"
+                >
+                  {answer.text}
+                </Label>
+                {showCorrectIndicator && (
+                  <span className="flex items-center">
+                    {isCorrect ? (
+                      <Check className="h-5 w-5 text-green-600" />
+                    ) : (
+                      <X className="h-5 w-5 text-red-600" />
+                    )}
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </RadioGroup>
+
+        {showFeedback && selectedAnswer && (
+          <div className="mt-4 text-sm text-muted-foreground">
+            {isCorrectAnswer(selectedAnswer) ? (
+              <p className="text-green-600 font-medium">Bonne réponse !</p>
+            ) : (
+              <p className="text-red-600 font-medium">
+                Réponse incorrecte. La bonne réponse était : {question.answers?.find(a => a.isCorrect || a.is_correct === 1)?.text}
+              </p>
             )}
-          </ListItemButton>
-        </StyledListItem>
-      ))}
-    </List>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };

@@ -1,35 +1,20 @@
-import React, { useState, useRef } from 'react';
-import {
-  Box,
-  Typography,
-  Paper,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  IconButton,
-  Slider,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { Play, Pause, Volume2, VolumeX, Check, X } from 'lucide-react';
+
+import React, { useState, useRef, useEffect } from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Play, Pause, Volume2, VolumeX, Check, X, AlertTriangle } from 'lucide-react';
 import { Question as QuizQuestion } from '@/types/quiz';
+import { cn } from "@/lib/utils";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface AudioQuestionProps {
   question: QuizQuestion;
   onAnswer: (answer: string) => void;
   showFeedback?: boolean;
 }
-
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(3),
-  marginBottom: theme.spacing(2),
-  backgroundColor: theme.palette.background.paper,
-}));
-
-const AudioPlayer = styled('audio')({
-  width: '100%',
-  marginBottom: '16px',
-});
 
 export const AudioQuestion: React.FC<AudioQuestionProps> = ({
   question,
@@ -40,21 +25,35 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [audioError, setAudioError] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    // Reset error state when component mounts or question changes
+    setAudioError(false);
+  }, [question]);
 
   const handlePlayPause = () => {
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
       } else {
-        audioRef.current.play();
+        const playPromise = audioRef.current.play();
+        
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.error("Audio playback error:", error);
+            setAudioError(true);
+            setIsPlaying(false);
+          });
+        }
       }
       setIsPlaying(!isPlaying);
     }
   };
 
-  const handleVolumeChange = (_event: Event, newValue: number | number[]) => {
-    const volumeValue = Array.isArray(newValue) ? newValue[0] : newValue;
+  const handleVolumeChange = (newValue: number[]) => {
+    const volumeValue = newValue[0];
     setVolume(volumeValue);
     if (audioRef.current) {
       audioRef.current.volume = volumeValue;
@@ -75,78 +74,140 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
 
   const isCorrectAnswer = (answerId: string) => {
     if (!showFeedback) return undefined;
-    const answer = question.reponses?.find(a => a.id === answerId);
-    return answer?.isCorrect;
+    const answer = question.answers?.find(a => a.id === answerId);
+    return answer?.isCorrect || answer?.is_correct === 1;
   };
 
+  // Generate proper audio URL
+  const audioUrl = question.audioUrl || question.media_url;
+
   return (
-    <StyledPaper>
-      <Box mb={3}>
-        <Typography variant="h6" gutterBottom>
-          {question.text}
-        </Typography>
-        <Box display="flex" alignItems="center" gap={2}>
-          <IconButton
-            onClick={handlePlayPause}
-            color="primary"
-            disabled={!question.audioUrl}
-          >
-            {isPlaying ? <Pause size={24} /> : <Play size={24} />}
-          </IconButton>
-          <Box flex={1}>
-            <AudioPlayer
-              ref={audioRef}
-              src={question.audioUrl}
-              onEnded={() => setIsPlaying(false)}
-            />
-          </Box>
-          <Box display="flex" alignItems="center" gap={1} width={200}>
-            <IconButton onClick={handleMuteToggle} size="small">
-              {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
-            </IconButton>
-            <Slider
-              value={volume}
-              onChange={handleVolumeChange}
-              min={0}
-              max={1}
-              step={0.1}
-              size="small"
-            />
-          </Box>
-        </Box>
-      </Box>
-
-      <List>
-        {question.reponses?.map((answer) => (
-          <ListItem key={answer.id} disablePadding>
-            <ListItemButton
-              onClick={() => handleAnswer(answer.id)}
-              selected={selectedAnswer === answer.id}
-              disabled={showFeedback}
-            >
-              <ListItemText primary={answer.text} />
-              {showFeedback && selectedAnswer === answer.id && (
-                <Box display="flex" alignItems="center" ml={2}>
-                  {isCorrectAnswer(answer.id) ? (
-                    <Check color="green" size={20} />
+    <Card className="border-0 shadow-none">
+      <CardContent className="pt-4 px-2 md:px-6">
+        <div className="space-y-6">
+          {audioUrl && (
+            <div className="flex flex-col md:flex-row md:items-center gap-4 p-4 bg-muted rounded-md">
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={handlePlayPause}
+                  disabled={audioError}
+                >
+                  {isPlaying ? (
+                    <Pause className="h-4 w-4" />
                   ) : (
-                    <X color="red" size={20} />
+                    <Play className="h-4 w-4" />
                   )}
-                </Box>
-              )}
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
+                </Button>
+                <audio
+                  ref={audioRef}
+                  src={audioUrl}
+                  onEnded={() => setIsPlaying(false)}
+                  onError={() => {
+                    setAudioError(true);
+                    setIsPlaying(false);
+                  }}
+                />
+              </div>
 
-      {showFeedback && selectedAnswer && !isCorrectAnswer(selectedAnswer) && (
-        <Box mt={2}>
-          <Typography color="error">
-            La réponse correcte était :{' '}
-            {question.reponses?.find(a => a.isCorrect)?.text}
-          </Typography>
-        </Box>
-      )}
-    </StyledPaper>
+              <div className="flex-1 flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleMuteToggle}
+                  disabled={audioError}
+                >
+                  {isMuted ? (
+                    <VolumeX className="h-4 w-4" />
+                  ) : (
+                    <Volume2 className="h-4 w-4" />
+                  )}
+                </Button>
+                <div className="flex-1">
+                  <Slider
+                    value={[volume]}
+                    min={0}
+                    max={1}
+                    step={0.1}
+                    onValueChange={handleVolumeChange}
+                    disabled={audioError}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {audioError && (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                Impossible de charger le fichier audio. Veuillez continuer avec le test en lisant les options.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <RadioGroup 
+            value={selectedAnswer || ''} 
+            onValueChange={handleAnswer}
+            className="space-y-3"
+          >
+            {question.answers?.map((answer) => {
+              const isSelected = selectedAnswer === answer.id;
+              const isCorrect = isCorrectAnswer(answer.id);
+              const showCorrectIndicator = showFeedback && (isSelected || isCorrect);
+
+              return (
+                <div 
+                  key={answer.id} 
+                  className={cn(
+                    "flex items-center space-x-2 rounded-lg border p-4 hover:bg-accent transition-colors",
+                    isSelected && !showFeedback && "bg-accent",
+                    showFeedback && isSelected && isCorrect && "bg-green-50 border-green-200",
+                    showFeedback && isSelected && !isCorrect && "bg-red-50 border-red-200",
+                    showFeedback && !isSelected && isCorrect && "bg-green-50 border-green-200"
+                  )}
+                >
+                  <RadioGroupItem 
+                    value={answer.id} 
+                    id={`audio-answer-${answer.id}`} 
+                    disabled={showFeedback}
+                  />
+                  <Label 
+                    htmlFor={`audio-answer-${answer.id}`}
+                    className="flex-grow cursor-pointer text-base"
+                  >
+                    {answer.text}
+                  </Label>
+                  {showCorrectIndicator && (
+                    <span className="flex items-center">
+                      {isCorrect ? (
+                        <Check className="h-5 w-5 text-green-600" />
+                      ) : (
+                        <X className="h-5 w-5 text-red-600" />
+                      )}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </RadioGroup>
+
+          {showFeedback && selectedAnswer && (
+            <div className="mt-4 text-sm">
+              {isCorrectAnswer(selectedAnswer) ? (
+                <p className="text-green-600 font-medium">Bonne réponse !</p>
+              ) : (
+                <p className="text-red-600 font-medium">
+                  Réponse incorrecte. La bonne réponse était : {question.answers?.find(a => a.isCorrect || a.is_correct === 1)?.text}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 };

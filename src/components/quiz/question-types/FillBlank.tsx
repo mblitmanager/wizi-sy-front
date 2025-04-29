@@ -1,36 +1,16 @@
+
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  TextField,
-  Typography,
-  Paper,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Check, X } from 'lucide-react';
 import { Question as QuizQuestion } from '@/types/quiz';
+import { cn } from "@/lib/utils";
 
 interface FillBlankProps {
   question: QuizQuestion;
   onAnswer: (answers: Record<string, string>) => void;
   showFeedback?: boolean;
 }
-
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(3),
-  marginBottom: theme.spacing(2),
-  backgroundColor: theme.palette.background.paper,
-}));
-
-const StyledTextField = styled(TextField)(({ theme }) => ({
-  margin: theme.spacing(1),
-  minWidth: 120,
-}));
-
-const FeedbackIcon = styled(Box)(({ theme }) => ({
-  display: 'inline-flex',
-  alignItems: 'center',
-  marginLeft: theme.spacing(1),
-}));
 
 export const FillBlank: React.FC<FillBlankProps> = ({
   question,
@@ -47,11 +27,23 @@ export const FillBlank: React.FC<FillBlankProps> = ({
 
     // Initialize answers object with empty strings
     const initialAnswers: Record<string, string> = {};
-    question.blanks?.forEach(blank => {
-      if (blank.bankGroup) {
-        initialAnswers[blank.bankGroup] = '';
-      }
-    });
+    
+    // Add the blanks from the question
+    if (question.blanks && question.blanks.length > 0) {
+      question.blanks.forEach(blank => {
+        if (blank.bankGroup) {
+          initialAnswers[blank.bankGroup] = '';
+        }
+      });
+    } else {
+      // If no blanks are defined, create blank entries for each {} in the text
+      parts.forEach(part => {
+        if (typeof part !== 'string') {
+          initialAnswers[part.group] = '';
+        }
+      });
+    }
+    
     setAnswers(initialAnswers);
   }, [question]);
 
@@ -82,67 +74,83 @@ export const FillBlank: React.FC<FillBlankProps> = ({
     onAnswer(newAnswers);
   };
 
+  const getCorrectAnswer = (group: string) => {
+    // Find the correct answer for this group
+    const correctAnswer = question.answers?.find(a => 
+      (a.bank_group === group || a.bank_group === null) && 
+      (a.isCorrect || a.is_correct === 1)
+    );
+    return correctAnswer?.text || '';
+  };
+
   const isCorrectAnswer = (group: string) => {
     if (!showFeedback) return undefined;
-    const correctAnswer = question.blanks?.find(b => b.bankGroup === group);
-    return correctAnswer && answers[group].toLowerCase() === correctAnswer.text.toLowerCase();
+    
+    const userAnswer = answers[group] || '';
+    const correctAnswer = getCorrectAnswer(group);
+    
+    return userAnswer.toLowerCase().trim() === correctAnswer.toLowerCase().trim();
   };
 
   return (
-    <StyledPaper>
-      <Box>
-        {questionParts.map((part, index) => {
-          if (typeof part === 'string') {
-            return <Typography key={index} component="span">{part}</Typography>;
-          } else {
-            const isCorrect = isCorrectAnswer(part.group);
-            return (
-              <Box key={index} component="span" display="inline-flex" alignItems="center">
-                <StyledTextField
-                  variant="outlined"
-                  size="small"
-                  value={answers[part.group] || ''}
-                  onChange={(e) => handleAnswerChange(part.group, e.target.value)}
-                  disabled={showFeedback}
-                  error={showFeedback && !isCorrect}
-                  sx={{
-                    width: '150px',
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: showFeedback
-                          ? isCorrect
-                            ? 'success.main'
-                            : 'error.main'
-                          : 'inherit',
-                      },
-                    },
-                  }}
-                />
-                {showFeedback && (
-                  <FeedbackIcon>
-                    {isCorrect ? (
-                      <Check color="green" size={20} />
-                    ) : (
-                      <X color="red" size={20} />
-                    )}
-                  </FeedbackIcon>
-                )}
-              </Box>
-            );
-          }
-        })}
-      </Box>
-      {showFeedback && (
-        <Box mt={2}>
-          {question.blanks?.map((blank, index) => (
-            blank.bankGroup && !isCorrectAnswer(blank.bankGroup) && (
-              <Typography key={index} color="error" variant="body2">
-                La réponse correcte pour {blank.bankGroup} était : {blank.text}
-              </Typography>
-            )
-          ))}
-        </Box>
-      )}
-    </StyledPaper>
+    <Card className="border-0 shadow-none">
+      <CardContent className="pt-4 px-2 md:px-6">
+        <div className="space-y-4">
+          <div className="text-lg">
+            {questionParts.map((part, index) => {
+              if (typeof part === 'string') {
+                return <span key={index}>{part}</span>;
+              } else {
+                const group = part.group;
+                const isCorrect = isCorrectAnswer(group);
+                
+                return (
+                  <span key={index} className="inline-flex items-center mx-1">
+                    <div className="relative w-32 md:w-40">
+                      <Input
+                        value={answers[group] || ''}
+                        onChange={(e) => handleAnswerChange(group, e.target.value)}
+                        disabled={showFeedback}
+                        className={cn(
+                          "pr-8",
+                          showFeedback && isCorrect ? "border-green-500 bg-green-50" : "",
+                          showFeedback && isCorrect === false ? "border-red-500 bg-red-50" : ""
+                        )}
+                        placeholder={group}
+                      />
+                      {showFeedback && (
+                        <span className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                          {isCorrect ? (
+                            <Check className="h-4 w-4 text-green-600" />
+                          ) : (
+                            <X className="h-4 w-4 text-red-600" />
+                          )}
+                        </span>
+                      )}
+                    </div>
+                  </span>
+                );
+              }
+            })}
+          </div>
+
+          {showFeedback && (
+            <div className="mt-4 space-y-2">
+              {Object.keys(answers).map((group) => {
+                const isCorrect = isCorrectAnswer(group);
+                if (!isCorrect) {
+                  return (
+                    <p key={group} className="text-red-600 text-sm">
+                      La réponse correcte pour <span className="font-medium">{group}</span> était : {getCorrectAnswer(group)}
+                    </p>
+                  );
+                }
+                return null;
+              })}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 };

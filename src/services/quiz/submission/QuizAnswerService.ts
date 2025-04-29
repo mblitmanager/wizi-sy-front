@@ -1,4 +1,3 @@
-
 import apiClient from '@/lib/api-client';
 import type { Question, Answer } from '@/types/quiz';
 
@@ -20,9 +19,27 @@ export class QuizAnswerService {
     try {
       console.log('Submitting quiz answers:', { quizId, answers, timeSpent });
       
-      // Pas de formatage nécessaire, envoyer les réponses telles quelles
+      // Format answers to ensure they're in the correct format for the API
+      const formattedAnswers: Record<string, any> = {};
+      
+      for (const questionId in answers) {
+        const answer = answers[questionId];
+        
+        // For FillBlank questions, we need to ensure the answer is correctly formatted
+        // The backend expects an array for FillBlank questions too
+        if (typeof answer === 'object' && !Array.isArray(answer)) {
+          // Get the value of the first key in the object (usually blank_1)
+          const value = Object.values(answer)[0];
+          formattedAnswers[questionId] = value;
+        } else {
+          // Otherwise, keep the answer as is
+          formattedAnswers[questionId] = answers[questionId];
+        }
+      }
+      
+      // Send the formatted answers to the API
       const response = await apiClient.post(`/quiz/${quizId}/result`, {
-        answers,
+        answers: formattedAnswers,
         timeSpent
       });
 
@@ -60,7 +77,10 @@ export class QuizAnswerService {
         blanks = blankMatches.map((match: string, index: number) => {
           const groupName = match.replace(/[{}]/g, '');
           // Trouver la réponse correspondante si possible
-          const answer = answers.find(a => a.bank_group === groupName && (a.isCorrect || a.is_correct));
+          const answer = answers.find(a => 
+            (a.bank_group === groupName || a.bank_group === null) && 
+            (a.isCorrect || a.is_correct)
+          );
           return {
             id: `blank_${index}`,
             text: answer?.text || '',

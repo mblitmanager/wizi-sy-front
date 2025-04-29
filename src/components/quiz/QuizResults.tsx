@@ -26,6 +26,9 @@ export function QuizResults() {
     enabled: !!quizId && !resultFromState && !!localStorage.getItem('token')
   });
 
+  console.log("Result from state:", resultFromState);
+  console.log("Result from API:", resultFromApi);
+
   // Use useEffect to set the result once to avoid infinite loops
   useEffect(() => {
     if (resultFromState) {
@@ -75,9 +78,25 @@ export function QuizResults() {
     );
   }
 
+  // Format data for QuizSummary component
+  const formattedUserAnswers: Record<string, any> = {};
+  result.questions.forEach((q: any) => {
+    formattedUserAnswers[q.id] = q.selectedAnswers;
+  });
+
+  const quizData = {
+    id: result.quizId,
+    titre: result.quiz?.titre || "Quiz",
+    description: result.quiz?.description || "",
+    categorie: result.quiz?.categorie || "",
+    categorieId: result.quiz?.categorieId || "",
+    niveau: result.quiz?.niveau || "",
+    points: result.quiz?.points || 0
+  };
+
   return (
     <Layout>
-      <div className="container mx-auto py-8 px-4">
+      <div className="container mx-auto py-6 px-4 lg:py-8 lg:max-w-4xl">
         <h1 className="text-3xl font-bold mb-8">Résultats du quiz</h1>
         
         <div className="mb-10 p-6 border rounded-lg bg-card shadow">
@@ -112,8 +131,8 @@ export function QuizResults() {
         
         <QuizSummary 
           questions={result.questions} 
-          quiz={result.quiz || {}} 
-          userAnswers={result.userAnswers || {}} 
+          quiz={quizData} 
+          userAnswers={formattedUserAnswers} 
           score={result.score} 
           totalQuestions={result.totalQuestions}
         />
