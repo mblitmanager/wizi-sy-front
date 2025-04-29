@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   List,
@@ -23,17 +24,22 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
 }));
 
-const StyledListItem = styled(ListItem)<{ isDragging: boolean }>(({ theme, isDragging }) => ({
+// Create a properly typed styled component for ListItem
+interface StyledListItemProps {
+  $isDragging: boolean;  // Use $ prefix to avoid DOM attribute warnings
+}
+
+const StyledListItem = styled(ListItem)<StyledListItemProps>(({ theme, $isDragging }) => ({
   marginBottom: theme.spacing(1),
   padding: theme.spacing(2),
-  backgroundColor: isDragging ? theme.palette.action.hover : theme.palette.background.paper,
+  backgroundColor: $isDragging ? theme.palette.action.hover : theme.palette.background.paper,
   borderRadius: theme.shape.borderRadius,
   border: `1px solid ${theme.palette.divider}`,
   '&:hover': {
     backgroundColor: theme.palette.action.hover,
   },
   transition: theme.transitions.create(['background-color', 'box-shadow']),
-  ...(isDragging && {
+  ...($isDragging && {
     boxShadow: theme.shadows[3],
   }),
 }));
@@ -92,7 +98,7 @@ export const Ordering: React.FC<OrderingProps> = ({
                       <StyledListItem
                         ref={provided.innerRef}
                         {...provided.draggableProps}
-                        isDragging={snapshot.isDragging}
+                        $isDragging={snapshot.isDragging}
                       >
                         <ListItemIcon
                           {...provided.dragHandleProps}

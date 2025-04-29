@@ -30,11 +30,17 @@ export function FillBlank({ question, onAnswer, showFeedback = false }: FillBlan
   // Initialize answers from any existing selected answers
   useEffect(() => {
     if (question.selectedAnswers && typeof question.selectedAnswers === 'object' && !Array.isArray(question.selectedAnswers)) {
-      // Make a clean copy without spread to avoid TypeScript errors
+      // Create a new object to store the answers
       const initialAnswers: Record<string, string> = {};
-      for (const key in question.selectedAnswers) {
-        initialAnswers[key] = question.selectedAnswers[key];
-      }
+      
+      // Safely handle the type casting
+      const selectedAnswers = question.selectedAnswers as Record<string, string>;
+      
+      // Copy the values
+      Object.keys(selectedAnswers).forEach(key => {
+        initialAnswers[key] = selectedAnswers[key];
+      });
+      
       setAnswers(initialAnswers);
     }
   }, [question.selectedAnswers]);

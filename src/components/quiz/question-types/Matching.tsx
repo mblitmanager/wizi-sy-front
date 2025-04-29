@@ -34,13 +34,19 @@ export const Matching: React.FC<MatchingProps> = ({
 
     // Initialize with existing answers if available
     if (question.selectedAnswers && typeof question.selectedAnswers === 'object' && !Array.isArray(question.selectedAnswers)) {
-      // Make a clean copy without spread to avoid TypeScript errors
+      // Create a new object to store the matches
       const initialMatches: Record<string, string> = {};
-      for (const key in question.selectedAnswers) {
-        if (key !== 'destination') { // Skip the 'destination' property
-          initialMatches[key] = question.selectedAnswers[key];
+      
+      // Safely handle the type casting
+      const selectedAnswers = question.selectedAnswers as Record<string, string>;
+      
+      // Copy the values, excluding the 'destination' property
+      Object.keys(selectedAnswers).forEach(key => {
+        if (key !== 'destination') {
+          initialMatches[key] = selectedAnswers[key];
         }
-      }
+      });
+      
       setMatches(initialMatches);
     }
   }, [question]);
@@ -95,9 +101,10 @@ export const Matching: React.FC<MatchingProps> = ({
                       <SelectValue placeholder="Sélectionnez une correspondance" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Sélectionnez...</SelectItem>
+                      {/* Use a non-empty value for the default item */}
+                      <SelectItem value="_empty">Sélectionnez...</SelectItem>
                       {question.answers?.filter(a => a.match_pair).map(answer => (
-                        <SelectItem key={answer.id} value={answer.match_pair || ''}>
+                        <SelectItem key={answer.id} value={answer.match_pair || '_no_match'}>
                           {answer.match_pair}
                         </SelectItem>
                       ))}
