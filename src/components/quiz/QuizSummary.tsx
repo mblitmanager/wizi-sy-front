@@ -31,16 +31,15 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
     if (!userAnswer) return "Aucune réponse";
     
     switch (question.type) {
-      case 'remplir le champ vide':
+      case 'remplir le champ vide': {
         // Pour les questions fillblank, les réponses sont un objet de type { blank_1: "valeur" }
         if (typeof userAnswer === 'object' && !Array.isArray(userAnswer)) {
-          return Object.entries(userAnswer)
-            .map(([key, value]) => `${key}: ${value}`)
-            .join(', ');
+          return Object.values(userAnswer).join(', ') || "Aucune réponse";
         }
         return String(userAnswer);
+      }
       
-      case 'correspondance':
+      case 'correspondance': {
         // Pour les questions matching, on affiche les paires
         if (Array.isArray(userAnswer)) {
           return userAnswer.map(id => {
@@ -54,32 +53,42 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
           }).join('; ');
         }
         return String(userAnswer);
+      }
       
-      case 'carte flash':
+      case 'carte flash': {
         // Pour les cartes flash, on retourne directement la valeur
         return String(userAnswer);
+      }
         
-      default:
-        // Pour les autres types de questions (QCM, vrai/faux, etc.)
-        if (Array.isArray(userAnswer)) {
-          return userAnswer.map(id => {
-            const answer = question.answers?.find(a => a.id === id);
-            return answer?.text || id;
-          }).join(', ');
-        }
-        // Si c'est une réponse unique comme vrai/faux
-        const answer = question.answers?.find(a => a.id === userAnswer);
+      case 'vrai/faux': {
+        // Pour les questions vrai/faux, on affiche le texte de la réponse
+        const answer = question.answers?.find(a => a.id === String(userAnswer));
         return answer ? answer.text : String(userAnswer);
+      }
+      
+      default: {
+        // Pour les autres types de questions (QCM, etc.)
+        if (Array.isArray(userAnswer)) {
+          const answerTexts = userAnswer.map(id => {
+            const answer = question.answers?.find(a => a.id === String(id));
+            return answer?.text || id;
+          });
+          return answerTexts.join(', ') || "Aucune réponse";
+        }
+        // Si c'est une réponse unique
+        const answer = question.answers?.find(a => a.id === String(userAnswer));
+        return answer ? answer.text : String(userAnswer);
+      }
     }
   };
 
   const formatCorrectAnswer = (question: Question) => {
     switch (question.type) {
-      case 'remplir le champ vide':
+      case 'remplir le champ vide': {
         // Trouver les réponses avec bank_group défini
         const blanks = question.answers?.filter(a => a.bank_group && (a.isCorrect || a.is_correct === 1));
         if (blanks && blanks.length) {
-          return blanks.map(b => `${b.bank_group || 'blank'}: ${b.text}`).join(', ');
+          return blanks.map(b => b.text).join(', ');
         }
         
         // Si pas de bank_group, utiliser les réponses correctes
@@ -91,39 +100,49 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
         // Si on a des correctAnswers disponibles
         if (question.correctAnswers && question.correctAnswers.length) {
           const answerTexts = question.correctAnswers.map(id => {
-            const answer = question.answers?.find(a => a.id === id || a.id === String(id));
+            const answer = question.answers?.find(a => a.id === String(id) || a.id === id);
             return answer ? answer.text : id;
           });
           return answerTexts.join(', ');
         }
         
         return "Aucune réponse correcte définie";
+      }
       
-      case 'correspondance':
+      case 'correspondance': {
         // Pour les questions matching, trouver les paires correctes
         const matchingAnswers = question.answers?.filter(a => a.match_pair);
         if (matchingAnswers && matchingAnswers.length) {
           return matchingAnswers.map(a => `${a.text} → ${a.match_pair}`).join('; ');
         }
         return "Aucune réponse correcte définie";
+      }
       
-      case 'carte flash':
+      case 'carte flash': {
         // Pour les cartes flash, trouver la réponse correcte
         const flashcard = question.answers?.find(a => a.isCorrect || a.is_correct === 1);
         if (flashcard) {
           return `${flashcard.text} (${flashcard.flashcard_back || 'Pas de détails'})`;
         }
         return "Aucune réponse correcte définie";
+      }
         
-      case 'rearrangement':
+      case 'rearrangement': {
         // Pour les questions d'arrangement, ordonner par position
         const orderedAnswers = [...(question.answers || [])].sort(
           (a, b) => (a.position || 0) - (b.position || 0)
         );
         return orderedAnswers.map((a, i) => `${i + 1}. ${a.text}`).join(', ');
+      }
         
-      default:
-        // Pour les QCM et vrai/faux, trouver les réponses correctes
+      case 'vrai/faux': {
+        // Pour les questions vrai/faux, trouver la réponse correcte
+        const correctAnswer = question.answers?.find(a => a.isCorrect || a.is_correct === 1);
+        return correctAnswer ? correctAnswer.text : "Aucune réponse correcte définie";
+      }
+      
+      default: {
+        // Pour les QCM, trouver les réponses correctes
         const correctAnswers = question.answers?.filter(a => a.isCorrect || a.is_correct === 1);
         if (correctAnswers && correctAnswers.length) {
           return correctAnswers.map(a => a.text).join(', ');
@@ -132,13 +151,14 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
         // Si on a des correctAnswers disponibles
         if (question.correctAnswers && question.correctAnswers.length) {
           const answerTexts = question.correctAnswers.map(id => {
-            const answer = question.answers?.find(a => a.id === id || a.id === String(id));
+            const answer = question.answers?.find(a => a.id === String(id) || a.id === id);
             return answer ? answer.text : id;
           });
           return answerTexts.join(', ');
         }
         
         return "Aucune réponse correcte définie";
+      }
     }
   };
 
@@ -197,8 +217,17 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
         return correctAnswer && correctAnswer.text === userAnswerData;
       }
       
+      case 'vrai/faux': {
+        // Pour les questions vrai/faux
+        const correctAnswerIds = question.answers
+          ?.filter(a => a.isCorrect || a.is_correct === 1)
+          .map(a => a.id);
+          
+        return correctAnswerIds?.includes(String(userAnswerData));
+      }
+      
       default: {
-        // Pour QCM, vrai/faux
+        // Pour QCM
         const correctAnswerIds = question.answers
           ?.filter(a => a.isCorrect || a.is_correct === 1)
           .map(a => a.id);
@@ -209,7 +238,10 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
             const correctIds = question.correctAnswers.map(id => String(id));
             
             if (Array.isArray(userAnswerData)) {
-              return JSON.stringify(userAnswerData.sort()) === JSON.stringify(correctIds.sort());
+              // Convertir tous les éléments en string pour la comparaison
+              const normalizedUserAnswers = userAnswerData.map(id => String(id));
+              return correctIds.length === normalizedUserAnswers.length && 
+                     correctIds.every(id => normalizedUserAnswers.includes(id));
             } else {
               return correctIds.includes(String(userAnswerData));
             }
@@ -219,17 +251,20 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
         
         if (Array.isArray(userAnswerData)) {
           // Si plusieurs réponses sont attendues (QCM multi)
-          return JSON.stringify(userAnswerData.sort()) === JSON.stringify(correctAnswerIds.sort());
+          // Convertir tous les éléments en string pour la comparaison
+          const normalizedUserAnswers = userAnswerData.map(id => String(id));
+          return correctAnswerIds.length === normalizedUserAnswers.length && 
+                 correctAnswerIds.every(id => normalizedUserAnswers.includes(id));
         } else {
-          // Si une seule réponse est attendue (vrai/faux, QCM simple)
-          return correctAnswerIds.includes(userAnswerData);
+          // Si une seule réponse est attendue (QCM simple)
+          return correctAnswerIds.includes(String(userAnswerData));
         }
       }
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mb-10">
       <div className="flex items-center gap-4 flex-wrap">
         <Button 
           variant="outline" 

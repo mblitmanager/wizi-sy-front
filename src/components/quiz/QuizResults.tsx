@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { quizSubmissionService } from '@/services/quiz/QuizSubmissionService';
 import { useQuery } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
 
 export function QuizResults() {
   const { quizId } = useParams<{ quizId: string }>();
@@ -53,11 +54,9 @@ export function QuizResults() {
     return (
       <Layout>
         <div className="container mx-auto py-8 px-4">
-          <h1 className="text-2xl font-bold mb-4">Chargement des résultats...</h1>
-          <div className="animate-pulse flex flex-col space-y-4">
-            <div className="h-12 bg-gray-200 rounded w-3/4"></div>
-            <div className="h-64 bg-gray-200 rounded"></div>
-            <div className="h-32 bg-gray-200 rounded"></div>
+          <div className="flex items-center justify-center flex-col gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <h1 className="text-2xl font-bold">Chargement des résultats...</h1>
           </div>
         </div>
       </Layout>
@@ -81,11 +80,20 @@ export function QuizResults() {
   // Format data for QuizSummary component
   const formattedUserAnswers: Record<string, any> = {};
   result.questions.forEach((q: any) => {
-    formattedUserAnswers[q.id] = q.selectedAnswers;
+    if (q.selectedAnswers && Array.isArray(q.selectedAnswers)) {
+      formattedUserAnswers[q.id] = q.selectedAnswers;
+    } else if (q.selectedAnswers && typeof q.selectedAnswers === 'object') {
+      formattedUserAnswers[q.id] = q.selectedAnswers;
+    } else if (q.selectedAnswers) {
+      formattedUserAnswers[q.id] = q.selectedAnswers;
+    } else {
+      // Fallback pour les anciens formats de donnée
+      formattedUserAnswers[q.id] = null;
+    }
   });
 
   const quizData = {
-    id: result.quizId,
+    id: result.quizId || result.quiz?.id,
     titre: result.quiz?.titre || "Quiz",
     description: result.quiz?.description || "",
     categorie: result.quiz?.categorie || "",
@@ -97,8 +105,6 @@ export function QuizResults() {
   return (
     <Layout>
       <div className="container mx-auto py-6 px-4 lg:py-8 lg:max-w-4xl">
-        <h1 className="text-3xl font-bold mb-8">Résultats du quiz</h1>
-        
         <div className="mb-10 p-6 border rounded-lg bg-card shadow">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="text-center p-4 bg-muted rounded-lg">
@@ -117,15 +123,6 @@ export function QuizResults() {
               <p className="text-sm text-muted-foreground uppercase">Complété le</p>
               <p className="text-3xl font-bold">{new Date(result.completedAt).toLocaleDateString()}</p>
             </div>
-          </div>
-          
-          <div className="flex flex-col md:flex-row gap-4 justify-center mt-8">
-            <Button variant="outline" asChild>
-              <Link to="/quizzes">Retour aux quiz</Link>
-            </Button>
-            <Button asChild>
-              <Link to={`/quiz/${quizId}`}>Détails du quiz</Link>
-            </Button>
           </div>
         </div>
         
