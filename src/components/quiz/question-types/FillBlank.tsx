@@ -25,21 +25,26 @@ export const FillBlank: React.FC<FillBlankProps> = ({
     const parts = parseQuestionText(question.text);
     setQuestionParts(parts);
 
-    // Initialize answers object with empty strings
-    const initialAnswers: Record<string, string> = {};
+    // Initialize answers object with existing answers or empty strings
+    let initialAnswers: Record<string, string> = {};
     
-    // Add the blanks from the question
-    if (question.blanks && question.blanks.length > 0) {
-      question.blanks.forEach(blank => {
-        if (blank.bankGroup) {
-          initialAnswers[blank.bankGroup] = '';
-        }
-      });
+    // If we already have answers (from state), use them
+    if (question.selectedAnswers && typeof question.selectedAnswers === 'object' && !Array.isArray(question.selectedAnswers)) {
+      initialAnswers = { ...question.selectedAnswers };
     } else {
-      // If no blanks are defined, create blank entries for each {} in the text
+      // Initialize with empty values
       parts.forEach(part => {
         if (typeof part !== 'string') {
           initialAnswers[part.group] = '';
+        }
+      });
+    }
+    
+    // Ensure all groups from question are represented
+    if (question.blanks && question.blanks.length > 0) {
+      question.blanks.forEach(blank => {
+        if (blank.bankGroup && !(blank.bankGroup in initialAnswers)) {
+          initialAnswers[blank.bankGroup] = '';
         }
       });
     }
@@ -77,8 +82,7 @@ export const FillBlank: React.FC<FillBlankProps> = ({
   const getCorrectAnswer = (group: string) => {
     // Find the correct answer for this group
     const correctAnswer = question.answers?.find(a => 
-      (a.bank_group === group || a.bank_group === null) && 
-      (a.isCorrect || a.is_correct === 1)
+      a.bank_group === group && (a.isCorrect || a.is_correct === 1)
     );
     return correctAnswer?.text || '';
   };
@@ -91,6 +95,15 @@ export const FillBlank: React.FC<FillBlankProps> = ({
     
     return userAnswer.toLowerCase().trim() === correctAnswer.toLowerCase().trim();
   };
+
+  const allBlanks = Array.from(
+    new Set([
+      ...questionParts
+        .filter(part => typeof part !== 'string')
+        .map(part => (part as {group: string}).group),
+      ...(question.blanks?.map(blank => blank.bankGroup) || [])
+    ])
+  );
 
   return (
     <Card className="border-0 shadow-none">
@@ -132,11 +145,47 @@ export const FillBlank: React.FC<FillBlankProps> = ({
                 );
               }
             })}
+
+            {/* Handle blanks that aren't in the question text but have associated answers */}
+            {allBlanks
+              .filter(group => !questionParts.some(part => typeof part !== 'string' && part.group === group))
+              .map((group, index) => {
+                const isCorrect = isCorrectAnswer(group);
+                
+                return (
+                  <div key={`extra-${index}`} className="mt-4 flex items-center">
+                    <span className="mr-2">{group}:</span>
+                    <div className="relative w-32 md:w-40">
+                      <Input
+                        value={answers[group] || ''}
+                        onChange={(e) => handleAnswerChange(group, e.target.value)}
+                        disabled={showFeedback}
+                        className={cn(
+                          "pr-8",
+                          showFeedback && isCorrect ? "border-green-500 bg-green-50" : "",
+                          showFeedback && isCorrect === false ? "border-red-500 bg-red-50" : ""
+                        )}
+                        placeholder={`Réponse pour ${group}`}
+                      />
+                      {showFeedback && (
+                        <span className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                          {isCorrect ? (
+                            <Check className="h-4 w-4 text-green-600" />
+                          ) : (
+                            <X className="h-4 w-4 text-red-600" />
+                          )}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            }
           </div>
 
           {showFeedback && (
             <div className="mt-4 space-y-2">
-              {Object.keys(answers).map((group) => {
+              {allBlanks.map((group) => {
                 const isCorrect = isCorrectAnswer(group);
                 if (!isCorrect) {
                   return (

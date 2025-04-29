@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface QuizSummaryProps {
   quiz: Quiz;
@@ -41,6 +42,19 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
       
       case 'correspondance': {
         // Pour les questions matching, on affiche les paires
+        if (typeof userAnswer === 'object' && !Array.isArray(userAnswer)) {
+          const pairs = [];
+          for (const leftId in userAnswer) {
+            if (leftId !== 'destination') {
+              const rightValue = userAnswer[leftId];
+              const leftItem = question.answers?.find(a => a.id === leftId);
+              pairs.push(`${leftItem?.text || leftId} → ${rightValue}`);
+            }
+          }
+          return pairs.join('; ') || "Aucune réponse";
+        }
+        
+        // Format alternatif (array)
         if (Array.isArray(userAnswer)) {
           return userAnswer.map(id => {
             if (typeof id === 'string' && id.includes('-')) {
@@ -52,11 +66,16 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
             return id;
           }).join('; ');
         }
+        
         return String(userAnswer);
       }
       
       case 'carte flash': {
-        // Pour les cartes flash, on retourne directement la valeur
+        // Pour les cartes flash, retourner le texte de la réponse
+        if (question.answers) {
+          const answer = question.answers.find(a => a.id === String(userAnswer) || a.text === userAnswer);
+          return answer ? answer.text : String(userAnswer);
+        }
         return String(userAnswer);
       }
         
@@ -64,6 +83,17 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
         // Pour les questions vrai/faux, on affiche le texte de la réponse
         const answer = question.answers?.find(a => a.id === String(userAnswer));
         return answer ? answer.text : String(userAnswer);
+      }
+      
+      case 'rearrangement': {
+        // Pour les questions d'ordre, afficher les étapes dans l'ordre soumis
+        if (Array.isArray(userAnswer)) {
+          return userAnswer.map((id, index) => {
+            const answer = question.answers?.find(a => a.id === String(id));
+            return `${index + 1}. ${answer?.text || id}`;
+          }).join(', ');
+        }
+        return String(userAnswer);
       }
       
       default: {
@@ -85,10 +115,16 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
   const formatCorrectAnswer = (question: Question) => {
     switch (question.type) {
       case 'remplir le champ vide': {
-        // Trouver les réponses avec bank_group défini
-        const blanks = question.answers?.filter(a => a.bank_group && (a.isCorrect || a.is_correct === 1));
-        if (blanks && blanks.length) {
-          return blanks.map(b => b.text).join(', ');
+        // Trouver les réponses par bank_group défini
+        const blanks = {};
+        question.answers?.forEach(a => {
+          if (a.bank_group && (a.isCorrect || a.is_correct === 1)) {
+            blanks[a.bank_group] = a.text;
+          }
+        });
+        
+        if (Object.keys(blanks).length > 0) {
+          return Object.values(blanks).join(', ');
         }
         
         // Si pas de bank_group, utiliser les réponses correctes
@@ -111,18 +147,20 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
       
       case 'correspondance': {
         // Pour les questions matching, trouver les paires correctes
-        const matchingAnswers = question.answers?.filter(a => a.match_pair);
-        if (matchingAnswers && matchingAnswers.length) {
-          return matchingAnswers.map(a => `${a.text} → ${a.match_pair}`).join('; ');
-        }
-        return "Aucune réponse correcte définie";
+        const pairs = [];
+        question.answers?.forEach(a => {
+          if (a.match_pair) {
+            pairs.push(`${a.text} → ${a.match_pair}`);
+          }
+        });
+        return pairs.length > 0 ? pairs.join('; ') : "Aucune réponse correcte définie";
       }
       
       case 'carte flash': {
         // Pour les cartes flash, trouver la réponse correcte
         const flashcard = question.answers?.find(a => a.isCorrect || a.is_correct === 1);
         if (flashcard) {
-          return `${flashcard.text} (${flashcard.flashcard_back || 'Pas de détails'})`;
+          return `${flashcard.text}${flashcard.flashcard_back ? ` (${flashcard.flashcard_back})` : ''}`;
         }
         return "Aucune réponse correcte définie";
       }
@@ -139,6 +177,15 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
         // Pour les questions vrai/faux, trouver la réponse correcte
         const correctAnswer = question.answers?.find(a => a.isCorrect || a.is_correct === 1);
         return correctAnswer ? correctAnswer.text : "Aucune réponse correcte définie";
+      }
+      
+      case 'banque de mots': {
+        // Pour les questions banque de mots, montrer les mots corrects
+        const correctWords = question.answers?.filter(a => a.isCorrect || a.is_correct === 1);
+        if (correctWords && correctWords.length) {
+          return correctWords.map(a => a.text).join(', ');
+        }
+        return "Aucune réponse correcte définie";
       }
       
       default: {
@@ -176,28 +223,45 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
         // Pour les questions à blancs, vérifier chaque champ
         if (typeof userAnswerData !== 'object' || Array.isArray(userAnswerData)) return false;
         
-        const blankAnswers = question.answers?.filter(a => a.bank_group && (a.isCorrect || a.is_correct === 1));
-        if (!blankAnswers) return false;
+        const correctBlanks = {};
+        question.answers?.forEach(a => {
+          if (a.bank_group && (a.isCorrect || a.is_correct === 1)) {
+            correctBlanks[a.bank_group] = a.text;
+          }
+        });
+        
+        if (Object.keys(correctBlanks).length === 0) return false;
         
         return Object.entries(userAnswerData).every(([key, value]) => {
-          const correctAnswer = blankAnswers.find(a => a.bank_group === key);
-          return correctAnswer && String(value).toLowerCase() === correctAnswer.text.toLowerCase();
+          const correctAnswer = correctBlanks[key];
+          return correctAnswer && String(value).toLowerCase().trim() === correctAnswer.toLowerCase().trim();
         });
       }
       
       case 'correspondance': {
         // Pour les correspondances
-        if (!Array.isArray(userAnswerData)) return false;
+        if (typeof userAnswerData !== 'object') return false;
         
-        return userAnswerData.every(id => {
-          if (typeof id !== 'string' || !id.includes('-')) return false;
-          
-          const [leftId, rightId] = id.split('-');
-          const leftItem = question.answers?.find(a => a.id === leftId);
-          const rightItem = question.answers?.find(a => a.id === rightId);
-          
-          return leftItem && rightItem && leftItem.match_pair === rightItem.text;
-        });
+        if (Array.isArray(userAnswerData)) {
+          // Format array (leftId-rightId)
+          return userAnswerData.every(id => {
+            if (typeof id !== 'string' || !id.includes('-')) return false;
+            
+            const [leftId, rightId] = id.split('-');
+            const leftItem = question.answers?.find(a => a.id === leftId);
+            const rightItem = question.answers?.find(a => a.id === rightId);
+            
+            return leftItem && rightItem && leftItem.match_pair === rightItem.text;
+          });
+        } else {
+          // Format objet {leftId: rightValue}
+          return Object.entries(userAnswerData).every(([leftId, rightValue]) => {
+            if (leftId === 'destination') return true;
+            
+            const leftItem = question.answers?.find(a => a.id === leftId);
+            return leftItem && leftItem.match_pair === rightValue;
+          });
+        }
       }
       
       case 'rearrangement': {
@@ -214,7 +278,7 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
       case 'carte flash': {
         // Pour les flashcards
         const correctAnswer = question.answers?.find(a => a.isCorrect || a.is_correct === 1);
-        return correctAnswer && correctAnswer.text === userAnswerData;
+        return correctAnswer && (correctAnswer.text === userAnswerData || correctAnswer.id === String(userAnswerData));
       }
       
       case 'vrai/faux': {
@@ -224,6 +288,22 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
           .map(a => a.id);
           
         return correctAnswerIds?.includes(String(userAnswerData));
+      }
+      
+      case 'banque de mots': {
+        // Pour banque de mots
+        if (!Array.isArray(userAnswerData)) return false;
+        
+        const correctAnswerIds = question.answers
+          ?.filter(a => a.isCorrect || a.is_correct === 1)
+          .map(a => a.id);
+        
+        if (!correctAnswerIds?.length) return false;
+        
+        // Vérifier que tous les mots corrects ont été sélectionnés et aucun incorrect
+        const selectedIds = userAnswerData.map(id => String(id));
+        return correctAnswerIds.every(id => selectedIds.includes(String(id))) 
+               && selectedIds.every(id => correctAnswerIds.includes(String(id)));
       }
       
       default: {
@@ -310,90 +390,99 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
         </CardContent>
       </Card>
 
-      <div className="space-y-4">
-        <h2 className="text-xl font-bold">Détails des réponses</h2>
-        
-        {questions.map((question, index) => {
-          const userAnswer = userAnswers[question.id];
-          const isCorrect = isAnswerCorrect(question);
+      <ScrollArea className="h-[calc(100vh-400px)] md:h-auto">
+        <div className="space-y-4 p-1">
+          <h2 className="text-xl font-bold">Détails des réponses</h2>
+          
+          {questions.map((question, index) => {
+            const userAnswer = userAnswers[question.id];
+            const isCorrect = isAnswerCorrect(question);
 
-          return (
-            <Card key={question.id} className={cn(
-              "border-l-4",
-              isCorrect ? "border-l-green-500" : "border-l-red-500"
-            )}>
-              <CardHeader className="pb-2">
-                <div className="flex items-center gap-2">
-                  {isCorrect ? (
-                    <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
-                  ) : (
-                    <XCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
-                  )}
-                  <CardTitle className="text-base md:text-lg">
-                    Question {index + 1}
-                  </CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4 pt-0">
-                <p className="text-base md:text-lg font-medium">{question.text}</p>
-                
-                {question.media_url && (
-                  <div className="flex justify-center my-4">
-                    {question.type === 'question audio' ? (
-                      <div className="w-full max-w-md">
-                        <audio controls className="w-full">
-                          <source src={question.media_url} type="audio/mpeg" />
-                          Votre navigateur ne supporte pas l'élément audio.
-                        </audio>
-                      </div>
+            return (
+              <Card key={question.id} className={cn(
+                "border-l-4",
+                isCorrect ? "border-l-green-500" : "border-l-red-500"
+              )}>
+                <CardHeader className="pb-2">
+                  <div className="flex items-center gap-2">
+                    {isCorrect ? (
+                      <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
                     ) : (
-                      <img
-                        src={question.media_url}
-                        alt="Question media"
-                        className="max-w-full h-auto rounded"
-                      />
+                      <XCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
                     )}
+                    <CardTitle className="text-base md:text-lg">
+                      Question {index + 1}
+                    </CardTitle>
                   </div>
-                )}
-                
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Votre réponse :
-                  </p>
-                  <div className={cn(
-                    "p-3 rounded-lg text-sm md:text-base",
-                    isCorrect ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
-                  )}>
-                    {userAnswer ? formatAnswer(question, userAnswer) : "Aucune réponse"}
-                  </div>
-                </div>
-
-                {!isCorrect && (
+                </CardHeader>
+                <CardContent className="space-y-4 pt-0">
+                  <p className="text-base md:text-lg font-medium">{question.text}</p>
+                  
+                  {question.media_url && (
+                    <div className="flex justify-center my-4">
+                      {question.type === 'question audio' ? (
+                        <div className="w-full max-w-md">
+                          <audio controls className="w-full">
+                            <source 
+                              src={question.media_url.startsWith('http') ? 
+                                question.media_url : 
+                                `${import.meta.env.VITE_API_URL}/${question.media_url}`} 
+                              type="audio/mpeg" 
+                            />
+                            Votre navigateur ne supporte pas l'élément audio.
+                          </audio>
+                        </div>
+                      ) : (
+                        <img
+                          src={question.media_url.startsWith('http') ? 
+                            question.media_url : 
+                            `${import.meta.env.VITE_API_URL}/${question.media_url}`}
+                          alt="Question media"
+                          className="max-w-full h-auto rounded"
+                        />
+                      )}
+                    </div>
+                  )}
+                  
                   <div className="space-y-2">
                     <p className="text-sm font-medium text-muted-foreground">
-                      Bonne réponse :
+                      Votre réponse :
                     </p>
-                    <div className="p-3 rounded-lg bg-green-50 text-green-800 text-sm md:text-base">
-                      {formatCorrectAnswer(question)}
+                    <div className={cn(
+                      "p-3 rounded-lg text-sm md:text-base",
+                      isCorrect ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                    )}>
+                      {userAnswer ? formatAnswer(question, userAnswer) : "Aucune réponse"}
                     </div>
                   </div>
-                )}
-                
-                {question.explication && (
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Explication :
-                    </p>
-                    <Alert className="p-3 bg-blue-50 text-blue-800 text-sm md:text-base border-blue-200">
-                      {question.explication}
-                    </Alert>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+
+                  {!isCorrect && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Bonne réponse :
+                      </p>
+                      <div className="p-3 rounded-lg bg-green-50 text-green-800 text-sm md:text-base">
+                        {formatCorrectAnswer(question)}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {question.explication && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Explication :
+                      </p>
+                      <Alert className="p-3 bg-blue-50 text-blue-800 text-sm md:text-base border-blue-200">
+                        {question.explication}
+                      </Alert>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </ScrollArea>
       
       <div className="flex justify-center mt-6 gap-4 flex-wrap">
         <Button onClick={() => navigate('/quizzes')} variant="outline">

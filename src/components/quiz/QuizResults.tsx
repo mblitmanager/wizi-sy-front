@@ -8,14 +8,18 @@ import { quizSubmissionService } from '@/services/quiz/QuizSubmissionService';
 import { useQuery } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
+import { useNotifications } from '@/hooks/useNotifications';
+import { NotificationBanner } from './NotificationBanner';
 
 export function QuizResults() {
   const { quizId } = useParams<{ quizId: string }>();
   const location = useLocation();
   const { toast } = useToast();
+  const { notifyQuizCompleted, permission } = useNotifications();
   
   // Store result state locally to avoid triggering re-renders
   const [result, setResult] = useState<any>(null);
+  const [notificationSent, setNotificationSent] = useState(false);
   
   // Check if the result was passed through navigation state
   const resultFromState = location.state?.result;
@@ -38,6 +42,14 @@ export function QuizResults() {
       setResult(resultFromApi);
     }
   }, [resultFromState, resultFromApi]);
+  
+  // Handle notifications for quiz results
+  useEffect(() => {
+    if (result && permission === 'granted' && !notificationSent) {
+      notifyQuizCompleted(result.correctAnswers, result.totalQuestions);
+      setNotificationSent(true);
+    }
+  }, [result, permission, notificationSent, notifyQuizCompleted]);
 
   // Handle API errors
   useEffect(() => {
@@ -105,6 +117,8 @@ export function QuizResults() {
   return (
     <Layout>
       <div className="container mx-auto py-6 px-4 lg:py-8 lg:max-w-4xl">
+        <NotificationBanner />
+        
         <div className="mb-10 p-6 border rounded-lg bg-card shadow">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="text-center p-4 bg-muted rounded-lg">

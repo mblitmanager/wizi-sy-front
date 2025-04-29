@@ -1,3 +1,4 @@
+
 import apiClient from '@/lib/api-client';
 import type { Question, Answer } from '@/types/quiz';
 
@@ -25,17 +26,29 @@ export class QuizAnswerService {
       for (const questionId in answers) {
         const answer = answers[questionId];
         
-        // For FillBlank questions, we need to ensure the answer is correctly formatted
-        // The backend expects an array for FillBlank questions too
+        // Pour les questions à blancs (fill-blank), on traite chaque blank séparément
         if (typeof answer === 'object' && !Array.isArray(answer)) {
-          // Get the value of the first key in the object (usually blank_1)
-          const value = Object.values(answer)[0];
-          formattedAnswers[questionId] = value;
-        } else {
-          // Otherwise, keep the answer as is
-          formattedAnswers[questionId] = answers[questionId];
+          // On conserve la structure exacte pour les remplir le champ vide
+          formattedAnswers[questionId] = answer;
+        } 
+        // Pour les questions matching, on doit formater spécialement
+        else if (typeof answer === 'object' && answer !== null && 'destination' in answer) {
+          // Format spécial pour matching
+          const matchingPairs: Record<string, string> = {};
+          for (const key in answer) {
+            if (key !== 'destination') {
+              matchingPairs[key] = answer[key];
+            }
+          }
+          formattedAnswers[questionId] = matchingPairs;
+        }
+        // Pour les autres types (choix multiples, true/false, etc.)
+        else {
+          formattedAnswers[questionId] = answer;
         }
       }
+      
+      console.log('Formatted answers for submission:', formattedAnswers);
       
       // Send the formatted answers to the API
       const response = await apiClient.post(`/quiz/${quizId}/result`, {
@@ -71,16 +84,12 @@ export class QuizAnswerService {
     // Créer des blancs pour les questions de type "remplir le champ vide"
     let blanks = undefined;
     if (questionType === 'remplir le champ vide') {
-      // Détecter les blancs dans le texte de la question
       const blankMatches = question.text.match(/\{([^}]+)\}/g) || [];
       if (blankMatches.length > 0) {
         blanks = blankMatches.map((match: string, index: number) => {
           const groupName = match.replace(/[{}]/g, '');
-          // Trouver la réponse correspondante si possible
-          const answer = answers.find(a => 
-            (a.bank_group === groupName || a.bank_group === null) && 
-            (a.isCorrect || a.is_correct)
-          );
+          // Trouver la réponse correspondante par bank_group
+          const answer = answers.find(a => a.bank_group === groupName);
           return {
             id: `blank_${index}`,
             text: answer?.text || '',
@@ -91,10 +100,10 @@ export class QuizAnswerService {
       }
     }
 
-    // Pour les flashcards, on doit ajouter les informations du verso
+    // Pour les flashcards
     let flashcard = undefined;
     if (questionType === 'carte flash' && answers.length > 0) {
-      const correctAnswer = answers.find(a => a.isCorrect || a.is_correct);
+      const correctAnswer = answers.find(a => a.isCorrect || a.is_correct === 1);
       if (correctAnswer) {
         flashcard = {
           front: correctAnswer.text,
@@ -103,7 +112,7 @@ export class QuizAnswerService {
       }
     }
 
-    // Pour les correspondances, on doit formater les paires
+    // Pour les correspondances
     let matching = undefined;
     if (questionType === 'correspondance') {
       matching = answers.map(a => ({
@@ -113,7 +122,7 @@ export class QuizAnswerService {
       }));
     }
 
-    // Pour le word bank, on formate les groupes
+    // Pour le word bank
     let wordbank = undefined;
     if (questionType === 'banque de mots') {
       wordbank = answers.map(a => ({
@@ -132,7 +141,7 @@ export class QuizAnswerService {
       points: question.points ? Number(question.points) : undefined,
       astuce: question.astuce || undefined,
       explication: question.explication || undefined,
-      audioUrl: questionType === 'question audio' ? question.media_url : undefined,
+      audioUrl: question.media_url || undefined,
       media_url: question.media_url || undefined,
       reponses: answers,
       answers,

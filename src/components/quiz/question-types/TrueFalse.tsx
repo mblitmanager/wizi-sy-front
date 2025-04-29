@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -20,9 +20,21 @@ export const TrueFalse: React.FC<TrueFalseProps> = ({
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 
+  // Initialize from current answer if available
+  useEffect(() => {
+    const currentAnswer = question.selectedAnswers;
+    if (currentAnswer) {
+      if (Array.isArray(currentAnswer) && currentAnswer.length > 0) {
+        setSelectedAnswer(currentAnswer[0]);
+      } else if (typeof currentAnswer === 'string') {
+        setSelectedAnswer(currentAnswer);
+      }
+    }
+  }, [question.selectedAnswers]);
+
   const handleAnswerSelect = (value: string) => {
     setSelectedAnswer(value);
-    onAnswer(value);
+    onAnswer(value); // Send string ID as response
   };
 
   const isCorrectAnswer = (answerId: string) => {
