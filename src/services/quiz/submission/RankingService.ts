@@ -1,5 +1,6 @@
 
 import apiClient from '@/lib/api-client';
+import type { QuizHistory, QuizStats } from '@/types/quiz';
 
 export class RankingService {
   async updateClassement(quizId: string, stagiaireId: string, score: number): Promise<any> {

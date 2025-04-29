@@ -1,4 +1,3 @@
-
 export interface Category {
   id: string;
   name: string;
@@ -88,8 +87,13 @@ export type QuestionType =
 export interface QuizHistory {
   id: string;
   quizId: string;
+  quiz: {
+    title: string;
+    category: string;
+  };
   score: number;
   completedAt: string;
+  timeSpent: number;
 }
 
 export interface QuizStats {
@@ -97,6 +101,8 @@ export interface QuizStats {
   totalScore: number;
   averageScore: number;
   completedQuizzes: number;
+  totalPoints: number;
+  averageTimeSpent: number;
 }
 
 export interface WordBankItem {

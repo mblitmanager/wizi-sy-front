@@ -106,11 +106,13 @@ export function QuizPlay() {
         </div>
       </div>
 
-      <Question
-        question={currentQuestion}
-        onAnswer={(answer) => handleAnswer(answer)}
-        showFeedback={showResults}
-      />
+      {currentQuestion && (
+        <Question
+          question={currentQuestion}
+          onAnswer={(answer) => handleAnswer(answer)}
+          showFeedback={showResults}
+        />
+      )}
 
       <QuizNavigation
         activeStep={activeStep}
