@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { Box, Typography, Paper } from '@mui/material';
+import { Card, CardContent } from '@/components/ui/card';
 import { MultipleChoice } from './question-types/MultipleChoice';
 import { TrueFalse } from './question-types/TrueFalse';
 import { FillBlank } from './question-types/FillBlank';
@@ -9,29 +10,19 @@ import { Matching } from './question-types/Matching';
 import { Flashcard } from './question-types/FlashCard';
 import { AudioQuestion } from './question-types/AudioQuestion';
 import { Question as QuizQuestion, QuestionType } from '@/types/quiz';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 interface Answer {
-  id: number;
+  id: string;
   text: string;
-  is_correct: number | null;
-  position: number | null;
-  match_pair: string | null;
-  bank_group: string | null;
-  flashcard_back: string | null;
-  question_id: number;
-}
-
-export interface Question {
-  id: number;
-  quiz_id: number;
-  text: string;
-  type: string;
-  explication: string;
-  points: string;
-  astuce: string;
-  media_url: string | null;
-  reponse_correct: string | null;
-  reponses: Answer[];
+  isCorrect?: boolean;
+  is_correct?: number | null;
+  position?: number | null;
+  match_pair?: string | null;
+  bank_group?: string | null;
+  flashcard_back?: string | null;
+  question_id?: number;
 }
 
 interface QuestionProps {
@@ -109,84 +100,52 @@ export const Question: React.FC<QuestionProps> = ({ question, onAnswer, showFeed
         );
       default:
         return (
-          <Box>
-            <Typography color="error">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Type de question non supporté</AlertTitle>
+            <AlertDescription>
               Type de question non pris en charge: {question.type}
-            </Typography>
-          </Box>
+            </AlertDescription>
+          </Alert>
         );
     }
   };
 
   return (
-    <Paper 
-      elevation={2} 
-      sx={{ 
-        p: { xs: 2, sm: 3 },
-        mb: 3,
-        width: '100%',
-        maxWidth: '100%',
-        overflow: 'hidden'
-      }}
-    >
-      <Box mb={3}>
-        <Typography 
-          variant="h6" 
-          gutterBottom
-          sx={{
-            fontSize: { xs: '1.1rem', sm: '1.25rem' },
-            wordBreak: 'break-word'
-          }}
-        >
-          {question.text}
-        </Typography>
-        {question.media_url && (
-          <Box 
-            mb={2}
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              '& img': {
-                maxWidth: '100%',
-                height: 'auto',
-                borderRadius: 1
-              }
-            }}
-          >
-            {question.type === 'question audio' ? (
-              <Box sx={{ width: '100%', maxWidth: '400px' }}>
-                <audio controls style={{ width: '100%' }}>
-                  <source src={question.media_url} type="audio/mpeg" />
-                  Votre navigateur ne supporte pas l'élément audio.
-                </audio>
-              </Box>
-            ) : (
-              <img
-                src={question.media_url}
-                alt="Question media"
-              />
-            )}
-          </Box>
+    <Card>
+      <CardContent className="pt-6">
+        <div className="mb-3">
+          <h3 className="text-xl font-bold mb-4">{question.text}</h3>
+          {question.media_url && (
+            <div className="flex justify-center mb-4">
+              {question.type === 'question audio' ? (
+                <div className="w-full max-w-md">
+                  <audio controls className="w-full">
+                    <source src={question.media_url} type="audio/mpeg" />
+                    Votre navigateur ne supporte pas l'élément audio.
+                  </audio>
+                </div>
+              ) : (
+                <img
+                  src={question.media_url}
+                  alt="Question media"
+                  className="max-w-full h-auto rounded"
+                />
+              )}
+            </div>
+          )}
+        </div>
+        
+        {renderQuestion()}
+        
+        {showFeedback && question.explication && (
+          <Alert className="mt-4 bg-blue-50">
+            <div className="font-medium">
+              <strong>Explication:</strong> {question.explication}
+            </div>
+          </Alert>
         )}
-      </Box>
-      {renderQuestion()}
-      {showFeedback && question.explication && (
-        <Box 
-          mt={3} 
-          p={2} 
-          bgcolor="info.light" 
-          borderRadius={1}
-          sx={{
-            '& .MuiTypography-root': {
-              fontSize: { xs: '0.875rem', sm: '1rem' }
-            }
-          }}
-        >
-          <Typography variant="body2" color="info.contrastText">
-            <strong>Explication:</strong> {question.explication}
-          </Typography>
-        </Box>
-      )}
-    </Paper>
+      </CardContent>
+    </Card>
   );
-}; 
+};

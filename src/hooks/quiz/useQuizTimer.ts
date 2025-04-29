@@ -7,14 +7,20 @@ export const useQuizTimer = (initialTime: number = 30 * 60) => {
   const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
+    let timer: number | null = null;
+    
     if (timeLeft > 0 && !isPaused) {
-      const timer = setInterval(() => {
+      timer = window.setInterval(() => {
         setTimeLeft(prev => prev - 1);
         setTimeSpent(prev => prev + 1);
       }, 1000);
-      
-      return () => clearInterval(timer);
     }
+    
+    return () => {
+      if (timer !== null) {
+        clearInterval(timer);
+      }
+    };
   }, [timeLeft, isPaused]);
 
   return {

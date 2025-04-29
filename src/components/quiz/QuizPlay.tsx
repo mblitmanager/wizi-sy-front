@@ -12,6 +12,7 @@ import { QuizResultsDialog } from './quiz-play/QuizResultsDialog';
 import { Button } from '@/components/ui/button';
 import { useQuizPlay } from '@/hooks/useQuizPlay';
 import { formatTime } from '@/lib/utils';
+import { Progress } from '@/components/ui/progress';
 
 export function QuizPlay() {
   const { quizId } = useParams<{ quizId: string }>();
@@ -54,6 +55,7 @@ export function QuizPlay() {
 
   const quizQuestions = quiz.questions;
   const totalQuestionCount = quizQuestions.length;
+  const progressPercentage = ((activeStep + 1) / totalQuestionCount) * 100;
 
   const calculateScore = () => {
     // Simple calculation for display purposes
@@ -105,13 +107,25 @@ export function QuizPlay() {
           </Button>
         </div>
       </div>
+      
+      {/* Quiz Progress */}
+      <div className="mb-6">
+        <div className="flex justify-between text-sm mb-2">
+          <span>Question {activeStep + 1} sur {totalQuestionCount}</span>
+          <span>{Math.round(progressPercentage)}%</span>
+        </div>
+        <Progress value={progressPercentage} className="h-2" />
+      </div>
 
       {currentQuestion && (
-        <Question
-          question={currentQuestion}
-          onAnswer={(answer) => handleAnswer(answer)}
-          showFeedback={showResults}
-        />
+        <div className="flex-grow">
+          <QuestionDisplay 
+            question={currentQuestion} 
+            onAnswer={(answer) => handleAnswer(answer)}
+            currentAnswer={answers[currentQuestion.id]}
+            showFeedback={showResults}
+          />
+        </div>
       )}
 
       <QuizNavigation
@@ -149,5 +163,16 @@ export function QuizPlay() {
         onRestart={handleRestart}
       />
     </div>
+  );
+}
+
+// Create a QuestionDisplay component to handle rendering of questions
+function QuestionDisplay({ question, onAnswer, currentAnswer, showFeedback = false }) {
+  return (
+    <Question
+      question={question}
+      onAnswer={onAnswer}
+      showFeedback={showFeedback}
+    />
   );
 }
