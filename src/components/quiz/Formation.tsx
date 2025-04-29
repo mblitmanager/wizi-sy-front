@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -21,8 +22,7 @@ import {
   IconButton,
   Collapse,
 } from '@mui/material';
-import { FolderOpen, PlayCircle, Download } from 'lucide-react';
-import { ExpandLess, ExpandMore } from '@mui/icons-material';
+import { FolderOpen, PlayCircle, Download, ChevronDown, ChevronUp } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import FormationService from '@/services/FormationService';
 import { useAuth } from '@/hooks/useAuth';
@@ -33,15 +33,15 @@ interface FormationProps {}
 export const Formation: React.FC<FormationProps> = () => {
   const { formationId } = useParams<{ formationId: string }>();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [open, setOpen] = useState({});
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!user) {
       navigate('/login');
     }
-  }, [isAuthenticated, navigate]);
+  }, [user, navigate]);
 
   const { data: formation, isLoading, error } = useQuery({
     queryKey: ['formation', formationId],
@@ -49,7 +49,7 @@ export const Formation: React.FC<FormationProps> = () => {
       if (!formationId) throw new Error('Formation ID is required');
       return FormationService.getFormationById(formationId);
     },
-    enabled: !!formationId && isAuthenticated,
+    enabled: !!formationId && !!user,
     meta: {
       onError: (error: any) => {
         toast({
@@ -77,7 +77,7 @@ export const Formation: React.FC<FormationProps> = () => {
         <Button 
           variant="contained" 
           onClick={() => navigate('/formations')}
-          startIcon={<FolderOpen />}
+          startIcon={<FolderOpen size={18} />}
         >
           Retour aux formations
         </Button>
@@ -117,8 +117,7 @@ export const Formation: React.FC<FormationProps> = () => {
             <List>
               {formation.quizzes.map((quiz) => (
                 <ListItem 
-                  key={quiz.id} 
-                  button 
+                  key={quiz.id}
                   onClick={() => handleQuizStart(quiz.id)}
                   sx={{
                     '&:hover': {
@@ -128,7 +127,7 @@ export const Formation: React.FC<FormationProps> = () => {
                   }}
                 >
                   <ListItemIcon>
-                    <PlayCircle />
+                    <PlayCircle size={18} />
                   </ListItemIcon>
                   <ListItemText primary={quiz.title} />
                 </ListItem>
@@ -143,7 +142,12 @@ export const Formation: React.FC<FormationProps> = () => {
           <Typography variant="h5" sx={{ mb: 2 }}>Médias</Typography>
           <Grid container spacing={2}>
             {formation.medias.map((media) => (
-              <Grid item xs={12} sm={6} md={4} key={media.id}>
+              <Grid 
+                key={media.id}
+                xs={12} 
+                sm={6} 
+                md={4}
+              >
                 <Card>
                   <CardContent>
                     <Typography variant="h6" className="mb-1">
@@ -172,7 +176,7 @@ export const Formation: React.FC<FormationProps> = () => {
               size="small"
               onClick={() => handleToggleCollapse('downloads')}
             >
-              {open['downloads'] ? <ExpandLess /> : <ExpandMore />}
+              {open['downloads'] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
             </IconButton>
           </Typography>
           <Collapse in={!!open['downloads']} timeout="auto" unmountOnExit>

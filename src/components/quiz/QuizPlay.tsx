@@ -16,40 +16,61 @@ import { formatTime } from '@/lib/utils';
 export function QuizPlay() {
   const { quizId } = useParams<{ quizId: string }>();
   const {
-    activeStep,
-    quizQuestions,
-    quizHistory,
-    quizStats,
+    quiz,
+    currentQuestion,
+    currentQuestionIndex: activeStep,
+    totalQuestions,
+    isLastQuestion,
     answers,
-    showResults,
-    timeLeft,
-    showHint,
-    showHistory,
-    showStats,
     isLoading,
     error,
-    handleAnswer,
-    handleNext,
-    handleBack,
-    handleFinish,
-    calculateScore,
-    toggleHint,
-    toggleHistory,
-    toggleStats,
-    closeResults,
-    handleRestart
-  } = useQuizPlay(quizId);
+    timeLeft,
+    timeSpent,
+    isPaused,
+    isHistoryOpen: showHistory,
+    isStatsOpen: showStats,
+    isResultsOpen: showResults,
+    quizHistory,
+    quizStats,
+    submitAnswer: handleAnswer,
+    goToNextQuestion: handleNext,
+    goToPreviousQuestion: handleBack,
+    submitQuiz: handleFinish,
+    openHistoryDialog: toggleHistory,
+    closeHistoryDialog,
+    openStatsDialog: toggleStats,
+    closeStatsDialog,
+    openResultsDialog,
+    closeResultsDialog: closeResults
+  } = useQuizPlay(quizId || '');
 
   if (isLoading) {
     return <LoadingState />;
   }
 
-  if (error || !quizQuestions || quizQuestions.length === 0) {
+  if (error || !quiz || !quiz.questions || quiz.questions.length === 0) {
     return <ErrorState />;
   }
 
-  const currentQuestion = quizQuestions[activeStep];
-  const totalQuestions = quizQuestions.length;
+  const quizQuestions = quiz.questions;
+  const totalQuestionCount = quizQuestions.length;
+
+  const calculateScore = () => {
+    // Simple calculation for display purposes
+    const answeredQuestions = Object.keys(answers).length;
+    return answeredQuestions > 0 ? Math.round((answeredQuestions / totalQuestionCount) * 100) : 0;
+  };
+
+  const toggleHint = () => {
+    // Not yet implemented
+    console.log("Show hint functionality not yet implemented");
+  };
+
+  const handleRestart = () => {
+    // Not yet implemented
+    console.log("Restart functionality not yet implemented");
+    window.location.reload();
+  };
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 min-h-screen flex flex-col">
@@ -101,14 +122,14 @@ export function QuizPlay() {
 
       <QuizHistoryDialog
         open={showHistory}
-        onClose={toggleHistory}
-        history={quizHistory?.data || []}
+        onClose={closeHistoryDialog}
+        history={quizHistory || []}
       />
 
       <QuizStatsDialog
         open={showStats}
-        onClose={toggleStats}
-        stats={quizStats?.data}
+        onClose={closeStatsDialog}
+        stats={quizStats}
       />
 
       <QuizResultsDialog
