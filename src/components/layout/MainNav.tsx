@@ -1,3 +1,4 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
@@ -8,6 +9,7 @@ import {
   LogOut,
   Menu,
   X,
+  LayoutList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/context/UserContext";
@@ -24,8 +26,8 @@ const MainNav = ({ showBottomNav = false }: MainNavProps) => {
 
   const navItems = [
     { name: "Accueil", path: "/", icon: <Home className="h-5 w-5" /> },
-    { name: "Catalogue", path: "/catalogue", icon: <BookOpen className="h-5 w-5" /> },
-    { name: "Quiz", path: "/quiz", icon: <BookOpen className="h-5 w-5" /> },
+    { name: "Catalogue", path: "/catalogue", icon: <LayoutList className="h-5 w-5" /> },
+    { name: "Quiz", path: "/quizzes", icon: <BookOpen className="h-5 w-5" /> },
     { name: "Formations", path: "/formations", icon: <BookOpen className="h-5 w-5" /> },
     { name: "Profil", path: "/profile", icon: <User className="h-5 w-5" /> },
   ];

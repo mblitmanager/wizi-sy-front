@@ -20,7 +20,7 @@ export function MobileNav() {
     {
       icon: BookOpen,
       label: "Quiz",
-      href: "/quiz"
+      href: "/quizzes"
     },
     {
       icon: Trophy,

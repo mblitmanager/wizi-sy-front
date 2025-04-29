@@ -1,3 +1,4 @@
+
 export interface Category {
   id: string;
   name: string;
@@ -17,6 +18,7 @@ export interface Quiz {
   categorie: string;
   categorieId: string;
   questions?: Question[];
+  duree?: number; // Added duration field
 }
 
 export interface Question {

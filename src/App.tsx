@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -48,7 +49,7 @@ const App = () => (
                   <Catalogue />
                 </ProtectedRoute>
               } />
-              <Route path="/catalogue/:categorySlug" element={
+              <Route path="/catalogue/:categoryId" element={
                 <ProtectedRoute>
                   <CategoryFormations />
                 </ProtectedRoute>

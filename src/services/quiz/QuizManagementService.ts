@@ -1,3 +1,4 @@
+
 import apiClient from '@/lib/api-client';
 import type { Quiz, Question, QuizHistory, QuizStats } from '@/types/quiz';
 import { categoryService } from './CategoryService';
@@ -128,6 +129,16 @@ class QuizManagementService {
     } catch (error) {
       console.error('Error fetching quiz categories:', error);
       return [];
+    }
+  }
+  
+  async getQuizStatistics(quizId: string): Promise<any> {
+    try {
+      const response = await apiClient.get(`/quiz/${quizId}/statistics`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching quiz statistics:', error);
+      throw new Error('Failed to fetch quiz statistics');
     }
   }
 }
