@@ -1,5 +1,4 @@
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -25,7 +24,6 @@ import ContactsPage from "@/pages/ContactsPage";
 import FormationsPage from "@/pages/FormationsPage";
 
 // Admin Pages
-import AdminPage from "@/pages/AdminPage";
 import UsersPage from "@/pages/admin/UsersPage";
 import CoursesPage from "@/pages/admin/CoursesPage";
 import QuizzesPage from "@/pages/admin/QuizzesPage";
@@ -40,7 +38,6 @@ const App = () => (
       <NotificationProvider>
         <TooltipProvider>
           <Toaster />
-          <Sonner />
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<AppLayout />}>
@@ -54,11 +51,10 @@ const App = () => (
                 <Route path="formations" element={<FormationsPage />} />
                 <Route
                   path="catalogue_formation/:id"
-                  element={<CatalogueFormationDetails />}
+                  element={<CatalogueFormationDetails/>}
                 />
 
                 {/* Admin Routes */}
-                <Route path="admin" element={<AdminPage />} />
                 <Route path="admin/users" element={<UsersPage />} />
                 <Route path="admin/courses" element={<CoursesPage />} />
                 <Route path="admin/quizzes" element={<QuizzesPage />} />

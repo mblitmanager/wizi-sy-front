@@ -1,167 +1,65 @@
-import { api } from './api';
-import { Question, Answer, Formation } from '@/types';
+import { api } from '@/services/api';
+import { Quiz, Question, QuizResult } from '@/types/quiz';
 
-interface QuizDataResponse {
-    id: number;
-    title: string;
-    description: string;
-    questions: Question[];
-    points: number;
+interface ApiResponse<T> {
+  data: T;
+  message?: string;
+  status?: string;
 }
 
-export interface QuizData {
-    id: number;
-    title: string;
-    description: string;
-    questions: Question[];
-    duration: number;
-    level: 'débutant' | 'intermédiaire' | 'avancé' | 'super';
-    mode: 'normal' | 'challenge' | 'discovery';
-    category: string;
-    categoryId: number;
-    points: number;
-}
-
-export interface QuizResult {
-  id: string;
-  quizId: string;
-  userId: string;
-  score: number;
-  correctAnswers: number;
-  totalQuestions: number;
-  completedAt: string;
-  timeSpent: number;
-  maxStreak: number;
-  mode: string;
-}
-
-export const quizService = {
-  async getQuiz(
-    level: string, 
-    questionCount: number,
-    category?: string
-  ): Promise<QuizData> {
-    const response = await api.get<QuizData>(`/api/quiz/${level}`, {
-      params: {
-        count: questionCount,
-        category
-      }
-    });
-    return response.data;
-  },
-
-  async submitQuiz(quizId: string, answers: string[]): Promise<{ score: number }> {
-    const response = await api.post<{ score: number }>(`/api/quizzes/${quizId}/submit`, { answers });
-    return response.data;
-  },
-
-  async saveQuizResult(result: QuizResult): Promise<void> {
-    await api.post('/api/quizzes/results', result);
-  },
-
-  async getQuizHistory(): Promise<QuizData[]> {
-    const response = await api.get<QuizData[]>('/api/quizzes/history');
-    return response.data;
-  },
-
-  async getQuizRanking(): Promise<{ userId: string; score: number; rank: number }[]> {
-    const response = await api.get<{ userId: string; score: number; rank: number }[]>('/api/quizzes/ranking');
-    return response.data;
-  },
-
-  async getQuizCategories(): Promise<string[]> {
-    const response = await api.get<string[]>('/api/quiz/categories');
-    return response.data;
-  },
-
-  async getQuizByCategory(category: string): Promise<QuizData> {
+export const QuizService = {
+  getQuizCategories: async (): Promise<Quiz[]> => {
     try {
-      // Récupérer les formations de la catégorie spécifiée
-      const formationsResponse = await api.get<Formation[]>(`/formations/categories/${category}`);
-      const formations = formationsResponse.data;
-
-      if (!formations || formations.length === 0) {
-        throw new Error('Aucune formation trouvée pour cette catégorie');
-      }
-
-      // Récupérer les quiz de toutes les formations de cette catégorie
-      const quizzesPromises = formations.map((formation: Formation) => 
-        api.get<QuizDataResponse[]>(`/quizzes?formation_id=${formation.id}`)
-      );
-      const quizzesResponses = await Promise.all(quizzesPromises);
-      
-      // Fusionner tous les quiz en un seul tableau
-      const allQuizzes = quizzesResponses.flatMap(response => response.data);
-
-      if (allQuizzes.length === 0) {
-        throw new Error('Aucun quiz trouvé pour cette catégorie');
-      }
-
-      // Sélectionner aléatoirement 10 questions parmi tous les quiz
-      const selectedQuestions = allQuizzes.flatMap(quiz => quiz.questions)
-        .sort(() => 0.5 - Math.random())
-        .slice(0, 10);
-
-      // Créer un nouveau quiz avec les questions sélectionnées
-      const firstQuiz = allQuizzes[0];
-      return {
-        id: firstQuiz.id,
-        title: firstQuiz.title,
-        description: firstQuiz.description,
-        questions: selectedQuestions,
-        duration: 600, // 10 minutes par défaut
-        level: 'intermédiaire', // Niveau par défaut
-        mode: 'normal', // Mode par défaut
-        category: category,
-        categoryId: formations[0].id,
-        points: firstQuiz.points || 0
-      };
+      const response = await api.get<ApiResponse<Quiz[]>>('/quiz/categories');
+      return response.data?.data || [];
     } catch (error) {
-      console.error('Erreur lors de la récupération des quiz par catégorie:', error);
-      throw error;
+      console.error('Error fetching quiz categories:', error);
+      return [];
     }
   },
 
-  async getQuizStats(): Promise<{
-    totalQuizzes: number;
-    averageScore: number;
-    bestStreak: number;
-    categories: Record<string, number>;
-  }> {
-    const response = await api.get<{
-      totalQuizzes: number;
-      averageScore: number;
-      bestStreak: number;
-      categories: Record<string, number>;
-    }>('/quizzes/stats');
-    return response.data;
+  getQuizById: async (id: string): Promise<Quiz | null> => {
+    try {
+      const response = await api.get<ApiResponse<Quiz>>(`/quiz/${id}`);
+      return response.data?.data || null;
+    } catch (error) {
+      console.error('Error fetching quiz:', error);
+      return null;
+    }
   },
 
-  async getQuizRecommendations(): Promise<QuizData[]> {
-    const response = await api.get<QuizData[]>('/quizzes/recommendations');
-    return response.data;
+  getQuizQuestions: async (quizId: string): Promise<Question[]> => {
+    try {
+      const response = await api.get<ApiResponse<Question[]>>(`/quiz/${quizId}/questions`);
+      return response.data?.data || [];
+    } catch (error) {
+      console.error('Error fetching quiz questions:', error);
+      return [];
+    }
   },
 
-  async getQuizChallenges(): Promise<{
-    daily: QuizData;
-    weekly: QuizData;
-    monthly: QuizData;
-  }> {
-    const response = await api.get<{
-      daily: QuizData;
-      weekly: QuizData;
-      monthly: QuizData;
-    }>('/quizzes/challenges');
-    return response.data;
+  getQuiz: async (level: string, count: number, category: string): Promise<Quiz | null> => {
+    try {
+      const response = await api.get<ApiResponse<Quiz>>(`/quiz/random`, {
+        params: { level, count, category }
+      });
+      return response.data?.data || null;
+    } catch (error) {
+      console.error('Error fetching quiz:', error);
+      return null;
+    }
   },
 
-  async getFormationsByCategory(category: string): Promise<Formation[]> {
-    const response = await api.get<Formation[]>(`/formations/categories/${category}`);
-    return response.data;
-  },
-
-  async getFormationsByStagiaire(): Promise<{ data: Formation[] }> {
-    const response = await api.get<{ data: Formation[] }>('/stagiaire/formations');
-    return response.data;
+  submitQuiz: async (quizId: string, answers: Record<string, string>): Promise<QuizResult | null> => {
+    try {
+      const response = await api.post<ApiResponse<QuizResult>>(`/quiz/${quizId}/submit`, { answers });
+      return response.data?.data || null;
+    } catch (error) {
+      console.error('Error submitting quiz:', error);
+      return null;
+    }
   }
-}; 
+};
+
+// Export nommé pour maintenir la compatibilité avec les imports existants
+export const quizService = QuizService; 

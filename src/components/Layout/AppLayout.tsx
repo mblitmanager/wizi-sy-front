@@ -39,7 +39,6 @@ export const AppLayout: React.FC = () => {
     { name: 'Formations', path: '/formations', icon: <BookOpen className="h-5 w-5" /> },
     { name: 'Quiz', path: '/quiz', icon: <BookOpen className="h-5 w-5" /> },
     { name: 'Classement', path: '/classement', icon: <BarChart2 className="h-5 w-5" /> },
-    { name: 'Contacts', path: '/contacts', icon: <Users className="h-5 w-5" /> },
     { name: 'Profil', path: '/profile', icon: <User className="h-5 w-5" /> },
   ];
 

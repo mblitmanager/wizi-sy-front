@@ -2,62 +2,55 @@ import { User } from "./index";
 
 export interface Question {
   id: string;
-  quiz_id: string;
   text: string;
-  media?: {
-    type: "image" | "video" | "audio";
-    url: string;
-  };
-  type:
-    | "vrai faux"
-    | "choix multiples"
-    | "remplir le champ vide"
-    | "correspondance"
-    | "commander"
-    | "banque de mots"
-    | "carte flash"
-    | "question audio";
+  type: string;
   media_url?: string;
   explication?: string;
   points: number;
   astuce?: string;
-  options?: string[];
-  categories?: string[];
-  correct_answer:
-    | string
-    | number
-    | boolean
-    | string[]
-    | number[]
-    | Record<string, string>
-    | Record<string, string[]>
-    | Record<string, number[]>;
-  time_limit?: number;
+  quiz_id: string;
+  created_at?: string;
+  updated_at?: string;
+  reponses: Answer[];
 }
 
-export interface Answer {
+export interface Response {
   id: string;
   text: string;
-  is_correct: number;
-  question_id?: string;
+  is_correct: boolean;
+  question_id: string;
+  created_at?: string;
+  updated_at?: string;
+  position?: number;
   match_pair?: string;
   bank_group?: string;
   flashcard_back?: string;
 }
 
+export interface Answer {
+  id: number;
+  text: string;
+  is_correct: number;
+  position: string | null;
+  match_pair: string | null;
+  bank_group: string | null;
+  flashcard_back: string | null;
+  question_id: number;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
 export interface Quiz {
   id: string;
-  title: string;
-  titre?: string;
+  titre: string;
   description: string;
-  category: string;
-  categoryId?: string;
-  level?: "débutant" | "intermédiaire" | "avancé" | "super";
-  niveau?: "débutant" | "intermédiaire" | "avancé" | "super";
+  duree: number;
+  niveau: string;
+  nb_points_total: number;
+  formation_id: string;
   questions: Question[];
-  points: number;
-  nb_points_total?: number;
-  timeLimit?: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface QuizSubmitData {
@@ -107,38 +100,44 @@ export interface Category {
 
 export interface QuizResult {
   id: string;
-  quizId: string;
-  userId: string;
+  quiz_id: string;
+  user_id: string;
   score: number;
-  correctAnswers: number;
-  totalQuestions: number;
-  completedAt: string;
-  timeSpent: number;
-  quizName?: string;
-  answers?: Record<string, string>;
-}
-
-export interface UserProgress {
-  quizzes_completed: number;
-  total_points: number;
-  average_score: number;
-  categoryProgress?: Record<string, number>;
-  points?: number;
-  badges?: string[];
-  streak?: number;
-  stagiaire?: {
-    id: number;
-  };
+  correct_answers: number;
+  total_questions: number;
+  completed_at: string;
+  time_spent: number;
+  max_streak: number;
+  mode: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface LeaderboardEntry {
-  user_id: string;
-  username: string;
-  avatar?: string;
+  id: string;
+  stagiaire_id: string;
+  prenom: string;
+  points: number;
+  rank: number;
+  completed_quizzes: number;
+  average_score: number;
+  last_activity: string;
+}
+
+export interface UserProgress {
+  id: string;
+  stagiaire_id: string;
   total_points: number;
-  quizzes_completed: number;
-  average_score?: number;
-  rank?: number;
+  completed_quizzes: number;
+  average_score: number;
+  current_streak: number;
+  longest_streak: number;
+  last_quiz_date: string;
+  category_progress: Record<string, {
+    completed: number;
+    total: number;
+    average_score: number;
+  }>;
 }
 
 export interface Formation {
@@ -146,14 +145,47 @@ export interface Formation {
   titre: string;
   description: string;
   categorie: string;
-  image?: string;
+  image: string | null;
   statut: number;
   duree: string;
   created_at: string;
   updated_at: string;
-  formateurs: User[];
-  stagiaires: User[];
+  formateurs: Formateur[];
+  stagiaires: Stagiaire[];
   quizzes: Quiz[];
+}
+
+export interface Formateur {
+  id: number;
+  role: string;
+  prenom: string;
+  user_id: number;
+  created_at: string;
+  updated_at: string;
+  pivot: {
+    formation_id: number;
+    formateur_id: number;
+  };
+}
+
+export interface Stagiaire {
+  id: number;
+  prenom: string;
+  civilite: string;
+  telephone: string;
+  adresse: string;
+  date_naissance: string;
+  ville: string;
+  code_postal: string;
+  role: string;
+  statut: number;
+  user_id: number;
+  created_at: string;
+  updated_at: string;
+  pivot: {
+    formation_id: number;
+    stagiaire_id: number;
+  };
 }
 
 type MultipleChoiceAnswer = number;

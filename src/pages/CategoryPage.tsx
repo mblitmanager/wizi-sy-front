@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Category, Quiz } from '@/types';
-import { quizAPI } from '@/api';
+import { quizApi } from '@/api/quizApi';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -18,24 +18,18 @@ const CategoryPage: React.FC = () => {
       try {
         if (!id) return;
         
-        // Get category information
-        const categories = await quizAPI.getCategories();
-        const foundCategory = categories.find(cat => cat === id) || null;
-        setCategory(foundCategory ? { 
-          id: id,
-          name: id,
-          description: `Quizzes in ${id} category`,
-          color: '#4F46E5',
-          colorClass: 'category-blue-500'
-        } : null);
+        // Récupération des informations de la catégorie
+        const categories = await quizApi.getCategories();
+        const foundCategory = categories.find(cat => cat.id === id) || null;
+        setCategory(foundCategory);
         
-        // Get quizzes for this category
-        const categoryQuizzes = await quizAPI.getQuizzesByCategory(id);
-        setQuizzes(categoryQuizzes);
+        // Récupération des quiz pour cette catégorie
+        if (foundCategory) {
+          const categoryQuizzes = await quizApi.getQuizzesByCategory(id);
+          setQuizzes(categoryQuizzes);
+        }
       } catch (error) {
-        console.error('Failed to fetch category data:', error);
-        setCategory(null);
-        setQuizzes([]);
+        console.error('Échec de récupération des données de catégorie:', error);
       } finally {
         setIsLoading(false);
       }
@@ -80,7 +74,7 @@ const CategoryPage: React.FC = () => {
   };
 
   const renderQuizzesByLevel = (level: 'débutant' | 'intermédiaire' | 'avancé' | 'super') => {
-    const filteredQuizzes = quizzes.filter(quiz => quiz.level === level || quiz.niveau === level);
+    const filteredQuizzes = quizzes.filter(quiz => quiz.niveau === level);
     
     if (filteredQuizzes.length === 0) return null;
     
@@ -90,19 +84,19 @@ const CategoryPage: React.FC = () => {
           {level.charAt(0).toUpperCase() + level.slice(1)}
           {level === 'super' && ' Quiz'}
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           {filteredQuizzes.map(quiz => (
             <Link to={`/quiz/${quiz.id}`} key={quiz.id}>
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform hover:shadow-md hover:translate-y-[-2px]">
                 <div className="h-2" style={{ backgroundColor: category.color }}></div>
                 <div className="p-4">
                   <div className="flex justify-between items-start">
-                    <h3 className="font-semibold text-gray-800 font-montserrat">{quiz.title || quiz.titre}</h3>
-                    {getLevelBadge(quiz.level || quiz.niveau as any)}
+                    <h3 className="font-semibold text-gray-800 font-montserrat">{quiz.titre}</h3>
+                    {getLevelBadge(quiz.niveau)}
                   </div>
                   <p className="text-sm text-gray-600 mt-2 mb-3 font-roboto">{quiz.description}</p>
                   <div className="flex items-center text-xs text-gray-500 font-nunito">
-                    <span>{quiz.questions?.length || 0} questions • {quiz.points || quiz.nb_points_total || 0} points</span>
+                    <span>{quiz.questions.length} questions • {quiz.nb_points_total} points</span>
                   </div>
                 </div>
               </div>
@@ -120,7 +114,7 @@ const CategoryPage: React.FC = () => {
         Retour
       </Link>
       
-      <div className={`h-2 w-24 mb-4 rounded-full ${category.colorClass ? category.colorClass.replace('category-', 'bg-') : 'bg-blue-500'}`}></div>
+      <div className={`h-2 w-24 mb-4 rounded-full ${category.colorClass.replace('category-', 'bg-')}`}></div>
       
       <h1 className="text-3xl font-bold mb-2 font-montserrat">{category.name}</h1>
       <p className="text-gray-600 mb-8 font-roboto">{category.description}</p>
