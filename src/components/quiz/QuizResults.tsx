@@ -92,14 +92,21 @@ export function QuizResults() {
   // Format data for QuizSummary component
   const formattedUserAnswers: Record<string, any> = {};
   result.questions.forEach((q: any) => {
-    if (q.selectedAnswers && Array.isArray(q.selectedAnswers)) {
-      formattedUserAnswers[q.id] = q.selectedAnswers;
-    } else if (q.selectedAnswers && typeof q.selectedAnswers === 'object') {
-      formattedUserAnswers[q.id] = q.selectedAnswers;
-    } else if (q.selectedAnswers) {
-      formattedUserAnswers[q.id] = q.selectedAnswers;
+    if (q.selectedAnswers) {
+      // Pour les questions à choix multiples ou vrai/faux
+      if (Array.isArray(q.selectedAnswers)) {
+        formattedUserAnswers[q.id] = q.selectedAnswers;
+      } 
+      // Pour les questions de type 'remplir le champ vide' ou 'correspondance'
+      else if (typeof q.selectedAnswers === 'object') {
+        formattedUserAnswers[q.id] = q.selectedAnswers;
+      }
+      // Pour les autres types de questions
+      else {
+        formattedUserAnswers[q.id] = q.selectedAnswers;
+      }
     } else {
-      // Fallback pour les anciens formats de donnée
+      // Fallback pour les anciens formats de donnée ou pas de réponse
       formattedUserAnswers[q.id] = null;
     }
   });

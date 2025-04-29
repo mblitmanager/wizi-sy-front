@@ -26,23 +26,20 @@ export class QuizAnswerService {
       for (const questionId in answers) {
         const answer = answers[questionId];
         
-        // Pour les questions à blancs (fill-blank), on traite chaque blank séparément
-        if (typeof answer === 'object' && !Array.isArray(answer)) {
-          // On conserve la structure exacte pour les remplir le champ vide
-          formattedAnswers[questionId] = answer;
-        } 
-        // Pour les questions matching, on doit formater spécialement
-        else if (typeof answer === 'object' && answer !== null && 'destination' in answer) {
-          // Format spécial pour matching
-          const matchingPairs: Record<string, string> = {};
-          for (const key in answer) {
-            if (key !== 'destination') {
-              matchingPairs[key] = answer[key];
-            }
-          }
-          formattedAnswers[questionId] = matchingPairs;
+        // Handle different question types
+        if (answer === null || answer === undefined) {
+          // No answer provided
+          formattedAnswers[questionId] = null;
         }
-        // Pour les autres types (choix multiples, true/false, etc.)
+        // Fill in the blank questions (object with keys for each blank)
+        else if (typeof answer === 'object' && !Array.isArray(answer)) {
+          formattedAnswers[questionId] = answer;
+        }
+        // Multiple choice questions (array of answer IDs)
+        else if (Array.isArray(answer)) {
+          formattedAnswers[questionId] = answer;
+        }
+        // Single answer questions (string with answer ID)
         else {
           formattedAnswers[questionId] = answer;
         }
@@ -84,7 +81,7 @@ export class QuizAnswerService {
     // Créer des blancs pour les questions de type "remplir le champ vide"
     let blanks = undefined;
     if (questionType === 'remplir le champ vide') {
-      const blankMatches = question.text.match(/\{([^}]+)\}/g) || [];
+      const blankMatches = question.text ? question.text.match(/\{([^}]+)\}/g) || [] : [];
       if (blankMatches.length > 0) {
         blanks = blankMatches.map((match: string, index: number) => {
           const groupName = match.replace(/[{}]/g, '');
@@ -115,11 +112,13 @@ export class QuizAnswerService {
     // Pour les correspondances
     let matching = undefined;
     if (questionType === 'correspondance') {
-      matching = answers.map(a => ({
-        id: a.id,
-        text: a.text,
-        matchPair: a.match_pair || ''
-      }));
+      matching = answers
+        .filter(a => a.text && (a.match_pair || a.match_pair === ''))
+        .map(a => ({
+          id: a.id,
+          text: a.text,
+          matchPair: a.match_pair || ''
+        }));
     }
 
     // Pour le word bank

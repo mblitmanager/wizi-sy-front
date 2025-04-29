@@ -49,18 +49,28 @@ export const Ordering: React.FC<OrderingProps> = ({
   onAnswer,
   showFeedback = false,
 }) => {
-  const [orderedAnswers, setOrderedAnswers] = useState(question.reponses || []);
+  const [orderedAnswers, setOrderedAnswers] = useState<any[]>([]);
 
   useEffect(() => {
-    // Mélanger les réponses au chargement initial
-    if (!showFeedback) {
-      const shuffled = [...(question.reponses || [])].sort(() => Math.random() - 0.5);
-      setOrderedAnswers(shuffled);
+    // Initialize answers from the question
+    if (question.reponses && question.reponses.length > 0) {
+      // For initial display or when showFeedback is true, use the sorted list
+      if (showFeedback) {
+        const sorted = [...question.reponses].sort((a, b) => 
+          (a.position || 0) - (b.position || 0)
+        );
+        setOrderedAnswers(sorted);
+      }
+      // For normal display, shuffle the answers
+      else {
+        const shuffled = [...question.reponses].sort(() => Math.random() - 0.5);
+        setOrderedAnswers(shuffled);
+      }
     }
   }, [question.reponses, showFeedback]);
 
   const handleDragEnd = (result: DropResult) => {
-    if (!result.destination) return;
+    if (!result.destination || showFeedback) return;
 
     const items = Array.from(orderedAnswers);
     const [reorderedItem] = items.splice(result.source.index, 1);

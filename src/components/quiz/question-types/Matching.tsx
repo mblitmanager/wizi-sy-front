@@ -4,8 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Check, X, ArrowRight } from 'lucide-react';
 import { Question } from '@/types/quiz';
 import { cn } from "@/lib/utils";
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface MatchingProps {
@@ -25,10 +23,12 @@ export const Matching: React.FC<MatchingProps> = ({
   // Initialize from existing answer if available
   useEffect(() => {
     // Extract all possible right-side options from the answers
-    const rightOptions = question.answers?.map(answer => ({
-      id: answer.id,
-      text: answer.match_pair || ''
-    })).filter(option => option.text.length > 0) || [];
+    const rightOptions = question.answers
+      ?.filter(answer => answer.match_pair && answer.match_pair.trim() !== '')
+      .map(answer => ({
+        id: answer.id,
+        text: answer.match_pair || ''
+      })) || [];
     
     setAvailableOptions(rightOptions);
 
@@ -52,9 +52,18 @@ export const Matching: React.FC<MatchingProps> = ({
   }, [question]);
 
   const handleMatchChange = (leftId: string, rightValue: string) => {
-    const newMatches = { ...matches, [leftId]: rightValue };
-    setMatches(newMatches);
-    onAnswer(newMatches);
+    if (rightValue === "_empty") {
+      // Handle clearing the selection
+      const newMatches = { ...matches };
+      delete newMatches[leftId];
+      setMatches(newMatches);
+      onAnswer(newMatches);
+    } else {
+      // Set the new match
+      const newMatches = { ...matches, [leftId]: rightValue };
+      setMatches(newMatches);
+      onAnswer(newMatches);
+    }
   };
 
   const isCorrectMatch = (leftId: string): boolean | undefined => {
@@ -69,11 +78,18 @@ export const Matching: React.FC<MatchingProps> = ({
     return leftItem?.match_pair || '';
   };
 
+  // Only include answers that have text and aren't flashcard backs
+  const leftItems = question.answers?.filter(answer => 
+    answer.text && 
+    !answer.flashcard_back && 
+    answer.match_pair !== undefined
+  ) || [];
+
   return (
     <Card className="border-0 shadow-none">
       <CardContent className="pt-4 px-2 md:px-6">
         <div className="space-y-4">
-          {question.answers?.filter(answer => answer.text && !answer.flashcard_back).map((leftItem) => {
+          {leftItems.map((leftItem) => {
             const isCorrect = isCorrectMatch(leftItem.id);
             
             return (
@@ -93,7 +109,7 @@ export const Matching: React.FC<MatchingProps> = ({
                 
                 <div className="flex-1">
                   <Select
-                    value={matches[leftItem.id] || ''}
+                    value={matches[leftItem.id] || "_empty"}
                     onValueChange={(value) => handleMatchChange(leftItem.id, value)}
                     disabled={showFeedback}
                   >
@@ -101,11 +117,10 @@ export const Matching: React.FC<MatchingProps> = ({
                       <SelectValue placeholder="Sélectionnez une correspondance" />
                     </SelectTrigger>
                     <SelectContent>
-                      {/* Use a non-empty value for the default item */}
                       <SelectItem value="_empty">Sélectionnez...</SelectItem>
-                      {question.answers?.filter(a => a.match_pair).map(answer => (
-                        <SelectItem key={answer.id} value={answer.match_pair || '_no_match'}>
-                          {answer.match_pair}
+                      {availableOptions.map(option => (
+                        <SelectItem key={option.id} value={option.text}>
+                          {option.text}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -127,7 +142,7 @@ export const Matching: React.FC<MatchingProps> = ({
           
           {showFeedback && (
             <div className="mt-4 space-y-2">
-              {question.answers?.filter(answer => answer.text && !answer.flashcard_back).map((leftItem) => {
+              {leftItems.map((leftItem) => {
                 const isCorrect = isCorrectMatch(leftItem.id);
                 if (!isCorrect) {
                   return (
