@@ -1,3 +1,4 @@
+
 import {
   Dialog,
   DialogContent,
@@ -31,7 +32,7 @@ export function QuizStatsDialog({ open, onClose, stats }: QuizStatsDialogProps) 
             <div className="grid gap-2">
               <div className="flex justify-between">
                 <span>Moyenne des scores:</span>
-                <span className="font-semibold">{typeof stats.average_score !== 'undefined' ? stats.average_score : '-'}</span>
+                <span className="font-semibold">{typeof stats.average_score !== 'undefined' ? `${stats.average_score}%` : '-'}</span>
               </div>
               {typeof stats.average_time !== 'undefined' && stats.average_time !== null ? (
                 <div className="flex justify-between">

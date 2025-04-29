@@ -15,9 +15,10 @@ interface QuestionDisplayProps {
   question: Question;
   onAnswer: (value: string | string[] | Record<string, string>) => void;
   currentAnswer?: string | string[] | Record<string, string>;
+  showFeedback?: boolean;
 }
 
-export function QuestionDisplay({ question, onAnswer, currentAnswer }: QuestionDisplayProps) {
+export function QuestionDisplay({ question, onAnswer, currentAnswer, showFeedback = false }: QuestionDisplayProps) {
   const questionType = question.type ? question.type.toLowerCase() : '';
   
   // Normaliser le type de question
@@ -34,21 +35,21 @@ export function QuestionDisplay({ question, onAnswer, currentAnswer }: QuestionD
   
   switch (normalizedType) {
     case 'choix multiples':
-      return <MultipleChoice question={question} onAnswer={onAnswer} />;
+      return <MultipleChoice question={question} onAnswer={onAnswer} currentAnswer={currentAnswer} showFeedback={showFeedback} />;
     case 'vrai/faux':
-      return <TrueFalse question={question} onAnswer={onAnswer} />;
+      return <TrueFalse question={question} onAnswer={onAnswer} showFeedback={showFeedback} />;
     case 'rearrangement':
-      return <Ordering question={question} onAnswer={onAnswer} />;
+      return <Ordering question={question} onAnswer={onAnswer} showFeedback={showFeedback} />;
     case 'remplir le champ vide':
-      return <FillBlank question={question} onAnswer={onAnswer} />;
+      return <FillBlank question={question} onAnswer={onAnswer} showFeedback={showFeedback} />;
     case 'banque de mots':
-      return <WordBank question={question} onAnswer={onAnswer} />;
+      return <WordBank question={question} onAnswer={onAnswer} showFeedback={showFeedback} />;
     case 'carte flash':
-      return <Flashcard question={question} onAnswer={onAnswer} />;
+      return <Flashcard question={question} onAnswer={onAnswer} showFeedback={showFeedback} />;
     case 'correspondance':
-      return <Matching question={question} onAnswer={onAnswer} />;
+      return <Matching question={question} onAnswer={onAnswer} showFeedback={showFeedback} />;
     case 'question audio':
-      return <AudioQuestion question={question} onAnswer={onAnswer} />;
+      return <AudioQuestion question={question} onAnswer={onAnswer} showFeedback={showFeedback} />;
     default:
       return (
         <Alert variant="destructive">
