@@ -1,7 +1,7 @@
 
 import apiClient from '@/lib/api-client';
 import type { Quiz } from '@/types/quiz';
-import { quizManagementService } from './QuizManagementService';
+import { quizFormatterService } from './management/QuizFormatterService';
 
 class StagiaireQuizService {
   async getStagiaireQuizzes(): Promise<Quiz[]> {
@@ -11,7 +11,7 @@ class StagiaireQuizService {
       const categories = await apiClient.get('/quiz/categories').then(res => res.data);
       
       return Promise.all(
-        quizzes.map(quiz => quizManagementService['formatQuiz'](quiz, categories))
+        quizzes.map(quiz => quizFormatterService.formatQuiz(quiz, categories))
       );
     } catch (error) {
       console.error('Error fetching stagiaire quizzes:', error);

@@ -17,9 +17,10 @@ export const Classement: React.FC = () => {
     enabled: !!stagiaireProfile?.stagiaire?.id
   });
 
+  // Pass empty string if no ID is available
   const { data: quizStats } = useQuery({
     queryKey: ["quizStats", stagiaireProfile?.stagiaire?.id],
-    queryFn: () => quizSubmissionService.getQuizStats(),
+    queryFn: () => quizSubmissionService.getQuizStats(""),
     enabled: !!stagiaireProfile?.stagiaire?.id
   });
 
