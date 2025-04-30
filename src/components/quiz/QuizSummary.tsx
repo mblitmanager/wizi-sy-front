@@ -41,11 +41,20 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
     
     switch (question.type) {
       case 'remplir le champ vide': {
-        // Pour les questions fillblank, les réponses sont un objet de type { blank_1: "valeur" }
         if (typeof userAnswer === 'object' && !Array.isArray(userAnswer)) {
-          return Object.values(userAnswer).join(', ') || "Aucune réponse";
+          return Object.values(userAnswer).map(val => {
+            // Cherche une réponse correspondante dans answers
+            const found = question.answers?.find(a =>
+              normalizeString(a.text) === normalizeString(String(val))
+            );
+            return found ? found.text : val;
+          }).join(', ') || "Aucune réponse";
         }
-        return String(userAnswer);
+        // Cas fallback
+        const found = question.answers?.find(a =>
+          normalizeString(a.text) === normalizeString(String(userAnswer))
+        );
+        return found ? found.text : String(userAnswer);
       }
       
       case 'correspondance': {
@@ -56,7 +65,8 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
             if (leftId !== 'destination') {
               const rightValue = userAnswer[leftId];
               const leftItem = question.answers?.find(a => a.id === leftId);
-              pairs.push(`${leftItem?.text || leftId} → ${rightValue}`);
+              const rightItem = question.answers?.find(a => a.id === String(rightValue));
+              pairs.push(`${leftItem?.text || leftId} → ${rightItem?.text || rightValue}`);
             }
           }
           return pairs.join('; ') || "Aucune réponse";
@@ -80,18 +90,30 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
       
       case 'carte flash': {
         // Pour les cartes flash, retourner le texte de la réponse
-        if (question.answers) {
-          const answer = question.answers.find(a => a.id === String(userAnswer) || a.text === userAnswer);
-          return answer ? answer.text : String(userAnswer);
+        let value = userAnswer;
+        // Si la réponse est un objet avec selectedAnswers, on l'utilise
+        if (userAnswer && typeof userAnswer === 'object' && 'selectedAnswers' in userAnswer) {
+          value = userAnswer.selectedAnswers;
         }
-        return String(userAnswer);
+        // Si c'est un tableau, on prend le premier élément
+        if (Array.isArray(value)) {
+          value = value[0];
+        }
+        if (question.answers) {
+          const answer = question.answers.find(a =>
+            a.id === String(value) ||
+            normalizeString(a.text) === normalizeString(String(value))
+          );
+          return answer ? answer.text : String(value);
+        }
+        return String(value);
       }
-        
-      // case 'vrai/faux': {
-      //   // Pour les questions vrai/faux, on affiche le texte de la réponse
-      //   const answer = question.answers?.find(a => a.id === String(userAnswer));
-      //   return answer ? answer.text : String(userAnswer);
-      // }
+      
+      case 'vrai/faux': {
+        // Pour les questions vrai/faux, on affiche le texte de la réponse
+        const answer = question.answers?.find(a => a.id === String(userAnswer));
+        return answer ? answer.text : String(userAnswer);
+      }
       
       case 'rearrangement': {
         // Pour les questions d'ordre, afficher les étapes dans l'ordre soumis
@@ -160,7 +182,9 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
         const pairs = [];
         question.answers?.forEach(a => {
           if (a.match_pair) {
-            pairs.push(`${a.text} → ${a.match_pair}`);
+            // Si match_pair est un ID, on cherche le texte correspondant
+            const rightItem = question.answers?.find(ans => ans.id === String(a.match_pair));
+            pairs.push(`${a.text} → ${rightItem?.text || a.match_pair}`);
           }
         });
         return pairs.length > 0 ? pairs.join('; ') : "Aucune réponse correcte définie";
@@ -183,12 +207,6 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
         return orderedAnswers.map((a, i) => `${i + 1}. ${a.text}`).join(', ');
       }
         
-      // case 'vrai/faux': {
-      //   // Pour les questions vrai/faux, trouver la réponse correcte
-      //   const correctAnswer = question.answers?.find(a => a.isCorrect || a.is_correct === 1);
-      //   return correctAnswer ? correctAnswer.text : "Aucune réponse correcte définie";
-      // }
-      
       case 'banque de mots': {
         // Pour les questions banque de mots, montrer les mots corrects
         const correctWords = question.answers?.filter(a => a.isCorrect || a.is_correct === 1);
@@ -303,15 +321,6 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
         const correctAnswer = question.answers?.find(a => a.isCorrect || a.is_correct === 1);
         return correctAnswer && (correctAnswer.text === userAnswerData || correctAnswer.id === String(userAnswerData));
       }
-      
-      // case 'vrai/faux': {
-      //   // Pour les questions vrai/faux
-      //   const correctAnswerIds = question.answers
-      //     ?.filter(a => a.isCorrect || a.is_correct === 1)
-      //     .map(a => a.id);
-          
-      //   return correctAnswerIds?.includes(String(userAnswerData));
-      // }
       
       case 'banque de mots': {
         // Pour banque de mots
