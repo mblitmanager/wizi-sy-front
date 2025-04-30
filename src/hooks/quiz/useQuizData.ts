@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { quizManagementService } from '@/services/quiz/QuizManagementService';
+import { quizFetchService } from '@/services/quiz/QuizFetchService';
 import type { Quiz } from '@/types/quiz';
 import { useToast } from '@/hooks/use-toast';
 
@@ -14,7 +14,7 @@ export const useQuizData = (quizId: string) => {
     const fetchQuiz = async () => {
       try {
         setIsLoading(true);
-        const quizData = await quizManagementService.getQuizById(quizId);
+        const quizData = await quizFetchService.getQuizById(quizId);
         
         if (!quizData) {
           setError('Quiz not found');

@@ -1,7 +1,6 @@
 
 import { useState, useCallback } from 'react';
 import { quizSubmissionService } from '@/services/quiz/QuizSubmissionService';
-import { quizManagementService } from '@/services/quiz/QuizManagementService';
 import { QuizHistory, QuizStats } from '@/types/quiz';
 
 export const useQuizDialogs = (quizId: string) => {
@@ -22,7 +21,7 @@ export const useQuizDialogs = (quizId: string) => {
 
   const loadQuizStats = useCallback(async () => {
     try {
-      const stats = await quizManagementService.getQuizStatistics(quizId);
+      const stats = await quizSubmissionService.getQuizStats(quizId);
       setQuizStats(stats);
     } catch (error) {
       console.error('Error loading quiz stats:', error);

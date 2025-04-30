@@ -1,7 +1,7 @@
 
-import { Question } from '@/types/quiz';
+import { Question } from "@/types/quiz";
 
-export const formatAnswer = (question: Question, userAnswer: any): string => {
+export const formatAnswer = (question: Question, userAnswer: any) => {
   if (!userAnswer) return "Aucune réponse";
   
   switch (question.type) {
@@ -85,7 +85,7 @@ export const formatAnswer = (question: Question, userAnswer: any): string => {
   }
 };
 
-export const formatCorrectAnswer = (question: Question): string => {
+export const formatCorrectAnswer = (question: Question) => {
   switch (question.type) {
     case 'remplir le champ vide': {
       // Trouver les réponses par bank_group défini
@@ -182,18 +182,18 @@ export const formatCorrectAnswer = (question: Question): string => {
   }
 };
 
-export const isAnswerCorrect = (question: Question, userAnswer: any): boolean => {
+export const isAnswerCorrect = (question: Question, userAnswerData: any): boolean => {
   if (question.isCorrect !== undefined) {
     // Si la question fournit déjà l'information
     return question.isCorrect;
   }
   
-  if (!userAnswer) return false;
+  if (!userAnswerData) return false;
   
   switch (question.type) {
     case 'remplir le champ vide': {
       // Pour les questions à blancs, vérifier chaque champ
-      if (typeof userAnswer !== 'object' || Array.isArray(userAnswer)) return false;
+      if (typeof userAnswerData !== 'object' || Array.isArray(userAnswerData)) return false;
       
       const correctBlanks = {};
       question.answers?.forEach(a => {
@@ -204,7 +204,7 @@ export const isAnswerCorrect = (question: Question, userAnswer: any): boolean =>
       
       if (Object.keys(correctBlanks).length === 0) return false;
       
-      return Object.entries(userAnswer).every(([key, value]) => {
+      return Object.entries(userAnswerData).every(([key, value]) => {
         const correctAnswer = correctBlanks[key];
         return correctAnswer && String(value).toLowerCase().trim() === correctAnswer.toLowerCase().trim();
       });
@@ -212,11 +212,11 @@ export const isAnswerCorrect = (question: Question, userAnswer: any): boolean =>
     
     case 'correspondance': {
       // Pour les correspondances
-      if (typeof userAnswer !== 'object') return false;
+      if (typeof userAnswerData !== 'object') return false;
       
-      if (Array.isArray(userAnswer)) {
+      if (Array.isArray(userAnswerData)) {
         // Format array (leftId-rightId)
-        return userAnswer.every(id => {
+        return userAnswerData.every(id => {
           if (typeof id !== 'string' || !id.includes('-')) return false;
           
           const [leftId, rightId] = id.split('-');
@@ -227,7 +227,7 @@ export const isAnswerCorrect = (question: Question, userAnswer: any): boolean =>
         });
       } else {
         // Format objet {leftId: rightValue}
-        return Object.entries(userAnswer).every(([leftId, rightValue]) => {
+        return Object.entries(userAnswerData).every(([leftId, rightValue]) => {
           if (leftId === 'destination') return true;
           
           const leftItem = question.answers?.find(a => a.id === leftId);
@@ -238,19 +238,19 @@ export const isAnswerCorrect = (question: Question, userAnswer: any): boolean =>
     
     case 'rearrangement': {
       // Pour le réarrangement, vérifier l'ordre
-      if (!Array.isArray(userAnswer)) return false;
+      if (!Array.isArray(userAnswerData)) return false;
       
       const correctOrder = [...(question.answers || [])].sort((a, b) => 
         (a.position || 0) - (b.position || 0)
       ).map(a => a.id);
       
-      return JSON.stringify(userAnswer) === JSON.stringify(correctOrder);
+      return JSON.stringify(userAnswerData) === JSON.stringify(correctOrder);
     }
     
     case 'carte flash': {
       // Pour les flashcards
       const correctAnswer = question.answers?.find(a => a.isCorrect || a.is_correct === 1);
-      return correctAnswer && (correctAnswer.text === userAnswer || correctAnswer.id === String(userAnswer));
+      return correctAnswer && (correctAnswer.text === userAnswerData || correctAnswer.id === String(userAnswerData));
     }
     
     case 'vrai/faux': {
@@ -259,12 +259,12 @@ export const isAnswerCorrect = (question: Question, userAnswer: any): boolean =>
         ?.filter(a => a.isCorrect || a.is_correct === 1)
         .map(a => a.id);
         
-      return correctAnswerIds?.includes(String(userAnswer));
+      return correctAnswerIds?.includes(String(userAnswerData));
     }
     
     case 'banque de mots': {
       // Pour banque de mots
-      if (!Array.isArray(userAnswer)) return false;
+      if (!Array.isArray(userAnswerData)) return false;
       
       const correctAnswerIds = question.answers
         ?.filter(a => a.isCorrect || a.is_correct === 1)
@@ -273,7 +273,7 @@ export const isAnswerCorrect = (question: Question, userAnswer: any): boolean =>
       if (!correctAnswerIds?.length) return false;
       
       // Vérifier que tous les mots corrects ont été sélectionnés et aucun incorrect
-      const selectedIds = userAnswer.map(id => String(id));
+      const selectedIds = userAnswerData.map(id => String(id));
       return correctAnswerIds.every(id => selectedIds.includes(String(id))) 
              && selectedIds.every(id => correctAnswerIds.includes(String(id)));
     }
@@ -289,27 +289,27 @@ export const isAnswerCorrect = (question: Question, userAnswer: any): boolean =>
         if (question.correctAnswers && question.correctAnswers.length) {
           const correctIds = question.correctAnswers.map(id => String(id));
           
-          if (Array.isArray(userAnswer)) {
+          if (Array.isArray(userAnswerData)) {
             // Convertir tous les éléments en string pour la comparaison
-            const normalizedUserAnswers = userAnswer.map(id => String(id));
+            const normalizedUserAnswers = userAnswerData.map(id => String(id));
             return correctIds.length === normalizedUserAnswers.length && 
                    correctIds.every(id => normalizedUserAnswers.includes(id));
           } else {
-            return correctIds.includes(String(userAnswer));
+            return correctIds.includes(String(userAnswerData));
           }
         }
         return false;
       }
       
-      if (Array.isArray(userAnswer)) {
+      if (Array.isArray(userAnswerData)) {
         // Si plusieurs réponses sont attendues (QCM multi)
         // Convertir tous les éléments en string pour la comparaison
-        const normalizedUserAnswers = userAnswer.map(id => String(id));
+        const normalizedUserAnswers = userAnswerData.map(id => String(id));
         return correctAnswerIds.length === normalizedUserAnswers.length && 
                correctAnswerIds.every(id => normalizedUserAnswers.includes(id));
       } else {
         // Si une seule réponse est attendue (QCM simple)
-        return correctAnswerIds.includes(String(userAnswer));
+        return correctAnswerIds.includes(String(userAnswerData));
       }
     }
   }

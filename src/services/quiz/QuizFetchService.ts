@@ -46,6 +46,24 @@ export class QuizFetchService {
       throw error;
     }
   }
+  
+  async getQuizzesByCategory(categoryId: string): Promise<QuizType[]> {
+    try {
+      return await quizApiService.get(`/quiz/category/${categoryId}`);
+    } catch (error) {
+      console.error(`Error fetching quizzes for category ${categoryId}:`, error);
+      throw error;
+    }
+  }
+  
+  async getCategories(): Promise<any[]> {
+    try {
+      return await quizApiService.get('/categories');
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      throw error;
+    }
+  }
 }
 
 export const quizFetchService = new QuizFetchService();

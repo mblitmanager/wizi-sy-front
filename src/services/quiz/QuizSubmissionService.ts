@@ -1,26 +1,6 @@
 
 import { quizApiService } from './api/QuizApiService';
 
-interface QuizSubmission {
-  quiz_id: number;
-  answers: Record<number, any>;
-  time_spent: number;
-}
-
-interface Progression {
-  id: number;
-  stagiaire_id: number;
-  quiz_id: number;
-  termine: boolean;
-  created_at: string;
-  updated_at: string;
-  score: number;
-  correct_answers: number;
-  total_questions: number;
-  time_spent: number;
-  completion_time: string;
-}
-
 export class QuizSubmissionService {
   async getQuizResult(quizId: string): Promise<any> {
     try {
@@ -31,13 +11,13 @@ export class QuizSubmissionService {
     }
   }
 
-  async submitQuiz(submission: QuizSubmission): Promise<any> {
+  async submitQuiz(quizId: string, answers: Record<string, any>, timeSpent: number): Promise<any> {
     try {
       return await quizApiService.post(
-        `/quiz/${submission.quiz_id}/result`,
+        `/quiz/${quizId}/result`,
         {
-          answers: submission.answers,
-          timeSpent: submission.time_spent
+          answers: answers,
+          timeSpent: timeSpent
         }
       );
     } catch (error) {
@@ -55,11 +35,11 @@ export class QuizSubmissionService {
     }
   }
 
-  async getQuizStatistics(quizId: number): Promise<any> {
+  async getQuizStats(quizId: string): Promise<any> {
     try {
       return await quizApiService.get(`/quiz/${quizId}/statistics`);
     } catch (error) {
-      console.error('Error fetching quiz statistics:', error);
+      console.error(`Error fetching statistics for quiz ${quizId}:`, error);
       throw error;
     }
   }
@@ -101,6 +81,24 @@ export class QuizSubmissionService {
       return await quizApiService.get(`/quiz-participations/${participationId}/resume`);
     } catch (error) {
       console.error('Error fetching participation resume:', error);
+      throw error;
+    }
+  }
+  
+  async getStagiaireProfile(): Promise<any> {
+    try {
+      return await quizApiService.get('/stagiaire/profile');
+    } catch (error) {
+      console.error('Error fetching stagiaire profile:', error);
+      throw error;
+    }
+  }
+  
+  async getGlobalClassement(): Promise<any> {
+    try {
+      return await quizApiService.get('/classement');
+    } catch (error) {
+      console.error('Error fetching global classement:', error);
       throw error;
     }
   }

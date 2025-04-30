@@ -9,7 +9,7 @@ export const useQuizSubmission = (quizId: string) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const submitQuiz = async (answers: Record<string, string[]>, timeSpent: number) => {
+  const submitQuiz = async (answers: Record<string, any>, timeSpent: number) => {
     if (!quizId) return;
     
     try {

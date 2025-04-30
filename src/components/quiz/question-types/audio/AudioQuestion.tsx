@@ -65,18 +65,23 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
           />
 
           <AudioAnswerOptions 
-            answers={question.answers || []}
+            answers={question.answers?.map(answer => ({
+              id: String(answer.id),
+              text: answer.text,
+              isCorrect: answer.isCorrect,
+              is_correct: typeof answer.is_correct === 'number' ? answer.is_correct : null
+            })) || []}
             selectedAnswer={selectedAnswer}
             onSelectAnswer={handleAnswer}
             showFeedback={showFeedback}
-            correctAnswers={question.correctAnswers}
+            correctAnswers={question.correctAnswers?.map(String) || []}
           />
 
           {showFeedback && selectedAnswer && (
             <AudioFeedback 
-              isCorrect={question.correctAnswers?.includes(Number(selectedAnswer)) || 
-                         question.answers?.find(a => a.id === selectedAnswer)?.isCorrect === true ||
-                         question.answers?.find(a => a.id === selectedAnswer)?.is_correct === 1}
+              isCorrect={question.correctAnswers?.includes(selectedAnswer) || 
+                        question.answers?.find(a => a.id === selectedAnswer)?.isCorrect === true ||
+                        question.answers?.find(a => a.id === selectedAnswer)?.is_correct === 1}
               correctAnswerText={
                 question.correctAnswers && question.correctAnswers.length > 0 
                   ? question.answers?.find(a => String(a.id) === String(question.correctAnswers?.[0]))?.text

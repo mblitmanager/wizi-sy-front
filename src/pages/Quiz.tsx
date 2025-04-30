@@ -1,3 +1,4 @@
+
 import { useParams, Navigate, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { useQuery } from "@tanstack/react-query";
@@ -7,7 +8,7 @@ import { Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { quizManagementService } from "@/services/quiz/QuizManagementService";
+import { quizFetchService } from "@/services/quiz/QuizFetchService";
 import { useEffect } from "react";
 
 const Quiz = () => {
@@ -30,7 +31,7 @@ const Quiz = () => {
     queryKey: ["quiz", quizId],
     queryFn: () => {
       if (!quizId) throw new Error('No quiz ID provided');
-      return quizManagementService.getQuizById(quizId);
+      return quizFetchService.getQuizById(quizId);
     },
     enabled: !!quizId && !!token,
     retry: 1,
