@@ -28,7 +28,7 @@ export function QuizStatsDialog({ open, onClose, stats }: QuizStatsDialogProps) 
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Statistiques du Quiz</DialogTitle>
+            <DialogTitle>Vos statistiques sur ce Quiz</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-center text-muted-foreground">
@@ -66,7 +66,7 @@ export function QuizStatsDialog({ open, onClose, stats }: QuizStatsDialogProps) 
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Statistiques du Quiz</DialogTitle>
+          <DialogTitle>Vos statistiques sur ce Quiz</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="grid gap-2">

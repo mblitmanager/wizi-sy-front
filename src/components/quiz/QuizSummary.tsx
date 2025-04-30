@@ -79,11 +79,11 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
         return String(userAnswer);
       }
         
-      case 'vrai/faux': {
-        // Pour les questions vrai/faux, on affiche le texte de la réponse
-        const answer = question.answers?.find(a => a.id === String(userAnswer));
-        return answer ? answer.text : String(userAnswer);
-      }
+      // case 'vrai/faux': {
+      //   // Pour les questions vrai/faux, on affiche le texte de la réponse
+      //   const answer = question.answers?.find(a => a.id === String(userAnswer));
+      //   return answer ? answer.text : String(userAnswer);
+      // }
       
       case 'rearrangement': {
         // Pour les questions d'ordre, afficher les étapes dans l'ordre soumis
@@ -173,11 +173,11 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
         return orderedAnswers.map((a, i) => `${i + 1}. ${a.text}`).join(', ');
       }
         
-      case 'vrai/faux': {
-        // Pour les questions vrai/faux, trouver la réponse correcte
-        const correctAnswer = question.answers?.find(a => a.isCorrect || a.is_correct === 1);
-        return correctAnswer ? correctAnswer.text : "Aucune réponse correcte définie";
-      }
+      // case 'vrai/faux': {
+      //   // Pour les questions vrai/faux, trouver la réponse correcte
+      //   const correctAnswer = question.answers?.find(a => a.isCorrect || a.is_correct === 1);
+      //   return correctAnswer ? correctAnswer.text : "Aucune réponse correcte définie";
+      // }
       
       case 'banque de mots': {
         // Pour les questions banque de mots, montrer les mots corrects
@@ -281,14 +281,14 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
         return correctAnswer && (correctAnswer.text === userAnswerData || correctAnswer.id === String(userAnswerData));
       }
       
-      case 'vrai/faux': {
-        // Pour les questions vrai/faux
-        const correctAnswerIds = question.answers
-          ?.filter(a => a.isCorrect || a.is_correct === 1)
-          .map(a => a.id);
+      // case 'vrai/faux': {
+      //   // Pour les questions vrai/faux
+      //   const correctAnswerIds = question.answers
+      //     ?.filter(a => a.isCorrect || a.is_correct === 1)
+      //     .map(a => a.id);
           
-        return correctAnswerIds?.includes(String(userAnswerData));
-      }
+      //   return correctAnswerIds?.includes(String(userAnswerData));
+      // }
       
       case 'banque de mots': {
         // Pour banque de mots

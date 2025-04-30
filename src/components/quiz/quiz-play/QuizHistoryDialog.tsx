@@ -47,7 +47,7 @@ export function QuizHistoryDialog({ open, onClose, history }: QuizHistoryDialogP
             history
               .slice()
               .sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime())
-              .slice(0, 5)
+              .slice(0, 3)
               .map((result, index) => {
                 const time = formatTime(result.timeSpent);
                 const date = result.completedAt

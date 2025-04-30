@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 interface TrueFalseProps {
   question: QuizQuestion;
-  onAnswer: (answer: string) => void;
+  onAnswer: (answers: string[]) => void;
   showFeedback?: boolean;
 }
 
@@ -17,57 +17,70 @@ export const TrueFalse: React.FC<TrueFalseProps> = ({
   onAnswer,
   showFeedback = false,
 }) => {
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
 
   // Initialize from current answer if available
   useEffect(() => {
-    const currentAnswer = question.selectedAnswers;
-    if (currentAnswer) {
-      if (Array.isArray(currentAnswer) && currentAnswer.length > 0) {
-        setSelectedAnswer(currentAnswer[0]);
-      } else if (typeof currentAnswer === 'string') {
-        setSelectedAnswer(currentAnswer);
+    if (question.selectedAnswers) {
+      if (Array.isArray(question.selectedAnswers)) {
+        setSelectedAnswers(question.selectedAnswers);
+      } else if (typeof question.selectedAnswers === 'string') {
+        setSelectedAnswers([question.selectedAnswers]);
       }
     }
   }, [question.selectedAnswers]);
 
-  const handleAnswerSelect = (value: string) => {
+  const handleAnswerSelect = (answerId: string) => {
     if (showFeedback) return;
-    setSelectedAnswer(value);
-    onAnswer(value);
+
+    const isMultipleAnswers = question.reponses?.filter(r => r.isCorrect || r.is_correct === 1).length > 1;
+    
+    if (isMultipleAnswers) {
+      // Toggle selection for multiple choice
+      const newSelected = selectedAnswers.includes(answerId)
+        ? selectedAnswers.filter(id => id !== answerId)
+        : [...selectedAnswers, answerId];
+      setSelectedAnswers(newSelected);
+      onAnswer(newSelected);
+    } else {
+      // Single choice - replace selection
+      setSelectedAnswers([answerId]);
+      onAnswer([answerId]);
+    }
   };
 
-  const isCorrectAnswer = (answerText: string) => {
+  const isCorrectAnswer = (answerId: string) => {
     if (!showFeedback) return undefined;
-    const answer = question.reponses?.find(a => a.text === answerText);
+    const answer = question.reponses?.find(a => a.id === answerId);
     return answer?.isCorrect || answer?.is_correct === 1;
   };
 
-  const getCorrectAnswer = () => {
-    return question.reponses?.find(a => a.isCorrect || a.is_correct === 1)?.text || '';
+  const isSelectedAnswerCorrect = (answerId: string) => {
+    if (!showFeedback) return undefined;
+    const isSelected = selectedAnswers.includes(answerId);
+    const isCorrect = isCorrectAnswer(answerId);
+    return isSelected && isCorrect;
   };
 
-  // Sort responses to ensure consistent order (True/Yes first, then False/No)
-  const sortedResponses = question.reponses?.sort((a, b) => {
-    const aText = a.text.toLowerCase();
-    const bText = b.text.toLowerCase();
-    if (aText === 'oui' || aText === 'vrai' || aText === 'true' || aText === 'yes') return -1;
-    if (bText === 'oui' || bText === 'vrai' || bText === 'true' || bText === 'yes') return 1;
-    return 0;
-  });
+  const isSelectedAnswerIncorrect = (answerId: string) => {
+    if (!showFeedback) return undefined;
+    const isSelected = selectedAnswers.includes(answerId);
+    const isCorrect = isCorrectAnswer(answerId);
+    return isSelected && !isCorrect;
+  };
 
   return (
     <Card className="border-0 shadow-none">
       <CardContent className="pt-4 px-2 md:px-6">
         <div className="space-y-3">
-          {sortedResponses?.map((answer) => {
-            const isSelected = selectedAnswer === answer.text;
-            const isCorrect = isCorrectAnswer(answer.text);
+          {question.reponses?.map((answer) => {
+            const isSelected = selectedAnswers.includes(answer.id);
+            const isCorrect = isCorrectAnswer(answer.id);
             const showCorrectIndicator = showFeedback && (isSelected || isCorrect);
 
             return (
               <div 
-                key={answer.text} 
+                key={answer.id} 
                 className={cn(
                   "flex items-center space-x-2 rounded-lg border p-4 hover:bg-accent transition-colors",
                   isSelected && !showFeedback && "bg-accent",
@@ -77,13 +90,13 @@ export const TrueFalse: React.FC<TrueFalseProps> = ({
                 )}
               >
                 <Checkbox
-                  id={`answer-${answer.text}`}
+                  id={`answer-${answer.id}`}
                   checked={isSelected}
-                  onCheckedChange={() => handleAnswerSelect(answer.text)}
+                  onCheckedChange={() => handleAnswerSelect(answer.id)}
                   disabled={showFeedback}
                 />
                 <Label 
-                  htmlFor={`answer-${answer.text}`}
+                  htmlFor={`answer-${answer.id}`}
                   className="flex-grow cursor-pointer text-base"
                 >
                   {answer.text}
@@ -104,11 +117,15 @@ export const TrueFalse: React.FC<TrueFalseProps> = ({
 
         {showFeedback && (
           <div className="mt-4 text-sm text-muted-foreground">
-            {isCorrectAnswer(selectedAnswer || '') ? (
+            {selectedAnswers.every(id => isCorrectAnswer(id)) ? (
               <p className="text-green-600 font-medium">Bonne réponse !</p>
             ) : (
               <p className="text-red-600 font-medium">
-                Réponse incorrecte. La bonne réponse était : {getCorrectAnswer()}
+                Réponse incorrecte. Les bonnes réponses étaient:{" "}
+                {question.reponses
+                  ?.filter(a => a.isCorrect || a.is_correct === 1)
+                  .map(a => a.text)
+                  .join(", ")}
               </p>
             )}
           </div>
