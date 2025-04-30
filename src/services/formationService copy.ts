@@ -11,14 +11,14 @@ export const formationService = {
   getCategories: async (): Promise<string[]> => {
     const response = await api.get<{ data: Formation[] }>('/stagiaire/formations');
     const formations = response.data.data;
-    const categories = new Set(formations.map(formation => formation.categoryId));
+    const categories = new Set(formations.map(formation => formation.categoryId || formation.categorie));
     return Array.from(categories);
   },
 
   getFormationsByCategory: async (category: string): Promise<Formation[]> => {
     const response = await api.get<{ data: Formation[] }>('/stagiaire/formations');
     return response.data.data.filter(formation => 
-      formation.categoryId === category
+      formation.categoryId === category || formation.categorie === category
     );
   },
 
@@ -31,4 +31,4 @@ export const formationService = {
     }
     return formation;
   }
-};
+}; 
