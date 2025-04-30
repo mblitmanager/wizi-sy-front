@@ -32,6 +32,13 @@ interface QuestionProps {
 }
 
 export const Question: React.FC<QuestionProps> = ({ question, onAnswer, showFeedback = false }) => {
+  // Formatter l'URL du média
+  const getMediaUrl = (url?: string) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    return `${import.meta.env.VITE_API_URL}/${url}`;
+  };
+
   const renderQuestion = () => {
     switch (question.type) {
       case 'choix multiples':
@@ -116,22 +123,13 @@ export const Question: React.FC<QuestionProps> = ({ question, onAnswer, showFeed
       <CardContent className="pt-6">
         <div className="mb-3">
           <h3 className="text-xl font-bold mb-4">{question.text}</h3>
-          {question.media_url && (
+          {question.media_url && question.type !== 'question audio' && (
             <div className="flex justify-center mb-4">
-              {question.type === 'question audio' ? (
-                <div className="w-full max-w-md">
-                  <audio controls className="w-full">
-                    <source src={question.media_url} type="audio/mpeg" />
-                    Votre navigateur ne supporte pas l'élément audio.
-                  </audio>
-                </div>
-              ) : (
-                <img
-                  src={question.media_url}
-                  alt="Question media"
-                  className="max-w-full h-auto rounded"
-                />
-              )}
+              <img
+                src={getMediaUrl(question.media_url)}
+                alt="Question media"
+                className="max-w-full h-auto rounded"
+              />
             </div>
           )}
         </div>

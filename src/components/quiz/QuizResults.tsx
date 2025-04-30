@@ -1,4 +1,3 @@
-
 import { useLocation, useParams, Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -95,10 +94,10 @@ export function QuizResults() {
     if (q.selectedAnswers) {
       // Pour les questions à choix multiples ou vrai/faux
       if (Array.isArray(q.selectedAnswers)) {
-        formattedUserAnswers[q.id] = q.selectedAnswers;
+        formattedUserAnswers[q.id] = q.selectedAnswers.length > 0 ? q.selectedAnswers : null;
       } 
       // Pour les questions de type 'remplir le champ vide' ou 'correspondance'
-      else if (typeof q.selectedAnswers === 'object') {
+      else if (typeof q.selectedAnswers === 'object' && !Array.isArray(q.selectedAnswers)) {
         formattedUserAnswers[q.id] = q.selectedAnswers;
       }
       // Pour les autres types de questions
@@ -148,7 +147,17 @@ export function QuizResults() {
         </div>
         
         <QuizSummary 
-          questions={result.questions} 
+          questions={result.questions.map((q: any) => ({
+            ...q,
+            audioUrl: q.media_url,
+            media_url: q.media_url,
+            correctAnswers: q.correctAnswers ? q.correctAnswers.map((id: any) => String(id)) : [],
+            answers: q.answers ? q.answers.map((a: any) => ({
+              ...a,
+              id: String(a.id),
+              isCorrect: Boolean(a.isCorrect)
+            })) : [],
+          }))} 
           quiz={quizData} 
           userAnswers={formattedUserAnswers} 
           score={result.score} 

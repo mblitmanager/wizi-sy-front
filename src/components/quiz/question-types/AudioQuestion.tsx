@@ -27,6 +27,31 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [audioError, setAudioError] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  
+  // Format audio URL properly
+  const getAudioUrl = () => {
+    const audioUrl = question.audioUrl || question.media_url;
+    if (!audioUrl) return '';
+    
+    // Si l'URL est déjà absolue, la retourner telle quelle
+    if (audioUrl.startsWith('http')) {
+      return audioUrl;
+    }
+    
+    // Sinon, préfixer avec l'URL de l'API
+    return `${import.meta.env.VITE_API_URL}/${audioUrl}`;
+  };
+  
+  // Initialiser la réponse sélectionnée si elle existe déjà
+  useEffect(() => {
+    if (question.selectedAnswers) {
+      if (Array.isArray(question.selectedAnswers) && question.selectedAnswers.length > 0) {
+        setSelectedAnswer(question.selectedAnswers[0]);
+      } else if (typeof question.selectedAnswers === 'string') {
+        setSelectedAnswer(question.selectedAnswers);
+      }
+    }
+  }, [question.selectedAnswers]);
 
   useEffect(() => {
     // Reset error state when component mounts or question changes
@@ -37,18 +62,22 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
+        setIsPlaying(false);
       } else {
         const playPromise = audioRef.current.play();
         
         if (playPromise !== undefined) {
-          playPromise.catch(error => {
-            console.error("Audio playback error:", error);
-            setAudioError(true);
-            setIsPlaying(false);
-          });
+          playPromise
+            .then(() => {
+              setIsPlaying(true);
+            })
+            .catch(error => {
+              console.error("Audio playback error:", error);
+              setAudioError(true);
+              setIsPlaying(false);
+            });
         }
       }
-      setIsPlaying(!isPlaying);
     }
   };
 
@@ -74,71 +103,74 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
 
   const isCorrectAnswer = (answerId: string) => {
     if (!showFeedback) return undefined;
+    
+    // Vérifier si la question a une liste de correctAnswers
+    if (question.correctAnswers && question.correctAnswers.length > 0) {
+      const correctIds = question.correctAnswers.map(id => String(id));
+      return correctIds.includes(answerId);
+    }
+    
+    // Sinon, utiliser l'attribut isCorrect ou is_correct des réponses
     const answer = question.answers?.find(a => a.id === answerId);
     return answer?.isCorrect || answer?.is_correct === 1;
   };
-
-  // Generate proper audio URL
-  const audioUrl = question.audioUrl || question.media_url;
 
   return (
     <Card className="border-0 shadow-none">
       <CardContent className="pt-4 px-2 md:px-6">
         <div className="space-y-6">
-          {audioUrl && (
-            <div className="flex flex-col md:flex-row md:items-center gap-4 p-4 bg-muted rounded-md">
-              <div className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={handlePlayPause}
+          <div className="flex flex-col md:flex-row md:items-center gap-4 p-4 bg-muted rounded-md">
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={handlePlayPause}
+                disabled={audioError}
+              >
+                {isPlaying ? (
+                  <Pause className="h-4 w-4" />
+                ) : (
+                  <Play className="h-4 w-4" />
+                )}
+              </Button>
+              <audio
+                ref={audioRef}
+                src={getAudioUrl()}
+                onEnded={() => setIsPlaying(false)}
+                onError={() => {
+                  setAudioError(true);
+                  setIsPlaying(false);
+                }}
+              />
+            </div>
+
+            <div className="flex-1 flex items-center gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={handleMuteToggle}
+                disabled={audioError}
+              >
+                {isMuted ? (
+                  <VolumeX className="h-4 w-4" />
+                ) : (
+                  <Volume2 className="h-4 w-4" />
+                )}
+              </Button>
+              <div className="flex-1">
+                <Slider
+                  value={[volume]}
+                  min={0}
+                  max={1}
+                  step={0.1}
+                  onValueChange={handleVolumeChange}
                   disabled={audioError}
-                >
-                  {isPlaying ? (
-                    <Pause className="h-4 w-4" />
-                  ) : (
-                    <Play className="h-4 w-4" />
-                  )}
-                </Button>
-                <audio
-                  ref={audioRef}
-                  src={audioUrl}
-                  onEnded={() => setIsPlaying(false)}
-                  onError={() => {
-                    setAudioError(true);
-                    setIsPlaying(false);
-                  }}
                 />
               </div>
-
-              <div className="flex-1 flex items-center gap-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleMuteToggle}
-                  disabled={audioError}
-                >
-                  {isMuted ? (
-                    <VolumeX className="h-4 w-4" />
-                  ) : (
-                    <Volume2 className="h-4 w-4" />
-                  )}
-                </Button>
-                <div className="flex-1">
-                  <Slider
-                    value={[volume]}
-                    min={0}
-                    max={1}
-                    step={0.1}
-                    onValueChange={handleVolumeChange}
-                    disabled={audioError}
-                  />
-                </div>
-              </div>
             </div>
-          )}
+          </div>
 
           {audioError && (
             <Alert variant="destructive">
@@ -201,7 +233,11 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
                 <p className="text-green-600 font-medium">Bonne réponse !</p>
               ) : (
                 <p className="text-red-600 font-medium">
-                  Réponse incorrecte. La bonne réponse était : {question.answers?.find(a => a.isCorrect || a.is_correct === 1)?.text}
+                  Réponse incorrecte. La bonne réponse était : {
+                    question.correctAnswers && question.correctAnswers.length > 0 
+                      ? question.answers?.find(a => String(a.id) === String(question.correctAnswers?.[0]))?.text
+                      : question.answers?.find(a => a.isCorrect || a.is_correct === 1)?.text
+                  }
                 </p>
               )}
             </div>
