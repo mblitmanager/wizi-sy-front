@@ -6,57 +6,57 @@ export class QuizAnswerService {
   async getQuizQuestions(quizId: number): Promise<Question[]> {
     try {
       const response = await apiClient.get(`/quiz/${quizId}/questions`);
-      console.log('API response for quiz questions:', response.data);
+      console.log('Réponses des questions du quiz:', response.data);
       
       const questions = response.data.data || [];
       return questions.map((question: any) => this.formatQuestion(question));
     } catch (error) {
-      console.error('Error fetching quiz questions:', error);
-      throw new Error('Failed to fetch quiz questions');
+      console.error('Erreur lors de la récupération des questions du quiz:', error);
+      throw new Error('Échec de la récupération des questions du quiz');
     }
   }
 
   async submitQuiz(quizId: string, answers: Record<string, any>, timeSpent: number): Promise<any> {
     try {
-      console.log('Submitting quiz answers:', { quizId, answers, timeSpent });
+      console.log('Soumission des réponses du quiz:', { quizId, answers, timeSpent });
       
-      // Format answers to ensure they're in the correct format for the API
+      // Formatage des réponses pour garantir le format correct pour l'API
       const formattedAnswers: Record<string, any> = {};
       
       for (const questionId in answers) {
         const answer = answers[questionId];
         
-        // Handle different question types
+        // Gérer différents types de questions
         if (answer === null || answer === undefined) {
-          // No answer provided
+          // Aucune réponse fournie
           formattedAnswers[questionId] = null;
         }
-        // Fill in the blank questions (object with keys for each blank)
+        // Questions à blancs (objet avec des clés pour chaque blanc)
         else if (typeof answer === 'object' && !Array.isArray(answer)) {
           formattedAnswers[questionId] = answer;
         }
-        // Multiple choice questions (array of answer IDs)
+        // Questions à choix multiples (tableau de IDs de réponses)
         else if (Array.isArray(answer)) {
           formattedAnswers[questionId] = answer;
         }
-        // Single answer questions (string with answer ID)
+        // Questions à réponse unique (chaîne avec l'ID de la réponse)
         else {
           formattedAnswers[questionId] = answer;
         }
       }
       
-      console.log('Formatted answers for submission:', formattedAnswers);
+      console.log('Réponses formatées pour la soumission:', formattedAnswers);
       
-      // Send the formatted answers to the API
+      // Envoyer les réponses formatées à l'API
       const response = await apiClient.post(`/quiz/${quizId}/result`, {
         answers: formattedAnswers,
         timeSpent
       });
 
-      console.log('Quiz submission response:', response.data);
+      console.log('Réponse de la soumission du quiz:', response.data);
       return response.data;
     } catch (error) {
-      console.error('Error submitting quiz:', error);
+      console.error('Erreur lors de la soumission du quiz:', error);
       throw error;
     }
   }

@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, XCircle, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -15,6 +14,15 @@ interface QuizSummaryProps {
   userAnswers: Record<string, any>;
   score: number;
   totalQuestions: number;
+}
+
+// Fonction utilitaire pour normaliser les chaînes (accents, casse, espaces)
+function normalizeString(str: string): string {
+  return str
+    .normalize('NFD') // décompose les accents
+    .replace(/\u0300-\u036f/g, '') // supprime les diacritiques
+    .toLowerCase()
+    .trim();
 }
 
 export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestions }: QuizSummaryProps) {
@@ -105,6 +113,8 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
           });
           return answerTexts.join(', ') || "Aucune réponse";
         }
+        console.log("user anwerquestion");
+        console.log(userAnswer);
         // Si c'est une réponse unique
         const answer = question.answers?.find(a => a.id === String(userAnswer));
         return answer ? answer.text : String(userAnswer);
@@ -210,11 +220,11 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
   };
 
   const isAnswerCorrect = (question: Question): boolean => {
-    if (question.isCorrect !== undefined) {
-      // Si la question fournit déjà l'information
-      return question.isCorrect;
+    // On ne fait confiance à isCorrect que si c'est explicitement true
+    if (question.isCorrect === true) {
+      return true;
     }
-    
+    // Sinon, on vérifie normalement
     const userAnswerData = userAnswers[question.id];
     if (!userAnswerData) return false;
     
@@ -230,12 +240,25 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
           }
         });
         
-        if (Object.keys(correctBlanks).length === 0) return false;
+        // Cas classique avec bank_group
+        if (Object.keys(correctBlanks).length > 0) {
+          return Object.entries(userAnswerData).every(([key, value]) => {
+            const correctAnswer = correctBlanks[key];
+            if (!correctAnswer) return false;
+            return normalizeString(String(value)) === normalizeString(correctAnswer);
+          });
+        }
         
-        return Object.entries(userAnswerData).every(([key, value]) => {
-          const correctAnswer = correctBlanks[key];
-          return correctAnswer && String(value).toLowerCase().trim() === correctAnswer.toLowerCase().trim();
-        });
+        // Cas sans bank_group, plusieurs champs à remplir
+        const correctAnswers = question.answers?.filter(a => a.isCorrect || a.is_correct === 1);
+        const userValues = Object.values(userAnswerData);
+        if (correctAnswers && correctAnswers.length === userValues.length) {
+          return correctAnswers.every((a, idx) => 
+            normalizeString(String(userValues[idx])) === normalizeString(a.text)
+          );
+        }
+        
+        return false;
       }
       
       case 'correspondance': {
