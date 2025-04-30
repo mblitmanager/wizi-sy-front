@@ -14,7 +14,10 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { BookOpen, Zap } from "lucide-react";
 
-import { CatalogueFormation, CatalogueFormationResponse } from "@/types/stagiaire";
+import {
+  CatalogueFormation,
+  CatalogueFormationResponse,
+} from "@/types/stagiaire";
 import { catalogueFormationApi } from "@/services/api";
 import { progressService } from "@/services/progressService";
 import ContactSection from "@/components/FeatureHomePage/ContactSection";
@@ -56,10 +59,17 @@ const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
 const HomePage: React.FC = () => {
   const [categories, setCategories] = useState<LocalCategory[]>([]);
   const [userProgress, setUserProgress] = useState<UserProgress>({
-    quizzes_completed: 0,
+    id: "",
+    stagiaire_id: "",
     total_points: 0,
+    completed_quizzes: 0, // ✅ correct property name
     average_score: 0,
+    current_streak: 0,
+    longest_streak: 0,
+    last_quiz_date: "",
+    category_progress: {}, // assuming it's okay to start empty
   });
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -67,24 +77,28 @@ const HomePage: React.FC = () => {
   const [catalogueData, setCatalogueData] = useState<
     CatalogueFormation[] | null
   >(null);
-  const { data: queriedCatalogueData, isLoading: isLoadingCatalogue } = useQuery({
-    queryKey: ['catalogue'],
+  const { data: queriedCatalogueData, isLoading: isLoadingCatalogue } =
+    useQuery({
+      queryKey: ["catalogue"],
 
-    queryFn: async (): Promise<CatalogueFormationResponse> => {
-      try {
-        const response = await axios.get<CatalogueFormationResponse>(`${API_URL}/catalogueFormations/stagiaire/${user?.stagiaire?.id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        return response.data;
-      } catch (error) {
-        console.error('Erreur lors de la récupération du catalogue:', error);
-        throw error;
-      }
-    },
-    retry: 1,
-  });
+      queryFn: async (): Promise<CatalogueFormationResponse> => {
+        try {
+          const response = await axios.get<CatalogueFormationResponse>(
+            `${API_URL}/catalogueFormations/stagiaire/${user?.stagiaire?.id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          );
+          return response.data;
+        } catch (error) {
+          console.error("Erreur lors de la récupération du catalogue:", error);
+          throw error;
+        }
+      },
+      retry: 1,
+    });
   // Récupération des contacts
   const { data: commerciaux, isLoading: loadingCommerciaux } = useQuery<
     Contact[]
@@ -160,10 +174,9 @@ const HomePage: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      // Get categories
+      //✅ Get categories
       try {
         const fetchedCategories = await quizAPI.getCategories();
-        // ... gestion des catégories...
       } catch (categoriesError) {
         console.error(
           "Erreur lors de la récupération des catégories:",
@@ -180,7 +193,7 @@ const HomePage: React.FC = () => {
             data: { data: CatalogueFormation[] };
           };
 
-        // Vérification du type de 'data' dans la réponse
+        //✅ Vérification du type de 'data' dans la réponse
         if (response && Array.isArray(response.data.data)) {
           const firstThreeFormations = response.data.data.slice(0, 3);
           setCatalogueData(firstThreeFormations);
@@ -200,21 +213,32 @@ const HomePage: React.FC = () => {
         );
       }
 
-      // Étape 3 : Récupération des progrès utilisateur
+      //✅ Étape 3 : Récupération des progrès utilisateur
       try {
         const progress = await progressService.getUserProgress();
         setUserProgress(progress);
       } catch (progressError) {
-        console.error('Erreur lors de la récupération des progrès:', progressError);
+        console.error(
+          "Erreur lors de la récupération des progrès:",
+          progressError
+        );
         setUserProgress({
-          quizzes_completed: 0,
+          id: "",
+          stagiaire_id: "",
           total_points: 0,
-          average_score: 0
+          completed_quizzes: 0,
+          average_score: 0,
+          current_streak: 0,
+          longest_streak: 0,
+          last_quiz_date: "",
+          category_progress: {},
         });
       }
     } catch (error) {
-      console.error('Erreur lors de la récupération des données:', error);
-      setError('Impossible de charger les données. Veuillez vérifier votre connexion ou réessayer plus tard.');
+      console.error("Erreur lors de la récupération des données:", error);
+      setError(
+        "Impossible de charger les données. Veuillez vérifier votre connexion ou réessayer plus tard."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -228,7 +252,11 @@ const HomePage: React.FC = () => {
     <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
       {/* En-tête avec bienvenue et progression */}
       <div className="mb-8">
-      <img src="/assets/wizi-learn-logo.png" alt="Wizi Learn Logo" className="w-32 mb-6" />
+        <img
+          src="/assets/wizi-learn-logo.png"
+          alt="Wizi Learn Logo"
+          className="w-32 mb-6"
+        />
         <h1 className="text-3xl font-bold mb-2">Bienvenue sur Wizi-Learn</h1>
         <p className="text-muted-foreground mb-4">
           Votre plateforme d'apprentissage personnalisée

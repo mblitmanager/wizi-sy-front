@@ -5,8 +5,12 @@ import HeaderSection from "@/components/features/HeaderSection";
 import FormationCard from "@/components/catalogueFormation/FormationCard";
 import PaginationControls from "@/components/catalogueFormation/PaginationControls";
 import SkeletonCard from "@/components/ui/SkeletonCard";
-import { progressAPI } from "@/api";
-import { catalogueFormationApi, progressAPI, stagiaireAPI } from "@/services/api";
+
+import {
+  catalogueFormationApi,
+  progressAPI,
+  stagiaireAPI,
+} from "@/services/api";
 import { CatalogueFormationWithFormation, Formation } from "@/types/stagiaire";
 import { mapCatalogueToFormation } from "@/utils/mapCatalogueToFormation";
 
@@ -76,9 +80,8 @@ const FormationsPage = () => {
     <div className="container mx-auto px-4 py-8">
       {/* En-tête */}
       <div className="mb-10">
-        <h1 className="text-3xl md:text-4xl font-bold mb-2 text-gray-800">
-          Découvrez Nos Formations
-        </h1>
+        <HeaderSection titre=" Découvrez Nos Formations" buttonText="Retour" />
+
         <p className="text-gray-600 max-w-2xl">
           Accédez à une sélection de formations enrichissantes pour développer
           vos compétences à votre rythme.

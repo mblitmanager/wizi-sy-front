@@ -29,6 +29,7 @@ import CoursesPage from "@/pages/admin/CoursesPage";
 import QuizzesPage from "@/pages/admin/QuizzesPage";
 import StatsPage from "@/pages/admin/StatsPage";
 import CatalogueFormationDetails from "./components/catalogueFormation/CatalogueFormationDetails";
+import TutoAstucePage from "./pages/TutoAstucePage";
 
 const queryClient = new QueryClient();
 
@@ -51,8 +52,9 @@ const App = () => (
                 <Route path="formations" element={<FormationsPage />} />
                 <Route
                   path="catalogue_formation/:id"
-                  element={<CatalogueFormationDetails/>}
+                  element={<CatalogueFormationDetails />}
                 />
+                <Route path="tuto_astuces" element={<TutoAstucePage />} />
 
                 {/* Admin Routes */}
                 <Route path="admin/users" element={<UsersPage />} />
