@@ -1,11 +1,13 @@
 
-import { Home, LayoutList, BookOpen, Bell } from "lucide-react";
+import { Home, LayoutList, Trophy, UserRound, BookOpen, Bell, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { useUser } from "@/context/UserContext";
 
 export function MobileNav() {
   const location = useLocation();
+  const { user } = useUser();
 
   const items = [
     {
@@ -24,10 +26,20 @@ export function MobileNav() {
       href: "/quizzes"
     },
     {
+      icon: Trophy,
+      label: "Classement",
+      href: "/classement"
+    },
+    {
       icon: Bell,
       label: "Notifs",
       href: "/notifications",
       badge: 2
+    },
+    {
+      icon: UserRound,
+      label: "Profil",
+      href: "/profile"
     }
   ];
 

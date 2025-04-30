@@ -1,3 +1,4 @@
+
 import { Layout } from "@/components/layout/Layout";
 import ContactSection from "@/components/profile/ContactSection";
 import CurrentFormation from "@/components/profile/CurrentFormation";
