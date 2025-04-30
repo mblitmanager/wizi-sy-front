@@ -8,7 +8,7 @@ import { Ordering } from './question-types/Ordering';
 import { WordBank } from './question-types/WordBank';
 import { Matching } from './question-types/Matching';
 import { Flashcard } from './question-types/FlashCard';
-import { AudioQuestion } from './question-types/AudioQuestion';
+import { AudioQuestion } from './question-types/audio/AudioQuestion';
 import { Question as QuizQuestion, QuestionType } from '@/types/quiz';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';

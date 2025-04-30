@@ -1,7 +1,7 @@
 import { useLocation, useParams, Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
-import { QuizSummary } from './QuizSummary';
+import { QuizSummary } from './summary/QuizSummary';
 import { useToast } from '@/hooks/use-toast';
 import { quizSubmissionService } from '@/services/quiz/QuizSubmissionService';
 import { useQuery } from '@tanstack/react-query';
@@ -33,14 +33,14 @@ export function QuizResults() {
   console.log("Result from state:", resultFromState);
   console.log("Result from API:", resultFromApi);
 
-  // Use useEffect to set the result once to avoid infinite loops
+  // Pour éviter les rendus infinis, utilisons useEffect pour mettre à jour le résultat
   useEffect(() => {
-    if (resultFromState) {
+    if (resultFromState && !result) {
       setResult(resultFromState);
-    } else if (resultFromApi) {
+    } else if (resultFromApi && !result) {
       setResult(resultFromApi);
     }
-  }, [resultFromState, resultFromApi]);
+  }, [resultFromState, resultFromApi, result]);
   
   // Handle notifications for quiz results
   useEffect(() => {
@@ -90,27 +90,30 @@ export function QuizResults() {
 
   // Format data for QuizSummary component
   const formattedUserAnswers: Record<string, any> = {};
-  result.questions.forEach((q: any) => {
-    if (q.selectedAnswers) {
-      // Pour les questions à choix multiples ou vrai/faux
-      if (Array.isArray(q.selectedAnswers)) {
-        formattedUserAnswers[q.id] = q.selectedAnswers.length > 0 ? q.selectedAnswers : null;
-      } 
-      // Pour les questions de type 'remplir le champ vide' ou 'correspondance'
-      else if (typeof q.selectedAnswers === 'object' && !Array.isArray(q.selectedAnswers)) {
-        formattedUserAnswers[q.id] = q.selectedAnswers;
+  
+  if (result && result.questions) {
+    result.questions.forEach((q: any) => {
+      if (q.selectedAnswers) {
+        // Pour les questions à choix multiples ou vrai/faux
+        if (Array.isArray(q.selectedAnswers)) {
+          formattedUserAnswers[q.id] = q.selectedAnswers.length > 0 ? q.selectedAnswers : null;
+        } 
+        // Pour les questions de type 'remplir le champ vide' ou 'correspondance'
+        else if (typeof q.selectedAnswers === 'object' && !Array.isArray(q.selectedAnswers)) {
+          formattedUserAnswers[q.id] = q.selectedAnswers;
+        }
+        // Pour les autres types de questions
+        else {
+          formattedUserAnswers[q.id] = q.selectedAnswers;
+        }
+      } else {
+        // Fallback pour les anciens formats de donnée ou pas de réponse
+        formattedUserAnswers[q.id] = null;
       }
-      // Pour les autres types de questions
-      else {
-        formattedUserAnswers[q.id] = q.selectedAnswers;
-      }
-    } else {
-      // Fallback pour les anciens formats de donnée ou pas de réponse
-      formattedUserAnswers[q.id] = null;
-    }
-  });
+    });
+  }
 
-  const quizData = {
+  const quizData = result ? {
     id: result.quizId || result.quiz?.id,
     titre: result.quiz?.titre || "Quiz",
     description: result.quiz?.description || "",
@@ -118,7 +121,7 @@ export function QuizResults() {
     categorieId: result.quiz?.categorieId || "",
     niveau: result.quiz?.niveau || "",
     points: result.quiz?.points || 0
-  };
+  } : { id: "", titre: "Quiz", description: "", categorie: "", categorieId: "", niveau: "", points: 0 };
 
   return (
     <Layout>

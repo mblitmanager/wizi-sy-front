@@ -1,49 +1,108 @@
 
-import { quizAnswerService } from './submission/QuizAnswerService';
-import { quizHistoryService } from './submission/QuizHistoryService';
-import { rankingService } from './submission/RankingService';
-import { userProfileService } from './submission/UserProfileService';
-import type { Question, QuizHistory, QuizStats, QuizResult } from '@/types/quiz';
+import { quizApiService } from './api/QuizApiService';
+
+interface QuizSubmission {
+  quiz_id: number;
+  answers: Record<number, any>;
+  time_spent: number;
+}
+
+interface Progression {
+  id: number;
+  stagiaire_id: number;
+  quiz_id: number;
+  termine: boolean;
+  created_at: string;
+  updated_at: string;
+  score: number;
+  correct_answers: number;
+  total_questions: number;
+  time_spent: number;
+  completion_time: string;
+}
 
 export class QuizSubmissionService {
-  async getQuizQuestions(quizId: number): Promise<Question[]> {
-    return quizAnswerService.getQuizQuestions(quizId);
+  async getQuizResult(quizId: string): Promise<any> {
+    try {
+      return await quizApiService.post(`/quiz/${quizId}/result`, {});
+    } catch (error) {
+      console.error('Error fetching quiz result:', error);
+      throw error;
+    }
   }
 
-  async submitQuiz(quizId: string, answers: Record<string, string[]>, timeSpent: number): Promise<QuizResult> {
-    return quizAnswerService.submitQuiz(quizId, answers, timeSpent);
+  async submitQuiz(submission: QuizSubmission): Promise<any> {
+    try {
+      return await quizApiService.post(
+        `/quiz/${submission.quiz_id}/result`,
+        {
+          answers: submission.answers,
+          timeSpent: submission.time_spent
+        }
+      );
+    } catch (error) {
+      console.error('Error submitting quiz:', error);
+      throw error;
+    }
   }
 
-  async getQuizHistory(): Promise<QuizHistory[]> {
-    return quizHistoryService.getQuizHistory();
+  async getQuizHistory(): Promise<any> {
+    try {
+      return await quizApiService.get(`/quiz/history`);
+    } catch (error) {
+      console.error('Error fetching quiz history:', error);
+      throw error;
+    }
   }
 
-  async getQuizStats(): Promise<QuizStats> {
-    return quizHistoryService.getQuizStats();
+  async getQuizStatistics(quizId: number): Promise<any> {
+    try {
+      return await quizApiService.get(`/quiz/${quizId}/statistics`);
+    } catch (error) {
+      console.error('Error fetching quiz statistics:', error);
+      throw error;
+    }
   }
 
-  async getQuizResult(quizId: string): Promise<QuizResult> {
-    return quizHistoryService.getQuizResult(quizId);
+  async startQuizParticipation(quizId: number): Promise<any> {
+    try {
+      return await quizApiService.post(`/quiz/${quizId}/participation`, {});
+    } catch (error) {
+      console.error('Error starting quiz participation:', error);
+      throw error;
+    }
   }
 
-  async updateClassement(quizId: string, stagiaireId: string, score: number): Promise<any> {
-    return rankingService.updateClassement(quizId, stagiaireId, score);
+  async getCurrentParticipation(quizId: string): Promise<any> {
+    try {
+      console.log('Fetching current participation for quiz:', quizId);
+      return await quizApiService.get(`/quiz/${quizId}/current-participation`);
+    } catch (error) {
+      console.error('Error getting current participation:', error);
+      throw error;
+    }
   }
 
-  async getClassement(quizId: string): Promise<any> {
-    return rankingService.getClassement(quizId);
+  async completeParticipation(quizId: string, data: {
+    score: number;
+    correct_answers: number;
+    time_spent: number;
+  }): Promise<any> {
+    try {
+      return await quizApiService.post(`/quiz/${quizId}/complete`, data);
+    } catch (error) {
+      console.error('Error completing participation:', error);
+      throw error;
+    }
   }
 
-  async getGlobalClassement(): Promise<any> {
-    return rankingService.getGlobalClassement();
-  }
-
-  async getStagiaireProfile(): Promise<any> {
-    return userProfileService.getStagiaireProfile();
-  }
-
-  async getStagiaireQuizzes(): Promise<any[]> {
-    return userProfileService.getStagiaireQuizzes();
+  async getParticipationResume(participationId: number): Promise<any> {
+    try {
+      return await quizApiService.get(`/quiz-participations/${participationId}/resume`);
+    } catch (error) {
+      console.error('Error fetching participation resume:', error);
+      throw error;
+    }
   }
 }
 

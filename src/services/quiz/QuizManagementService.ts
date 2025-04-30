@@ -1,37 +1,60 @@
 
-import { quizFormatterService } from './management/QuizFormatterService';
-import { quizFetchService } from './management/QuizFetchService';
-import { quizStatsService } from './management/QuizStatsService';
-import { categoryService } from './CategoryService';
-import type { Quiz, Question, QuizHistory, QuizStats } from '@/types/quiz';
+import { Quiz as QuizType, Question as QuestionType } from '@/types/quiz';
+import { quizApiService } from './api/QuizApiService';
 
-class QuizManagementService {
-  async formatQuiz(quiz: any, categories?: any[]) {
-    return quizFormatterService.formatQuiz(quiz, categories);
+export class QuizManagementService {
+  async createQuiz(quiz: Omit<QuizType, 'id' | 'questions'>): Promise<QuizType> {
+    try {
+      return await quizApiService.post('/quiz', quiz);
+    } catch (error) {
+      console.error('Error creating quiz:', error);
+      throw error;
+    }
   }
 
-  async getQuizzesByCategory(categoryId: string): Promise<Quiz[]> {
-    return quizFetchService.getQuizzesByCategory(categoryId);
+  async updateQuiz(id: string, quiz: Partial<QuizType>): Promise<QuizType> {
+    try {
+      return await quizApiService.put(`/quiz/${id}`, quiz);
+    } catch (error) {
+      console.error(`Error updating quiz ${id}:`, error);
+      throw error;
+    }
   }
 
-  async getQuizById(quizId: string): Promise<Quiz> {
-    return quizFetchService.getQuizById(quizId);
+  async deleteQuiz(id: string): Promise<void> {
+    try {
+      await quizApiService.delete(`/quiz/${id}`);
+    } catch (error) {
+      console.error(`Error deleting quiz ${id}:`, error);
+      throw error;
+    }
   }
 
-  async getQuizHistory(): Promise<QuizHistory[]> {
-    return quizStatsService.getQuizHistory();
+  async addQuestion(quizId: string, question: Omit<QuestionType, 'id'>): Promise<QuestionType> {
+    try {
+      return await quizApiService.post(`/quiz/${quizId}/questions`, question);
+    } catch (error) {
+      console.error(`Error adding question to quiz ${quizId}:`, error);
+      throw error;
+    }
   }
 
-  async getQuizStats(): Promise<QuizStats> {
-    return quizStatsService.getQuizStats();
+  async updateQuestion(quizId: string, questionId: string, question: Partial<QuestionType>): Promise<QuestionType> {
+    try {
+      return await quizApiService.put(`/quiz/${quizId}/questions/${questionId}`, question);
+    } catch (error) {
+      console.error(`Error updating question ${questionId}:`, error);
+      throw error;
+    }
   }
 
-  async getCategories() {
-    return categoryService.getCategories();
-  }
-  
-  async getQuizStatistics(quizId: string): Promise<any> {
-    return quizStatsService.getQuizStatistics(quizId);
+  async deleteQuestion(quizId: string, questionId: string): Promise<void> {
+    try {
+      await quizApiService.delete(`/quiz/${quizId}/questions/${questionId}`);
+    } catch (error) {
+      console.error(`Error deleting question ${questionId}:`, error);
+      throw error;
+    }
   }
 }
 

@@ -1,7 +1,5 @@
 
-export * from './CategoryService';
+export * from './QuizFetchService';
 export * from './QuizManagementService';
 export * from './QuizSubmissionService';
-export * from './StagiaireQuizService';
-export * from './management';
-export * from './submission';
+export * from './api/QuizApiService';
