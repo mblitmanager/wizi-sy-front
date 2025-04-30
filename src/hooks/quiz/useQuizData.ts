@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { quizFetchService } from '@/services/quiz/QuizFetchService';
+import { quizFetchService } from '@/services/quiz/management/QuizFetchService';
 import type { Quiz } from '@/types/quiz';
 import { useToast } from '@/hooks/use-toast';
 
@@ -12,19 +12,32 @@ export const useQuizData = (quizId: string) => {
 
   useEffect(() => {
     const fetchQuiz = async () => {
+      if (!quizId) {
+        setError('No quiz ID provided');
+        setIsLoading(false);
+        return;
+      }
+      
       try {
         setIsLoading(true);
+        console.log('Fetching quiz with ID:', quizId);
         const quizData = await quizFetchService.getQuizById(quizId);
         
         if (!quizData) {
           setError('Quiz not found');
+          setIsLoading(false);
           return;
         }
         
         if (!quizData.questions || quizData.questions.length === 0) {
           setError('No questions found for this quiz');
+          setIsLoading(false);
           return;
         }
+        
+        // Log questions for debugging
+        console.log(`Loaded ${quizData.questions.length} questions for quiz ${quizId}`);
+        console.log('First question:', quizData.questions[0]);
         
         setQuiz(quizData);
         setIsLoading(false);

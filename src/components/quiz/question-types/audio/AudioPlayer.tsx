@@ -80,7 +80,8 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
             ref={audioRef}
             src={audioUrl}
             onEnded={() => setIsPlaying(false)}
-            onError={() => {
+            onError={(e) => {
+              console.error("Audio error:", e);
               setAudioError(true);
               setIsPlaying(false);
               onError();

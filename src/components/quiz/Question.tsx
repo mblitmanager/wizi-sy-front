@@ -9,21 +9,9 @@ import { WordBank } from './question-types/WordBank';
 import { Matching } from './question-types/Matching';
 import { Flashcard } from './question-types/FlashCard';
 import { AudioQuestion } from './question-types/audio/AudioQuestion';
-import { Question as QuizQuestion, QuestionType } from '@/types/quiz';
+import { Question as QuizQuestion } from '@/types/quiz';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
-
-interface Answer {
-  id: string;
-  text: string;
-  isCorrect?: boolean;
-  is_correct?: number | null;
-  position?: number | null;
-  match_pair?: string | null;
-  bank_group?: string | null;
-  flashcard_back?: string | null;
-  question_id?: number;
-}
 
 interface QuestionProps {
   question: QuizQuestion;
@@ -32,15 +20,29 @@ interface QuestionProps {
 }
 
 export const Question: React.FC<QuestionProps> = ({ question, onAnswer, showFeedback = false }) => {
-  // Formatter l'URL du média
+  // Format media URL
   const getMediaUrl = (url?: string) => {
     if (!url) return '';
     if (url.startsWith('http')) return url;
-    return `${import.meta.env.VITE_API_URL}/${url}`;
+    return `${import.meta.env.VITE_API_URL}/${url.replace(/^\/+/, '')}`;
   };
 
+  // Normalize question type for consistency
+  const questionType = question.type ? question.type.toLowerCase() : '';
+  
+  const normalizedType = 
+    questionType.includes('multiple') || questionType === 'choix multiples' ? 'choix multiples' :
+    questionType.includes('true') || questionType.includes('vrai') ? 'vrai/faux' :
+    questionType.includes('fill') || questionType.includes('remplir') ? 'remplir le champ vide' :
+    questionType.includes('order') || questionType === 'rearrangement' ? 'rearrangement' :
+    questionType.includes('match') || questionType === 'correspondance' ? 'correspondance' :
+    questionType.includes('flash') || questionType === 'carte flash' ? 'carte flash' :
+    questionType.includes('word') || questionType.includes('bank') || questionType === 'banque de mots' ? 'banque de mots' :
+    questionType.includes('audio') || questionType === 'question audio' ? 'question audio' :
+    question.type || 'choix multiples';
+
   const renderQuestion = () => {
-    switch (question.type) {
+    switch (normalizedType) {
       case 'choix multiples':
         return (
           <MultipleChoice
@@ -123,7 +125,7 @@ export const Question: React.FC<QuestionProps> = ({ question, onAnswer, showFeed
       <CardContent className="pt-6">
         <div className="mb-3">
           <h3 className="text-xl font-bold mb-4">{question.text}</h3>
-          {question.media_url && question.type !== 'question audio' && (
+          {question.media_url && normalizedType !== 'question audio' && (
             <div className="flex justify-center mb-4">
               <img
                 src={getMediaUrl(question.media_url)}

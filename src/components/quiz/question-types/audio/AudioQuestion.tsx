@@ -25,16 +25,22 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
     const audioUrl = question.audioUrl || question.media_url;
     if (!audioUrl) return '';
     
-    // Si l'URL est déjà absolue, la retourner telle quelle
+    // Check if URL is absolute
     if (audioUrl.startsWith('http')) {
       return audioUrl;
     }
     
-    // Sinon, préfixer avec l'URL de l'API
-    return `${import.meta.env.VITE_API_URL}/${audioUrl}`;
+    // Make sure to use the correct API URL format
+    const apiBaseUrl = import.meta.env.VITE_API_URL || '';
+    if (!apiBaseUrl) {
+      console.error('VITE_API_URL environment variable is not defined');
+    }
+    
+    // Return full URL with API base
+    return `${apiBaseUrl}/${audioUrl.replace(/^\/+/, '')}`;
   };
   
-  // Initialiser la réponse sélectionnée si elle existe déjà
+  // Initialize selected answer if it exists already
   useEffect(() => {
     if (question.selectedAnswers) {
       if (Array.isArray(question.selectedAnswers) && question.selectedAnswers.length > 0) {
@@ -55,6 +61,16 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
     onAnswer(answerId);
   };
 
+  // Get answers with converted id to string if needed
+  const getFormattedAnswers = () => {
+    return question.answers?.map(answer => ({
+      id: String(answer.id),
+      text: answer.text,
+      isCorrect: answer.isCorrect,
+      is_correct: typeof answer.is_correct === 'number' ? answer.is_correct : null
+    })) || [];
+  };
+
   return (
     <Card className="border-0 shadow-none">
       <CardContent className="pt-4 px-2 md:px-6">
@@ -65,12 +81,7 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
           />
 
           <AudioAnswerOptions 
-            answers={question.answers?.map(answer => ({
-              id: String(answer.id),
-              text: answer.text,
-              isCorrect: answer.isCorrect,
-              is_correct: typeof answer.is_correct === 'number' ? answer.is_correct : null
-            })) || []}
+            answers={getFormattedAnswers()}
             selectedAnswer={selectedAnswer}
             onSelectAnswer={handleAnswer}
             showFeedback={showFeedback}
@@ -80,14 +91,21 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
           {showFeedback && selectedAnswer && (
             <AudioFeedback 
               isCorrect={question.correctAnswers?.includes(selectedAnswer) || 
-                        question.answers?.find(a => a.id === selectedAnswer)?.isCorrect === true ||
-                        question.answers?.find(a => a.id === selectedAnswer)?.is_correct === 1}
+                        question.answers?.find(a => String(a.id) === selectedAnswer)?.isCorrect === true ||
+                        question.answers?.find(a => String(a.id) === selectedAnswer)?.is_correct === 1}
               correctAnswerText={
                 question.correctAnswers && question.correctAnswers.length > 0 
                   ? question.answers?.find(a => String(a.id) === String(question.correctAnswers?.[0]))?.text
                   : question.answers?.find(a => a.isCorrect || a.is_correct === 1)?.text
               }
             />
+          )}
+          
+          {/* Debug info - remove in production */}
+          {audioError && (
+            <div className="mt-4 text-xs text-gray-500">
+              <p>Audio URL: {getAudioUrl()}</p>
+            </div>
           )}
         </div>
       </CardContent>

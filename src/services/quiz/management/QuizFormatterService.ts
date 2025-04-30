@@ -3,7 +3,7 @@ import type { Quiz, Question } from '@/types/quiz';
 import { categoryService } from '../CategoryService';
 
 export class QuizFormatterService {
-  async formatQuiz(quiz: any, categories?: any[]) {
+  async formatQuiz(quiz: any, categories?: any[]): Promise<Quiz> {
     if (!categories) {
       categories = await categoryService.getCategories();
     }
@@ -27,33 +27,42 @@ export class QuizFormatterService {
     }
 
     return {
-      id: quiz.id,
+      id: String(quiz.id),
       titre: quiz.titre || quiz.title || '',
       description: quiz.description || '',
       categorie: quiz.categorie || quiz.category || categorie,
       categorieId: quiz.categorieId || quiz.category_id || quiz.categoryId || categorieId,
       niveau: quiz.niveau || quiz.level || '',
       questions: this.formatQuestions(quiz.questions || []),
-      points: quiz.points || 0
+      points: quiz.points || 0,
+      duree: quiz.duree || quiz.duration || 0
     };
   }
 
   formatQuestions(questions: any[]): Question[] {
     return questions.map(question => ({
       ...question,
+      id: String(question.id),
       type: this.mapQuestionType(question.type),
       audioUrl: question.media_url || question.audioUrl,
       explication: question.explication || '',
       points: question.points || 0,
       astuce: question.astuce || '',
-      answers: question.answers?.map((answer: any) => ({
-        ...answer,
-        isCorrect: answer.reponse_correct || answer.isCorrect || false
-      }))
+      answers: this.formatAnswers(question.answers || question.reponses || [])
+    }));
+  }
+  
+  formatAnswers(answers: any[]): any[] {
+    return answers.map(answer => ({
+      ...answer,
+      id: String(answer.id),
+      isCorrect: answer.reponse_correct || answer.isCorrect || answer.is_correct === 1 || false
     }));
   }
 
   mapQuestionType(type: string): Question['type'] {
+    if (!type) return 'choix multiples'; // Default type if none provided
+    
     const typeMap: Record<string, Question['type']> = {
       'multiplechoice': 'choix multiples',
       'multiple-choice': 'choix multiples',
@@ -69,9 +78,13 @@ export class QuizFormatterService {
       'wordbank': 'banque de mots',
       'word-bank': 'banque de mots',
       'audioquestion': 'question audio',
-      'audio-question': 'question audio'
+      'audio-question': 'question audio',
+      'audio': 'question audio',
+      'question audio': 'question audio'
     };
-    return typeMap[type] || type as Question['type'];
+    
+    const normalizedType = type.toLowerCase().trim();
+    return typeMap[normalizedType] || normalizedType as Question['type'];
   }
 }
 
