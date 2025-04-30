@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { Question } from './Question';
@@ -73,6 +72,25 @@ export function QuizPlay() {
     console.log("Restart functionality not yet implemented");
     window.location.reload();
   };
+
+  // Fonction utilitaire pour ajouter le type à chaque réponse
+  function buildAnswersWithType(
+    answers: Record<string, unknown>,
+    questions: { id: string; type: string }[]
+  ): Record<string, unknown> {
+    const answersWithType: Record<string, unknown> = {};
+    for (const question of questions) {
+      const answer = answers[question.id];
+      if (answer !== undefined) {
+        if (typeof answer === 'object' && answer !== null && !Array.isArray(answer)) {
+          answersWithType[question.id] = { ...(answer as object), __type: question.type };
+        } else {
+          answersWithType[question.id] = answer;
+        }
+      }
+    }
+    return answersWithType;
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 min-h-screen flex flex-col">

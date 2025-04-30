@@ -1,4 +1,3 @@
-
 import apiClient from '@/lib/api-client';
 import type { Question, Answer } from '@/types/quiz';
 
@@ -25,11 +24,22 @@ export class QuizAnswerService {
       
       for (const questionId in answers) {
         const answer = answers[questionId];
-        
-        // Gérer différents types de questions
-        if (answer === null || answer === undefined) {
-          // Aucune réponse fournie
-          formattedAnswers[questionId] = null;
+        const questionType = answers[questionId]?.__type || null; // On suppose que le type est passé ou accessible
+        // Si le type n'est pas passé, il faudra l'ajouter côté appelant
+
+        // Correspondance : toujours un objet { leftId: rightId }
+        if (questionType === 'correspondance' && typeof answer === 'object' && !Array.isArray(answer)) {
+          formattedAnswers[questionId] = answer;
+        }
+        // Carte flash : toujours l'ID ou le texte
+        else if (questionType === 'carte flash') {
+          if (Array.isArray(answer)) {
+            formattedAnswers[questionId] = answer[0];
+          } else if (typeof answer === 'object' && answer !== null && 'selectedAnswers' in answer) {
+            formattedAnswers[questionId] = answer.selectedAnswers;
+          } else {
+            formattedAnswers[questionId] = answer;
+          }
         }
         // Questions à blancs (objet avec des clés pour chaque blanc)
         else if (typeof answer === 'object' && !Array.isArray(answer)) {

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -81,6 +80,17 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
   // Generate proper audio URL
   const audioUrl = question.audioUrl || question.media_url;
 
+  // Déterminer l'URL complète utilisée
+  const fullAudioUrl =
+    typeof question.audioUrl === 'string' && question.audioUrl.startsWith('http')
+      ? question.audioUrl
+      : question.audioUrl
+        ? `${import.meta.env.VITE_API_URL_MEDIA}/storage/${String(question.audioUrl)}`
+        : '';
+
+  // Debug : afficher l'URL complète de l'audio
+  console.log('[DEBUG][AudioQuestion.tsx] fullAudioUrl:', fullAudioUrl);
+
   return (
     <Card className="border-0 shadow-none">
       <CardContent className="pt-4 px-2 md:px-6">
@@ -103,7 +113,7 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
                 </Button>
                 <audio
                   ref={audioRef}
-                  src={audioUrl}
+                  src={fullAudioUrl}
                   onEnded={() => setIsPlaying(false)}
                   onError={() => {
                     setAudioError(true);

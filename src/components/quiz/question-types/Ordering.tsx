@@ -18,6 +18,13 @@ interface OrderingProps {
   showFeedback?: boolean;
 }
 
+// Définition du type pour une réponse d'ordre
+interface OrderingAnswer {
+  id: string;
+  text: string;
+  position?: number;
+}
+
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
   backgroundColor: theme.palette.background.paper,
@@ -45,21 +52,25 @@ export const Ordering: React.FC<OrderingProps> = ({
   onAnswer,
   showFeedback = false,
 }) => {
-  const [orderedAnswers, setOrderedAnswers] = useState<any[]>([]);
+  const [orderedAnswers, setOrderedAnswers] = useState<OrderingAnswer[]>([]);
+
+  // On fige la liste initiale des réponses pour éviter les problèmes de re-render pendant le drag
+  const initialReponsesRef = React.useRef(question.reponses);
 
   useEffect(() => {
-    if (question.reponses && question.reponses.length > 0) {
+    if (initialReponsesRef.current && initialReponsesRef.current.length > 0) {
       if (showFeedback) {
-        const sorted = [...question.reponses].sort((a, b) => 
+        const sorted = [...initialReponsesRef.current].sort((a, b) => 
           (a.position || 0) - (b.position || 0)
         );
         setOrderedAnswers(sorted);
       } else {
-        const shuffled = [...question.reponses].sort(() => Math.random() - 0.5);
+        const shuffled = [...initialReponsesRef.current].sort(() => Math.random() - 0.5);
         setOrderedAnswers(shuffled);
       }
     }
-  }, [question.reponses, showFeedback]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showFeedback]);
 
   const handleDragEnd = useCallback((result: DropResult) => {
     if (!result.destination || showFeedback) return;
@@ -77,10 +88,10 @@ export const Ordering: React.FC<OrderingProps> = ({
     return answer.position === index + 1;
   };
 
-  // Generate a stable droppable ID based on the question ID
+  // Génère un droppableId stable basé uniquement sur l'id de la question
   const droppableId = React.useMemo(() => 
-    `ordering-${question.id || 'default'}-${question.reponses?.length || 0}`,
-    [question.id, question.reponses?.length]
+    `ordering-${question.id || 'default'}`,
+    [question.id]
   );
 
   return (

@@ -36,7 +36,7 @@ export class QuizFetchService {
           );
         }
       } catch (err) {
-        console.log('Could not fetch detailed questions, using quiz questions:', err);
+        console.log('Impossible de récupérer les questions détaillées, utilisation des questions du quiz:', err);
         questions = response.data.questions || [];
       }
       
@@ -48,10 +48,10 @@ export class QuizFetchService {
         questions: questions.length > 0 ? questions : quizData.questions || []
       };
       
-      console.log('Formatted quiz:', formattedQuiz);
+      console.log('Quiz formaté:', formattedQuiz);
       return formattedQuiz;
     } catch (error) {
-      console.error('Error fetching quiz:', error);
+      console.error('Erreur lors de la récupération du quiz:', error);
       throw error;
     }
   }
