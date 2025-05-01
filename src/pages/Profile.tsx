@@ -1,4 +1,3 @@
-
 import { Layout } from "@/components/layout/Layout";
 import ContactSection from "@/components/profile/ContactSection";
 import CurrentFormation from "@/components/profile/CurrentFormation";
@@ -22,6 +21,15 @@ import { useIsMobile } from "@/hooks/use-mobile";
 interface UserFormation {
   id: number;
   title: string; // renommé depuis titre
+  description: string;
+  progress?: number;
+  startDate?: string;
+  status: 'current' | 'completed' | 'pending';
+}
+
+interface UserFormation {
+  id: number;
+  titre: string;
   description: string;
   progress?: number;
   startDate?: string;
@@ -213,8 +221,8 @@ const Profile = () => {
                 transition={{ delay: 0.4 }}
               >
                 <ReferralSystem
-                  referralCode={parrainageStats.referralCode || ''}
-                  totalReferrals={parrainageStats.totalReferrals || 0}
+                  referralCode={parrainageStats.referralCode}
+                  totalReferrals={parrainageStats.totalReferrals}
                   referralRewards={referralRewards}
                 />
               </motion.div>
