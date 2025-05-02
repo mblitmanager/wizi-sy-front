@@ -3,7 +3,6 @@ import { mediaService } from "@/services";
 import { Media } from "@/types/media";
 import { MediaList, MediaPlayer, MediaTabs } from "@/components/Media";
 import HeaderSection from "@/components/features/HeaderSection";
-import { formationService } from "@/services/formationService";
 import { formationApi } from "@/services/api";
 
 interface Formation {
@@ -32,12 +31,7 @@ export default function TutoAstucePage() {
     const fetchFormations = async () => {
       try {
         const res = await formationApi.getFormations();
-
-        // Log facultatif pour debug
-        console.log("RETOUR FORMATIONS", res.data);
-
         const formationsRaw = res.data?.data?.data;
-
         if (Array.isArray(formationsRaw)) {
           setFormations(formationsRaw);
         } else {
@@ -68,7 +62,8 @@ export default function TutoAstucePage() {
             mediaService.getTutoriels(),
             mediaService.getAstuces(),
           ]);
-          setTutoriels(tutoRes.data);
+
+          setTutoriels(tutoRes.data.data);
           setAstuces(astuceRes.data);
         }
       } catch (error) {
@@ -88,40 +83,38 @@ export default function TutoAstucePage() {
     } else {
       setSelectedMedia(null);
     }
-  }, [activeCategory, tutoriels, astuces]);
+  }, [activeCategory, tutoriels, astuces, medias]);
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       <HeaderSection titre="Tutoriels & Astuces" buttonText="Retour" />
 
-      {selectedFormationId && (
-        <div className="flex justify-between mb-2 items-center">
-          <MediaTabs active={activeCategory} onChange={setActiveCategory} />
-          <div className=" flex justify-center">
-            <select
-              value={selectedFormationId ?? ""}
-              onChange={(e) => setSelectedFormationId(e.target.value || null)}
-              className="px-4 py-2 min-w-[250px] bg-white border border-gray-300 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200">
-              <option value="">Toutes les formations</option>
-              {formations.map((formation) => (
-                <option key={formation.id} value={formation.id}>
-                  {formation.titre}
-                </option>
-              ))}
-            </select>
-          </div>
+      <div className="flex justify-between mb-2 items-center">
+        <MediaTabs active={activeCategory} onChange={setActiveCategory} />
+        <div className="flex justify-center">
+          <select
+            value={selectedFormationId ?? ""}
+            onChange={(e) => setSelectedFormationId(e.target.value || null)}
+            className="px-4 py-2 min-w-[250px] bg-white border border-gray-300 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200">
+            <option value="">Toutes les formations</option>
+            {formations.map((formation) => (
+              <option key={formation.id} value={formation.id}>
+                {formation.titre}
+              </option>
+            ))}
+          </select>
         </div>
-      )}
+      </div>
 
       <hr />
 
-      {!selectedFormationId ? (
-        <div className="text-center text-gray-500 mt-8">
-          Veuillez choisir une formation pour afficher les médias.
-        </div>
-      ) : isLoading ? (
+      {isLoading ? (
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500"></div>
+        </div>
+      ) : medias.length === 0 ? (
+        <div className="text-center text-gray-500 mt-8">
+          Aucun média disponible pour cette catégorie.
         </div>
       ) : (
         <div className="grid bg-white rounded-2xl shadow-lg grid-cols-1 md:grid-cols-2 gap-8 mt-8">

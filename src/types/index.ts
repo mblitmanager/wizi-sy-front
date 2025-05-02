@@ -1,11 +1,11 @@
 // User types
 export interface User {
   id: string;
-  username: string;
+  name: string;
   email: string;
   points: number;
   level: number;
-  role?: 'stagiaire' | 'admin';
+  role?: "stagiaire" | "admin";
   avatar?: string;
   token?: string;
 }
@@ -22,19 +22,19 @@ export interface Reponse {
 }
 
 export interface Media {
-  type: 'image' | 'video' | 'audio';
+  type: "image" | "video" | "audio";
   url: string;
 }
 
-export type QuestionType = 
-  | 'question audio'
-  | 'remplir le champ vide'
-  | 'carte flash'
-  | 'correspondance'
-  | 'choix multiples'
-  | 'rearrangement'
-  | 'vrai/faux'
-  | 'banque de mots';
+export type QuestionType =
+  | "question audio"
+  | "remplir le champ vide"
+  | "carte flash"
+  | "correspondance"
+  | "choix multiples"
+  | "rearrangement"
+  | "vrai/faux"
+  | "banque de mots";
 
 export interface Response {
   id: string;

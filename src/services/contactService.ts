@@ -1,23 +1,28 @@
-import { api } from './api';
+import { api } from "./api";
 
 export const contactService = {
-  getCommerciaux: async () => {
-    const response = await api.get("/stagiaire/contacts/commerciaux");
+  getCommerciaux: async (page = 1) => {
+    const response = await api.get("/stagiaire/contacts/commerciaux", {
+      params: { page },
+    });
     return response.data;
   },
-
-  getFormateurs: async () => {
-    const response = await api.get("/stagiaire/contacts/formateurs");
+  getFormateurs: async (page = 1) => {
+    const response = await api.get("/stagiaire/contacts/formateurs", {
+      params: { page },
+    });
     return response.data;
   },
-
-  getPoleRelation: async () => {
-    const response = await api.get("/stagiaire/contacts/pole-relation");
+  getPoleRelation: async (page = 1) => {
+    const response = await api.get("/stagiaire/contacts/pole-relation", {
+      params: { page },
+    });
     return response.data;
   },
-
-  getContacts: async () => {
-    const response = await api.get("/stagiaire/contacts");
+  getContacts: async (page = 1) => {
+    const response = await api.get("/stagiaire/contacts", {
+      params: { page },
+    });
     return response.data;
   },
-}; 
+};
