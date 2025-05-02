@@ -1,3 +1,4 @@
+
 import { Layout } from "@/components/layout/Layout";
 import ContactSection from "@/components/profile/ContactSection";
 import CurrentFormation from "@/components/profile/CurrentFormation";
@@ -16,20 +17,24 @@ import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Contact, ContactResponse } from "@/types/contact";
+import { Quiz } from "@/types/quiz";
+import { Formation } from "@/types/stagiaire";
 
 // Interface pour la formation utilisateur adaptée pour TypeScript
 interface UserFormation {
-  id: number;
-  title: string; // renommé depuis titre
+  id: string; // Changé de number à string pour être compatible avec Formation
+  title: string;
   description: string;
   progress?: number;
   startDate?: string;
   status: 'current' | 'completed' | 'pending';
 }
 
+// Interface pour la formation utilisateur adaptée pour TypeScript
 interface UserFormation {
   id: number;
-  titre: string;
+  title: string; // renommé depuis titre
   description: string;
   progress?: number;
   startDate?: string;
@@ -50,12 +55,13 @@ const Profile = () => {
     queryKey: ["formations"],
     queryFn: async () => {
       const data = await userProfileService.getFormations();
-      // Add status property to match expected format
+      // Add status property to match expected format and convert id to string
       return data.map((f: any) => ({
         ...f,
+        id: String(f.id), // Convertir en string
         title: f.titre || f.title || 'Formation sans titre',
         status: f.status || 'pending'
-      })) as UserFormation[];
+      })) as Formation[];
     }
   });
 
@@ -71,7 +77,16 @@ const Profile = () => {
 
   const { data: quizzes, isLoading: quizzesLoading } = useQuery({
     queryKey: ["stagiaire-quizzes"],
-    queryFn: () => userProfileService.getStagiaireQuizzes(),
+    queryFn: async () => {
+      const data = await userProfileService.getStagiaireQuizzes();
+      // Ajouter les propriétés nécessaires pour être compatible avec Quiz
+      return data.map((q: any) => ({
+        ...q,
+        id: String(q.id), // Convertir en string
+        title: q.titre,
+        category: 'N/A', // Valeur par défaut pour la catégorie
+      })) as Quiz[];
+    }
   });
 
   const isLoading = contactsLoading || formationsLoading || progressLoading || 
@@ -87,8 +102,8 @@ const Profile = () => {
     );
   }
 
-  const currentFormation = formations?.find(f => f.status === 'current') as UserFormation;
-  const completedFormations = formations?.filter(f => f.status === 'completed') as UserFormation[];
+  const currentFormation = formations?.find(f => f.status === 'current') as Formation;
+  const completedFormations = formations?.filter(f => f.status === 'completed') as Formation[];
 
   // Transform the rewards structure to match what ReferralSystem expects
   const referralRewards = parrainageStats?.rewards ? {
@@ -225,8 +240,8 @@ const Profile = () => {
                 transition={{ delay: 0.4 }}
               >
                 <ReferralSystem
-                  referralCode={parrainageStats.referralCode}
-                  totalReferrals={parrainageStats.totalReferrals}
+                  referralCode={parrainageStats.referralCode || ''}
+                  totalReferrals={parrainageStats.totalReferrals || 0}
                   referralRewards={referralRewards}
                 />
               </motion.div>

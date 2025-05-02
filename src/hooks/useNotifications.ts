@@ -2,31 +2,7 @@
 import { useState, useEffect } from 'react';
 import { notificationService } from '@/services/NotificationService';
 import { useToast } from '@/hooks/use-toast';
-
-
-export function useLocalStorage(key: string, initialValue: any) {
-  const [storedValue, setStoredValue] = useState(() => {
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      console.error('Error reading localStorage', error);
-      return initialValue;
-    }
-  });
-
-  const setValue = (value: any) => {
-    try {
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
-      setStoredValue(valueToStore);
-      window.localStorage.setItem(key, JSON.stringify(valueToStore));
-    } catch (error) {
-      console.error('Error setting localStorage', error);
-    }
-  };
-
-  return [storedValue, setValue];
-}
+import useLocalStorage from '@/hooks/useLocalStorage';
 
 export function useNotifications() {
   const [permission, setPermission] = useState<NotificationPermission>('default');
