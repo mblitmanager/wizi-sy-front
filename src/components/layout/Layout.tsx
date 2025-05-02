@@ -1,22 +1,25 @@
-
 import { ReactNode } from "react";
 import MainNav from "./MainNav";
 import { MobileNav } from "./MobileNav";
 import { Navbar } from "./Navbar";
+import { useUser } from "@/context/UserContext";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 export function Layout({ children }: LayoutProps) {
+  const { token } = useUser();
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      {token && <Navbar />}
       <div className="flex h-screen pt-16">
         {/* Menu de navigation (caché sur mobile) */}
-        <div className="hidden md:block w-64">
-          <MainNav />
-        </div>
+        {token && (
+          <div className="hidden md:block w-64">
+            <MainNav />
+          </div>
+        )}
 
         {/* Contenu principal */}
         <div className="flex-1 flex flex-col">
@@ -26,7 +29,7 @@ export function Layout({ children }: LayoutProps) {
           </main>
           
           {/* Navigation mobile en bas */}
-          <MobileNav />
+          {token && <MobileNav />}
         </div>
       </div>
     </div>

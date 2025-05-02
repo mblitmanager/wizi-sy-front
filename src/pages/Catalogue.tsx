@@ -32,17 +32,15 @@ export default function Catalogue() {
   const [prevPageUrl, setPrevPageUrl] = useState<string | null>(null);
   const [isLoadingFormations, setIsLoadingFormations] = useState(true);
   const [activeTab, setActiveTab] = useState("categories");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   const formationsParPage = 6;
   // Filtrage des formations selon la catégorie sélectionnée
   const formationsFiltrees = useMemo(() => {
-    if (!selectedCategory) return formationsDisponibles;
-    return formationsDisponibles.filter((f: any) => {
-      // On suppose que la catégorie est dans f.formation.categorie ou f.categorie
-      return (
-        f.formation?.categorie === selectedCategory || f.categorie === selectedCategory
-      );
+    if (selectedCategory === "all") return formationsDisponibles;
+    return formationsDisponibles.filter((formation: any) => {
+      // On suppose que la catégorie est dans formation.categoryId ou formation.categorieId
+      return String(formation.categoryId || formation.categorieId) === String(selectedCategory);
     });
   }, [formationsDisponibles, selectedCategory]);
 
@@ -157,17 +155,17 @@ export default function Catalogue() {
             {/* Filtres par catégorie */}
             <div className="mb-6 flex flex-wrap gap-2">
               <Button
-                variant={selectedCategory === null ? "default" : "outline"}
-                onClick={() => setSelectedCategory(null)}
+                variant={selectedCategory === "all" ? "default" : "outline"}
+                onClick={() => setSelectedCategory("all")}
               >
                 Toutes les catégories
               </Button>
               {categories?.map((cat) => (
                 <Button
                   key={cat.id}
-                  variant={selectedCategory === cat.name ? "default" : "outline"}
-                  style={{ backgroundColor: selectedCategory === cat.name ? cat.color : undefined }}
-                  onClick={() => setSelectedCategory(cat.name)}
+                  variant={selectedCategory === cat.id ? "default" : "outline"}
+                  style={{ backgroundColor: selectedCategory === cat.id ? cat.color : undefined }}
+                  onClick={() => setSelectedCategory(cat.id)}
                 >
                   {cat.name}
                 </Button>
@@ -183,7 +181,7 @@ export default function Catalogue() {
                     .map(mapCatalogueToFormation)
                     .map((formation: Formation) => {
                       // Chercher la couleur de la catégorie
-                      const catName = formation.categorie || formation.formation?.categorie;
+                      const catName = formation.categorie;
                       const cat = categories?.find((c) => c.name === catName);
                       return (
                         <FormationCard

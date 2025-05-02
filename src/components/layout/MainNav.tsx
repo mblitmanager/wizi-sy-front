@@ -31,11 +31,11 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
       href: "/",
       icon: Home,
     },
-    {
-      title: "Formations",
-      href: "/formations",
-      icon: GraduationCap,
-    },
+    // {
+    //   title: "Formations",
+    //   href: "/formations",
+    //   icon: GraduationCap,
+    // },
     {
       title: "Quiz",
       href: "/quizzes",
@@ -54,7 +54,7 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
     {
       title: "Catalogue",
       href: "/catalogue",
-      icon: LayoutGrid,
+      icon: GraduationCap,
     },
     {
       title: "Profil",

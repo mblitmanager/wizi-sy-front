@@ -22,11 +22,21 @@ const Login = () => {
   }
 
   return (
-    <Layout>
-      <div className="max-w-md mx-auto px-4 py-16">
-        <Card>
+    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-b from-white via-blue-50 to-gray-100">
+      {/* Logo en haut */}
+      <div className="flex flex-col items-center mb-8">
+        <img
+          src="/lovable-uploads/e4aa6740-d9f0-40d2-a150-efc75ae46692.png"
+          alt="Wizi Learn"
+          className="h-16 mb-2 drop-shadow-lg"
+        />
+        <h1 className="text-3xl font-bold text-bureautique mb-1 font-astria">Wizi Learn</h1>
+        <p className="text-gray-500 text-center max-w-xs">La plateforme de quiz éducatifs d'AOPIA pour les stagiaires</p>
+      </div>
+      <div className="w-full max-w-md px-4">
+        <Card className="shadow-xl border-2 border-bureautique/30 bg-white/90 backdrop-blur-md">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Connexion</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center text-bureautique">Connexion</CardTitle>
             <CardDescription className="text-center">
               Entrez vos identifiants pour accéder à votre compte
             </CardDescription>
@@ -69,12 +79,16 @@ const Login = () => {
                   autoComplete="current-password"
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button
+                type="submit"
+                className="w-full bg-bureautique hover:bg-bureautique/90 text-white font-semibold shadow-md transition"
+                disabled={isLoading}
+              >
                 {isLoading ? "Connexion en cours..." : "Se connecter"}
               </Button>
               <p className="text-center text-sm">
                 Pas encore de compte ?{" "}
-                <Link to="/register" className="text-primary hover:underline">
+                <Link to="/register" className="text-bureautique hover:underline font-medium">
                   Créer un compte
                 </Link>
               </p>
@@ -82,7 +96,7 @@ const Login = () => {
           </CardContent>
         </Card>
       </div>
-    </Layout>
+    </div>
   );
 };
 

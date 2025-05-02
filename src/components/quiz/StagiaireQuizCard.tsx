@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Award } from "lucide-react";
@@ -79,15 +78,17 @@ interface StagiaireQuizCardProps {
 }
 
 export function StagiaireQuizCard({ quiz, categories }: StagiaireQuizCardProps) {
-  // Utiliser prioritairement categorieId pour trouver la catégorie
-  const category = categories?.find(c => 
-    c.id === quiz.categorieId
-  ) || categories?.find(c => 
-    c.name.toLowerCase() === quiz.categorie?.toLowerCase()
-  );
-  
-  const categoryName = category?.name || quiz.categorie || "Non catégorisé";
-  const categoryColor = getCategoryColor(quiz, categories);
+  // Récupérer la catégorie prioritairement depuis la formation
+  const formationCategorie = (quiz as Quiz & { formation?: { categorie?: string } }).formation?.categorie;
+  const categorieNom = formationCategorie || quiz.categorie;
+
+  // Chercher la catégorie dans la liste à partir du nom trouvé
+  const category = categories?.find(c =>
+    c.name.toLowerCase() === (categorieNom || '').toLowerCase()
+  ) || categories?.find(c => c.id === quiz.categorieId);
+
+  const categoryName = category?.name || categorieNom || "Non catégorisé";
+  const categoryColor = category?.color || '#3B82F6';
 
   return (
     <Card className="h-full hover:shadow-lg transition-shadow relative">
