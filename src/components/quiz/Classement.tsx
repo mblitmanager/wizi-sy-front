@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfileStats } from "./classement/ProfileStats";
@@ -45,7 +44,16 @@ export function Classement() {
     const fetchGlobalRanking = async () => {
       try {
         const ranking = await quizSubmissionService.getGlobalClassement();
-        setGlobalRanking(ranking);
+        const mappedRanking = (ranking || []).map((item: any) => ({
+          id: item.stagiaire.id,
+          name: item.stagiaire.prenom,
+          image: item.stagiaire.image,
+          score: item.totalPoints,
+          quizCount: item.quizCount,
+          averageScore: item.averageScore,
+          rang: item.rang,
+        }));
+        setGlobalRanking(mappedRanking);
       } catch (error) {
         console.error("Error fetching global ranking:", error);
       } finally {

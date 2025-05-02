@@ -99,13 +99,13 @@ const Profile = () => {
   // Fonction pour formatter les données de contact
   const formatContactData = () => {
     if (!contacts) return { formateurs: [], commerciaux: [], pole_relation: [] };
-    
-    const ensureArray = (data: any) => Array.isArray(data) ? data : [];
-    
+
+    const ensureArray = (data: unknown) => Array.isArray(data) ? data : [];
+
     return {
       formateurs: ensureArray(contacts.formateurs),
       commerciaux: ensureArray(contacts.commerciaux),
-      poleRelation: ensureArray(contacts.poleRelation || contacts.pole_relation)
+      pole_relation: ensureArray((contacts as any).pole_relation ?? contacts.poleRelation)
     };
   };
 
@@ -138,63 +138,67 @@ const Profile = () => {
             </DrawerTrigger>
             <DrawerContent>
               <div className="p-4 space-y-2">
-                <TabsList className="flex flex-col w-full gap-2">
-                  <TabsTrigger value="overview" onClick={() => setActiveTab("overview")} className="w-full justify-start">
-                    <User className="h-4 w-4 mr-2" /> Vue d'ensemble
-                  </TabsTrigger>
-                  <TabsTrigger value="formation" onClick={() => setActiveTab("formation")} className="w-full justify-start">
-                    <Book className="h-4 w-4 mr-2" /> Formation
-                  </TabsTrigger>
-                  <TabsTrigger value="contacts" onClick={() => setActiveTab("contacts")} className="w-full justify-start">
-                    <Phone className="h-4 w-4 mr-2" /> Contacts
-                  </TabsTrigger>
-                  <TabsTrigger value="platform" onClick={() => setActiveTab("platform")} className="w-full justify-start">
-                    <Info className="h-4 w-4 mr-2" /> Plateforme
-                  </TabsTrigger>
-                  <TabsTrigger value="classement" onClick={() => setActiveTab("classement")} className="w-full justify-start">
-                    <Trophy className="h-4 w-4 mr-2" /> Classement
-                  </TabsTrigger>
-                  <TabsTrigger value="settings" onClick={() => setActiveTab("settings")} className="w-full justify-start">
-                    <Settings className="h-4 w-4 mr-2" /> Paramètres
-                  </TabsTrigger>
-                </TabsList>
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  <TabsList className="flex flex-col w-full gap-2">
+                    <TabsTrigger value="overview" className="w-full justify-start">
+                      <User className="h-4 w-4 mr-2" /> Vue d'ensemble
+                    </TabsTrigger>
+                    <TabsTrigger value="formation" className="w-full justify-start">
+                      <Book className="h-4 w-4 mr-2" /> Formation
+                    </TabsTrigger>
+                    <TabsTrigger value="contacts" className="w-full justify-start">
+                      <Phone className="h-4 w-4 mr-2" /> Contacts
+                    </TabsTrigger>
+                    <TabsTrigger value="platform" className="w-full justify-start">
+                      <Info className="h-4 w-4 mr-2" /> Plateforme
+                    </TabsTrigger>
+                    <TabsTrigger value="classement" className="w-full justify-start">
+                      <Trophy className="h-4 w-4 mr-2" /> Classement
+                    </TabsTrigger>
+                    <TabsTrigger value="settings" className="w-full justify-start">
+                      <Settings className="h-4 w-4 mr-2" /> Paramètres
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
               </div>
             </DrawerContent>
           </Drawer>
         ) : (
           // Vue desktop avec tabs horizontales
-          <TabsList className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-4 z-10 w-full justify-start rounded-lg border p-1 overflow-x-auto">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              <span className="hidden sm:inline">Vue d'ensemble</span>
-              <span className="sm:hidden">Vue</span>
-            </TabsTrigger>
-            <TabsTrigger value="formation" className="flex items-center gap-2">
-              <Book className="h-4 w-4" />
-              <span className="hidden sm:inline">Formation</span>
-              <span className="sm:hidden">Form</span>
-            </TabsTrigger>
-            <TabsTrigger value="contacts" className="flex items-center gap-2">
-              <Phone className="h-4 w-4" />
-              <span className="hidden sm:inline">Contacts</span>
-              <span className="sm:hidden">Contacts</span>
-            </TabsTrigger>
-            <TabsTrigger value="platform" className="flex items-center gap-2">
-              <Info className="h-4 w-4" />
-              <span className="hidden sm:inline">Plateforme</span>
-              <span className="sm:hidden">Info</span>
-            </TabsTrigger>
-            <TabsTrigger value="classement" className="flex items-center gap-2">
-              <Trophy className="h-4 w-4" />
-              <span className="hidden sm:inline">Classement</span>
-              <span className="sm:hidden">Rank</span>
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline">Paramètres</span>
-              <span className="sm:hidden">Param</span>
-            </TabsTrigger>
-          </TabsList>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-4 z-10 w-full justify-start rounded-lg border p-1 overflow-x-auto">
+              <TabsTrigger value="overview" className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">Vue d'ensemble</span>
+                <span className="sm:hidden">Vue</span>
+              </TabsTrigger>
+              <TabsTrigger value="formation" className="flex items-center gap-2">
+                <Book className="h-4 w-4" />
+                <span className="hidden sm:inline">Formation</span>
+                <span className="sm:hidden">Form</span>
+              </TabsTrigger>
+              <TabsTrigger value="contacts" className="flex items-center gap-2">
+                <Phone className="h-4 w-4" />
+                <span className="hidden sm:inline">Contacts</span>
+                <span className="sm:hidden">Contacts</span>
+              </TabsTrigger>
+              <TabsTrigger value="platform" className="flex items-center gap-2">
+                <Info className="h-4 w-4" />
+                <span className="hidden sm:inline">Plateforme</span>
+                <span className="sm:hidden">Info</span>
+              </TabsTrigger>
+              <TabsTrigger value="classement" className="flex items-center gap-2">
+                <Trophy className="h-4 w-4" />
+                <span className="hidden sm:inline">Classement</span>
+                <span className="sm:hidden">Rank</span>
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                <span className="hidden sm:inline">Paramètres</span>
+                <span className="sm:hidden">Param</span>
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         )}
 
         <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
