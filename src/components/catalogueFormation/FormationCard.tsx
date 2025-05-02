@@ -8,8 +8,11 @@ const stripHtml = (html: string) => {
 
 const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_IMG;
 
-const FormationCard = ({ formation }: { formation: Formation }) => (
-  <div className="p-4 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col">
+const FormationCard = ({ formation, bgColor }: { formation: Formation; bgColor?: string }) => (
+  <div
+    className="p-4 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col"
+    style={{ backgroundColor: bgColor || "#fff" }}
+  >
     <img
       src={`${VITE_API_URL_IMG}/${formation.catalogue_formation.image_url}`}
       alt={formation.titre}

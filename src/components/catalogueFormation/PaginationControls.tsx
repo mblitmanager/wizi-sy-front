@@ -15,7 +15,7 @@ const PaginationControls = ({
     <button
       className="px-3 py-1 border rounded"
       onClick={() => onPageChange(currentPage - 1)}
-      disabled={!prevPageUrl || currentPage === 1}>
+      disabled={currentPage === 1}>
       Précédent
     </button>
 
@@ -38,7 +38,7 @@ const PaginationControls = ({
         console.log(`Trying to go to page ${currentPage + 1}`);
         onPageChange(currentPage + 1);
       }}
-      disabled={!nextPageUrl || currentPage === lastPage}>
+      disabled={currentPage === lastPage}>
       Suivant
     </button>
   </div>

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { mediaService } from "@/services";
 import { Media } from "@/types/media";
@@ -20,8 +19,8 @@ export default function TutoAstucePage() {
           mediaService.getTutoriels(),
           mediaService.getAstuces(),
         ]);
-        setTutoriels(tutoRes.data);
-        setAstuces(astuceRes.data);
+        setTutoriels(tutoRes.data?.data || tutoRes.data || []);
+        setAstuces(astuceRes.data?.data || astuceRes.data || []);
       } catch (error) {
         console.error("Erreur lors du chargement des médias :", error);
       }

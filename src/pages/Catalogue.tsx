@@ -1,4 +1,3 @@
-
 import { Layout } from "@/components/layout/Layout";
 import { useQuery } from "@tanstack/react-query";
 import { categoryService } from "@/services/quiz/CategoryService";
@@ -33,32 +32,46 @@ export default function Catalogue() {
   const [prevPageUrl, setPrevPageUrl] = useState<string | null>(null);
   const [isLoadingFormations, setIsLoadingFormations] = useState(true);
   const [activeTab, setActiveTab] = useState("categories");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  const fetchFormationsPage = async (page = 1) => {
+  const formationsParPage = 6;
+  // Filtrage des formations selon la catégorie sélectionnée
+  const formationsFiltrees = useMemo(() => {
+    if (!selectedCategory) return formationsDisponibles;
+    return formationsDisponibles.filter((f: any) => {
+      // On suppose que la catégorie est dans f.formation.categorie ou f.categorie
+      return (
+        f.formation?.categorie === selectedCategory || f.categorie === selectedCategory
+      );
+    });
+  }, [formationsDisponibles, selectedCategory]);
+
+  const formationsPage = useMemo(() => {
+    const start = (currentPage - 1) * formationsParPage;
+    const end = start + formationsParPage;
+    return formationsFiltrees.slice(start, end);
+  }, [formationsFiltrees, currentPage]);
+
+  useEffect(() => {
+    setLastPage(Math.ceil(formationsFiltrees.length / formationsParPage) || 1);
+  }, [formationsFiltrees]);
+
+  const fetchFormationsPage = async () => {
     setIsLoadingFormations(true);
     try {
       const [, catalogueResponse] = await Promise.all([
         progressAPI.getUserProgress(),
-        catalogueFormationApi.getAllCatalogueFormation(page),
+        catalogueFormationApi.getAllCatalogueFormation(),
       ]);
 
-      interface CatalogueResponse {
-        data: CatalogueFormationWithFormation[];
-        current_page: number;
-        last_page: number;
-        total: number;
-        next_page_url: string | null;
-        prev_page_url: string | null;
-      }
+      // catalogueResponse est l'objet JSON complet
+      const formations = catalogueResponse.member || [];
 
-      const { data, current_page, last_page, next_page_url, prev_page_url } =
-        catalogueResponse.data as CatalogueResponse;
-
-      setFormationsDisponibles(Object.values(data));
-      setLastPage(last_page);
-      setCurrentPage(current_page);
-      setNextPageUrl(next_page_url);
-      setPrevPageUrl(prev_page_url);
+      setFormationsDisponibles(formations);
+      setLastPage(1); // Pas de pagination côté API
+      setCurrentPage(1);
+      setNextPageUrl(null);
+      setPrevPageUrl(null);
     } catch (e) {
       console.error("Erreur de récupération :", e);
     } finally {
@@ -69,15 +82,14 @@ export default function Catalogue() {
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= lastPage) {
       setCurrentPage(page);
-      fetchFormationsPage(page);
     }
   };
 
   useEffect(() => {
     if (activeTab === "formations") {
-      fetchFormationsPage(currentPage);
+      fetchFormationsPage();
     }
-  }, [currentPage, activeTab]);
+  }, [activeTab]);
 
   const formationsRender = useMemo(() => {
     return formationsDisponibles
@@ -142,12 +154,45 @@ export default function Catalogue() {
               </p>
             </div>
 
+            {/* Filtres par catégorie */}
+            <div className="mb-6 flex flex-wrap gap-2">
+              <Button
+                variant={selectedCategory === null ? "default" : "outline"}
+                onClick={() => setSelectedCategory(null)}
+              >
+                Toutes les catégories
+              </Button>
+              {categories?.map((cat) => (
+                <Button
+                  key={cat.id}
+                  variant={selectedCategory === cat.name ? "default" : "outline"}
+                  style={{ backgroundColor: selectedCategory === cat.name ? cat.color : undefined }}
+                  onClick={() => setSelectedCategory(cat.name)}
+                >
+                  {cat.name}
+                </Button>
+              ))}
+            </div>
+
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {isLoadingFormations
-                ? Array.from({ length: 6 }).map((_, idx) => (
+                ? Array.from({ length: formationsParPage }).map((_, idx) => (
                     <SkeletonCard key={idx} />
                   ))
-                : formationsRender}
+                : formationsPage
+                    .map(mapCatalogueToFormation)
+                    .map((formation: Formation) => {
+                      // Chercher la couleur de la catégorie
+                      const catName = formation.categorie || formation.formation?.categorie;
+                      const cat = categories?.find((c) => c.name === catName);
+                      return (
+                        <FormationCard
+                          key={`available-${formation.catalogue_formation.id}-${formation.id}`}
+                          formation={formation}
+                          bgColor={cat?.color}
+                        />
+                      );
+                    })}
             </div>
 
             <div className="mt-10 flex justify-center">

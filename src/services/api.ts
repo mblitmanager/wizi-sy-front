@@ -1,4 +1,4 @@
-
+import { CatalogueFormationResponse } from '@/types/stagiaire';
 import axios from 'axios';
 
 const VITE_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -21,8 +21,73 @@ api.interceptors.request.use((config) => {
 
 // Export specific API services for components that import them
 export const catalogueFormationApi = {
-  getAllCatalogueFormation: (page = 1) => api.get(`/catalogue_formation?page=${page}`),
-  getCatalogueFormationById: (id: number) => api.get(`/catalogue_formation/${id}`),
+  getCatalogueFormation: async (stagiaireId: string): Promise<CatalogueFormationResponse> => {
+    try {
+      const response = await axios.get<CatalogueFormationResponse>(
+        `${VITE_API_URL}/catalogueFormations/stagiaire/${stagiaireId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération du catalogue:', error);
+      throw error;
+    }
+  },
+
+  getFormationDetails: async (formationId: string): Promise<any> => {
+    try {
+      const response = await axios.get(
+        `${VITE_API_URL}/formations/${formationId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des détails de la formation:', error);
+      throw error;
+    }
+  },
+
+  getFormationQuizzes: async (formationId: string): Promise<any[]> => {
+    try {
+      const response = await axios.get(
+        `${VITE_API_URL}/formations/${formationId}/quizzes`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des quiz de la formation:', error);
+      throw error;
+    }
+  },
+
+  getAllCatalogueFormation: async (): Promise<CatalogueFormationResponse> => {
+    try {
+      const response = await axios.get<CatalogueFormationResponse>(
+        `${VITE_API_URL}/catalogue_formations`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération du catalogue complet:', error);
+      throw error;
+    }
+  },
 };
 
 export const progressAPI = {
