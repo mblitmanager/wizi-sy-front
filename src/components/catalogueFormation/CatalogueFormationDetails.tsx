@@ -96,22 +96,48 @@ export default function CatalogueFormationDetails() {
     return <div>Aucune donnée disponible pour cette formation.</div>;
   }
 
-  const imageUrl = details.catalogueFormation.image_url
-    ? `${import.meta.env.VITE_API_URL_IMG}/${
-        details.catalogueFormation.image_url
-      }`
-    : "/default-image.jpg";
+  // Déterminer le type de média (image, vidéo ou audio)
+  const url = details.catalogueFormation.image_url || "";
+  let mediaElement;
+  if (url.endsWith(".mp4")) {
+    mediaElement = (
+      <video
+        controls
+        className="h-full w-full object-cover md:col-span-1 rounded-lg">
+        <source
+          src={`${import.meta.env.VITE_API_URL_IMG}/${url}`}
+          type="video/mp4"
+        />
+        Votre navigateur ne supporte pas la lecture de vidéos.
+      </video>
+    );
+  } else if (url.endsWith(".mp3")) {
+    mediaElement = (
+      <audio controls className="w-full md:col-span-1 rounded-lg">
+        <source
+          src={`${import.meta.env.VITE_API_URL_IMG}/${url}`}
+          type="audio/mp3"
+        />
+        Votre navigateur ne supporte pas la lecture d'audios.
+      </audio>
+    );
+  } else {
+    mediaElement = (
+      <img
+        src={`${import.meta.env.VITE_API_URL_IMG}/${url}`}
+        alt={details.catalogueFormation.titre}
+        className="h-full w-full object-cover md:col-span-1 rounded-lg"
+      />
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
       <HeaderSection titre={CATALOGUE_FORMATION_DETAILS} buttonText={RETOUR} />
       <Card className="overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-3">
-          <img
-            src={imageUrl}
-            alt={details.catalogueFormation.titre}
-            className="h-full w-full object-cover md:col-span-1"
-          />
+          {/* Affichage du média (image, vidéo ou audio) */}
+          {mediaElement}
           <div className="md:col-span-2 p-6 space-y-4">
             <CardHeader className="p-0 space-y-1">
               <CardTitle className="text-2xl font-bold text-gray-900">
@@ -126,7 +152,7 @@ export default function CatalogueFormationDetails() {
 
             <CardContent className="p-0 text-gray-700 dark:text-gray-300 space-y-2">
               <p className="text-base leading-relaxed">
-                {details.catalogueFormation.description}
+                {details.catalogueFormation.description.replace(/<[^>]*>/g, "")}
               </p>
 
               <ul className="text-sm space-y-1">
@@ -172,7 +198,10 @@ export default function CatalogueFormationDetails() {
           </h2>
           <Card className="p-6">
             <p className="text-gray-500 dark:text-gray-500 mb-2">
-              {details.catalogueFormation.formation.description}
+              {details.catalogueFormation.formation.description.replace(
+                /<[^>]*>/g,
+                ""
+              )}
             </p>
           </Card>
         </div>

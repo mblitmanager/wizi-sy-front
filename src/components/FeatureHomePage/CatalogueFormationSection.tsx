@@ -17,6 +17,9 @@ import {
   CatalogueFormation,
   CatalogueFormationResponse,
 } from "@/types/stagiaire";
+import mp3 from "../../assets/mp3.png";
+import mp4 from "../../assets/mp4.png";
+import { VOIR_LES_DETAILS } from "@/utils/langue-type";
 
 interface CatalogueFormationSectionProps {
   CATALOGUE_FORMATION: string;
@@ -54,9 +57,15 @@ export default function CatalogueFormationSection({
             catalogueData.map((catalogue) => {
               const progress = Math.floor(Math.random() * 100);
               const isInProgress = progress > 0;
-              const image = catalogue.image_url
-                ? `${VITE_API_URL_IMG}/${catalogue.image_url}`
-                : "/default-image.jpg";
+              const url = catalogue.image_url?.toLowerCase() || "";
+              let image = "";
+              if (url.match(/\.mp4(\?.*)?$/)) {
+                image = mp4;
+              } else if (url.match(/\.mp3(\?.*)?$/)) {
+                image = mp3;
+              } else if (catalogue.image_url) {
+                image = `${VITE_API_URL_IMG}/${catalogue.image_url}`;
+              }
 
               return (
                 <Card
@@ -64,9 +73,9 @@ export default function CatalogueFormationSection({
                   className="flex flex-col overflow-hidden rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-300 bg-white">
                   <div className="relative h-40">
                     <img
-                      src={image}
+                      src={encodeURI(image)}
                       alt={catalogue.titre}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                     />
                     {isInProgress && (
                       <div className="absolute top-2 left-2">
@@ -105,7 +114,8 @@ export default function CatalogueFormationSection({
                       onClick={() =>
                         navigate(`/catalogue_formation/${catalogue.id}`)
                       }>
-                      VOIR LES DÉTAILS <ArrowRight className="w-4 h-4" />
+                      {VOIR_LES_DETAILS}
+                      <ArrowRight className="w-4 h-4" />
                     </Button>
                   </CardFooter>
                 </Card>

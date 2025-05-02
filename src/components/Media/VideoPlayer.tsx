@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Plyr from "plyr";
 import "plyr/dist/plyr.css";
 
-const VITE_API_URL = import.meta.env.VITE_API_URL_MEDIA;
 interface Props {
-  url: string;
+  url: string; // exemple : "uploads/medias/1745998203.mp4"
 }
+
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 export default function VideoPlayer({ url }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -13,6 +14,7 @@ export default function VideoPlayer({ url }: Props) {
 
   useEffect(() => {
     const video = videoRef.current;
+
     if (video && !playerRef.current) {
       playerRef.current = new Plyr(video, {
         controls: [
@@ -32,26 +34,22 @@ export default function VideoPlayer({ url }: Props) {
       });
     }
 
-    // Mettre à jour la source sans redémarrer le player
-    if (playerRef.current) {
-      playerRef.current.source = {
-        type: "video",
-        sources: [
-          {
-            src: `${VITE_API_URL}/${url}`,
-            type: "video/mp4",
-          },
-        ],
-      };
-
-      playerRef.current.pause(); // mettre en pause par défaut comme YouTube
+    if (video) {
+      video.src = `${VITE_API_URL}/media/stream/${url}`;
+      video.load();
+      video.pause();
     }
-
-    return () => {
-      // Ne détruit pas le player à chaque fois, sauf si on démonte complètement
-      // playerRef.current?.destroy();
-    };
   }, [url]);
 
-  return <video ref={videoRef} className="w-full rounded-lg" />;
+  return (
+    <video
+      ref={videoRef}
+      className="w-full rounded-lg"
+      controls
+      playsInline
+      preload="metadata">
+      <source src={`${VITE_API_URL}/media/stream/${url}`} type="video/mp4" />
+      Votre navigateur ne supporte pas la lecture de vidéos HTML5.
+    </video>
+  );
 }
