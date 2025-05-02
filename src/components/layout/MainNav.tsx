@@ -6,7 +6,7 @@ import {
   Video,
   LayoutGrid,
   User,
-  Settings,
+  Settings,Trophy,
   LogOut,
 } from "lucide-react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
