@@ -1,81 +1,83 @@
 
-import React from 'react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Trophy } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Crown } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { LeaderboardEntry } from "@/types/quiz";
 
-interface GlobalRankingProps {
-  classement: any[];
-  currentUserId?: string;
+export interface GlobalRankingProps {
+  ranking?: LeaderboardEntry[];
+  loading?: boolean; 
 }
 
-export const GlobalRanking: React.FC<GlobalRankingProps> = ({ classement, currentUserId }) => {
-  if (!classement || classement.length === 0) {
+export function GlobalRanking({ ranking = [], loading = false }: GlobalRankingProps) {
+  if (loading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Classement Global</CardTitle>
+          <CardTitle>Chargement du classement...</CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="text-center py-4 text-muted-foreground">Aucune donnée de classement disponible</p>
+        <CardContent className="space-y-4">
+          {Array(5).fill(0).map((_, i) => (
+            <div key={i} className="flex items-center gap-3 p-3 rounded-md bg-gray-100 animate-pulse">
+              <div className="w-10 h-10 rounded-full bg-gray-200" />
+              <div className="flex-1">
+                <div className="h-4 w-24 bg-gray-200 rounded" />
+              </div>
+              <div className="h-5 w-10 bg-gray-200 rounded" />
+            </div>
+          ))}
         </CardContent>
       </Card>
     );
   }
-
+  
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Classement Global</CardTitle>
+        <CardTitle>Classement global</CardTitle>
       </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Rang</TableHead>
-              <TableHead>Stagiaire</TableHead>
-              <TableHead>Points</TableHead>
-              <TableHead>Quiz Completés</TableHead>
-              <TableHead>Score Moyen</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {classement.map((item, index) => (
-              <TableRow 
-                key={item.stagiaire.id}
-                className={cn(
-                  item.stagiaire.id === currentUserId && "bg-primary/5"
+      <CardContent className="space-y-4">
+        {ranking.length === 0 ? (
+          <p className="text-center text-muted-foreground py-4">
+            Aucun classement disponible pour le moment
+          </p>
+        ) : (
+          ranking.map((entry, index) => (
+            <div 
+              key={entry.id}
+              className={`flex items-center gap-3 p-3 rounded-md ${
+                index < 3 ? 'bg-amber-50' : 'bg-gray-50'
+              }`}
+            >
+              <div className="w-10 h-10 flex items-center justify-center font-semibold">
+                {index < 3 ? (
+                  <Trophy className={`h-6 w-6 ${
+                    index === 0 ? 'text-yellow-500' : 
+                    index === 1 ? 'text-gray-400' : 'text-amber-700'
+                  }`} />
+                ) : (
+                  <span className="text-gray-500">{index + 1}</span>
                 )}
-              >
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    {index === 0 && <Crown className="h-5 w-5 text-yellow-500" />}
-                    {index === 1 && <Crown className="h-5 w-5 text-gray-400" />}
-                    {index === 2 && <Crown className="h-5 w-5 text-amber-700" />}
-                    <span className="font-bold">{index + 1}</span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={item.stagiaire.image || undefined} />
-                      <AvatarFallback>
-                        <User className="h-4 w-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <span>{item.stagiaire.prenom}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="font-bold">{item.totalPoints}</TableCell>
-                <TableCell>{item.quizCount}</TableCell>
-                <TableCell>{Math.round(item.averageScore)}%</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+              </div>
+              <div className="flex items-center gap-3 flex-1">
+                <Avatar>
+                  <AvatarImage 
+                    src={entry.image} 
+                    alt={entry.name} 
+                  />
+                  <AvatarFallback>
+                    {entry.name.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="font-medium">{entry.name}</span>
+              </div>
+              <div className="text-lg font-semibold text-primary">
+                {entry.score}
+              </div>
+            </div>
+          ))
+        )}
       </CardContent>
     </Card>
   );
-};
+}

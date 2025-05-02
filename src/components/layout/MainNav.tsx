@@ -1,161 +1,128 @@
-
-import { Link, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
 import {
   Home,
-  BookOpen,
+  GraduationCap,
+  Brain,
   Trophy,
+  Video,
+  LayoutGrid,
   User,
+  Settings,
   LogOut,
-  Menu,
-  X,
-  LayoutList,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useUser } from "@/context/UserContext";
-import { useState } from "react";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface MainNavProps {
   showBottomNav?: boolean;
 }
 
-const MainNav = ({ showBottomNav = false }: MainNavProps) => {
+export default function MainNav({ showBottomNav = false }: MainNavProps) {
+  const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout } = useUser();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = location.pathname;
 
-  const navItems = [
-    { name: "Accueil", path: "/", icon: <Home className="h-5 w-5" /> },
-    { name: "Catalogue", path: "/catalogue", icon: <LayoutList className="h-5 w-5" /> },
-    { name: "Quiz", path: "/quizzes", icon: <BookOpen className="h-5 w-5" /> },
-    { name: "Formations", path: "/formations", icon: <BookOpen className="h-5 w-5" /> },
-    { name: "Profil", path: "/profile", icon: <User className="h-5 w-5" /> },
+  // Main navigation items
+  const items = [
+    {
+      title: "Accueil",
+      href: "/",
+      icon: Home,
+    },
+    {
+      title: "Formations",
+      href: "/formations",
+      icon: GraduationCap,
+    },
+    {
+      title: "Quiz",
+      href: "/quizzes",
+      icon: Brain,
+    },
+    {
+      title: "Classement",
+      href: "/classement",
+      icon: Trophy,
+    },
+    {
+      title: "Tutoriels",
+      href: "/tuto-astuce",
+      icon: Video,
+    },
+    {
+      title: "Catalogue",
+      href: "/catalogue",
+      icon: LayoutGrid,
+    },
+    {
+      title: "Profil",
+      href: "/profile",
+      icon: User,
+    },
   ];
 
-  const isActive = (path: string) => location.pathname === path;
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
 
   return (
-    <>
-      {/* Menu mobile (visible uniquement sur mobile) */}
-      <div className="hidden">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          {isMobileMenuOpen ? (
-            <X className="h-6 w-6" />
-          ) : (
-            <Menu className="h-6 w-6" />
-          )}
-        </Button>
-
-        {isMobileMenuOpen && (
-          <div className="fixed inset-0 z-50 bg-background">
-            <div className="flex flex-col h-full">
-              <div className="flex items-center justify-between p-4 border-b">
-                <h2 className="text-lg font-semibold">Menu</h2>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsMobileMenuOpen(false)}
+    <div className="flex flex-col h-full">
+      <div className="space-y-4 py-4">
+        <div className="px-3 py-2">
+          <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
+            Wizi Learn
+          </h2>
+          <ul className="space-y-1">
+            {items.map((item) => (
+              <li key={item.href}>
+                <NavLink
+                  to={item.href}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary hover:text-foreground ${
+                      isActive ? "bg-secondary text-foreground" : "text-muted-foreground"
+                    }`
+                  }
                 >
-                  <X className="h-6 w-6" />
-                </Button>
-              </div>
-              <nav className="flex-1 p-4 space-y-2">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                      isActive(item.path)
-                        ? "bg-primary text-primary-foreground"
-                        : "hover:bg-muted"
-                    )}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {item.icon}
-                    {item.name}
-                  </Link>
-                ))}
-              </nav>
-              <div className="p-4 border-t">
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => {
-                    logout();
-                    setIsMobileMenuOpen(false);
-                  }}
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Déconnexion
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Menu desktop et tablette (caché sur mobile) */}
-      <nav className="hidden md:flex flex-col h-full border-r bg-background">
-        <div className="p-4">
-          <h2 className="text-lg font-semibold mb-4">Wizi Learn</h2>
-          <div className="space-y-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                  isActive(item.path)
-                    ? "bg-primary text-primary-foreground"
-                    : "hover:bg-muted"
-                )}
-              >
-                {item.icon}
-                {item.name}
-              </Link>
+                  <item.icon className="w-4 h-4" />
+                  {item.title}
+                </NavLink>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
-        <div className="mt-auto p-4 border-t">
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={() => logout()}
-          >
-            <LogOut className="h-4 w-4 mr-2" />
-            Déconnexion
-          </Button>
-        </div>
-      </nav>
-      
-      {/* Menu mobile en bas de l'écran */}
-      {showBottomNav && (
-        <div className="md:hidden flex justify-around items-center w-full">
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn(
-                "flex flex-col items-center justify-center text-xs",
-                isActive(item.path)
-                  ? "text-primary font-medium"
-                  : "text-muted-foreground"
-              )}
-            >
-              {item.icon}
-              <span className="mt-1">{item.name}</span>
-            </Link>
-          ))}
-        </div>
-      )}
-    </>
+      </div>
+      <div className="mt-auto px-3 py-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary hover:text-foreground w-full justify-between">
+              <div className="flex items-center gap-2">
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src="https://github.com/shadcn.png" alt="Avatar" />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+                <span>Mon compte</span>
+              </div>
+              <Settings className="w-4 h-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => navigate("/profile")}>
+              Profil
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              Paramètres
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Se déconnecter
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
   );
-};
-
-export default MainNav; 
+}

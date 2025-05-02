@@ -1,12 +1,9 @@
+
 import { Media } from "@/types/media";
 import VideoPlayer from "./VideoPlayer";
-import SkeletonCard from "../ui/SkeletonCard";
+import SkeletonCard from "@/components/ui/SkeletonCard";
 import { FileText, Music } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
-interface Props {
-  media: Media | null;
-}
 
 const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
 

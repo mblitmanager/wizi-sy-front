@@ -1,4 +1,3 @@
-
 import { Layout } from "@/components/layout/Layout";
 import ContactSection from "@/components/profile/ContactSection";
 import CurrentFormation from "@/components/profile/CurrentFormation";
@@ -8,9 +7,9 @@ import ReferralSystem from "@/components/profile/ReferralSystem";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUser } from "@/context/UserContext";
 import { useQuery } from "@tanstack/react-query";
-import { profileService } from "@/services/ProfileService";
+import { userProfileService } from "@/services/ProfileService";
 import { Loader2 } from "lucide-react";
-import { Classement } from "@/components/quiz/Classement"; // Fixed: Correct capitalization
+import { Classement } from "@/components/quiz/Classement"; 
 import { motion } from "framer-motion";
 
 const Profile = () => {
@@ -18,27 +17,27 @@ const Profile = () => {
 
   const { data: contacts, isLoading: contactsLoading } = useQuery({
     queryKey: ["contacts"],
-    queryFn: () => profileService.getContacts(),
+    queryFn: () => userProfileService.getContacts(),
   });
 
   const { data: formations, isLoading: formationsLoading } = useQuery({
     queryKey: ["formations"],
-    queryFn: () => profileService.getFormations(),
+    queryFn: () => userProfileService.getFormations(),
   });
 
   const { data: progress, isLoading: progressLoading } = useQuery({
     queryKey: ["progress"],
-    queryFn: () => profileService.getProgress(),
+    queryFn: () => userProfileService.getProgress(),
   });
 
   const { data: parrainageStats, isLoading: parrainageLoading } = useQuery({
     queryKey: ["parrainage"],
-    queryFn: () => profileService.getParrainageStats(),
+    queryFn: () => userProfileService.getParrainageStats(),
   });
 
   const { data: quizzes, isLoading: quizzesLoading } = useQuery({
     queryKey: ["stagiaire-quizzes"],
-    queryFn: () => profileService.getQuizzes(),
+    queryFn: () => userProfileService.getStagiaireQuizzes(),
   });
 
   const isLoading = contactsLoading || formationsLoading || progressLoading || 

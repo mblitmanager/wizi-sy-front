@@ -1,140 +1,178 @@
 
-import { quizManagementService } from './quiz/QuizManagementService';
-import { contactService } from './ContactService';
-import apiClient from '../lib/api-client';
+import { api } from './api';
+import { MediaCategory } from '@/types/media';
+import { Contact, ContactResponse } from '@/types/contact';
+import { Formation } from '@/types/stagiaire';
+import { UserRankingStats } from '@/types/ranking';
 
-const API_URL = import.meta.env.VITE_API_URL;
-
-export interface Contact {
-  name: string;
-  role: string;
+interface StagiaireProfile {
+  id: number;
+  nom: string;
+  prenom: string;
   email: string;
-  phone: string;
+  telephone: string;
+  adresse: string;
+  date_naissance: string;
+  lieu_naissance: string;
+  nationalite: string;
+  sexe: string;
+  situation_familiale: string;
+  niveau_etude: string;
+  domaine_etude: string;
+  annee_experience: number;
+  type_contrat: string;
+  disponibilite: string;
+  pretention_salariale: number;
+  photo_url: string;
+  cv_url: string;
+  lettre_motivation_url: string;
+  portfolio_url: string;
+  linkedin_url: string;
+  github_url: string;
+  twitter_url: string;
+  facebook_url: string;
+  instagram_url: string;
+  telegram_url: string;
+  whatsapp_url: string;
+  skype_url: string;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface Contacts {
-  formateur: Contact;
-  commercial: Contact;
-  relationClient: Contact;
+interface StagiaireQuiz {
+  id: number;
+  titre: string;
+  description: string;
+  duree: number;
+  points: number;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface Formation {
-  id: string;
-  title: string;
-  progress: number;
-  startDate: string;
-  endDate?: string;
-  status: 'current' | 'completed';
-}
-
-export interface ParrainageStats {
+interface ParrainageStats {
   referralCode: string;
   totalReferrals: number;
   rewards: {
-    points: number;
-    quizzes: number;
+    total: number;
+    pending: number;
+    received: number;
   };
 }
 
-export interface Progress {
-  totalPoints: number;
-  completedQuizzes: number;
-  streak: number;
-  level: number;
-  rank: number;
-}
-
-class ProfileService {
-  async getContacts(): Promise<any> {
-    const response = await apiClient.get('/stagiaire/contacts');
-    const data = response.data;
-
-    return {
-      formateurs: data.formateurs.map((formateur: any) => ({
-        id: formateur.id,
-        role: formateur.role,
-        prenom: formateur.prenom,
-        user: {
-          id: formateur.user.id,
-          name: formateur.user.name,
-          email: formateur.user.email,
-          image: formateur.user.image,
-        },
-        formations: formateur.formations.map((formation: any) => ({
-          id: formation.id,
-          titre: formation.titre,
-          description: formation.description,
-          categorie: formation.categorie,
-          duree: formation.duree,
-        })),
-      })),
-      commerciaux: data.commerciaux.map((commercial: any) => ({
-        id: commercial.id,
-        prenom: commercial.prenom,
-        role: commercial.role,
-        user: {
-          id: commercial.user.id,
-          name: commercial.user.name,
-          email: commercial.user.email,
-          image: commercial.user.image,
-        },
-      })),
-      pole_relation: data.pole_relation.map((relation: any) => ({
-        id: relation.id,
-        prenom: relation.prenom,
-        role: relation.role,
-        user: {
-          id: relation.user.id,
-          name: relation.user.name,
-          email: relation.user.email,
-          image: relation.user.image,
-        },
-      })),
-    };
-  }
-
-  async getFormations(): Promise<Formation[]> {
-    const response = await apiClient.get('/stagiaire/formations');
-    return Array.isArray(response.data) ? response.data : [];
-  }
-
-  async getProgress(): Promise<Progress> {
-    const response = await apiClient.get('/stagiaire/progress');
-    return response.data;
-  }
-
-  async getParrainageStats(): Promise<ParrainageStats> {
-    const [statsResponse, rewardsResponse, linkResponse] = await Promise.all([
-      apiClient.get('/stagiaire/parrainage/stats'),
-      apiClient.get('/stagiaire/parrainage/rewards'),
-      apiClient.get('/stagiaire/parrainage/link')
-    ]);
-
-    return {
-      referralCode: linkResponse.data.code,
-      totalReferrals: statsResponse.data.total,
-      rewards: rewardsResponse.data
-    };
-  }
-
-  async getQuizzes() {
+export const userProfileService = {
+  getStagiaireProfile: async (): Promise<StagiaireProfile> => {
     try {
-      const response = await apiClient.get('/stagiaire/quizzes');
-      console.info('Quiz response from API:', response.data);
-      
-      const quizzes = response.data.data || [];
-      const categories = await quizManagementService.getCategories();
-      
-      console.info('Categories from API:', categories);
-
-      return Promise.all(
-        quizzes.map((quiz: any) => quizManagementService['formatQuiz'](quiz, categories))
-      );
+      const response = await api.get<StagiaireProfile>('/stagiaire/profile');
+      return response.data;
     } catch (error) {
-      console.error('Error fetching quizzes:', error);
+      console.error('Error fetching stagiaire profile', error);
       throw error;
     }
-  }
-}
+  },
 
-export const profileService = new ProfileService();
+  getStagiaireQuizzes: async (): Promise<StagiaireQuiz[]> => {
+    try {
+      const response = await api.get<StagiaireQuiz[]>('/stagiaire/quizzes');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching stagiaire quizzes', error);
+      return [];
+    }
+  },
+
+  getMediaCategories: async (): Promise<MediaCategory[]> => {
+    try {
+      const response = await api.get<{ data: MediaCategory[] }>('/media-categories');
+      return response.data.data || [];
+    } catch (error) {
+      console.error('Error fetching media categories', error);
+      return [];
+    }
+  },
+
+  updateStagiaireProfile: async (profileData: Partial<StagiaireProfile>): Promise<StagiaireProfile> => {
+    try {
+      const response = await api.put<StagiaireProfile>('/stagiaire/profile', profileData);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating stagiaire profile', error);
+      throw error;
+    }
+  },
+
+  uploadStagiairePhoto: async (photo: File): Promise<StagiaireProfile> => {
+    try {
+      const formData = new FormData();
+      formData.append('photo', photo);
+      const response = await api.post<StagiaireProfile>('/stagiaire/profile/photo', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error uploading stagiaire photo', error);
+      throw error;
+    }
+  },
+
+  // Adding methods used in Profile.tsx
+  getContacts: async (): Promise<ContactResponse> => {
+    try {
+      const response = await api.get<ContactResponse>('/stagiaire/contacts');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching contacts', error);
+      return {
+        commerciaux: [],
+        formateurs: [],
+        poleRelation: []
+      };
+    }
+  },
+
+  getFormations: async (): Promise<Formation[]> => {
+    try {
+      const response = await api.get<{ data: Formation[] }>('/stagiaire/formations');
+      return response.data.data || [];
+    } catch (error) {
+      console.error('Error fetching formations', error);
+      return [];
+    }
+  },
+
+  getProgress: async (): Promise<UserRankingStats> => {
+    try {
+      const response = await api.get<UserRankingStats>('/stagiaire/progress');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching progress', error);
+      return {
+        totalQuizzes: 0,
+        totalScore: 0,
+        averageScore: 0,
+        highestScore: 0,
+        completionRate: 0,
+        rank: 0
+      };
+    }
+  },
+
+  getParrainageStats: async (): Promise<ParrainageStats> => {
+    try {
+      const response = await api.get<ParrainageStats>('/stagiaire/parrainage');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching parrainage stats', error);
+      return {
+        referralCode: '',
+        totalReferrals: 0,
+        rewards: {
+          total: 0,
+          pending: 0,
+          received: 0
+        }
+      };
+    }
+  }
+};

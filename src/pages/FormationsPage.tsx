@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import HeaderSection from "@/components/features/HeaderSection";
@@ -5,8 +6,9 @@ import HeaderSection from "@/components/features/HeaderSection";
 import FormationCard from "@/components/catalogueFormation/FormationCard";
 import PaginationControls from "@/components/catalogueFormation/PaginationControls";
 import SkeletonCard from "@/components/ui/SkeletonCard";
+import { api } from "@/services/api";
 import { catalogueFormationApi, progressAPI, stagiaireAPI } from "@/services/api";
-import { CatalogueFormationWithFormation, Formation } from "@/types/stagiaire";
+import { Formation, CatalogueFormationWithFormation } from "@/types/stagiaire";
 import { mapCatalogueToFormation } from "@/utils/mapCatalogueToFormation";
 
 const FormationsPage = () => {

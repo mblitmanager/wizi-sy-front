@@ -1,59 +1,93 @@
 
-import React from 'react';
-import { useQuery } from "@tanstack/react-query";
+import React, { useEffect, useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ProfileStats } from "./classement/ProfileStats";
+import { GlobalRanking } from "./classement/GlobalRanking";
+import { QuizHistory } from "./classement/QuizHistory";
 import { quizSubmissionService } from "@/services/quiz/QuizSubmissionService";
-import { ProfileStats } from './classement/ProfileStats';
-import { ClassementTabs } from './classement/ClassementTabs';
+import type { QuizHistory as QuizHistoryType } from "@/types/quiz";
 
-export const Classement: React.FC = () => {
-  const { data: stagiaireProfile, isLoading: isLoadingProfile } = useQuery({
-    queryKey: ["stagiaireProfile"],
-    queryFn: () => quizSubmissionService.getStagiaireProfile(),
+export function Classement() {
+  const [profile, setProfile] = useState<any>(null);
+  const [quizHistory, setQuizHistory] = useState<QuizHistoryType[]>([]);
+  const [quizStats, setQuizStats] = useState<any>(null);
+  const [globalRanking, setGlobalRanking] = useState<any[]>([]);
+  const [loading, setLoading] = useState({
+    profile: true,
+    history: true,
+    stats: true,
+    ranking: true,
   });
 
-  const { data: quizHistory, isLoading: isLoadingHistory } = useQuery({
-    queryKey: ["quizHistory", stagiaireProfile?.stagiaire?.id],
-    queryFn: () => quizSubmissionService.getQuizHistory(),
-    enabled: !!stagiaireProfile?.stagiaire?.id
-  });
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const profileData = await quizSubmissionService.getStagiaireProfile();
+        setProfile(profileData);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      } finally {
+        setLoading((prev) => ({ ...prev, profile: false }));
+      }
+    };
 
-  const { data: quizStats } = useQuery({
-    queryKey: ["quizStats", stagiaireProfile?.stagiaire?.id],
-    queryFn: () => quizSubmissionService.getQuizStats(),
-    enabled: !!stagiaireProfile?.stagiaire?.id
-  });
+    const fetchQuizStats = async () => {
+      try {
+        const stats = await quizSubmissionService.getQuizStats();
+        setQuizStats(stats);
+      } catch (error) {
+        console.error("Error fetching quiz stats:", error);
+      } finally {
+        setLoading((prev) => ({ ...prev, stats: false }));
+      }
+    };
 
-  const { data: globalClassement } = useQuery({
-    queryKey: ["globalClassement"],
-    queryFn: () => quizSubmissionService.getGlobalClassement(),
-  });
+    const fetchGlobalRanking = async () => {
+      try {
+        const ranking = await quizSubmissionService.getGlobalClassement();
+        setGlobalRanking(ranking);
+      } catch (error) {
+        console.error("Error fetching global ranking:", error);
+      } finally {
+        setLoading((prev) => ({ ...prev, ranking: false }));
+      }
+    };
 
-  if (isLoadingProfile || isLoadingHistory) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
-          <div className="space-y-4">
-            <div className="h-4 bg-gray-200 rounded w-full"></div>
-            <div className="h-4 bg-gray-200 rounded w-full"></div>
-            <div className="h-4 bg-gray-200 rounded w-full"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+    const fetchQuizHistory = async () => {
+      try {
+        const history = await quizSubmissionService.getQuizHistory();
+        setQuizHistory(history);
+      } catch (error) {
+        console.error("Error fetching quiz history:", error);
+      } finally {
+        setLoading((prev) => ({ ...prev, history: false }));
+      }
+    };
+
+    fetchProfileData();
+    fetchQuizStats();
+    fetchGlobalRanking();
+    fetchQuizHistory();
+  }, []);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      {/* Profil et Statistiques */}
-      <ProfileStats stats={quizStats || { totalQuizzes: 0, totalScore: 0, completedQuizzes: 0, averageScore: 0, totalPoints: 0, averageTimeSpent: 0 }} profile={stagiaireProfile} />
-      
-      {/* Onglets pour Classement et Historique */}
-      <ClassementTabs 
-        globalClassement={globalClassement || []} 
-        quizHistory={quizHistory || []}
-        currentUserId={stagiaireProfile?.stagiaire?.id} 
-      />
+    <div className="container mx-auto py-8">
+      <h1 className="text-3xl font-bold mb-6">Mon classement</h1>
+
+      <ProfileStats profile={profile} stats={quizStats} loading={loading.profile || loading.stats} />
+
+      <Tabs defaultValue="ranking" className="mt-8">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="ranking">Classement global</TabsTrigger>
+          <TabsTrigger value="history">Mon historique</TabsTrigger>
+        </TabsList>
+        <TabsContent value="ranking">
+          <GlobalRanking ranking={globalRanking} loading={loading.ranking} />
+        </TabsContent>
+        <TabsContent value="history">
+          <QuizHistory history={quizHistory} loading={loading.history} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
-};
+}

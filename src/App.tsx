@@ -20,6 +20,8 @@ import Formation from "./pages/Formation";
 import Quizzes from "./pages/Quizzes";
 import { QuizDetail } from "@/components/quiz/QuizDetail";
 import { QuizResults } from "@/components/quiz/QuizResults";
+import TutoAstucePage from "./pages/TutoAstucePage";
+import Classement from "./pages/Classement";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -90,6 +92,16 @@ const App = () => (
                 <Route path="/profile" element={
                   <ProtectedRoute>
                     <Profile />
+                  </ProtectedRoute>
+                } />
+                <Route path="/classement" element={
+                  <ProtectedRoute>
+                    <Classement />
+                  </ProtectedRoute>
+                } />
+                <Route path="/tuto-astuce" element={
+                  <ProtectedRoute>
+                    <TutoAstucePage />
                   </ProtectedRoute>
                 } />
                 <Route path="*" element={<NotFound />} />

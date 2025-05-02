@@ -1,46 +1,92 @@
 
-import React from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Award, CheckCircle, Clock } from 'lucide-react';
-import { QuizStats } from '@/types/quiz';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-interface ProfileStatsProps {
-  stats: QuizStats;
-  profile?: any; // Ajout de la prop profile pour résoudre l'erreur
+export interface ProfileStatsProps {
+  profile: any;
+  stats: any;
+  loading?: boolean;
 }
 
-export const ProfileStats: React.FC<ProfileStatsProps> = ({ stats, profile }) => {
-  const averageScore = stats?.averageScore ? Math.round(stats.averageScore) : 0;
+export function ProfileStats({ profile, stats, loading = false }: ProfileStatsProps) {
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Chargement des statistiques...</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {Array(3).fill(0).map((_, i) => (
+              <div key={i} className="h-16 bg-gray-100 animate-pulse rounded-md" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Statistiques de l'utilisateur</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-center text-muted-foreground py-4">
+            Aucune statistique disponible
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <div className="flex items-center gap-2">
-          <Award className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-          <h4 className="text-sm font-medium">Statistiques du Profil</h4>
-        </div>
-        {profile?.stagiaire?.nom && (
-          <div className="text-sm font-medium">
-            {profile.stagiaire.nom} {profile.stagiaire.prenom}
-          </div>
-        )}
+      <CardHeader>
+        <CardTitle>Mes statistiques</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-sm font-medium">Score Moyen</div>
-        <div className="text-2xl font-bold">{averageScore}%</div>
-        <Progress value={averageScore} className="h-2 mt-2" />
-        <div className="flex justify-between mt-4 text-xs text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <CheckCircle className="h-3 w-3" />
-            <span>{stats?.completedQuizzes || 0} Quiz Complétés</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Clock className="h-3 w-3" />
-            <span>{stats?.averageTimeSpent ? Math.floor(stats.averageTimeSpent / 60) : 0} minutes</span>
-          </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card>
+            <CardHeader className="p-4">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Score total
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <div className="text-2xl font-bold">
+                {stats.totalScore || 0}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="p-4">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Quiz complétés
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <div className="text-2xl font-bold">
+                {stats.completedQuizzes || 0} / {stats.totalQuizzes || 0}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="p-4">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Score moyen
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <div className="text-2xl font-bold">
+                {stats.averageScore ? Math.round(stats.averageScore) : 0}%
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </CardContent>
     </Card>
   );
-};
+}
