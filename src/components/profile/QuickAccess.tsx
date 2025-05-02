@@ -20,6 +20,11 @@ interface QuickAccessProps {
 }
 
 const QuickAccess = ({ recentQuizzes, demoQuizzes, totalScore, rank }: QuickAccessProps) => {
+  // Assurons-nous que recentQuizzes est un tableau
+  const safeRecentQuizzes = Array.isArray(recentQuizzes) ? recentQuizzes : [];
+  // Assurons-nous que demoQuizzes est un tableau
+  const safeDemoQuizzes = Array.isArray(demoQuizzes) ? demoQuizzes : [];
+
   return (
     <div className="grid gap-6 md:grid-cols-2">
       <Card className="hover:shadow-lg transition-shadow duration-300">
@@ -31,7 +36,7 @@ const QuickAccess = ({ recentQuizzes, demoQuizzes, totalScore, rank }: QuickAcce
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {recentQuizzes.map((quiz, index) => (
+            {safeRecentQuizzes.map((quiz, index) => (
               <motion.div
                 key={quiz.id}
                 initial={{ opacity: 0, x: -20 }}
@@ -101,7 +106,7 @@ const QuickAccess = ({ recentQuizzes, demoQuizzes, totalScore, rank }: QuickAcce
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
-            {demoQuizzes.map((quiz, index) => (
+            {safeDemoQuizzes.map((quiz, index) => (
               <motion.div
                 key={quiz.id}
                 initial={{ opacity: 0, y: 20 }}

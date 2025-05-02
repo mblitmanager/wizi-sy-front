@@ -1,8 +1,8 @@
+
 import {
   Home,
   GraduationCap,
   Brain,
-  Trophy,
   Video,
   LayoutGrid,
   User,
@@ -12,6 +12,7 @@ import {
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useUser } from "@/context/UserContext";
 
 interface MainNavProps {
   showBottomNav?: boolean;
@@ -20,6 +21,7 @@ interface MainNavProps {
 export default function MainNav({ showBottomNav = false }: MainNavProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, logout } = useUser();
   const pathname = location.pathname;
 
   // Main navigation items
@@ -30,19 +32,9 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
       icon: Home,
     },
     {
-      title: "Formations",
-      href: "/formations",
-      icon: GraduationCap,
-    },
-    {
       title: "Quiz",
       href: "/quizzes",
       icon: Brain,
-    },
-    {
-      title: "Classement",
-      href: "/classement",
-      icon: Trophy,
     },
     {
       title: "Tutoriels",
@@ -54,15 +46,10 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
       href: "/catalogue",
       icon: LayoutGrid,
     },
-    {
-      title: "Profil",
-      href: "/profile",
-      icon: User,
-    },
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    logout();
     navigate("/login");
   };
 
@@ -98,8 +85,10 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
             <button className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary hover:text-foreground w-full justify-between">
               <div className="flex items-center gap-2">
                 <Avatar className="w-8 h-8">
-                  <AvatarImage src="https://github.com/shadcn.png" alt="Avatar" />
-                  <AvatarFallback>CN</AvatarFallback>
+                  <AvatarImage src={user?.avatar} alt="Avatar" />
+                  <AvatarFallback>
+                    {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+                  </AvatarFallback>
                 </Avatar>
                 <span>Mon compte</span>
               </div>

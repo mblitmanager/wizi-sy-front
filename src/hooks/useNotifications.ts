@@ -2,10 +2,17 @@
 import { useState, useEffect } from 'react';
 import { notificationService } from '@/services/NotificationService';
 import { useToast } from '@/hooks/use-toast';
+import useLocalStorage from '@/hooks/useLocalStorage';
 
 export function useNotifications() {
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const [isSupported, setIsSupported] = useState(false);
+  const [settings, setSettings] = useLocalStorage('notification-settings', {
+    quizCompleted: true, 
+    quizAvailable: true, 
+    rewardEarned: true,
+    formationUpdates: true
+  });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -39,11 +46,17 @@ export function useNotifications() {
           description: "Vous recevrez maintenant des notifications pour les événements importants.",
           variant: "default"
         });
-      } else {
+      } else if (result === 'denied') {
         toast({
           title: "Notifications refusées",
           description: "Vous ne recevrez pas de notifications pour les événements importants.",
           variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "En attente",
+          description: "Veuillez accorder l'autorisation dans votre navigateur pour recevoir des notifications.",
+          variant: "default"
         });
       }
       
@@ -70,14 +83,47 @@ export function useNotifications() {
     const notification = await notificationService.sendNotification(title, options);
     return notification !== null;
   };
+
+  const updateSettings = (newSettings: Partial<typeof settings>) => {
+    setSettings({...settings, ...newSettings});
+  };
+  
+  const notifyQuizCompleted = async (score: number, totalQuestions: number): Promise<void> => {
+    if (permission === 'granted' && settings.quizCompleted) {
+      return notificationService.notifyQuizCompleted(score, totalQuestions);
+    }
+  };
+
+  const notifyQuizAvailable = async (quizTitle: string, quizId: string): Promise<void> => {
+    if (permission === 'granted' && settings.quizAvailable) {
+      return notificationService.notifyQuizAvailable(quizTitle, quizId);
+    }
+  };
+
+  const notifyRewardEarned = async (points: number, rewardType?: string): Promise<void> => {
+    if (permission === 'granted' && settings.rewardEarned) {
+      return notificationService.notifyRewardEarned(points, rewardType);
+    }
+  };
+
+  const notifyFormationUpdate = async (formationTitle: string, formationId: string): Promise<void> => {
+    if (permission === 'granted' && settings.formationUpdates) {
+      return notificationService.notifyFormationUpdate(formationTitle, formationId);
+    }
+  };
   
   return {
     permission,
     isSupported,
     requestPermission,
     sendNotification,
-    notifyQuizCompleted: notificationService.notifyQuizCompleted.bind(notificationService),
-    notifyQuizAvailable: notificationService.notifyQuizAvailable.bind(notificationService),
-    notifyRewardEarned: notificationService.notifyRewardEarned.bind(notificationService)
+    settings,
+    updateSettings,
+    notifyQuizCompleted,
+    notifyQuizAvailable,
+    notifyRewardEarned,
+    notifyFormationUpdate
   };
 }
+
+export default useNotifications;

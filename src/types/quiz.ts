@@ -1,3 +1,4 @@
+
 export interface Category {
   id: string;
   name: string;
@@ -87,9 +88,10 @@ export type QuestionType =
 export interface QuizHistory {
   id: string;
   quizId: string;
-  quiz: {
+  quiz?: {
     title: string;
     category: string;
+    totalPoints?: number;
   };
   score: number;
   completedAt: string;
@@ -112,15 +114,37 @@ export interface WordBankItem {
   bankGroup?: string;
 }
 
-export interface QuizResult {
-  id: string;
-  quizId: string;
-  stagiaireId: string;
-  formationId: string;
+export interface UserProgress {
+  completedQuizzes: number;
+  totalQuizzes: number;
+  completionRate: number;
+  averageScore: number;
+  totalScore: number;
+  stats: {
+    byCategory: {
+      [key: string]: {
+        count: number;
+        averageScore: number;
+      }
+    }
+  };
+}
+
+export interface LeaderboardEntry {
+  id: number;
+  name: string;
   score: number;
+  position: number;
+  image?: string;
+}
+
+// Extend the existing QuizResult type with missing properties
+export interface QuizResult {
+  score: number;
+  totalPoints: number;
+  quizTitle: string;
   correctAnswers: number;
   totalQuestions: number;
-  completedAt: string;
   timeSpent: number;
   questions: Question[];
 }

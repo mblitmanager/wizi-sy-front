@@ -30,6 +30,11 @@ export function useQuizDialogs() {
     }
   };
 
+  const closeHistoryDialog = () => setHistoryOpen(false);
+  const closeStatsDialog = () => setStatsOpen(false);
+  const openResultsDialog = () => setResultsOpen(true);
+  const closeResultsDialog = () => setResultsOpen(false);
+
   return {
     historyOpen,
     statsOpen,
@@ -41,5 +46,9 @@ export function useQuizDialogs() {
     setResultsOpen,
     openHistory,
     openStats,
+    closeHistoryDialog,
+    closeStatsDialog,
+    openResultsDialog,
+    closeResultsDialog
   };
 }

@@ -44,7 +44,7 @@ export function GlobalRanking({ ranking = [], loading = false }: GlobalRankingPr
         ) : (
           ranking.map((entry, index) => (
             <div 
-              key={entry.id}
+              key={entry.id || index}
               className={`flex items-center gap-3 p-3 rounded-md ${
                 index < 3 ? 'bg-amber-50' : 'bg-gray-50'
               }`}
@@ -63,13 +63,15 @@ export function GlobalRanking({ ranking = [], loading = false }: GlobalRankingPr
                 <Avatar>
                   <AvatarImage 
                     src={entry.image} 
-                    alt={entry.name} 
+                    alt={entry.name || 'User'} 
                   />
                   <AvatarFallback>
-                    {entry.name.substring(0, 2).toUpperCase()}
+                    {entry.name && entry.name.length > 0 
+                      ? entry.name.substring(0, 2).toUpperCase() 
+                      : 'UN'}
                   </AvatarFallback>
                 </Avatar>
-                <span className="font-medium">{entry.name}</span>
+                <span className="font-medium">{entry.name || 'Unknown'}</span>
               </div>
               <div className="text-lg font-semibold text-primary">
                 {entry.score}

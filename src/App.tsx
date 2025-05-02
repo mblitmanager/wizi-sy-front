@@ -22,6 +22,7 @@ import { QuizDetail } from "@/components/quiz/QuizDetail";
 import { QuizResults } from "@/components/quiz/QuizResults";
 import TutoAstucePage from "./pages/TutoAstucePage";
 import Classement from "./pages/Classement";
+import Settings from "./pages/Settings";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -92,6 +93,11 @@ const App = () => (
                 <Route path="/profile" element={
                   <ProtectedRoute>
                     <Profile />
+                  </ProtectedRoute>
+                } />
+                <Route path="/settings" element={
+                  <ProtectedRoute>
+                    <Settings />
                   </ProtectedRoute>
                 } />
                 <Route path="/classement" element={

@@ -2,18 +2,31 @@
 type NotificationPermissionCallback = (permission: NotificationPermission) => void;
 
 interface ExtendedNotificationOptions extends NotificationOptions {
-  // Define additional properties needed but not in standard NotificationOptions
   vibrate?: number[];
   renotify?: boolean;
   badge?: string;
+  data?: any;
 }
 
 export class NotificationService {
   private static instance: NotificationService;
   private isSupported: boolean;
+  private serviceWorkerRegistration: ServiceWorkerRegistration | null = null;
   
   constructor() {
     this.isSupported = 'Notification' in window;
+    this.initServiceWorker();
+  }
+  
+  private async initServiceWorker() {
+    if ('serviceWorker' in navigator) {
+      try {
+        this.serviceWorkerRegistration = await navigator.serviceWorker.register('/service-worker.js');
+        console.log('Service Worker enregistré avec succès');
+      } catch (error) {
+        console.error('Erreur lors de l\'enregistrement du Service Worker:', error);
+      }
+    }
   }
   
   public static getInstance(): NotificationService {
@@ -55,9 +68,15 @@ export class NotificationService {
     }
     
     try {
-      // Cast to any to bypass TypeScript's strict checking on notification options
-      const notification = new Notification(title, options as NotificationOptions);
-      return notification;
+      // Utiliser le service worker si disponible
+      if (this.serviceWorkerRegistration && 'showNotification' in this.serviceWorkerRegistration) {
+        await this.serviceWorkerRegistration.showNotification(title, options);
+        return null; // La notification est gérée par le service worker
+      } else {
+        // Fallback à la notification standard
+        const notification = new Notification(title, options as NotificationOptions);
+        return notification;
+      }
     } catch (error) {
       console.error('Error sending notification:', error);
       return null;
@@ -87,32 +106,74 @@ export class NotificationService {
       badge: '/icons/badge.png',
       vibrate: [200, 100, 200],
       tag: 'quiz-result',
-      renotify: true
+      renotify: true,
+      data: {
+        type: 'quiz-completed',
+        score,
+        totalQuestions,
+        percentage: scorePercentage
+      }
     };
     
     await this.sendNotification('Quiz terminé', options);
   }
   
-  async notifyQuizAvailable(quizTitle: string): Promise<void> {
+  async notifyQuizAvailable(quizTitle: string, quizId: string): Promise<void> {
     const options: ExtendedNotificationOptions = {
       body: `Le quiz "${quizTitle}" est maintenant disponible`,
       icon: '/icons/notification.png',
       tag: 'quiz-available',
-      renotify: true
+      renotify: true,
+      data: {
+        type: 'quiz-available',
+        quizId,
+        quizTitle
+      }
     };
     
     await this.sendNotification('Nouveau quiz disponible', options);
   }
   
-  async notifyRewardEarned(points: number): Promise<void> {
+  async notifyRewardEarned(points: number, rewardType?: string): Promise<void> {
+    const rewardMessage = rewardType 
+      ? `Vous avez gagné ${points} points pour : ${rewardType}`
+      : `Vous avez gagné ${points} points !`;
+      
     const options: ExtendedNotificationOptions = {
-      body: `Vous avez gagné ${points} points !`,
+      body: rewardMessage,
       icon: '/icons/reward.png',
       tag: 'reward',
-      renotify: true
+      renotify: true,
+      data: {
+        type: 'reward-earned',
+        points,
+        rewardType
+      }
     };
     
     await this.sendNotification('Récompense gagnée', options);
+  }
+  
+  async notifyFormationUpdate(formationTitle: string, formationId: string): Promise<void> {
+    const options: ExtendedNotificationOptions = {
+      body: `La formation "${formationTitle}" a été mise à jour.`,
+      icon: '/icons/formation.png',
+      tag: 'formation-update',
+      renotify: true,
+      data: {
+        type: 'formation-update',
+        formationId,
+        formationTitle
+      }
+    };
+    
+    await this.sendNotification('Mise à jour de formation', options);
+  }
+  
+  async scheduleNotification(title: string, body: string, delay: number): Promise<void> {
+    setTimeout(() => {
+      this.sendNotification(title, { body });
+    }, delay);
   }
 }
 

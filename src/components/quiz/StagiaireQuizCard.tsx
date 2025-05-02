@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Award } from "lucide-react";
@@ -35,15 +36,20 @@ const getLevelBackgroundColor = (level: string) => {
 const getCategoryColor = (quiz: Quiz, categories: Category[] | undefined) => {
   if (!categories) return '#3B82F6'; // Couleur par défaut bleu
   
-  const categoryById = categories.find(c => c.id === quiz.categorieId);
-  if (categoryById?.color) return categoryById.color;
+  // Priorité au categoryId
+  if (quiz.categorieId) {
+    const categoryById = categories.find(c => c.id === quiz.categorieId);
+    if (categoryById?.color) return categoryById.color;
+  }
   
+  // Fallback sur la catégorie par nom
   const categoryByName = categories.find(c => 
-    c.name.toLowerCase() === quiz.categorie.toLowerCase()
+    c.name.toLowerCase() === quiz.categorie?.toLowerCase()
   );
   if (categoryByName?.color) return categoryByName.color;
   
-  const searchText = (quiz.titre + ' ' + quiz.categorie).toLowerCase();
+  // Couleurs par défaut basées sur le contenu
+  const searchText = ((quiz.titre || '') + ' ' + (quiz.categorie || '')).toLowerCase();
   
   if (searchText.includes('excel') || searchText.includes('bureautique')) {
     return '#3B82F6'; // Bleu
@@ -73,11 +79,14 @@ interface StagiaireQuizCardProps {
 }
 
 export function StagiaireQuizCard({ quiz, categories }: StagiaireQuizCardProps) {
+  // Utiliser prioritairement categorieId pour trouver la catégorie
   const category = categories?.find(c => 
-    c.id === quiz.categorieId || 
-    c.name.toLowerCase() === quiz.categorie.toLowerCase()
+    c.id === quiz.categorieId
+  ) || categories?.find(c => 
+    c.name.toLowerCase() === quiz.categorie?.toLowerCase()
   );
-  const categoryName = category?.name || quiz.categorie;
+  
+  const categoryName = category?.name || quiz.categorie || "Non catégorisé";
   const categoryColor = getCategoryColor(quiz, categories);
 
   return (

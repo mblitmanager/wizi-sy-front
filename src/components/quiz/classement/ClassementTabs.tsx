@@ -31,7 +31,7 @@ export const ClassementTabs: React.FC<ClassementTabsProps> = ({
       </TabsList>
 
       <TabsContent value="classement">
-        <GlobalRanking classement={globalClassement || []} currentUserId={currentUserId} />
+        <GlobalRanking ranking={globalClassement || []} currentUserId={currentUserId} />
       </TabsContent>
 
       <TabsContent value="historique">

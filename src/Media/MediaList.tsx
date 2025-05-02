@@ -1,3 +1,4 @@
+
 import { Media } from "@/types/media";
 import clsx from "clsx";
 import { PlayCircle, FileText, ImageIcon, Music, Video } from "lucide-react";
@@ -26,7 +27,10 @@ const typeLabels: Record<"video" | "document" | "image" | "audio", string> = {
 };
 
 export default function MediaList({ medias, selectedMedia, onSelect }: Props) {
-  const grouped = medias
+  // S'assurer que medias est bien un tableau
+  const safeMedias = Array.isArray(medias) ? medias : [];
+  
+  const grouped = safeMedias
     .filter((m) => ["video", "audio", "image", "document"].includes(m.type))
     .reduce((acc, media) => {
       const type = media.type as keyof typeof typeLabels;

@@ -39,7 +39,19 @@ export const rankingService = {
   getUserRankingStats: () => api.get('/stagiaire/ranking-stats'),
 };
 
-// Add getLink method to api for sponsorship
-api.getLink = () => api.get('/stagiaire/parrainage/link');
+// Sponsorship service
+export const sponsorshipService = {
+  getLink: () => api.get('/stagiaire/parrainage/link'),
+  getReferrals: () => api.get('/stagiaire/parrainage/filleuls'),
+  getStats: () => api.get('/stagiaire/parrainage/stats')
+};
+
+// Notification service API endpoints
+export const notificationAPI = {
+  getSettings: () => api.get('/notifications/settings'),
+  updateSettings: (settings: any) => api.post('/notifications/settings', settings),
+  registerDevice: (token: string) => api.post('/notifications/register-device', { token }),
+  unregisterDevice: (token: string) => api.delete('/notifications/unregister-device', { data: { token } })
+};
 
 export default api;

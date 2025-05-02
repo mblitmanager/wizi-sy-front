@@ -1,3 +1,4 @@
+
 import { Mail, Phone, User } from "lucide-react";
 import { Contact } from "@/types/contact";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -13,11 +14,11 @@ export const ContactCard = ({ contact }: ContactCardProps) => {
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center gap-4">
         <Avatar>
-          <AvatarImage src={contact.avatar} alt={contact.name} />
-          <AvatarFallback>{contact.name.charAt(0)}</AvatarFallback>
+          <AvatarImage src={contact.image_url} alt={`${contact.prenom} ${contact.nom}`} />
+          <AvatarFallback>{contact.prenom.charAt(0)}</AvatarFallback>
         </Avatar>
         <div>
-          <h3 className="font-semibold">{contact.name}</h3>
+          <h3 className="font-semibold">{`${contact.prenom} ${contact.nom}`}</h3>
           <p className="text-sm text-muted-foreground">{contact.role}</p>
         </div>
       </CardHeader>
@@ -26,29 +27,21 @@ export const ContactCard = ({ contact }: ContactCardProps) => {
           <p className="text-sm">
             <span className="font-medium">Email:</span> {contact.email}
           </p>
-          {contact.phone && (
+          {contact.telephone && (
             <p className="text-sm">
-              <span className="font-medium">Téléphone:</span> {contact.phone}
+              <span className="font-medium">Téléphone:</span> {contact.telephone}
             </p>
           )}
-          {contact.formations && contact.formations.length > 0 && (
+          {contact.poste && (
             <div className="mt-2">
-              {contact.formations.length > 1 ? (
-                <p className="text-sm font-medium mb-1">Formations proposées:</p>
-              ) : (
-                <p className="text-sm font-medium mb-1">Formation proposée:</p>
-              )}
-              <div className="flex flex-wrap gap-1">
-                {contact.formations.map((formation, index) => (
-                  <Badge key={index} variant="secondary">
-                    {formation}
-                  </Badge>
-                ))}
-              </div>
+              <p className="text-sm font-medium mb-1">Poste:</p>
+              <Badge variant="secondary">
+                {contact.poste}
+              </Badge>
             </div>
           )}
         </div>
       </CardContent>
     </Card>
-  );console.log(contact);
-};
+  );
+}
