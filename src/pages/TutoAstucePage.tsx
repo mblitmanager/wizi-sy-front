@@ -86,16 +86,16 @@ export default function TutoAstucePage() {
   }, [activeCategory, tutoriels, astuces, medias]);
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
+    <div className="px-4 sm:px-6 lg:px-8 py-6 bg-gray-50 min-h-screen">
       <HeaderSection titre="Tutoriels & Astuces" buttonText="Retour" />
 
-      <div className="flex justify-between mb-2 items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
         <MediaTabs active={activeCategory} onChange={setActiveCategory} />
         <div className="flex justify-center">
           <select
             value={selectedFormationId ?? ""}
             onChange={(e) => setSelectedFormationId(e.target.value || null)}
-            className="px-4 py-2 min-w-[250px] bg-white border border-gray-300 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200">
+            className="px-3 py-1.5 text-sm sm:text-base min-w-[180px] sm:min-w-[250px] bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200">
             <option value="">Toutes les formations</option>
             {formations.map((formation) => (
               <option key={formation.id} value={formation.id}>
@@ -117,15 +117,15 @@ export default function TutoAstucePage() {
           Aucun média disponible pour cette catégorie.
         </div>
       ) : (
-        <div className="grid bg-white rounded-2xl shadow-lg grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-          <div className="rounded-2xl p-4 overflow-y-auto max-h-[100vh]">
+        <div className="flex flex-col sm:gap-4 md:grid md:grid-cols-2 bg-white rounded-2xl shadow-lg gap-6 mt-6">
+          <div className="p-3 sm:p-4 overflow-y-auto max-h-[50vh] sm:max-h-[60vh] md:max-h-[90vh]">
             <MediaList
               medias={medias}
               selectedMedia={selectedMedia}
               onSelect={setSelectedMedia}
             />
           </div>
-          <div className="p-4">
+          <div className="p-3 sm:p-4">
             <MediaPlayer media={selectedMedia} />
           </div>
         </div>

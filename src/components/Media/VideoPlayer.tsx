@@ -42,14 +42,16 @@ export default function VideoPlayer({ url }: Props) {
   }, [url]);
 
   return (
-    <video
-      ref={videoRef}
-      className="w-full rounded-lg"
-      controls
-      playsInline
-      preload="metadata">
-      <source src={`${VITE_API_URL}/media/stream/${url}`} type="video/mp4" />
-      Votre navigateur ne supporte pas la lecture de vidéos HTML5.
-    </video>
+    <div className="w-full aspect-video max-h-[60vh] sm:max-h-none rounded-lg overflow-hidden">
+      <video
+        ref={videoRef}
+        className="w-full h-full object-contain"
+        controls
+        playsInline
+        preload="metadata">
+        <source src={`${VITE_API_URL}/media/stream/${url}`} type="video/mp4" />
+        Votre navigateur ne supporte pas la lecture de vidéos HTML5.
+      </video>
+    </div>
   );
 }

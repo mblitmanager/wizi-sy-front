@@ -77,28 +77,7 @@ const HomePage: React.FC = () => {
   const [catalogueData, setCatalogueData] = useState<
     CatalogueFormation[] | null
   >(null);
-  const { data: queriedCatalogueData, isLoading: isLoadingCatalogue } =
-    useQuery({
-      queryKey: ["catalogue"],
 
-      queryFn: async (): Promise<CatalogueFormationResponse> => {
-        try {
-          const response = await axios.get<CatalogueFormationResponse>(
-            `${API_URL}/catalogueFormations/stagiaire/${user?.stagiaire?.id}`,
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
-            }
-          );
-          return response.data;
-        } catch (error) {
-          console.error("Erreur lors de la récupération du catalogue:", error);
-          throw error;
-        }
-      },
-      retry: 1,
-    });
   // Récupération des contacts
   const { data: commerciaux, isLoading: loadingCommerciaux } = useQuery<
     Contact[]
