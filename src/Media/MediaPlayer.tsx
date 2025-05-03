@@ -6,6 +6,7 @@ import { FileText, Music } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 interface Props {
   media: Media | null;
@@ -37,7 +38,7 @@ export default function MediaPlayer({ media }: Props) {
               key={media.url}
               controls
               className="w-full max-w-md rounded-md shadow-inner mx-auto  bg-gray-100">
-              <source src={`${VITE_API_URL_MEDIA}/${media.url}`} />
+              <source src={`${VITE_API_URL}/media/stream/${media.url}`} />
               Votre navigateur ne supporte pas la lecture audio.
             </audio>
           </div>

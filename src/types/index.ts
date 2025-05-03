@@ -3,6 +3,9 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  points: number;
+  level: number;
+  role?: "stagiaire" | "admin";
   avatar?: string;
   progress?: Progress;
 }
@@ -16,15 +19,30 @@ export interface Progress {
 
 export interface Category {
   id: string;
-  name: string;
-  slug: string;
-  color: string;
-  icon: string;
-  description: string;
-  formations: Formation[];
+  text: string;
+  isCorrect: boolean;
+  position?: number;
+  bankGroup?: string;
+  matchPair?: string;
+  flashcardBack?: string;
 }
 
-export interface Formation {
+export interface Media {
+  type: "image" | "video" | "audio";
+  url: string;
+}
+
+export type QuestionType =
+  | "question audio"
+  | "remplir le champ vide"
+  | "carte flash"
+  | "correspondance"
+  | "choix multiples"
+  | "rearrangement"
+  | "vrai/faux"
+  | "banque de mots";
+
+export interface Response {
   id: string;
   name: string;
   slug: string;

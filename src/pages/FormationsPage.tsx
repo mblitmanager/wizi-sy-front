@@ -74,7 +74,7 @@ const FormationsPage = () => {
   }, [formationsDisponibles]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8  bg-white ">
       {/* En-tête */}
       <div className="mb-10">
         <h1 className="text-3xl md:text-4xl font-bold mb-2 text-gray-800">
@@ -85,6 +85,7 @@ const FormationsPage = () => {
           vos compétences à votre rythme.
         </p>
       </div>
+      <hr className="mb-4" />
 
       {/* Grille des formations */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

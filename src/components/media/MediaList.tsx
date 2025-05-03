@@ -1,238 +1,100 @@
-import React, { useState } from 'react';
-import {
-  Box,
-  Card,
-  CardContent,
-  CardMedia,
-  Typography,
-  Chip,
-  IconButton,
-  Tooltip,
-  CircularProgress,
-  useTheme,
-} from '@mui/material';
-import { Play, Image, Music, FileText, Filter } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { mediaService } from '@/services/MediaService';
-import { Media, MediaType } from '@/types/media';
-import { styled } from '@mui/material/styles';
+import { Media } from "@/types/media";
+import clsx from "clsx";
+import { PlayCircle, FileText, ImageIcon, Music, Video } from "lucide-react";
 
-const StyledCard = styled(Card)(({ theme }) => ({
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-  transition: 'transform 0.2s ease-in-out',
-  '&:hover': {
-    transform: 'translateY(-4px)',
-    boxShadow: theme.shadows[4],
-  },
-}));
-
-const MediaPreview = styled('div')({
-  position: 'relative',
-  paddingTop: '56.25%', // 16:9 aspect ratio
-  overflow: 'hidden',
-});
-
-const MediaIcon = styled(IconButton)(({ theme }) => ({
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  color: 'white',
-  '&:hover': {
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-  },
-}));
-
-const FilterChip = styled(Chip)(({ theme }) => ({
-  margin: theme.spacing(0.5),
-  '&.MuiChip-root': {
-    cursor: 'pointer',
-  },
-}));
-
-const MediaGrid = styled('div')(({ theme }) => ({
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-  gap: theme.spacing(3),
-  padding: theme.spacing(3),
-}));
-
-interface MediaListProps {
-  formationId?: string;
-  initialType?: MediaType;
+interface Props {
+  medias: Media[];
+  selectedMedia: Media | null;
+  onSelect: (media: Media) => void;
 }
 
-export const MediaList: React.FC<MediaListProps> = ({ formationId, initialType }) => {
-  const theme = useTheme();
-  const [selectedType, setSelectedType] = useState<MediaType | 'all'>(initialType || 'all');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+const typeIcons: Record<
+  "video" | "document" | "image" | "audio",
+  React.ElementType
+> = {
+  video: Video,
+  document: FileText,
+  image: ImageIcon,
+  audio: Music,
+};
 
-  const { data: medias, isLoading: isLoadingMedias } = useQuery({
-    queryKey: ['medias', formationId, selectedType, selectedCategory],
-    queryFn: () => {
-      if (formationId) {
-        return mediaService.getFormationMedias(formationId);
-      }
-      if (selectedType !== 'all') {
-        return mediaService.getMediasByType(selectedType);
-      }
-      if (selectedCategory !== 'all') {
-        return mediaService.getMediasByCategory(selectedCategory);
-      }
-      return mediaService.getAllMedias();
-    },
+const typeLabels: Record<"video" | "document" | "image" | "audio", string> = {
+  video: "Vidéos",
+  audio: "Audios",
+  image: "Images",
+  document: "Documents",
+};
+
+export default function MediaList({ medias, selectedMedia, onSelect }: Props) {
+  const grouped = medias
+    .filter((m) => ["video", "audio", "image", "document"].includes(m.type))
+    .reduce((acc, media) => {
+      const type = media.type as keyof typeof typeLabels;
+      acc[type] = acc[type] || [];
+      acc[type].push(media);
+      return acc;
+    }, {} as Record<keyof typeof typeLabels, Media[]>);
+
+  Object.keys(grouped).forEach((type) => {
+    grouped[type as keyof typeof grouped].sort((a, b) => a.ordre - b.ordre);
   });
-
-  const { data: categories, isLoading: isLoadingCategories } = useQuery({
-    queryKey: ['media-categories'],
-    queryFn: () => mediaService.getCategories(),
-  });
-
-  const getMediaIcon = (type: MediaType) => {
-    switch (type) {
-      case 'video':
-        return <Play />;
-      case 'image':
-        return <Image />;
-      case 'audio':
-        return <Music />;
-      case 'document':
-        return <FileText />;
-      default:
-        return null;
-    }
-  };
-
-  const getMediaPreview = (media: Media) => {
-    if (media.type === 'video' || media.type === 'image') {
-      return (
-        <MediaPreview>
-          <CardMedia
-            component="img"
-            image={media.url}
-            alt={media.titre}
-            sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-            }}
-          />
-          <MediaIcon size="large">
-            {getMediaIcon(media.type)}
-          </MediaIcon>
-        </MediaPreview>
-      );
-    }
-    return (
-      <MediaPreview>
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: theme.palette.grey[100],
-          }}
-        >
-          <MediaIcon size="large">
-            {getMediaIcon(media.type)}
-          </MediaIcon>
-        </Box>
-      </MediaPreview>
-    );
-  };
-
-  if (isLoadingMedias || isLoadingCategories) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   return (
-    <Box>
-      <Box mb={3} display="flex" alignItems="center" flexWrap="wrap">
-        <FilterChip
-          icon={<Filter />}
-          label="Tous"
-          onClick={() => setSelectedType('all')}
-          color={selectedType === 'all' ? 'primary' : 'default'}
-        />
-        {['video', 'image', 'audio', 'document'].map((type) => (
-          <FilterChip
-            key={type}
-            icon={getMediaIcon(type as MediaType)}
-            label={type.charAt(0).toUpperCase() + type.slice(1)}
-            onClick={() => setSelectedType(type as MediaType)}
-            color={selectedType === type ? 'primary' : 'default'}
-          />
-        ))}
-      </Box>
+    <div className="mb-6 p-2 sm:p-4 space-y-6">
+      {Object.entries(grouped).map(([type, mediaGroup]) => {
+        const Icon = typeIcons[type as keyof typeof typeIcons];
+        const label = typeLabels[type as keyof typeof typeLabels];
+        return (
+          <div key={type}>
+            <h2 className="text-sm sm:text-base font-semibold text-gray-700 flex items-center gap-2 mb-3">
+              <Icon className="w-5 h-5 text-blue-600" />
+              {label}
+            </h2>
+            <div className="space-y-3">
+              {mediaGroup.map((media) => {
+                const MediaIcon =
+                  typeIcons[media.type as keyof typeof typeIcons];
+                return (
+                  <div
+                    key={media.id}
+                    onClick={() => onSelect(media)}
+                    className={clsx(
+                      "flex items-start gap-3 p-3 rounded-xl shadow-sm transition-all cursor-pointer border sm:items-center",
+                      selectedMedia?.id === media.id
+                        ? "bg-blue-50 border-blue-400"
+                        : "bg-white hover:bg-gray-50 border-gray-200"
+                    )}>
+                    <div className="shrink-0 w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center">
+                      <MediaIcon className="w-5 h-5 text-blue-600" />
+                    </div>
 
-      {categories && categories.length > 0 && (
-        <Box mb={3} display="flex" alignItems="center" flexWrap="wrap">
-          <FilterChip
-            label="Toutes les catégories"
-            onClick={() => setSelectedCategory('all')}
-            color={selectedCategory === 'all' ? 'primary' : 'default'}
-          />
-          {categories.map((category) => (
-            <FilterChip
-              key={category.id}
-              label={category.nom}
-              onClick={() => setSelectedCategory(category.id)}
-              color={selectedCategory === category.id ? 'primary' : 'default'}
-            />
-          ))}
-        </Box>
-      )}
+                    <div className="flex-1 space-y-1">
+                      <h3 className="text-sm font-semibold text-gray-800">
+                        {media.titre}
+                      </h3>
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                        <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                          {media.categorie}
+                        </span>
+                        <span>{media.duree} min</span>
+                      </div>
+                    </div>
 
-      <MediaGrid>
-        {medias?.map((media) => (
-          <StyledCard key={media.id}>
-            {getMediaPreview(media)}
-            <CardContent>
-              <Typography gutterBottom variant="h6" component="h2" noWrap>
-                {media.titre}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                {media.description}
-              </Typography>
-              <Box display="flex" alignItems="center" gap={1}>
-                <Chip
-                  size="small"
-                  icon={getMediaIcon(media.type)}
-                  label={media.type}
-                  variant="outlined"
-                />
-                {media.categorie && (
-                  <Chip
-                    size="small"
-                    label={media.categorie}
-                    variant="outlined"
-                  />
-                )}
-              </Box>
-              {media.duree && (
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-                  Durée: {media.duree}
-                </Typography>
-              )}
-            </CardContent>
-          </StyledCard>
-        ))}
-      </MediaGrid>
-    </Box>
+                    <div
+                      className={clsx(
+                        "w-2.5 h-2.5 rounded-full mt-1 sm:mt-0",
+                        selectedMedia?.id === media.id
+                          ? "bg-blue-500"
+                          : "bg-gray-300"
+                      )}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
-}; 
+}

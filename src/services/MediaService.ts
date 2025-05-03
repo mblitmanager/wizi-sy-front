@@ -31,4 +31,6 @@ export const mediaService = {
     const response = await api.get("/media-categories");
     return response.data;
   }
+
+  
 };
