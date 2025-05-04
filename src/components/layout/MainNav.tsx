@@ -52,12 +52,12 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
       icon: Video,
     },
     {
-      title: "Catalogue",
+      title: "Formations",
       href: "/catalogue",
       icon: GraduationCap,
     },
     {
-      title: "Profil",
+      title: "Profile",
       href: "/profile",
       icon: User,
     },
