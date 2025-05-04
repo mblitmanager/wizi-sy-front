@@ -39,10 +39,7 @@ export const WordBank: React.FC<WordBankProps> = ({
     }
 
     setSelectedWords(newSelectedWords);
-    onAnswer(newSelectedWords.map(id => {
-      const wordText = question.reponses?.find((a) => a.id === id)?.text || "";
-      return { id, text: wordText };
-    }));
+    onAnswer(newSelectedWords.map(id => question.reponses?.find(a => a.id === id)?.text || "")); // Send only the text of selected words
   };
 
   const isWordCorrect = (wordId: string): boolean | null => {

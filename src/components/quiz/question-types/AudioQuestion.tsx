@@ -69,7 +69,7 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
   const handleAnswer = (answerId: string) => {
     const answerText = question.answers?.find((a) => a.id === answerId)?.text || "";
     setSelectedAnswer(answerId);
-    onAnswer({ id: answerId, text: answerText }); // Pass both id and text
+    onAnswer(selectedAnswer ? [selectedAnswer] : []); // Send only the text of the selected answer
   };
 
   const isCorrectAnswer = (answerId: string) => {

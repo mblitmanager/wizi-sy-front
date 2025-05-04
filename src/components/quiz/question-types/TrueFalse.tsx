@@ -41,10 +41,7 @@ export const TrueFalse: React.FC<TrueFalseProps> = ({
         ? selectedAnswers.filter(id => id !== answerId)
         : [...selectedAnswers, answerId];
       setSelectedAnswers(newSelected);
-      onAnswer(newSelected.map(id => {
-        const answerText = question.reponses?.find((a) => a.id === id)?.text || "";
-        return { id, text: answerText };
-      }));
+      onAnswer(newSelected.map(id => question.reponses?.find(a => a.id === id)?.text || "")); // Send only the text of selected answers
     } else {
       // Single choice - replace selection
       const answerText = question.reponses?.find((a) => a.id === answerId)?.text || "";
