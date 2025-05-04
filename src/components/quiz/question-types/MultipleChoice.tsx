@@ -44,11 +44,12 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
       onAnswer(newSelected);
     } else {
       // Single choice - replace selection
+      const answerText = question.reponses?.find((a) => a.id === answerId)?.text || "";
       setSelectedAnswers([answerId]);
-      onAnswer([answerId]);
+      onAnswer([{ id: answerId, text: answerText }]);
     }
   };
-
+      onAnswer([answerId]);
   const isCorrectAnswer = (answerId: string) => {
     if (!showFeedback) return undefined;
     const answer = question.reponses?.find(a => a.id === answerId);

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,9 +27,9 @@ export const WordBank: React.FC<WordBankProps> = ({
 
   const handleWordSelect = (wordId: string) => {
     if (showFeedback) return;
-    
+
     let newSelectedWords: string[];
-    
+
     if (selectedWords.includes(wordId)) {
       // Remove word if already selected
       newSelectedWords = selectedWords.filter(id => id !== wordId);
@@ -38,9 +37,12 @@ export const WordBank: React.FC<WordBankProps> = ({
       // Add word if not already selected
       newSelectedWords = [...selectedWords, wordId];
     }
-    
+
     setSelectedWords(newSelectedWords);
-    onAnswer(newSelectedWords);
+    onAnswer(newSelectedWords.map(id => {
+      const wordText = question.reponses?.find((a) => a.id === id)?.text || "";
+      return { id, text: wordText };
+    }));
   };
 
   const isWordCorrect = (wordId: string): boolean | null => {

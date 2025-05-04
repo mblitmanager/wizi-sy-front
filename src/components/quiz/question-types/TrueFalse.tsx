@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 interface TrueFalseProps {
   question: QuizQuestion;
-  onAnswer: (answers: string[]) => void;
+  onAnswer: (answers: { id: string, text: string }[]) => void;
   showFeedback?: boolean;
 }
 
@@ -41,11 +41,15 @@ export const TrueFalse: React.FC<TrueFalseProps> = ({
         ? selectedAnswers.filter(id => id !== answerId)
         : [...selectedAnswers, answerId];
       setSelectedAnswers(newSelected);
-      onAnswer(newSelected);
+      onAnswer(newSelected.map(id => {
+        const answerText = question.reponses?.find((a) => a.id === id)?.text || "";
+        return { id, text: answerText };
+      }));
     } else {
       // Single choice - replace selection
+      const answerText = question.reponses?.find((a) => a.id === answerId)?.text || "";
       setSelectedAnswers([answerId]);
-      onAnswer([answerId]);
+      onAnswer([{ id: answerId, text: answerText }]); // Pass both id and text
     }
   };
 

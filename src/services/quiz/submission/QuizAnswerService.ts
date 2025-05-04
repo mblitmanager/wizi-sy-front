@@ -19,39 +19,35 @@ export class QuizAnswerService {
     try {
       console.log('Soumission des réponses du quiz:', { quizId, answers, timeSpent });
       
-      // Formatage des réponses pour garantir le format correct pour l'API
+      // Instead of submitting answer IDs, submit the answer text
       const formattedAnswers: Record<string, any> = {};
-      
+
       for (const questionId in answers) {
         const answer = answers[questionId];
-        const questionType = answers[questionId]?.__type || null; // On suppose que le type est passé ou accessible
-        // Si le type n'est pas passé, il faudra l'ajouter côté appelant
+        const questionType = answers[questionId]?.__type || null;
 
-        // Correspondance : toujours un objet { leftId: rightId }
         if (questionType === 'correspondance' && typeof answer === 'object' && !Array.isArray(answer)) {
-          formattedAnswers[questionId] = answer;
-        }
-        // Carte flash : toujours l'ID ou le texte
-        else if (questionType === 'carte flash') {
+          formattedAnswers[questionId] = Object.entries(answer).reduce((acc, [key, value]) => {
+            acc[key] = value.text || value; // Use text if available
+            return acc;
+          }, {});
+        } else if (questionType === 'carte flash') {
           if (Array.isArray(answer)) {
-            formattedAnswers[questionId] = answer[0];
+            formattedAnswers[questionId] = answer[0]?.text || answer[0];
           } else if (typeof answer === 'object' && answer !== null && 'selectedAnswers' in answer) {
-            formattedAnswers[questionId] = answer.selectedAnswers;
+            formattedAnswers[questionId] = answer.selectedAnswers.map((a: any) => a.text || a);
           } else {
-            formattedAnswers[questionId] = answer;
+            formattedAnswers[questionId] = answer.text || answer;
           }
-        }
-        // Questions à blancs (objet avec des clés pour chaque blanc)
-        else if (typeof answer === 'object' && !Array.isArray(answer)) {
-          formattedAnswers[questionId] = answer;
-        }
-        // Questions à choix multiples (tableau de IDs de réponses)
-        else if (Array.isArray(answer)) {
-          formattedAnswers[questionId] = answer;
-        }
-        // Questions à réponse unique (chaîne avec l'ID de la réponse)
-        else {
-          formattedAnswers[questionId] = answer;
+        } else if (typeof answer === 'object' && !Array.isArray(answer)) {
+          formattedAnswers[questionId] = Object.entries(answer).reduce((acc, [key, value]) => {
+            acc[key] = value.text || value;
+            return acc;
+          }, {});
+        } else if (Array.isArray(answer)) {
+          formattedAnswers[questionId] = answer.map((a: any) => a.text || a);
+        } else {
+          formattedAnswers[questionId] = answer.text || answer;
         }
       }
       
