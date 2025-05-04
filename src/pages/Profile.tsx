@@ -134,7 +134,11 @@ const ProfilePage = () => {
     <Layout>
       <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
         {user && <ProfileHeader user={user} />}
-        
+        <div className="mt-16 space-y-12">
+          
+          {userProgress && <StatsSummary userProgress={userProgress} />}
+          <FormationCatalogue formations={formations} />
+        </div>
         <ProfileTabs
           user={user}
           results={results}
@@ -146,10 +150,7 @@ const ProfilePage = () => {
           setActiveTab={handleTabChange}
         />
 
-        <div className="mt-16 space-y-12">
-          <FormationCatalogue formations={formations} />
-          {userProgress && <StatsSummary userProgress={userProgress} />}
-        </div>
+    
       </div>
     </Layout>
   );

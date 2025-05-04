@@ -2,11 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Contact } from "@/types/contact";
 import { ContactCard } from "@/components/Contacts/ContactCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Users, GraduationCap, Phone } from "lucide-react";
-import { Button } from "../ui/button";
-import { contactService } from "@/services";
 import PaginationControls from "../catalogueFormation/PaginationControls";
 
 const SkeletonCard = () => (
@@ -25,91 +22,39 @@ const SkeletonCard = () => (
 );
 
 const ContactsSection = () => {
-  // États pour chaque type de contact
   const [commerciaux, setCommerciaux] = useState<Contact[]>([]);
   const [formateurs, setFormateurs] = useState<Contact[]>([]);
   const [poleRelation, setPoleRelation] = useState<Contact[]>([]);
-
-  // États de pagination
-  const [currentPages, setCurrentPages] = useState({
-    commerciaux: 1,
-    formateurs: 1,
-    poleRelation: 1,
-  });
-
-  const [lastPages, setLastPages] = useState({
-    commerciaux: 1,
-    formateurs: 1,
-    poleRelation: 1,
-  });
-
-  const [nextPageUrls, setNextPageUrls] = useState({
-    commerciaux: null,
-    formateurs: null,
-    poleRelation: null,
-  });
-
-  const [prevPageUrls, setPrevPageUrls] = useState({
-    commerciaux: null,
-    formateurs: null,
-    poleRelation: null,
-  });
-
   const [isLoading, setIsLoading] = useState({
     commerciaux: true,
     formateurs: true,
-    poleRelation: true,
+    "pole-relation": true,
   });
 
-  // Fonction utilisant contactService
-  const fetchContacts = async (type: keyof typeof currentPages, page = 1) => {
+  const fetchContacts = async (type: keyof typeof isLoading) => {
     setIsLoading((prev) => ({ ...prev, [type]: true }));
-
     try {
-      let response;
-
-      switch (type) {
-        case "commerciaux":
-          response = await contactService.getCommerciaux(page);
-          break;
-        case "formateurs":
-          response = await contactService.getFormateurs(page);
-          break;
-        case "poleRelation":
-          response = await contactService.getPoleRelation(page);
-          break;
+      const token = localStorage.getItem("token"); // Retrieve the JWT token from local storage
+      const response = await axios.get(
+        type === "commerciaux"
+          ? "http://localhost:8000/api/stagiaire/contacts/commerciaux"
+          : type === "formateurs"
+          ? "http://localhost:8000/api/stagiaire/contacts/formateurs"
+          : "http://localhost:8000/api/stagiaire/contacts/pole-relation",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Add the JWT token to the headers
+          },
+        }
+      );
+      const data = response.data.data;
+      if (type === "commerciaux") {
+        setCommerciaux(data);
+      } else if (type === "formateurs") {
+        setFormateurs(data);
+      } else {
+        setPoleRelation(data);
       }
-
-      const { data, current_page, last_page, next_page_url, prev_page_url } =
-        response;
-
-      const normalizeData = (
-        data: Record<string, unknown> | unknown[]
-      ): Contact[] => {
-        if (Array.isArray(data)) return data as Contact[];
-        if (typeof data === "object" && data !== null)
-          return Object.values(data) as Contact[];
-        return [];
-      };
-
-      const normalized = normalizeData(data);
-
-      switch (type) {
-        case "commerciaux":
-          setCommerciaux(normalized);
-          break;
-        case "formateurs":
-          setFormateurs(normalized);
-          break;
-        case "poleRelation":
-          setPoleRelation(normalized);
-          break;
-      }
-
-      setCurrentPages((prev) => ({ ...prev, [type]: current_page }));
-      setLastPages((prev) => ({ ...prev, [type]: last_page }));
-      setNextPageUrls((prev) => ({ ...prev, [type]: next_page_url }));
-      setPrevPageUrls((prev) => ({ ...prev, [type]: prev_page_url }));
     } catch (error) {
       console.error(`Erreur lors de la récupération des ${type}:`, error);
     } finally {
@@ -117,19 +62,10 @@ const ContactsSection = () => {
     }
   };
 
-  // Gestion du changement de page
-  const handlePageChange = (type: keyof typeof currentPages, page: number) => {
-    if (page >= 1 && page <= lastPages[type]) {
-      setCurrentPages((prev) => ({ ...prev, [type]: page }));
-      fetchContacts(type, page);
-    }
-  };
-
-  // Chargement initial
   useEffect(() => {
     fetchContacts("commerciaux");
     fetchContacts("formateurs");
-    fetchContacts("poleRelation");
+    fetchContacts("pole-relation");
   }, []);
 
   return (
@@ -156,7 +92,7 @@ const ContactsSection = () => {
             Formateurs
           </TabsTrigger>
           <TabsTrigger
-            value="poleRelation"
+            value="pole-relation"
             className="text-xs sm:text-sm px-3 py-2">
             <Phone className="h-4 w-4 mr-2" />
             Pôle Relation
@@ -179,15 +115,6 @@ const ContactsSection = () => {
               ))
             )}
           </div>
-          <div className="mt-6">
-            <PaginationControls
-              currentPage={currentPages.commerciaux}
-              lastPage={lastPages.commerciaux}
-              onPageChange={(page) => handlePageChange("commerciaux", page)}
-              nextPageUrl={nextPageUrls.commerciaux}
-              prevPageUrl={prevPageUrls.commerciaux}
-            />
-          </div>
         </TabsContent>
 
         <TabsContent value="formateurs">
@@ -206,41 +133,23 @@ const ContactsSection = () => {
               ))
             )}
           </div>
-          <div className="mt-6">
-            <PaginationControls
-              currentPage={currentPages.formateurs}
-              lastPage={lastPages.formateurs}
-              onPageChange={(page) => handlePageChange("formateurs", page)}
-              nextPageUrl={nextPageUrls.formateurs}
-              prevPageUrl={prevPageUrls.formateurs}
-            />
-          </div>
         </TabsContent>
 
-        <TabsContent value="poleRelation">
+        <TabsContent value="pole-relation">
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {isLoading.poleRelation ? (
+            {isLoading["pole-relation"] ? (
               Array.from({ length: 3 }).map((_, idx) => (
-                <SkeletonCard key={`poleRelation-skeleton-${idx}`} />
+                <SkeletonCard key={`pole-relation-skeleton-${idx}`} />
               ))
             ) : poleRelation.length === 0 ? (
               <div className="col-span-full text-center py-8 text-muted-foreground">
-                Aucun contact du pôle relation disponible
+                Aucun contact disponible pour le Pôle Relation
               </div>
             ) : (
               poleRelation.map((contact) => (
                 <ContactCard key={contact.id} contact={contact} />
               ))
             )}
-          </div>
-          <div className="mt-6">
-            <PaginationControls
-              currentPage={currentPages.poleRelation}
-              lastPage={lastPages.poleRelation}
-              onPageChange={(page) => handlePageChange("poleRelation", page)}
-              nextPageUrl={nextPageUrls.poleRelation}
-              prevPageUrl={prevPageUrls.poleRelation}
-            />
           </div>
         </TabsContent>
       </Tabs>
