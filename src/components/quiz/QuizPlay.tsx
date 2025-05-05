@@ -135,7 +135,11 @@ export function QuizPlay() {
         </div>
         <Progress value={progressPercentage} className="h-2" />
       </div>
-
+         {showHint && currentQuestion.astuce && (
+            <div className="my-4 p-4 bg-blue-50 border border-blue-200 rounded text-blue-900">
+              <strong>Astuce :</strong> {currentQuestion.astuce}
+            </div>
+          )}
       {currentQuestion && (
         <>
           <div className="flex-grow">
@@ -146,11 +150,7 @@ export function QuizPlay() {
               showFeedback={showResults}
             />
           </div>
-          {showHint && currentQuestion.astuce && (
-            <div className="my-4 p-4 bg-blue-50 border border-blue-200 rounded text-blue-900">
-              <strong>Astuce :</strong> {currentQuestion.astuce}
-            </div>
-          )}
+         
         </>
       )}
 
