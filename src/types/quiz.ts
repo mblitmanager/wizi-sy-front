@@ -1,4 +1,3 @@
-
 export interface Category {
   id: string;
   name: string;
@@ -75,15 +74,15 @@ export interface FlashCard {
   back: string;
 }
 
-export type QuestionType = 
-  | 'choix multiples'
-  | 'vrai/faux'
-  | 'remplir le champ vide'
-  | 'rearrangement'
-  | 'correspondance'
-  | 'carte flash'
-  | 'banque de mots'
-  | 'question audio';
+export type QuestionType =
+  | "choix multiples"
+  | "vrai/faux"
+  | "remplir le champ vide"
+  | "rearrangement"
+  | "correspondance"
+  | "carte flash"
+  | "banque de mots"
+  | "question audio";
 
 export interface QuizHistory {
   id: string;
@@ -115,18 +114,23 @@ export interface WordBankItem {
 }
 
 export interface UserProgress {
-  completedQuizzes: number;
-  totalQuizzes: number;
-  completionRate: number;
-  averageScore: number;
-  totalScore: number;
-  stats: {
+  id?: string;
+  stagiaire_id?: string;
+  totalScore?: number;
+  completedQuizzes?: number;
+  totalQuizzes?: number;
+  completionRate?: number;
+  averageScore?: number;
+  currentStreak?: number;
+  longestStreak?: number;
+  lastQuizDate?: string;
+  stats?: {
     byCategory: {
       [key: string]: {
         count: number;
         averageScore: number;
-      }
-    }
+      };
+    };
   };
 }
 

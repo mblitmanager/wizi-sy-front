@@ -6,6 +6,7 @@ import HeaderSection from "@/components/features/HeaderSection";
 import { Layout } from "@/components/layout/Layout";
 import { formationApi } from "@/services/api";
 import { FixedSizeList as VirtualizedList } from "react-window";
+import formationService from "@/services/FormationService";
 
 interface Formation {
   id: string;
@@ -37,12 +38,12 @@ export default function TutoAstucePage() {
     const fetchInitialData = async () => {
       try {
         const [formationsRes, tutoRes, astuceRes] = await Promise.all([
-          formationApi.getFormations(),
+          formationService.getFormations(),
           mediaService.getTutoriels(),
           mediaService.getAstuces(),
         ]);
 
-        const formationsRaw = formationsRes.data?.data?.data || [];
+        const formationsRaw = formationsRes.member;
         setFormations(formationsRaw);
 
         const tutorielsData = tutoRes.data?.data || [];
