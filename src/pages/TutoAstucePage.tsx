@@ -20,9 +20,10 @@ export default function TutoAstucePage() {
   const [tutoriels, setTutoriels] = useState<Media[]>([]);
   const [astuces, setAstuces] = useState<Media[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState<"tutoriel" | "astuce">("tutoriel");
+  const [activeCategory, setActiveCategory] = useState<"tutoriel" | "astuce">(
+    "tutoriel"
+  );
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
-
 
   const medias = activeCategory === "tutoriel" ? tutoriels : astuces;
 
@@ -31,7 +32,9 @@ export default function TutoAstucePage() {
     const fetchFormations = async () => {
       try {
         const stagiaireId = "some-stagiaire-id"; // Replace with actual logic to get stagiaire ID
-        const res = await catalogueFormationApi.getCatalogueFormation(stagiaireId);
+        const res = await catalogueFormationApi.getCatalogueFormation(
+          stagiaireId
+        );
         const formationsRaw = res.data?.data?.data;
         if (Array.isArray(formationsRaw)) {
           setFormations(formationsRaw);
@@ -98,7 +101,7 @@ export default function TutoAstucePage() {
             <select
               value={selectedFormationId ?? ""}
               onChange={(e) => setSelectedFormationId(e.target.value || null)}
-              className="px-3 py-1.5 text-sm sm:text-base min-w-[180px] sm:min-w-[250px] bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200">
+              className="px-3 py-1.5 text-sm sm:text-base min-w-[180px] sm:min-w-[250px] bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition duration-200">
               <option value="">Toutes les formations</option>
               {formations.map((formation) => (
                 <option key={formation.id} value={formation.id}>

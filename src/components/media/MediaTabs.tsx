@@ -24,13 +24,13 @@ export default function MediaTabs({ active, onChange }: Props) {
               className={clsx(
                 "flex items-center gap-1 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap",
                 isActive
-                  ? "bg-blue-600 text-white shadow"
+                  ? "bg-wizi text-white shadow"
                   : "text-gray-700 hover:bg-gray-200"
               )}>
               <Icon
                 className={clsx(
                   "w-4 h-4",
-                  isActive ? "text-white" : "text-blue-600"
+                  isActive ? "text-white" : "text-yellow-600"
                 )}
               />
               <span className="hidden sm:inline">{label}</span>
