@@ -87,8 +87,7 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
                   className={({ isActive }) => {
                     const baseClasses =
                       "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-full transition-all";
-                    const activeClasses =
-                      "bg-gradient-to-r from-yellow-500 to-yellow-600 text-white shadow-md";
+                    const activeClasses = "bg-yellow-400 text-white shadow-md";
                     const inactiveClasses =
                       "text-gray-500 hover:bg-gray-100 hover:text-gray-800";
 
@@ -99,7 +98,7 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
                   {({ isActive }) => (
                     <>
                       <item.icon
-                        className={`w-4 h-4 ${
+                        className={`w-6 h-6 ${
                           isActive ? "text-white" : "text-gray-400"
                         }`}
                       />

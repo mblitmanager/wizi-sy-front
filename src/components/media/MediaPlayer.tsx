@@ -36,7 +36,7 @@ export default function MediaPlayer({ media }: Props) {
       case "audio":
         return (
           <div className="p-4 sm:p-6 w-full bg-white border rounded-xl shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <Music className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600" />
+            <Music className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-400" />
             <audio
               key={media.url}
               controls
@@ -103,7 +103,7 @@ export default function MediaPlayer({ media }: Props) {
           dangerouslySetInnerHTML={{ __html: media.description }}
         />
         <div className="flex flex-wrap items-center gap-2 pt-3 text-xs text-gray-500 border-t">
-          <span className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-medium">
+          <span className="bg-yellow-100 text-yellow-600 px-2 py-0.5 rounded-full font-medium">
             {media.categorie}
           </span>
           <span>{media.duree} min</span>

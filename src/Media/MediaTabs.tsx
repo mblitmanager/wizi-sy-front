@@ -13,29 +13,31 @@ export default function MediaTabs({ active, onChange }: Props) {
   ] as const;
 
   return (
-    <div className="inline-flex rounded-full bg-gray-100 p-1 shadow-inner">
-      {tabs.map(({ key, label, icon: Icon }) => {
-        const isActive = active === key;
-        return (
-          <button
-            key={key}
-            onClick={() => onChange(key)}
-            className={clsx(
-              "flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 text-sm font-medium",
-              isActive
-                ? "bg-blue-600 text-white shadow"
-                : "text-gray-700 hover:bg-gray-200"
-            )}>
-            <Icon
+    <div className="w-full overflow-x-auto">
+      <div className="inline-flex items-center gap-1 rounded-full bg-gray-100 p-1 shadow-inner mx-auto min-w-max sm:min-w-0">
+        {tabs.map(({ key, label, icon: Icon }) => {
+          const isActive = active === key;
+          return (
+            <button
+              key={key}
+              onClick={() => onChange(key)}
               className={clsx(
-                "w-4 h-4",
-                isActive ? "text-white" : "text-blue-600"
-              )}
-            />
-            {label}
-          </button>
-        );
-      })}
+                "flex items-center gap-1 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap",
+                isActive
+                  ? "bg-wizi text-white shadow"
+                  : "text-gray-700 hover:bg-gray-200"
+              )}>
+              <Icon
+                className={clsx(
+                  "w-4 h-4",
+                  isActive ? "text-white" : "text-yellow-600"
+                )}
+              />
+              <span className="hidden sm:inline">{label}</span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

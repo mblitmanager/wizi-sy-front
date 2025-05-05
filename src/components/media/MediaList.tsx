@@ -47,7 +47,7 @@ export default function MediaList({ medias, selectedMedia, onSelect }: Props) {
         return (
           <div key={type}>
             <h2 className="text-sm sm:text-base font-semibold text-gray-700 flex items-center gap-2 mb-3">
-              <Icon className="w-5 h-5 text-blue-600" />
+              <Icon className="w-5 h-5 text-yellow-400" />
               {label}
             </h2>
             <div className="space-y-3">
@@ -61,11 +61,11 @@ export default function MediaList({ medias, selectedMedia, onSelect }: Props) {
                     className={clsx(
                       "flex items-start gap-3 p-3 rounded-xl shadow-sm transition-all cursor-pointer border sm:items-center",
                       selectedMedia?.id === media.id
-                        ? "bg-blue-50 border-blue-400"
+                        ? "bg-blue-50 border-yellow-400"
                         : "bg-white hover:bg-gray-50 border-gray-200"
                     )}>
-                    <div className="shrink-0 w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center">
-                      <MediaIcon className="w-5 h-5 text-blue-600" />
+                    <div className="shrink-0 w-9 h-9 bg-yellow-100 rounded-full flex items-center justify-center">
+                      <MediaIcon className="w-5 h-5 text-yello-600" />
                     </div>
 
                     <div className="flex-1 space-y-1">
@@ -73,7 +73,7 @@ export default function MediaList({ medias, selectedMedia, onSelect }: Props) {
                         {media.titre}
                       </h3>
                       <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
-                        <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                        <span className="bg-yellow-100 text-yellow-600 px-2 py-0.5 rounded-full font-medium">
                           {media.categorie}
                         </span>
                         <span>{media.duree} min</span>
@@ -84,7 +84,7 @@ export default function MediaList({ medias, selectedMedia, onSelect }: Props) {
                       className={clsx(
                         "w-2.5 h-2.5 rounded-full mt-1 sm:mt-0",
                         selectedMedia?.id === media.id
-                          ? "bg-blue-500"
+                          ? "bg-wizi"
                           : "bg-gray-300"
                       )}
                     />

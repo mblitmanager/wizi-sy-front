@@ -3,6 +3,7 @@ import MainNav from "./MainNav";
 import { MobileNav } from "./MobileNav";
 import { Navbar } from "./Navbar";
 import { useUser } from "@/context/UserContext";
+import logo from "../../assets/logo.png";
 
 interface LayoutProps {
   children: ReactNode;
@@ -21,11 +22,7 @@ export function Layout({ children }: LayoutProps) {
       <aside className="hidden md:flex md:flex-col md:w-64 border-r border-gray-200 bg-white shadow-sm">
         {/* Logo en haut de la sidebar */}
         <div className="h-16 flex items-center justify-center border-b">
-          <img
-            src="lovable-uploads/e4aa6740-d9f0-40d2-a150-efc75ae46692.png"
-            alt=""
-            className="object-contain h-14 w-40"
-          />
+          <img src={logo} alt="" className="object-contain h-14 w-40" />
         </div>
         <div className="flex-1 overflow-y-auto">
           <MainNav />

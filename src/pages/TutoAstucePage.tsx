@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { mediaService } from "@/services";
 import { Media } from "@/types/media";
-import { MediaList, MediaPlayer, MediaTabs } from "@/components/Media";
+import { MediaList, MediaPlayer, MediaTabs } from "@/Media";
 import HeaderSection from "@/components/features/HeaderSection";
-import { catalogueFormationApi } from "@/services/catalogueFormationApi";
 import { Layout } from "@/components/layout/Layout";
+import { formationApi } from "@/services/api";
+import { FixedSizeList as VirtualizedList } from "react-window";
 
 interface Formation {
   id: string;
@@ -16,57 +17,100 @@ export default function TutoAstucePage() {
   const [selectedFormationId, setSelectedFormationId] = useState<string | null>(
     null
   );
-
   const [tutoriels, setTutoriels] = useState<Media[]>([]);
   const [astuces, setAstuces] = useState<Media[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState<"tutoriel" | "astuce">("tutoriel");
+  const [activeCategory, setActiveCategory] = useState<"tutoriel" | "astuce">(
+    "tutoriel"
+  );
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
 
+  const mediaCache = useRef<{
+    [key: string]: { tutoriels: Media[]; astuces: Media[] };
+  }>({});
 
   const medias = activeCategory === "tutoriel" ? tutoriels : astuces;
+  const firstLoadRef = useRef(true);
 
-  // Charger la liste des formations
+  // Charger les formations et tous les médias initiaux
   useEffect(() => {
-    const fetchFormations = async () => {
+    const fetchInitialData = async () => {
       try {
-        const stagiaireId = "some-stagiaire-id"; // Replace with actual logic to get stagiaire ID
-        const res = await catalogueFormationApi.getCatalogueFormation(stagiaireId);
-        const formationsRaw = res.data?.data?.data;
-        if (Array.isArray(formationsRaw)) {
-          setFormations(formationsRaw);
-        } else {
-          console.error("Format inattendu :", res.data);
-        }
+        const [formationsRes, tutoRes, astuceRes] = await Promise.all([
+          formationApi.getFormations(),
+          mediaService.getTutoriels(),
+          mediaService.getAstuces(),
+        ]);
+
+        const formationsRaw = formationsRes.data?.data?.data || [];
+        setFormations(formationsRaw);
+
+        const tutorielsData = tutoRes.data?.data || [];
+        const astucesData = astuceRes.data || [];
+
+        setTutoriels(tutorielsData);
+        setAstuces(astucesData);
+
+        // Mise en cache
+        mediaCache.current["all"] = {
+          tutoriels: tutorielsData,
+          astuces: astucesData,
+        };
       } catch (error) {
-        console.error("Erreur lors du chargement des formations :", error);
+        console.error(
+          "Erreur lors du chargement des données initiales :",
+          error
+        );
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchFormations();
+    fetchInitialData();
   }, []);
 
-  // Charger les médias en fonction de la formation sélectionnée ou tous par défaut
+  // Charger les médias selon la formation sélectionnée
   useEffect(() => {
     const fetchMedias = async () => {
       setIsLoading(true);
+
+      const cacheKey = selectedFormationId || "all";
+
+      if (mediaCache.current[cacheKey]) {
+        const cached = mediaCache.current[cacheKey];
+        setTutoriels(cached.tutoriels);
+        setAstuces(cached.astuces);
+        setIsLoading(false);
+        return;
+      }
+
       try {
+        let tutorielsData: Media[] = [];
+        let astucesData: Media[] = [];
+
         if (selectedFormationId) {
           const [tutoRes, astuceRes] = await Promise.all([
             mediaService.getTutorielByFormationId(selectedFormationId),
             mediaService.getAstuceByFormationId(selectedFormationId),
           ]);
-          setTutoriels(tutoRes.data);
-          setAstuces(astuceRes.data);
+          tutorielsData = tutoRes.data;
+          astucesData = astuceRes.data;
         } else {
           const [tutoRes, astuceRes] = await Promise.all([
             mediaService.getTutoriels(),
             mediaService.getAstuces(),
           ]);
-
-          setTutoriels(tutoRes.data.data);
-          setAstuces(astuceRes.data);
+          tutorielsData = tutoRes.data?.data || [];
+          astucesData = astuceRes.data || [];
         }
+
+        setTutoriels(tutorielsData);
+        setAstuces(astucesData);
+
+        mediaCache.current[cacheKey] = {
+          tutoriels: tutorielsData,
+          astuces: astucesData,
+        };
       } catch (error) {
         console.error("Erreur lors du chargement des médias :", error);
       } finally {
@@ -74,18 +118,20 @@ export default function TutoAstucePage() {
       }
     };
 
+    // Empêche le rechargement immédiat après le premier useEffect
+    if (firstLoadRef.current) {
+      firstLoadRef.current = false;
+      return;
+    }
+
     fetchMedias();
   }, [selectedFormationId]);
 
-  // Mettre à jour le média sélectionné
+  // Mettre à jour le média sélectionné par défaut
   useEffect(() => {
     const currentData = activeCategory === "tutoriel" ? tutoriels : astuces;
-    if (currentData.length > 0) {
-      setSelectedMedia(currentData[0]);
-    } else {
-      setSelectedMedia(null);
-    }
-  }, [activeCategory, tutoriels, astuces, medias]);
+    setSelectedMedia(currentData.length > 0 ? currentData[0] : null);
+  }, [activeCategory, tutoriels, astuces]);
 
   return (
     <Layout>
@@ -98,7 +144,7 @@ export default function TutoAstucePage() {
             <select
               value={selectedFormationId ?? ""}
               onChange={(e) => setSelectedFormationId(e.target.value || null)}
-              className="px-3 py-1.5 text-sm sm:text-base min-w-[180px] sm:min-w-[250px] bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200">
+              className="px-3 py-1.5 text-sm sm:text-base min-w-[180px] sm:min-w-[250px] bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition duration-200">
               <option value="">Toutes les formations</option>
               {formations.map((formation) => (
                 <option key={formation.id} value={formation.id}>
@@ -108,7 +154,6 @@ export default function TutoAstucePage() {
             </select>
           </div>
         </div>
-
         <hr />
 
         {isLoading ? (
@@ -121,7 +166,7 @@ export default function TutoAstucePage() {
           </div>
         ) : (
           <div className="flex flex-col sm:gap-4 md:grid md:grid-cols-2 bg-white rounded-2xl shadow-lg gap-6 mt-6">
-            <div className="p-3 sm:p-4 overflow-y-auto max-h-[50vh] sm:max-h-[60vh] md:max-h-[90vh]">
+            <div className="p-3 sm:p-4 overflow-y-auto max-h-[60vh]">
               <MediaList
                 medias={medias}
                 selectedMedia={selectedMedia}
