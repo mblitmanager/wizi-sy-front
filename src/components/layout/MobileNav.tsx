@@ -40,12 +40,13 @@ export function MobileNav() {
       label: "Tutoriels",
       href: "/tuto-astuce",
       icon: Video,
-    },
-    {
-      icon: UserRound,
-      label: "Profil",
-      href: "/profile"
-    }
+     }
+    // ,
+    // {
+    //   icon: UserRound,
+    //   label: "Profile",
+    //   href: "/profile"
+    // }
   ];
 
   return (

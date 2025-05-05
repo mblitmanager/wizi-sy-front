@@ -1,4 +1,3 @@
-
 import { Mail, Phone, User } from "lucide-react";
 import { Contact } from "@/types/contact";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -14,34 +13,28 @@ export const ContactCard = ({ contact }: ContactCardProps) => {
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center gap-4">
         <Avatar>
-          <AvatarImage src={contact.image_url} alt={`${contact.prenom} ${contact.nom}`} />
-          <AvatarFallback>{contact.prenom.charAt(0)}</AvatarFallback>
+          <AvatarImage src={contact.avatar || "/images/default-avatar.png"} alt={contact.name || "Profil"} />
+          <AvatarFallback>{contact.name?.charAt(0) || "?"}</AvatarFallback>
         </Avatar>
         <div>
-          <h3 className="font-semibold">{`${contact.prenom} ${contact.nom}`}</h3>
-          <p className="text-sm text-muted-foreground">{contact.role}</p>
+          <h3 className="font-semibold">{contact.name || "Nom inconnu"}</h3>
+          <p className="text-sm text-muted-foreground">{contact.role || "Rôle non spécifié"}</p>
         </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
           <p className="text-sm">
-            <span className="font-medium">Email:</span> {contact.email}
+            <span className="font-medium">Email:</span> {contact.email || "Non disponible"}
           </p>
-          {contact.telephone && (
+          {contact.phone ? (
             <p className="text-sm">
-              <span className="font-medium">Téléphone:</span> {contact.telephone}
+              <span className="font-medium">Téléphone:</span> {contact.phone}
             </p>
-          )}
-          {contact.poste && (
-            <div className="mt-2">
-              <p className="text-sm font-medium mb-1">Poste:</p>
-              <Badge variant="secondary">
-                {contact.poste}
-              </Badge>
-            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">Téléphone non disponible</p>
           )}
         </div>
       </CardContent>
     </Card>
   );
-}
+};

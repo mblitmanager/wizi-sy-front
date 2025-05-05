@@ -41,11 +41,12 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
         ? selectedAnswers.filter(id => id !== answerId)
         : [...selectedAnswers, answerId];
       setSelectedAnswers(newSelected);
-      onAnswer(newSelected);
+      onAnswer(newSelected.map(id => question.reponses?.find(a => a.id === id)?.text || "")); // Send only the text of selected answers
     } else {
       // Single choice - replace selection
+      const answerText = question.reponses?.find((a) => a.id === answerId)?.text || "";
       setSelectedAnswers([answerId]);
-      onAnswer([answerId]);
+      onAnswer([{ id: answerId, text: answerText }]);
     }
   };
 
