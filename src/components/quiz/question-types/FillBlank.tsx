@@ -47,7 +47,10 @@ export function FillBlank({ question, onAnswer, showFeedback = false }: FillBlan
   const handleChange = (blankId: string, value: string) => {
     const newAnswers = { ...answers, [blankId]: value };
     setAnswers(newAnswers);
-    onAnswer(newAnswers);
+    onAnswer({
+      ...newAnswers,
+      questionType: question.type // Ajoute le type de question dans la réponse
+    });
   };
 
   const isCorrectAnswer = (blankId: string, userAnswer: string) => {

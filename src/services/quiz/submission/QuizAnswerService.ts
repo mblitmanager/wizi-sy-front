@@ -24,11 +24,16 @@ export class QuizAnswerService {
 
       for (const questionId in answers) {
         const answer = answers[questionId];
-        const questionType = answers[questionId]?.__type || null;
-
+        // Récupère le type de question depuis la réponse (FillBlank l'envoie sous questionType)
+        const questionType = answer?.questionType || answers[questionId]?.__type || null;
+        // Ajoute le type de question dans la réponse envoyée à l'API
+        if (typeof answer === 'object' && answer !== null) {
+          answer.questionType = questionType;
+        }
+        
         if (questionType === 'correspondance' && typeof answer === 'object' && !Array.isArray(answer)) {
           formattedAnswers[questionId] = Object.entries(answer).reduce((acc, [key, value]) => {
-            acc[key] = value.text || value; // Use text if available
+            if (key !== 'questionType') acc[key] = value.text || value; // Ignore le champ questionType
             return acc;
           }, {});
         } else if (questionType === 'carte flash') {
@@ -39,9 +44,14 @@ export class QuizAnswerService {
           } else {
             formattedAnswers[questionId] = answer.text || answer;
           }
+        } else if (questionType === 'remplir le champ vide' && typeof answer === 'object' && !Array.isArray(answer)) {
+          // On retire questionType du payload envoyé à l'API
+          const { questionType, ...rest } = answer;
+          // Convertit l'objet {blank_1: 'ctrl+c'} en ['ctrl+c']
+          formattedAnswers[questionId] = Object.values(rest);
         } else if (typeof answer === 'object' && !Array.isArray(answer)) {
           formattedAnswers[questionId] = Object.entries(answer).reduce((acc, [key, value]) => {
-            acc[key] = value.text || value;
+            if (key !== 'questionType') acc[key] = value.text || value;
             return acc;
           }, {});
         } else if (Array.isArray(answer)) {
@@ -52,6 +62,7 @@ export class QuizAnswerService {
       }
       
       console.log('Réponses formatées pour la soumission:', formattedAnswers);
+      console.log('Réponses formatées pour la soumission:', timeSpent);
       
       // Envoyer les réponses formatées à l'API
       const response = await apiClient.post(`/quiz/${quizId}/result`, {
