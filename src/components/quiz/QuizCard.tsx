@@ -36,7 +36,8 @@ const getLevelBackgroundColor = (level: string) => {
 
 const getCategoryColor = (quiz: Quiz, categories: Category[] | undefined) => {
   if (!categories) return '#3B82F6';
-  
+  console.log('categories', categories);
+  console.log('quiz', quiz);
   // Priorité au categorieId 
   if (quiz.categorieId) {
     const categoryById = categories.find(c => c.id === quiz.categorieId);
