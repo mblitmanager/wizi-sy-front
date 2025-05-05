@@ -69,7 +69,7 @@ export default function CatalogueFormationDetails() {
         .then((response) => {
           setDetails(response.data as CatalogueFormationDetailsType);
           setLoading(false);
-          console.log("Détails de la formation:", response);
+          
         })
         .catch((err) => {
           console.error("Error fetching details:", err);
