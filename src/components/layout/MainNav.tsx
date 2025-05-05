@@ -76,17 +76,17 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white shadow-sm ">
+    <div className="flex flex-col h-full bg-white border-r">
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
-          <ul className="space-y-1">
+          <ul className="space-y-1 p-3">
             {items.map((item) => (
-              <li key={item.href}>
+              <li key={item.href} className="py-2">
                 <NavLink
                   to={item.href}
                   className={({ isActive }) => {
                     const baseClasses =
-                      "flex items-center gap-3 px-4 py-2 text-sm font-medium rounded-full transition-all";
+                      "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-full transition-all";
                     const activeClasses =
                       "bg-gradient-to-r from-yellow-500 to-yellow-600 text-white shadow-md";
                     const inactiveClasses =
