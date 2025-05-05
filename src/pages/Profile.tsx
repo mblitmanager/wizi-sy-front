@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProfileHeader from '@/components/Profile/ProfileHeader';
@@ -13,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { userService } from '@/services/userServiceA';
 import { formationService } from '@/services/formationServiceA';
 import { Stagiaire } from '@/types/stagiaire';
+import { Layout } from "@/components/layout/Layout";
 
 const mapStagiaireToUser = (stagiaire: Stagiaire): User => ({
   id: stagiaire.id.toString(),
@@ -115,33 +115,44 @@ const ProfilePage = () => {
   }, [toast]);
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-screen">Chargement...</div>;
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-screen">Chargement...</div>
+      </Layout>
+    );
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <Layout>
+        <div>Error: {error}</div>
+      </Layout>
+    );
   }
 
   return (
-    <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
-      {user && <ProfileHeader user={user} />}
-      
-      <ProfileTabs
-        user={user}
-        results={results}
-        categories={categories}
-        userProgress={userProgress}
-        isLoading={isLoading}
-        rankings={rankings}
-        activeTab={activeTab}
-        setActiveTab={handleTabChange}
-      />
+    <Layout>
+      <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
+        {user && <ProfileHeader user={user} />}
+        <div className="mt-16 space-y-12">
+          
+          {userProgress && <StatsSummary userProgress={userProgress} />}
+          <FormationCatalogue formations={formations} />
+        </div>
+        <ProfileTabs
+          user={user}
+          results={results}
+          categories={categories}
+          userProgress={userProgress}
+          isLoading={isLoading}
+          rankings={rankings}
+          activeTab={activeTab}
+          setActiveTab={handleTabChange}
+        />
 
-      <div className="mt-16 space-y-12">
-        <FormationCatalogue formations={formations} />
-        {userProgress && <StatsSummary userProgress={userProgress} />}
+    
       </div>
-    </div>
+    </Layout>
   );
 };
 

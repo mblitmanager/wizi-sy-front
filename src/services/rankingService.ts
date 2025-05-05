@@ -29,7 +29,7 @@ export const rankingService = {
     // Classement global
     async getGlobalRanking(): Promise<RankingEntry[]> {
         try {
-            const response = await api.get('/stagiaire/ranking/global');
+            const response = await api.get('/quiz/classement/global');
             return response.data || [];
         } catch (error) {
             console.error('Error fetching global ranking:', error);

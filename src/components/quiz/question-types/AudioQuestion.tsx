@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface AudioQuestionProps {
   question: QuizQuestion;
-  onAnswer: (answer: string) => void;
+  onAnswer: (answer: { id: string, text: string }) => void;
   showFeedback?: boolean;
 }
 
@@ -67,8 +67,9 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
   };
 
   const handleAnswer = (answerId: string) => {
+    const answerText = question.answers?.find((a) => a.id === answerId)?.text || "";
     setSelectedAnswer(answerId);
-    onAnswer(answerId);
+    onAnswer(selectedAnswer ? [selectedAnswer] : []); // Send only the text of the selected answer
   };
 
   const isCorrectAnswer = (answerId: string) => {
