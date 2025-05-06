@@ -23,6 +23,12 @@ export function StagiaireQuizList() {
     enabled: !!localStorage.getItem('token')
   });
 
+  const { data: participations } = useQuery({
+    queryKey: ["stagiaire-participations"],
+    queryFn: () => stagiaireQuizService.getStagiaireParticipations(),
+    enabled: !!localStorage.getItem('token')
+  });
+
   const isLoading = quizzesLoading || categoriesLoading;
   const error = quizzesError;
 
@@ -43,6 +49,10 @@ export function StagiaireQuizList() {
       return categoryMatch && levelMatch;
     });
   }, [quizzes, selectedCategory, selectedLevel]);
+
+  const playedQuizIds = useMemo(() => new Set((participations || []).map((p: any) => p.quizId || p.quiz_id)), [participations]);
+  const playedQuizzes = useMemo(() => (quizzes || []).filter(q => playedQuizIds.has(q.id)), [quizzes, playedQuizIds]);
+  const notPlayedQuizzes = useMemo(() => (quizzes || []).filter(q => !playedQuizIds.has(q.id)), [quizzes, playedQuizIds]);
 
   if (isLoading) {
     return (
@@ -111,15 +121,21 @@ export function StagiaireQuizList() {
           )}
         </div>
       </div>
-      {filteredQuizzes.length === 0 ? (
+      <h3 className="text-lg font-bold mb-2">Quiz non joués</h3>
+      {notPlayedQuizzes.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-500">Aucun quiz ne correspond à vos filtres</p>
+          <p className="text-gray-500">Tous les quiz ont été joués !</p>
         </div>
       ) : (
-        <StagiaireQuizGrid
-          quizzes={filteredQuizzes}
-          categories={categories || []}
-        />
+        <StagiaireQuizGrid quizzes={notPlayedQuizzes} categories={categories || []} />
+      )}
+      <h3 className="text-lg font-bold mt-8 mb-2">Quiz déjà joués</h3>
+      {playedQuizzes.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-gray-500">Aucun quiz joué pour l’instant.</p>
+        </div>
+      ) : (
+        <StagiaireQuizGrid quizzes={playedQuizzes} categories={categories || []} />
       )}
     </div>
   );
