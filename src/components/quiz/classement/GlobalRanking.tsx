@@ -4,25 +4,22 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Trophy, Medal, Award, User } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { LeaderboardEntry } from "@/types/quiz";
-import { useAuth } from "@/hooks/useAuth";
 
 export interface GlobalRankingProps {
   ranking?: LeaderboardEntry[];
   loading?: boolean;
+  currentUserId?: string;
 }
 
 type SortKey = "rang" | "name" | "quizCount" | "averageScore" | "score";
 
 type SortOrder = "asc" | "desc";
 
-export function GlobalRanking({ ranking = [], loading = false }: GlobalRankingProps) {
+export function GlobalRanking({ ranking = [], loading = false, currentUserId }: GlobalRankingProps) {
   const [sortKey, setSortKey] = useState<SortKey>("rang");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
   const [search, setSearch] = useState("");
-  const { user } = useAuth();
   
-  const currentUserId = user?.id?.toString();
-
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");

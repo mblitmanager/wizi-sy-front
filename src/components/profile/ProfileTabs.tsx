@@ -1,13 +1,13 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import UserStats from '@/components/Profile/UserStats';
-import { RecentResults } from '@/components/Profile/RecentResults';
-import BadgesDisplay from '@/components/Profile/BadgesDisplay';
-import CategoryProgress from '@/components/Profile/CategoryProgress';
-import NotificationSettings from '@/components/Profile/NotificationSettings';
-import ParrainageSection from '@/components/Profile/ParrainageSection';
-import ContactsSection from '@/components/Profile/ContactsSection';
+import UserStats from '@/components/profile/UserStats';
+import { RecentResults } from '@/components/profile/RecentResults';
+import BadgesDisplay from '@/components/profile/BadgesDisplay';
+import CategoryProgress from '@/components/profile/CategoryProgress';
+import NotificationSettings from '@/components/profile/NotificationSettings';
+import ParrainageSection from '@/components/profile/ParrainageSection';
+import ContactsSection from '@/components/profile/ContactsSection';
 import RankingComponent from '@/components/Ranking/RankingComponent';
 import { User } from '@/types';
 import { Category, QuizResult, UserProgress } from '@/types/quiz';

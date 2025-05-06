@@ -35,7 +35,7 @@ export const ClassementTabs: React.FC<ClassementTabsProps> = ({
       </TabsContent>
 
       <TabsContent value="historique">
-        <QuizHistory history={quizHistory || []} />
+        <QuizHistory history={quizHistory || []} loading={false} />
       </TabsContent>
     </Tabs>
   );

@@ -19,12 +19,17 @@ export interface Progress {
 
 export interface Category {
   id: string;
-  text: string;
-  isCorrect: boolean;
+  name: string;
+  text?: string;
+  isCorrect?: boolean;
   position?: number;
   bankGroup?: string;
   matchPair?: string;
   flashcardBack?: string;
+  icon?: string;
+  slug?: string;
+  formations?: any[];
+  description?: string;
 }
 
 export interface Media {
@@ -42,16 +47,25 @@ export type QuestionType =
   | "vrai/faux"
   | "banque de mots";
 
-export interface Response {
+export interface Formation {
   id: string;
-  name: string;
-  slug: string;
-  categoryId: string;
+  title?: string;
+  titre?: string;
+  name?: string;
+  slug?: string;
+  categoryId?: string;
+  category?: {
+    id: string;
+    name: string;
+    color?: string;
+  };
   description: string;
   image?: string;
-  quizzes: Quiz[];
-  totalQuizzes: number;
-  completedQuizzes: number;
+  quizzes?: Quiz[];
+  totalQuizzes?: number;
+  completedQuizzes?: number;
+  duree?: string;
+  startDate?: string;
 }
 
 export interface Quiz {

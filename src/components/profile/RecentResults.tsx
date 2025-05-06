@@ -48,16 +48,22 @@ export const RecentResults: React.FC<RecentResultsProps> = ({
   return (
     <div className="space-y-4">
       {displayResults.map((result) => {
+        // Use appropriate property name depending on what's available
+        const resultId = result.id || `quiz-result-${Math.random()}`;
+        const quizName = result.quiz_name || result.quizTitle || 'Quiz';
+        const correctAnswers = result.correct_answers || result.correctAnswers || 0;
+        const totalQuestions = result.total_questions || result.totalQuestions || 0;
+        
         // Date de complétion avec fallback
         const completedAt = result.completed_at 
           ? format(new Date(result.completed_at), 'PPP', { locale: fr })
           : 'Date inconnue';
 
         return (
-          <Card key={result.id} className="w-full p-3 border border-gray-100">
+          <Card key={resultId} className="w-full p-3 border border-gray-100">
             <div className="flex justify-between items-center">
               <div className="flex-1">
-                <h4 className="font-medium text-sm font-nunito truncate pr-3">{result.quiz_name || 'Quiz'}</h4>
+                <h4 className="font-medium text-sm font-nunito truncate pr-3">{quizName}</h4>
                 <div className="text-xs text-gray-500 font-roboto">{completedAt}</div>
               </div>
               <div className="text-right">
@@ -66,7 +72,7 @@ export const RecentResults: React.FC<RecentResultsProps> = ({
                   {result.score}%
                 </div>
                 <div className="text-xs text-gray-500 font-roboto">
-                  {result.correct_answers}/{result.total_questions} correct
+                  {correctAnswers}/{totalQuestions} correct
                 </div>
               </div>
             </div>

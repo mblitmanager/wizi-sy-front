@@ -23,3 +23,24 @@ export interface SponsorshipResponse {
   sponsorship: Sponsorship;
   filleuls: FilleulResponse[];
 }
+
+export interface Referral {
+  id: number;
+  name: string;
+  date: string;
+  status: string;
+  bonusAwarded: boolean;
+}
+
+export interface SponsorshipStats {
+  totalReferrals: number;
+  activeReferrals: number;
+  pendingBonus: number;
+  earnedBonus: number;
+}
+
+export interface SponsorshipLink {
+  code: string;
+  url: string;
+  usage: number;
+}

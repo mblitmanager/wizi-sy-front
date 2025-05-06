@@ -5,11 +5,18 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useUser } from "@/context/UserContext";
 
+interface NavItem {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  href: string;
+  badge?: number;
+}
+
 export function MobileNav() {
   const location = useLocation();
   const { user } = useUser();
 
-  const items = [
+  const items: NavItem[] = [
     {
       icon: Home,
       label: "Accueil",
@@ -30,6 +37,7 @@ export function MobileNav() {
       label: "Classement",
       href: "/classement"
     },
+    // Uncomment when notifications are implemented
     // {
     //   icon: Bell,
     //   label: "Notifs",
@@ -40,8 +48,7 @@ export function MobileNav() {
       label: "Tutoriels",
       href: "/tuto-astuce",
       icon: Video,
-     }
-    // ,
+    }
     // {
     //   icon: UserRound,
     //   label: "Profile",
@@ -65,7 +72,7 @@ export function MobileNav() {
             >
               <span className="relative">
                 <item.icon className="h-5 w-5" />
-                {item.badge && (
+                {item.badge !== undefined && (
                   <Badge variant="destructive" className="absolute -top-1.5 -right-1.5 h-4 w-4 p-0 flex items-center justify-center">
                     {item.badge}
                   </Badge>
