@@ -16,7 +16,7 @@ export const useQuizSubmission = (quizId: string) => {
       const result = await quizSubmissionService.submitQuiz(quizId, answers, timeSpent);
       
       // Calculate score and navigate to results page
-      navigate(`/quiz/results/${quizId}`, {
+      navigate(`/quiz/${quizId}/results`, {
         state: {
           result,
           pointsPerQuestion: 2 // Fixed at 2 points per question
