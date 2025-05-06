@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { Question } from './Question';
-import { Timer, HelpCircle, History, BarChart } from 'lucide-react';
+import { Timer, HelpCircle, History, BarChart, Trophy } from 'lucide-react';
 import { LoadingState } from './quiz-play/LoadingState';
 import { ErrorState } from './quiz-play/ErrorState';
 import { QuizNavigation } from './quiz-play/QuizNavigation';
@@ -12,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { useQuizPlay } from '@/hooks/useQuizPlay';
 import { formatTime } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 
 export function QuizPlay() {
   const { quizId } = useParams<{ quizId: string }>();
@@ -50,18 +52,16 @@ export function QuizPlay() {
     return <LoadingState />;
   }
 
-  if (error || !quiz || !quiz.questions || quiz.questions.length === 0) {
+  if (error || !quiz) {
     return <ErrorState />;
   }
 
-  const quizQuestions = quiz.questions;
-  const totalQuestionCount = quizQuestions.length;
-  const progressPercentage = ((activeStep + 1) / totalQuestionCount) * 100;
+  const progressPercentage = ((activeStep + 1) / totalQuestions) * 100;
 
   const calculateScore = () => {
     // Simple calculation for display purposes
     const answeredQuestions = Object.keys(answers).length;
-    return answeredQuestions > 0 ? Math.round((answeredQuestions / totalQuestionCount) * 100) : 0;
+    return answeredQuestions > 0 ? Math.round((answeredQuestions / totalQuestions) * 100) : 0;
   };
 
   const toggleHint = () => {
@@ -70,28 +70,23 @@ export function QuizPlay() {
 
   const handleRestart = () => {
     // Not yet implemented
-    
     window.location.reload();
   };
 
-  // Fonction utilitaire pour ajouter le type à chaque réponse
-  function buildAnswersWithType(
-    answers: Record<string, unknown>,
-    questions: { id: string; type: string }[]
-  ): Record<string, unknown> {
-    const answersWithType: Record<string, unknown> = {};
-    for (const question of questions) {
-      const answer = answers[question.id];
-      if (answer !== undefined) {
-        if (typeof answer === 'object' && answer !== null && !Array.isArray(answer)) {
-          answersWithType[question.id] = { ...(answer as object), __type: question.type };
-        } else {
-          answersWithType[question.id] = answer;
-        }
-      }
+  // Get level badge color based on difficulty
+  const getLevelBadgeClass = () => {
+    const niveau = quiz.niveau ? quiz.niveau.toLowerCase() : '';
+    
+    if (niveau === 'débutant' || niveau === 'debutant') {
+      return 'bg-green-500 hover:bg-green-600';
+    } else if (niveau === 'intermédiaire' || niveau === 'intermediaire') {
+      return 'bg-yellow-500 hover:bg-yellow-600';
+    } else if (niveau === 'avancé' || niveau === 'avance') {
+      return 'bg-red-500 hover:bg-red-600';
     }
-    return answersWithType;
-  }
+    
+    return 'bg-primary hover:bg-primary/90';
+  };
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 min-h-screen flex flex-col">
@@ -101,6 +96,15 @@ export function QuizPlay() {
           <span className="font-mono">
             {timeLeft !== null ? formatTime(timeLeft) : '--:--'}
           </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <Badge className={getLevelBadgeClass()}>
+            {quiz.niveau}
+          </Badge>
+          <div className="flex items-center gap-1">
+            <Trophy className="h-4 w-4 text-yellow-500" />
+            <span className="text-sm font-medium">{quiz.points} points</span>
+          </div>
         </div>
         <div className="flex gap-2">
           <Button
@@ -130,12 +134,12 @@ export function QuizPlay() {
       {/* Quiz Progress */}
       <div className="mb-6">
         <div className="flex justify-between text-sm mb-2">
-          <span>Question {activeStep + 1} sur {totalQuestionCount}</span>
+          <span>Question {activeStep + 1} sur {totalQuestions}</span>
           <span>{Math.round(progressPercentage)}%</span>
         </div>
         <Progress value={progressPercentage} className="h-2" />
       </div>
-         {showHint && currentQuestion.astuce && (
+         {showHint && currentQuestion?.astuce && (
             <div className="my-4 p-4 bg-blue-50 border border-blue-200 rounded text-blue-900">
               <strong>Astuce :</strong> {currentQuestion.astuce}
             </div>
@@ -185,7 +189,7 @@ export function QuizPlay() {
           isCorrect: false, // Placeholder, would need actual validation
           points: 0 // Placeholder, would need actual calculation
         }))}
-        questions={quizQuestions}
+        questions={quiz.questions || []}
         onRestart={handleRestart}
       />
     </div>

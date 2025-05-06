@@ -17,7 +17,7 @@ export interface Quiz {
   categorie: string;
   categorieId: string;
   questions?: Question[];
-  duree?: number; // Added duration field
+  duree?: number;
 }
 
 export interface Question {
@@ -166,4 +166,5 @@ export interface QuizResult {
   questions: Question[];
   quiz_name?: string;
   completed_at?: string;
+  quizId?: string;
 }
