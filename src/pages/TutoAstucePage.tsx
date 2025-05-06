@@ -1,137 +1,49 @@
-import { useEffect, useRef, useState } from "react";
-import { mediaService } from "@/services";
-import { Media } from "@/types/media";
+import { useEffect, useState } from "react";
+import { useFormations } from "@/use-case/hooks/media/useFormations";
+import { useMediaByFormation } from "@/use-case/hooks/media/useMediaByFormation";
 import { MediaList, MediaPlayer, MediaTabs } from "@/Media";
 import HeaderSection from "@/components/features/HeaderSection";
 import { Layout } from "@/components/layout/Layout";
-import { formationApi } from "@/services/api";
-import { FixedSizeList as VirtualizedList } from "react-window";
+import { Media } from "@/types/media";
 
-interface Formation {
-  id: string;
-  titre: string;
-}
+// Composant de squelette de chargement
+const MediaSkeleton = () => (
+  <div className="grid md:grid-cols-2 gap-6 mt-6">
+    <div className="p-4 space-y-3 bg-white rounded-2xl shadow">
+      {Array.from({ length: 5 }).map((_, idx) => (
+        <div key={idx} className="h-6 bg-gray-200 rounded animate-pulse" />
+      ))}
+    </div>
+    <div className="p-4 bg-white rounded-2xl shadow">
+      <div className="w-full aspect-video bg-gray-200 rounded-xl animate-pulse" />
+    </div>
+  </div>
+);
 
 export default function TutoAstucePage() {
-  const [formations, setFormations] = useState<Formation[]>([]);
   const [selectedFormationId, setSelectedFormationId] = useState<string | null>(
     null
   );
-  const [tutoriels, setTutoriels] = useState<Media[]>([]);
-  const [astuces, setAstuces] = useState<Media[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<"tutoriel" | "astuce">(
     "tutoriel"
   );
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
 
-  const mediaCache = useRef<{
-    [key: string]: { tutoriels: Media[]; astuces: Media[] };
-  }>({});
+  const { data: formations = [] } = useFormations();
+  const {
+    data: mediasData,
+    isLoading,
+    isFetching,
+    refetch,
+  } = useMediaByFormation(selectedFormationId);
 
+  const tutoriels = mediasData?.tutoriels || [];
+  const astuces = mediasData?.astuces || [];
   const medias = activeCategory === "tutoriel" ? tutoriels : astuces;
-  const firstLoadRef = useRef(true);
 
-  // Charger les formations et tous les médias initiaux
   useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        const [formationsRes, tutoRes, astuceRes] = await Promise.all([
-          formationApi.getFormations(),
-          mediaService.getTutoriels(),
-          mediaService.getAstuces(),
-        ]);
-
-        const formationsRaw = formationsRes.data?.data?.data || [];
-        setFormations(formationsRaw);
-
-        const tutorielsData = tutoRes.data?.data || [];
-        const astucesData = astuceRes.data || [];
-
-        setTutoriels(tutorielsData);
-        setAstuces(astucesData);
-
-        // Mise en cache
-        mediaCache.current["all"] = {
-          tutoriels: tutorielsData,
-          astuces: astucesData,
-        };
-      } catch (error) {
-        console.error(
-          "Erreur lors du chargement des données initiales :",
-          error
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchInitialData();
-  }, []);
-
-  // Charger les médias selon la formation sélectionnée
-  useEffect(() => {
-    const fetchMedias = async () => {
-      setIsLoading(true);
-
-      const cacheKey = selectedFormationId || "all";
-
-      if (mediaCache.current[cacheKey]) {
-        const cached = mediaCache.current[cacheKey];
-        setTutoriels(cached.tutoriels);
-        setAstuces(cached.astuces);
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        let tutorielsData: Media[] = [];
-        let astucesData: Media[] = [];
-
-        if (selectedFormationId) {
-          const [tutoRes, astuceRes] = await Promise.all([
-            mediaService.getTutorielByFormationId(selectedFormationId),
-            mediaService.getAstuceByFormationId(selectedFormationId),
-          ]);
-          tutorielsData = tutoRes.data;
-          astucesData = astuceRes.data;
-        } else {
-          const [tutoRes, astuceRes] = await Promise.all([
-            mediaService.getTutoriels(),
-            mediaService.getAstuces(),
-          ]);
-          tutorielsData = tutoRes.data?.data || [];
-          astucesData = astuceRes.data || [];
-        }
-
-        setTutoriels(tutorielsData);
-        setAstuces(astucesData);
-
-        mediaCache.current[cacheKey] = {
-          tutoriels: tutorielsData,
-          astuces: astucesData,
-        };
-      } catch (error) {
-        console.error("Erreur lors du chargement des médias :", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    // Empêche le rechargement immédiat après le premier useEffect
-    if (firstLoadRef.current) {
-      firstLoadRef.current = false;
-      return;
-    }
-
-    fetchMedias();
-  }, [selectedFormationId]);
-
-  // Mettre à jour le média sélectionné par défaut
-  useEffect(() => {
-    const currentData = activeCategory === "tutoriel" ? tutoriels : astuces;
-    setSelectedMedia(currentData.length > 0 ? currentData[0] : null);
-  }, [activeCategory, tutoriels, astuces]);
+    setSelectedMedia(medias.length > 0 ? medias[0] : null);
+  }, [activeCategory, medias]);
 
   return (
     <Layout>
@@ -140,7 +52,8 @@ export default function TutoAstucePage() {
 
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
           <MediaTabs active={activeCategory} onChange={setActiveCategory} />
-          <div className="flex justify-center">
+
+          <div className="flex justify-center items-center gap-2">
             <select
               value={selectedFormationId ?? ""}
               onChange={(e) => setSelectedFormationId(e.target.value || null)}
@@ -152,14 +65,19 @@ export default function TutoAstucePage() {
                 </option>
               ))}
             </select>
+
+            <button
+              onClick={() => refetch()}
+              className="text-sm px-3 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-white rounded-xl shadow transition duration-150">
+              {isFetching ? "Chargement..." : "Rafraîchir"}
+            </button>
           </div>
         </div>
+
         <hr />
 
         {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500"></div>
-          </div>
+          <MediaSkeleton />
         ) : medias.length === 0 ? (
           <div className="text-center text-gray-500 mt-8">
             Aucun média disponible pour cette catégorie.

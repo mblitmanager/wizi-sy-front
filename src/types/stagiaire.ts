@@ -1,4 +1,3 @@
-
 export interface Formation {
   id: number;
   titre: string;
@@ -13,7 +12,8 @@ export interface Formation {
   pivot?: {
     stagiaire_id: number;
     formation_id: number;
-  };  catalogue_formation: CatalogueFormationWithFormation | CatalogueFormation;
+  };
+  catalogue_formation?: CatalogueFormationWithFormation | CatalogueFormation;
 }
 
 export interface CatalogueFormation {
@@ -31,7 +31,7 @@ export interface CatalogueFormation {
     description: string;
     categorie?: string;
   };
-  
+
   created_at: string;
   updated_at: string;
 }
@@ -60,18 +60,4 @@ export interface CatalogueFormationResponse {
 
 export interface CatalogueFormationWithFormation extends CatalogueFormation {
   formation: Omit<Formation, "catalogue_formation" | "pivot">;
-}
-export interface CatalogueFormationWithFormation extends CatalogueFormation {
-  formation: {
-    id: number;
-    titre: string;
-    description: string;
-    categorie?: string;
-  };
-}
-
-export interface CatalogueFormationResponse {
-  stagiaire: {
-    formations: Formation[];
-  };
 }

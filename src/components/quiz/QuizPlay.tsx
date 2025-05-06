@@ -44,6 +44,8 @@ export function QuizPlay() {
     closeResultsDialog: closeResults
   } = useQuizPlay(quizId || '');
 
+  const [showHint, setShowHint] = React.useState(false);
+
   if (isLoading) {
     return <LoadingState />;
   }
@@ -63,13 +65,12 @@ export function QuizPlay() {
   };
 
   const toggleHint = () => {
-    // Not yet implemented
-    console.log("Show hint functionality not yet implemented");
+    setShowHint((prev) => !prev);
   };
 
   const handleRestart = () => {
     // Not yet implemented
-    console.log("Restart functionality not yet implemented");
+    
     window.location.reload();
   };
 
@@ -134,16 +135,23 @@ export function QuizPlay() {
         </div>
         <Progress value={progressPercentage} className="h-2" />
       </div>
-
+         {showHint && currentQuestion.astuce && (
+            <div className="my-4 p-4 bg-blue-50 border border-blue-200 rounded text-blue-900">
+              <strong>Astuce :</strong> {currentQuestion.astuce}
+            </div>
+          )}
       {currentQuestion && (
-        <div className="flex-grow">
-          <QuestionDisplay 
-            question={currentQuestion} 
-            onAnswer={(answer) => handleAnswer(answer)}
-            currentAnswer={answers[currentQuestion.id]}
-            showFeedback={showResults}
-          />
-        </div>
+        <>
+          <div className="flex-grow">
+            <QuestionDisplay 
+              question={currentQuestion} 
+              onAnswer={(answer) => handleAnswer(answer)}
+              currentAnswer={answers[currentQuestion.id]}
+              showFeedback={showResults}
+            />
+          </div>
+         
+        </>
       )}
 
       <QuizNavigation

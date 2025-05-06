@@ -26,6 +26,7 @@ const typeLabels: Record<"video" | "document" | "image" | "audio", string> = {
 };
 
 export default function MediaList({ medias, selectedMedia, onSelect }: Props) {
+  console.log("MediaList", medias, selectedMedia, onSelect);
   const grouped = medias
     .filter((m) => ["video", "audio", "image", "document"].includes(m.type))
     .reduce((acc, media) => {

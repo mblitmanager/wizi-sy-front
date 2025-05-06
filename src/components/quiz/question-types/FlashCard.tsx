@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 
 interface FlashcardProps {
   question: QuizQuestion;
-  onAnswer: (value: string) => void;
+  onAnswer: (value: string[]) => void;
   showFeedback?: boolean;
 }
 
@@ -40,7 +40,7 @@ export function Flashcard({ question, onAnswer, showFeedback = false }: Flashcar
       setStreak(0);
     }
 
-    onAnswer(answerObj.text);
+    onAnswer([answerObj.text]); // Retourne la réponse sous forme de tableau
   };
 
   const correctAnswer = question.reponses?.find(r => r.is_correct === 1 || r.is_correct === true);
