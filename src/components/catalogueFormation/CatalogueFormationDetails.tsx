@@ -64,12 +64,13 @@ export default function CatalogueFormationDetails() {
 
   useEffect(() => {
     if (id) {
+      // Use the correct method based on what's available in the API
       catalogueFormationApi
-        .getCatalogueFormationById(Number(id))
+        .getFormationDetails(id)
         .then((response) => {
           setDetails(response.data as CatalogueFormationDetailsType);
           setLoading(false);
-          console.log("Détails de la formation:", response);
+          
         })
         .catch((err) => {
           console.error("Error fetching details:", err);

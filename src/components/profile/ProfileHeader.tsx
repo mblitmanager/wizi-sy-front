@@ -8,8 +8,8 @@ interface ProfileHeaderProps {
 }
 
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user }) => {
-  // Get the first letter of the username or use a fallback
-  const firstLetter = user?.username ? user.username.charAt(0).toUpperCase() : '?';
+  // Get the first letter of the user's name
+  const firstLetter = user?.name ? user.name.charAt(0).toUpperCase() : '?';
   
   return (
     <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -18,7 +18,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user }) => {
           {firstLetter}
         </div>
         <div>
-          <h2 className="text-xl font-semibold font-montserrat">{user?.username || 'User'}</h2>
+          <h2 className="text-xl font-semibold font-montserrat">{user?.name || 'User'}</h2>
           <div className="text-gray-500 font-roboto">{user?.email || 'No email provided'}</div>
           <div className="flex items-center mt-1">
             <Trophy className="h-4 w-4 text-yellow-500 mr-1" />

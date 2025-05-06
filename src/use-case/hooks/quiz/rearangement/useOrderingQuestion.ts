@@ -48,7 +48,7 @@ export const useOrderingQuestion = ({
 
   useEffect(() => {
     if (!showFeedback) {
-      onAnswer(orderedAnswers.map((a) => a.id));
+      onAnswer(orderedAnswers.map((a) => a.text));
     }
   }, [orderedAnswers]);
 

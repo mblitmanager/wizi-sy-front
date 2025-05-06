@@ -11,11 +11,11 @@ interface UserStatsProps {
 }
 
 const UserStats: React.FC<UserStatsProps> = ({ user, userProgress }) => {
-  const totalPoints = user?.points || (userProgress?.total_points || 0);
+  const totalPoints = user?.points || (userProgress?.total_points || userProgress?.totalPoints || 0);
   
   // Since badges and streak may not exist in the updated UserProgress, we'll provide fallbacks
   const badgesCount = 0; // Default to 0 since badges are not in our updated UserProgress
-  const streak = userProgress?.current_streak || 0; // Use current_streak if available, default to 0
+  const streak = userProgress?.current_streak || userProgress?.currentStreak || 0;
 
   return (
     <section className="mb-6">

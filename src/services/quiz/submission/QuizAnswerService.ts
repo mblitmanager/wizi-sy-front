@@ -63,14 +63,16 @@ export class QuizAnswerService {
           } else {
             formattedAnswers[questionId] = answer.text || answer;
           }
-        } else if (typeof answer === "object" && !Array.isArray(answer)) {
-          formattedAnswers[questionId] = Object.entries(answer).reduce(
-            (acc, [key, value]) => {
-              acc[key] = value.text || value;
-              return acc;
-            },
-            {}
-          );
+        } else if (questionType === 'remplir le champ vide' && typeof answer === 'object' && !Array.isArray(answer)) {
+          // On retire questionType du payload envoyé à l'API
+          const { questionType, ...rest } = answer;
+          // Convertit l'objet {blank_1: 'ctrl+c'} en ['ctrl+c']
+          formattedAnswers[questionId] = Object.values(rest);
+        } else if (typeof answer === 'object' && !Array.isArray(answer)) {
+          formattedAnswers[questionId] = Object.entries(answer).reduce((acc, [key, value]) => {
+            if (key !== 'questionType') acc[key] = value.text || value;
+            return acc;
+          }, {});
         } else if (Array.isArray(answer)) {
           formattedAnswers[questionId] = answer.map((a: any) => a.text || a);
         } else {

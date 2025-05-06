@@ -1,23 +1,25 @@
+
 import { useState, useMemo } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Trophy } from "lucide-react";
+import { Trophy, Medal, Award, User } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { LeaderboardEntry } from "@/types/quiz";
 
 export interface GlobalRankingProps {
   ranking?: LeaderboardEntry[];
   loading?: boolean;
+  currentUserId?: string;
 }
 
 type SortKey = "rang" | "name" | "quizCount" | "averageScore" | "score";
 
 type SortOrder = "asc" | "desc";
 
-export function GlobalRanking({ ranking = [], loading = false }: GlobalRankingProps) {
+export function GlobalRanking({ ranking = [], loading = false, currentUserId }: GlobalRankingProps) {
   const [sortKey, setSortKey] = useState<SortKey>("rang");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
   const [search, setSearch] = useState("");
-
+  
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -107,12 +109,14 @@ export function GlobalRanking({ ranking = [], loading = false }: GlobalRankingPr
                 </tr>
               </thead>
               <tbody>
-                {sortedRanking.map((entry: any, index: number) => (
+                {sortedRanking.map((entry: any, index: number) => {
+                  const isCurrentUser = entry.id?.toString() === currentUserId;
+                  return (
                   <tr
                     key={entry.id || index}
                     className={`hover:bg-blue-50 transition ${
-                      index < 3 ? "font-bold" : ""
-                    }`}
+                      isCurrentUser ? "bg-blue-100" : ""
+                    } ${index < 3 ? "font-bold" : ""}`}
                   >
                     <td className="px-4 py-2">
                       {index < 3 ? (
@@ -137,13 +141,18 @@ export function GlobalRanking({ ranking = [], loading = false }: GlobalRankingPr
                             : "UN"}
                         </AvatarFallback>
                       </Avatar>
-                      <span>{entry.name || "Unknown"}</span>
+                      <div className="flex items-center">
+                        <span>{entry.name || "Unknown"}</span>
+                        {isCurrentUser && (
+                          <User className="h-4 w-4 ml-2 text-primary" />
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-2">{entry.quizCount}</td>
                     <td className="px-4 py-2">{Math.round(entry.averageScore)}%</td>
                     <td className="px-4 py-2 text-primary font-semibold">{entry.score}</td>
                   </tr>
-                ))}
+                )})}
               </tbody>
             </table>
           </div>

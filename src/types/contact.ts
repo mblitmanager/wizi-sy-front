@@ -1,10 +1,13 @@
 
 export interface Contact {
   id: number;
-  nom: string;
-  prenom: string;
+  name: string;
+  avatar?: string;
+  nom?: string;
+  prenom?: string;
   email: string;
-  telephone: string;
+  phone?: string;
+  telephone?: string;
   role: string;
   poste?: string;
   image_url?: string;

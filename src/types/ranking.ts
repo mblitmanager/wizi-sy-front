@@ -16,3 +16,21 @@ export interface UserRankingStats {
   completionRate: number;
   rank: number;
 }
+
+export interface Reward {
+  id: number;
+  name: string;
+  description: string;
+  type: string;
+  pointsRequired: number;
+  trainingId?: string;
+  unlocked?: boolean;
+}
+
+export interface RewardsResponse {
+  data: {
+    rewards: Reward[];
+    totalPoints: number;
+    nextReward: Reward | null;
+  };
+}

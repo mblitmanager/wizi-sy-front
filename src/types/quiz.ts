@@ -17,7 +17,7 @@ export interface Quiz {
   categorie: string;
   categorieId: string;
   questions?: Question[];
-  duree?: number; // Added duration field
+  duree?: number;
 }
 
 export interface Question {
@@ -118,12 +118,22 @@ export interface UserProgress {
   stagiaire_id?: string;
   totalScore?: number;
   completedQuizzes?: number;
+  completed_quizzes?: number;
   totalQuizzes?: number;
   completionRate?: number;
   averageScore?: number;
+  average_score?: number;
   currentStreak?: number;
+  current_streak?: number;
   longestStreak?: number;
   lastQuizDate?: string;
+  total_points?: number;
+  category_progress?: {
+    [key: string]: {
+      completed: number;
+      total: number;
+    };
+  };
   stats?: {
     byCategory: {
       [key: string]: {
@@ -144,11 +154,17 @@ export interface LeaderboardEntry {
 
 // Extend the existing QuizResult type with missing properties
 export interface QuizResult {
+  id?: string;
   score: number;
   totalPoints: number;
   quizTitle: string;
   correctAnswers: number;
+  correct_answers?: number; 
   totalQuestions: number;
+  total_questions?: number;
   timeSpent: number;
   questions: Question[];
+  quiz_name?: string;
+  completed_at?: string;
+  quizId?: string;
 }

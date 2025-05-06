@@ -90,13 +90,13 @@ export function QuizGame({ questions }: QuizGameProps) {
   const handleAnswer = async (answer: any) => {
     // TODO: Implement answer submission
     // POST to /api/quizzes/{quizId}/submit
-    console.log("Answer submitted:", answer);
+    
     
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
       // Last question handled - could redirect to results page
-      console.log("Quiz completed!");
+      console.log("Quiz Terminé!");
     }
   };
 

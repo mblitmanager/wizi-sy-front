@@ -10,7 +10,7 @@ import { useState, useMemo } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { QuizCard } from "./QuizCard";
-
+import { stagiaireQuizService } from "@/services/quiz/StagiaireQuizService";
 function QuizListByCategory({ categoryId, categories }: { categoryId: string, categories: Category[] }) {
   const [selectedLevel, setSelectedLevel] = useState<string>("all");
   
@@ -38,6 +38,16 @@ function QuizListByCategory({ categoryId, categories }: { categoryId: string, ca
       return selectedLevel === "all" || quiz.niveau === selectedLevel;
     });
   }, [quizzes, selectedLevel]);
+
+  // Séparation quiz joués / non joués (si participations disponibles)
+  const { data: participations } = useQuery({
+    queryKey: ["quizlist-participations"],
+    queryFn: () => stagiaireQuizService.getStagiaireQuizJoue?.(),
+    enabled: !!localStorage.getItem('token') && !!stagiaireQuizService.getStagiaireQuizJoue
+  });
+  const playedQuizIds = useMemo(() => new Set((participations || []).map((p: any) => String(p.id))), [participations]);
+  const playedQuizzes = useMemo(() => (filteredQuizzes || []).filter(q => playedQuizIds.has(String(q.id))), [filteredQuizzes, playedQuizIds]);
+  const notPlayedQuizzes = useMemo(() => (filteredQuizzes || []).filter(q => !playedQuizIds.has(String(q.id))), [filteredQuizzes, playedQuizIds]);
 
   if (isLoading) {
     return (
@@ -126,13 +136,27 @@ function QuizListByCategory({ categoryId, categories }: { categoryId: string, ca
         </div>
       </div>
       
-      {filteredQuizzes.length === 0 ? (
+      {notPlayedQuizzes.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-500">Aucun quiz ne correspond à vos filtres</p>
+          <p className="text-gray-500">Tous les quiz ont été joués !</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredQuizzes.map((quiz) => (
+          {notPlayedQuizzes.map((quiz) => (
+            <Link key={quiz.id} to={`/quiz/${quiz.id}`}>
+              <QuizCard quiz={quiz} categories={categories} />
+            </Link>
+          ))}
+        </div>
+      )}
+      <h3 className="text-lg font-bold mt-8 mb-2">Quiz déjà joués</h3>
+      {playedQuizzes.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-gray-500">Aucun quiz joué pour l’instant.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {playedQuizzes.map((quiz) => (
             <Link key={quiz.id} to={`/quiz/${quiz.id}`}>
               <QuizCard quiz={quiz} categories={categories} />
             </Link>

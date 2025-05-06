@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,8 +10,9 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
-import { Award, Medal, Trophy } from 'lucide-react';
+import { Award, Medal, Trophy, User } from 'lucide-react';
 import '@/styles/Ranking.css';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Stagiaire {
   id: string;
@@ -31,6 +33,9 @@ interface RankingComponentProps {
 }
 
 const RankingComponent: React.FC<RankingComponentProps> = ({ rankings }) => {
+  const { user } = useAuth();
+  const currentUserId = user?.id?.toString();
+  
   return (
     <Card className="w-full shadow-sm">
       <CardContent className="pt-6">
@@ -51,8 +56,10 @@ const RankingComponent: React.FC<RankingComponentProps> = ({ rankings }) => {
                 </TableCell>
               </TableRow>
             ) : (
-              rankings.map((entry) => (
-                <TableRow key={entry.stagiaire.id} className={entry.rang <= 3 ? 'font-medium' : ''}>
+              rankings.map((entry) => {
+                const isCurrentUser = entry.stagiaire.id === currentUserId;
+                return (
+                <TableRow key={entry.stagiaire.id} className={isCurrentUser ? 'bg-blue-100 font-medium' : entry.rang <= 3 ? 'font-medium' : ''}>
                   <TableCell className="relative text-center">
                     {entry.rang === 1 && (
                       <Trophy className="h-5 w-5 text-yellow-500 inline-block" />
@@ -73,7 +80,12 @@ const RankingComponent: React.FC<RankingComponentProps> = ({ rankings }) => {
                           {entry.stagiaire.prenom ? entry.stagiaire.prenom.charAt(0).toUpperCase() : '?'}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="truncate max-w-[150px]">{entry.stagiaire.prenom}</span>
+                      <div className="flex items-center">
+                        <span className="truncate max-w-[150px]">{entry.stagiaire.prenom}</span>
+                        {isCurrentUser && (
+                          <User className="h-4 w-4 ml-2 text-primary" />
+                        )}
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
@@ -83,7 +95,7 @@ const RankingComponent: React.FC<RankingComponentProps> = ({ rankings }) => {
                     {entry.quizCount}
                   </TableCell>
                 </TableRow>
-              ))
+              )})
             )}
           </TableBody>
         </Table>

@@ -13,8 +13,8 @@ import { AlertCircle } from "lucide-react";
 
 interface QuestionDisplayProps {
   question: Question;
-  onAnswer: (value: string | string[] | Record<string, string>) => void;
-  currentAnswer?: string | string[] | Record<string, string>;
+  onAnswer: (value: string[]) => void;
+  currentAnswer?: string[];
   showFeedback?: boolean;
 }
 
@@ -33,10 +33,33 @@ export function QuestionDisplay({ question, onAnswer, currentAnswer, showFeedbac
     questionType.includes('audio') ? 'question audio' :
     question.type;
   
-  // Préparer les props communs pour tous les composants de question
+  // Create a standard answer handler that converts all component outputs to string[]
+  const handleStandardizedAnswer = (value: any) => {
+    // Convert different answer formats to string[]
+    let standardizedAnswer: string[] = [];
+    
+    if (Array.isArray(value)) {
+      // If it's already an array, make sure all elements are strings
+      standardizedAnswer = value.map(item => {
+        if (typeof item === 'string') return item;
+        if (typeof item === 'object' && item !== null && 'id' in item) return item.id;
+        return String(item);
+      });
+    } else if (typeof value === 'string') {
+      // If it's a single string
+      standardizedAnswer = [value];
+    } else if (typeof value === 'object' && value !== null) {
+      // If it's an object (like from matching questions)
+      standardizedAnswer = Object.values(value).map(val => String(val));
+    }
+    
+    onAnswer(standardizedAnswer);
+  };
+  
+  // Common props for all question types
   const commonProps = {
     question,
-    onAnswer,
+    onAnswer: handleStandardizedAnswer,
     showFeedback
   };
 

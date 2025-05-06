@@ -10,7 +10,7 @@ interface CategoryProgressProps {
 
 const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userProgress }) => {
   const getProgressForCategory = (categoryId: string) => {
-    if (!userProgress || !userProgress.category_progress) {
+    if (!userProgress) {
       return { 
         completed: 0,
         total: 0,
@@ -18,7 +18,10 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userPro
       };
     }
 
-    const progress = userProgress.category_progress[categoryId];
+    // Handle both potential property names
+    const categoryProgress = userProgress.category_progress || {};
+    
+    const progress = categoryProgress[categoryId];
     if (!progress) {
       return {
         completed: 0, 
