@@ -61,7 +61,7 @@ export default function MediaList({ medias, selectedMedia, onSelect }: Props) {
                     className={clsx(
                       "flex items-start gap-3 p-3 rounded-xl shadow-sm transition-all cursor-pointer border sm:items-center",
                       selectedMedia?.id === media.id
-                        ? "bg-blue-50 border-yellow-400"
+                        ? "bg-gray-100 border-yellow-400"
                         : "bg-white hover:bg-gray-50 border-gray-200"
                     )}>
                     <div className="shrink-0 w-9 h-9 bg-yellow-100 rounded-full flex items-center justify-center">
