@@ -11,7 +11,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 interface QuizSummaryProps {
   quiz: Quiz;
   questions: Question[];
-  userAnswers: Record<string, any>;
+  userAnswers: Record<
+    string,
+    string | number | Record<string, string | number> | Array<string | number>
+  >;
   score: number;
   totalQuestions: number;
 }
@@ -46,7 +49,14 @@ export function QuizSummary({
       ? "Moyen"
       : "À améliorer";
 
-  const formatAnswer = (question: Question, userAnswer: any) => {
+  const formatAnswer = (
+    question: Question,
+    userAnswer:
+      | string
+      | number
+      | Record<string, string | number>
+      | Array<string | number>
+  ) => {
     if (!userAnswer) return "Aucune réponse";
 
     switch (question.type) {
@@ -371,14 +381,25 @@ export function QuizSummary({
       }
 
       case "rearrangement": {
-        // Pour le réarrangement, vérifier l'ordre
         if (!Array.isArray(userAnswerData)) return false;
 
-        const correctOrder = [...(question.answers || [])]
-          .sort((a, b) => (a.position || 0) - (b.position || 0))
-          .map((a) => a.id);
+        // Convertir les IDs sélectionnés en texte
+        const selectedTexts = userAnswerData
+          .map(
+            (id) =>
+              question.answers?.find((a) => String(a.id) === String(id))?.text
+          )
+          .filter(Boolean);
 
-        return JSON.stringify(userAnswerData) === JSON.stringify(correctOrder);
+        // Comparaison stricte du tableau ordonné
+        return (
+          selectedTexts.length === question.correctAnswers.length &&
+          selectedTexts.every(
+            (text, index) =>
+              normalizeString(text) ===
+              normalizeString(question.correctAnswers[index])
+          )
+        );
       }
 
       case "carte flash": {
@@ -452,6 +473,13 @@ export function QuizSummary({
         }
       }
     }
+  };
+
+  const mapAnswerIdsToTexts = (question, answerIds) => {
+    return answerIds.map((id) => {
+      const answer = question.answers.find((a) => a.id === Number(id));
+      return answer?.text ?? "[Réponse introuvable]";
+    });
   };
 
   return (
@@ -581,7 +609,10 @@ export function QuizSummary({
                           : "bg-red-50 text-red-800"
                       )}>
                       {userAnswer
-                        ? formatAnswer(question, userAnswer)
+                        ? formatAnswer(
+                            question,
+                            mapAnswerIdsToTexts(question, userAnswer)
+                          )
                         : "Aucune réponse"}
                     </div>
                   </div>
@@ -592,7 +623,7 @@ export function QuizSummary({
                         Bonne réponse :
                       </p>
                       <div className="p-3 rounded-lg bg-green-50 text-green-800 text-sm md:text-base">
-                        {formatCorrectAnswer(question)}
+                        {question.correctAnswers.join(" → ")}
                       </div>
                     </div>
                   )}
