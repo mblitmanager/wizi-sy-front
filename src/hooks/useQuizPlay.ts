@@ -46,7 +46,7 @@ export const useQuizPlay = (quizId: string) => {
   const timer = useQuizTimer(quiz?.duree || defaultDuration);
   
   // Setup dialogs
-  const dialogs = useQuizDialogs(quizId);
+  const dialogs = useQuizDialogs();
   
   // Setup submission
   const { isSubmitting, submitQuiz } = useQuizSubmission(quizId);
