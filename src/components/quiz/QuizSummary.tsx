@@ -517,11 +517,28 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
       </ScrollArea>
       
       <div className="flex justify-center mt-6 gap-4 flex-wrap">
-        <Button onClick={() => navigate('/quizzes')} variant="outline">
-          Retour à la liste des quiz
+        <Button
+          onClick={() => navigate('/quizzes')}
+          variant="outline"
+          className="flex items-center gap-2 rounded-full px-6 py-3 shadow-sm hover:bg-muted transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Retour à la liste
         </Button>
-        <Button onClick={() => navigate(`/quiz/${quiz.id}`)}>
+        <Button
+          onClick={() => navigate(`/quiz/${quiz.id}`)}
+          className="flex items-center gap-2 rounded-full px-6 py-3 bg-primary text-white shadow-md hover:bg-primary/90 transition-colors border-2 border-primary"
+        >
+          <CheckCircle2 className="h-4 w-4" />
           Recommencer
+        </Button>
+        <Button
+          onClick={() => navigate(`/classement`)}
+          variant="outline"
+          className="flex items-center gap-2 rounded-full px-6 py-3 shadow-sm hover:bg-muted transition-colors"
+        >
+          <span className="inline-block w-4 h-4 bg-yellow-400 rounded-full mr-1" />
+          Classement
         </Button>
       </div>
     </div>
