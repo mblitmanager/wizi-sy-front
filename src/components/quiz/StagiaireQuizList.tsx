@@ -25,7 +25,7 @@ export function StagiaireQuizList() {
 
   const { data: participations } = useQuery({
     queryKey: ["stagiaire-participations"],
-    queryFn: () => stagiaireQuizService.getStagiaireParticipations(),
+    queryFn: () => stagiaireQuizService.getStagiaireQuizJoue(),
     enabled: !!localStorage.getItem('token')
   });
 
@@ -49,10 +49,10 @@ export function StagiaireQuizList() {
       return categoryMatch && levelMatch;
     });
   }, [quizzes, selectedCategory, selectedLevel]);
-
-  const playedQuizIds = useMemo(() => new Set((participations || []).map((p: any) => p.quizId || p.quiz_id)), [participations]);
-  const playedQuizzes = useMemo(() => (quizzes || []).filter(q => playedQuizIds.has(q.id)), [quizzes, playedQuizIds]);
-  const notPlayedQuizzes = useMemo(() => (quizzes || []).filter(q => !playedQuizIds.has(q.id)), [quizzes, playedQuizIds]);
+  console.log("part",participations);
+  const playedQuizIds = useMemo(() => new Set((participations || []).map((p: any) => String(p.id))), [participations]);
+  const playedQuizzes = useMemo(() => (quizzes || []).filter(q => playedQuizIds.has(String(q.id))), [quizzes, playedQuizIds]);
+  const notPlayedQuizzes = useMemo(() => (quizzes || []).filter(q => !playedQuizIds.has(String(q.id))), [quizzes, playedQuizIds]);
 
   if (isLoading) {
     return (

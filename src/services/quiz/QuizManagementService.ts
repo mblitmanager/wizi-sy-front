@@ -33,6 +33,7 @@ class QuizManagementService {
   async getQuizStatistics(quizId: string): Promise<any> {
     return quizStatsService.getQuizStatistics(quizId);
   }
+  
 }
 
 export const quizManagementService = new QuizManagementService();
