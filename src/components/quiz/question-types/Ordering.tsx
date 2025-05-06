@@ -1,185 +1,150 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React from "react";
 import {
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  Box,
-  Paper,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
-import { GripVertical, Check, X } from 'lucide-react';
-import { Question as QuizQuestion } from '@/types/quiz';
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { Box, List, ListItemText, ListItemIcon, Paper } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { GripVertical, Check, X } from "lucide-react";
+import { useOrderingQuestion } from "@/use-case/hooks/quiz/rearangement/useOrderingQuestion";
+import { Question } from "@/types/quiz";
 
 interface OrderingProps {
-  question: QuizQuestion;
+  question: Question;
   onAnswer: (answers: string[]) => void;
   showFeedback?: boolean;
 }
 
-// Définition du type pour une réponse d'ordre
-interface OrderingAnswer {
-  id: string;
-  text: string;
-  position?: number;
-}
-
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
-  backgroundColor: theme.palette.background.paper,
 }));
 
-const StyledListItem = styled(ListItem)(({ theme }) => ({
+const StyledListItem = styled("div")(({ theme }) => ({
   marginBottom: theme.spacing(1),
   padding: theme.spacing(2),
-  backgroundColor: theme.palette.background.paper,
-  borderRadius: theme.shape.borderRadius,
+  display: "flex",
+  alignItems: "center",
   border: `1px solid ${theme.palette.divider}`,
-  '&:hover': {
-    backgroundColor: theme.palette.action.hover,
-  },
-  transition: theme.transitions.create(['background-color', 'box-shadow']),
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: theme.palette.background.paper,
 }));
 
-const DraggingListItem = styled(StyledListItem)(({ theme }) => ({
-  backgroundColor: theme.palette.action.hover,
-  boxShadow: theme.shadows[3],
-}));
+const SortableItem = ({ id, text, isCorrect, disabled }: any) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <StyledListItem
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}>
+      <ListItemIcon sx={{ cursor: disabled ? "default" : "grab" }}>
+        <GripVertical size={20} />
+      </ListItemIcon>
+      <ListItemText
+        primary={text}
+        sx={{
+          color:
+            isCorrect !== undefined
+              ? isCorrect
+                ? "success.main"
+                : "error.main"
+              : "text.primary",
+        }}
+      />
+      {isCorrect !== undefined && (
+        <Box ml={2}>
+          {isCorrect ? <Check color="green" /> : <X color="red" />}
+        </Box>
+      )}
+    </StyledListItem>
+  );
+};
 
 export const Ordering: React.FC<OrderingProps> = ({
   question,
   onAnswer,
   showFeedback = false,
 }) => {
-  const [orderedAnswers, setOrderedAnswers] = useState<OrderingAnswer[]>([]);
+  const { orderedAnswers, setOrderedAnswers, isCorrectPosition } =
+    useOrderingQuestion({ question, showFeedback, onAnswer });
 
-  // On fige la liste initiale des réponses pour éviter les problèmes de re-render pendant le drag
-  const initialReponsesRef = React.useRef(question.reponses);
+  const sensors = useSensors(useSensor(PointerSensor));
 
-  useEffect(() => {
-    if (initialReponsesRef.current && initialReponsesRef.current.length > 0) {
-      if (showFeedback) {
-        const sorted = [...initialReponsesRef.current].sort((a, b) => 
-          (a.position || 0) - (b.position || 0)
-        );
-        setOrderedAnswers(sorted);
-      } else {
-        const shuffled = [...initialReponsesRef.current].sort(() => Math.random() - 0.5);
-        setOrderedAnswers(shuffled);
-      }
+  const handleDragEnd = (event: any) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      const oldIndex = orderedAnswers.findIndex((a) => a.id === active.id);
+      const newIndex = orderedAnswers.findIndex((a) => a.id === over?.id);
+      const newOrder = arrayMove(orderedAnswers, oldIndex, newIndex);
+      setOrderedAnswers(newOrder);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showFeedback]);
-
-  const handleDragEnd = useCallback((result: DropResult) => {
-    if (!result.destination || showFeedback) return;
-
-    const items = Array.from(orderedAnswers);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    setOrderedAnswers(items);
-    onAnswer(items.map(item => item.text));
-  }, [orderedAnswers, onAnswer, showFeedback]);
-
-  const isCorrectPosition = (answer: { text: string; position?: number }, index: number) => {
-    if (!showFeedback) return undefined;
-    return answer.position === index + 1;
   };
-
-  // Génère un droppableId stable basé uniquement sur l'id de la question
-  const droppableId = React.useMemo(() => 
-    `ordering-${question.id || 'default'}`,
-    [question.id]
-  );
 
   return (
     <StyledPaper>
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId={droppableId}>
-          {(provided, snapshot) => (
-            <List
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-              sx={{ 
-                padding: 0,
-                minHeight: '100px',
-                backgroundColor: snapshot.isDraggingOver ? 'rgba(0, 0, 0, 0.04)' : 'transparent',
-                transition: 'background-color 0.2s ease',
-              }}
-            >
-              {orderedAnswers.map((answer, index) => {
-                const isCorrect = isCorrectPosition(answer, index);
-                return (
-                  <Draggable
-                    key={answer.text}
-                    draggableId={answer.text}
-                    index={index}
-                    isDragDisabled={showFeedback}
-                  >
-                    {(provided, snapshot) => {
-                      const ListItemComponent = snapshot.isDragging ? DraggingListItem : StyledListItem;
-                      return (
-                        <ListItemComponent
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                        >
-                          <ListItemIcon
-                            {...provided.dragHandleProps}
-                            sx={{ cursor: showFeedback ? 'default' : 'grab' }}
-                          >
-                            <GripVertical size={20} />
-                          </ListItemIcon>
-                          <ListItemText
-                            primary={answer.text}
-                            sx={{
-                              '& .MuiListItemText-primary': {
-                                color: showFeedback
-                                  ? isCorrect
-                                    ? 'success.main'
-                                    : 'error.main'
-                                  : 'text.primary',
-                              },
-                            }}
-                          />
-                          {showFeedback && (
-                            <Box display="flex" alignItems="center" ml={2}>
-                              {isCorrect ? (
-                                <Check color="green" size={20} />
-                              ) : (
-                                <X color="red" size={20} />
-                              )}
-                            </Box>
-                          )}
-                        </ListItemComponent>
-                      );
-                    }}
-                  </Draggable>
-                );
-              })}
-              {provided.placeholder}
-            </List>
-          )}
-        </Droppable>
-      </DragDropContext>
-      {showFeedback && (
-        <Box mt={2}>
-          {!orderedAnswers.every((answer, index) => isCorrectPosition(answer, index)) && (
-            <Box sx={{ color: 'error.main', mt: 2 }}>
-              L'ordre correct était :
-              {(question.reponses || [])
-                .slice()
-                .sort((a, b) => (a.position || 0) - (b.position || 0))
-                .map((answer, index) => (
-                  <Box key={answer.text} sx={{ ml: 2, mt: 1 }}>
-                    {index + 1}. {answer.text}
-                  </Box>
-                ))}
-            </Box>
-          )}
-        </Box>
-      )}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}>
+        <SortableContext
+          items={orderedAnswers.map((a) => a.id)}
+          strategy={verticalListSortingStrategy}>
+          <List sx={{ padding: 0 }}>
+            {orderedAnswers.map((answer, index) => (
+              <SortableItem
+                key={answer.id}
+                id={answer.id}
+                text={answer.text}
+                isCorrect={
+                  showFeedback ? isCorrectPosition(answer, index) : undefined
+                }
+                disabled={showFeedback}
+              />
+            ))}
+          </List>
+        </SortableContext>
+      </DndContext>
+
+      {showFeedback &&
+        !orderedAnswers.every((answer, index) =>
+          isCorrectPosition(answer, index)
+        ) && (
+          <Box mt={2} color="error.main">
+            <strong>L'ordre correct était :</strong>
+            {[...question.reponses]
+              .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+              .map((answer, idx) => (
+                <Box key={answer.id} ml={2}>
+                  {idx + 1}. {answer.text}
+                </Box>
+              ))}
+          </Box>
+        )}
     </StyledPaper>
   );
 };

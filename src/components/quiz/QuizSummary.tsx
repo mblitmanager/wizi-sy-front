@@ -19,80 +19,109 @@ interface QuizSummaryProps {
 // Fonction utilitaire pour normaliser les chaînes (accents, casse, espaces)
 function normalizeString(str: string): string {
   return str
-    .normalize('NFD') // décompose les accents
-    .replace(/\u0300-\u036f/g, '') // supprime les diacritiques
+    .normalize("NFD") // décompose les accents
+    .replace(/\u0300-\u036f/g, "") // supprime les diacritiques
     .toLowerCase()
     .trim();
 }
 
-export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestions }: QuizSummaryProps) {
+export function QuizSummary({
+  quiz,
+  questions,
+  userAnswers,
+  score,
+  totalQuestions,
+}: QuizSummaryProps) {
   const navigate = useNavigate();
-  
+
   // Calculer le niveau de réussite
-  const successLevel = 
-    score >= 80 ? "Excellent" :
-    score >= 70 ? "Très bien" :
-    score >= 60 ? "Bien" :
-    score >= 50 ? "Moyen" :
-    "À améliorer";
+  const successLevel =
+    score >= 80
+      ? "Excellent"
+      : score >= 70
+      ? "Très bien"
+      : score >= 60
+      ? "Bien"
+      : score >= 50
+      ? "Moyen"
+      : "À améliorer";
 
   const formatAnswer = (question: Question, userAnswer: any) => {
     if (!userAnswer) return "Aucune réponse";
-    
+
     switch (question.type) {
-      case 'remplir le champ vide': {
-        if (typeof userAnswer === 'object' && !Array.isArray(userAnswer)) {
-          return Object.values(userAnswer).map(val => {
-            // Cherche une réponse correspondante dans answers
-            const found = question.answers?.find(a =>
-              normalizeString(a.text) === normalizeString(String(val))
-            );
-            return found ? found.text : val;
-          }).join(', ') || "Aucune réponse";
+      case "remplir le champ vide": {
+        if (typeof userAnswer === "object" && !Array.isArray(userAnswer)) {
+          return (
+            Object.values(userAnswer)
+              .map((val) => {
+                // Cherche une réponse correspondante dans answers
+                const found = question.answers?.find(
+                  (a) =>
+                    normalizeString(a.text) === normalizeString(String(val))
+                );
+                return found ? found.text : val;
+              })
+              .join(", ") || "Aucune réponse"
+          );
         }
         // Cas fallback
-        const found = question.answers?.find(a =>
-          normalizeString(a.text) === normalizeString(String(userAnswer))
+        const found = question.answers?.find(
+          (a) => normalizeString(a.text) === normalizeString(String(userAnswer))
         );
         return found ? found.text : String(userAnswer);
       }
-      
-      case 'correspondance': {
+
+      case "correspondance": {
         // Pour les questions matching, on affiche les paires
-        if (typeof userAnswer === 'object' && !Array.isArray(userAnswer)) {
+        if (typeof userAnswer === "object" && !Array.isArray(userAnswer)) {
           const pairs = [];
           for (const leftId in userAnswer) {
-            if (leftId !== 'destination') {
+            if (leftId !== "destination") {
               const rightValue = userAnswer[leftId];
-              const leftItem = question.answers?.find(a => a.id === leftId);
-              const rightItem = question.answers?.find(a => a.id === String(rightValue));
-              pairs.push(`${leftItem?.text || leftId} → ${rightItem?.text || rightValue}`);
+              const leftItem = question.answers?.find((a) => a.id === leftId);
+              const rightItem = question.answers?.find(
+                (a) => a.id === String(rightValue)
+              );
+              pairs.push(
+                `${leftItem?.text || leftId} → ${rightItem?.text || rightValue}`
+              );
             }
           }
-          return pairs.join('; ') || "Aucune réponse";
+          return pairs.join("; ") || "Aucune réponse";
         }
-        
+
         // Format alternatif (array)
         if (Array.isArray(userAnswer)) {
-          return userAnswer.map(id => {
-            if (typeof id === 'string' && id.includes('-')) {
-              const [leftId, rightId] = id.split('-');
-              const leftItem = question.answers?.find(a => a.id === leftId);
-              const rightItem = question.answers?.find(a => a.id === rightId);
-              return `${leftItem?.text || leftId} → ${rightItem?.text || rightId}`;
-            }
-            return id;
-          }).join('; ');
+          return userAnswer
+            .map((id) => {
+              if (typeof id === "string" && id.includes("-")) {
+                const [leftId, rightId] = id.split("-");
+                const leftItem = question.answers?.find((a) => a.id === leftId);
+                const rightItem = question.answers?.find(
+                  (a) => a.id === rightId
+                );
+                return `${leftItem?.text || leftId} → ${
+                  rightItem?.text || rightId
+                }`;
+              }
+              return id;
+            })
+            .join("; ");
         }
-        
+
         return String(userAnswer);
       }
-      
-      case 'carte flash': {
+
+      case "carte flash": {
         // Pour les cartes flash, retourner le texte de la réponse
         let value = userAnswer;
         // Si la réponse est un objet avec selectedAnswers, on l'utilise
-        if (userAnswer && typeof userAnswer === 'object' && 'selectedAnswers' in userAnswer) {
+        if (
+          userAnswer &&
+          typeof userAnswer === "object" &&
+          "selectedAnswers" in userAnswer
+        ) {
           value = userAnswer.selectedAnswers;
         }
         // Si c'est un tableau, on prend le premier élément
@@ -100,45 +129,52 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
           value = value[0];
         }
         if (question.answers) {
-          const answer = question.answers.find(a =>
-            a.id === String(value) ||
-            normalizeString(a.text) === normalizeString(String(value))
+          const answer = question.answers.find(
+            (a) =>
+              a.id === String(value) ||
+              normalizeString(a.text) === normalizeString(String(value))
           );
           return answer ? answer.text : String(value);
         }
         return String(value);
       }
-      
-      case 'vrai/faux': {
+
+      case "vrai/faux": {
         // Pour les questions vrai/faux, on affiche le texte de la réponse
-        const answer = question.answers?.find(a => a.id === String(userAnswer));
+        const answer = question.answers?.find(
+          (a) => a.id === String(userAnswer)
+        );
         return answer ? answer.text : String(userAnswer);
       }
-      
-      case 'rearrangement': {
+
+      case "rearrangement": {
         // Pour les questions d'ordre, afficher les étapes dans l'ordre soumis
         if (Array.isArray(userAnswer)) {
-          return userAnswer.map((id, index) => {
-            const answer = question.answers?.find(a => a.id === String(id));
-            return `${index + 1}. ${answer?.text || id}`;
-          }).join(', ');
+          return userAnswer
+            .map((id, index) => {
+              const answer = question.answers?.find((a) => a.id === String(id));
+              return `${index + 1}. ${answer?.text || id}`;
+            })
+            .join(", ");
         }
         return String(userAnswer);
       }
-      
+
       default: {
         // Pour les autres types de questions (QCM, etc.)
         if (Array.isArray(userAnswer)) {
-          const answerTexts = userAnswer.map(id => {
-            const answer = question.answers?.find(a => a.id === String(id));
+          const answerTexts = userAnswer.map((id) => {
+            const answer = question.answers?.find((a) => a.id === String(id));
             return answer?.text || id;
           });
-          return answerTexts.join(', ') || "Aucune réponse";
+          return answerTexts.join(", ") || "Aucune réponse";
         }
         console.log("user anwerquestion");
         console.log(userAnswer);
         // Si c'est une réponse unique
-        const answer = question.answers?.find(a => a.id === String(userAnswer));
+        const answer = question.answers?.find(
+          (a) => a.id === String(userAnswer)
+        );
         return answer ? answer.text : String(userAnswer);
       }
     }
@@ -146,92 +182,110 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
 
   const formatCorrectAnswer = (question: Question) => {
     switch (question.type) {
-      case 'remplir le champ vide': {
+      case "remplir le champ vide": {
         // Trouver les réponses par bank_group défini
         const blanks = {};
-        question.answers?.forEach(a => {
+        question.answers?.forEach((a) => {
           if (a.bank_group && (a.isCorrect || a.is_correct === 1)) {
             blanks[a.bank_group] = a.text;
           }
         });
-        
+
         if (Object.keys(blanks).length > 0) {
-          return Object.values(blanks).join(', ');
+          return Object.values(blanks).join(", ");
         }
-        
+
         // Si pas de bank_group, utiliser les réponses correctes
-        const correctFillAnswers = question.answers?.filter(a => a.isCorrect || a.is_correct === 1);
+        const correctFillAnswers = question.answers?.filter(
+          (a) => a.isCorrect || a.is_correct === 1
+        );
         if (correctFillAnswers && correctFillAnswers.length) {
-          return correctFillAnswers.map(a => a.text).join(', ');
+          return correctFillAnswers.map((a) => a.text).join(", ");
         }
-        
+
         // Si on a des correctAnswers disponibles
         if (question.correctAnswers && question.correctAnswers.length) {
-          const answerTexts = question.correctAnswers.map(id => {
-            const answer = question.answers?.find(a => a.id === String(id) || a.id === id);
+          const answerTexts = question.correctAnswers.map((id) => {
+            const answer = question.answers?.find(
+              (a) => a.id === String(id) || a.id === id
+            );
             return answer ? answer.text : id;
           });
-          return answerTexts.join(', ');
+          return answerTexts.join(", ");
         }
-        
+
         return "Aucune réponse correcte définie";
       }
-      
-      case 'correspondance': {
+
+      case "correspondance": {
         // Pour les questions matching, trouver les paires correctes
         const pairs = [];
-        question.answers?.forEach(a => {
+        question.answers?.forEach((a) => {
           if (a.match_pair) {
             // Si match_pair est un ID, on cherche le texte correspondant
-            const rightItem = question.answers?.find(ans => ans.id === String(a.match_pair));
+            const rightItem = question.answers?.find(
+              (ans) => ans.id === String(a.match_pair)
+            );
             pairs.push(`${a.text} → ${rightItem?.text || a.match_pair}`);
           }
         });
-        return pairs.length > 0 ? pairs.join('; ') : "Aucune réponse correcte définie";
+        return pairs.length > 0
+          ? pairs.join("; ")
+          : "Aucune réponse correcte définie";
       }
-      
-      case 'carte flash': {
+
+      case "carte flash": {
         // Pour les cartes flash, trouver la réponse correcte
-        const flashcard = question.answers?.find(a => a.isCorrect || a.is_correct === 1);
+        const flashcard = question.answers?.find(
+          (a) => a.isCorrect || a.is_correct === 1
+        );
         if (flashcard) {
-          return `${flashcard.text}${flashcard.flashcard_back ? ` (${flashcard.flashcard_back})` : ''}`;
+          return `${flashcard.text}${
+            flashcard.flashcard_back ? ` (${flashcard.flashcard_back})` : ""
+          }`;
         }
         return "Aucune réponse correcte définie";
       }
-        
-      case 'rearrangement': {
+
+      case "rearrangement": {
         // Pour les questions d'arrangement, ordonner par position
         const orderedAnswers = [...(question.answers || [])].sort(
           (a, b) => (a.position || 0) - (b.position || 0)
         );
-        return orderedAnswers.map((a, i) => `${i + 1}. ${a.text}`).join(', ');
+        return orderedAnswers.map((a, i) => `${i + 1}. ${a.text}`).join(", ");
       }
-        
-      case 'banque de mots': {
+
+      case "banque de mots": {
         // Pour les questions banque de mots, montrer les mots corrects
-        const correctWords = question.answers?.filter(a => a.isCorrect || a.is_correct === 1);
+        const correctWords = question.answers?.filter(
+          (a) => a.isCorrect || a.is_correct === 1
+        );
         if (correctWords && correctWords.length) {
-          return correctWords.map(a => a.text).join(', ');
+          return correctWords.map((a) => a.text).join(", ");
         }
         return "Aucune réponse correcte définie";
       }
-      
+
       default: {
         // Pour les QCM, trouver les réponses correctes
-        const correctAnswers = question.answers?.filter(a => a.isCorrect || a.is_correct === 1);
+        const correctAnswers = question.answers?.filter(
+          (a) => a.isCorrect || a.is_correct === 1
+        );
         if (correctAnswers && correctAnswers.length) {
-          return correctAnswers.map(a => a.text).join(', ');
+          return correctAnswers.map((a) => a.text).join(", ");
         }
-        
+
         // Si on a des correctAnswers disponibles
         if (question.correctAnswers && question.correctAnswers.length) {
-          const answerTexts = question.correctAnswers.map(id => {
-            const answer = question.answers?.find(a => a.id === String(id) || a.id === id);
+          const answerTexts = question.correctAnswers.map((id) => {
+            const answer = question.answers?.find(
+              (a) => a.id === String(id) || a.id === id
+            );
             return answer ? answer.text : id;
           });
-          return answerTexts.join(', ');
+          return answerTexts.join(", ");
         }
-        
+
         return "Aucune réponse correcte définie";
       }
     }
@@ -245,128 +299,153 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
     // Sinon, on vérifie normalement
     const userAnswerData = userAnswers[question.id];
     if (!userAnswerData) return false;
-    
+
     switch (question.type) {
-      case 'remplir le champ vide': {
+      case "remplir le champ vide": {
         // Pour les questions à blancs, vérifier chaque champ
-        if (typeof userAnswerData !== 'object' || Array.isArray(userAnswerData)) return false;
-        
+        if (typeof userAnswerData !== "object" || Array.isArray(userAnswerData))
+          return false;
+
         const correctBlanks = {};
-        question.answers?.forEach(a => {
+        question.answers?.forEach((a) => {
           if (a.bank_group && (a.isCorrect || a.is_correct === 1)) {
             correctBlanks[a.bank_group] = a.text;
           }
         });
-        
+
         // Cas classique avec bank_group
         if (Object.keys(correctBlanks).length > 0) {
           return Object.entries(userAnswerData).every(([key, value]) => {
             const correctAnswer = correctBlanks[key];
             if (!correctAnswer) return false;
-            return normalizeString(String(value)) === normalizeString(correctAnswer);
+            return (
+              normalizeString(String(value)) === normalizeString(correctAnswer)
+            );
           });
         }
-        
+
         // Cas sans bank_group, plusieurs champs à remplir
-        const correctAnswers = question.answers?.filter(a => a.isCorrect || a.is_correct === 1);
+        const correctAnswers = question.answers?.filter(
+          (a) => a.isCorrect || a.is_correct === 1
+        );
         const userValues = Object.values(userAnswerData);
         if (correctAnswers && correctAnswers.length === userValues.length) {
-          return correctAnswers.every((a, idx) => 
-            normalizeString(String(userValues[idx])) === normalizeString(a.text)
+          return correctAnswers.every(
+            (a, idx) =>
+              normalizeString(String(userValues[idx])) ===
+              normalizeString(a.text)
           );
         }
-        
+
         return false;
       }
-      
-      case 'correspondance': {
+
+      case "correspondance": {
         // Pour les correspondances
-        if (typeof userAnswerData !== 'object') return false;
-        
+        if (typeof userAnswerData !== "object") return false;
+
         if (Array.isArray(userAnswerData)) {
           // Format array (leftId-rightId)
-          return userAnswerData.every(id => {
-            if (typeof id !== 'string' || !id.includes('-')) return false;
-            
-            const [leftId, rightId] = id.split('-');
-            const leftItem = question.answers?.find(a => a.id === leftId);
-            const rightItem = question.answers?.find(a => a.id === rightId);
-            
-            return leftItem && rightItem && leftItem.match_pair === rightItem.text;
+          return userAnswerData.every((id) => {
+            if (typeof id !== "string" || !id.includes("-")) return false;
+
+            const [leftId, rightId] = id.split("-");
+            const leftItem = question.answers?.find((a) => a.id === leftId);
+            const rightItem = question.answers?.find((a) => a.id === rightId);
+
+            return (
+              leftItem && rightItem && leftItem.match_pair === rightItem.text
+            );
           });
         } else {
           // Format objet {leftId: rightValue}
-          return Object.entries(userAnswerData).every(([leftId, rightValue]) => {
-            if (leftId === 'destination') return true;
-            
-            const leftItem = question.answers?.find(a => a.id === leftId);
-            return leftItem && leftItem.match_pair === rightValue;
-          });
+          return Object.entries(userAnswerData).every(
+            ([leftId, rightValue]) => {
+              if (leftId === "destination") return true;
+
+              const leftItem = question.answers?.find((a) => a.id === leftId);
+              return leftItem && leftItem.match_pair === rightValue;
+            }
+          );
         }
       }
-      
-      case 'rearrangement': {
+
+      case "rearrangement": {
         // Pour le réarrangement, vérifier l'ordre
         if (!Array.isArray(userAnswerData)) return false;
-        
-        const correctOrder = [...(question.answers || [])].sort((a, b) => 
-          (a.position || 0) - (b.position || 0)
-        ).map(a => a.id);
-        
+
+        const correctOrder = [...(question.answers || [])]
+          .sort((a, b) => (a.position || 0) - (b.position || 0))
+          .map((a) => a.id);
+
         return JSON.stringify(userAnswerData) === JSON.stringify(correctOrder);
       }
-      
-      case 'carte flash': {
+
+      case "carte flash": {
         // Pour les flashcards
-        const correctAnswer = question.answers?.find(a => a.isCorrect || a.is_correct === 1);
-        return correctAnswer && (correctAnswer.text === userAnswerData || correctAnswer.id === String(userAnswerData));
+        const correctAnswer = question.answers?.find(
+          (a) => a.isCorrect || a.is_correct === 1
+        );
+        return (
+          correctAnswer &&
+          (correctAnswer.text === userAnswerData ||
+            correctAnswer.id === String(userAnswerData))
+        );
       }
-      
-      case 'banque de mots': {
+
+      case "banque de mots": {
         // Pour banque de mots
         if (!Array.isArray(userAnswerData)) return false;
-        
+
         const correctAnswerIds = question.answers
-          ?.filter(a => a.isCorrect || a.is_correct === 1)
-          .map(a => a.id);
-        
+          ?.filter((a) => a.isCorrect || a.is_correct === 1)
+          .map((a) => a.id);
+
         if (!correctAnswerIds?.length) return false;
-        
+
         // Vérifier que tous les mots corrects ont été sélectionnés et aucun incorrect
-        const selectedIds = userAnswerData.map(id => String(id));
-        return correctAnswerIds.every(id => selectedIds.includes(String(id))) 
-               && selectedIds.every(id => correctAnswerIds.includes(String(id)));
+        const selectedIds = userAnswerData.map((id) => String(id));
+        return (
+          correctAnswerIds.every((id) => selectedIds.includes(String(id))) &&
+          selectedIds.every((id) => correctAnswerIds.includes(String(id)))
+        );
       }
-      
+
       default: {
         // Pour QCM
         const correctAnswerIds = question.answers
-          ?.filter(a => a.isCorrect || a.is_correct === 1)
-          .map(a => a.id);
-        
+          ?.filter((a) => a.isCorrect || a.is_correct === 1)
+          .map((a) => a.id);
+
         if (!correctAnswerIds?.length) {
           // Tenter d'utiliser correctAnswers si disponible
           if (question.correctAnswers && question.correctAnswers.length) {
-            const correctIds = question.correctAnswers.map(id => String(id));
-            
+            const correctIds = question.correctAnswers.map((id) => String(id));
+
             if (Array.isArray(userAnswerData)) {
               // Convertir tous les éléments en string pour la comparaison
-              const normalizedUserAnswers = userAnswerData.map(id => String(id));
-              return correctIds.length === normalizedUserAnswers.length && 
-                     correctIds.every(id => normalizedUserAnswers.includes(id));
+              const normalizedUserAnswers = userAnswerData.map((id) =>
+                String(id)
+              );
+              return (
+                correctIds.length === normalizedUserAnswers.length &&
+                correctIds.every((id) => normalizedUserAnswers.includes(id))
+              );
             } else {
               return correctIds.includes(String(userAnswerData));
             }
           }
           return false;
         }
-        
+
         if (Array.isArray(userAnswerData)) {
           // Si plusieurs réponses sont attendues (QCM multi)
           // Convertir tous les éléments en string pour la comparaison
-          const normalizedUserAnswers = userAnswerData.map(id => String(id));
-          return correctAnswerIds.length === normalizedUserAnswers.length && 
-                 correctAnswerIds.every(id => normalizedUserAnswers.includes(id));
+          const normalizedUserAnswers = userAnswerData.map((id) => String(id));
+          return (
+            correctAnswerIds.length === normalizedUserAnswers.length &&
+            correctAnswerIds.every((id) => normalizedUserAnswers.includes(id))
+          );
         } else {
           // Si une seule réponse est attendue (QCM simple)
           return correctAnswerIds.includes(String(userAnswerData));
@@ -378,45 +457,47 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
   return (
     <div className="space-y-6 mb-10">
       <div className="flex items-center gap-4 flex-wrap">
-        <Button 
-          variant="outline" 
-          onClick={() => navigate('/quizzes')}
-          className="flex items-center gap-2"
-        >
+        <Button
+          variant="outline"
+          onClick={() => navigate("/quizzes")}
+          className="flex items-center gap-2">
           <ArrowLeft className="h-4 w-4" />
           Retour
         </Button>
         <h1 className="text-2xl font-bold">{quiz.titre || "Quiz"}</h1>
       </div>
-      
+
       <Card className="bg-primary/5">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">
-            Résumé du Quiz
-          </CardTitle>
+          <CardTitle className="text-2xl text-center">Résumé du Quiz</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center space-y-4">
             <div className="flex justify-center">
-              <div className={cn(
-                "text-4xl font-bold rounded-full h-24 w-24 flex items-center justify-center",
-                score >= 70 ? "bg-green-100 text-green-600" : "bg-amber-100 text-amber-600"
-              )}>
+              <div
+                className={cn(
+                  "text-4xl font-bold rounded-full h-24 w-24 flex items-center justify-center",
+                  score >= 70
+                    ? "bg-green-100 text-green-600"
+                    : "bg-amber-100 text-amber-600"
+                )}>
                 {score}%
               </div>
             </div>
             <div>
-              <Badge className={cn(
-                score >= 70 ? "bg-green-500" : "bg-amber-500"
-              )}>
+              <Badge
+                className={cn(score >= 70 ? "bg-green-500" : "bg-amber-500")}>
                 {successLevel}
               </Badge>
             </div>
             <p className="text-lg text-muted-foreground">
-              {score === 100 ? "Félicitations ! Score parfait!" : 
-               score >= 80 ? "Excellent travail !" :
-               score >= 60 ? "Bien joué !" :
-               "Continuez à vous entraîner !"}
+              {score === 100
+                ? "Félicitations ! Score parfait!"
+                : score >= 80
+                ? "Excellent travail !"
+                : score >= 60
+                ? "Bien joué !"
+                : "Continuez à vous entraîner !"}
             </p>
           </div>
         </CardContent>
@@ -425,16 +506,18 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
       <ScrollArea className="h-[calc(100vh-400px)] md:h-auto">
         <div className="space-y-4 p-1">
           <h2 className="text-xl font-bold">Détails des réponses</h2>
-          
+
           {questions.map((question, index) => {
             const userAnswer = userAnswers[question.id];
             const isCorrect = isAnswerCorrect(question);
 
             return (
-              <Card key={question.id} className={cn(
-                "border-l-4",
-                isCorrect ? "border-l-green-500" : "border-l-red-500"
-              )}>
+              <Card
+                key={question.id}
+                className={cn(
+                  "border-l-4",
+                  isCorrect ? "border-l-green-500" : "border-l-red-500"
+                )}>
                 <CardHeader className="pb-2">
                   <div className="flex items-center gap-2">
                     {isCorrect ? (
@@ -448,43 +531,58 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4 pt-0">
-                  <p className="text-base md:text-lg font-medium">{question.text}</p>
-                  
+                  <p className="text-base md:text-lg font-medium">
+                    {question.text}
+                  </p>
+
                   {question.media_url && (
                     <div className="flex justify-center my-4">
-                      {question.type === 'question audio' ? (
+                      {question.type === "question audio" ? (
                         <div className="w-full max-w-md">
                           <audio controls className="w-full">
-                            <source 
-                              src={question.media_url.startsWith('http') ? 
-                                question.media_url : 
-                                `${import.meta.env.VITE_API_URL}/${question.media_url}`} 
-                              type="audio/mpeg" 
+                            <source
+                              src={
+                                question.media_url.startsWith("http")
+                                  ? question.media_url
+                                  : `${import.meta.env.VITE_API_URL}/${
+                                      question.media_url
+                                    }`
+                              }
+                              type="audio/mpeg"
                             />
                             Votre navigateur ne supporte pas l'élément audio.
                           </audio>
                         </div>
                       ) : (
                         <img
-                          src={question.media_url.startsWith('http') ? 
-                            question.media_url : 
-                            `${import.meta.env.VITE_API_URL}/${question.media_url}`}
+                          src={
+                            question.media_url.startsWith("http")
+                              ? question.media_url
+                              : `${import.meta.env.VITE_API_URL}/${
+                                  question.media_url
+                                }`
+                          }
                           alt="Question media"
                           className="max-w-full h-auto rounded"
                         />
                       )}
                     </div>
                   )}
-                  
+
                   <div className="space-y-2">
                     <p className="text-sm font-medium text-muted-foreground">
                       Votre réponse :
                     </p>
-                    <div className={cn(
-                      "p-3 rounded-lg text-sm md:text-base",
-                      isCorrect ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
-                    )}>
-                      {userAnswer ? formatAnswer(question, userAnswer) : "Aucune réponse"}
+                    <div
+                      className={cn(
+                        "p-3 rounded-lg text-sm md:text-base",
+                        isCorrect
+                          ? "bg-green-50 text-green-800"
+                          : "bg-red-50 text-red-800"
+                      )}>
+                      {userAnswer
+                        ? formatAnswer(question, userAnswer)
+                        : "Aucune réponse"}
                     </div>
                   </div>
 
@@ -498,7 +596,7 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
                       </div>
                     </div>
                   )}
-                  
+
                   {question.explication && (
                     <div className="space-y-2">
                       <p className="text-sm font-medium text-muted-foreground">
@@ -515,7 +613,7 @@ export function QuizSummary({ quiz, questions, userAnswers, score, totalQuestion
           })}
         </div>
       </ScrollArea>
-      
+
       <div className="flex justify-center mt-6 gap-4 flex-wrap">
         <Button
           onClick={() => navigate('/quizzes')}
