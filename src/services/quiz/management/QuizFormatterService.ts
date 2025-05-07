@@ -37,6 +37,18 @@ export class QuizFormatterService {
       points: quiz.points || 0
     };
   }
+  async formatStagiaireQuiz(quiz: any) {
+       return {
+      id: quiz.id,
+      titre: quiz.titre || quiz.title || '',
+      description: quiz.description || '',
+      categorie: quiz.formation.categorie || quiz.category || '',
+      categorieId: quiz.formation.categorieId || quiz.category_id || quiz.categoryId || '',
+      niveau: quiz.niveau || quiz.level || '',
+      questions: this.formatQuestions(quiz.questions || []),
+      points: quiz.points || 0
+    };
+  }
 
   formatQuestions(questions: any[]): Question[] {
     return questions.map(question => ({

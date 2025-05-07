@@ -9,6 +9,9 @@ class QuizManagementService {
   async formatQuiz(quiz: any, categories?: any[]) {
     return quizFormatterService.formatQuiz(quiz, categories);
   }
+  async formatStagiaireQuiz(quiz: any) {
+    return quizFormatterService.formatStagiaireQuiz(quiz);
+  }
 
   async getQuizzesByCategory(categoryId: string): Promise<Quiz[]> {
     return quizFetchService.getQuizzesByCategory(categoryId);

@@ -121,7 +121,7 @@ export function StagiaireQuizList() {
           )}
         </div>
       </div>
-      <h3 className="text-lg font-bold mb-2">Quiz non joués</h3>
+      {/* <h3 className="text-lg font-bold mb-2">Quiz non joués</h3> */}
       {notPlayedQuizzes.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-gray-500">Tous les quiz ont été joués !</p>
@@ -129,7 +129,7 @@ export function StagiaireQuizList() {
       ) : (
         <StagiaireQuizGrid quizzes={notPlayedQuizzes} categories={categories || []} />
       )}
-      <h3 className="text-lg font-bold mt-8 mb-2">Quiz déjà joués</h3>
+      <h3 className="text-lg font-bold mt-8 mb-2">Rejouez à vos quiz</h3>
       {playedQuizzes.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-gray-500">Aucun quiz joué pour l’instant.</p>

@@ -8,10 +8,10 @@ class StagiaireQuizService {
     try {
       const response = await apiClient.get('/stagiaire/quizzes');
       const quizzes = response.data.data || [];
-      const categories = await apiClient.get('/quiz/categories').then(res => res.data);
+      
       
       return Promise.all(
-        quizzes.map(quiz => quizManagementService['formatQuiz'](quiz, categories))
+        quizzes.map(quiz => quizManagementService['formatStagiaireQuiz'](quiz))
       );
     } catch (error) {
       console.error('Error fetching stagiaire quizzes:', error);
