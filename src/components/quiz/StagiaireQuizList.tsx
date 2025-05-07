@@ -49,7 +49,7 @@ export function StagiaireQuizList() {
       return categoryMatch && levelMatch;
     });
   }, [quizzes, selectedCategory, selectedLevel]);
-  console.log("part",participations);
+  
   const playedQuizIds = useMemo(() => new Set((participations || []).map((p: any) => String(p.id))), [participations]);
   const playedQuizzes = useMemo(() => (quizzes || []).filter(q => playedQuizIds.has(String(q.id))), [quizzes, playedQuizIds]);
   const notPlayedQuizzes = useMemo(() => (quizzes || []).filter(q => !playedQuizIds.has(String(q.id))), [quizzes, playedQuizIds]);
