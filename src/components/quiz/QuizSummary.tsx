@@ -7,11 +7,23 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import scoreparfait from "@/assets/icons/bombe-de-table.png";
+import scoreexcellent from "@/assets/icons/applaudissements.png";
+import scorebien from "@/assets/icons/pouces-vers-le-haut.png";
+import scoremoyen from "@/assets/icons/des-astuces.png";
 
 interface QuizSummaryProps {
   quiz: Quiz;
   questions: Question[];
-  userAnswers: Record<string, any>;
+  userAnswers: Record<
+    string,
+    | string
+    | number
+    | Record<string, string | number>
+    | Array<string | number>
+    | null
+    | undefined
+  >;
   score: number;
   totalQuestions: number;
 }
@@ -46,7 +58,16 @@ export function QuizSummary({
       ? "Moyen"
       : "À améliorer";
 
-  const formatAnswer = (question: Question, userAnswer: any) => {
+  const formatAnswer = (
+    question: Question,
+    userAnswer:
+      | string
+      | number
+      | Record<string, string | number>
+      | Array<string | number>
+      | null
+      | undefined
+  ) => {
     if (!userAnswer) return "Aucune réponse";
 
     switch (question.type) {
@@ -183,8 +204,7 @@ export function QuizSummary({
   const formatCorrectAnswer = (question: Question) => {
     switch (question.type) {
       case "remplir le champ vide": {
-        // Trouver les réponses par bank_group défini
-        const blanks = {};
+        const blanks: Record<string, string> = {};
         question.answers?.forEach((a) => {
           if (a.bank_group && (a.isCorrect || a.is_correct === 1)) {
             blanks[a.bank_group] = a.text;
@@ -195,7 +215,6 @@ export function QuizSummary({
           return Object.values(blanks).join(", ");
         }
 
-        // Si pas de bank_group, utiliser les réponses correctes
         const correctFillAnswers = question.answers?.filter(
           (a) => a.isCorrect || a.is_correct === 1
         );
@@ -203,7 +222,6 @@ export function QuizSummary({
           return correctFillAnswers.map((a) => a.text).join(", ");
         }
 
-        // Si on a des correctAnswers disponibles
         if (question.correctAnswers && question.correctAnswers.length) {
           const answerTexts = question.correctAnswers.map((id) => {
             const answer = question.answers?.find(
@@ -218,24 +236,28 @@ export function QuizSummary({
       }
 
       case "correspondance": {
-        // Pour les questions matching, trouver les paires correctes
-        const pairs = [];
-        question.answers?.forEach((a) => {
-          if (a.match_pair) {
-            // Si match_pair est un ID, on cherche le texte correspondant
-            const rightItem = question.answers?.find(
-              (ans) => ans.id === String(a.match_pair)
-            );
-            pairs.push(`${a.text} → ${rightItem?.text || a.match_pair}`);
-          }
+        const leftItems = question.answers?.filter(
+          (a) => a.isCorrect || a.is_correct === 1
+        );
+
+        const pairCount = leftItems?.length ?? 0;
+        const half = Math.floor(pairCount / 2);
+        const left = leftItems?.slice(0, half) ?? [];
+        const right = leftItems?.slice(half) ?? [];
+        console.log("right", right);
+        console.log("left", left);
+
+        const pairs = left.map((leftItem, index) => {
+          const rightItem = right[index];
+          return `${leftItem.text} → ${rightItem?.text ?? "?"}`;
         });
+
         return pairs.length > 0
           ? pairs.join("; ")
           : "Aucune réponse correcte définie";
       }
 
       case "carte flash": {
-        // Pour les cartes flash, trouver la réponse correcte
         const flashcard = question.answers?.find(
           (a) => a.isCorrect || a.is_correct === 1
         );
@@ -248,7 +270,6 @@ export function QuizSummary({
       }
 
       case "rearrangement": {
-        // Pour les questions d'arrangement, ordonner par position
         const orderedAnswers = [...(question.answers || [])].sort(
           (a, b) => (a.position || 0) - (b.position || 0)
         );
@@ -256,7 +277,6 @@ export function QuizSummary({
       }
 
       case "banque de mots": {
-        // Pour les questions banque de mots, montrer les mots corrects
         const correctWords = question.answers?.filter(
           (a) => a.isCorrect || a.is_correct === 1
         );
@@ -267,7 +287,6 @@ export function QuizSummary({
       }
 
       default: {
-        // Pour les QCM, trouver les réponses correctes
         const correctAnswers = question.answers?.filter(
           (a) => a.isCorrect || a.is_correct === 1
         );
@@ -275,7 +294,6 @@ export function QuizSummary({
           return correctAnswers.map((a) => a.text).join(", ");
         }
 
-        // Si on a des correctAnswers disponibles
         if (question.correctAnswers && question.correctAnswers.length) {
           const answerTexts = question.correctAnswers.map((id) => {
             const answer = question.answers?.find(
@@ -341,32 +359,51 @@ export function QuizSummary({
       }
 
       case "correspondance": {
-        // Pour les correspondances
         if (typeof userAnswerData !== "object") return false;
 
+        const answersById = Object.fromEntries(
+          (question.answers || []).map((a) => [String(a.id), a])
+        );
+
         if (Array.isArray(userAnswerData)) {
-          // Format array (leftId-rightId)
-          return userAnswerData.every((id) => {
-            if (typeof id !== "string" || !id.includes("-")) return false;
+          // Format tableau ["leftId-rightId"]
+          return userAnswerData.every((pairStr) => {
+            if (typeof pairStr !== "string" || !pairStr.includes("-"))
+              return false;
 
-            const [leftId, rightId] = id.split("-");
-            const leftItem = question.answers?.find((a) => a.id === leftId);
-            const rightItem = question.answers?.find((a) => a.id === rightId);
+            const [leftId, rightId] = pairStr.split("-");
+            const leftItem = answersById[leftId];
+            const rightItem = answersById[rightId];
 
+            if (!leftItem || !rightItem) return false;
+
+            // match_pair peut être soit un ID (string/number) soit le texte directement
             return (
-              leftItem && rightItem && leftItem.match_pair === rightItem.text
+              leftItem.match_pair === rightItem.id ||
+              leftItem.match_pair === rightItem.text
             );
           });
         } else {
-          // Format objet {leftId: rightValue}
-          return Object.entries(userAnswerData).every(
-            ([leftId, rightValue]) => {
-              if (leftId === "destination") return true;
+          // Format objet {leftId: rightText}
+          return Object.entries(userAnswerData).every(([leftId, rightText]) => {
+            if (leftId === "destination") return true;
 
-              const leftItem = question.answers?.find((a) => a.id === leftId);
-              return leftItem && leftItem.match_pair === rightValue;
-            }
-          );
+            const leftItem = answersById[leftId];
+            if (!leftItem) return false;
+
+            const expectedRightItem = question.answers?.find(
+              (a) =>
+                a.id === leftItem.match_pair ||
+                a.text === leftItem.match_pair ||
+                String(a.id) === String(leftItem.match_pair)
+            );
+
+            return (
+              expectedRightItem &&
+              normalizeString(String(rightText)) ===
+                normalizeString(expectedRightItem.text)
+            );
+          });
         }
       }
 
@@ -455,57 +492,94 @@ export function QuizSummary({
   };
 
   return (
-    <div className="space-y-6 mb-10">
-      <div className="flex items-center gap-4 flex-wrap">
+    <div className="space-y-10 px-4  py-8">
+      {/* Header */}
+      <div className="flex flex-wrap items-center gap-4 justify-between">
         <Button
           variant="outline"
           onClick={() => navigate("/quizzes")}
-          className="flex items-center gap-2">
+          className="flex items-center gap-2 rounded-full px-4 py-2 shadow-sm hover:bg-muted transition-colors"
+        >
           <ArrowLeft className="h-4 w-4" />
           Retour
         </Button>
-        <h1 className="text-2xl font-bold">{quiz.titre || "Quiz"}</h1>
+        <h1 className="text-3xl font-bold text-gray-800">
+          {quiz.titre || "Quiz"}
+        </h1>
       </div>
 
-      <Card className="bg-primary/5">
+      {/* Résumé du Quiz */}
+      <Card className="bg-gradient-to-br from-slate-100 to-slate-300 border-none shadow-md rounded-2xl">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">Résumé du Quiz</CardTitle>
+          <CardTitle className="text-2xl text-center text-primary font-semibold">
+            Résumé du Quiz
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center space-y-4">
+          <div className="text-center space-y-6">
             <div className="flex justify-center">
               <div
                 className={cn(
-                  "text-4xl font-bold rounded-full h-24 w-24 flex items-center justify-center",
+                  "text-4xl font-extrabold rounded-full h-32 w-32 flex items-center justify-center shadow-lg transform transition-transform duration-500 border-4",
                   score >= 70
-                    ? "bg-green-100 text-green-600"
-                    : "bg-amber-100 text-amber-600"
-                )}>
+                    ? "bg-gradient-to-br from-green-100 to-green-200 text-green-700 border-green-400 scale-110"
+                    : "bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 border-amber-400 scale-100"
+                )}
+              >
                 {score}%
               </div>
             </div>
-            <div>
-              <Badge
-                className={cn(score >= 70 ? "bg-green-500" : "bg-amber-500")}>
-                {successLevel}
-              </Badge>
-            </div>
-            <p className="text-lg text-muted-foreground">
-              {score === 100
-                ? "Félicitations ! Score parfait!"
-                : score >= 80
-                ? "Excellent travail !"
-                : score >= 60
-                ? "Bien joué !"
-                : "Continuez à vous entraîner !"}
+            <Badge
+              className={cn(
+                "px-4 py-2 text-sm rounded-full shadow-md transform transition-all duration-500",
+                score >= 70
+                  ? "bg-green-500 text-white hover:scale-105"
+                  : "bg-amber-500 text-white hover:scale-105"
+              )}
+            >
+              {successLevel}
+            </Badge>
+            <p className="text-lg text-muted-foreground font-medium flex items-center justify-center space-x-2">
+              {score === 100 ? (
+                <>
+                  <span className="text-2xl">
+                    <img src={scoreparfait} className="w-16" alt="" />
+                  </span>
+                  <h2>Félicitations ! Score parfait!</h2>
+                </>
+              ) : score >= 80 ? (
+                <>
+                  <span className="text-2xl">
+                    <img src={scoreexcellent} className="w-16" alt="" />
+                  </span>
+                  <h2>Excellent travail !</h2>
+                </>
+              ) : score >= 60 ? (
+                <>
+                  <span className="text-2xl">
+                    <img src={scorebien} className="w-16" alt="" />
+                  </span>
+                  <h2>Bien joué !</h2>
+                </>
+              ) : (
+                <>
+                  <span className="text-2xl">
+                    <img src={scoremoyen} alt="" className="w-16" />
+                  </span>
+                  <h2>Continuez à vous entraîner !</h2>
+                </>
+              )}
             </p>
           </div>
         </CardContent>
       </Card>
 
+      {/* Détails des réponses */}
       <ScrollArea className="h-[calc(100vh-400px)] md:h-auto">
-        <div className="space-y-4 p-1">
-          <h2 className="text-xl font-bold">Détails des réponses</h2>
+        <div className="space-y-6 p-2">
+          <h2 className="text-2xl font-semibold text-gray-800">
+            Détails des réponses
+          </h2>
 
           {questions.map((question, index) => {
             const userAnswer = userAnswers[question.id];
@@ -515,23 +589,24 @@ export function QuizSummary({
               <Card
                 key={question.id}
                 className={cn(
-                  "border-l-4",
+                  "border-l-4 rounded-xl shadow-sm transition-all",
                   isCorrect ? "border-l-green-500" : "border-l-red-500"
-                )}>
+                )}
+              >
                 <CardHeader className="pb-2">
                   <div className="flex items-center gap-2">
                     {isCorrect ? (
-                      <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
+                      <CheckCircle2 className="h-5 w-5 text-green-500" />
                     ) : (
-                      <XCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+                      <XCircle className="h-5 w-5 text-red-500" />
                     )}
-                    <CardTitle className="text-base md:text-lg">
+                    <CardTitle className="text-base md:text-lg text-gray-700">
                       Question {index + 1}
                     </CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4 pt-0">
-                  <p className="text-base md:text-lg font-medium">
+                  <p className="text-lg font-medium text-gray-800">
                     {question.text}
                   </p>
 
@@ -539,7 +614,7 @@ export function QuizSummary({
                     <div className="flex justify-center my-4">
                       {question.type === "question audio" ? (
                         <div className="w-full max-w-md">
-                          <audio controls className="w-full">
+                          <audio controls className="w-full rounded-lg">
                             <source
                               src={
                                 question.media_url.startsWith("http")
@@ -563,7 +638,7 @@ export function QuizSummary({
                                 }`
                           }
                           alt="Question media"
-                          className="max-w-full h-auto rounded"
+                          className="max-w-full h-auto rounded-xl shadow-md"
                         />
                       )}
                     </div>
@@ -575,11 +650,12 @@ export function QuizSummary({
                     </p>
                     <div
                       className={cn(
-                        "p-3 rounded-lg text-sm md:text-base",
+                        "p-3 rounded-lg text-base font-semibold",
                         isCorrect
-                          ? "bg-green-50 text-green-800"
-                          : "bg-red-50 text-red-800"
-                      )}>
+                          ? "bg-green-50 text-green-800 border border-green-200"
+                          : "bg-red-50 text-red-800 border border-red-200"
+                      )}
+                    >
                       {userAnswer
                         ? formatAnswer(question, userAnswer)
                         : "Aucune réponse"}
@@ -591,7 +667,7 @@ export function QuizSummary({
                       <p className="text-sm font-medium text-muted-foreground">
                         Bonne réponse :
                       </p>
-                      <div className="p-3 rounded-lg bg-green-50 text-green-800 text-sm md:text-base">
+                      <div className="p-3 rounded-lg bg-green-50 text-green-800 text-base border border-green-200">
                         {formatCorrectAnswer(question)}
                       </div>
                     </div>
@@ -602,7 +678,7 @@ export function QuizSummary({
                       <p className="text-sm font-medium text-muted-foreground">
                         Explication :
                       </p>
-                      <Alert className="p-3 bg-blue-50 text-blue-800 text-sm md:text-base border-blue-200">
+                      <Alert className="p-3 bg-blue-50 text-blue-800 text-base border border-blue-200">
                         {question.explication}
                       </Alert>
                     </div>
@@ -614,9 +690,10 @@ export function QuizSummary({
         </div>
       </ScrollArea>
 
-      <div className="flex justify-center mt-6 gap-4 flex-wrap">
+      {/* Footer buttons */}
+      <div className="flex flex-wrap justify-center gap-4 mt-10">
         <Button
-          onClick={() => navigate('/quizzes')}
+          onClick={() => navigate("/quizzes")}
           variant="outline"
           className="flex items-center gap-2 rounded-full px-6 py-3 shadow-sm hover:bg-muted transition-colors"
         >
@@ -625,7 +702,7 @@ export function QuizSummary({
         </Button>
         <Button
           onClick={() => navigate(`/quiz/${quiz.id}`)}
-          className="flex items-center gap-2 rounded-full px-6 py-3 bg-primary text-white shadow-md hover:bg-primary/90 transition-colors border-2 border-primary"
+          className="flex items-center gap-2 rounded-full px-6 py-3 bg-primary text-white shadow-md hover:bg-primary/90 transition-colors border border-primary"
         >
           <CheckCircle2 className="h-4 w-4" />
           Recommencer

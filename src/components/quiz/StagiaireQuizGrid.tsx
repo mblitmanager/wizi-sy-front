@@ -1,4 +1,3 @@
-
 import { StagiaireQuizCard } from "./StagiaireQuizCard";
 import type { Quiz, Category } from "@/types/quiz";
 import { Link } from "react-router-dom";
@@ -9,7 +8,10 @@ interface StagiaireQuizGridProps {
   categories: Category[] | undefined;
 }
 
-export function StagiaireQuizGrid({ quizzes, categories }: StagiaireQuizGridProps) {
+export function StagiaireQuizGrid({
+  quizzes,
+  categories,
+}: StagiaireQuizGridProps) {
   if (!quizzes || !quizzes.length) {
     return (
       <div className="text-center py-8">
@@ -17,7 +19,7 @@ export function StagiaireQuizGrid({ quizzes, categories }: StagiaireQuizGridProp
       </div>
     );
   }
-  
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {quizzes.map((quiz) => (

@@ -7,34 +7,50 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, AlertCircle, Filter } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useState, useMemo } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { QuizCard } from "./QuizCard";
 import { stagiaireQuizService } from "@/services/quiz/StagiaireQuizService";
-function QuizListByCategory({ categoryId, categories }: { categoryId: string, categories: Category[] }) {
+function QuizListByCategory({
+  categoryId,
+  categories,
+}: {
+  categoryId: string;
+  categories: Category[];
+}) {
   const [selectedLevel, setSelectedLevel] = useState<string>("all");
-  
-  const { data: quizzes, isLoading, error } = useQuery({
+
+  const {
+    data: quizzes,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["quizzes", categoryId],
     queryFn: () => quizManagementService.getQuizzesByCategory(categoryId),
-    enabled: !!categoryId && !!localStorage.getItem('token')
+    enabled: !!categoryId && !!localStorage.getItem("token"),
   });
-  
+
   // Extraire les niveaux uniques des quizzes
   const levels = useMemo(() => {
     if (!quizzes) return [];
     const uniqueLevels = new Set<string>();
-    quizzes.forEach(quiz => {
+    quizzes.forEach((quiz) => {
       if (quiz.niveau) uniqueLevels.add(quiz.niveau);
     });
     return Array.from(uniqueLevels);
   }, [quizzes]);
-  
+
   // Filtrer les quizzes par niveau
   const filteredQuizzes = useMemo(() => {
     if (!quizzes) return [];
-    
-    return quizzes.filter(quiz => {
+
+    return quizzes.filter((quiz) => {
       return selectedLevel === "all" || quiz.niveau === selectedLevel;
     });
   }, [quizzes, selectedLevel]);
@@ -43,11 +59,24 @@ function QuizListByCategory({ categoryId, categories }: { categoryId: string, ca
   const { data: participations } = useQuery({
     queryKey: ["quizlist-participations"],
     queryFn: () => stagiaireQuizService.getStagiaireQuizJoue?.(),
-    enabled: !!localStorage.getItem('token') && !!stagiaireQuizService.getStagiaireQuizJoue
+    enabled:
+      !!localStorage.getItem("token") &&
+      !!stagiaireQuizService.getStagiaireQuizJoue,
   });
-  const playedQuizIds = useMemo(() => new Set((participations || []).map((p: any) => String(p.id))), [participations]);
-  const playedQuizzes = useMemo(() => (filteredQuizzes || []).filter(q => playedQuizIds.has(String(q.id))), [filteredQuizzes, playedQuizIds]);
-  const notPlayedQuizzes = useMemo(() => (filteredQuizzes || []).filter(q => !playedQuizIds.has(String(q.id))), [filteredQuizzes, playedQuizIds]);
+  const playedQuizIds = useMemo(
+    () => new Set((participations || []).map((p: any) => String(p.id))),
+    [participations]
+  );
+  const playedQuizzes = useMemo(
+    () =>
+      (filteredQuizzes || []).filter((q) => playedQuizIds.has(String(q.id))),
+    [filteredQuizzes, playedQuizIds]
+  );
+  const notPlayedQuizzes = useMemo(
+    () =>
+      (filteredQuizzes || []).filter((q) => !playedQuizIds.has(String(q.id))),
+    [filteredQuizzes, playedQuizIds]
+  );
 
   if (isLoading) {
     return (
@@ -63,7 +92,8 @@ function QuizListByCategory({ categoryId, categories }: { categoryId: string, ca
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Erreur</AlertTitle>
         <AlertDescription>
-          Une erreur est survenue lors du chargement des quiz. Veuillez réessayer plus tard.
+          Une erreur est survenue lors du chargement des quiz. Veuillez
+          réessayer plus tard.
         </AlertDescription>
       </Alert>
     );
@@ -72,7 +102,9 @@ function QuizListByCategory({ categoryId, categories }: { categoryId: string, ca
   if (!quizzes?.length) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-500">Aucun quiz disponible dans cette catégorie</p>
+        <p className="text-gray-500">
+          Aucun quiz disponible dans cette catégorie
+        </p>
       </div>
     );
   }
@@ -92,10 +124,13 @@ function QuizListByCategory({ categoryId, categories }: { categoryId: string, ca
                   <div className="flex items-center gap-2">
                     <div
                       className="w-2 h-2 rounded-full"
-                      style={{ 
-                        backgroundColor: selectedLevel.toLowerCase() === 'débutant' ? '#22C55E' : 
-                                      selectedLevel.toLowerCase() === 'intermédiaire' ? '#3B82F6' : 
-                                      '#EF4444'
+                      style={{
+                        backgroundColor:
+                          selectedLevel.toLowerCase() === "débutant"
+                            ? "#22C55E"
+                            : selectedLevel.toLowerCase() === "intermédiaire"
+                            ? "#3B82F6"
+                            : "#EF4444",
                       }}
                     />
                     {selectedLevel}
@@ -112,10 +147,13 @@ function QuizListByCategory({ categoryId, categories }: { categoryId: string, ca
                   <div className="flex items-center gap-2">
                     <div
                       className="w-2 h-2 rounded-full"
-                      style={{ 
-                        backgroundColor: level.toLowerCase() === 'débutant' ? '#22C55E' : 
-                                      level.toLowerCase() === 'intermédiaire' ? '#3B82F6' : 
-                                      '#EF4444'
+                      style={{
+                        backgroundColor:
+                          level.toLowerCase() === "débutant"
+                            ? "#22C55E"
+                            : level.toLowerCase() === "intermédiaire"
+                            ? "#3B82F6"
+                            : "#EF4444",
                       }}
                     />
                     {level}
@@ -125,9 +163,9 @@ function QuizListByCategory({ categoryId, categories }: { categoryId: string, ca
             </SelectContent>
           </Select>
           {selectedLevel !== "all" && (
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setSelectedLevel("all")}
             >
               Réinitialiser
@@ -135,7 +173,7 @@ function QuizListByCategory({ categoryId, categories }: { categoryId: string, ca
           )}
         </div>
       </div>
-      
+
       {notPlayedQuizzes.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-gray-500">Tous les quiz ont été joués !</p>
@@ -168,10 +206,14 @@ function QuizListByCategory({ categoryId, categories }: { categoryId: string, ca
 }
 
 export function QuizList() {
-  const { data: categories, isLoading, error } = useQuery({
+  const {
+    data: categories,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["categories"],
     queryFn: () => categoryService.getCategories(),
-    enabled: !!localStorage.getItem('token')
+    enabled: !!localStorage.getItem("token"),
   });
 
   if (isLoading) {
@@ -188,7 +230,8 @@ export function QuizList() {
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Erreur</AlertTitle>
         <AlertDescription>
-          Une erreur est survenue lors du chargement des catégories. Veuillez réessayer plus tard.
+          Une erreur est survenue lors du chargement des catégories. Veuillez
+          réessayer plus tard.
         </AlertDescription>
       </Alert>
     );
@@ -207,13 +250,13 @@ export function QuizList() {
       <Tabs defaultValue={categories[0].id} className="space-y-6">
         <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
           {categories.map((category) => (
-            <TabsTrigger 
-              key={category.id} 
+            <TabsTrigger
+              key={category.id}
               value={category.id}
               className="flex items-center gap-2"
             >
-              <div 
-                className="w-3 h-3 rounded-full" 
+              <div
+                className="w-3 h-3 rounded-full"
                 style={{ backgroundColor: category.color }}
               />
               {category.name}
@@ -222,7 +265,10 @@ export function QuizList() {
         </TabsList>
         {categories.map((category) => (
           <TabsContent key={category.id} value={category.id}>
-            <QuizListByCategory categoryId={category.id} categories={categories} />
+            <QuizListByCategory
+              categoryId={category.id}
+              categories={categories}
+            />
           </TabsContent>
         ))}
       </Tabs>
