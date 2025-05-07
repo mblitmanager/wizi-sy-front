@@ -1,5 +1,10 @@
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Award } from "lucide-react";
 import type { Quiz, Category } from "@/types/quiz";
@@ -8,71 +13,75 @@ import React from "react";
 // Helpers pour la coloration
 const getLevelColor = (level: string) => {
   switch (level.toLowerCase()) {
-    case 'débutant':
-      return 'secondary';
-    case 'intermédiaire':
-      return 'default';
-    case 'avancé':
-    case 'super quiz':
-      return 'destructive';
+    case "débutant":
+      return "secondary";
+    case "intermédiaire":
+      return "default";
+    case "avancé":
+    case "super quiz":
+      return "destructive";
     default:
-      return 'outline';
+      return "outline";
   }
 };
 
 const getLevelBackgroundColor = (level: string) => {
   switch (level.toLowerCase()) {
-    case 'débutant':
-      return 'bg-green-100 text-green-800';
-    case 'intermédiaire':
-      return 'bg-blue-100 text-blue-800';
-    case 'avancé':
-    case 'super quiz':
-      return 'bg-yellow-100 text-yellow-800';
+    case "débutant":
+      return "bg-green-100 text-green-800";
+    case "intermédiaire":
+      return "bg-blue-100 text-blue-800";
+    case "avancé":
+    case "super quiz":
+      return "bg-yellow-100 text-yellow-800";
     default:
-      return '';
+      return "";
   }
 };
 
 const getCategoryColor = (quiz: Quiz, categories: Category[] | undefined) => {
-  if (!categories) return '#3B82F6';
-  console.log('categories', categories);
-  console.log('quiz', quiz);
-  // Priorité au categorieId 
+  if (!categories) return "#3B82F6";
+  console.log("categories", categories);
+  console.log("quiz", quiz);
+  // Priorité au categorieId
   if (quiz.categorieId) {
-    const categoryById = categories.find(c => c.id === quiz.categorieId);
+    const categoryById = categories.find((c) => c.id === quiz.categorieId);
     if (categoryById?.color) return categoryById.color;
   }
-  
+
   // Fallback sur la catégorie par nom
-  const categoryByName = categories.find(c => 
-    c.name.toLowerCase() === quiz.categorie?.toLowerCase()
+  const categoryByName = categories.find(
+    (c) => c.name.toLowerCase() === quiz.categorie?.toLowerCase()
   );
   if (categoryByName?.color) return categoryByName.color;
-  
+
   // Couleurs par défaut basées sur le contenu
-  const searchText = ((quiz.titre || '') + ' ' + (quiz.categorie || '')).toLowerCase();
-  
-  if (searchText.includes('excel') || searchText.includes('bureautique')) {
-    return '#3B82F6'; // Bleu
+  const searchText = (
+    (quiz.titre || "") +
+    " " +
+    (quiz.categorie || "")
+  ).toLowerCase();
+
+  if (searchText.includes("excel") || searchText.includes("bureautique")) {
+    return "#3B82F6"; // Bleu
   }
-  if (searchText.includes('anglais')) {
-    return '#10B981'; // Vert
+  if (searchText.includes("anglais")) {
+    return "#10B981"; // Vert
   }
-  if (searchText.includes('français')) {
-    return '#EF4444'; // Rouge
+  if (searchText.includes("français")) {
+    return "#EF4444"; // Rouge
   }
-  if (searchText.includes('langues')) {
-    return '#EC4899'; // Rose
+  if (searchText.includes("langues")) {
+    return "#EC4899"; // Rose
   }
-  if (searchText.includes('internet')) {
-    return '#F59E0B'; // Orange
+  if (searchText.includes("internet")) {
+    return "#F59E0B"; // Orange
   }
-  if (searchText.includes('création')) {
-    return '#8B5CF6'; // Violet
+  if (searchText.includes("création")) {
+    return "#8B5CF6"; // Violet
   }
-  
-  return '#3B82F6';
+
+  return "#3B82F6";
 };
 
 interface QuizCardProps {
@@ -82,13 +91,14 @@ interface QuizCardProps {
 
 export function QuizCard({ quiz, categories }: QuizCardProps) {
   // Utiliser prioritairement categorieId pour trouver la catégorie
-  const category = categories?.find(c => 
-    c.id === quiz.categorieId
-  ) || categories?.find(c => 
-    c.name.toLowerCase() === quiz.categorie?.toLowerCase()
-  );
-  
+  const category =
+    categories?.find((c) => c.id === quiz.categorieId) ||
+    categories?.find(
+      (c) => c.name.toLowerCase() === quiz.categorie?.toLowerCase()
+    );
+
   const categoryName = category?.name || quiz.categorie || "Non catégorisé";
+  console.log("categoryName", categoryName);
   const categoryColor = getCategoryColor(quiz, categories);
 
   return (
@@ -96,7 +106,7 @@ export function QuizCard({ quiz, categories }: QuizCardProps) {
       <div
         className="absolute top-0 left-0 right-0 h-1 rounded-t-lg"
         style={{
-          backgroundColor: categoryColor
+          backgroundColor: categoryColor,
         }}
       />
       <CardHeader>
@@ -107,7 +117,7 @@ export function QuizCard({ quiz, categories }: QuizCardProps) {
             style={{
               borderColor: categoryColor,
               color: categoryColor,
-              backgroundColor: `${categoryColor}10`
+              backgroundColor: `${categoryColor}10`,
             }}
           >
             <div

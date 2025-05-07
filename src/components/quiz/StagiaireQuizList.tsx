@@ -10,23 +10,27 @@ import { StagiaireQuizGrid } from "./StagiaireQuizGrid";
 export function StagiaireQuizList() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedLevel, setSelectedLevel] = useState<string>("all");
-  
-  const { data: quizzes, isLoading: quizzesLoading, error: quizzesError } = useQuery({
+
+  const {
+    data: quizzes,
+    isLoading: quizzesLoading,
+    error: quizzesError,
+  } = useQuery({
     queryKey: ["stagiaire-quizzes"],
     queryFn: () => stagiaireQuizService.getStagiaireQuizzes(),
-    enabled: !!localStorage.getItem('token')
+    enabled: !!localStorage.getItem("token"),
   });
 
   const { data: categories, isLoading: categoriesLoading } = useQuery({
     queryKey: ["quiz-categories"],
     queryFn: () => categoryService.getCategories(),
-    enabled: !!localStorage.getItem('token')
+    enabled: !!localStorage.getItem("token"),
   });
 
   const { data: participations } = useQuery({
     queryKey: ["stagiaire-participations"],
     queryFn: () => stagiaireQuizService.getStagiaireQuizJoue(),
-    enabled: !!localStorage.getItem('token')
+    enabled: !!localStorage.getItem("token"),
   });
 
   const isLoading = quizzesLoading || categoriesLoading;
@@ -35,7 +39,7 @@ export function StagiaireQuizList() {
   const levels = useMemo(() => {
     if (!quizzes) return [];
     const uniqueLevels = new Set<string>();
-    quizzes.forEach(quiz => {
+    quizzes.forEach((quiz) => {
       if (quiz.niveau) uniqueLevels.add(quiz.niveau);
     });
     return Array.from(uniqueLevels);
@@ -43,16 +47,28 @@ export function StagiaireQuizList() {
 
   const filteredQuizzes = useMemo(() => {
     if (!quizzes) return [];
-    return quizzes.filter(quiz => {
-      const categoryMatch = selectedCategory === "all" || String(quiz.categorieId) === String(selectedCategory);
-      const levelMatch = selectedLevel === "all" || quiz.niveau === selectedLevel;
+    return quizzes.filter((quiz) => {
+      const categoryMatch =
+        selectedCategory === "all" ||
+        String(quiz.categorieId) === String(selectedCategory);
+      const levelMatch =
+        selectedLevel === "all" || quiz.niveau === selectedLevel;
       return categoryMatch && levelMatch;
     });
   }, [quizzes, selectedCategory, selectedLevel]);
-  console.log("part",participations);
-  const playedQuizIds = useMemo(() => new Set((participations || []).map((p: any) => String(p.id))), [participations]);
-  const playedQuizzes = useMemo(() => (quizzes || []).filter(q => playedQuizIds.has(String(q.id))), [quizzes, playedQuizIds]);
-  const notPlayedQuizzes = useMemo(() => (quizzes || []).filter(q => !playedQuizIds.has(String(q.id))), [quizzes, playedQuizIds]);
+
+  const playedQuizIds = useMemo(
+    () => new Set((participations || []).map((p: any) => String(p.id))),
+    [participations]
+  );
+  const playedQuizzes = useMemo(
+    () => (quizzes || []).filter((q) => playedQuizIds.has(String(q.id))),
+    [quizzes, playedQuizIds]
+  );
+  const notPlayedQuizzes = useMemo(
+    () => (quizzes || []).filter((q) => !playedQuizIds.has(String(q.id))),
+    [quizzes, playedQuizIds]
+  );
 
   if (isLoading) {
     return (
@@ -68,7 +84,8 @@ export function StagiaireQuizList() {
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Erreur</AlertTitle>
         <AlertDescription>
-          Une erreur est survenue lors du chargement de vos quiz. Veuillez réessayer plus tard.
+          Une erreur est survenue lors du chargement de vos quiz. Veuillez
+          réessayer plus tard.
         </AlertDescription>
       </Alert>
     );
@@ -92,11 +109,13 @@ export function StagiaireQuizList() {
           <select
             className="border rounded px-2 py-1 text-sm"
             value={selectedCategory}
-            onChange={e => setSelectedCategory(e.target.value)}
+            onChange={(e) => setSelectedCategory(e.target.value)}
           >
             <option value="all">Toutes</option>
-            {(categories || []).map(category => (
-              <option key={category.id} value={category.id}>{category.name}</option>
+            {(categories || []).map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
             ))}
           </select>
           {/* Filtre par niveau */}
@@ -104,11 +123,13 @@ export function StagiaireQuizList() {
           <select
             className="border rounded px-2 py-1 text-sm"
             value={selectedLevel}
-            onChange={e => setSelectedLevel(e.target.value)}
+            onChange={(e) => setSelectedLevel(e.target.value)}
           >
             <option value="all">Tous les niveaux</option>
-            {levels.map(level => (
-              <option key={level} value={level}>{level}</option>
+            {levels.map((level) => (
+              <option key={level} value={level}>
+                {level}
+              </option>
             ))}
           </select>
           {selectedLevel !== "all" && (
@@ -127,7 +148,10 @@ export function StagiaireQuizList() {
           <p className="text-gray-500">Tous les quiz ont été joués !</p>
         </div>
       ) : (
-        <StagiaireQuizGrid quizzes={notPlayedQuizzes} categories={categories || []} />
+        <StagiaireQuizGrid
+          quizzes={notPlayedQuizzes}
+          categories={categories || []}
+        />
       )}
       <h3 className="text-lg font-bold mt-8 mb-2">Quiz déjà joués</h3>
       {playedQuizzes.length === 0 ? (
@@ -135,7 +159,10 @@ export function StagiaireQuizList() {
           <p className="text-gray-500">Aucun quiz joué pour l’instant.</p>
         </div>
       ) : (
-        <StagiaireQuizGrid quizzes={playedQuizzes} categories={categories || []} />
+        <StagiaireQuizGrid
+          quizzes={playedQuizzes}
+          categories={categories || []}
+        />
       )}
     </div>
   );

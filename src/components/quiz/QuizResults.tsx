@@ -9,6 +9,8 @@ import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { useNotifications } from "@/hooks/useNotifications";
 import { NotificationBanner } from "./NotificationBanner";
+import { isRearrangementCorrect } from "@/utils/UtilsFunction";
+import { Clock, CheckCircle, Calendar, TrendingUp } from "lucide-react";
 
 export function QuizResults() {
   const { quizId } = useParams<{ quizId: string }>();
@@ -17,6 +19,7 @@ export function QuizResults() {
   const { notifyQuizCompleted, permission } = useNotifications();
 
   // Store result state locally to avoid triggering re-renders
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [result, setResult] = useState<any>(null);
   const [notificationSent, setNotificationSent] = useState(false);
 
@@ -33,9 +36,6 @@ export function QuizResults() {
     queryFn: () => quizSubmissionService.getQuizResult(quizId as string),
     enabled: !!quizId && !resultFromState && !!localStorage.getItem("token"),
   });
-
-  console.log("Result from state:", resultFromState);
-  console.log("Result from API:", resultFromApi);
 
   // Use useEffect to set the result once to avoid infinite loops
   useEffect(() => {
@@ -95,26 +95,52 @@ export function QuizResults() {
   }
 
   // Format data for QuizSummary component
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const formattedUserAnswers: Record<string, any> = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   result.questions.forEach((q: any) => {
-    console.log("Question ID:", q.id);
-    console.log("Selected Answers:", q.selectedAnswers);
+    if (q.type === "rearrangement") {
+      const isCorrect = isRearrangementCorrect(
+        q.selectedAnswers,
+        q.correctAnswers
+      );
+    }
 
     if (q.selectedAnswers) {
-      // Pour les questions à choix multiples ou vrai/faux
+      // Si la réponse est un tableau (choix multiples, etc.)
       if (Array.isArray(q.selectedAnswers)) {
         formattedUserAnswers[q.id] = q.selectedAnswers;
       }
-      // Pour les questions de type 'remplir le champ vide' ou 'correspondance'
+
+      // Pour les questions de type "correspondance"
       else if (typeof q.selectedAnswers === "object") {
-        formattedUserAnswers[q.id] = q.selectedAnswers;
+        if (q.type === "correspondance") {
+          const answersById: Record<string, string> = {};
+          q.answers.forEach((a: { id: string; text: string }) => {
+            answersById[a.id] = a.text;
+          });
+
+          // Remplace les ID par leur texte correspondant
+          const mapped: Record<string, string> = {};
+          Object.entries(q.selectedAnswers).forEach(([leftId, rightVal]) => {
+            const leftText = answersById[leftId] || leftId;
+            const rightText =
+              answersById[rightVal as string] || (rightVal as string);
+            mapped[leftText] = rightText;
+          });
+
+          formattedUserAnswers[q.id] = mapped;
+        } else {
+          // Pour les autres types utilisant des objets (ex: remplir les champs)
+          formattedUserAnswers[q.id] = q.selectedAnswers;
+        }
       }
-      // Pour les autres types de questions
+
+      // Réponse simple (ex: QCM, vrai/faux)
       else {
         formattedUserAnswers[q.id] = q.selectedAnswers;
       }
     } else {
-      // Fallback pour les anciens formats de donnée ou pas de réponse
       formattedUserAnswers[q.id] = null;
     }
   });
@@ -131,39 +157,52 @@ export function QuizResults() {
 
   return (
     <Layout>
-      <div className="container mx-auto py-6 px-4 lg:py-8 lg:max-w-4xl">
+      <div className="container mx-auto py-6 px-4 lg:py-8 ">
         <NotificationBanner />
 
-        <div className="mb-10 p-6 border rounded-lg bg-card shadow">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div className="text-center p-4 bg-muted rounded-lg">
-              <p className="text-sm text-muted-foreground uppercase">Score</p>
-              <p className="text-3xl font-bold">{result.score}%</p>
+        <div className="mb-10 p-6 border rounded-2xl bg-white shadow-xl dark:bg-gray-900 dark:border-gray-800">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            {/* Score */}
+            <div className="p-6 rounded-xl bg-gradient-to-br bg-gold text-white shadow-lg hover:scale-105 transition-transform duration-300">
+              <div className="flex flex-col items-center">
+                <TrendingUp size={32} className="mb-2" />
+                <p className="uppercase text-xs opacity-80">Score</p>
+                <p className="text-4xl font-extrabold mt-1">{result.score}%</p>
+              </div>
             </div>
-            <div className="text-center p-4 bg-muted rounded-lg">
-              <p className="text-sm text-muted-foreground uppercase">
-                Bonnes réponses
-              </p>
-              <p className="text-3xl font-bold">
-                {result.correctAnswers} / {result.totalQuestions}
-              </p>
+
+            {/* Bonnes réponses */}
+            <div className="p-6 rounded-xl bg-gradient-to-br bg-gold text-white shadow-lg hover:scale-105 transition-transform duration-300">
+              <div className="flex flex-col items-center">
+                <CheckCircle size={32} className="mb-2" />
+                <p className="uppercase text-xs opacity-80">Bonnes réponses</p>
+                <p className="text-3xl font-semibold mt-1">
+                  {result.correctAnswers} / {result.totalQuestions}
+                </p>
+              </div>
             </div>
-            <div className="text-center p-4 bg-muted rounded-lg">
-              <p className="text-sm text-muted-foreground uppercase">
-                Temps passé
-              </p>
-              <p className="text-3xl font-bold">
-                {Math.floor(result.timeSpent / 60)}:
-                {(result.timeSpent % 60).toString().padStart(2, "0")}
-              </p>
+
+            {/* Temps passé */}
+            <div className="p-6 rounded-xl bg-gradient-to-br bg-gold text-white shadow-lg hover:scale-105 transition-transform duration-300">
+              <div className="flex flex-col items-center">
+                <Clock size={32} className="mb-2" />
+                <p className="uppercase text-xs opacity-80">Temps passé</p>
+                <p className="text-3xl font-semibold mt-1">
+                  {Math.floor(result.timeSpent / 60)}:
+                  {(result.timeSpent % 60).toString().padStart(2, "0")}
+                </p>
+              </div>
             </div>
-            <div className="text-center p-4 bg-muted rounded-lg">
-              <p className="text-sm text-muted-foreground uppercase">
-                Complété le
-              </p>
-              <p className="text-3xl font-bold">
-                {new Date(result.completedAt).toLocaleDateString()}
-              </p>
+
+            {/* Date de complétion */}
+            <div className="p-6 rounded-xl bg-gradient-to-br bg-gold text-white shadow-lg hover:scale-105 transition-transform duration-300">
+              <div className="flex flex-col items-center">
+                <Calendar size={32} className="mb-2" />
+                <p className="uppercase text-xs opacity-80">Complété le</p>
+                <p className="text-3xl font-semibold mt-1">
+                  {new Date(result.completedAt).toLocaleDateString()}
+                </p>
+              </div>
             </div>
           </div>
         </div>
