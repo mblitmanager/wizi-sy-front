@@ -32,10 +32,10 @@ export class QuizAnswerService {
       console.log("Réponses brutes:", answers);
       // Instead of submitting answer IDs, submit the answer text
       const formattedAnswers: Record<string, any> = {};
-
       for (const questionId in answers) {
         const answer = answers[questionId];
-        const questionType = answers[questionId]?.__type || null;
+        // Récupère le type de question depuis la clé 'questionType' si présente, sinon '__type'
+        const questionType = answer?.questionType || answer?.__type || null;
 
         if (
           questionType === "correspondance" &&
@@ -70,7 +70,7 @@ export class QuizAnswerService {
           formattedAnswers[questionId] = Object.values(rest);
         } else if (typeof answer === 'object' && !Array.isArray(answer)) {
           formattedAnswers[questionId] = Object.entries(answer).reduce((acc, [key, value]) => {
-            if (key !== 'questionType') acc[key] = value.text || value;
+            if (key !== 'questionType' && key !== '__type') acc[key] = value.text || value;
             return acc;
           }, {});
         } else if (Array.isArray(answer)) {
