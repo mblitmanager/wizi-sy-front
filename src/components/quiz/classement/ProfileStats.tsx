@@ -63,12 +63,13 @@ export function ProfileStats({ profile, stats, loading = false }: ProfileStatsPr
           <Card>
             <CardHeader className="p-4">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Quiz complétés
+                Quiz joués
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0">
               <div className="text-2xl font-bold">
-                {stats.completedQuizzes || 0} / {stats.totalQuizzes || 0}
+                {/* {stats.completedQuizzes || 0} / */}
+                 {stats.totalQuizzes || 0}
               </div>
             </CardContent>
           </Card>
