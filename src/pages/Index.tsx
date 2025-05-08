@@ -29,7 +29,7 @@ export function Index() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <Button size="lg" asChild>
-                    <Link to="/register">
+                    <Link to="/login">
                       Commencer maintenant
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
