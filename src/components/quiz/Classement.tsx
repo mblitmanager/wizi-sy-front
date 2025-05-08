@@ -17,7 +17,8 @@ export function Classement() {
     stats: true,
     ranking: true,
   });
-
+console.log("globalRanking", globalRanking);
+console.log("profile", profile);
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
@@ -90,7 +91,7 @@ export function Classement() {
           <TabsTrigger value="history">Mon historique</TabsTrigger>
         </TabsList>
         <TabsContent value="ranking">
-          <GlobalRanking ranking={globalRanking} loading={loading.ranking} />
+          <GlobalRanking ranking={globalRanking} loading={loading.ranking} currentUserId={profile?.stagiaire?.id?.toString()} />
         </TabsContent>
         <TabsContent value="history">
           <QuizHistory history={quizHistory} loading={loading.history} />

@@ -9,11 +9,16 @@ import { FormationCard } from "@/components/dashboard/FormationCard";
 import { ChallengeCard } from "@/components/dashboard/ChallengeCard";
 import { RankingCard } from "@/components/dashboard/RankingCard";
 import { AgendaCard } from "@/components/dashboard/AgendaCard";
+import { useLoadQuizData } from "@/use-case/hooks/profile/useLoadQuizData";
+import { useLoadRankings } from "@/use-case/hooks/profile/useLoadRankings";
 import { categories, formations, challenges, rankings, agendaEvents } from "@/data/mockData";
+import StatsSummary from "@/components/profile/StatsSummary";
+import FormationCatalogue from "@/components/profile/FormationCatalogue";
+import ContactsSection  from "@/components/profile/ContactsSection";
 
 export function Index() {
   const { user } = useUser();
-
+const { userProgress } = useLoadRankings();
   if (!user) {
     return (
       <Layout>
@@ -25,7 +30,7 @@ export function Index() {
                   Apprenez de façon interactive et ludique
                 </h1>
                 <p className="text-lg text-gray-600">
-                  Bienvenue sur Wizi Learn, la plateforme de quiz éducatifs d'AOPIA pour les stagiaires. Testez vos connaissances, suivez votre progression et développez vos compétences professionnelles.
+                  Bienvenue sur Wizi Learn, la plateforme de quiz éducatifs pour nos stagiaires. Testez vos connaissances, suivez votre progression et développez vos compétences professionnelles.
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <Button size="lg" asChild>
@@ -34,9 +39,9 @@ export function Index() {
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
-                  <Button size="lg" variant="outline" asChild>
+                  {/* <Button size="lg" variant="outline" asChild>
                     <Link to="/login">Connexion</Link>
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
               <div className="lg:w-1/2">
@@ -108,9 +113,9 @@ export function Index() {
                 <div className="w-12 h-12 bg-bureautique/10 text-bureautique rounded-full flex items-center justify-center mb-4">
                   <span className="font-bold">1</span>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Choisissez une catégorie</h3>
+                <h3 className="text-xl font-semibold mb-2">Choisissez un quiz</h3>
                 <p className="text-gray-600">
-                  Sélectionnez parmi nos 4 catégories de quiz: Bureautique, Langues, Internet ou Création.
+                  Sélectionnez parmi nos quiz, suivant votre formation.
                 </p>
               </div>
 
@@ -143,6 +148,7 @@ export function Index() {
   // User dashboard
   return (
     <Layout>
+        
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold">Tableau de bord</h1>
@@ -153,13 +159,22 @@ export function Index() {
             </Link>
           </Button>
         </div>
+        <div className="mt-16 space-y-12">
+          {userProgress && <StatsSummary userProgress={userProgress} />}
+          
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow-sm">
+          <ContactsSection />
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <ProgressCard user={user} />
           <AgendaCard events={agendaEvents} />
           <RankingCard rankings={rankings} currentUserId={user.id} />
+          
+          
         </div>
-
+        
         <h2 className="text-2xl font-semibold mb-4">Formations récentes</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {formations.slice(0, 3).map((formation) => (
