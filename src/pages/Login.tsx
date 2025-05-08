@@ -23,7 +23,7 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-b from-white via-blue-50 to-gray-100">
+    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-t from-[#FEB823] via-[#FFF8E1] to-white">
       {/* Logo en haut */}
       <div className="flex flex-col items-center mb-8">
         <img
@@ -31,21 +31,20 @@ const Login = () => {
           alt="Wizi Learn"
           className="h-16 mb-2 drop-shadow-lg"
         />
-        {/* <h1 className="text-3xl font-bold text-bureautique mb-1 font-astria">Wizi Learn</h1> */}
-        <p className="text-gray-500 text-center max-w-xs">La plateforme de quiz éducatifs pour nos stagiaires</p>
+        <p className="text-[#000] font-bold text-center max-w-xs">La plateforme de quiz éducatifs pour nos stagiaires</p>
       </div>
       <div className="w-full max-w-md px-4">
-        <Card className="shadow-xl border-2 border-bureautique/30 bg-white/90 backdrop-blur-md">
+        <Card className="shadow-xl border-2 border-[#FEB823]/30 bg-white/90 backdrop-blur-md">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center text-bureautique">Connexion</CardTitle>
-            <CardDescription className="text-center">
+            {/* <CardTitle className="text-2xl font-bold text-center text-[#FEB823]">Connexion</CardTitle> */}
+            <CardDescription className="text-center text-[#FEB823] font-semibold text-lg">
               Entrez vos identifiants pour accéder à votre compte
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium">
+                <label htmlFor="email" className="text-sm font-medium text-[#A55E6E]">
                   Email
                 </label>
                 <Input
@@ -56,16 +55,17 @@ const Login = () => {
                   placeholder="exemple@wizi-learn.com"
                   required
                   autoComplete="email"
+                  className="focus:border-[#3D9BE9]"
                 />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label htmlFor="password" className="text-sm font-medium">
+                  <label htmlFor="password" className="text-sm font-medium text-[#A55E6E]">
                     Mot de passe
                   </label>
                   <Link
                     to="/forgot-password"
-                    className="text-sm text-primary hover:underline"
+                    className="text-sm text-[#A55E6E] hover:underline"
                   >
                     Mot de passe oublié ?
                   </Link>
@@ -78,21 +78,16 @@ const Login = () => {
                   placeholder="••••••••"
                   required
                   autoComplete="current-password"
+                  className="focus:border-[#A55E6E]"
                 />
               </div>
               <Button
                 type="submit"
-                className="w-full bg-bureautique hover:bg-bureautique/90 text-white font-semibold shadow-md transition"
+                className="w-full bg-[#FEB823] hover:bg-[#FFC533] text-black font-semibold shadow-md transition"
                 disabled={isLoading}
               >
                 {isLoading ? "Connexion en cours..." : "Se connecter"}
               </Button>
-              {/* <p className="text-center text-sm">
-                Pas encore de compte ?{" "}
-                <Link to="/register" className="text-bureautique hover:underline font-medium">
-                  Créer un compte
-                </Link>
-              </p> */}
             </form>
           </CardContent>
         </Card>

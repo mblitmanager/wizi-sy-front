@@ -15,6 +15,7 @@ import { categories, formations, challenges, rankings, agendaEvents } from "@/da
 import StatsSummary from "@/components/profile/StatsSummary";
 import FormationCatalogue from "@/components/profile/FormationCatalogue";
 import ContactsSection  from "@/components/profile/ContactsSection";
+import ParrainageSection  from "@/components/profile/ParrainageSection";
 
 export function Index() {
   const { user } = useUser();
@@ -182,12 +183,13 @@ const { userProgress } = useLoadRankings();
           ))}
         </div>
 
-        <h2 className="text-2xl font-semibold mb-4">Défis disponibles</h2>
+        {/* <h2 className="text-2xl font-semibold mb-4">Défis disponibles</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {challenges.map((challenge) => (
             <ChallengeCard key={challenge.id} challenge={challenge} />
           ))}
-        </div>
+        </div> */}
+        <ParrainageSection />
       </div>
     </Layout>
   );

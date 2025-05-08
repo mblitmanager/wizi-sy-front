@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export interface ProfileStatsProps {
@@ -43,45 +42,44 @@ export function ProfileStats({ profile, stats, loading = false }: ProfileStatsPr
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Mes statistiques</CardTitle>
+        <CardTitle className="text-[#FEB823]">Mes statistiques</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
-            <CardHeader className="p-4">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardHeader className="p-4 bg-[#3D9BE9] rounded-t-lg">
+              <CardTitle className="text-sm font-medium text-white">
                 Score total
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-4 pt-0">
-              <div className="text-2xl font-bold">
+            <CardContent className="p-4 pt-0 bg-[#EAF5FE] rounded-b-lg">
+              <div className="text-2xl font-bold text-[#3D9BE9]">
                 {stats.totalScore || 0}
               </div>
             </CardContent>
           </Card>
           
           <Card>
-            <CardHeader className="p-4">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardHeader className="p-4 bg-[#A55E6E] rounded-t-lg">
+              <CardTitle className="text-sm font-medium text-white">
                 Quiz joués
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-4 pt-0">
-              <div className="text-2xl font-bold">
-                {/* {stats.completedQuizzes || 0} / */}
-                 {stats.totalQuizzes || 0}
+            <CardContent className="p-4 pt-0 bg-[#F8F0F2] rounded-b-lg">
+              <div className="text-2xl font-bold text-[#A55E6E]">
+                {stats.totalQuizzes || 0}
               </div>
             </CardContent>
           </Card>
           
           <Card>
-            <CardHeader className="p-4">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardHeader className="p-4 bg-[#FFC533] rounded-t-lg">
+              <CardTitle className="text-sm font-medium text-black">
                 Score moyen
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-4 pt-0">
-              <div className="text-2xl font-bold">
+            <CardContent className="p-4 pt-0 bg-[#FFF8E1] rounded-b-lg">
+              <div className="text-2xl font-bold text-[#FFC533]">
                 {stats.averageScore ? Math.round(stats.averageScore) : 0}%
               </div>
             </CardContent>

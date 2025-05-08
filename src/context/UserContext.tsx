@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { User } from "@/types";
 import { toast } from "sonner";
@@ -96,25 +95,20 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (token) {
-        await fetch('https://wizi-learn.com/api/logout', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-      }
-    } catch (error) {
+  const logout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+    setToken(null);
+    toast.success("Déconnexion réussie");
+    // Optionnel : vous pouvez faire l'appel API en arrière-plan si besoin
+    fetch('https://wizi-learn.com/api/logout', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+    }).catch((error) => {
       console.error("Logout error:", error);
-    } finally {
-      localStorage.removeItem('token');
-      setUser(null);
-      setToken(null);
-      toast.success("Déconnexion réussie");
-    }
+    });
   };
 
   const updateUser = (updatedUser: Partial<User>) => {
