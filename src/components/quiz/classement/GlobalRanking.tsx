@@ -54,6 +54,10 @@ export function GlobalRanking({
     });
   }, [filteredRanking, sortKey, sortOrder]);
 
+  // Calcul des totaux à partir du classement global
+  const totalPoints = sortedRanking.reduce((sum, entry) => sum + (entry.score || 0), 0);
+  const totalQuizzes = sortedRanking.reduce((sum, entry) => sum + (entry.quizCount || 0), 0);
+
   if (loading) {
     return (
       <Card>
@@ -86,6 +90,12 @@ export function GlobalRanking({
         <h2 className="text-lg font-semibold text-gray-700">
           Classement global
         </h2>
+        <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-700">
+          <span className="font-semibold">Total points : </span>
+          <span>{totalPoints}</span>
+          <span className="font-semibold ml-6">Total quiz joués : </span>
+          <span>{totalQuizzes}</span>
+        </div>
       </div>
 
       {/* Content */}

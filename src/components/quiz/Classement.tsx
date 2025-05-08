@@ -79,6 +79,22 @@ console.log("profile", profile);
     fetchQuizHistory();
   }, []);
 
+  // Calcul des stats utilisateur à partir du classement global
+  const userEntry = globalRanking.find(
+    (entry) => entry.id?.toString() === profile?.stagiaire?.id?.toString()
+  );
+  const stats = userEntry
+    ? {
+        totalScore: userEntry.score || 0,
+        totalQuizzes: userEntry.quizCount || 0,
+        averageScore: userEntry.averageScore || 0,
+      }
+    : {
+        totalScore: 0,
+        totalQuizzes: 0,
+        averageScore: 0,
+      };
+
   return (
     <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
       {/* Header */}
@@ -90,8 +106,8 @@ console.log("profile", profile);
       <div className="w-full">
         <ProfileStats
           profile={profile}
-          stats={quizStats}
-          loading={loading.profile || loading.stats}
+          stats={stats}
+          loading={loading.profile || loading.ranking}
         />
       </div>
 

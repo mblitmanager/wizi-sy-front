@@ -146,7 +146,7 @@ export function StagiaireQuizCard({
           </Badge>
           <Badge variant="outline" className="text-sm">
             <Award className="w-4 h-4 mr-2" />
-            {quiz.points} pts
+            {/* {quiz.points} pts */}
           </Badge>
         </div>
       </CardContent>

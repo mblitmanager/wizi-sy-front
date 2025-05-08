@@ -163,7 +163,7 @@ export function StagiaireQuizList() {
         {/* Section des quiz joués */}
         <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6">
           <h3 className="text-lg font-semibold mb-2 text-gray-700">
-            Rejouez à vos quiz
+            Rejouez à vos anciens quiz
           </h3>
           <hr className="mb-4" />
           {playedQuizzes.length === 0 ? (

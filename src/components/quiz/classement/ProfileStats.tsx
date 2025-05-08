@@ -81,7 +81,8 @@ export function ProfileStats({
               Quiz complétés
             </p>
             <p className="text-2xl sm:text-3xl font-semibold mt-1">
-              {stats.completedQuizzes || 0} / {stats.totalQuizzes || 0}
+              {/* {stats.completedQuizzes || 0} /  */}
+              {stats.totalQuizzes || 0}
             </p>
           </div>
         </div>
