@@ -176,12 +176,12 @@ const { userProgress } = useLoadRankings();
           
         </div>
         
-        <h2 className="text-2xl font-semibold mb-4">Formations récentes</h2>
+        {/* <h2 className="text-2xl font-semibold mb-4">Formations récentes</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {formations.slice(0, 3).map((formation) => (
             <FormationCard key={formation.id} formation={formation} />
           ))}
-        </div>
+        </div> */}
 
         {/* <h2 className="text-2xl font-semibold mb-4">Défis disponibles</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
