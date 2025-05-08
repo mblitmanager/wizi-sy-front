@@ -27,7 +27,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       if (storedToken) {
         try {
           // Vérifier si le token est valide
-          const response = await fetch('http://localhost:8000/api/me', {
+          const response = await fetch('https://wizi-learn.com/api/me', {
             headers: {
               'Authorization': `Bearer ${storedToken}`,
             },
@@ -60,7 +60,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/login', {
+      const response = await fetch('https://wizi-learn.com/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -75,7 +75,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('token', data.token);
         
         // Fetch user details
-        const userResponse = await fetch('http://localhost:8000/api/me', {
+        const userResponse = await fetch('https://wizi-learn.com/api/me', {
           headers: {
             'Authorization': `Bearer ${data.token}`,
           },
@@ -100,7 +100,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     try {
       const token = localStorage.getItem('token');
       if (token) {
-        await fetch('http://localhost:8000/api/logout', {
+        await fetch('https://wizi-learn.com/api/logout', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
