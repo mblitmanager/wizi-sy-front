@@ -70,9 +70,22 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
     },
   ];
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      // 1. Nettoyage immédiat
+      localStorage.removeItem("token");
+
+      // 2. Déconnexion globale (si votre hook gère un état)
+      if (logout) logout();
+
+      // 3. Option 1: Redirection ultra-rapide (recharge la page)
+      // window.location.assign("/login");
+
+      // OU Option 2: Redirection avec React Router (moins instantanée)
+      navigate("/login", { replace: true });
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   return (

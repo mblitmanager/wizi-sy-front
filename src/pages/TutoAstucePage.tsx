@@ -84,14 +84,15 @@ export default function TutoAstucePage() {
           </div>
         ) : (
           <div className="flex flex-col sm:gap-4 md:grid md:grid-cols-2 bg-white rounded-2xl shadow-lg gap-6 mt-6">
-            <div className="p-3 sm:p-4 overflow-y-auto max-h-[60vh]">
+            <div className="order-2 md:order-1 p-3 sm:p-4 overflow-y-auto max-h-[60vh] sm:max-h-none sm:overflow-auto">
               <MediaList
                 medias={medias}
                 selectedMedia={selectedMedia}
                 onSelect={setSelectedMedia}
               />
             </div>
-            <div className="p-3 sm:p-4">
+
+            <div className="order-1 md:order-2 p-3 sm:p-4 sticky top-0 bg-white rounded-2xl shadow-lg max-h-[60vh] sm:max-h-none overflow-hidden ">
               <MediaPlayer media={selectedMedia} />
             </div>
           </div>

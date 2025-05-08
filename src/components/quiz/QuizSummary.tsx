@@ -76,7 +76,6 @@ export function QuizSummary({
           return (
             Object.values(userAnswer)
               .map((val) => {
-                // Cherche une réponse correspondante dans answers
                 const found = question.answers?.find(
                   (a) =>
                     normalizeString(a.text) === normalizeString(String(val))
@@ -86,7 +85,6 @@ export function QuizSummary({
               .join(", ") || "Aucune réponse"
           );
         }
-        // Cas fallback
         const found = question.answers?.find(
           (a) => normalizeString(a.text) === normalizeString(String(userAnswer))
         );
@@ -94,7 +92,6 @@ export function QuizSummary({
       }
 
       case "correspondance": {
-        // Pour les questions matching, on affiche les paires
         if (typeof userAnswer === "object" && !Array.isArray(userAnswer)) {
           const pairs = [];
           for (const leftId in userAnswer) {
@@ -111,8 +108,6 @@ export function QuizSummary({
           }
           return pairs.join("; ") || "Aucune réponse";
         }
-
-        // Format alternatif (array)
         if (Array.isArray(userAnswer)) {
           return userAnswer
             .map((id) => {
@@ -130,14 +125,11 @@ export function QuizSummary({
             })
             .join("; ");
         }
-
         return String(userAnswer);
       }
 
       case "carte flash": {
-        // Pour les cartes flash, retourner le texte de la réponse
         let value = userAnswer;
-        // Si la réponse est un objet avec selectedAnswers, on l'utilise
         if (
           userAnswer &&
           typeof userAnswer === "object" &&
@@ -145,7 +137,6 @@ export function QuizSummary({
         ) {
           value = userAnswer.selectedAnswers;
         }
-        // Si c'est un tableau, on prend le premier élément
         if (Array.isArray(value)) {
           value = value[0];
         }
@@ -161,7 +152,6 @@ export function QuizSummary({
       }
 
       case "vrai/faux": {
-        // Pour les questions vrai/faux, on affiche le texte de la réponse
         const answer = question.answers?.find(
           (a) => a.id === String(userAnswer)
         );
@@ -169,7 +159,6 @@ export function QuizSummary({
       }
 
       case "rearrangement": {
-        // Pour les questions d'ordre, afficher les étapes dans l'ordre soumis
         if (Array.isArray(userAnswer)) {
           return userAnswer
             .map((id, index) => {
@@ -181,8 +170,18 @@ export function QuizSummary({
         return String(userAnswer);
       }
 
+      case "question audio": {
+        if (
+          typeof userAnswer === "object" &&
+          "id" in userAnswer &&
+          "text" in userAnswer
+        ) {
+          return userAnswer.text;
+        }
+        return "Aucune réponse";
+      }
+
       default: {
-        // Pour les autres types de questions (QCM, etc.)
         if (Array.isArray(userAnswer)) {
           const answerTexts = userAnswer.map((id) => {
             const answer = question.answers?.find((a) => a.id === String(id));
@@ -190,9 +189,6 @@ export function QuizSummary({
           });
           return answerTexts.join(", ") || "Aucune réponse";
         }
-        console.log("user anwerquestion");
-        console.log(userAnswer);
-        // Si c'est une réponse unique
         const answer = question.answers?.find(
           (a) => a.id === String(userAnswer)
         );
@@ -492,227 +488,174 @@ export function QuizSummary({
   };
 
   return (
-    <div className="space-y-10 px-4  py-8">
+    <div className="space-y-6 px-3 py-6 sm:px-4 md:px-6">
       {/* Header */}
-      <div className="flex flex-wrap items-center gap-4 justify-between">
+      <div className="flex flex-wrap items-center gap-3 justify-between">
         <Button
           variant="outline"
           onClick={() => navigate("/quizzes")}
-          className="flex items-center gap-2 rounded-full px-4 py-2 shadow-sm hover:bg-muted transition-colors"
-        >
+          className="flex items-center gap-2 rounded-full px-3 py-1.5 text-sm shadow-sm hover:bg-muted transition-colors">
           <ArrowLeft className="h-4 w-4" />
           Retour
         </Button>
-        <h1 className="text-3xl font-bold text-gray-800">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
           {quiz.titre || "Quiz"}
         </h1>
       </div>
 
       {/* Résumé du Quiz */}
-      <Card className="bg-gradient-to-br from-slate-100 to-slate-300 border-none shadow-md rounded-2xl">
-        <CardHeader>
-          <CardTitle className="text-2xl text-center text-primary font-semibold">
+      <Card className="bg-gradient-to-br from-slate-100 to-slate-300 border-none shadow-md rounded-xl p-4 sm:p-6">
+        <CardHeader className="text-center">
+          <CardTitle className="text-lg sm:text-xl text-primary font-semibold">
             Résumé du Quiz
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center space-y-6">
+          <div className="text-center space-y-4">
             <div className="flex justify-center">
               <div
                 className={cn(
-                  "text-4xl font-extrabold rounded-full h-32 w-32 flex items-center justify-center shadow-lg transform transition-transform duration-500 border-4",
+                  "text-2xl sm:text-4xl font-extrabold rounded-full h-24 sm:h-32 w-24 sm:w-32 flex items-center justify-center shadow-lg border-4 transition-transform duration-300",
                   score >= 70
-                    ? "bg-gradient-to-br from-green-100 to-green-200 text-green-700 border-green-400 scale-110"
-                    : "bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 border-amber-400 scale-100"
-                )}
-              >
+                    ? "bg-green-100 text-green-700 border-green-400"
+                    : "bg-amber-100 text-amber-700 border-amber-400"
+                )}>
                 {score}%
               </div>
             </div>
+
             <Badge
               className={cn(
-                "px-4 py-2 text-sm rounded-full shadow-md transform transition-all duration-500",
+                "px-3 py-1 text-sm rounded-full shadow-md transition-all duration-300",
                 score >= 70
-                  ? "bg-green-500 text-white hover:scale-105"
-                  : "bg-amber-500 text-white hover:scale-105"
-              )}
-            >
+                  ? "bg-green-500 text-white"
+                  : "bg-amber-500 text-white"
+              )}>
               {successLevel}
             </Badge>
-            <p className="text-lg text-muted-foreground font-medium flex items-center justify-center space-x-2">
+
+            <div className="flex flex-col items-center gap-2">
               {score === 100 ? (
-                <>
-                  <span className="text-2xl">
-                    <img src={scoreparfait} className="w-16" alt="" />
-                  </span>
-                  <h2>Félicitations ! Score parfait!</h2>
-                </>
+                <img src={scoreparfait} className="w-12 sm:w-16" alt="" />
               ) : score >= 80 ? (
-                <>
-                  <span className="text-2xl">
-                    <img src={scoreexcellent} className="w-16" alt="" />
-                  </span>
-                  <h2>Excellent travail !</h2>
-                </>
+                <img src={scoreexcellent} className="w-12 sm:w-16" alt="" />
               ) : score >= 60 ? (
-                <>
-                  <span className="text-2xl">
-                    <img src={scorebien} className="w-16" alt="" />
-                  </span>
-                  <h2>Bien joué !</h2>
-                </>
+                <img src={scorebien} className="w-12 sm:w-16" alt="" />
               ) : (
-                <>
-                  <span className="text-2xl">
-                    <img src={scoremoyen} alt="" className="w-16" />
-                  </span>
-                  <h2>Continuez à vous entraîner !</h2>
-                </>
+                <img src={scoremoyen} className="w-12 sm:w-16" alt="" />
               )}
-            </p>
+              <p className="text-sm sm:text-lg text-muted-foreground font-medium">
+                {score === 100
+                  ? "Félicitations ! Score parfait!"
+                  : score >= 80
+                  ? "Excellent travail !"
+                  : score >= 60
+                  ? "Bien joué !"
+                  : "Continuez à vous entraîner !"}
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Détails des réponses */}
-      <ScrollArea className="h-[calc(100vh-400px)] md:h-auto">
-        <div className="space-y-6 p-2">
-          <h2 className="text-2xl font-semibold text-gray-800">
+      <ScrollArea className="h-[calc(100vh-350px)] sm:h-auto">
+        <div className="space-y-4 p-2">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
             Détails des réponses
           </h2>
 
-          {questions.map((question, index) => {
-            const userAnswer = userAnswers[question.id];
-            const isCorrect = isAnswerCorrect(question);
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {questions.map((question, index) => {
+              const userAnswer = userAnswers[question.id];
+              const isCorrect = isAnswerCorrect(question);
 
-            return (
-              <Card
-                key={question.id}
-                className={cn(
-                  "border-l-4 rounded-xl shadow-sm transition-all",
-                  isCorrect ? "border-l-green-500" : "border-l-red-500"
-                )}
-              >
-                <CardHeader className="pb-2">
+              return (
+                <Card
+                  key={question.id}
+                  className={cn(
+                    "border-l-4 rounded-lg shadow-sm p-4 space-y-3",
+                    isCorrect ? "border-green-500" : "border-red-500"
+                  )}>
                   <div className="flex items-center gap-2">
                     {isCorrect ? (
-                      <CheckCircle2 className="h-5 w-5 text-green-500" />
+                      <CheckCircle2 className="h-4 w-4 text-green-500" />
                     ) : (
-                      <XCircle className="h-5 w-5 text-red-500" />
+                      <XCircle className="h-4 w-4 text-red-500" />
                     )}
-                    <CardTitle className="text-base md:text-lg text-gray-700">
+                    <h3 className="text-sm sm:text-base font-semibold">
                       Question {index + 1}
-                    </CardTitle>
+                    </h3>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-4 pt-0">
-                  <p className="text-lg font-medium text-gray-800">
-                    {question.text}
-                  </p>
+
+                  <p className="text-sm text-gray-700">{question.text}</p>
 
                   {question.media_url && (
-                    <div className="flex justify-center my-4">
+                    <div className="flex justify-center">
                       {question.type === "question audio" ? (
-                        <div className="w-full max-w-md">
-                          <audio controls className="w-full rounded-lg">
-                            <source
-                              src={
-                                question.media_url.startsWith("http")
-                                  ? question.media_url
-                                  : `${import.meta.env.VITE_API_URL}/${
-                                      question.media_url
-                                    }`
-                              }
-                              type="audio/mpeg"
-                            />
-                            Votre navigateur ne supporte pas l'élément audio.
-                          </audio>
-                        </div>
+                        <audio controls className="w-full sm:w-auto rounded-lg">
+                          <source src={question.media_url} type="audio/mpeg" />
+                          Votre navigateur ne supporte pas l'élément audio.
+                        </audio>
                       ) : (
                         <img
-                          src={
-                            question.media_url.startsWith("http")
-                              ? question.media_url
-                              : `${import.meta.env.VITE_API_URL}/${
-                                  question.media_url
-                                }`
-                          }
+                          src={question.media_url}
                           alt="Question media"
-                          className="max-w-full h-auto rounded-xl shadow-md"
+                          className="w-full sm:w-auto h-auto rounded-lg"
                         />
                       )}
                     </div>
                   )}
 
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Votre réponse :
-                    </p>
-                    <div
-                      className={cn(
-                        "p-3 rounded-lg text-base font-semibold",
-                        isCorrect
-                          ? "bg-green-50 text-green-800 border border-green-200"
-                          : "bg-red-50 text-red-800 border border-red-200"
-                      )}
-                    >
-                      {userAnswer
-                        ? formatAnswer(question, userAnswer)
-                        : "Aucune réponse"}
-                    </div>
+                  <div className="text-sm">
+                    <span className="font-semibold">Votre réponse :</span>{" "}
+                    {userAnswer
+                      ? formatAnswer(question, userAnswer)
+                      : "Aucune réponse"}
                   </div>
 
                   {!isCorrect && (
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Bonne réponse :
-                      </p>
-                      <div className="p-3 rounded-lg bg-green-50 text-green-800 text-base border border-green-200">
-                        {formatCorrectAnswer(question)}
-                      </div>
+                    <div className="text-sm">
+                      <span className="font-semibold">Bonne réponse :</span>{" "}
+                      {formatCorrectAnswer(question)}
                     </div>
                   )}
 
                   {question.explication && (
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Explication :
-                      </p>
-                      <Alert className="p-3 bg-blue-50 text-blue-800 text-base border border-blue-200">
-                        {question.explication}
-                      </Alert>
-                    </div>
+                    <Alert className="text-sm bg-blue-50 text-blue-800 border border-blue-200 p-2">
+                      {question.explication}
+                    </Alert>
                   )}
-                </CardContent>
-              </Card>
-            );
-          })}
+                </Card>
+              );
+            })}
+          </div>
         </div>
       </ScrollArea>
 
       {/* Footer buttons */}
-      <div className="flex flex-wrap justify-center gap-4 mt-10">
+      {/* Footer buttons */}
+      <div className="flex flex-wrap justify-center gap-2 mt-6">
         <Button
           onClick={() => navigate("/quizzes")}
           variant="outline"
-          className="flex items-center gap-2 rounded-full px-6 py-3 shadow-sm hover:bg-muted transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Retour à la liste
+          className="flex-1 min-w-[110px] px-4 py-2 text-sm rounded-full hover:bg-muted transition">
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Retour
         </Button>
+
         <Button
           onClick={() => navigate(`/quiz/${quiz.id}`)}
-          className="flex items-center gap-2 rounded-full px-6 py-3 bg-primary text-white shadow-md hover:bg-primary/90 transition-colors border border-primary"
-        >
-          <CheckCircle2 className="h-4 w-4" />
+          className="flex-1 min-w-[110px] px-4 py-2 text-sm bg-primary text-white rounded-full hover:bg-primary/90 transition">
+          <CheckCircle2 className="h-4 w-4 mr-1" />
           Recommencer
         </Button>
+
         <Button
           onClick={() => navigate(`/classement`)}
           variant="outline"
-          className="flex items-center gap-2 rounded-full px-6 py-3 shadow-sm hover:bg-muted transition-colors"
-        >
-          <span className="inline-block w-4 h-4 bg-yellow-400 rounded-full mr-1" />
+          className="flex-1 min-w-[110px] px-4 py-2 text-sm rounded-full hover:bg-muted transition">
+          <span className="inline-block w-3 h-3 bg-yellow-400 rounded-full mr-1" />
           Classement
         </Button>
       </div>
