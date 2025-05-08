@@ -8,8 +8,8 @@ import { useAuth } from "@/hooks/useAuth";
 
 const Login = () => {
   const { user, login, isLoading } = useAuth();
-  const [email, setEmail] = useState("demo@aopia.fr");
-  const [password, setPassword] = useState("password");
+  const [email, setEmail] = useState();
+  const [password, setPassword] = useState();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +30,7 @@ const Login = () => {
           alt="Wizi Learn"
           className="h-16 mb-2 drop-shadow-lg"
         />
-        <h1 className="text-3xl font-bold text-bureautique mb-1 font-astria">Wizi Learn</h1>
+        {/* <h1 className="text-3xl font-bold text-bureautique mb-1 font-astria">Wizi Learn</h1> */}
         <p className="text-gray-500 text-center max-w-xs">La plateforme de quiz éducatifs d'AOPIA pour les stagiaires</p>
       </div>
       <div className="w-full max-w-md px-4">
@@ -52,7 +52,7 @@ const Login = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="exemple@aopia.fr"
+                  placeholder="exemple@wizi-learn.com"
                   required
                   autoComplete="email"
                 />
@@ -86,12 +86,12 @@ const Login = () => {
               >
                 {isLoading ? "Connexion en cours..." : "Se connecter"}
               </Button>
-              <p className="text-center text-sm">
+              {/* <p className="text-center text-sm">
                 Pas encore de compte ?{" "}
                 <Link to="/register" className="text-bureautique hover:underline font-medium">
                   Créer un compte
                 </Link>
-              </p>
+              </p> */}
             </form>
           </CardContent>
         </Card>
