@@ -98,72 +98,86 @@ export function StagiaireQuizList() {
       </div>
     );
   }
-
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-        <h2 className="text-2xl font-bold mb-4 md:mb-0">Mes Quiz</h2>
-        <div className="flex items-center gap-2">
-          {/* Filtre par catégorie */}
-          <span className="text-sm text-gray-500">Catégorie :</span>
-          <select
-            className="border rounded px-2 py-1 text-sm"
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-          >
-            <option value="all">Toutes</option>
-            {(categories || []).map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-          {/* Filtre par niveau */}
-          <span className="text-sm text-gray-500 ml-4">Niveau :</span>
-          <select
-            className="border rounded px-2 py-1 text-sm"
-            value={selectedLevel}
-            onChange={(e) => setSelectedLevel(e.target.value)}
-          >
-            <option value="all">Tous les niveaux</option>
-            {levels.map((level) => (
-              <option key={level} value={level}>
-                {level}
-              </option>
-            ))}
-          </select>
-          {selectedLevel !== "all" && (
-            <button
-              className="ml-2 px-2 py-1 border rounded text-xs"
-              onClick={() => setSelectedLevel("all")}
-            >
-              Réinitialiser
-            </button>
+    <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8 space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+        <h2 className="text-2xl sm:text-3xl font-bold">Mes Quiz</h2>
+
+        <div className="flex flex-row flex-wrap gap-2 sm:gap-4 items-center">
+          {/* Catégorie */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Catégorie :</span>
+            <select
+              className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring focus:ring-blue-200"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}>
+              <option value="all">Toutes</option>
+              {(categories || []).map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Niveau */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Niveau :</span>
+            <select
+              className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring focus:ring-blue-200"
+              value={selectedLevel}
+              onChange={(e) => setSelectedLevel(e.target.value)}>
+              <option value="all">Tous les niveaux</option>
+              {levels.map((level) => (
+                <option key={level} value={level}>
+                  {level}
+                </option>
+              ))}
+            </select>
+            {selectedLevel !== "all" && (
+              <button
+                className="px-2 py-1 border border-gray-300 rounded-md text-xs text-gray-600 hover:bg-gray-100"
+                onClick={() => setSelectedLevel("all")}>
+                Réinitialiser
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-6">
+        {/* Section des quiz non joués */}
+        <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6">
+          {notPlayedQuizzes.length === 0 ? (
+            <div className="text-center py-12 sm:py-16 bg-gray-50 rounded-lg">
+              <p className="text-gray-500">Tous les quiz ont été joués !</p>
+            </div>
+          ) : (
+            <StagiaireQuizGrid
+              quizzes={notPlayedQuizzes}
+              categories={categories || []}
+            />
+          )}
+        </div>
+
+        {/* Section des quiz joués */}
+        <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6">
+          <h3 className="text-lg font-semibold mb-2 text-gray-700">
+            Rejouez à vos quiz
+          </h3>
+          <hr className="mb-4" />
+          {playedQuizzes.length === 0 ? (
+            <div className="text-center py-12 sm:py-16 bg-gray-50 rounded-lg">
+              <p className="text-gray-500">Aucun quiz joué pour l’instant.</p>
+            </div>
+          ) : (
+            <StagiaireQuizGrid
+              quizzes={playedQuizzes}
+              categories={categories || []}
+            />
           )}
         </div>
       </div>
-      {/* <h3 className="text-lg font-bold mb-2">Quiz non joués</h3> */}
-      {notPlayedQuizzes.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-500">Tous les quiz ont été joués !</p>
-        </div>
-      ) : (
-        <StagiaireQuizGrid
-          quizzes={notPlayedQuizzes}
-          categories={categories || []}
-        />
-      )}
-      <h3 className="text-lg font-bold mt-8 mb-2">Rejouez à vos quiz</h3>
-      {playedQuizzes.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-500">Aucun quiz joué pour l’instant.</p>
-        </div>
-      ) : (
-        <StagiaireQuizGrid
-          quizzes={playedQuizzes}
-          categories={categories || []}
-        />
-      )}
     </div>
   );
 }

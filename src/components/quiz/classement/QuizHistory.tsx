@@ -1,13 +1,16 @@
-import React, { useMemo, useState } from 'react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import React, { useState, useMemo } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { QuizHistory as QuizHistoryType } from "@/types/quiz";
-
-interface QuizHistoryProps {
-  history: QuizHistoryType[];
-}
 
 // Color map for categories
 const CATEGORY_COLORS: Record<string, string> = {
@@ -33,15 +36,20 @@ function getScoreColor(score: number) {
   return 'text-red-600 font-semibold';
 }
 
+interface QuizHistoryProps {
+  history: QuizHistoryType[];
+}
+
 export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
   const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
-  const totalPages = Math.ceil((history?.length || 0) / itemsPerPage);
+  const itemsPerPage = 5;
 
   const paginatedHistory = useMemo(() => {
-    const start = (page - 1) * itemsPerPage;
-    return history.slice(start, start + itemsPerPage);
-  }, [history, page]);
+    const startIndex = (page - 1) * itemsPerPage;
+    return history.slice(startIndex, startIndex + itemsPerPage);
+  }, [page, history]);
+
+  const totalPages = Math.ceil(history.length / itemsPerPage);
 
   if (!history || history.length === 0) {
     return (
@@ -57,66 +65,131 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Historique des Quiz</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Quiz</TableHead>
-              <TableHead>Catégorie</TableHead>
-              <TableHead>Score</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Temps</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedHistory.map((quiz) => (
-              <TableRow key={quiz.id}>
-                <TableCell className="font-medium">{quiz.quiz.title}</TableCell>
-                <TableCell>
-                  <span className={`px-2 py-1 rounded text-xs ${getCategoryColor(quiz.quiz.category)}`}>
-                    {quiz.quiz.category}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span className={getScoreColor(quiz.score)}>{quiz.score}%</span>
-                </TableCell>
-                <TableCell>
-                  {format(new Date(quiz.completedAt), "PPP", { locale: fr })}
-                </TableCell>
-                <TableCell>
-                  {Math.round(quiz.timeSpent / 60)} min
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        {/* Pagination Controls */}
-        {totalPages > 1 && (
-          <div className="flex justify-center items-center gap-2 mt-4">
-            <button
-              className="px-2 py-1 border rounded disabled:opacity-50"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-            >
-              Précédent
-            </button>
-            <span>
-              Page {page} / {totalPages}
-            </span>
-            <button
-              className="px-2 py-1 border rounded disabled:opacity-50"
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-            >
-              Suivant
-            </button>
+    <div className="border rounded-lg bg-white shadow-sm">
+      {/* Header */}
+      <div className="p-4 border-b">
+        <h2 className="text-lg font-semibold">Historique des Quiz</h2>
+      </div>
+
+      {/* Content */}
+      <div className="p-2 sm:p-4">
+        {/* Mobile View */}
+        <div className="sm:hidden space-y-3">
+          {paginatedHistory.map((quiz) => (
+            <div key={quiz.id} className={`p-3 border rounded-lg ${getCategoryColor(quiz.quiz.category)}`}>
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-medium">{quiz.quiz.title}</h3>
+                  <p className="text-sm text-gray-500">{quiz.quiz.category}</p>
+                </div>
+                <div className="text-primary font-medium">{quiz.score}%</div>
+              </div>
+              <div className="mt-2 flex justify-between text-sm text-gray-500">
+                <div>
+                  {format(new Date(quiz.completedAt), "dd/MM/yy", {
+                    locale: fr,
+                  })}
+                </div>
+                <div>{Math.round(quiz.timeSpent / 60)} min</div>
+              </div>
+            </div>
+          ))}
+          {/* Pagination Controls mobile */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-4">
+              <button
+                className="px-2 py-1 border rounded disabled:opacity-50"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+              >
+                Précédent
+              </button>
+              <span>
+                Page {page} / {totalPages}
+              </span>
+              <button
+                className="px-2 py-1 border rounded disabled:opacity-50"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+              >
+                Suivant
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Desktop View */}
+        <div className="hidden sm:block">
+          <div className="border rounded-lg overflow-hidden">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Quiz
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Catégorie
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Score
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Date
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Temps
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {paginatedHistory.map((quiz) => (
+                  <tr key={quiz.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 whitespace-nowrap font-medium">
+                      {quiz.quiz.title}
+                    </td>
+                    <td className={`px-4 py-3 whitespace-nowrap ${getCategoryColor(quiz.quiz.category)}`}>
+                      {quiz.quiz.category}
+                    </td>
+                    <td className={`px-4 py-3 whitespace-nowrap ${getScoreColor(quiz.score)}`}>
+                      {quiz.score}%
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      {format(new Date(quiz.completedAt), "PPP", {
+                        locale: fr,
+                      })}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      {Math.round(quiz.timeSpent / 60)} min
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        )}
-      </CardContent>
-    </Card>
+          {/* Pagination Controls desktop */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-4">
+              <button
+                className="px-2 py-1 border rounded disabled:opacity-50"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+              >
+                Précédent
+              </button>
+              <span>
+                Page {page} / {totalPages}
+              </span>
+              <button
+                className="px-2 py-1 border rounded disabled:opacity-50"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+              >
+                Suivant
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };

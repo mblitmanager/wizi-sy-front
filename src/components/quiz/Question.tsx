@@ -1,17 +1,16 @@
-
-import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { MultipleChoice } from './question-types/MultipleChoice';
-import { TrueFalse } from './question-types/TrueFalse';
-import { FillBlank } from './question-types/FillBlank';
-import { Ordering } from './question-types/Ordering';
-import { WordBank } from './question-types/WordBank';
-import { Matching } from './question-types/Matching';
-import { Flashcard } from './question-types/FlashCard';
-import { AudioQuestion } from './question-types/AudioQuestion';
-import { Question as QuizQuestion, QuestionType } from '@/types/quiz';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { MultipleChoice } from "./question-types/MultipleChoice";
+import { TrueFalse } from "./question-types/TrueFalse";
+import { FillBlank } from "./question-types/FillBlank";
+import { Ordering } from "./question-types/Ordering";
+import { WordBank } from "./question-types/WordBank";
+import { Matching } from "./question-types/Matching";
+import { Flashcard } from "./question-types/FlashCard";
+import { AudioQuestion } from "./question-types/AudioQuestion";
+import { Question as QuizQuestion, QuestionType } from "@/types/quiz";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 interface Answer {
   id: string;
@@ -31,10 +30,14 @@ interface QuestionProps {
   showFeedback?: boolean;
 }
 
-export const Question: React.FC<QuestionProps> = ({ question, onAnswer, showFeedback = false }) => {
+export const Question: React.FC<QuestionProps> = ({
+  question,
+  onAnswer,
+  showFeedback = false,
+}) => {
   const renderQuestion = () => {
     switch (question.type) {
-      case 'choix multiples':
+      case "choix multiples":
         return (
           <MultipleChoice
             question={question}
@@ -42,7 +45,7 @@ export const Question: React.FC<QuestionProps> = ({ question, onAnswer, showFeed
             showFeedback={showFeedback}
           />
         );
-      case 'vrai/faux':
+      case "vrai/faux":
         return (
           <TrueFalse
             question={question}
@@ -50,7 +53,7 @@ export const Question: React.FC<QuestionProps> = ({ question, onAnswer, showFeed
             showFeedback={showFeedback}
           />
         );
-      case 'remplir le champ vide':
+      case "remplir le champ vide":
         return (
           <FillBlank
             question={question}
@@ -58,7 +61,7 @@ export const Question: React.FC<QuestionProps> = ({ question, onAnswer, showFeed
             showFeedback={showFeedback}
           />
         );
-      case 'rearrangement':
+      case "rearrangement":
         return (
           <Ordering
             question={question}
@@ -66,7 +69,7 @@ export const Question: React.FC<QuestionProps> = ({ question, onAnswer, showFeed
             showFeedback={showFeedback}
           />
         );
-      case 'banque de mots':
+      case "banque de mots":
         return (
           <WordBank
             question={question}
@@ -74,7 +77,7 @@ export const Question: React.FC<QuestionProps> = ({ question, onAnswer, showFeed
             showFeedback={showFeedback}
           />
         );
-      case 'correspondance':
+      case "correspondance":
         return (
           <Matching
             question={question}
@@ -82,7 +85,7 @@ export const Question: React.FC<QuestionProps> = ({ question, onAnswer, showFeed
             showFeedback={showFeedback}
           />
         );
-      case 'carte flash':
+      case "carte flash":
         return (
           <Flashcard
             question={question}
@@ -90,7 +93,7 @@ export const Question: React.FC<QuestionProps> = ({ question, onAnswer, showFeed
             showFeedback={showFeedback}
           />
         );
-      case 'question audio':
+      case "question audio":
         return (
           <AudioQuestion
             question={question}
@@ -116,7 +119,7 @@ export const Question: React.FC<QuestionProps> = ({ question, onAnswer, showFeed
       <CardContent className="pt-6">
         <div className="mb-3">
           <h3 className="text-xl font-bold mb-4">{question.text}</h3>
-          {question.media_url && (
+          {/* {question.media_url && (
             <div className="flex justify-center mb-4">
               {question.type === 'question audio' ? (
                 <div className="w-full max-w-md">
@@ -133,11 +136,11 @@ export const Question: React.FC<QuestionProps> = ({ question, onAnswer, showFeed
                 />
               )}
             </div>
-          )}
+          )} */}
         </div>
-        
+
         {renderQuestion()}
-        
+
         {showFeedback && question.explication && (
           <Alert className="mt-4 bg-blue-50">
             <div className="font-medium">

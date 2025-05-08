@@ -24,7 +24,7 @@ export default function MediaPlayer({ media }: Props) {
     if (!media.url) {
       return (
         <div className="flex items-center justify-center h-full text-gray-500 p-4">
-          <p className="italic">Pas de média disponible</p>
+          <p className="italic text-xs sm:text-sm">Pas de média disponible</p>
         </div>
       );
     }
@@ -74,7 +74,9 @@ export default function MediaPlayer({ media }: Props) {
         return (
           <div className="flex items-center justify-center h-full text-gray-500 p-4">
             <FileText className="w-6 h-6 mr-2" />
-            <p className="italic">Type de média non pris en charge</p>
+            <p className="italic text-xs sm:text-sm">
+              Type de média non pris en charge
+            </p>
           </div>
         );
     }
@@ -95,15 +97,15 @@ export default function MediaPlayer({ media }: Props) {
       </AnimatePresence>
 
       <div className="p-3 sm:p-4 space-y-4">
-        <h3 className="text-base sm:text-lg font-bold text-gray-800">
+        <h3 className=" text-sm sm:text-lg font-bold text-gray-800">
           {media.titre}
         </h3>
         <div
-          className="prose prose-sm sm:prose max-w-none text-gray-700"
+          className="hidden sm:block prose prose-sm sm:prose max-w-none text-gray-700"
           dangerouslySetInnerHTML={{ __html: media.description }}
         />
-        <div className="flex flex-wrap items-center gap-2 pt-3 text-xs text-gray-500 border-t">
-          <span className="bg-yellow-100 text-yellow-600 px-2 py-0.5 rounded-full font-medium">
+        <div className="hidden sm:block flex flex-wrap items-center gap-2 pt-3 text-xs sm:text-sm text-gray-500 border-t">
+          <span className="bg-yellow-100 text-yellow-600 px-2 py-0.5 rounded-full font-medium sm:text-sm">
             {media.categorie}
           </span>
           <span>{media.duree} min</span>

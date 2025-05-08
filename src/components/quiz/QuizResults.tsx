@@ -157,37 +157,43 @@ export function QuizResults() {
 
   return (
     <Layout>
-      <div className="container mx-auto py-6 px-4 lg:py-8 ">
+      <div className="container mx-auto py-6 px-4 lg:py-8">
         <NotificationBanner />
 
-        <div className="mb-10 p-6 border rounded-2xl bg-white shadow-xl dark:bg-gray-900 dark:border-gray-800">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="mb-10 p-4 sm:p-6 border rounded-2xl bg-white shadow-xl dark:bg-gray-900 dark:border-gray-800">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             {/* Score */}
-            <div className="p-6 rounded-xl bg-gradient-to-br bg-gold text-white shadow-lg hover:scale-105 transition-transform duration-300">
+            <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-br bg-gold text-white shadow-lg hover:scale-105 transition-transform duration-300">
               <div className="flex flex-col items-center">
-                <TrendingUp size={32} className="mb-2" />
-                <p className="uppercase text-xs opacity-80">Score</p>
-                <p className="text-4xl font-extrabold mt-1">{result.score}%</p>
+                <TrendingUp size={24} className="mb-1 sm:mb-2" />
+                <p className="uppercase text-xs sm:text-sm opacity-80">Score</p>
+                <p className="text-2xl sm:text-3xl font-extrabold mt-1">
+                  {result.score}%
+                </p>
               </div>
             </div>
 
             {/* Bonnes réponses */}
-            <div className="p-6 rounded-xl bg-gradient-to-br bg-gold text-white shadow-lg hover:scale-105 transition-transform duration-300">
+            <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-br bg-gold text-white shadow-lg hover:scale-105 transition-transform duration-300">
               <div className="flex flex-col items-center">
-                <CheckCircle size={32} className="mb-2" />
-                <p className="uppercase text-xs opacity-80">Bonnes réponses</p>
-                <p className="text-3xl font-semibold mt-1">
+                <CheckCircle size={24} className="mb-1 sm:mb-2" />
+                <p className="uppercase text-xs sm:text-sm opacity-80">
+                  Bonnes réponses
+                </p>
+                <p className="text-2xl sm:text-3xl font-semibold mt-1">
                   {result.correctAnswers} / {result.totalQuestions}
                 </p>
               </div>
             </div>
 
             {/* Temps passé */}
-            <div className="p-6 rounded-xl bg-gradient-to-br bg-gold text-white shadow-lg hover:scale-105 transition-transform duration-300">
+            <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-br bg-gold text-white shadow-lg hover:scale-105 transition-transform duration-300">
               <div className="flex flex-col items-center">
-                <Clock size={32} className="mb-2" />
-                <p className="uppercase text-xs opacity-80">Temps passé</p>
-                <p className="text-3xl font-semibold mt-1">
+                <Clock size={24} className="mb-1 sm:mb-2" />
+                <p className="uppercase text-xs sm:text-sm opacity-80">
+                  Temps passé
+                </p>
+                <p className="text-2xl sm:text-3xl font-semibold mt-1">
                   {Math.floor(result.timeSpent / 60)}:
                   {(result.timeSpent % 60).toString().padStart(2, "0")}
                 </p>
@@ -195,11 +201,13 @@ export function QuizResults() {
             </div>
 
             {/* Date de complétion */}
-            <div className="p-6 rounded-xl bg-gradient-to-br bg-gold text-white shadow-lg hover:scale-105 transition-transform duration-300">
+            <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-br bg-gold text-white shadow-lg hover:scale-105 transition-transform duration-300">
               <div className="flex flex-col items-center">
-                <Calendar size={32} className="mb-2" />
-                <p className="uppercase text-xs opacity-80">Complété le</p>
-                <p className="text-3xl font-semibold mt-1">
+                <Calendar size={24} className="mb-1 sm:mb-2" />
+                <p className="uppercase text-xs sm:text-sm opacity-80">
+                  Complété le
+                </p>
+                <p className="text-2xl sm:text-3xl font-semibold mt-1">
                   {new Date(result.completedAt).toLocaleDateString()}
                 </p>
               </div>

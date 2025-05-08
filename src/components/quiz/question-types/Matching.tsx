@@ -49,8 +49,7 @@ export const Matching: React.FC<MatchingProps> = ({
                   showFeedback && isCorrect === false
                     ? "bg-red-50 border-red-200"
                     : ""
-                )}
-              >
+                )}>
                 <div className="font-medium flex-1">{leftItem.text}</div>
 
                 <ArrowRight className="hidden md:block h-5 w-5 text-gray-400" />
@@ -59,8 +58,7 @@ export const Matching: React.FC<MatchingProps> = ({
                   <Select
                     value={matches[leftItem.id] || "_empty"}
                     onValueChange={(value) => updateMatch(leftItem.id, value)}
-                    disabled={showFeedback}
-                  >
+                    disabled={showFeedback}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Sélectionnez une correspondance" />
                     </SelectTrigger>

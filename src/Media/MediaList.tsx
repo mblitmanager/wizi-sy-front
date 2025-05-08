@@ -47,11 +47,11 @@ export default function MediaList({ medias, selectedMedia, onSelect }: Props) {
         const label = typeLabels[type as keyof typeof typeLabels];
         return (
           <div key={type}>
-            <h2 className="text-sm sm:text-base font-semibold text-gray-700 flex items-center gap-2 mb-3">
+            <h2 className="text-xs sm:text-sm font-semibold text-gray-700 flex items-center gap-2 mb-3">
               <Icon className="w-5 h-5 text-yellow-400" />
               {label}
             </h2>
-            <div className="space-y-3">
+            <div className="space-y-3 max-h-[30vh] sm:max-h-[60vh] overflow-y-auto">
               {mediaGroup.map((media) => {
                 const MediaIcon =
                   typeIcons[media.type as keyof typeof typeIcons];
@@ -66,14 +66,14 @@ export default function MediaList({ medias, selectedMedia, onSelect }: Props) {
                         : "bg-white hover:bg-gray-50 border-gray-200"
                     )}>
                     <div className="shrink-0 w-9 h-9 bg-yellow-100 rounded-full flex items-center justify-center">
-                      <MediaIcon className="w-5 h-5 text-yello-600" />
+                      <MediaIcon className="w-5 h-5 text-yellow-600" />
                     </div>
 
                     <div className="flex-1 space-y-1">
-                      <h3 className="text-sm font-semibold text-gray-800">
+                      <h3 className="text-xs sm:text-sm font-semibold text-gray-800">
                         {media.titre}
                       </h3>
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                      <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-500">
                         <span className="bg-yellow-100 text-yellow-600 px-2 py-0.5 rounded-full font-medium">
                           {media.categorie}
                         </span>
