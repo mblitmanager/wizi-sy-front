@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import logo from "@/assets/logo.png";
 
 const Login = () => {
   const { user, login, isLoading } = useAuth();
@@ -26,12 +27,12 @@ const Login = () => {
       {/* Logo en haut */}
       <div className="flex flex-col items-center mb-8">
         <img
-          src="/lovable-uploads/e4aa6740-d9f0-40d2-a150-efc75ae46692.png"
+          src={logo}
           alt="Wizi Learn"
           className="h-16 mb-2 drop-shadow-lg"
         />
         {/* <h1 className="text-3xl font-bold text-bureautique mb-1 font-astria">Wizi Learn</h1> */}
-        <p className="text-gray-500 text-center max-w-xs">La plateforme de quiz éducatifs d'AOPIA pour les stagiaires</p>
+        <p className="text-gray-500 text-center max-w-xs">La plateforme de quiz éducatifs pour nos stagiaires</p>
       </div>
       <div className="w-full max-w-md px-4">
         <Card className="shadow-xl border-2 border-bureautique/30 bg-white/90 backdrop-blur-md">

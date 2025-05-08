@@ -1,5 +1,5 @@
 
-import { Home, LayoutList, Trophy, UserRound, BookOpen, Video, Settings } from "lucide-react";
+import { Home, LayoutList, Trophy, Bell, BookOpen, Video, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +24,7 @@ export function MobileNav() {
     },
     {
       icon: LayoutList,
-      label: "Catalogue",
+      label: "Formations",
       href: "/catalogue"
     },
     {
@@ -37,7 +37,7 @@ export function MobileNav() {
       label: "Classement",
       href: "/classement"
     },
-    // Uncomment when notifications are implemented
+    
     // {
     //   icon: Bell,
     //   label: "Notifs",
