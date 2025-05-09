@@ -99,10 +99,10 @@ export function QuizSummary({
               const rightValue = userAnswer[leftId];
               const leftItem = question.answers?.find((a) => a.id === leftId);
               const rightItem = question.answers?.find(
-                (a) => a.id === String(rightValue)
+                (a) => a.text === String(rightValue)
               );
               pairs.push(
-                `${leftItem?.text || leftId} → ${rightItem?.text || rightValue}`
+                `${leftItem?.text || leftId} : ${rightItem?.text || rightValue}`
               );
             }
           }
@@ -117,7 +117,7 @@ export function QuizSummary({
                 const rightItem = question.answers?.find(
                   (a) => a.id === rightId
                 );
-                return `${leftItem?.text || leftId} → ${
+                return `${leftItem?.text || leftId} : ${
                   rightItem?.text || rightId
                 }`;
               }
@@ -125,6 +125,7 @@ export function QuizSummary({
             })
             .join("; ");
         }
+        console.log("userAnswer formatAnswer", userAnswer);
         return String(userAnswer);
       }
 
@@ -232,21 +233,19 @@ export function QuizSummary({
       }
 
       case "correspondance": {
-        const leftItems = question.answers?.filter(
-          (a) => a.isCorrect || a.is_correct === 1
+        if (!question.selectedAnswers || !question.answers) {
+          return "Aucune réponse correcte définie";
+        }
+        const pairs = Object.entries(question.selectedAnswers).map(
+          ([leftId, rightText]) => {
+            // Trouver l'élément correspondant à `leftId`
+            const leftItem = question.answers.find(
+              (a) => parseInt(a.id) === parseInt(leftId)
+            );
+            return `${leftItem?.text || leftId} : ${rightText}`;
+          }
         );
-
-        const pairCount = leftItems?.length ?? 0;
-        const half = Math.floor(pairCount / 2);
-        const left = leftItems?.slice(0, half) ?? [];
-        const right = leftItems?.slice(half) ?? [];
-        console.log("right", right);
-        console.log("left", left);
-
-        const pairs = left.map((leftItem, index) => {
-          const rightItem = right[index];
-          return `${leftItem.text} → ${rightItem?.text ?? "?"}`;
-        });
+        console.log("pairs formatCorrectAnswer", pairs);
 
         return pairs.length > 0
           ? pairs.join("; ")
@@ -355,52 +354,46 @@ export function QuizSummary({
       }
 
       case "correspondance": {
-        if (typeof userAnswerData !== "object") return false;
+        console.log("userAnswerData dans isAnswerCorrect", userAnswerData);
 
-        const answersById = Object.fromEntries(
-          (question.answers || []).map((a) => [String(a.id), a])
+        if (
+          typeof userAnswerData !== "object" ||
+          Array.isArray(userAnswerData)
+        ) {
+          return false;
+        }
+
+        // Mapping des IDs vers les textes
+        const idToText = Object.fromEntries(
+          (question.answers || []).map((a) => [a.id, a.text])
         );
 
-        if (Array.isArray(userAnswerData)) {
-          // Format tableau ["leftId-rightId"]
-          return userAnswerData.every((pairStr) => {
-            if (typeof pairStr !== "string" || !pairStr.includes("-"))
-              return false;
+        console.log("idToText", idToText);
 
-            const [leftId, rightId] = pairStr.split("-");
-            const leftItem = answersById[leftId];
-            const rightItem = answersById[rightId];
+        // Mapping des match_pair vers les textes
+        const matchPairToText = Object.fromEntries(
+          (question.isCorrect?.match_pair || []).map(({ text, match_pair }) => [
+            match_pair,
+            text,
+          ])
+        );
 
-            if (!leftItem || !rightItem) return false;
+        console.log("matchPairToText", matchPairToText);
 
-            // match_pair peut être soit un ID (string/number) soit le texte directement
-            return (
-              leftItem.match_pair === rightItem.id ||
-              leftItem.match_pair === rightItem.text
-            );
-          });
-        } else {
-          // Format objet {leftId: rightText}
-          return Object.entries(userAnswerData).every(([leftId, rightText]) => {
-            if (leftId === "destination") return true;
+        // Générer les paires dans le format "France : Paris"
+        const pairs = Object.entries(question.selectedAnswers).map(
+          ([leftId, rightText]) => {
+            const leftText = idToText[leftId] || leftId;
+            const rightTextFormatted = matchPairToText[rightText] || rightText;
+            return `${leftText} : ${rightTextFormatted}`;
+          }
+        );
 
-            const leftItem = answersById[leftId];
-            if (!leftItem) return false;
+        console.log("pairs formatCorrectAnswer", pairs);
 
-            const expectedRightItem = question.answers?.find(
-              (a) =>
-                a.id === leftItem.match_pair ||
-                a.text === leftItem.match_pair ||
-                String(a.id) === String(leftItem.match_pair)
-            );
-
-            return (
-              expectedRightItem &&
-              normalizeString(String(rightText)) ===
-                normalizeString(expectedRightItem.text)
-            );
-          });
-        }
+        return pairs.length > 0
+          ? pairs.join("; ")
+          : "Aucune réponse correcte définie";
       }
 
       case "rearrangement": {
@@ -569,7 +562,8 @@ export function QuizSummary({
             {questions.map((question, index) => {
               const userAnswer = userAnswers[question.id];
               const isCorrect = isAnswerCorrect(question);
-
+              console.log("question", question);
+              console.log(isCorrect);
               return (
                 <Card
                   key={question.id}
@@ -633,7 +627,6 @@ export function QuizSummary({
         </div>
       </ScrollArea>
 
-      {/* Footer buttons */}
       {/* Footer buttons */}
       <div className="flex flex-wrap justify-center gap-2 mt-6">
         <Button
