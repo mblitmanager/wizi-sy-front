@@ -1,3 +1,4 @@
+
 export interface Category {
   id: string;
   name: string;
@@ -126,6 +127,7 @@ export interface UserProgress {
   currentStreak?: number;
   current_streak?: number;
   longestStreak?: number;
+  longest_streak?: number;
   lastQuizDate?: string;
   total_points?: number;
   category_progress?: {
@@ -150,6 +152,12 @@ export interface LeaderboardEntry {
   score: number;
   position: number;
   image?: string;
+  stagiaire_id?: number;
+  stagiaire_name?: string;
+  image_url?: string;
+  rang?: number;
+  quizCount?: number;
+  averageScore?: number;
 }
 
 // Extend the existing QuizResult type with missing properties
@@ -167,4 +175,5 @@ export interface QuizResult {
   quiz_name?: string;
   completed_at?: string;
   quizId?: string;
+  userId?: string;
 }

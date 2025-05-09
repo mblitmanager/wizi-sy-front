@@ -1,21 +1,23 @@
-import { useState, useEffect, useMemo } from "react";
 
-interface UseOrderingQuestionParams {
-  question: Question;
-  showFeedback?: boolean;
-  onAnswer: (answerIds: string[]) => void;
-}
+import { useState, useEffect, useMemo } from "react";
 
 interface OrderingAnswer {
   id: string;
   text: string;
   position?: number;
+  is_correct?: boolean | number;
 }
 
 interface Question {
   id: number | string;
   type: string;
   reponses: OrderingAnswer[];
+}
+
+interface UseOrderingQuestionParams {
+  question: Question;
+  showFeedback?: boolean;
+  onAnswer: (answerIds: string[]) => void;
 }
 
 export const useOrderingQuestion = ({
@@ -26,12 +28,12 @@ export const useOrderingQuestion = ({
   const correctAnswers = useMemo(
     () =>
       [...question.reponses]
-        .filter((r) => r.is_correct)
+        .filter((r) => r.is_correct === true || r.is_correct === 1)
         .sort((a, b) => (a.position ?? 0) - (b.position ?? 0)),
     [question.reponses]
   );
 
-  const [orderedAnswers, setOrderedAnswers] = useState<Answer[]>([]);
+  const [orderedAnswers, setOrderedAnswers] = useState<OrderingAnswer[]>([]);
 
   useEffect(() => {
     if (showFeedback) {
@@ -52,7 +54,7 @@ export const useOrderingQuestion = ({
     }
   }, [orderedAnswers]);
 
-  const isCorrectPosition = (answer: Answer, index: number) => {
+  const isCorrectPosition = (answer: OrderingAnswer, index: number) => {
     if (!showFeedback) return undefined;
     return correctAnswers[index]?.id === answer.id;
   };
