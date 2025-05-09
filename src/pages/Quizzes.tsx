@@ -8,6 +8,7 @@ import { Loader2, WifiOff } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { motion } from "framer-motion";
 
 export default function Quizzes() {
   const isOnline = useOnlineStatus();
@@ -30,24 +31,33 @@ export default function Quizzes() {
           </Alert>
         )}
         
-        <h1 className="text-3xl font-bold mb-8">Quiz disponibles</h1>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h1 className="text-3xl font-bold mb-4">Quiz disponibles</h1>
+          <p className="text-gray-600 mb-8">
+            Découvrez nos quiz interactifs pour tester vos connaissances et améliorer vos compétences
+          </p>
+        </motion.div>
         
         {categoriesLoading ? (
           <div className="flex items-center justify-center min-h-[50vh]">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : (
-          <Tabs defaultValue="mes-quizzes" className="space-y-6">
-            {/* <TabsList className="grid w-full grid-cols-2"> */}
-              {/* <TabsTrigger value="mes-quizzes">Mes Quiz</TabsTrigger> */}
-              {/* <TabsTrigger value="tous-quizzes">Tous les Quiz</TabsTrigger> */}
-            {/* </TabsList> */}
-            {/* <TabsContent value="mes-quizzes"> */}
-              {/* <StagiaireQuizList /> */}
-            {/* </TabsContent> */}
-            {/* <TabsContent value="tous-quizzes"> */}
+          <Tabs defaultValue="tous-quizzes" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="mes-quizzes">Mes Quiz</TabsTrigger>
+              <TabsTrigger value="tous-quizzes">Tous les Quiz</TabsTrigger>
+            </TabsList>
+            <TabsContent value="mes-quizzes">
+              <StagiaireQuizList />
+            </TabsContent>
+            <TabsContent value="tous-quizzes">
               <QuizList />
-            {/* </TabsContent> */}
+            </TabsContent>
           </Tabs>
         )}
       </div>

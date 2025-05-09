@@ -1,5 +1,6 @@
 
 import { useState, useEffect, useMemo } from "react";
+import { Answer } from "@/types/quiz";
 
 interface OrderingAnswer {
   id: string;
@@ -52,7 +53,7 @@ export const useOrderingQuestion = ({
     if (!showFeedback) {
       onAnswer(orderedAnswers.map((a) => a.text));
     }
-  }, [orderedAnswers]);
+  }, [orderedAnswers, onAnswer, showFeedback]);
 
   const isCorrectPosition = (answer: OrderingAnswer, index: number) => {
     if (!showFeedback) return undefined;

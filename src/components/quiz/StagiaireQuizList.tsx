@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { stagiaireQuizService } from "@/services/quiz/StagiaireQuizService";
 import { categoryService } from "@/services/quiz/CategoryService";
@@ -6,10 +7,13 @@ import { Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useState, useMemo } from "react";
 import { StagiaireQuizGrid } from "./StagiaireQuizGrid";
+import { StagiaireQuizFilterBar } from "./StagiaireQuizFilterBar";
+import { motion } from "framer-motion";
 
 export function StagiaireQuizList() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedLevel, setSelectedLevel] = useState<string>("all");
+  const [showCompleted, setShowCompleted] = useState<boolean>(true);
 
   const {
     data: quizzes,
@@ -62,12 +66,12 @@ export function StagiaireQuizList() {
     [participations]
   );
   const playedQuizzes = useMemo(
-    () => (quizzes || []).filter((q) => playedQuizIds.has(String(q.id))),
-    [quizzes, playedQuizIds]
+    () => (filteredQuizzes || []).filter((q) => playedQuizIds.has(String(q.id))),
+    [filteredQuizzes, playedQuizIds]
   );
   const notPlayedQuizzes = useMemo(
-    () => (quizzes || []).filter((q) => !playedQuizIds.has(String(q.id))),
-    [quizzes, playedQuizIds]
+    () => (filteredQuizzes || []).filter((q) => !playedQuizIds.has(String(q.id))),
+    [filteredQuizzes, playedQuizIds]
   );
 
   if (isLoading) {
@@ -98,56 +102,35 @@ export function StagiaireQuizList() {
       </div>
     );
   }
+
+  // Add category quiz counts
+  const categoriesWithCount = categories?.map(category => ({
+    ...category,
+    quizCount: quizzes.filter(q => String(q.categorieId) === String(category.id)).length
+  }));
+
   return (
-    <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8 space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-        <h2 className="text-2xl sm:text-3xl font-bold">Mes Quiz</h2>
+    <div className="space-y-6">
+      <StagiaireQuizFilterBar
+        categories={categoriesWithCount}
+        levels={levels}
+        selectedCategory={selectedCategory}
+        selectedLevel={selectedLevel}
+        setSelectedCategory={setSelectedCategory}
+        setSelectedLevel={setSelectedLevel}
+        showCompleted={showCompleted}
+        setShowCompleted={setShowCompleted}
+      />
 
-        <div className="flex flex-row flex-wrap gap-2 sm:gap-4 items-center">
-          {/* Catégorie */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Catégorie :</span>
-            <select
-              className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring focus:ring-blue-200"
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}>
-              <option value="all">Toutes</option>
-              {(categories || []).map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Niveau */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Niveau :</span>
-            <select
-              className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring focus:ring-blue-200"
-              value={selectedLevel}
-              onChange={(e) => setSelectedLevel(e.target.value)}>
-              <option value="all">Tous les niveaux</option>
-              {levels.map((level) => (
-                <option key={level} value={level}>
-                  {level}
-                </option>
-              ))}
-            </select>
-            {selectedLevel !== "all" && (
-              <button
-                className="px-2 py-1 border border-gray-300 rounded-md text-xs text-gray-600 hover:bg-gray-100"
-                onClick={() => setSelectedLevel("all")}>
-                Réinitialiser
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Section des quiz non joués */}
-        <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="bg-white shadow-lg rounded-lg p-4 sm:p-6"
+        >
+          <h2 className="text-xl font-bold mb-4 text-gray-800">Quiz à découvrir</h2>
           {notPlayedQuizzes.length === 0 ? (
             <div className="text-center py-12 sm:py-16 bg-gray-50 rounded-lg">
               <p className="text-gray-500">Tous les quiz ont été joués !</p>
@@ -158,25 +141,32 @@ export function StagiaireQuizList() {
               categories={categories || []}
             />
           )}
-        </div>
+        </motion.div>
 
         {/* Section des quiz joués */}
-        <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6">
-          <h3 className="text-lg font-semibold mb-2 text-gray-700">
-            Rejouez à vos anciens quiz
-          </h3>
-          <hr className="mb-4" />
-          {playedQuizzes.length === 0 ? (
-            <div className="text-center py-12 sm:py-16 bg-gray-50 rounded-lg">
-              <p className="text-gray-500">Aucun quiz joué pour l’instant.</p>
-            </div>
-          ) : (
-            <StagiaireQuizGrid
-              quizzes={playedQuizzes}
-              categories={categories || []}
-            />
-          )}
-        </div>
+        {showCompleted && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="bg-white shadow-lg rounded-lg p-4 sm:p-6"
+          >
+            <h3 className="text-lg font-semibold mb-2 text-gray-700">
+              Rejouez à vos anciens quiz
+            </h3>
+            <hr className="mb-4" />
+            {playedQuizzes.length === 0 ? (
+              <div className="text-center py-12 sm:py-16 bg-gray-50 rounded-lg">
+                <p className="text-gray-500">Aucun quiz joué pour l'instant.</p>
+              </div>
+            ) : (
+              <StagiaireQuizGrid
+                quizzes={playedQuizzes}
+                categories={categories || []}
+              />
+            )}
+          </motion.div>
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,3 @@
-
 export interface Category {
   id: string;
   name: string;
@@ -19,6 +18,8 @@ export interface Quiz {
   categorieId: string;
   questions?: Question[];
   duree?: number;
+  completedCount?: number;
+  thumbnail?: string;
 }
 
 export interface Question {
@@ -174,6 +175,15 @@ export interface QuizResult {
   questions: Question[];
   quiz_name?: string;
   completed_at?: string;
+  completedAt?: string;
   quizId?: string;
   userId?: string;
+}
+
+// Interface for quiz filter preferences
+export interface QuizFilterPreferences {
+  category: string;
+  level: string;
+  sortBy: 'newest' | 'popular' | 'difficulty';
+  showCompleted: boolean;
 }

@@ -23,8 +23,11 @@ export function QuizNavigation({
   const isLastStep = activeStep === totalSteps - 1;
 
   return (
-    <div className="flex justify-between mt-auto pt-3 gap-2 sticky bottom-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-4 border-t">
-      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+    <div className="flex justify-between mt-auto pt-3 gap-2 sticky bottom-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-4 border-t z-10">
+      <motion.div 
+        whileHover={{ scale: 1.05 }} 
+        whileTap={{ scale: 0.95 }}
+      >
         <Button
           variant="outline"
           onClick={onBack}
@@ -54,7 +57,10 @@ export function QuizNavigation({
         ))}
       </div>
       
-      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+      <motion.div 
+        whileHover={{ scale: 1.05 }} 
+        whileTap={{ scale: 0.95 }}
+      >
         <Button
           onClick={isLastStep ? onFinish : onNext}
           className={`${isMobile ? 'px-3' : 'min-w-[120px]'} ${
