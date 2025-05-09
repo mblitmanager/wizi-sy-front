@@ -130,6 +130,7 @@ export interface UserProgress {
   longestStreak?: number;
   longest_streak?: number;
   lastQuizDate?: string;
+  last_quiz_date?: string;
   total_points?: number;
   category_progress?: {
     [key: string]: {

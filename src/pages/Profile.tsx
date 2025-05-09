@@ -1,4 +1,4 @@
-import { useSearchParams } from "react-router-dom";
+
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import ProfileHeader from "@/components/profile/ProfileHeader";
@@ -12,26 +12,13 @@ import { useLoadRankings } from "@/use-case/hooks/profile/useLoadRankings";
 import { useLoadFormations } from "@/use-case/hooks/profile/useLoadFormations";
 
 const ProfilePage = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const activeTabFromUrl = searchParams.get("tab") || "overview";
-  const [activeTab, setActiveTab] = useState(activeTabFromUrl);
+  const [activeTab, setActiveTab] = useState("overview");
   const { toast } = useToast();
 
   const user = useLoadProfile();
   const { results, categories } = useLoadQuizData();
-  console.log("results", results);
-  console.log("categories", categories);
-  console.log("user", user);
   const { userProgress, rankings } = useLoadRankings();
-  console.log("userProgress", userProgress);
-  console.log("rankings", rankings);
   const formations = useLoadFormations();
-  console.log("formations", formations);
-
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    setSearchParams({ tab });
-  };
 
   const isLoading = !user;
 
@@ -39,7 +26,7 @@ const ProfilePage = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl space-y-12">
-          {/* En-tête profil */}
+          {/* Skeleton loading */}
           <div className="flex items-center space-x-4 mt-8">
             <div className="w-20 h-20 bg-gray-200 rounded-full animate-pulse" />
             <div className="flex-1 space-y-2">
@@ -48,7 +35,7 @@ const ProfilePage = () => {
             </div>
           </div>
 
-          {/* Statistiques */}
+          {/* Skeleton stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {Array.from({ length: 3 }).map((_, idx) => (
               <div
@@ -60,7 +47,7 @@ const ProfilePage = () => {
             ))}
           </div>
 
-          {/* Section principale (catalogue + tableau/résultats) */}
+          {/* Skeleton main content */}
           <div className="grid md:grid-cols-2 gap-6">
             <div className="p-4 space-y-3 bg-white rounded-2xl shadow animate-pulse">
               {Array.from({ length: 6 }).map((_, idx) => (
@@ -80,20 +67,19 @@ const ProfilePage = () => {
     <Layout>
       <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
         {user && <ProfileHeader user={user} />}
-        <div className="mt-16 space-y-12">
+        <div className="mt-8 space-y-12">
           {userProgress && <StatsSummary userProgress={userProgress} />}
+          <ProfileTabs
+            user={user}
+            results={results}
+            categories={categories}
+            userProgress={userProgress}
+            isLoading={isLoading}
+            rankings={rankings}
+            activeTab={activeTab}
+          />
           <FormationCatalogue formations={formations} />
         </div>
-        <ProfileTabs
-          user={user}
-          results={results}
-          categories={categories}
-          userProgress={userProgress}
-          isLoading={isLoading}
-          rankings={rankings}
-          activeTab={activeTab}
-          setActiveTab={handleTabChange}
-        />
       </div>
     </Layout>
   );

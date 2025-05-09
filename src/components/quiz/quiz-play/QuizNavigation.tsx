@@ -22,11 +22,26 @@ export function QuizNavigation({
   const isMobile = useIsMobile();
   const isLastStep = activeStep === totalSteps - 1;
 
+  // Animation variants
+  const buttonVariants = {
+    hover: { scale: 1.05, transition: { duration: 0.2 } },
+    tap: { scale: 0.95, transition: { duration: 0.1 } },
+    initial: { scale: 1 }
+  };
+
+  const dotVariants = {
+    active: { scale: [1, 1.5, 1], backgroundColor: "var(--primary)", transition: { duration: 0.5, repeat: 0 } },
+    completed: { backgroundColor: "var(--primary-light)", scale: 1 },
+    upcoming: { backgroundColor: "var(--muted)", scale: 1 }
+  };
+
   return (
     <div className="flex justify-between mt-auto pt-3 gap-2 sticky bottom-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-4 border-t z-10">
       <motion.div 
-        whileHover={{ scale: 1.05 }} 
-        whileTap={{ scale: 0.95 }}
+        variants={buttonVariants}
+        initial="initial"
+        whileHover="hover"
+        whileTap="tap"
       >
         <Button
           variant="outline"
@@ -43,23 +58,19 @@ export function QuizNavigation({
         {[...Array(totalSteps)].map((_, i) => (
           <motion.div
             key={i}
-            className={`w-2 h-2 rounded-full mx-1 ${
-              i === activeStep
-                ? 'bg-primary'
-                : i < activeStep
-                ? 'bg-primary/60'
-                : 'bg-gray-200'
-            }`}
-            initial={false}
-            animate={i === activeStep ? { scale: [1, 1.5, 1] } : {}}
-            transition={{ duration: 0.5 }}
+            variants={dotVariants}
+            initial={i <= activeStep ? "completed" : "upcoming"}
+            animate={i === activeStep ? "active" : i < activeStep ? "completed" : "upcoming"}
+            className={`w-2 h-2 rounded-full mx-1`}
           />
         ))}
       </div>
       
       <motion.div 
-        whileHover={{ scale: 1.05 }} 
-        whileTap={{ scale: 0.95 }}
+        variants={buttonVariants}
+        initial="initial"
+        whileHover="hover"
+        whileTap="tap"
       >
         <Button
           onClick={isLastStep ? onFinish : onNext}

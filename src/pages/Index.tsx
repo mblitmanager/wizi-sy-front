@@ -2,28 +2,79 @@ import { Layout } from "@/components/layout/Layout";
 import { useUser } from "@/context/UserContext";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, PenTool, FileText, MessageSquare, Globe, WifiOff } from "lucide-react";
+import { ArrowRight, PenTool, FileText, MessageSquare, Globe, WifiOff, BookOpen } from "lucide-react";
 import { ProgressCard } from "@/components/dashboard/ProgressCard";
 import { CategoryCard } from "@/components/dashboard/CategoryCard";
-import { FormationCard } from "@/components/dashboard/FormationCard";
-import { ChallengeCard } from "@/components/dashboard/ChallengeCard";
-import { RankingCard } from "@/components/dashboard/RankingCard";
 import { AgendaCard } from "@/components/dashboard/AgendaCard";
 import { useLoadQuizData } from "@/use-case/hooks/profile/useLoadQuizData";
 import { useLoadRankings } from "@/use-case/hooks/profile/useLoadRankings";
-import { categories, formations, challenges, rankings, agendaEvents } from "@/data/mockData";
+import { categories, agendaEvents } from "@/data/mockData";
 import StatsSummary from "@/components/profile/StatsSummary";
-import FormationCatalogue from "@/components/profile/FormationCatalogue";
 import ContactsSection  from "@/components/profile/ContactsSection";
 import ParrainageSection  from "@/components/profile/ParrainageSection";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
+import { motion } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export function Index() {
   const { user } = useUser();
   const { userProgress } = useLoadRankings();
   const isOnline = useOnlineStatus();
   
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        when: "beforeChildren",
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: { type: "spring", stiffness: 300, damping: 24 }
+    }
+  };
+
+  const featuredFormations = [
+    {
+      id: "f1",
+      title: "Bureautique avancée",
+      description: "Maîtrisez les outils bureautiques modernes",
+      image: "/placeholder.svg",
+      category: "Bureautique",
+      color: "bg-bureautique",
+      icon: FileText
+    },
+    {
+      id: "f2",
+      title: "Communication professionnelle",
+      description: "Améliorez vos compétences en langues étrangères",
+      image: "/placeholder.svg",
+      category: "Langues",
+      color: "bg-langues",
+      icon: MessageSquare
+    },
+    {
+      id: "f3",
+      title: "Design graphique",
+      description: "Apprenez les bases de la création visuelle",
+      image: "/placeholder.svg",
+      category: "Création",
+      color: "bg-creation",
+      icon: PenTool
+    }
+  ];
+
   if (!user) {
     return (
       <Layout>
@@ -53,9 +104,6 @@ export function Index() {
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
-                  {/* <Button size="lg" variant="outline" asChild>
-                    <Link to="/login">Connexion</Link>
-                  </Button> */}
                 </div>
               </div>
               <div className="lg:w-1/2">
@@ -174,43 +222,110 @@ export function Index() {
       
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold">Tableau de bord</h1>
-          <Button asChild>
-            <Link to="/catalogue">
-              Voir le catalogue
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
+          <motion.h1 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-3xl font-bold"
+          >
+            Tableau de bord
+          </motion.h1>
+          <motion.div
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            <Button asChild>
+              <Link to="/quizzes">
+                Voir les quiz
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </motion.div>
         </div>
-        <div className="mt-16 space-y-12">
-          {userProgress && <StatsSummary userProgress={userProgress} />}
-          
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <ContactsSection />
-        </div>
+
+        {/* Stats summary */}
+        {userProgress && 
+          <motion.div 
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+            className="mt-8"
+          >
+            <StatsSummary userProgress={userProgress} />
+          </motion.div>
+        }
+        
+        {/* Featured catalog as embedded promotion */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="my-10"
+        >
+          <div className="mb-4 flex justify-between items-center">
+            <h2 className="text-2xl font-bold">Formations à découvrir</h2>
+            <Button variant="outline" asChild size="sm">
+              <Link to="/catalogue">
+                Voir tout
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {featuredFormations.map((formation) => (
+              <motion.div 
+                key={formation.id}
+                whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                className="group"
+              >
+                <Card className="overflow-hidden h-full hover:shadow-md transition-shadow duration-200">
+                  <div className="relative h-40">
+                    <img
+                      src={formation.image}
+                      alt={formation.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-2 left-2">
+                      <Badge className={`${formation.color} text-white`}>
+                        {formation.category}
+                      </Badge>
+                    </div>
+                  </div>
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <div className={`${formation.color} p-2 rounded-md text-white mt-1`}>
+                        <formation.icon className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold mb-1 group-hover:text-primary transition-colors">
+                          {formation.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {formation.description}
+                        </p>
+                        <Link 
+                          to="/catalogue" 
+                          className="text-sm mt-3 inline-block text-primary hover:underline"
+                        >
+                          En savoir plus
+                        </Link>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <ProgressCard user={user} />
           <AgendaCard events={agendaEvents} />
-          <RankingCard rankings={rankings} currentUserId={user.id} />
-          
-          
         </div>
         
-        {/* <h2 className="text-2xl font-semibold mb-4">Formations récentes</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {formations.slice(0, 3).map((formation) => (
-            <FormationCard key={formation.id} formation={formation} />
-          ))}
-        </div> */}
-
-        {/* <h2 className="text-2xl font-semibold mb-4">Défis disponibles</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {challenges.map((challenge) => (
-            <ChallengeCard key={challenge.id} challenge={challenge} />
-          ))}
-        </div> */}
+        <div className="bg-white p-4 rounded-lg shadow-sm mb-8">
+          <ContactsSection />
+        </div>
+        
         <ParrainageSection />
       </div>
     </Layout>

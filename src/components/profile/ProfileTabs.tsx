@@ -1,16 +1,14 @@
 
 import React from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import UserStats from '@/components/profile/UserStats';
-import { RecentResults } from '@/components/profile/RecentResults';
-import BadgesDisplay from '@/components/profile/BadgesDisplay';
-import CategoryProgress from '@/components/profile/CategoryProgress';
-import NotificationSettings from '@/components/profile/NotificationSettings';
-import ParrainageSection from '@/components/profile/ParrainageSection';
-import ContactsSection from '@/components/profile/ContactsSection';
-import RankingComponent from '@/components/Ranking/RankingComponent';
 import { User } from '@/types';
 import { Category, QuizResult, UserProgress } from '@/types/quiz';
+import UserStats from '@/components/profile/UserStats';
+import { RecentResults } from '@/components/profile/RecentResults';
+import CategoryProgress from '@/components/profile/CategoryProgress';
+import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import { BookOpen, Medal, FileText, Users, Award, Mail, Gift, Settings } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface ProfileTabsProps {
   user: User | null;
@@ -20,7 +18,6 @@ interface ProfileTabsProps {
   isLoading: boolean;
   rankings: any[];
   activeTab: string;
-  setActiveTab: (tab: string) => void;
 }
 
 const ProfileTabs: React.FC<ProfileTabsProps> = ({ 
@@ -29,9 +26,7 @@ const ProfileTabs: React.FC<ProfileTabsProps> = ({
   categories, 
   userProgress, 
   isLoading,
-  rankings,
-  activeTab,
-  setActiveTab
+  rankings
 }) => {
   // Transform rankings data to ensure we have all required properties with valid values
   const safeRankings = rankings.map((entry, index) => ({
@@ -45,75 +40,112 @@ const ProfileTabs: React.FC<ProfileTabsProps> = ({
     averageScore: entry?.averageScore || entry?.average_score || 0,
     rang: entry?.rang || index + 1
   }));
+  
+  const featureLinks = [
+    { 
+      icon: BookOpen, 
+      label: "Tous les Quiz", 
+      to: "/quizzes",
+      color: "bg-blue-100 text-blue-600"
+    },
+    { 
+      icon: Medal, 
+      label: "Classement", 
+      to: "/classement",
+      color: "bg-amber-100 text-amber-600"
+    },
+    { 
+      icon: FileText, 
+      label: "Mes Résultats", 
+      to: "/results",
+      color: "bg-green-100 text-green-600"
+    },
+    { 
+      icon: Users, 
+      label: "Contacts", 
+      to: "/contacts",
+      color: "bg-indigo-100 text-indigo-600"
+    },
+    { 
+      icon: Gift, 
+      label: "Parrainage", 
+      to: "/parrainage",
+      color: "bg-purple-100 text-purple-600"
+    },
+    { 
+      icon: Award, 
+      label: "Badges", 
+      to: "/badges",
+      color: "bg-pink-100 text-pink-600"
+    },
+    { 
+      icon: Settings, 
+      label: "Paramètres", 
+      to: "/settings",
+      color: "bg-gray-100 text-gray-600"
+    }
+  ];
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: { type: "spring", stiffness: 300, damping: 24 }
+    }
+  };
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
-      <TabsList className="flex flex-wrap justify-start gap-2 mb-6">
-        <TabsTrigger value="overview" className="text-xs sm:text-sm px-3 py-2">Vue d'ensemble</TabsTrigger>
-        <TabsTrigger value="progress" className="text-xs sm:text-sm px-3 py-2">Progression</TabsTrigger>
-        <TabsTrigger value="results" className="text-xs sm:text-sm px-3 py-2">Résultats</TabsTrigger>
-        <TabsTrigger value="contacts" className="text-xs sm:text-sm px-3 py-2">Contacts</TabsTrigger>
-        <TabsTrigger value="classement" className="text-xs sm:text-sm px-3 py-2">Classement</TabsTrigger>
-        <TabsTrigger value="parrainage" className="text-xs sm:text-sm px-3 py-2">Parrainage</TabsTrigger>
-        <TabsTrigger value="badges" className="text-xs sm:text-sm px-3 py-2">Badges</TabsTrigger>
-        <TabsTrigger value="settings" className="text-xs sm:text-sm px-3 py-2">Paramètres</TabsTrigger>
-      </TabsList>
-      
-      <TabsContent value="overview" className="space-y-6 mt-6">
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <UserStats user={user} userProgress={userProgress} />
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <h3 className="text-lg font-semibold mb-4 font-montserrat">Résultats récents</h3>
-            <RecentResults results={results} isLoading={isLoading} />
-          </div>
+    <div className="space-y-6 mt-6">
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <UserStats user={user} userProgress={userProgress} />
+          <motion.div
+            className="mt-6"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <h3 className="text-xl font-semibold mb-4">Accès rapide</h3>
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+              {featureLinks.map((link) => (
+                <motion.div key={link.to} variants={itemVariants}>
+                  <Link to={link.to}>
+                    <Button 
+                      variant="ghost" 
+                      className={`w-full h-auto flex flex-col items-center justify-center p-3 ${link.color} border hover:bg-opacity-90 transition-all`}
+                    >
+                      <link.icon className="h-6 w-6 mb-2" />
+                      <span className="text-xs font-medium text-center">{link.label}</span>
+                    </Button>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
         </div>
-      </TabsContent>
-      
-      <TabsContent value="progress" className="mt-6">
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <CategoryProgress categories={categories} userProgress={userProgress} />
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h3 className="text-xl font-semibold mb-4">Résultats récents</h3>
+          <RecentResults results={results} isLoading={isLoading} />
         </div>
-      </TabsContent>
-      
-      <TabsContent value="results" className="mt-6">
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <RecentResults results={results} isLoading={isLoading} showAll={true} />
-        </div>
-      </TabsContent>
+      </div>
 
-      <TabsContent value="contacts" className="mt-6">
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <ContactsSection />
-        </div>
-      </TabsContent>
-
-      <TabsContent value="classement" className="mt-6">
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <h3 className="text-xl font-semibold mb-4 font-montserrat">Classement Global</h3>
-          <RankingComponent rankings={safeRankings} />
-        </div>
-      </TabsContent>
-      
-      <TabsContent value="parrainage" className="mt-6">
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <ParrainageSection />
-        </div>
-      </TabsContent>
-      
-      <TabsContent value="badges" className="mt-6">
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <BadgesDisplay />
-        </div>
-      </TabsContent>
-      
-      <TabsContent value="settings" className="mt-6">
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <NotificationSettings />
-        </div>
-      </TabsContent>
-    </Tabs>
+      <div className="bg-white p-6 rounded-lg shadow-sm">
+        <h3 className="text-xl font-semibold mb-4">Progression par catégorie</h3>
+        <CategoryProgress categories={categories} userProgress={userProgress} />
+      </div>
+    </div>
   );
 };
 

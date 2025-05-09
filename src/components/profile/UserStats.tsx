@@ -45,23 +45,24 @@ const UserStats: React.FC<UserStatsProps> = ({ user, userProgress }) => {
   };
 
   return (
-    <section className="mb-6">
+    <section>
       <h2 className="text-xl font-semibold mb-4 font-montserrat">Mes statistiques</h2>
-      <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
         <motion.div
           custom={0}
           initial="hidden"
           animate="visible"
           variants={cardVariants}
           whileHover={{ scale: 1.03 }}
+          className="aspect-square sm:aspect-auto"
         >
-          <Card className="border-2 border-yellow-400 bg-gradient-to-br from-yellow-50 to-yellow-100">
-            <CardContent className="p-4 flex flex-col items-center justify-center">
+          <Card className="border-2 border-yellow-400 bg-gradient-to-br from-yellow-50 to-yellow-100 h-full">
+            <CardContent className="p-3 sm:p-4 flex flex-col items-center justify-center h-full">
               <motion.div whileHover="hover" variants={iconVariants}>
-                <Trophy className="h-8 w-8 text-yellow-500 mb-2" />
+                <Trophy className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500 mb-1 sm:mb-2" />
               </motion.div>
-              <div className="text-2xl font-bold font-nunito">{totalPoints}</div>
-              <div className="text-sm text-gray-600 font-roboto">Points</div>
+              <div className="text-xl sm:text-2xl font-bold font-nunito">{totalPoints}</div>
+              <div className="text-xs sm:text-sm text-gray-600 font-roboto">Points</div>
             </CardContent>
           </Card>
         </motion.div>
@@ -72,14 +73,15 @@ const UserStats: React.FC<UserStatsProps> = ({ user, userProgress }) => {
           animate="visible"
           variants={cardVariants}
           whileHover={{ scale: 1.03 }}
+          className="aspect-square sm:aspect-auto"
         >
-          <Card className="border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-blue-100">
-            <CardContent className="p-4 flex flex-col items-center justify-center">
+          <Card className="border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-blue-100 h-full">
+            <CardContent className="p-3 sm:p-4 flex flex-col items-center justify-center h-full">
               <motion.div whileHover="hover" variants={iconVariants}>
-                <Award className="h-8 w-8 text-blue-500 mb-2" />
+                <Award className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500 mb-1 sm:mb-2" />
               </motion.div>
-              <div className="text-2xl font-bold font-nunito">{level}</div>
-              <div className="text-sm text-gray-600 font-roboto">Niveau</div>
+              <div className="text-xl sm:text-2xl font-bold font-nunito">{level}</div>
+              <div className="text-xs sm:text-sm text-gray-600 font-roboto">Niveau</div>
             </CardContent>
           </Card>
         </motion.div>
@@ -90,14 +92,15 @@ const UserStats: React.FC<UserStatsProps> = ({ user, userProgress }) => {
           animate="visible"
           variants={cardVariants}
           whileHover={{ scale: 1.03 }}
+          className="aspect-square sm:aspect-auto"
         >
-          <Card className="border-2 border-red-400 bg-gradient-to-br from-red-50 to-red-100">
-            <CardContent className="p-4 flex flex-col items-center justify-center">
+          <Card className="border-2 border-red-400 bg-gradient-to-br from-red-50 to-red-100 h-full">
+            <CardContent className="p-3 sm:p-4 flex flex-col items-center justify-center h-full">
               <motion.div whileHover="hover" variants={iconVariants}>
-                <Flame className="h-8 w-8 text-red-500 mb-2" />
+                <Flame className="h-6 w-6 sm:h-8 sm:w-8 text-red-500 mb-1 sm:mb-2" />
               </motion.div>
-              <div className="text-2xl font-bold font-nunito">{streak}</div>
-              <div className="text-sm text-gray-600 font-roboto">Jours consécutifs</div>
+              <div className="text-xl sm:text-2xl font-bold font-nunito">{streak}</div>
+              <div className="text-xs sm:text-sm text-gray-600 font-roboto">Jours consécutifs</div>
             </CardContent>
           </Card>
         </motion.div>
@@ -108,14 +111,15 @@ const UserStats: React.FC<UserStatsProps> = ({ user, userProgress }) => {
           animate="visible"
           variants={cardVariants}
           whileHover={{ scale: 1.03 }}
+          className="aspect-square sm:aspect-auto"
         >
-          <Card className="border-2 border-purple-400 bg-gradient-to-br from-purple-50 to-purple-100">
-            <CardContent className="p-4 flex flex-col items-center justify-center">
+          <Card className="border-2 border-purple-400 bg-gradient-to-br from-purple-50 to-purple-100 h-full">
+            <CardContent className="p-3 sm:p-4 flex flex-col items-center justify-center h-full">
               <motion.div whileHover="hover" variants={iconVariants}>
-                <Star className="h-8 w-8 text-purple-500 mb-2" />
+                <Star className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500 mb-1 sm:mb-2" />
               </motion.div>
-              <div className="text-2xl font-bold font-nunito">{badgesCount}</div>
-              <div className="text-sm text-gray-600 font-roboto">Badges</div>
+              <div className="text-xl sm:text-2xl font-bold font-nunito">{badgesCount}</div>
+              <div className="text-xs sm:text-sm text-gray-600 font-roboto">Badges</div>
             </CardContent>
           </Card>
         </motion.div>

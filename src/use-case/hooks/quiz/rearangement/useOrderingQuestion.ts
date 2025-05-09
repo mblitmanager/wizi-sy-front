@@ -7,6 +7,7 @@ interface OrderingAnswer {
   text: string;
   position?: number;
   is_correct?: boolean | number;
+  isCorrect?: boolean | number;
 }
 
 interface Question {
@@ -29,7 +30,7 @@ export const useOrderingQuestion = ({
   const correctAnswers = useMemo(
     () =>
       [...question.reponses]
-        .filter((r) => r.is_correct === true || r.is_correct === 1)
+        .filter((r) => r.is_correct === true || r.is_correct === 1 || r.isCorrect === true)
         .sort((a, b) => (a.position ?? 0) - (b.position ?? 0)),
     [question.reponses]
   );
