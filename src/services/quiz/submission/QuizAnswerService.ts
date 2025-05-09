@@ -1,3 +1,4 @@
+
 import apiClient from "@/lib/api-client";
 import type { Question, Answer } from "@/types/quiz";
 
@@ -43,25 +44,39 @@ export class QuizAnswerService {
           !Array.isArray(answer)
         ) {
           formattedAnswers[questionId] = Object.entries(answer).reduce(
-            (acc, [key, value]) => {
-              acc[key] = value.text || value; // Use text if available
+            (acc: Record<string, string>, [key, value]) => {
+              // Make sure value is treated as string or as an object with a text property
+              const textValue = typeof value === 'object' && value !== null && 'text' in value 
+                ? (value as {text: string}).text 
+                : String(value);
+                
+              acc[key] = textValue;
               return acc;
             },
             {}
           );
         } else if (questionType === "carte flash") {
           if (Array.isArray(answer)) {
-            formattedAnswers[questionId] = answer[0]?.text || answer[0];
+            const firstAnswer = answer[0];
+            formattedAnswers[questionId] = typeof firstAnswer === 'object' && firstAnswer !== null && 'text' in firstAnswer
+              ? (firstAnswer as {text: string}).text
+              : String(firstAnswer);
           } else if (
             typeof answer === "object" &&
             answer !== null &&
             "selectedAnswers" in answer
           ) {
             formattedAnswers[questionId] = answer.selectedAnswers.map(
-              (a: any) => a.text || a
+              (a: any) => {
+                return typeof a === 'object' && a !== null && 'text' in a 
+                  ? (a as {text: string}).text 
+                  : String(a);
+              }
             );
           } else {
-            formattedAnswers[questionId] = answer.text || answer;
+            formattedAnswers[questionId] = typeof answer === 'object' && answer !== null && 'text' in answer
+              ? (answer as {text: string}).text
+              : String(answer);
           }
         } else if (questionType === 'remplir le champ vide' && typeof answer === 'object' && !Array.isArray(answer)) {
           // On retire questionType du payload envoyé à l'API
@@ -69,14 +84,24 @@ export class QuizAnswerService {
           // Convertit l'objet {blank_1: 'ctrl+c'} en ['ctrl+c']
           formattedAnswers[questionId] = Object.values(rest);
         } else if (typeof answer === 'object' && !Array.isArray(answer)) {
-          formattedAnswers[questionId] = Object.entries(answer).reduce((acc, [key, value]) => {
-            if (key !== 'questionType' && key !== '__type') acc[key] = value.text || value;
+          formattedAnswers[questionId] = Object.entries(answer).reduce((acc: Record<string, string>, [key, value]) => {
+            if (key !== 'questionType' && key !== '__type') {
+              acc[key] = typeof value === 'object' && value !== null && 'text' in value 
+                ? (value as {text: string}).text
+                : String(value);
+            }
             return acc;
           }, {});
         } else if (Array.isArray(answer)) {
-          formattedAnswers[questionId] = answer.map((a: any) => a.text || a);
+          formattedAnswers[questionId] = answer.map((a: any) => {
+            return typeof a === 'object' && a !== null && 'text' in a 
+              ? (a as {text: string}).text
+              : String(a);
+          });
         } else {
-          formattedAnswers[questionId] = answer.text || answer;
+          formattedAnswers[questionId] = typeof answer === 'object' && answer !== null && 'text' in answer
+            ? (answer as {text: string}).text
+            : String(answer);
         }
       }
 

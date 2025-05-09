@@ -101,7 +101,7 @@ declare module '@/components/quiz/classement/QuizHistory' {
   
   export interface QuizHistoryProps {
     history: QuizHistory[];
-    loading?: boolean;
+    loading?: boolean; // Make loading prop optional
   }
   
   export function QuizHistory(props: QuizHistoryProps): JSX.Element;

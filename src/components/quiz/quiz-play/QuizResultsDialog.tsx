@@ -31,6 +31,12 @@ export function QuizResultsDialog({
 }: QuizResultsDialogProps) {
   const navigate = useNavigate();
 
+  // Calculate percentage score
+  const scorePercentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+  
+  // Get correct answers count
+  const correctAnswersCount = answers.filter((a) => a.isCorrect).length;
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl">
@@ -38,25 +44,31 @@ export function QuizResultsDialog({
           <DialogTitle>Résultats du Quiz</DialogTitle>
         </DialogHeader>
         <div className="text-center py-6">
-          <div className="text-4xl font-bold mb-2">{score} points</div>
+          <div className="text-4xl font-bold mb-2">{scorePercentage}%</div>
+          <p className="text-xl mb-1">{score} points</p>
           <p className="text-muted-foreground">
-            {answers.filter((a) => a.isCorrect).length} bonnes réponses sur {totalQuestions}
+            {correctAnswersCount} bonnes réponses sur {totalQuestions}
           </p>
         </div>
-        <div className="space-y-4">
+        <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2">
           {answers.map((answer) => {
             const question = questions.find((q) => q.id === answer.questionId);
             return (
-              <div key={answer.questionId} className="space-y-2">
+              <div key={answer.questionId} className="space-y-2 border-b pb-4">
                 <h3 className="font-medium">{question?.text}</h3>
                 <div className="flex items-center gap-2">
                   {answer.isCorrect ? (
-                    <CheckCircle2 className="text-green-500 h-5 w-5" />
+                    <CheckCircle2 className="text-green-500 h-5 w-5 flex-shrink-0" />
                   ) : (
-                    <XCircle className="text-red-500 h-5 w-5" />
+                    <XCircle className="text-red-500 h-5 w-5 flex-shrink-0" />
                   )}
-                  <span>{answer.points} points</span>
+                  <span className="text-sm">{answer.points} points</span>
                 </div>
+                {!answer.isCorrect && question?.explication && (
+                  <div className="text-sm text-muted-foreground bg-muted p-2 rounded-md mt-1">
+                    <strong>Explication:</strong> {question.explication}
+                  </div>
+                )}
               </div>
             );
           })}

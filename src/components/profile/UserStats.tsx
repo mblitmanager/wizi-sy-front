@@ -11,7 +11,8 @@ interface UserStatsProps {
 }
 
 const UserStats: React.FC<UserStatsProps> = ({ user, userProgress }) => {
-  const totalPoints = user?.points || (userProgress?.total_points || userProgress?.totalPoints || 0);
+  // Use total_points from userProgress (the correct property name according to the type)
+  const totalPoints = user?.points || (userProgress?.total_points || 0);
   
   // Since badges and streak may not exist in the updated UserProgress, we'll provide fallbacks
   const badgesCount = 0; // Default to 0 since badges are not in our updated UserProgress
