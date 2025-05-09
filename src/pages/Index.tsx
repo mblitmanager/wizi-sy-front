@@ -2,7 +2,7 @@ import { Layout } from "@/components/layout/Layout";
 import { useUser } from "@/context/UserContext";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, PenTool, FileText, MessageSquare, Globe } from "lucide-react";
+import { ArrowRight, PenTool, FileText, MessageSquare, Globe, WifiOff } from "lucide-react";
 import { ProgressCard } from "@/components/dashboard/ProgressCard";
 import { CategoryCard } from "@/components/dashboard/CategoryCard";
 import { FormationCard } from "@/components/dashboard/FormationCard";
@@ -16,13 +16,26 @@ import StatsSummary from "@/components/profile/StatsSummary";
 import FormationCatalogue from "@/components/profile/FormationCatalogue";
 import ContactsSection  from "@/components/profile/ContactsSection";
 import ParrainageSection  from "@/components/profile/ParrainageSection";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import useOnlineStatus from "@/hooks/useOnlineStatus";
 
 export function Index() {
   const { user } = useUser();
-const { userProgress } = useLoadRankings();
+  const { userProgress } = useLoadRankings();
+  const isOnline = useOnlineStatus();
+  
   if (!user) {
     return (
       <Layout>
+        {!isOnline && (
+          <Alert variant="destructive" className="mb-4 mx-4 mt-4">
+            <WifiOff className="h-4 w-4" />
+            <AlertTitle>Vous êtes hors ligne</AlertTitle>
+            <AlertDescription>
+              Certaines fonctionnalités peuvent être limitées. Les données affichées peuvent ne pas être à jour.
+            </AlertDescription>
+          </Alert>
+        )}
         <div className="bg-gradient-to-b from-white to-gray-100 py-16">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex flex-col lg:flex-row items-center gap-12">
@@ -149,7 +162,16 @@ const { userProgress } = useLoadRankings();
   // User dashboard
   return (
     <Layout>
-        
+      {!isOnline && (
+        <Alert variant="destructive" className="mb-4 mx-4 mt-4">
+          <WifiOff className="h-4 w-4" />
+          <AlertTitle>Vous êtes hors ligne</AlertTitle>
+          <AlertDescription>
+            Certaines fonctionnalités peuvent être limitées. Les données affichées peuvent ne pas être à jour.
+          </AlertDescription>
+        </Alert>
+      )}
+      
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold">Tableau de bord</h1>
