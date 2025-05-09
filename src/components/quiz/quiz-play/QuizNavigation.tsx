@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Flag } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { motion } from "framer-motion";
+import confetti from "canvas-confetti";
 
 interface QuizNavigationProps {
   activeStep: number;
@@ -21,6 +22,16 @@ export function QuizNavigation({
 }: QuizNavigationProps) {
   const isMobile = useIsMobile();
   const isLastStep = activeStep === totalSteps - 1;
+
+  // Trigger confetti when user clicks finish
+  const handleFinish = () => {
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+    onFinish();
+  };
 
   // Animation variants
   const buttonVariants = {
@@ -73,7 +84,7 @@ export function QuizNavigation({
         whileTap="tap"
       >
         <Button
-          onClick={isLastStep ? onFinish : onNext}
+          onClick={isLastStep ? handleFinish : onNext}
           className={`${isMobile ? 'px-3' : 'min-w-[120px]'} ${
             isLastStep
               ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'

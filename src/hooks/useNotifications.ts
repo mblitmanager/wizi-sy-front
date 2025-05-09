@@ -11,7 +11,8 @@ export function useNotifications() {
     quizCompleted: true, 
     quizAvailable: true, 
     rewardEarned: true,
-    formationUpdates: true
+    formationUpdates: true,
+    peerActivity: true
   });
   const { toast } = useToast();
 
@@ -46,6 +47,15 @@ export function useNotifications() {
           description: "Vous recevrez maintenant des notifications pour les événements importants.",
           variant: "default"
         });
+        
+        // Send a welcome notification
+        await notificationService.sendNotification(
+          "Notifications Wizi-Learn activées",
+          { 
+            body: "Vous serez informé des nouveaux quiz et des activités de votre formation.",
+            icon: "/icons/notification.png"
+          }
+        );
       } else if (result === 'denied') {
         toast({
           title: "Notifications refusées",
@@ -100,6 +110,19 @@ export function useNotifications() {
     }
   };
 
+  const notifyPeerActivity = async (peerName: string, quizTitle: string): Promise<void> => {
+    if (permission === 'granted' && settings.peerActivity) {
+      const options: NotificationOptions = {
+        body: `${peerName} vient de terminer le quiz "${quizTitle}"`,
+        icon: '/icons/activity.png',
+        tag: 'peer-activity',
+        renotify: true,
+      };
+      
+      await notificationService.sendNotification('Activité de formation', options);
+    }
+  };
+
   const notifyRewardEarned = async (points: number, rewardType?: string): Promise<void> => {
     if (permission === 'granted' && settings.rewardEarned) {
       return notificationService.notifyRewardEarned(points, rewardType);
@@ -121,6 +144,7 @@ export function useNotifications() {
     updateSettings,
     notifyQuizCompleted,
     notifyQuizAvailable,
+    notifyPeerActivity,
     notifyRewardEarned,
     notifyFormationUpdate
   };

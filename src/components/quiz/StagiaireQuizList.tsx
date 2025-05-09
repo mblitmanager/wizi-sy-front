@@ -3,17 +3,22 @@ import { useQuery } from "@tanstack/react-query";
 import { stagiaireQuizService } from "@/services/quiz/StagiaireQuizService";
 import { categoryService } from "@/services/quiz/CategoryService";
 import type { Category } from "@/types/quiz";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, Bell } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { StagiaireQuizGrid } from "./StagiaireQuizGrid";
 import { StagiaireQuizFilterBar } from "./StagiaireQuizFilterBar";
 import { motion } from "framer-motion";
+import { useNotifications } from "@/context/NotificationContext";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 export function StagiaireQuizList() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedLevel, setSelectedLevel] = useState<string>("all");
   const [showCompleted, setShowCompleted] = useState<boolean>(true);
+  const { toast } = useToast();
+  const { notificationsEnabled, requestPermission } = useNotifications();
 
   const {
     data: quizzes,
@@ -36,6 +41,32 @@ export function StagiaireQuizList() {
     queryFn: () => stagiaireQuizService.getStagiaireQuizJoue(),
     enabled: !!localStorage.getItem("token"),
   });
+
+  // Check for new quizzes since last visit
+  const [hasNewQuizzes, setHasNewQuizzes] = useState(false);
+  
+  useEffect(() => {
+    if (quizzes && !quizzesLoading) {
+      const lastVisit = localStorage.getItem('lastQuizVisit');
+      const now = new Date().toISOString();
+      
+      // Check if there are new quizzes based on created_at date
+      const newQuizzesExist = quizzes.some(quiz => {
+        return lastVisit && quiz.created_at && new Date(quiz.created_at) > new Date(lastVisit);
+      });
+      
+      if (newQuizzesExist) {
+        setHasNewQuizzes(true);
+        toast({
+          title: "Nouveaux Quiz disponibles !",
+          description: "De nouveaux quiz ont été ajoutés depuis votre dernière visite.",
+        });
+      }
+      
+      // Update last visit timestamp
+      localStorage.setItem('lastQuizVisit', now);
+    }
+  }, [quizzes, quizzesLoading, toast]);
 
   const isLoading = quizzesLoading || categoriesLoading;
   const error = quizzesError;
@@ -74,6 +105,16 @@ export function StagiaireQuizList() {
     [filteredQuizzes, playedQuizIds]
   );
 
+  const handleEnableNotifications = async () => {
+    const success = await requestPermission();
+    if (success) {
+      toast({
+        title: "Notifications activées",
+        description: "Vous recevrez désormais des notifications pour les nouveaux quiz."
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
@@ -111,6 +152,28 @@ export function StagiaireQuizList() {
 
   return (
     <div className="space-y-6">
+      {!notificationsEnabled && (
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between"
+        >
+          <div className="flex items-center">
+            <Bell className="h-5 w-5 text-blue-500 mr-2" />
+            <p className="text-sm text-blue-700">
+              Activez les notifications pour être informé des nouveaux quiz !
+            </p>
+          </div>
+          <Button 
+            size="sm" 
+            onClick={handleEnableNotifications}
+            className="bg-blue-500 hover:bg-blue-600"
+          >
+            Activer
+          </Button>
+        </motion.div>
+      )}
+      
       <StagiaireQuizFilterBar
         categories={categoriesWithCount}
         levels={levels}
@@ -130,7 +193,16 @@ export function StagiaireQuizList() {
           transition={{ duration: 0.5 }}
           className="bg-white shadow-lg rounded-lg p-4 sm:p-6"
         >
-          <h2 className="text-xl font-bold mb-4 text-gray-800">Quiz à découvrir</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-800">Quiz à découvrir</h2>
+            {hasNewQuizzes && (
+              <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full flex items-center">
+                <span className="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></span>
+                Nouveau
+              </span>
+            )}
+          </div>
+          
           {notPlayedQuizzes.length === 0 ? (
             <div className="text-center py-12 sm:py-16 bg-gray-50 rounded-lg">
               <p className="text-gray-500">Tous les quiz ont été joués !</p>

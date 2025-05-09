@@ -1,6 +1,7 @@
 
 import { api } from "@/services/api";
 import { QuizResult } from "@/types/quiz";
+import { notificationService } from "@/services/NotificationService";
 
 export const quizAnswerService = {
   submitQuizAnswers: async (
@@ -11,6 +12,17 @@ export const quizAnswerService = {
     
     // Process the response to calculate points based on correct answers
     const processedResult = processQuizResult(response.data);
+    
+    // Send notification about completing the quiz
+    try {
+      await notificationService.notifyQuizCompleted(
+        processedResult.correctAnswers,
+        processedResult.totalQuestions
+      );
+    } catch (e) {
+      console.error("Failed to send quiz completion notification:", e);
+    }
+    
     return processedResult;
   },
 };

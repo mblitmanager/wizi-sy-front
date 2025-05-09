@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Question } from './Question';
 import { LoadingState } from './quiz-play/LoadingState';
@@ -12,9 +12,13 @@ import { useQuizPlay } from '@/hooks/useQuizPlay';
 import { QuizHeader } from './quiz-play/QuizHeader';
 import { QuizProgress } from './quiz-play/QuizProgress';
 import { QuizHint } from './quiz-play/QuizHint';
+import { useNotifications } from '@/context/NotificationContext';
+import confetti from 'canvas-confetti';
 
 export function QuizPlay() {
   const { quizId } = useParams<{ quizId: string }>();
+  const { notifyForNewQuiz, notificationsEnabled, requestPermission } = useNotifications();
+  
   const {
     quiz,
     currentQuestion,
@@ -45,6 +49,33 @@ export function QuizPlay() {
   } = useQuizPlay(quizId || '');
 
   const [showHint, setShowHint] = React.useState(false);
+
+  // Request notification permission when component mounts
+  useEffect(() => {
+    if (!notificationsEnabled) {
+      requestPermission();
+    }
+  }, [notificationsEnabled, requestPermission]);
+
+  // Celebrate quiz completion with confetti
+  useEffect(() => {
+    if (showResults) {
+      const correctAnswersCount = Object.values(answers).filter(answer => 
+        typeof answer === 'boolean' ? answer : Array.isArray(answer) && answer.length > 0
+      ).length;
+      
+      const scorePercentage = Math.round((correctAnswersCount / totalQuestions) * 100);
+      
+      if (scorePercentage > 70) {
+        // Launch confetti for good scores
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      }
+    }
+  }, [showResults, answers, totalQuestions]);
 
   if (isLoading) {
     return <LoadingState />;

@@ -39,12 +39,12 @@ export const useOrderingQuestion = ({
 
   useEffect(() => {
     if (showFeedback) {
-      // Affiche dans l'ordre soumis pour feedback
+      // Show in the submitted order for feedback
       setOrderedAnswers((prev) =>
         prev.length ? prev : correctAnswers.map((a) => ({ ...a }))
       );
     } else {
-      // Mélange au départ pour interaction
+      // Shuffle at the beginning for interaction
       const shuffled = [...correctAnswers].sort(() => Math.random() - 0.5);
       setOrderedAnswers(shuffled);
     }
@@ -52,7 +52,8 @@ export const useOrderingQuestion = ({
 
   useEffect(() => {
     if (!showFeedback) {
-      onAnswer(orderedAnswers.map((a) => a.text));
+      // Send answer IDs instead of text to match expected format
+      onAnswer(orderedAnswers.map((a) => a.id));
     }
   }, [orderedAnswers, onAnswer, showFeedback]);
 
