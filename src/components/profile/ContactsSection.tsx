@@ -37,10 +37,10 @@ const ContactsSection = () => {
       const token = localStorage.getItem("token"); // Retrieve the JWT token from local storage
       const response = await axios.get(
         type === "commerciaux"
-          ? "https://wizi-learn.com/api/stagiaire/contacts/commerciaux"
+          ? "http://localhost:8000/api/stagiaire/contacts/commerciaux"
           : type === "formateurs"
-          ? "https://wizi-learn.com/api/stagiaire/contacts/formateurs"
-          : "https://wizi-learn.com/api/stagiaire/contacts/pole-relation",
+          ? "http://localhost:8000/api/stagiaire/contacts/formateurs"
+          : "http://localhost:8000/api/stagiaire/contacts/pole-relation",
         {
           headers: {
             Authorization: `Bearer ${token}`, // Add the JWT token to the headers

@@ -1,5 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
-
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 export interface ParrainageStats {
   total_filleuls: number;
@@ -50,19 +49,19 @@ class ParrainageService {
     try {
       const response = await fetch(`${this.baseUrl}/link`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
-        throw new Error('Erreur lors de la récupération du lien');
+        throw new Error("Erreur lors de la récupération du lien");
       }
 
       const data: ParrainageLink = await response.json();
       return data.link;
     } catch (error) {
-      console.error('Erreur dans getParrainageLink:', error);
+      console.error("Erreur dans getParrainageLink:", error);
       throw error;
     }
   }
@@ -71,18 +70,18 @@ class ParrainageService {
     try {
       const response = await fetch(`${this.baseUrl}/stats`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
-        throw new Error('Erreur lors de la récupération des statistiques');
+        throw new Error("Erreur lors de la récupération des statistiques");
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Erreur dans getParrainageStats:', error);
+      console.error("Erreur dans getParrainageStats:", error);
       throw error;
     }
   }
@@ -91,18 +90,18 @@ class ParrainageService {
     try {
       const response = await fetch(`${this.baseUrl}/filleuls`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
-        throw new Error('Erreur lors de la récupération des filleuls');
+        throw new Error("Erreur lors de la récupération des filleuls");
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Erreur dans getFilleuls:', error);
+      console.error("Erreur dans getFilleuls:", error);
       throw error;
     }
   }
@@ -110,43 +109,45 @@ class ParrainageService {
   public async generateParrainageLink(): Promise<string> {
     try {
       const response = await fetch(`${this.baseUrl}/generate-link`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
-        throw new Error('Erreur lors de la génération du lien');
+        throw new Error("Erreur lors de la génération du lien");
       }
 
       const data: ParrainageLink = await response.json();
       return data.link;
     } catch (error) {
-      console.error('Erreur dans generateParrainageLink:', error);
+      console.error("Erreur dans generateParrainageLink:", error);
       throw error;
     }
   }
 
-  public async acceptParrainage(token: string): Promise<{ success: boolean; message: string }> {
+  public async acceptParrainage(
+    token: string
+  ): Promise<{ success: boolean; message: string }> {
     try {
       const response = await fetch(`${this.baseUrl}/accept`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ token }),
       });
 
       if (!response.ok) {
-        throw new Error('Erreur lors de l\'acceptation du parrainage');
+        throw new Error("Erreur lors de l'acceptation du parrainage");
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Erreur dans acceptParrainage:', error);
+      console.error("Erreur dans acceptParrainage:", error);
       throw error;
     }
   }
@@ -155,18 +156,18 @@ class ParrainageService {
     try {
       const response = await fetch(`${this.baseUrl}/rewards`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
-        throw new Error('Erreur lors de la récupération des récompenses');
+        throw new Error("Erreur lors de la récupération des récompenses");
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Erreur dans getParrainageRewards:', error);
+      console.error("Erreur dans getParrainageRewards:", error);
       throw error;
     }
   }
@@ -175,21 +176,21 @@ class ParrainageService {
     try {
       const response = await fetch(`${this.baseUrl}/history`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
-        throw new Error('Erreur lors de la récupération de l\'historique');
+        throw new Error("Erreur lors de la récupération de l'historique");
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Erreur dans getParrainageHistory:', error);
+      console.error("Erreur dans getParrainageHistory:", error);
       throw error;
     }
   }
 }
 
-export const parrainageService = ParrainageService.getInstance(); 
+export const parrainageService = ParrainageService.getInstance();

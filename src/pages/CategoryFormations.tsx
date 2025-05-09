@@ -1,4 +1,3 @@
-
 import { Layout } from "@/components/layout/Layout";
 import { FormationCard } from "@/components/dashboard/FormationCard";
 import { useQuery } from "@tanstack/react-query";
@@ -8,11 +7,13 @@ import { toast } from "sonner";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
-const backendUrl = "https://wizi-learn.com/api";
+const backendUrl = "http://localhost:8000/api";
 
 async function fetchFormations(categoryId: string): Promise<Formation[]> {
   try {
-    const response = await fetch(`${backendUrl}/formations/categories/${categoryId}`);
+    const response = await fetch(
+      `${backendUrl}/formations/categories/${categoryId}`
+    );
     if (!response.ok) {
       throw new Error("Failed to fetch formations");
     }
@@ -25,8 +26,12 @@ async function fetchFormations(categoryId: string): Promise<Formation[]> {
 
 export default function CategoryFormations() {
   const { categorySlug } = useParams<{ categorySlug: string }>();
-  
-  const { data: formations, isLoading, error } = useQuery({
+
+  const {
+    data: formations,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["formations", categorySlug],
     queryFn: () => fetchFormations(categorySlug || ""),
     enabled: !!categorySlug,
@@ -39,11 +44,13 @@ export default function CategoryFormations() {
   return (
     <Layout>
       <div className="container py-8">
-        <Link to="/catalogue" className="flex items-center text-blue-600 hover:underline mb-6">
+        <Link
+          to="/catalogue"
+          className="flex items-center text-blue-600 hover:underline mb-6">
           <ArrowLeft className="h-4 w-4 mr-1" />
           Retour au catalogue
         </Link>
-        
+
         <h1 className="text-3xl font-bold mb-8">
           {categorySlug === "bureautique" && "Bureautique"}
           {categorySlug === "langues" && "Langues"}
@@ -69,7 +76,8 @@ export default function CategoryFormations() {
               ))
             ) : (
               <p className="col-span-full text-center py-12 text-gray-500">
-                Aucune formation n'est disponible dans cette catégorie pour le moment.
+                Aucune formation n'est disponible dans cette catégorie pour le
+                moment.
               </p>
             )}
           </div>
