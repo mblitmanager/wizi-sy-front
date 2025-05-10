@@ -156,7 +156,7 @@ export function QuizResults() {
   };
 
   return (
-    <div className="container mx-auto py-6 px-4 lg:py-8">
+    <Layout>
       <QuizSummary
         questions={result.questions}
         quiz={quizData}
@@ -164,6 +164,6 @@ export function QuizResults() {
         score={result.score}
         totalQuestions={result.totalQuestions}
       />
-    </div>
+    </Layout>
   );
 }
