@@ -1,0 +1,27 @@
+import { Trophy } from "lucide-react";
+
+interface QuizSummaryCardProps {
+  score: number;
+  totalQuestions: number;
+}
+
+export default function QuizSummaryCard({
+  score,
+  totalQuestions,
+}: QuizSummaryCardProps) {
+  const isSuccess = score >= totalQuestions / 2;
+
+  return (
+    <div className="flex flex-col items-center justify-center p-6 bg-white shadow rounded-2xl">
+      <Trophy
+        className={`h-10 w-10 ${isSuccess ? "text-green-500" : "text-red-500"}`}
+      />
+      <h3 className="mt-4 text-2xl font-bold">
+        {isSuccess ? "Bravo !" : "Réessayez !"}
+      </h3>
+      <p className="text-gray-600 mt-2">
+        Vous avez obtenu {score} sur {totalQuestions}.
+      </p>
+    </div>
+  );
+}

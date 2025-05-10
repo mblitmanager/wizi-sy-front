@@ -1,19 +1,31 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, XCircle, ArrowLeft } from "lucide-react";
-import { cn } from "@/lib/utils";
-import type { Question, Quiz } from "@/types/quiz";
+import { useLocation, useParams, Link } from "react-router-dom";
+import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
-import { Alert } from "@/components/ui/alert";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import scoreparfait from "@/assets/icons/bombe-de-table.png";
-import scoreexcellent from "@/assets/icons/applaudissements.png";
-import scorebien from "@/assets/icons/pouces-vers-le-haut.png";
-import scoremoyen from "@/assets/icons/des-astuces.png";
+import { useToast } from "@/hooks/use-toast";
+import { quizSubmissionService } from "@/services/quiz/QuizSubmissionService";
+import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { Loader2 } from "lucide-react";
+import { useNotifications } from "@/hooks/useNotifications";
+import { NotificationBanner } from "./NotificationBanner";
+import { isRearrangementCorrect } from "@/utils/UtilsFunction";
+import { Clock, CheckCircle, Calendar, TrendingUp } from "lucide-react";
+import QuizSummaryHeader from "../Summary/QuizSummaryHeader";
+import QuizSummaryCard from "../Summary/QuizSummaryCard";
+import QuizAnswerCard from "../Summary/QuizAnswerCard";
+import QuizSummaryFooter from "../Summary/QuizSummaryFooter";
+import { Question } from "@/types/quiz";
 
 interface QuizSummaryProps {
-  quiz: Quiz;
+  quiz?: {
+    id: string;
+    titre: string;
+    description: string;
+    categorie: string;
+    categorieId: string;
+    niveau: string;
+    points: number;
+  };
   questions: Question[];
   userAnswers: Record<
     string,
@@ -26,632 +38,321 @@ interface QuizSummaryProps {
   >;
   score: number;
   totalQuestions: number;
+  timeSpent: number;
+  completedAt: string;
+  correctAnswers: number;
 }
 
-// Fonction utilitaire pour normaliser les chaînes (accents, casse, espaces)
-function normalizeString(str: string): string {
-  return str
-    .normalize("NFD") // décompose les accents
-    .replace(/\u0300-\u036f/g, "") // supprime les diacritiques
-    .toLowerCase()
-    .trim();
-}
+export function QuizSummary() {
+  const { quizId } = useParams<{ quizId: string }>();
+  const location = useLocation();
+  const { toast } = useToast();
+  const { notifyQuizCompleted, permission } = useNotifications();
 
-export function QuizSummary({
-  quiz,
-  questions,
-  userAnswers,
-  score,
-  totalQuestions,
-}: QuizSummaryProps) {
-  const navigate = useNavigate();
+  // Store result state locally to avoid triggering re-renders
+  const [result, setResult] = useState<QuizSummaryProps | null>(null);
+  const [notificationSent, setNotificationSent] = useState(false);
 
-  // Calculer le niveau de réussite
-  const successLevel =
-    score >= 80
-      ? "Excellent"
-      : score >= 70
-      ? "Très bien"
-      : score >= 60
-      ? "Bien"
-      : score >= 50
-      ? "Moyen"
-      : "À améliorer";
+  // Check if the result was passed through navigation state
+  const resultFromState = location.state?.result;
 
-  const formatAnswer = (
-    question: Question,
-    userAnswer:
-      | string
-      | number
-      | Record<string, string | number>
-      | Array<string | number>
-      | null
-      | undefined
-  ) => {
-    if (!userAnswer) return "Aucune réponse";
+  // If we don't have the result from state, fetch it from the API
+  const {
+    data: resultFromApi,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["quiz-result", quizId],
+    queryFn: () => quizSubmissionService.getQuizResult(quizId as string),
+    enabled: !!quizId && !resultFromState && !!localStorage.getItem("token"),
+  });
 
-    switch (question.type) {
-      case "remplir le champ vide": {
-        if (typeof userAnswer === "object" && !Array.isArray(userAnswer)) {
-          return (
-            Object.values(userAnswer)
-              .map((val) => {
-                const found = question.answers?.find(
-                  (a) =>
-                    normalizeString(a.text) === normalizeString(String(val))
-                );
-                return found ? found.text : val;
-              })
-              .join(", ") || "Aucune réponse"
-          );
-        }
-        const found = question.answers?.find(
-          (a) => normalizeString(a.text) === normalizeString(String(userAnswer))
-        );
-        return found ? found.text : String(userAnswer);
-      }
-
-      case "correspondance": {
-        if (typeof userAnswer === "object" && !Array.isArray(userAnswer)) {
-          const pairs = [];
-          for (const leftId in userAnswer) {
-            if (leftId !== "destination") {
-              const rightValue = userAnswer[leftId];
-              const leftItem = question.answers?.find((a) => a.id === leftId);
-              const rightItem = question.answers?.find(
-                (a) => a.text === String(rightValue)
-              );
-              pairs.push(
-                `${leftItem?.text || leftId} : ${rightItem?.text || rightValue}`
-              );
-            }
-          }
-          return pairs.join("; ") || "Aucune réponse";
-        }
-        if (Array.isArray(userAnswer)) {
-          return userAnswer
-            .map((id) => {
-              if (typeof id === "string" && id.includes("-")) {
-                const [leftId, rightId] = id.split("-");
-                const leftItem = question.answers?.find((a) => a.id === leftId);
-                const rightItem = question.answers?.find(
-                  (a) => a.id === rightId
-                );
-                return `${leftItem?.text || leftId} : ${
-                  rightItem?.text || rightId
-                }`;
-              }
-              return id;
-            })
-            .join("; ");
-        }
-        console.log("userAnswer formatAnswer", userAnswer);
-        return String(userAnswer);
-      }
-
-      case "carte flash": {
-        let value = userAnswer;
-        if (
-          userAnswer &&
-          typeof userAnswer === "object" &&
-          "selectedAnswers" in userAnswer
-        ) {
-          value = userAnswer.selectedAnswers;
-        }
-        if (Array.isArray(value)) {
-          value = value[0];
-        }
-        if (question.answers) {
-          const answer = question.answers.find(
-            (a) =>
-              a.id === String(value) ||
-              normalizeString(a.text) === normalizeString(String(value))
-          );
-          return answer ? answer.text : String(value);
-        }
-        return String(value);
-      }
-
-      case "vrai/faux": {
-        const answer = question.answers?.find(
-          (a) => a.id === String(userAnswer)
-        );
-        return answer ? answer.text : String(userAnswer);
-      }
-
-      case "rearrangement": {
-        if (Array.isArray(userAnswer)) {
-          return userAnswer
-            .map((id, index) => {
-              const answer = question.answers?.find((a) => a.id === String(id));
-              return `${index + 1}. ${answer?.text || id}`;
-            })
-            .join(", ");
-        }
-        return String(userAnswer);
-      }
-
-      case "question audio": {
-        if (
-          typeof userAnswer === "object" &&
-          "id" in userAnswer &&
-          "text" in userAnswer
-        ) {
-          return userAnswer.text;
-        }
-        return "Aucune réponse";
-      }
-
-      default: {
-        if (Array.isArray(userAnswer)) {
-          const answerTexts = userAnswer.map((id) => {
-            const answer = question.answers?.find((a) => a.id === String(id));
-            return answer?.text || id;
-          });
-          return answerTexts.join(", ") || "Aucune réponse";
-        }
-        const answer = question.answers?.find(
-          (a) => a.id === String(userAnswer)
-        );
-        return answer ? answer.text : String(userAnswer);
-      }
+  // Use useEffect to set the result once to avoid infinite loops
+  useEffect(() => {
+    if (resultFromState) {
+      setResult(resultFromState);
+    } else if (resultFromApi) {
+      setResult(resultFromApi);
     }
-  };
+  }, [resultFromState, resultFromApi]);
 
-  const formatCorrectAnswer = (question: Question) => {
-    switch (question.type) {
-      case "remplir le champ vide": {
-        const blanks: Record<string, string> = {};
-        question.answers?.forEach((a) => {
-          if (a.bank_group && (a.isCorrect || a.is_correct === 1)) {
-            blanks[a.bank_group] = a.text;
-          }
-        });
-
-        if (Object.keys(blanks).length > 0) {
-          return Object.values(blanks).join(", ");
-        }
-
-        const correctFillAnswers = question.answers?.filter(
-          (a) => a.isCorrect || a.is_correct === 1
-        );
-        if (correctFillAnswers && correctFillAnswers.length) {
-          return correctFillAnswers.map((a) => a.text).join(", ");
-        }
-
-        if (question.correctAnswers && question.correctAnswers.length) {
-          const answerTexts = question.correctAnswers.map((id) => {
-            const answer = question.answers?.find(
-              (a) => a.id === String(id) || a.id === id
-            );
-            return answer ? answer.text : id;
-          });
-          return answerTexts.join(", ");
-        }
-
-        return "Aucune réponse correcte définie";
-      }
-
-      case "correspondance": {
-        if (!question.selectedAnswers || !question.answers) {
-          return "Aucune réponse correcte définie";
-        }
-        const pairs = Object.entries(question.selectedAnswers).map(
-          ([leftId, rightText]) => {
-            // Trouver l'élément correspondant à `leftId`
-            const leftItem = question.answers.find(
-              (a) => parseInt(a.id) === parseInt(leftId)
-            );
-            return `${leftItem?.text || leftId} : ${rightText}`;
-          }
-        );
-        console.log("pairs formatCorrectAnswer", pairs);
-
-        return pairs.length > 0
-          ? pairs.join("; ")
-          : "Aucune réponse correcte définie";
-      }
-
-      case "carte flash": {
-        const flashcard = question.answers?.find(
-          (a) => a.isCorrect || a.is_correct === 1
-        );
-        if (flashcard) {
-          return `${flashcard.text}${
-            flashcard.flashcard_back ? ` (${flashcard.flashcard_back})` : ""
-          }`;
-        }
-        return "Aucune réponse correcte définie";
-      }
-
-      case "rearrangement": {
-        const orderedAnswers = [...(question.answers || [])].sort(
-          (a, b) => (a.position || 0) - (b.position || 0)
-        );
-        return orderedAnswers.map((a, i) => `${i + 1}. ${a.text}`).join(", ");
-      }
-
-      case "banque de mots": {
-        const correctWords = question.answers?.filter(
-          (a) => a.isCorrect || a.is_correct === 1
-        );
-        if (correctWords && correctWords.length) {
-          return correctWords.map((a) => a.text).join(", ");
-        }
-        return "Aucune réponse correcte définie";
-      }
-
-      default: {
-        const correctAnswers = question.answers?.filter(
-          (a) => a.isCorrect || a.is_correct === 1
-        );
-        if (correctAnswers && correctAnswers.length) {
-          return correctAnswers.map((a) => a.text).join(", ");
-        }
-
-        if (question.correctAnswers && question.correctAnswers.length) {
-          const answerTexts = question.correctAnswers.map((id) => {
-            const answer = question.answers?.find(
-              (a) => a.id === String(id) || a.id === id
-            );
-            return answer ? answer.text : id;
-          });
-          return answerTexts.join(", ");
-        }
-
-        return "Aucune réponse correcte définie";
-      }
+  // Handle notifications for quiz results
+  useEffect(() => {
+    if (result && permission === "granted" && !notificationSent) {
+      notifyQuizCompleted(result.correctAnswers, result.totalQuestions);
+      setNotificationSent(true);
     }
-  };
+  }, [result, permission, notificationSent, notifyQuizCompleted]);
 
-  const isAnswerCorrect = (question: Question): boolean => {
-    // On ne fait confiance à isCorrect que si c'est explicitement true
-    if (question.isCorrect === true) {
-      return true;
+  // Handle API errors
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les résultats du quiz.",
+        variant: "destructive",
+      });
     }
-    // Sinon, on vérifie normalement
-    const userAnswerData = userAnswers[question.id];
-    if (!userAnswerData) return false;
+  }, [error, toast]);
 
-    switch (question.type) {
-      case "remplir le champ vide": {
-        // Pour les questions à blancs, vérifier chaque champ
-        if (typeof userAnswerData !== "object" || Array.isArray(userAnswerData))
-          return false;
+  if (isLoading || (!result && !error)) {
+    return (
+      <Layout>
+        <div className="container mx-auto py-8 px-4">
+          <div className="flex items-center justify-center flex-col gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <h1 className="text-2xl font-bold">Chargement des résultats...</h1>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
-        const correctBlanks = {};
-        question.answers?.forEach((a) => {
-          if (a.bank_group && (a.isCorrect || a.is_correct === 1)) {
-            correctBlanks[a.bank_group] = a.text;
-          }
-        });
+  if (!result) {
+    return (
+      <Layout>
+        <div className="container mx-auto py-8 px-4">
+          <h1 className="text-2xl font-bold mb-4">Résultats non disponibles</h1>
+          <p className="mb-4">
+            Les résultats de ce quiz ne sont pas disponibles.
+          </p>
+          <Button asChild>
+            <Link to="/quizzes">Retour aux quiz</Link>
+          </Button>
+        </div>
+      </Layout>
+    );
+  }
 
-        // Cas classique avec bank_group
-        if (Object.keys(correctBlanks).length > 0) {
-          return Object.entries(userAnswerData).every(([key, value]) => {
-            const correctAnswer = correctBlanks[key];
-            if (!correctAnswer) return false;
-            return (
-              normalizeString(String(value)) === normalizeString(correctAnswer)
-            );
+  // Format data for QuizSummary component
+  const formattedUserAnswers: Record<string, any> = {};
+  result.questions.forEach((q: any) => {
+    if (q.type === "rearrangement") {
+      const isCorrect = isRearrangementCorrect(
+        q.selectedAnswers,
+        q.correctAnswers
+      );
+    }
+
+    if (q.selectedAnswers) {
+      // Si la réponse est un tableau (choix multiples, etc.)
+      if (Array.isArray(q.selectedAnswers)) {
+        formattedUserAnswers[q.id] = q.selectedAnswers;
+      }
+      // Pour les questions de type "correspondance"
+      else if (typeof q.selectedAnswers === "object") {
+        if (q.type === "correspondance") {
+          const answersById: Record<string, string> = {};
+          q.answers.forEach((a: { id: string; text: string }) => {
+            answersById[a.id] = a.text;
           });
-        }
 
-        // Cas sans bank_group, plusieurs champs à remplir
-        const correctAnswers = question.answers?.filter(
-          (a) => a.isCorrect || a.is_correct === 1
-        );
-        const userValues = Object.values(userAnswerData);
-        if (correctAnswers && correctAnswers.length === userValues.length) {
-          return correctAnswers.every(
-            (a, idx) =>
-              normalizeString(String(userValues[idx])) ===
-              normalizeString(a.text)
-          );
-        }
+          // Remplace les ID par leur texte correspondant
+          const mapped: Record<string, string> = {};
+          Object.entries(q.selectedAnswers).forEach(([leftId, rightVal]) => {
+            const leftText = answersById[leftId] || leftId;
+            const rightText =
+              answersById[rightVal as string] || (rightVal as string);
+            mapped[leftText] = rightText;
+          });
 
-        return false;
-      }
-
-      case "correspondance": {
-        console.log("userAnswerData dans isAnswerCorrect", userAnswerData);
-
-        if (
-          typeof userAnswerData !== "object" ||
-          Array.isArray(userAnswerData)
-        ) {
-          return false;
-        }
-
-        // Mapping des IDs vers les textes
-        const idToText = Object.fromEntries(
-          (question.answers || []).map((a) => [a.id, a.text])
-        );
-
-        console.log("idToText", idToText);
-
-        // Mapping des match_pair vers les textes
-        const matchPairToText = Object.fromEntries(
-          (question.isCorrect?.match_pair || []).map(({ text, match_pair }) => [
-            match_pair,
-            text,
-          ])
-        );
-
-        console.log("matchPairToText", matchPairToText);
-
-        // Générer les paires dans le format "France : Paris"
-        const pairs = Object.entries(question.selectedAnswers).map(
-          ([leftId, rightText]) => {
-            const leftText = idToText[leftId] || leftId;
-            const rightTextFormatted = matchPairToText[rightText] || rightText;
-            return `${leftText} : ${rightTextFormatted}`;
-          }
-        );
-
-        console.log("pairs formatCorrectAnswer", pairs);
-
-        return pairs.length > 0
-          ? pairs.join("; ")
-          : "Aucune réponse correcte définie";
-      }
-
-      case "rearrangement": {
-        // Pour le réarrangement, vérifier l'ordre
-        if (!Array.isArray(userAnswerData)) return false;
-
-        const correctOrder = [...(question.answers || [])]
-          .sort((a, b) => (a.position || 0) - (b.position || 0))
-          .map((a) => a.id);
-
-        return JSON.stringify(userAnswerData) === JSON.stringify(correctOrder);
-      }
-
-      case "carte flash": {
-        // Pour les flashcards
-        const correctAnswer = question.answers?.find(
-          (a) => a.isCorrect || a.is_correct === 1
-        );
-        return (
-          correctAnswer &&
-          (correctAnswer.text === userAnswerData ||
-            correctAnswer.id === String(userAnswerData))
-        );
-      }
-
-      case "banque de mots": {
-        // Pour banque de mots
-        if (!Array.isArray(userAnswerData)) return false;
-
-        const correctAnswerIds = question.answers
-          ?.filter((a) => a.isCorrect || a.is_correct === 1)
-          .map((a) => a.id);
-
-        if (!correctAnswerIds?.length) return false;
-
-        // Vérifier que tous les mots corrects ont été sélectionnés et aucun incorrect
-        const selectedIds = userAnswerData.map((id) => String(id));
-        return (
-          correctAnswerIds.every((id) => selectedIds.includes(String(id))) &&
-          selectedIds.every((id) => correctAnswerIds.includes(String(id)))
-        );
-      }
-
-      default: {
-        // Pour QCM
-        const correctAnswerIds = question.answers
-          ?.filter((a) => a.isCorrect || a.is_correct === 1)
-          .map((a) => a.id);
-
-        if (!correctAnswerIds?.length) {
-          // Tenter d'utiliser correctAnswers si disponible
-          if (question.correctAnswers && question.correctAnswers.length) {
-            const correctIds = question.correctAnswers.map((id) => String(id));
-
-            if (Array.isArray(userAnswerData)) {
-              // Convertir tous les éléments en string pour la comparaison
-              const normalizedUserAnswers = userAnswerData.map((id) =>
-                String(id)
-              );
-              return (
-                correctIds.length === normalizedUserAnswers.length &&
-                correctIds.every((id) => normalizedUserAnswers.includes(id))
-              );
-            } else {
-              return correctIds.includes(String(userAnswerData));
-            }
-          }
-          return false;
-        }
-
-        if (Array.isArray(userAnswerData)) {
-          // Si plusieurs réponses sont attendues (QCM multi)
-          // Convertir tous les éléments en string pour la comparaison
-          const normalizedUserAnswers = userAnswerData.map((id) => String(id));
-          return (
-            correctAnswerIds.length === normalizedUserAnswers.length &&
-            correctAnswerIds.every((id) => normalizedUserAnswers.includes(id))
-          );
+          formattedUserAnswers[q.id] = mapped;
         } else {
-          // Si une seule réponse est attendue (QCM simple)
-          return correctAnswerIds.includes(String(userAnswerData));
+          // Pour les autres types utilisant des objets (ex: remplir les champs)
+          formattedUserAnswers[q.id] = q.selectedAnswers;
         }
       }
+      // Réponse simple (ex: QCM, vrai/faux)
+      else {
+        formattedUserAnswers[q.id] = q.selectedAnswers;
+      }
+    } else {
+      formattedUserAnswers[q.id] = null;
     }
+  });
+
+  const handleBack = () => {
+    window.history.back();
   };
 
   return (
-    <div className="space-y-6 px-3 py-6 sm:px-4 md:px-6">
-      {/* Header */}
-      <div className="flex flex-wrap items-center gap-3 justify-between">
-        <Button
-          variant="outline"
-          onClick={() => navigate("/quizzes")}
-          className="flex items-center gap-2 rounded-full px-3 py-1.5 text-sm shadow-sm hover:bg-muted transition-colors">
-          <ArrowLeft className="h-4 w-4" />
-          Retour
-        </Button>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
-          {quiz.titre || "Quiz"}
-        </h1>
-      </div>
+    <Layout>
+      <div className="container mx-auto py-6 px-4 lg:py-8 max-w-7xl">
+        <NotificationBanner />
 
-      {/* Résumé du Quiz */}
-      <Card className="bg-gradient-to-br from-slate-100 to-slate-300 border-none shadow-md rounded-xl p-4 sm:p-6">
-        <CardHeader className="text-center">
-          <CardTitle className="text-lg sm:text-xl text-primary font-semibold">
-            Résumé du Quiz
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center space-y-4">
-            <div className="flex justify-center">
-              <div
-                className={cn(
-                  "text-2xl sm:text-4xl font-extrabold rounded-full h-24 sm:h-32 w-24 sm:w-32 flex items-center justify-center shadow-lg border-4 transition-transform duration-300",
-                  score >= 70
-                    ? "bg-green-100 text-green-700 border-green-400"
-                    : "bg-amber-100 text-amber-700 border-amber-400"
-                )}>
-                {score}%
+        {/* Header avec titre et bouton de retour */}
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-gradient bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
+            Résultats du Quiz
+          </h1>
+          <Button
+            onClick={handleBack}
+            variant="outline"
+            className="flex items-center gap-2 border-2 border-blue-500 text-blue-600 hover:bg-blue-50">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor">
+              <path
+                fillRule="evenodd"
+                d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Retour
+          </Button>
+        </div>
+
+        {/* Section des statistiques principales */}
+        <div className="mb-8">
+          {/* Titre de section */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300">
+              <TrendingUp size={20} />
+            </div>
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+              Résultats du quiz
+            </h2>
+          </div>
+
+          {/* Conteneur flex pour aligner les deux composants */}
+          <div className="flex flex-col md:flex-row gap-4">
+            {/* Carte de résumé (QuizSummaryCard) */}
+            <div className="flex-1 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
+              <QuizSummaryCard
+                score={result.score}
+                totalQuestions={result.totalQuestions}
+              />
+            </div>
+
+            {/* Statistiques compactes */}
+            <div className="flex-1 grid grid-cols-2 gap-4">
+              {/* Bonnes réponses */}
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-300">
+                    <CheckCircle size={18} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                      Bonnes réponses
+                    </p>
+                    <div className="flex items-end gap-1">
+                      <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                        {result.correctAnswers}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                        / {result.totalQuestions}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Temps passé */}
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-300">
+                    <Clock size={18} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                      Temps passé
+                    </p>
+                    <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                      {Math.floor(result.timeSpent / 60)}:
+                      {(result.timeSpent % 60).toString().padStart(2, "0")}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Score */}
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300">
+                    <TrendingUp size={18} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                      Score
+                    </p>
+                    <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                      {result.score}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Date */}
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300">
+                    <Calendar size={18} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                      Complété le
+                    </p>
+                    <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                      {new Date(result.completedAt).toLocaleDateString(
+                        "fr-FR",
+                        { day: "numeric", month: "short" }
+                      )}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
-
-            <Badge
-              className={cn(
-                "px-3 py-1 text-sm rounded-full shadow-md transition-all duration-300",
-                score >= 70
-                  ? "bg-green-500 text-white"
-                  : "bg-amber-500 text-white"
-              )}>
-              {successLevel}
-            </Badge>
-
-            <div className="flex flex-col items-center gap-2">
-              {score === 100 ? (
-                <img src={scoreparfait} className="w-12 sm:w-16" alt="" />
-              ) : score >= 80 ? (
-                <img src={scoreexcellent} className="w-12 sm:w-16" alt="" />
-              ) : score >= 60 ? (
-                <img src={scorebien} className="w-12 sm:w-16" alt="" />
-              ) : (
-                <img src={scoremoyen} className="w-12 sm:w-16" alt="" />
-              )}
-              <p className="text-sm sm:text-lg text-muted-foreground font-medium">
-                {score === 100
-                  ? "Félicitations ! Score parfait!"
-                  : score >= 80
-                  ? "Excellent travail !"
-                  : score >= 60
-                  ? "Bien joué !"
-                  : "Continuez à vous entraîner !"}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Détails des réponses */}
-      <ScrollArea className="h-[calc(100vh-350px)] sm:h-auto">
-        <div className="space-y-4 p-2">
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
-            Détails des réponses
-          </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {questions.map((question, index) => {
-              const userAnswer = userAnswers[question.id];
-              const isCorrect = isAnswerCorrect(question);
-              console.log("question", question);
-              console.log(isCorrect);
-              return (
-                <Card
-                  key={question.id}
-                  className={cn(
-                    "border-l-4 rounded-lg shadow-sm p-4 space-y-3",
-                    isCorrect ? "border-green-500" : "border-red-500"
-                  )}>
-                  <div className="flex items-center gap-2">
-                    {isCorrect ? (
-                      <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <XCircle className="h-4 w-4 text-red-500" />
-                    )}
-                    <h3 className="text-sm sm:text-base font-semibold">
-                      Question {index + 1}
-                    </h3>
-                  </div>
-
-                  <p className="text-sm text-gray-700">{question.text}</p>
-
-                  {question.media_url && (
-                    <div className="flex justify-center">
-                      {question.type === "question audio" ? (
-                        <audio controls className="w-full sm:w-auto rounded-lg">
-                          <source src={question.media_url} type="audio/mpeg" />
-                          Votre navigateur ne supporte pas l'élément audio.
-                        </audio>
-                      ) : (
-                        <img
-                          src={question.media_url}
-                          alt="Question media"
-                          className="w-full sm:w-auto h-auto rounded-lg"
-                        />
-                      )}
-                    </div>
-                  )}
-
-                  <div className="text-sm">
-                    <span className="font-semibold">Votre réponse :</span>{" "}
-                    {userAnswer
-                      ? formatAnswer(question, userAnswer)
-                      : "Aucune réponse"}
-                  </div>
-
-                  {!isCorrect && (
-                    <div className="text-sm">
-                      <span className="font-semibold">Bonne réponse :</span>{" "}
-                      {formatCorrectAnswer(question)}
-                    </div>
-                  )}
-
-                  {question.explication && (
-                    <Alert className="text-sm bg-blue-50 text-blue-800 border border-blue-200 p-2">
-                      {question.explication}
-                    </Alert>
-                  )}
-                </Card>
-              );
-            })}
           </div>
         </div>
-      </ScrollArea>
 
-      {/* Footer buttons */}
-      <div className="flex flex-wrap justify-center gap-2 mt-6">
-        <Button
-          onClick={() => navigate("/quizzes")}
-          variant="outline"
-          className="flex-1 min-w-[110px] px-4 py-2 text-sm rounded-full hover:bg-muted transition">
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Retour
-        </Button>
+        {/* Section détaillée des résultats */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700">
+          {/* En-tête du résumé */}
+          <div className="p-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white">
+            <h2 className="text-2xl font-bold flex items-center gap-3">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-8 w-8"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              Détail des réponses
+            </h2>
+            <p className="opacity-90 mt-1">
+              Revoyez chaque question et vos réponses
+            </p>
+          </div>
+          {/* Liste des questions/réponses */}
+          <div className="divide-y divide-gray-100 dark:divide-gray-700">
+            {result.questions.map((question: Question, index: number) => (
+              <div
+                key={question.id}
+                className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                <QuizAnswerCard
+                  question={question}
+                  userAnswer={formattedUserAnswers[question.id]}
+                  questionNumber={index + 1}
+                />
+              </div>
+            ))}
+          </div>
 
-        <Button
-          onClick={() => navigate(`/quiz/${quiz.id}`)}
-          className="flex-1 min-w-[110px] px-4 py-2 text-sm bg-primary text-white rounded-full hover:bg-primary/90 transition">
-          <CheckCircle2 className="h-4 w-4 mr-1" />
-          Recommencer
-        </Button>
-
-        <Button
-          onClick={() => navigate(`/classement`)}
-          variant="outline"
-          className="flex-1 min-w-[110px] px-4 py-2 text-sm rounded-full hover:bg-muted transition">
-          <span className="inline-block w-3 h-3 bg-yellow-400 rounded-full mr-1" />
-          Classement
-        </Button>
+          {/* Pied de page avec actions */}
+          <div className="p-3 bg-gray-50 dark:bg-gray-700/30 border-t border-gray-100 dark:border-gray-700">
+            <QuizSummaryFooter quizId={result.quiz?.id || quizId || ""} />
+          </div>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 }

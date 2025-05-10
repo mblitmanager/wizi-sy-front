@@ -17,9 +17,9 @@ export function Layout({ children }: LayoutProps) {
   }
 
   return (
-    <div className="min-h-screen flex bg-background text-gray-900">
+    <div className="h-screen flex bg-background text-gray-900 overflow-hidden">
       {/* Sidebar - visible sur desktop */}
-      <aside className="hidden md:flex md:flex-col md:w-64 border-r border-gray-200 bg-white shadow-sm">
+      <aside className="hidden md:flex md:flex-col md:w-64 border-r border-gray-200 bg-white shadow-sm h-full">
         {/* Logo en haut de la sidebar */}
         <div className="h-16 flex items-center justify-center border-b">
           <img src={logo} alt="" className="object-contain h-14 w-40" />
@@ -30,7 +30,7 @@ export function Layout({ children }: LayoutProps) {
       </aside>
 
       {/* Contenu principal */}
-      <div className="flex flex-col flex-1 h-screen">
+      <div className="flex flex-col flex-1 h-full">
         {/* Barre du haut (Navbar) */}
         <header className="h-16 border-b border-gray-200 bg-white shadow-sm px-4 flex items-center">
           <Navbar />
