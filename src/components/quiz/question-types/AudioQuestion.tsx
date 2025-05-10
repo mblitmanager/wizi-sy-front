@@ -52,7 +52,7 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
                 controls
                 className="flex-1 min-w-[150px] max-w-full min-h-[40px] rounded-md shadow-inner bg-gray-100">
                 <source
-                  src={`${VITE_API_URL}/media/stream/storage/${question.audioUrl}`}
+                  src={`${VITE_API_URL}/media/stream/${question.audioUrl}`}
                 />
                 Votre navigateur ne supporte pas la lecture audio.
               </audio>
