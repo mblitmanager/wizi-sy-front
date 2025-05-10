@@ -1,4 +1,3 @@
-
 import { useParams, Navigate, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { useQuery } from "@tanstack/react-query";
@@ -16,21 +15,25 @@ const Quiz = () => {
   const { token, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   // Vérification de l'ID du quiz
   useEffect(() => {
     if (!quizId) {
-      console.error('No quiz ID provided');
-      navigate('/quizzes');
+      console.error("No quiz ID provided");
+      navigate("/quizzes");
       return;
     }
   }, [quizId, navigate]);
 
   // Fetch quiz details to validate if it exists
-  const { data: quiz, isLoading: quizLoading, error: quizError } = useQuery({
+  const {
+    data: quiz,
+    isLoading: quizLoading,
+    error: quizError,
+  } = useQuery({
     queryKey: ["quiz", quizId],
     queryFn: () => {
-      if (!quizId) throw new Error('No quiz ID provided');
+      if (!quizId) throw new Error("No quiz ID provided");
       return quizManagementService.getQuizById(quizId);
     },
     enabled: !!quizId && !!token,
@@ -40,10 +43,10 @@ const Quiz = () => {
         toast({
           title: "Erreur",
           description: "Impossible de charger ce quiz. Veuillez réessayer.",
-          variant: "destructive"
+          variant: "destructive",
         });
-      }
-    }
+      },
+    },
   });
 
   // Si l'authentification est en cours de chargement, afficher un écran de chargement
@@ -79,19 +82,17 @@ const Quiz = () => {
   if (quizError) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Erreur lors du chargement du quiz</AlertTitle>
             <AlertDescription>
-              Nous n'avons pas pu charger ce quiz. Il est possible que le quiz n'existe pas ou que vous n'ayez pas accès à celui-ci.
+              Nous n'avons pas pu charger ce quiz. Il est possible que le quiz
+              n'existe pas ou que vous n'ayez pas accès à celui-ci.
             </AlertDescription>
           </Alert>
           <div className="mt-4 flex justify-center">
-            <Button 
-              onClick={() => navigate('/quizzes')}
-              variant="outline"
-            >
+            <Button onClick={() => navigate("/quizzes")} variant="outline">
               Retourner à la liste des quiz
             </Button>
           </div>
@@ -113,10 +114,7 @@ const Quiz = () => {
             </AlertDescription>
           </Alert>
           <div className="mt-4 flex justify-center">
-            <Button 
-              onClick={() => navigate('/quizzes')}
-              variant="outline"
-            >
+            <Button onClick={() => navigate("/quizzes")} variant="outline">
               Retourner à la liste des quiz
             </Button>
           </div>

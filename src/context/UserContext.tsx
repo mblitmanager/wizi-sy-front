@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 import { User } from "@/types";
 import { toast } from "sonner";
 
@@ -11,7 +17,9 @@ interface UserContextType {
   updateUser: (updatedUser: Partial<User>) => void;
 }
 
-export const UserContext = createContext<UserContextType | undefined>(undefined);
+export const UserContext = createContext<UserContextType | undefined>(
+  undefined
+);
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -21,48 +29,48 @@ export function UserProvider({ children }: { children: ReactNode }) {
   // Vérifier le token au chargement de l'application
   useEffect(() => {
     const checkAuth = async () => {
-      const storedToken = localStorage.getItem('token');
-      
+      const storedToken = localStorage.getItem("token");
+
       if (storedToken) {
         try {
           // Vérifier si le token est valide
-          const response = await fetch('https://wizi-learn.com/api/me', {
+          const response = await fetch("http://localhost:8000/api/me", {
             headers: {
-              'Authorization': `Bearer ${storedToken}`,
+              Authorization: `Bearer ${storedToken}`,
             },
           });
-          
+
           if (response.ok) {
             const userData = await response.json();
             setUser(userData);
             setToken(storedToken);
           } else {
             // Token invalide ou expiré
-            localStorage.removeItem('token');
+            localStorage.removeItem("token");
             setUser(null);
             setToken(null);
           }
         } catch (error) {
           console.error("Auth check error:", error);
-          localStorage.removeItem('token');
+          localStorage.removeItem("token");
           setUser(null);
           setToken(null);
         }
       }
-      
+
       setIsLoading(false);
     };
-    
+
     checkAuth();
   }, []);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch('https://wizi-learn.com/api/login', {
-        method: 'POST',
+      const response = await fetch("http://localhost:8000/api/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
@@ -71,15 +79,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       if (response.ok) {
         // Save token to localStorage
-        localStorage.setItem('token', data.token);
-        
+        localStorage.setItem("token", data.token);
+
         // Fetch user details
-        const userResponse = await fetch('https://wizi-learn.com/api/me', {
+        const userResponse = await fetch("http://localhost:8000/api/me", {
           headers: {
-            'Authorization': `Bearer ${data.token}`,
+            Authorization: `Bearer ${data.token}`,
           },
         });
-        
+
         const userData = await userResponse.json();
         setUser(userData);
         setToken(data.token);
@@ -96,15 +104,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
     setUser(null);
     setToken(null);
     toast.success("Déconnexion réussie");
     // Optionnel : vous pouvez faire l'appel API en arrière-plan si besoin
-    fetch('https://wizi-learn.com/api/logout', {
-      method: 'POST',
+    fetch("http://localhost:8000/api/logout", {
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     }).catch((error) => {
       console.error("Logout error:", error);
@@ -126,8 +134,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         updateUser,
-      }}
-    >
+      }}>
       {children}
     </UserContext.Provider>
   );

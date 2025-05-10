@@ -159,7 +159,7 @@ export interface QuizResult {
   totalPoints: number;
   quizTitle: string;
   correctAnswers: number;
-  correct_answers?: number; 
+  correct_answers?: number;
   totalQuestions: number;
   total_questions?: number;
   timeSpent: number;
