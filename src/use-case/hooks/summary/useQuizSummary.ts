@@ -114,6 +114,7 @@ export function formatAnswer(
           })
           .join(", ");
       }
+      console.log("userAnswer dans rearrangement", userAnswer);
       return String(userAnswer);
     }
 
@@ -181,13 +182,10 @@ export function formatCorrectAnswer(question: Question): string {
       const leftItems = question.answers?.filter(
         (a) => a.isCorrect || a.is_correct === 1
       );
-
       const pairCount = leftItems?.length ?? 0;
       const half = Math.floor(pairCount / 2);
       const left = leftItems?.slice(0, half) ?? [];
       const right = leftItems?.slice(half) ?? [];
-      console.log("right", right);
-      console.log("left", left);
 
       const pairs = left.map((leftItem, index) => {
         const rightItem = right[index];
@@ -262,9 +260,9 @@ export function isAnswerCorrect(
     | undefined
 ): boolean {
   // On ne fait confiance à isCorrect que si c'est explicitement true
-  if (question.isCorrect === true) {
-    return true;
-  }
+  // if (question.isCorrect === true) {
+  //   return true;
+  // }
   // Sinon, on vérifie normalement
   const userAnswerData = userAnswer;
   if (!userAnswerData) return false;
@@ -358,14 +356,14 @@ export function isAnswerCorrect(
     }
 
     case "rearrangement": {
-      // Pour le réarrangement, vérifier l'ordre
+      console.log("Question est il vrai", question);
+      console.log("userAnswerData isAnswerCorrect", userAnswerData);
+
       if (!Array.isArray(userAnswerData)) return false;
 
-      const correctOrder = [...(question.answers || [])]
-        .sort((a, b) => (a.position || 0) - (b.position || 0))
-        .map((a) => a.id);
-
-      return JSON.stringify(userAnswerData) === JSON.stringify(correctOrder);
+      return userAnswerData.every(
+        (text, idx) => text === question.correctAnswers?.[idx]
+      );
     }
 
     case "carte flash": {

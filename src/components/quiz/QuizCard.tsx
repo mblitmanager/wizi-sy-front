@@ -42,8 +42,6 @@ const getLevelBackgroundColor = (level: string) => {
 
 const getCategoryColor = (quiz: Quiz, categories: Category[] | undefined) => {
   if (!categories) return "#3B82F6";
-  console.log("categories", categories);
-  console.log("quiz", quiz);
   // Priorité au categorieId
   if (quiz.categorieId) {
     const categoryById = categories.find((c) => c.id === quiz.categorieId);
@@ -99,7 +97,6 @@ export function QuizCard({ quiz, categories }: QuizCardProps) {
     );
 
   const categoryName = category?.name || quiz.categorie || "Non catégorisé";
-  console.log("categoryName", categoryName);
   const categoryColor = getCategoryColor(quiz, categories);
 
   return (
@@ -119,7 +116,8 @@ export function QuizCard({ quiz, categories }: QuizCardProps) {
               borderColor: categoryColor,
               color: categoryColor,
               backgroundColor: `${categoryColor}10`,
-            }}>
+            }}
+          >
             <div
               className="w-2 h-2 rounded-full"
               style={{ backgroundColor: categoryColor }}
@@ -134,7 +132,8 @@ export function QuizCard({ quiz, categories }: QuizCardProps) {
         <div className="flex items-center space-x-4">
           <Badge
             variant={getLevelColor(quiz.niveau)}
-            className={`text-sm ${getLevelBackgroundColor(quiz.niveau)}`}>
+            className={`text-sm ${getLevelBackgroundColor(quiz.niveau)}`}
+          >
             <BookOpen className="w-4 h-4 mr-2" />
             {quiz.niveau}
           </Badge>
