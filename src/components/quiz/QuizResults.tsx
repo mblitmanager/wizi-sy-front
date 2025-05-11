@@ -7,10 +7,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { useNotifications } from "@/hooks/useNotifications";
-import { NotificationBanner } from "./NotificationBanner";
 import { isRearrangementCorrect } from "@/utils/UtilsFunction";
-import { Clock, CheckCircle, Calendar, TrendingUp } from "lucide-react";
 import { QuizSummary } from "./QuizSummary";
+import quizimg from "../../assets/loading_img.png";
 
 export function QuizResults() {
   const { quizId } = useParams<{ quizId: string }>();
@@ -70,7 +69,7 @@ export function QuizResults() {
       <Layout>
         <div className="container mx-auto py-8 px-4">
           <div className="flex items-center justify-center flex-col gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <img src={quizimg} alt="Chargement" className="h-16 w-16" />
             <h1 className="text-2xl font-bold">Chargement des résultats...</h1>
           </div>
         </div>

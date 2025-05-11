@@ -15,6 +15,7 @@ import QuizSummaryCard from "../Summary/QuizSummaryCard";
 import QuizAnswerCard from "../Summary/QuizAnswerCard";
 import QuizSummaryFooter from "../Summary/QuizSummaryFooter";
 import { Question } from "@/types/quiz";
+import quizimg from "../../assets/loading_img.png";
 
 interface QuizSummaryProps {
   quiz?: {
@@ -100,7 +101,7 @@ export function QuizSummary() {
       <Layout>
         <div className="container mx-auto py-8 px-4">
           <div className="flex items-center justify-center flex-col gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <img src={quizimg} alt="Chargement" className="h-16 w-16" />
             <h1 className="text-2xl font-bold">Chargement des résultats...</h1>
           </div>
         </div>
@@ -310,8 +311,8 @@ export function QuizSummary() {
       {/* Section détaillée des résultats */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700">
         {/* En-tête du résumé */}
-        <div className="p-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white">
-          <h2 className="text-2xl font-bold flex items-center gap-3">
+        <div className="p-2 bg-gradient-to-r bg-gold  text-white flex items-center gap-3 justify-between">
+          <h3 className=" font-bold flex items-center gap-3">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-8 w-8"
@@ -326,10 +327,10 @@ export function QuizSummary() {
               />
             </svg>
             Détail des réponses
-          </h2>
-          <p className="opacity-90 mt-1">
+          </h3>
+          <span className="opacity-90 mt-1">
             Revoyez chaque question et vos réponses
-          </p>
+          </span>
         </div>
         {/* Liste des questions/réponses */}
         <div className="divide-y divide-gray-100 dark:divide-gray-700">

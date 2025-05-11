@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, AlertCircle, Filter } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useState, useMemo } from "react";
+import quizimg from "../../assets/loading_img.png";
+
 import {
   Select,
   SelectContent,
@@ -81,7 +83,12 @@ function QuizListByCategory({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="container mx-auto py-8 px-4">
+          <div className="flex items-center justify-center flex-col gap-4">
+            <img src={quizimg} alt="Chargement" className="h-16 w-16" />
+            <h1 className="text-2xl font-bold">Chargement des résultats...</h1>
+          </div>
+        </div>
       </div>
     );
   }
@@ -166,8 +173,7 @@ function QuizListByCategory({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setSelectedLevel("all")}
-            >
+              onClick={() => setSelectedLevel("all")}>
               Réinitialiser
             </Button>
           )}
@@ -219,7 +225,12 @@ export function QuizList() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="container mx-auto py-8 px-4">
+          <div className="flex items-center justify-center flex-col gap-4">
+            <img src={quizimg} alt="Chargement" className="h-16 w-16" />
+            <h1 className="text-2xl font-bold">Chargement des résultats...</h1>
+          </div>
+        </div>
       </div>
     );
   }
@@ -253,8 +264,7 @@ export function QuizList() {
             <TabsTrigger
               key={category.id}
               value={category.id}
-              className="flex items-center gap-2"
-            >
+              className="flex items-center gap-2">
               <div
                 className="w-3 h-3 rounded-full"
                 style={{ backgroundColor: category.color }}

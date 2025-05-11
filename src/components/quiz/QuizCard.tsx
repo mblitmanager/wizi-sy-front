@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen, Award } from "lucide-react";
 import type { Quiz, Category } from "@/types/quiz";
 import React from "react";
+import { stripHtmlTags } from "@/utils/UtilsFunction";
 
 // Helpers pour la coloration
 const getLevelColor = (level: string) => {
@@ -118,8 +119,7 @@ export function QuizCard({ quiz, categories }: QuizCardProps) {
               borderColor: categoryColor,
               color: categoryColor,
               backgroundColor: `${categoryColor}10`,
-            }}
-          >
+            }}>
             <div
               className="w-2 h-2 rounded-full"
               style={{ backgroundColor: categoryColor }}
@@ -128,14 +128,13 @@ export function QuizCard({ quiz, categories }: QuizCardProps) {
           </Badge>
         </div>
         <CardTitle className="text-xl">{quiz.titre}</CardTitle>
-        <CardDescription>{quiz.description}</CardDescription>
+        <CardDescription>{stripHtmlTags(quiz.description)}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex items-center space-x-4">
           <Badge
             variant={getLevelColor(quiz.niveau)}
-            className={`text-sm ${getLevelBackgroundColor(quiz.niveau)}`}
-          >
+            className={`text-sm ${getLevelBackgroundColor(quiz.niveau)}`}>
             <BookOpen className="w-4 h-4 mr-2" />
             {quiz.niveau}
           </Badge>
