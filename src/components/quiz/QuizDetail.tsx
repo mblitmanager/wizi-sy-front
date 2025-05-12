@@ -2,14 +2,6 @@ import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { quizManagementService } from "@/services/quiz/QuizManagementService";
-import type { Quiz } from "@/types/quiz";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
 import { Button } from "../ui/button";
 import {
   Loader2,
@@ -22,6 +14,9 @@ import { Layout } from "../layout/Layout";
 import { Badge } from "../ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import quizimg from "../../assets/quiz_2.png";
+import { stripHtmlTags } from "@/utils/UtilsFunction";
+import quiziload from "../../assets/loading_img.png";
 
 export function QuizDetail() {
   const { quizId } = useParams<{ quizId: string }>();
@@ -52,7 +47,14 @@ export function QuizDetail() {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-[50vh]">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="container mx-auto py-8 px-4">
+            <div className="flex items-center justify-center flex-col gap-4">
+              <img src={quiziload} alt="Chargement" className="h-16 w-16" />
+              <h1 className="text-2xl font-bold">
+                Chargement des résultats...
+              </h1>
+            </div>
+          </div>
         </div>
       </Layout>
     );
@@ -98,70 +100,73 @@ export function QuizDetail() {
 
   return (
     <Layout>
-      <div className="flex justify-center items-center min-h-screen bg-gray-100">
-        <Card className="overflow-hidden shadow-lg border-0 w-full max-w-3xl mx-auto">
-          <div className="relative bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 p-2 rounded-t-xl">
-            <CardHeader className="text-white">
-              <CardTitle className="text-2xl font-bold">{quiz.titre}</CardTitle>
-              <CardDescription className="text-lg opacity-90">
-                {quiz.description}
-              </CardDescription>
-            </CardHeader>
+      <div className="flex justify-center items-center min-h-screen bg-gray-50">
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden max-w-4xl w-full flex flex-col md:flex-row">
+          {/* Illustration */}
+          <div className="w-full md:w-1/2 bg-white relative flex items-center justify-center p-2">
+            <img
+              src={quizimg}
+              alt="Quiz Illustration"
+              className="w-72 h-72 md:w-80 md:h-80 object-contain drop-shadow-2xl animate-bounce-slow"
+            />
           </div>
-          <CardContent className="p-6 bg-white rounded-b-xl">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-6">
-                <div className="flex items-center space-x-4">
-                  <Badge
-                    variant="outline"
-                    className="text-sm bg-blue-100 text-blue-600 px-3 py-1 rounded-full flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
-                    {quiz.niveau}
-                  </Badge>
-                  <Badge
-                    variant="outline"
-                    className="text-sm bg-green-100 text-green-600 px-3 py-1 rounded-full flex items-center gap-2">
-                    <Award className="w-5 h-5" />
-                    {quiz.points} pts
-                  </Badge>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg text-gray-700 mb-2">
-                    Nombre de Questions
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    {quiz.questions?.length || 0} question
-                    {(quiz.questions?.length || 0) > 1 ? "s" : ""}
-                  </p>
-                </div>
+
+          {/* Info Quiz */}
+          <div className="w-full md:w-1/2 p-8 flex flex-col justify-between">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                {quiz.titre}
+              </h2>
+              <span className="text-md text-gray-500 mb-6 block">
+                {stripHtmlTags(quiz.description)}
+              </span>
+
+              <div className="flex flex-wrap gap-3 mb-6">
+                <Badge className="bg-blue-100 text-blue-600">
+                  <BookOpen className="w-4 h-4 mr-1" />
+                  {quiz.niveau}
+                </Badge>
+                <Badge className="bg-green-100 text-green-600">
+                  <Award className="w-4 h-4 mr-1" />
+                  {quiz.points} pts
+                </Badge>
               </div>
 
-              <div className="flex items-center justify-end">
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-lg shadow-lg hover:scale-105 transform transition-transform duration-300"
-                  onClick={() => {
-                    if (!quiz.id) {
-                      console.error("Quiz ID is undefined:", quiz);
-                      toast({
-                        title: "Erreur",
-                        description:
-                          "Impossible de démarrer le quiz. ID manquant.",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    navigate(`/quiz/${quiz.id}/start`);
-                  }}>
-                  <span className="flex items-center gap-2">
-                    <span>Commencer le quiz</span>
-                    <ArrowRight className="w-5 h-5" />
-                  </span>
-                </Button>
+              <div>
+                <p className="text-sm font-medium text-gray-700">
+                  Nombre de questions
+                </p>
+                <p className="text-sm text-gray-500">
+                  {quiz.questions?.length || 0} question
+                  {(quiz.questions?.length || 0) > 1 ? "s" : ""}
+                </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+
+            {/* Button */}
+            <div className="mt-8 text-right">
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-lg shadow-md hover:scale-105 transition-transform duration-300"
+                onClick={() => {
+                  if (!quiz.id) {
+                    toast({
+                      title: "Erreur",
+                      description:
+                        "Impossible de démarrer le quiz. ID manquant.",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  navigate(`/quiz/${quiz.id}/start`);
+                }}>
+                <span className="flex items-center gap-2">
+                  Commencer le quiz <ArrowRight className="w-5 h-5" />
+                </span>
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
     </Layout>
   );
