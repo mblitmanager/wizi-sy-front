@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen, Award } from "lucide-react";
 import type { Quiz, Category } from "@/types/quiz";
 import React from "react";
+import { stripHtmlTags } from "@/utils/UtilsFunction";
 
 // Helpers pour la coloration
 const getLevelColor = (level: string) => {
@@ -41,8 +42,6 @@ const getLevelBackgroundColor = (level: string) => {
 
 const getCategoryColor = (quiz: Quiz, categories: Category[] | undefined) => {
   if (!categories) return "#3B82F6";
-  console.log("categories", categories);
-  console.log("quiz", quiz);
   // Priorité au categorieId
   if (quiz.categorieId) {
     const categoryById = categories.find((c) => c.id === quiz.categorieId);
@@ -98,7 +97,6 @@ export function QuizCard({ quiz, categories }: QuizCardProps) {
     );
 
   const categoryName = category?.name || quiz.categorie || "Non catégorisé";
-  console.log("categoryName", categoryName);
   const categoryColor = getCategoryColor(quiz, categories);
 
   return (
@@ -128,7 +126,7 @@ export function QuizCard({ quiz, categories }: QuizCardProps) {
           </Badge>
         </div>
         <CardTitle className="text-xl">{quiz.titre}</CardTitle>
-        <CardDescription>{quiz.description}</CardDescription>
+        <CardDescription>{stripHtmlTags(quiz.description)}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex items-center space-x-4">

@@ -1,17 +1,16 @@
-
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import { Question } from './Question';
-import { LoadingState } from './quiz-play/LoadingState';
-import { ErrorState } from './quiz-play/ErrorState';
-import { QuizNavigation } from './quiz-play/QuizNavigation';
-import { QuizHistoryDialog } from './quiz-play/QuizHistoryDialog';
-import { QuizStatsDialog } from './quiz-play/QuizStatsDialog';
-import { QuizResultsDialog } from './quiz-play/QuizResultsDialog';
-import { useQuizPlay } from '@/hooks/useQuizPlay';
-import { QuizHeader } from './quiz-play/QuizHeader';
-import { QuizProgress } from './quiz-play/QuizProgress';
-import { QuizHint } from './quiz-play/QuizHint';
+import React from "react";
+import { useParams } from "react-router-dom";
+import { Question } from "./Question";
+import { LoadingState } from "./quiz-play/LoadingState";
+import { ErrorState } from "./quiz-play/ErrorState";
+import { QuizNavigation } from "./quiz-play/QuizNavigation";
+import { QuizHistoryDialog } from "./quiz-play/QuizHistoryDialog";
+import { QuizStatsDialog } from "./quiz-play/QuizStatsDialog";
+import { QuizResultsDialog } from "./quiz-play/QuizResultsDialog";
+import { useQuizPlay } from "@/hooks/useQuizPlay";
+import { QuizHeader } from "./quiz-play/QuizHeader";
+import { QuizProgress } from "./quiz-play/QuizProgress";
+import { QuizHint } from "./quiz-play/QuizHint";
 
 export function QuizPlay() {
   const { quizId } = useParams<{ quizId: string }>();
@@ -41,8 +40,8 @@ export function QuizPlay() {
     openStats: toggleStats,
     closeStatsDialog,
     openResultsDialog,
-    closeResultsDialog: closeResults
-  } = useQuizPlay(quizId || '');
+    closeResultsDialog: closeResults,
+  } = useQuizPlay(quizId || "");
 
   const [showHint, setShowHint] = React.useState(false);
 
@@ -56,7 +55,9 @@ export function QuizPlay() {
 
   const calculateScore = () => {
     const answeredQuestions = Object.keys(answers).length;
-    return answeredQuestions > 0 ? Math.round((answeredQuestions / totalQuestions) * 100) : 0;
+    return answeredQuestions > 0
+      ? Math.round((answeredQuestions / totalQuestions) * 100)
+      : 0;
   };
 
   const toggleHint = () => {
@@ -68,8 +69,8 @@ export function QuizPlay() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-2 sm:px-4 py-6 sm:py-8 min-h-screen flex flex-col overflow-x-hidden">
-      <QuizHeader 
+    <div className="max-w-4xl mx-auto px-2 sm:px-4 sm:py-8 flex flex-col overflow-x-hidden">
+      <QuizHeader
         timeLeft={timeLeft}
         niveau={quiz.niveau}
         points={quiz.points}
@@ -77,21 +78,15 @@ export function QuizPlay() {
         onToggleHistory={toggleHistory}
         onToggleStats={toggleStats}
       />
-      
-      <QuizProgress 
-        currentStep={activeStep} 
-        totalSteps={totalQuestions} 
-      />
-      
-      <QuizHint 
-        hint={currentQuestion?.astuce} 
-        visible={showHint} 
-      />
+
+      <QuizProgress currentStep={activeStep} totalSteps={totalQuestions} />
+
+      <QuizHint hint={currentQuestion?.astuce} visible={showHint} />
 
       {currentQuestion && (
         <div className="flex-grow w-full max-w-full overflow-x-hidden">
-          <Question 
-            question={currentQuestion} 
+          <Question
+            question={currentQuestion}
             onAnswer={(answer) => handleAnswer(answer)}
             showFeedback={showResults}
           />
@@ -127,7 +122,7 @@ export function QuizPlay() {
           questionId,
           selectedOptions: answer,
           isCorrect: false,
-          points: 0
+          points: 0,
         }))}
         questions={quiz.questions || []}
         onRestart={handleRestart}
