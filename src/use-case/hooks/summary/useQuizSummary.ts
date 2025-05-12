@@ -503,7 +503,60 @@ export function isAnswerCorrect(
       );
     }
 
+    case "choix multiples": {
+      // Vérification que la réponse est un tableau
+      if (!Array.isArray(userAnswerData)) return false;
+
+      console.log("userAnswerData", userAnswerData);
+      console.log("choix multiple", question.correctAnswers);
+
+      // Cas où il n'y a pas de bonnes réponses définies
+      if (!question.correctAnswers || question.correctAnswers.length === 0) {
+        return false;
+      }
+
+      // Vérification que toutes les réponses correctes sont sélectionnées
+      // et qu'aucune réponse incorrecte n'est sélectionnée
+      const allCorrectSelected = question.correctAnswers.every((answer) =>
+        userAnswerData.includes(answer)
+      );
+
+      const noIncorrectSelected = userAnswerData.every((answer) =>
+        question.correctAnswers.includes(answer)
+      );
+
+      return allCorrectSelected && noIncorrectSelected;
+    }
+
+    case "vrai/faux": {
+      // Vérification que la réponse est un tableau
+      if (!Array.isArray(userAnswerData)) return false;
+console.log("questionType", question.type);
+      console.log("userAnswerData", userAnswerData);
+      console.log("vrai/faux", question.correctAnswers);
+
+      // Cas où il n'y a pas de bonnes réponses définies
+      if (!question.correctAnswers || question.correctAnswers.length === 0) {
+        return false;
+      }
+
+      // Vérification que toutes les réponses correctes sont sélectionnées
+      // et qu'aucune réponse incorrecte n'est sélectionnée
+      const allCorrectSelected = question.correctAnswers.every((answer) =>
+        userAnswerData.includes(answer)
+      );
+
+      const noIncorrectSelected = userAnswerData.every((answer) =>
+        question.correctAnswers.includes(answer)
+      );
+
+      return allCorrectSelected && noIncorrectSelected;
+    }
     default: {
+      console.log("userAnswerData", userAnswerData);
+      console.log("default", question.correctAnswers);
+      console.log("questionType", question.type);
+
       // Pour QCM
       const correctAnswerIds = question.answers
         ?.filter((a) => a.isCorrect || a.is_correct === 1)
