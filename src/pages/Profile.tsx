@@ -1,37 +1,28 @@
-import { useSearchParams } from "react-router-dom";
-import { useState } from "react";
+
 import { Layout } from "@/components/layout/Layout";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import StatsSummary from "@/components/profile/StatsSummary";
-import FormationCatalogue from "@/components/profile/FormationCatalogue";
-import ProfileTabs from "@/components/profile/ProfileTabs";
+import UserStats from "@/components/profile/UserStats";
+import { RecentResults } from "@/components/profile/RecentResults";
+import CategoryProgress from "@/components/profile/CategoryProgress";
+import BadgesDisplay from "@/components/profile/BadgesDisplay";
+import ParrainageSection from "@/components/profile/ParrainageSection";
+import ContactsSection from "@/components/profile/ContactsSection";
 import { useToast } from "@/hooks/use-toast";
 import { useLoadProfile } from "@/use-case/hooks/profile/useLoadProfile";
 import { useLoadQuizData } from "@/use-case/hooks/profile/useLoadQuizData";
 import { useLoadRankings } from "@/use-case/hooks/profile/useLoadRankings";
 import { useLoadFormations } from "@/use-case/hooks/profile/useLoadFormations";
+import { NotificationBanner } from "@/components/quiz/NotificationBanner";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const ProfilePage = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const activeTabFromUrl = searchParams.get("tab") || "overview";
-  const [activeTab, setActiveTab] = useState(activeTabFromUrl);
   const { toast } = useToast();
 
   const user = useLoadProfile();
   const { results, categories } = useLoadQuizData();
-  console.log("results", results);
-  console.log("categories", categories);
-  console.log("user", user);
   const { userProgress, rankings } = useLoadRankings();
-  console.log("userProgress", userProgress);
-  console.log("rankings", rankings);
   const formations = useLoadFormations();
-  console.log("formations", formations);
-
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    setSearchParams({ tab });
-  };
 
   const isLoading = !user;
 
@@ -59,18 +50,6 @@ const ProfilePage = () => {
               </div>
             ))}
           </div>
-
-          {/* Section principale (catalogue + tableau/résultats) */}
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="p-4 space-y-3 bg-white rounded-2xl shadow animate-pulse">
-              {Array.from({ length: 6 }).map((_, idx) => (
-                <div key={idx} className="h-5 bg-gray-200 rounded" />
-              ))}
-            </div>
-            <div className="p-4 bg-white rounded-2xl shadow">
-              <div className="w-full aspect-video bg-gray-200 rounded-xl animate-pulse" />
-            </div>
-          </div>
         </div>
       </Layout>
     );
@@ -79,21 +58,56 @@ const ProfilePage = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
+        <NotificationBanner className="mb-6" />
         {user && <ProfileHeader user={user} />}
-        <div className="mt-16 space-y-12">
-          {userProgress && <StatsSummary userProgress={userProgress} />}
-          <FormationCatalogue formations={formations} />
-        </div>
-        <ProfileTabs
-          user={user}
-          results={results}
-          categories={categories}
-          userProgress={userProgress}
-          isLoading={isLoading}
-          rankings={rankings}
-          activeTab={activeTab}
-          setActiveTab={handleTabChange}
-        />
+        
+        <ScrollArea className="h-[calc(100vh-200px)]">
+          <div className="mt-8 space-y-8 pb-10">
+            {/* Vue d'ensemble complète */}
+            <div className="bg-white p-6 rounded-lg shadow-sm">
+              <h2 className="text-2xl font-bold mb-6">Vue d'ensemble</h2>
+              
+              {/* Statistiques utilisateur */}
+              <div className="mb-8">
+                {userProgress && <UserStats user={user} userProgress={userProgress} />}
+              </div>
+              
+              {/* Statistiques globales */}
+              <div className="mb-8">
+                {userProgress && <StatsSummary userProgress={userProgress} />}
+              </div>
+              
+              {/* Progression par catégorie */}
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold mb-4">Progression par catégorie</h3>
+                <CategoryProgress categories={categories} userProgress={userProgress} />
+              </div>
+              
+              {/* Résultats récents */}
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold mb-4">Résultats récents</h3>
+                <RecentResults results={results} isLoading={isLoading} showAll={true} />
+              </div>
+              
+              {/* Section Parrainage */}
+              <div className="mb-8">
+                <ParrainageSection />
+              </div>
+              
+              {/* Badges */}
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold mb-4">Mes badges</h3>
+                <BadgesDisplay />
+              </div>
+              
+              {/* Contacts */}
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold mb-4">Contacts</h3>
+                <ContactsSection />
+              </div>
+            </div>
+          </div>
+        </ScrollArea>
       </div>
     </Layout>
   );

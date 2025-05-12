@@ -3,7 +3,9 @@ import React from 'react';
 import { User } from '@/types';
 import { UserProgress } from '@/types/quiz';
 import { Card, CardContent } from '@/components/ui/card';
-import { Trophy, Award, Flame, Star } from 'lucide-react';
+import { Trophy, Award, Flame, Star, Users } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { sponsorshipService } from '@/services/sponsorshipService';
 
 interface UserStatsProps {
   user: User | null;
@@ -11,16 +13,24 @@ interface UserStatsProps {
 }
 
 const UserStats: React.FC<UserStatsProps> = ({ user, userProgress }) => {
-  const totalPoints = user?.points || (userProgress?.total_points || userProgress?.totalPoints || 0);
+  const totalPoints = user?.points || (userProgress?.totalPoints || userProgress?.total_points || 0);
+  
+  const { data: sponsorshipStats } = useQuery({
+    queryKey: ['sponsorship', 'stats'],
+    queryFn: () => sponsorshipService.getStats(),
+    staleTime: 60000,
+    enabled: !!user
+  });
   
   // Since badges and streak may not exist in the updated UserProgress, we'll provide fallbacks
   const badgesCount = 0; // Default to 0 since badges are not in our updated UserProgress
   const streak = userProgress?.current_streak || userProgress?.currentStreak || 0;
+  const referralsCount = sponsorshipStats?.totalReferrals || 0;
 
   return (
     <section className="mb-6">
       <h2 className="text-xl font-semibold mb-4 font-montserrat">Mes statistiques</h2>
-      <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card>
           <CardContent className="p-4 flex flex-col items-center justify-center">
             <Trophy className="h-6 w-6 text-yellow-500 mb-2" />
@@ -47,6 +57,13 @@ const UserStats: React.FC<UserStatsProps> = ({ user, userProgress }) => {
             <Star className="h-6 w-6 text-purple-500 mb-2" />
             <div className="text-xl font-bold font-nunito">{badgesCount}</div>
             <div className="text-xs text-gray-500 font-roboto">Badges</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 flex flex-col items-center justify-center">
+            <Users className="h-6 w-6 text-green-500 mb-2" />
+            <div className="text-xl font-bold font-nunito">{referralsCount}</div>
+            <div className="text-xs text-gray-500 font-roboto">Filleuls</div>
           </CardContent>
         </Card>
       </div>

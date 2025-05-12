@@ -1,3 +1,4 @@
+
 import {
   Home,
   GraduationCap,
@@ -8,6 +9,7 @@ import {
   Settings,
   Trophy,
   LogOut,
+  Users,
 } from "lucide-react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,6 +22,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useUser } from "@/context/UserContext";
+import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
+import { sponsorshipService } from "@/services/sponsorshipService";
 
 interface MainNavProps {
   showBottomNav?: boolean;
@@ -31,6 +36,15 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
   const { user, logout } = useUser();
   const pathname = location.pathname;
 
+  const { data: sponsorshipStats } = useQuery({
+    queryKey: ['sponsorship', 'stats'],
+    queryFn: () => sponsorshipService.getStats(),
+    staleTime: 60000,
+    enabled: !!user
+  });
+
+  const referralsCount = sponsorshipStats?.totalReferrals || 0;
+
   // Main navigation items
   const items = [
     {
@@ -38,11 +52,6 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
       href: "/",
       icon: Home,
     },
-    // {
-    //   title: "Formations",
-    //   href: "/formations",
-    //   icon: GraduationCap,
-    // },
     {
       title: "Quiz",
       href: "/quizzes",
@@ -64,7 +73,13 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
       icon: GraduationCap,
     },
     {
-      title: "Profile",
+      title: "Parrainage",
+      href: "/profile?tab=parrainage",
+      icon: Users,
+      badge: referralsCount,
+    },
+    {
+      title: "Profil",
       href: "/profile",
       icon: User,
     },
@@ -78,10 +93,7 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
       // 2. Déconnexion globale (si votre hook gère un état)
       if (logout) logout();
 
-      // 3. Option 1: Redirection ultra-rapide (recharge la page)
-      // window.location.assign("/login");
-
-      // OU Option 2: Redirection avec React Router (moins instantanée)
+      // Redirection avec React Router
       navigate("/login", { replace: true });
     } catch (error) {
       console.error("Logout error:", error);
@@ -110,11 +122,18 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
                   }}>
                   {({ isActive }) => (
                     <>
-                      <item.icon
-                        className={`w-6 h-6 ${
-                          isActive ? "text-white" : "text-gray-400"
-                        }`}
-                      />
+                      <div className="relative">
+                        <item.icon
+                          className={`w-6 h-6 ${
+                            isActive ? "text-white" : "text-gray-400"
+                          }`}
+                        />
+                        {item.badge && item.badge > 0 && (
+                          <Badge className="absolute -top-2 -right-2 h-4 min-w-4 p-0 flex items-center justify-center bg-red-500 text-[10px]">
+                            {item.badge}
+                          </Badge>
+                        )}
+                      </div>
                       {item.title}
                     </>
                   )}
@@ -124,39 +143,6 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
           </ul>
         </div>
       </div>
-
-      {/* Bottom user menu */}
-      {/* <div className="mt-auto px-3 py-4 border-t">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-3 w-full px-4 py-2 text-sm font-medium rounded-full hover:bg-gray-100 transition">
-              <Avatar className="w-8 h-8">
-                <AvatarImage src={user?.avatar} alt="Avatar" />
-                <AvatarFallback>
-                  {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-gray-700">Mon compte</span>
-              <Settings className="ml-auto w-4 h-4 text-gray-400" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="shadow-lg w-48">
-            <DropdownMenuLabel className="text-gray-500">
-              Mon compte
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => navigate("/profile")}>
-              Profil
-            </DropdownMenuItem>
-            <DropdownMenuItem>Paramètres</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} className="text-red-600">
-              <LogOut className="w-4 h-4 mr-2" />
-              Se déconnecter
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div> */}
     </div>
   );
 }

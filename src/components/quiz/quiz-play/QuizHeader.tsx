@@ -32,6 +32,7 @@ export function QuizHeader({
     queryKey: ['sponsorship', 'stats'],
     queryFn: () => sponsorshipService.getStats(),
     staleTime: 60000,
+    enabled: !!user,
   });
   
   // Get level badge color based on difficulty

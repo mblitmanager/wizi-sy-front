@@ -1,3 +1,4 @@
+
 import { useUser } from "@/context/UserContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -9,21 +10,31 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, LogOut, Settings, User } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Bell, LogOut, Settings, User, Users, Trophy } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Input } from "@/components/ui/input";
 import logo from "../../assets/logo.png";
+import { useQuery } from "@tanstack/react-query";
+import { sponsorshipService } from "@/services/sponsorshipService";
+
 const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
+
 export function Navbar() {
   const { user, logout } = useUser();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+
+  const { data: sponsorshipStats } = useQuery({
+    queryKey: ['sponsorship', 'stats'],
+    queryFn: () => sponsorshipService.getStats(),
+    staleTime: 60000,
+    enabled: !!user,
+  });
 
   const getInitials = () => {
-    console.log(user.stagiaire);
-
-    if (!user || !user.user.name) return "U";
+    if (!user) return "U";
+    
     // Récupère la première lettre du prénom si disponible
     const firstNameInitial = user.stagiaire?.prenom
       ? user.stagiaire.prenom.charAt(0).toUpperCase()
@@ -43,36 +54,52 @@ export function Navbar() {
       // 2. Déconnexion globale (si votre hook gère un état)
       if (logout) logout();
 
-      // 3. Option 1: Redirection ultra-rapide (recharge la page)
-      // window.location.assign("/login");
-
-      // OU Option 2: Redirection avec React Router (moins instantanée)
+      // 3. Redirection avec React Router
       navigate("/login", { replace: true });
     } catch (error) {
       console.error("Logout error:", error);
     }
   };
 
+  const referralsCount = sponsorshipStats?.totalReferrals || 0;
+  const userPoints = user?.stagiaire?.points || 0;
+
   return (
     <nav className="px-4 md:px-6 py-3 sticky top-0 z-50 w-full">
       <div className="flex justify-between items-center w-full">
-        {/* Bloc gauche - Logo uniquement mobile */}
-        <div className="max-w-sm">
+        {/* Bloc gauche - Logo uniquement mobile et sponsorship info */}
+        <div className="flex items-center gap-4">
           {isMobile && <img src={logo} alt="Logo" className="h-8 w-auto" />}
+          
+          {!isMobile && (
+            <div className="flex items-center space-x-4">
+              <Link to="/profile" className="bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg flex items-center gap-2 transition-colors">
+                <Trophy className="h-4 w-4 text-yellow-500" />
+                <span className="font-medium">{userPoints} pts</span>
+              </Link>
+              
+              <Link to="/profile?tab=parrainage" className="bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-lg flex items-center gap-2 transition-colors">
+                <Users className="h-4 w-4 text-green-600" />
+                <span className="font-medium">{referralsCount} filleuls</span>
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Bloc droite - Notifications + Dropdown */}
         {user && (
           <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative hover:bg-gray-100 transition">
-              <Bell className="h-5 w-5 text-gray-600" />
-              <Badge className="absolute -top-1 -right-1 px-1.5 h-5 min-w-5 text-xs bg-red-500 text-white animate-pulse">
-                2
-              </Badge>
-            </Button>
+            <Link to="/notifications">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative hover:bg-gray-100 transition">
+                <Bell className="h-5 w-5 text-gray-600" />
+                <Badge className="absolute -top-1 -right-1 px-1.5 h-5 min-w-5 text-xs bg-red-500 text-white animate-pulse">
+                  2
+                </Badge>
+              </Button>
+            </Link>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -84,8 +111,12 @@ export function Navbar() {
                         alt={user.user.name || "User"}
                         className="w-full h-full rounded-full object-cover"
                         onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                          e.currentTarget.nextSibling.style.display = "flex";
+                          const target = e.currentTarget as HTMLImageElement;
+                          target.style.display = "none";
+                          const nextSibling = target.nextSibling as HTMLElement;
+                          if (nextSibling) {
+                            nextSibling.style.display = "flex";
+                          }
                         }}
                       />
                     ) : null}

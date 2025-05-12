@@ -1,6 +1,6 @@
 
 import { useEffect } from 'react';
-import { useNotifications } from '@/hooks/useNotifications';
+import useNotifications from '@/hooks/useNotifications';
 import { useUser } from '@/context/UserContext';
 import { useToast } from '@/hooks/use-toast';
 import useLocalStorage from '@/hooks/useLocalStorage';

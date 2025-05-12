@@ -1,3 +1,4 @@
+
 import { Layout } from "@/components/layout/Layout";
 import {
   Card,
@@ -13,6 +14,8 @@ import { Bell, Loader2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
+import { NotificationBanner } from "@/components/quiz/NotificationBanner";
+import { useNavigate } from "react-router-dom";
 
 // Ajouter la fonction formatDate manquante
 function formatDate(date: string | Date): string {
@@ -33,12 +36,14 @@ interface Notification {
   description: string;
   read: boolean;
   createdAt: string;
+  actionPath?: string;
 }
 
 const Notifications = () => {
   const { user } = useUser();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Simulating fetching notifications from an API
@@ -54,14 +59,16 @@ const Notifications = () => {
             description: "Un nouveau quiz sur JavaScript a été ajouté.",
             read: false,
             createdAt: "2024-07-15T10:30:00Z",
+            actionPath: "/quizzes"
           },
           {
             id: "2",
             type: "formation",
-            title: "Nouvelle Formation Disponible",
-            description: "Une nouvelle formation sur React est disponible.",
+            title: "Formation à venir",
+            description: "Votre formation React débute demain à 9h00.",
             read: true,
             createdAt: "2024-07-14T15:45:00Z",
+            actionPath: "/catalogue"
           },
           {
             id: "3",
@@ -69,7 +76,7 @@ const Notifications = () => {
             title: "Mise à jour de la Plateforme",
             description: "La plateforme a été mise à jour avec de nouvelles fonctionnalités.",
             read: false,
-            createdAt: "2024-07-13T09:00:00Z",
+            createdAt: "2024-07-13T09:00:00Z"
           },
           {
             id: "4",
@@ -78,6 +85,7 @@ const Notifications = () => {
             description: "Vos résultats pour le quiz sur HTML sont disponibles.",
             read: true,
             createdAt: "2024-07-12T18:20:00Z",
+            actionPath: "/profile?tab=results"
           },
           {
             id: "5",
@@ -86,14 +94,16 @@ const Notifications = () => {
             description: "Vous avez terminé 50% de la formation sur Node.js.",
             read: false,
             createdAt: "2024-07-11T12:10:00Z",
+            actionPath: "/catalogue"
           },
           {
             id: "6",
-            type: "general",
-            title: "Bienvenue sur la Plateforme",
-            description: "Bienvenue sur notre plateforme de formation en ligne!",
-            read: true,
+            type: "parrainage",
+            title: "Nouveau filleul",
+            description: "Jean Dupont a rejoint la plateforme grâce à votre parrainage!",
+            read: false,
             createdAt: "2024-07-10T16:55:00Z",
+            actionPath: "/profile?tab=parrainage"
           },
           {
             id: "7",
@@ -102,31 +112,8 @@ const Notifications = () => {
             description: "Un nouveau quiz sur CSS a été ajouté.",
             read: false,
             createdAt: "2024-07-09T11:40:00Z",
-          },
-          {
-            id: "8",
-            type: "formation",
-            title: "Nouvelle Formation Disponible",
-            description: "Une nouvelle formation sur Angular est disponible.",
-            read: true,
-            createdAt: "2024-07-08T14:30:00Z",
-          },
-          {
-            id: "9",
-            type: "general",
-            title: "Maintenance de la Plateforme",
-            description: "La plateforme sera en maintenance le 20 juillet de 00h00 à 06h00.",
-            read: false,
-            createdAt: "2024-07-07T08:25:00Z",
-          },
-          {
-            id: "10",
-            type: "quiz",
-            title: "Résultats du Quiz",
-            description: "Vos résultats pour le quiz sur React sont disponibles.",
-            read: true,
-            createdAt: "2024-07-06T17:15:00Z",
-          },
+            actionPath: "/quizzes"
+          }
         ];
 
         setNotifications(mockNotifications);
@@ -154,6 +141,15 @@ const Notifications = () => {
     );
   };
 
+  const handleNotificationClick = (notification: Notification) => {
+    markAsRead(notification.id);
+    if (notification.actionPath) {
+      navigate(notification.actionPath);
+    }
+  };
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
   if (loading) {
     return (
       <Layout>
@@ -176,15 +172,25 @@ const Notifications = () => {
   return (
     <Layout>
       <Shell>
+        <NotificationBanner className="mb-4" />
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-2xl">Notifications</CardTitle>
-              <Bell className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <CardTitle className="text-2xl">Notifications</CardTitle>
+                <CardDescription>
+                  Restez informé des dernières mises à jour et annonces.
+                </CardDescription>
+              </div>
+              <div className="relative">
+                <Bell className="h-6 w-6 text-muted-foreground" />
+                {unreadCount > 0 && (
+                  <Badge className="absolute -top-2 -right-2 bg-red-500 text-white">
+                    {unreadCount}
+                  </Badge>
+                )}
+              </div>
             </div>
-            <CardDescription>
-              Restez informé des dernières mises à jour et annonces.
-            </CardDescription>
           </CardHeader>
           <CardContent>
             {notifications.length === 0 ? (
@@ -197,7 +203,10 @@ const Notifications = () => {
                   {notifications.map((notification) => (
                     <div
                       key={notification.id}
-                      className="py-4 px-2 relative hover:bg-secondary/50 transition-colors duration-150"
+                      className={`py-4 px-2 relative hover:bg-secondary/50 transition-colors duration-150 ${
+                        notification.actionPath ? "cursor-pointer" : ""
+                      } ${!notification.read ? "bg-blue-50" : ""}`}
+                      onClick={() => notification.actionPath && handleNotificationClick(notification)}
                     >
                       <div className="flex items-start justify-between">
                         <div className="space-y-1">
@@ -218,7 +227,10 @@ const Notifications = () => {
                       <div className="mt-2 flex justify-end">
                         <button
                           className="text-sm text-blue-500 hover:underline"
-                          onClick={() => markAsRead(notification.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            markAsRead(notification.id);
+                          }}
                         >
                           Marquer comme lu
                         </button>

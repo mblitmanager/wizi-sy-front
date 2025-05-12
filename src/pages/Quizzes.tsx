@@ -1,3 +1,4 @@
+
 import { Layout } from "@/components/layout/Layout";
 import { QuizList } from "@/components/quiz/QuizList";
 import { StagiaireQuizList } from "@/components/quiz/StagiaireQuizList";
@@ -5,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { categoryService } from "@/services/quiz/CategoryService";
 import { Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { NotificationBanner } from "@/components/quiz/NotificationBanner";
 
 export default function Quizzes() {
   const { data: categories, isLoading: categoriesLoading } = useQuery({
@@ -15,8 +17,10 @@ export default function Quizzes() {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">Quiz disponibles</h1>
+      <div className="container mx-auto px-4 py-6">
+        <h1 className="text-3xl font-bold mb-6">Quiz disponibles</h1>
+        
+        <NotificationBanner className="mb-6" />
         
         {categoriesLoading ? (
           <div className="flex items-center justify-center min-h-[50vh]">

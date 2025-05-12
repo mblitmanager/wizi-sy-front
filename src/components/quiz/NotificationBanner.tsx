@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { useNotifications } from '@/hooks/useNotifications';
+import useNotifications from '@/hooks/useNotifications';
 import { Button } from '@/components/ui/button';
-import { Bell, BellOff } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
 interface NotificationBannerProps {
@@ -19,7 +19,7 @@ export function NotificationBanner({ className }: NotificationBannerProps) {
   }
 
   return (
-    <Card className={`p-3 sm:p-4 bg-blue-50 border-blue-200 mb-4 sm:mb-6 ${className}`}>
+    <Card className={`p-3 sm:p-4 bg-blue-50 border-blue-200 ${className}`}>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-start gap-2 sm:gap-3">
           <Bell className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
