@@ -100,45 +100,54 @@ export function QuizCard({ quiz, categories }: QuizCardProps) {
   const categoryColor = getCategoryColor(quiz, categories);
 
   return (
-    <Card className="h-full hover:shadow-lg transition-shadow relative">
+    <Card className="w-full h-full hover:shadow-md transition-shadow relative border-0">
+      {/* Ligne colorée en haut */}
       <div
-        className="absolute top-0 left-0 right-0 h-1 rounded-t-lg"
-        style={{
-          backgroundColor: categoryColor,
-        }}
+        className="absolute top-0 left-0 right-0 h-0.5 rounded-t-lg"
+        style={{ backgroundColor: categoryColor }}
       />
-      <CardHeader>
-        <div className="flex items-center gap-2 mb-2">
+
+      <CardHeader className="p-3 pb-1 sm:p-4 sm:pb-2">
+        <div className="flex items-center gap-1 mb-1">
           <Badge
             variant="outline"
-            className="text-sm flex items-center gap-1.5 font-medium"
+            className="text-[0.65rem] px-1.5 py-0.5 sm:text-xs sm:px-2 flex items-center gap-1 font-medium"
             style={{
               borderColor: categoryColor,
               color: categoryColor,
               backgroundColor: `${categoryColor}10`,
-            }}
-          >
+            }}>
             <div
-              className="w-2 h-2 rounded-full"
+              className="w-1.5 h-1.5 rounded-full"
               style={{ backgroundColor: categoryColor }}
             />
-            {categoryName}
+            <span className="truncate max-w-[80px] sm:max-w-none">
+              {categoryName}
+            </span>
           </Badge>
         </div>
-        <CardTitle className="text-xl">{quiz.titre}</CardTitle>
-        <CardDescription>{stripHtmlTags(quiz.description)}</CardDescription>
+        <CardTitle className="text-sm sm:text-base font-semibold line-clamp-2 leading-tight">
+          {quiz.titre}
+        </CardTitle>
+        <CardDescription className="text-xs sm:text-xs line-clamp-2 mt-1 leading-snug">
+          {stripHtmlTags(quiz.description)}
+        </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="flex items-center space-x-4">
+
+      <CardContent className="p-3 pt-0 sm:p-4 sm:pt-0">
+        <div className="flex flex-wrap items-center gap-1 sm:gap-2">
           <Badge
             variant={getLevelColor(quiz.niveau)}
-            className={`text-sm ${getLevelBackgroundColor(quiz.niveau)}`}
-          >
-            <BookOpen className="w-4 h-4 mr-2" />
+            className={`text-[0.65rem] px-1.5 py-0.5 sm:text-xs sm:px-2 ${getLevelBackgroundColor(
+              quiz.niveau
+            )}`}>
+            <BookOpen className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" />
             {quiz.niveau}
           </Badge>
-          <Badge variant="outline" className="text-sm">
-            <Award className="w-4 h-4 mr-2" />
+          <Badge
+            variant="outline"
+            className="text-[0.65rem] px-1.5 py-0.5 sm:text-xs sm:px-2">
+            <Award className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" />
             {quiz.points} pts
           </Badge>
         </div>

@@ -85,7 +85,7 @@ function QuizListByCategory({
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="container mx-auto py-8 px-4">
           <div className="flex items-center justify-center flex-col gap-4">
-            <img src={quizimg} alt="Chargement" className="h-16 w-16" />
+            <img src={quizimg} alt="Chargement" className="h-40 w-40" />
             <h1 className="text-2xl font-bold">Chargement des résultats...</h1>
           </div>
         </div>
@@ -121,14 +121,14 @@ function QuizListByCategory({
       <div className="flex justify-end mb-4">
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-gray-500" />
-          <span className="text-sm text-gray-500">Filtrer par niveau:</span>
+          <span className="text-xs text-gray-500">Filtrer par niveau:</span>
           <Select value={selectedLevel} onValueChange={setSelectedLevel}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[160px] h-8">
               <SelectValue>
                 {selectedLevel === "all" ? (
                   "Tous les niveaux"
                 ) : (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <div
                       className="w-2 h-2 rounded-full"
                       style={{
@@ -151,7 +151,7 @@ function QuizListByCategory({
               </SelectItem>
               {levels.map((level) => (
                 <SelectItem key={level} value={level}>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <div
                       className="w-2 h-2 rounded-full"
                       style={{
@@ -172,7 +172,7 @@ function QuizListByCategory({
           {selectedLevel !== "all" && (
             <Button
               variant="outline"
-              size="sm"
+              size="xs"
               onClick={() => setSelectedLevel("all")}>
               Réinitialiser
             </Button>
@@ -181,27 +181,39 @@ function QuizListByCategory({
       </div>
 
       {notPlayedQuizzes.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-500">Tous les quiz ont été joués !</p>
+        <div className="text-center py-6">
+          <p className="text-sm text-gray-500">Tous les quiz ont été joués !</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {notPlayedQuizzes.map((quiz) => (
-            <Link key={quiz.id} to={`/quiz/${quiz.id}`}>
-              <QuizCard quiz={quiz} categories={categories} />
+            <Link key={quiz.id} to={`/quiz/${quiz.id}`} className="opacity-100">
+              <QuizCard
+                quiz={quiz}
+                categories={categories}
+                className="p-2 text-xs"
+              />
             </Link>
           ))}
         </div>
       )}
-      <h3 className="text-lg font-bold mt-8 mb-2">Quiz déjà joués</h3>
+
+      <h3 className="text-sm font-bold mt-6 mb-2 border-t pt-4">
+        Quiz déjà joués
+      </h3>
       {playedQuizzes.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-500">Aucun quiz joué pour l’instant.</p>
+        <div className="text-center py-6">
+          <p className="text-sm text-gray-500">
+            Aucun quiz joué pour l’instant.
+          </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {playedQuizzes.map((quiz) => (
-            <Link key={quiz.id} to={`/quiz/${quiz.id}`}>
+            <Link
+              key={quiz.id}
+              to={`/quiz/${quiz.id}`}
+              className="opacity-60 hover:opacity-100">
               <QuizCard quiz={quiz} categories={categories} />
             </Link>
           ))}
@@ -227,7 +239,7 @@ export function QuizList() {
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="container mx-auto py-8 px-4">
           <div className="flex items-center justify-center flex-col gap-4">
-            <img src={quizimg} alt="Chargement" className="h-16 w-16" />
+            <img src={quizimg} alt="Chargement" className="h-40 w-40" />
             <h1 className="text-2xl font-bold">Chargement des résultats...</h1>
           </div>
         </div>
