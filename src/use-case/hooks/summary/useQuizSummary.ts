@@ -43,6 +43,8 @@ export function formatAnswer(
     }
 
     case "correspondance": {
+      // Formatage de la réponse utilisateur
+      let formattedAnswer = "";
       if (typeof userAnswer === "object" && !Array.isArray(userAnswer)) {
         const pairs = [];
         for (const leftId in userAnswer) {
@@ -57,10 +59,9 @@ export function formatAnswer(
             );
           }
         }
-        return pairs.join("; ") || "Aucune réponse";
-      }
-      if (Array.isArray(userAnswer)) {
-        return userAnswer
+        formattedAnswer = pairs.join("; ") || "Aucune réponse";
+      } else if (Array.isArray(userAnswer)) {
+        formattedAnswer = userAnswer
           .map((id) => {
             if (typeof id === "string" && id.includes("-")) {
               const [leftId, rightId] = id.split("-");
@@ -73,8 +74,46 @@ export function formatAnswer(
             return id;
           })
           .join("; ");
+      } else {
+        formattedAnswer = String(userAnswer);
       }
-      return String(userAnswer);
+
+      // Vérification de la correction
+      const isCorrect = (() => {
+        if (!question.meta?.correctAnswers) return false;
+        if (typeof userAnswer !== "object" || Array.isArray(userAnswer))
+          return false;
+
+        const correctAnswers = question.meta.correctAnswers;
+
+        // 1. Vérifier que toutes les réponses correctes sont présentes et correctes
+        for (const [country, capital] of Object.entries(correctAnswers)) {
+          if (userAnswer[country] !== capital) {
+            return false;
+          }
+        }
+
+        // 2. Vérifier qu'il n'y a pas de réponses supplémentaires
+        const userCountries = Object.keys(userAnswer).filter(
+          (k) => k !== "destination"
+        );
+        const correctCountries = Object.keys(correctAnswers);
+
+        if (userCountries.length !== correctCountries.length) {
+          return false;
+        }
+
+        return true;
+      })();
+
+      // Mise à jour de la propriété isCorrect dans la question
+      question.isCorrect = isCorrect;
+      if (question.meta) {
+        question.meta.isCorrect = isCorrect;
+      }
+
+      // Retourne simplement la chaîne formatée au lieu d'un objet
+      return formattedAnswer;
     }
 
     case "carte flash": {
@@ -117,14 +156,12 @@ export function formatAnswer(
       console.log("userAnswer dans rearrangement", userAnswer);
       return String(userAnswer);
     }
-
     case "question audio": {
-      if (
-        typeof userAnswer === "object" &&
-        "id" in userAnswer &&
-        "text" in userAnswer
-      ) {
+      if (typeof userAnswer === "object" && "text" in userAnswer) {
         return userAnswer.text;
+      }
+      if (typeof userAnswer === "string") {
+        return userAnswer;
       }
       return "Aucune réponse";
     }
@@ -179,22 +216,32 @@ export function formatCorrectAnswer(question: Question): string {
     }
 
     case "correspondance": {
-      const leftItems = question.answers?.filter(
-        (a) => a.isCorrect || a.is_correct === 1
-      );
-      const pairCount = leftItems?.length ?? 0;
-      const half = Math.floor(pairCount / 2);
-      const left = leftItems?.slice(0, half) ?? [];
-      const right = leftItems?.slice(half) ?? [];
+      if (question.meta?.match_pair) {
+        const pairs = question.meta.match_pair.map((pair) => {
+          return `${pair.left} → ${pair.right}`;
+        });
+        return pairs.length > 0
+          ? pairs.join("; ")
+          : "Aucune réponse correcte définie";
+      } else {
+        // Fallback si meta.match_pair n'existe pas
+        const leftItems = question.answers?.filter(
+          (a) => a.isCorrect || a.is_correct === 1
+        );
+        const pairCount = leftItems?.length ?? 0;
+        const half = Math.floor(pairCount / 2);
+        const left = leftItems?.slice(0, half) ?? [];
+        const right = leftItems?.slice(half) ?? [];
 
-      const pairs = left.map((leftItem, index) => {
-        const rightItem = right[index];
-        return `${leftItem.text} → ${rightItem?.text ?? "?"}`;
-      });
+        const pairs = left.map((leftItem, index) => {
+          const rightItem = right[index];
+          return `${leftItem.text} → ${rightItem?.text ?? "?"}`;
+        });
 
-      return pairs.length > 0
-        ? pairs.join("; ")
-        : "Aucune réponse correcte définie";
+        return pairs.length > 0
+          ? pairs.join("; ")
+          : "Aucune réponse correcte définie";
+      }
     }
 
     case "carte flash": {
@@ -307,14 +354,61 @@ export function isAnswerCorrect(
     }
 
     case "correspondance": {
-      if (typeof userAnswerData !== "object") return false;
-
+      // Initialisation de answersById en premier
       const answersById = Object.fromEntries(
         (question.answers || []).map((a) => [String(a.id), a])
       );
 
+      // Vérification basée sur meta.correctAnswers si disponible
+      if (
+        question.meta?.correctAnswers &&
+        typeof userAnswerData === "object" &&
+        !Array.isArray(userAnswerData)
+      ) {
+        const correctAnswers = question.meta.correctAnswers;
+        const userAnswers = userAnswerData;
+
+        // 1. Vérifier que toutes les réponses correctes sont présentes et correctes
+        const allCorrect = Object.entries(correctAnswers).every(
+          ([country, capital]) => {
+            const countryItem = question.answers?.find(
+              (a) => a.text === country
+            );
+            if (!countryItem) return false;
+
+            const userCapital = userAnswers[countryItem.text];
+            if (!userCapital) return false;
+
+            const capitalItem = question.answers?.find(
+              (a) => a.text === capital
+            );
+            if (!capitalItem) return false;
+
+            return (
+              String(userCapital) === String(capitalItem.id) ||
+              normalizeString(String(userCapital)) === normalizeString(capital)
+            );
+          }
+        );
+
+        // 2. Vérifier qu'il n'y a pas de réponses supplémentaires
+        const userCountries = Object.keys(userAnswers).filter(
+          (country) => correctAnswers[country]
+        );
+
+        const correctCountries = Object.keys(correctAnswers);
+
+        const noExtraAnswers =
+          userCountries.length === correctCountries.length &&
+          userCountries.every((country) => correctCountries.includes(country));
+
+        return allCorrect && noExtraAnswers;
+      }
+
+      // Fallback à l'ancienne méthode si meta.correctAnswers n'est pas disponible
+      if (typeof userAnswerData !== "object") return false;
+
       if (Array.isArray(userAnswerData)) {
-        // Format tableau ["leftId-rightId"]
         return userAnswerData.every((pairStr) => {
           if (typeof pairStr !== "string" || !pairStr.includes("-"))
             return false;
@@ -325,14 +419,12 @@ export function isAnswerCorrect(
 
           if (!leftItem || !rightItem) return false;
 
-          // match_pair peut être soit un ID (string/number) soit le texte directement
           return (
             leftItem.match_pair === rightItem.id ||
             leftItem.match_pair === rightItem.text
           );
         });
       } else {
-        // Format objet {leftId: rightText}
         return Object.entries(userAnswerData).every(([leftId, rightText]) => {
           if (leftId === "destination") return true;
 
@@ -356,9 +448,6 @@ export function isAnswerCorrect(
     }
 
     case "rearrangement": {
-      console.log("Question est il vrai", question);
-      console.log("userAnswerData isAnswerCorrect", userAnswerData);
-
       if (!Array.isArray(userAnswerData)) return false;
 
       return userAnswerData.every(
@@ -376,6 +465,24 @@ export function isAnswerCorrect(
         (correctAnswer.text === userAnswerData ||
           correctAnswer.id === String(userAnswerData))
       );
+    }
+    case "question audio": {
+      if (typeof userAnswerData === "string") {
+        // Trouve la réponse correspondante et vérifie si elle est correcte
+        const answer = question.answers?.find((a) => a.text === userAnswerData);
+        return answer ? answer.isCorrect : false;
+      }
+
+      if (typeof userAnswerData === "object" && "text" in userAnswerData) {
+        // Trouve par texte ou ID et vérifie si correct
+        const answer = question.answers?.find(
+          (a) =>
+            a.text === userAnswerData.text || a.id === String(userAnswerData.id)
+        );
+        return answer ? answer.isCorrect : false;
+      }
+
+      return false;
     }
 
     case "banque de mots": {
