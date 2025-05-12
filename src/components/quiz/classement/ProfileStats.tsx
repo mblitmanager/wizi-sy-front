@@ -52,53 +52,55 @@ export function ProfileStats({
   return (
     <div className="container mx-auto mb-10 p-4 sm:p-6 border rounded-2xl bg-white shadow-xl dark:bg-gray-900 dark:border-gray-800">
       {/* Titre */}
-      <div className="mb-4 text-center md:text-left">
-        <h2 className="text-xl md:text-2xl font-semibold text-gray-800 text-[#FEB823] dark:text-white">
+      <div className="mb-6 text-center md:text-left">
+        <h2 className="text-xl md:text-2xl font-bold text-[#FEB823] dark:text-yellow-400">
           Mes statistiques
         </h2>
       </div>
 
       {/* Grille de statistiques */}
-      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
-        {/* Score total */}
-        <div className="p-3 sm:p-4 md:p-5 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-500 text-white shadow-lg hover:scale-[1.02] transition-transform duration-300">
-          <div className="flex flex-col items-center">
-            <TrendingUp size={24} className="mb-1 sm:mb-2" />
-            <p className="uppercase text-xs sm:text-sm opacity-80">
-              Score total
-            </p>
-            <p className="text-2xl sm:text-3xl font-semibold mt-1">
-              {stats.totalScore || 0}
-            </p>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+        {/* Carte Statistique */}
+        {[
+          {
+            label: "Score total",
+            icon: <TrendingUp size={20} />,
+            value: stats.totalScore || 0,
+            suffix: "",
+          },
+          {
+            label: "Quiz complétés",
+            icon: <CheckCircle size={20} />,
+            value: stats.totalQuizzes || 0,
+            suffix: "",
+          },
+          {
+            label: "Score moyen",
+            icon: <BarChart2 size={20} />,
+            value: stats.averageScore
+              ? `${Math.round(stats.averageScore)}%`
+              : "0%",
+            suffix: "",
+          },
+        ].map((stat, index) => (
+          <div
+            key={index}
+            className="p-4 rounded-2xl bg-yellow-100 dark:bg-yellow-700 text-yellow-900 dark:text-white shadow-md hover:shadow-lg hover:scale-105 transition-transform duration-300 min-h-[120px] flex items-center"
+          >
+            <div className="mr-4 flex items-center justify-center w-10 h-10 rounded-full bg-yellow-300/50 dark:bg-yellow-800">
+              {stat.icon}
+            </div>
+            <div>
+              <p className="text-sm text-yellow-800 dark:text-yellow-300 font-medium">
+                {stat.label}
+              </p>
+              <p className="text-xl font-bold mt-1">
+                {stat.value}
+                {stat.suffix}
+              </p>
+            </div>
           </div>
-        </div>
-
-        {/* Quiz complétés */}
-        <div className="p-3 sm:p-4 md:p-5 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-500 text-white shadow-lg hover:scale-[1.02] transition-transform duration-300">
-          <div className="flex flex-col items-center">
-            <CheckCircle size={24} className="mb-1 sm:mb-2" />
-            <p className="uppercase text-xs sm:text-sm opacity-80">
-              Quiz complétés
-            </p>
-            <p className="text-2xl sm:text-3xl font-semibold mt-1">
-              {/* {stats.completedQuizzes || 0} /  */}
-              {stats.totalQuizzes || 0}
-            </p>
-          </div>
-        </div>
-
-        {/* Score moyen */}
-        <div className="p-3 sm:p-4 md:p-5 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-500 text-white shadow-lg hover:scale-[1.02] transition-transform duration-300">
-          <div className="flex flex-col items-center">
-            <BarChart2 size={24} className="mb-1 sm:mb-2" />
-            <p className="uppercase text-xs sm:text-sm opacity-80">
-              Score moyen
-            </p>
-            <p className="text-2xl sm:text-3xl font-semibold mt-1">
-              {stats.averageScore ? Math.round(stats.averageScore) : 0}%
-            </p>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );
