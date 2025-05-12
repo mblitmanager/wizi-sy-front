@@ -22,7 +22,7 @@ interface MultipleChoiceProps {
 
 export const MultipleChoice = ({ 
   question, 
-  selectedOptions, 
+  selectedOptions = [], // Provide default empty array to avoid undefined
   onSelectOption,
   showFeedback = false
 }: MultipleChoiceProps) => {
@@ -39,15 +39,15 @@ export const MultipleChoice = ({
         return item;
       }) || [];
   
-  // Function to check if an option is correct
+  // Function to check if an option is correct - safely check for undefined correctAnswers
   const isCorrectOption = (optionId: string) => {
-    if (!showFeedback) return false;
-    return question.correctAnswers?.includes(optionId) || false;
+    if (!showFeedback || !question.correctAnswers) return false;
+    return question.correctAnswers.includes(optionId);
   };
   
-  // Function to check if an option is incorrect
+  // Function to check if an option is incorrect - safely check before using includes
   const isIncorrectOption = (optionId: string) => {
-    if (!showFeedback) return false;
+    if (!showFeedback || !selectedOptions) return false;
     return selectedOptions.includes(optionId) && !isCorrectOption(optionId);
   };
 
@@ -57,14 +57,16 @@ export const MultipleChoice = ({
       
       <div className="space-y-3">
         {formattedOptions.map((option) => {
-          const isSelected = selectedOptions.includes(option.id);
-          const isCorrect = isCorrectOption(option.id);
-          const isIncorrect = isIncorrectOption(option.id);
+          // Make sure option.id exists, otherwise use a fallback
+          const optionId = option?.id || '';
+          const isSelected = selectedOptions?.includes(optionId) || false;
+          const isCorrect = isCorrectOption(optionId);
+          const isIncorrect = isIncorrectOption(optionId);
           
           return (
             <button
-              key={option.id}
-              onClick={() => onSelectOption(option.id)}
+              key={optionId}
+              onClick={() => onSelectOption(optionId)}
               disabled={showFeedback}
               className={`
                 w-full text-left p-4 rounded-lg border transition-colors
@@ -75,7 +77,7 @@ export const MultipleChoice = ({
               `}
             >
               <div className="flex justify-between items-center">
-                <span>{option.text}</span>
+                <span>{option?.text || ''}</span>
                 {showFeedback && isCorrect && <Check className="h-5 w-5 text-green-500" />}
                 {showFeedback && isIncorrect && <X className="h-5 w-5 text-red-500" />}
               </div>
