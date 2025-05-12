@@ -1,137 +1,88 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+
+import React from 'react';
 import { Check, X } from 'lucide-react';
-import { Question as QuizQuestion } from '@/types/quiz';
-import { cn } from "@/lib/utils";
+
+interface Option {
+  id: string;
+  text: string;
+}
 
 interface MultipleChoiceProps {
-  question: QuizQuestion;
-  onAnswer: (answers: string[]) => void;
+  question: {
+    id: string;
+    texte: string;
+    options?: Option[];
+    reponses?: Option[] | string[];
+    correctAnswers?: string[];
+  };
+  selectedOptions: string[];
+  onSelectOption: (optionId: string) => void;
   showFeedback?: boolean;
 }
 
-export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
-  question,
-  onAnswer,
-  showFeedback = false,
-}) => {
-  const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
-
-  // Initialize from existing answers if available
-  useEffect(() => {
-    if (question.selectedAnswers) {
-      if (Array.isArray(question.selectedAnswers)) {
-        setSelectedAnswers(question.selectedAnswers);
-      } else if (typeof question.selectedAnswers === 'string') {
-        setSelectedAnswers([question.selectedAnswers]);
-      }
-    }
-  }, [question.selectedAnswers]);
-
-  const handleAnswerSelect = (answerId: string) => {
-    if (showFeedback) return;
-
-    const isMultipleAnswers = question.reponses?.filter(r => r.isCorrect || r.is_correct === 1).length > 1;
-    
-    if (isMultipleAnswers) {
-      // Toggle selection for multiple choice
-      const newSelected = selectedAnswers.includes(answerId)
-        ? selectedAnswers.filter(id => id !== answerId)
-        : [...selectedAnswers, answerId];
-      setSelectedAnswers(newSelected);
-      onAnswer(newSelected.map(id => question.reponses?.find(a => a.id === id)?.text || "")); // Send only the text of selected answers
-    } else {
-      // Single choice - replace selection
-      const answerText = question.reponses?.find((a) => a.id === answerId)?.text || "";
-      setSelectedAnswers([answerId]);
-      onAnswer([{ id: answerId, text: answerText }]);
-    }
+export const MultipleChoice = ({ 
+  question, 
+  selectedOptions, 
+  onSelectOption,
+  showFeedback = false
+}: MultipleChoiceProps) => {
+  // Formatting options based on the available data
+  const options = question.options || [];
+  
+  // Handle different response formats
+  const formattedOptions = options.length > 0 
+    ? options 
+    : question.reponses?.map((item: string | Option, index: number) => {
+        if (typeof item === 'string') {
+          return { id: `option-${index}`, text: item };
+        }
+        return item;
+      }) || [];
+  
+  // Function to check if an option is correct
+  const isCorrectOption = (optionId: string) => {
+    if (!showFeedback) return false;
+    return question.correctAnswers?.includes(optionId) || false;
   };
-
-  const isCorrectAnswer = (answerId: string) => {
-    if (!showFeedback) return undefined;
-    const answer = question.reponses?.find(a => a.id === answerId);
-    return answer?.isCorrect || answer?.is_correct === 1;
-  };
-
-  const isSelectedAnswerCorrect = (answerId: string) => {
-    if (!showFeedback) return undefined;
-    const isSelected = selectedAnswers.includes(answerId);
-    const isCorrect = isCorrectAnswer(answerId);
-    return isSelected && isCorrect;
-  };
-
-  const isSelectedAnswerIncorrect = (answerId: string) => {
-    if (!showFeedback) return undefined;
-    const isSelected = selectedAnswers.includes(answerId);
-    const isCorrect = isCorrectAnswer(answerId);
-    return isSelected && !isCorrect;
+  
+  // Function to check if an option is incorrect
+  const isIncorrectOption = (optionId: string) => {
+    if (!showFeedback) return false;
+    return selectedOptions.includes(optionId) && !isCorrectOption(optionId);
   };
 
   return (
-    <Card className="border-0 shadow-none">
-      <CardContent className="pt-4 px-2 md:px-6">
-        <div className="space-y-3">
-          {question.reponses?.map((answer) => {
-            const isSelected = selectedAnswers.includes(answer.id);
-            const isCorrect = isCorrectAnswer(answer.id);
-            const showCorrectIndicator = showFeedback && (isSelected || isCorrect);
-
-            return (
-              <div 
-                key={answer.id} 
-                className={cn(
-                  "flex items-center space-x-2 rounded-lg border p-4 hover:bg-accent transition-colors",
-                  isSelected && !showFeedback && "bg-accent",
-                  showFeedback && isSelected && isCorrect && "bg-green-50 border-green-200",
-                  showFeedback && isSelected && !isCorrect && "bg-red-50 border-red-200",
-                  showFeedback && !isSelected && isCorrect && "bg-green-50 border-green-200"
-                )}
-              >
-                <Checkbox
-                  id={`answer-${answer.id}`}
-                  checked={isSelected}
-                  onCheckedChange={() => handleAnswerSelect(answer.id)}
-                  disabled={showFeedback}
-                />
-                <Label 
-                  htmlFor={`answer-${answer.id}`}
-                  className="flex-grow cursor-pointer text-base"
-                >
-                  {answer.text}
-                </Label>
-                {showCorrectIndicator && (
-                  <span className="flex items-center">
-                    {isCorrect ? (
-                      <Check className="h-5 w-5 text-green-600" />
-                    ) : (
-                      <X className="h-5 w-5 text-red-600" />
-                    )}
-                  </span>
-                )}
+    <div className="space-y-4">
+      <h3 className="text-lg font-medium mb-2">{question.texte}</h3>
+      
+      <div className="space-y-3">
+        {formattedOptions.map((option) => {
+          const isSelected = selectedOptions.includes(option.id);
+          const isCorrect = isCorrectOption(option.id);
+          const isIncorrect = isIncorrectOption(option.id);
+          
+          return (
+            <button
+              key={option.id}
+              onClick={() => onSelectOption(option.id)}
+              disabled={showFeedback}
+              className={`
+                w-full text-left p-4 rounded-lg border transition-colors
+                ${isSelected ? 'border-primary' : 'border-gray-200'}
+                ${isCorrect ? 'bg-green-50 border-green-500' : ''}
+                ${isIncorrect ? 'bg-red-50 border-red-500' : ''}
+                ${!showFeedback && !isSelected ? 'hover:bg-gray-50' : ''}
+              `}
+            >
+              <div className="flex justify-between items-center">
+                <span>{option.text}</span>
+                {showFeedback && isCorrect && <Check className="h-5 w-5 text-green-500" />}
+                {showFeedback && isIncorrect && <X className="h-5 w-5 text-red-500" />}
               </div>
-            );
-          })}
-        </div>
-
-        {showFeedback && (
-          <div className="mt-4 text-sm text-muted-foreground">
-            {selectedAnswers.every(id => isCorrectAnswer(id)) ? (
-              <p className="text-green-600 font-medium">Bonne réponse !</p>
-            ) : (
-              <p className="text-red-600 font-medium">
-                Réponse incorrecte. Les bonnes réponses étaient:{" "}
-                {question.reponses
-                  ?.filter(a => a.isCorrect || a.is_correct === 1)
-                  .map(a => a.text)
-                  .join(", ")}
-              </p>
-            )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 };

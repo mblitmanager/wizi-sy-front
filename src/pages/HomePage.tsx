@@ -1,10 +1,9 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserProgress } from "@/types/quiz";
-import CategoryCard from "@/components/Home/CategoryCard";
-import ProgressCard from "@/components/Home/ProgressCard";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, RefreshCw } from "lucide-react";
+import { AlertCircle, RefreshCw, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { quizAPI, progressAPI } from "@/api";
 import { useQuery } from "@tanstack/react-query";
@@ -32,15 +31,6 @@ import {
 const API_URL = import.meta.env.VITE_API_URL;
 const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_IMG;
 
-interface LocalCategory {
-  id: string;
-  name: string;
-  description: string;
-  color: string;
-  colorClass: string;
-  quizCount: number;
-}
-
 // Temporary mock user object
 const user = { stagiaire: { id: "123" } };
 
@@ -57,17 +47,14 @@ const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
 };
 
 const HomePage: React.FC = () => {
-  const [categories, setCategories] = useState<LocalCategory[]>([]);
   const [userProgress, setUserProgress] = useState<UserProgress>({
     id: "",
     stagiaire_id: "",
     total_points: 0,
-    completed_quizzes: 0, // ✅ correct property name
+    completed_quizzes: 0,
     average_score: 0,
     current_streak: 0,
-    longest_streak: 0,
-    last_quiz_date: "",
-    category_progress: {}, // assuming it's okay to start empty
+    category_progress: {},
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -167,14 +154,13 @@ const HomePage: React.FC = () => {
       }
 
       try {
-        const response =
-          (await catalogueFormationApi.getAllCatalogueFormation()) as {
-            data: { data: CatalogueFormation[] };
-          };
-
-        //✅ Vérification du type de 'data' dans la réponse
-        if (response && Array.isArray(response.data.data)) {
-          const firstThreeFormations = response.data.data.slice(0, 3);
+        const response = await catalogueFormationApi.getAllCatalogueFormation();
+        
+        // Cast the response to the right type or extract the data safely
+        const formationsData = response?.data?.data || [];
+        
+        if (Array.isArray(formationsData)) {
+          const firstThreeFormations = formationsData.slice(0, 3);
           setCatalogueData(firstThreeFormations);
         } else {
           console.error(
@@ -195,7 +181,15 @@ const HomePage: React.FC = () => {
       //✅ Étape 3 : Récupération des progrès utilisateur
       try {
         const progress = await progressService.getUserProgress();
-        setUserProgress(progress);
+        setUserProgress({
+          id: progress.id || "",
+          stagiaire_id: progress.stagiaire_id || "",
+          total_points: progress.total_points || 0,
+          completed_quizzes: progress.completed_quizzes || 0,
+          average_score: progress.average_score || 0,
+          current_streak: progress.current_streak || 0,
+          category_progress: progress.category_progress || {},
+        });
       } catch (progressError) {
         console.error(
           "Erreur lors de la récupération des progrès:",
@@ -208,8 +202,6 @@ const HomePage: React.FC = () => {
           completed_quizzes: 0,
           average_score: 0,
           current_streak: 0,
-          longest_streak: 0,
-          last_quiz_date: "",
           category_progress: {},
         });
       }
@@ -253,6 +245,72 @@ const HomePage: React.FC = () => {
         </div>
       </div>
 
+      {/* Section des formations */}
+      <CatalogueFormationSection
+        CATALOGUE_FORMATION="Catalogue des formations"
+        catalogueData={catalogueData}
+        isLoading={isLoading}
+        VITE_API_URL_IMG={import.meta.env.VITE_API_URL_IMG}
+      />
+
+      {/* Section de publicité / promotion */}
+      <div className="my-12">
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-2xl p-6 shadow-lg">
+          <div className="flex flex-col md:flex-row items-center justify-between">
+            <div className="mb-6 md:mb-0 md:mr-6">
+              <h3 className="text-2xl font-bold mb-2">Boostez votre apprentissage !</h3>
+              <p className="text-blue-100 mb-4">
+                Découvrez nos nouveaux modules interactifs et progressez plus rapidement
+                dans votre parcours de formation.
+              </p>
+              <Button size="lg" variant="secondary" asChild>
+                <Link to="/catalogue">
+                  Découvrir <Star className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+            <div className="flex-shrink-0">
+              <img
+                src="/assets/quiz.png"
+                alt="Quiz promotion"
+                className="h-40 w-auto object-contain animate-bounce-slow"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Section classement */}
+      <ClassementSection />
+      
+      {/* Section des quiz */}
+      <QuizSection quizLevels={quizLevels} />
+      
+      {/* Section Parrainage */}
+      <div className="mt-12 mb-12 bg-gradient-to-r from-teal-50 to-emerald-50 rounded-2xl p-6 shadow-sm border border-teal-100">
+        <h2 className="text-2xl font-bold mb-4 text-teal-700 flex items-center">
+          <Users className="mr-2 h-6 w-6" />
+          Système de parrainage
+        </h2>
+        <p className="mb-4 text-teal-600">
+          Invitez vos amis et collègues à rejoindre Wizi-Learn et gagnez des points bonus !
+        </p>
+        <div className="bg-white p-4 rounded-lg shadow-sm border border-teal-200 mb-4">
+          <p className="text-sm text-gray-700">Code de parrainage</p>
+          <div className="flex mt-1">
+            <div className="bg-gray-50 px-3 py-2 border rounded-l-md font-mono">
+              WIZI-LEARN-2023
+            </div>
+            <Button variant="outline" className="rounded-l-none">
+              Copier
+            </Button>
+          </div>
+        </div>
+        <Button variant="outline" className="bg-white">
+          Voir mes filleuls
+        </Button>
+      </div>
+
       {/* Section des contacts */}
       <ContactSection
         commerciaux={commerciaux}
@@ -260,23 +318,8 @@ const HomePage: React.FC = () => {
         poleRelation={poleRelation}
       />
 
-      {/* Section des formations */}
-      <CatalogueFormationSection
-        CATALOGUE_FORMATION="Catalogue des formations"
-        catalogueData={catalogueData}
-        isLoading={isLoading}
-        VITE_API_URL_IMG={import.meta.env.VITE_API_URL_IMG} // Utilise l'URL de ton environnement
-      />
-
-      {/* Section des quiz */}
-      <QuizSection quizLevels={quizLevels} />
-
       {/* Section des tutoriels */}
-
       <TutorielSection tutoriels={tutoriels} />
-
-      {/* Section Filleuls */}
-      <ClassementSection />
 
       {/* Section de l'agenda */}
       <AgendaSection />

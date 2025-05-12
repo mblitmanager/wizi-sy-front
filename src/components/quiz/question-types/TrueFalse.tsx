@@ -1,137 +1,109 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+
+import React from 'react';
 import { Check, X } from 'lucide-react';
-import { Question as QuizQuestion } from '@/types/quiz';
-import { cn } from "@/lib/utils";
+
+interface Option {
+  id: string;
+  text: string;
+}
 
 interface TrueFalseProps {
-  question: QuizQuestion;
-  onAnswer: (answers: { id: string, text: string }[]) => void;
+  question: {
+    id: string;
+    texte: string;
+    options?: Option[];
+    reponses?: string[] | Option[];
+    bonne_reponse?: string;
+    correctAnswers?: string[];
+  };
+  selectedOptions: string[];
+  onSelectOption: (optionId: string) => void;
   showFeedback?: boolean;
 }
 
-export const TrueFalse: React.FC<TrueFalseProps> = ({
+export const TrueFalse = ({
   question,
-  onAnswer,
-  showFeedback = false,
-}) => {
-  const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
-
-  // Initialize from current answer if available
-  useEffect(() => {
-    if (question.selectedAnswers) {
-      if (Array.isArray(question.selectedAnswers)) {
-        setSelectedAnswers(question.selectedAnswers);
-      } else if (typeof question.selectedAnswers === 'string') {
-        setSelectedAnswers([question.selectedAnswers]);
-      }
-    }
-  }, [question.selectedAnswers]);
-
-  const handleAnswerSelect = (answerId: string) => {
-    if (showFeedback) return;
-
-    const isMultipleAnswers = question.reponses?.filter(r => r.isCorrect || r.is_correct === 1).length > 1;
+  selectedOptions,
+  onSelectOption,
+  showFeedback = false
+}: TrueFalseProps) => {
+  // Use options if available, or create from reponses if needed
+  const options = question.options || [];
+  
+  // Format the options properly
+  const formattedOptions: Option[] = options.length > 0 
+    ? options 
+    : (question.reponses as string[] | Option[])?.map((item, index) => {
+        if (typeof item === 'string') {
+          return { id: `option-${index}`, text: item };
+        }
+        return item;
+      }) || [
+        { id: 'true', text: 'Vrai' },
+        { id: 'false', text: 'Faux' }
+      ];
+  
+  // Determine if an option is correct based on the question structure
+  const isCorrectOption = (optionId: string) => {
+    if (!showFeedback) return false;
     
-    if (isMultipleAnswers) {
-      // Toggle selection for multiple choice
-      const newSelected = selectedAnswers.includes(answerId)
-        ? selectedAnswers.filter(id => id !== answerId)
-        : [...selectedAnswers, answerId];
-      setSelectedAnswers(newSelected);
-      onAnswer(newSelected.map(id => question.reponses?.find(a => a.id === id)?.text || "")); // Send only the text of selected answers
-    } else {
-      // Single choice - replace selection
-      const answerText = question.reponses?.find((a) => a.id === answerId)?.text || "";
-      setSelectedAnswers([answerId]);
-      onAnswer([{ id: answerId, text: answerText }]); // Pass both id and text
+    if (question.correctAnswers) {
+      return question.correctAnswers.includes(optionId);
     }
+    
+    if (question.bonne_reponse) {
+      return optionId === question.bonne_reponse;
+    }
+    
+    return false;
   };
-
-  const isCorrectAnswer = (answerId: string) => {
-    if (!showFeedback) return undefined;
-    const answer = question.reponses?.find(a => a.id === answerId);
-    return answer?.isCorrect || answer?.is_correct === 1;
-  };
-
-  const isSelectedAnswerCorrect = (answerId: string) => {
-    if (!showFeedback) return undefined;
-    const isSelected = selectedAnswers.includes(answerId);
-    const isCorrect = isCorrectAnswer(answerId);
-    return isSelected && isCorrect;
-  };
-
-  const isSelectedAnswerIncorrect = (answerId: string) => {
-    if (!showFeedback) return undefined;
-    const isSelected = selectedAnswers.includes(answerId);
-    const isCorrect = isCorrectAnswer(answerId);
-    return isSelected && !isCorrect;
+  
+  // Check if selected option is incorrect
+  const isIncorrectOption = (optionId: string) => {
+    if (!showFeedback) return false;
+    return selectedOptions.includes(optionId) && !isCorrectOption(optionId);
   };
 
   return (
-    <Card className="border-0 shadow-none">
-      <CardContent className="pt-4 px-2 md:px-6">
-        <div className="space-y-3">
-          {question.reponses?.map((answer) => {
-            const isSelected = selectedAnswers.includes(answer.id);
-            const isCorrect = isCorrectAnswer(answer.id);
-            const showCorrectIndicator = showFeedback && (isSelected || isCorrect);
-
-            return (
-              <div 
-                key={answer.id} 
-                className={cn(
-                  "flex items-center space-x-2 rounded-lg border p-4 hover:bg-accent transition-colors",
-                  isSelected && !showFeedback && "bg-accent",
-                  showFeedback && isSelected && isCorrect && "bg-green-50 border-green-200",
-                  showFeedback && isSelected && !isCorrect && "bg-red-50 border-red-200",
-                  showFeedback && !isSelected && isCorrect && "bg-green-50 border-green-200"
-                )}
-              >
-                <Checkbox
-                  id={`answer-${answer.id}`}
-                  checked={isSelected}
-                  onCheckedChange={() => handleAnswerSelect(answer.id)}
-                  disabled={showFeedback}
-                />
-                <Label 
-                  htmlFor={`answer-${answer.id}`}
-                  className="flex-grow cursor-pointer text-base"
-                >
-                  {answer.text}
-                </Label>
-                {showCorrectIndicator && (
-                  <span className="flex items-center">
-                    {isCorrect ? (
-                      <Check className="h-5 w-5 text-green-600" />
-                    ) : (
-                      <X className="h-5 w-5 text-red-600" />
-                    )}
-                  </span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {showFeedback && (
-          <div className="mt-4 text-sm text-muted-foreground">
-            {selectedAnswers.every(id => isCorrectAnswer(id)) ? (
-              <p className="text-green-600 font-medium">Bonne réponse !</p>
-            ) : (
-              <p className="text-red-600 font-medium">
-                Réponse incorrecte. Les bonnes réponses étaient:{" "}
-                {question.reponses
-                  ?.filter(a => a.isCorrect || a.is_correct === 1)
-                  .map(a => a.text)
-                  .join(", ")}
-              </p>
-            )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+    <div className="space-y-4">
+      <h3 className="text-lg font-medium">{question.texte}</h3>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {formattedOptions.map((option) => {
+          const isSelected = selectedOptions.includes(option.id);
+          const isCorrect = isCorrectOption(option.id);
+          const isIncorrect = isIncorrectOption(option.id);
+          
+          return (
+            <button
+              key={option.id}
+              onClick={() => onSelectOption(option.id)}
+              disabled={showFeedback}
+              className={`
+                p-4 rounded-lg border-2 transition-colors flex justify-between items-center
+                ${isSelected ? 'border-primary' : 'border-gray-200'}
+                ${isCorrect ? 'bg-green-50 border-green-500' : ''}
+                ${isIncorrect ? 'bg-red-50 border-red-500' : ''}
+                ${!showFeedback && !isSelected ? 'hover:bg-gray-50' : ''}
+              `}
+            >
+              <span className="text-lg font-medium">{option.text}</span>
+              
+              {showFeedback && isCorrect && (
+                <div className="bg-green-100 w-8 h-8 rounded-full flex items-center justify-center">
+                  <Check className="h-5 w-5 text-green-600" />
+                </div>
+              )}
+              
+              {showFeedback && isIncorrect && (
+                <div className="bg-red-100 w-8 h-8 rounded-full flex items-center justify-center">
+                  <X className="h-5 w-5 text-red-600" />
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 };

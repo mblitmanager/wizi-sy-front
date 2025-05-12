@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { rankingService } from "@/services/rankingService";
 import { UserProgress } from "@/types/quiz";
@@ -19,19 +20,19 @@ export const useLoadRankings = () => {
         rankingService.getGlobalRanking(),
       ]);
 
-      if (progressRes?.total) {
+      if (progressRes) {
         setUserProgress({
-          totalScore: progressRes.total.points || 0,
-          completedQuizzes: progressRes.total.completed_quizzes || 0,
-          averageScore: progressRes.total.average_score || 0,
+          totalScore: progressRes.totalScore || progressRes.total?.points || 0,
+          completedQuizzes: progressRes.completedQuizzes || progressRes.total?.completed_quizzes || 0,
+          averageScore: progressRes.averageScore || progressRes.total?.average_score || 0,
         });
       }
 
       setRankings(
         (rankingsRes || []).map((entry) => ({
           id: entry.id,
-          name: entry.prenom || "Unknown",
-          score: entry.points || 0,
+          name: entry.stagiaire_name || "Unknown",
+          score: entry.score || entry.points || 0,
         }))
       );
     };

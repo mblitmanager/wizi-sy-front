@@ -1,95 +1,97 @@
-import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import {
-  Play,
-  Pause,
-  Volume2,
-  VolumeX,
-  Check,
-  X,
-  AlertTriangle,
-  Music,
-} from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useAudioPlayer } from "@/use-case/hooks/quiz/question-audio/useAudioPlayer";
-import { useAnswerHandling } from "@/use-case/hooks/quiz/question-audio/useAnswerHandling";
-import { Question as QuizQuestion } from "@/types/quiz";
+
+import React, { useState, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Play, Pause, Volume2 } from 'lucide-react';
+import { useAnswerHandling } from '@/use-case/hooks/quiz/question-audio/useAnswerHandling';
+import { useAudioPlayer } from '@/use-case/hooks/quiz/question-audio/useAudioPlayer';
+
+interface Option {
+  id: string;
+  text: string;
+}
+
 interface AudioQuestionProps {
-  question: QuizQuestion;
-  onAnswer: (answer: { id: string; text: string }) => void;
+  question: {
+    id: string;
+    texte: string;
+    fichier_audio: string;
+    options?: Option[];
+  };
+  onAnswer: (answer: any) => void;
   showFeedback?: boolean;
 }
 
-export const AudioQuestion: React.FC<AudioQuestionProps> = ({
-  question,
-  onAnswer,
-  showFeedback = false,
-}) => {
-  const { audioError } = useAudioPlayer(question);
-  const { selectedAnswer, handleAnswer, isCorrectAnswer } = useAnswerHandling(
-    question,
-    onAnswer,
-    showFeedback
+export const AudioQuestion = ({ question, onAnswer, showFeedback = false }: AudioQuestionProps) => {
+  const { isPlaying, togglePlay, audioRef, duration, currentTime, formatTime } = useAudioPlayer();
+  const { selectedOptions, handleOptionClick, checkIsSelected } = useAnswerHandling(
+    question.id, 
+    onAnswer
   );
 
-  const VITE_API_URL = import.meta.env.VITE_API_URL;
+  const options = question.options || [];
+  
+  // If options is empty or not properly formatted, create formatted options from the question.reponses
+  const formattedOptions = options.length > 0 
+    ? options 
+    : question.reponses?.map((text: string, index: number) => ({
+        id: `option-${index}`,
+        text: text
+      })) || [];
 
   return (
-    <Card className="border-0 shadow-none">
-      <CardContent className="pt-4 px-2 md:px-6">
-        <div className="space-y-6">
-          <div className="p-4 sm:p-6 w-full bg-white border rounded-xl shadow-sm flex justify-center">
-            <div className="flex items-center gap-3 sm:gap-4 w-full max-w-full sm:w-80">
-              <Music className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-400" />
-              <audio
-                key={question.audioUrl}
-                controls
-                className="flex-1 min-w-[150px] max-w-full min-h-[40px] rounded-md shadow-inner bg-gray-100">
-                <source
-                  src={`${VITE_API_URL}/media/stream/${question.audioUrl}`}
-                />
-                Votre navigateur ne supporte pas la lecture audio.
-              </audio>
+    <div className="space-y-6">
+      <div className="bg-gray-100 p-4 rounded-lg">
+        <h3 className="font-medium mb-2">{question.texte}</h3>
+        
+        <div className="bg-white p-3 rounded-md shadow-sm flex items-center space-x-4 mb-4">
+          <Button 
+            variant="outline" 
+            size="icon"
+            onClick={togglePlay} 
+            className="h-12 w-12 rounded-full bg-primary hover:bg-primary-dark text-white"
+          >
+            {isPlaying ? (
+              <Pause className="h-6 w-6" />
+            ) : (
+              <Play className="h-6 w-6 ml-1" />
+            )}
+          </Button>
+          
+          <div className="flex-1">
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div 
+                className="bg-primary h-2.5 rounded-full transition-all" 
+                style={{ width: `${(currentTime / duration) * 100 || 0}%` }}
+              ></div>
+            </div>
+            <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <span>{formatTime(currentTime)}</span>
+              <span>{formatTime(duration)}</span>
             </div>
           </div>
-
-          {audioError && (
-            <Alert variant="destructive" className="text-sm">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                Erreur lors du chargement de l'audio. Veuillez réessayer.
-              </AlertDescription>
-            </Alert>
-          )}
-
-          <RadioGroup
-            value={selectedAnswer || ""}
-            onValueChange={handleAnswer}
-            className="space-y-3">
-            {question.answers?.map((answer) => (
-              <div
-                key={answer.id}
-                className="flex items-center gap-2 p-4 border rounded-lg hover:bg-accent transition">
-                <RadioGroupItem value={answer.id} />
-                <Label className="flex-1">{answer.text}</Label>
-                {showFeedback && isCorrectAnswer(answer.id) !== undefined && (
-                  <span>
-                    {isCorrectAnswer(answer.id) ? (
-                      <Check className="text-green-500" />
-                    ) : (
-                      <X className="text-red-500" />
-                    )}
-                  </span>
-                )}
-              </div>
-            ))}
-          </RadioGroup>
+          
+          <Volume2 className="h-5 w-5 text-gray-400" />
         </div>
-      </CardContent>
-    </Card>
+        
+        <audio ref={audioRef} src={question.fichier_audio} />
+      </div>
+      
+      <div className="space-y-3">
+        <h4 className="font-medium">Sélectionnez la bonne réponse:</h4>
+        {formattedOptions.map((option) => (
+          <button
+            key={option.id}
+            onClick={() => handleOptionClick(option)}
+            className={`w-full text-left p-3 rounded-md border transition-all ${
+              checkIsSelected(option.id)
+                ? 'bg-primary/10 border-primary'
+                : 'bg-white hover:bg-gray-50 border-gray-200'
+            }`}
+          >
+            {option.text}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 };

@@ -1,68 +1,101 @@
-import { useState, useEffect, useMemo } from "react";
 
-interface UseOrderingQuestionParams {
-  question: Question;
-  showFeedback?: boolean;
-  onAnswer: (answerIds: string[]) => void;
-}
+import { useState, useEffect } from 'react';
+import { DropResult } from '@hello-pangea/dnd';
 
-interface OrderingAnswer {
+interface OrderingOption {
   id: string;
   text: string;
   position?: number;
 }
 
-interface Question {
-  id: number | string;
-  type: string;
-  reponses: OrderingAnswer[];
+interface OrderingAnswer {
+  id: string;
+  position: number;
+  isCorrect?: boolean;
 }
 
-export const useOrderingQuestion = ({
-  question,
-  showFeedback = false,
-  onAnswer,
-}: UseOrderingQuestionParams) => {
-  const correctAnswers = useMemo(
-    () =>
-      [...question.reponses]
-        .filter((r) => r.is_correct)
-        .sort((a, b) => (a.position ?? 0) - (b.position ?? 0)),
-    [question.reponses]
-  );
+interface Question {
+  id: string;
+  texte: string;
+  options?: OrderingOption[];
+  reponses: OrderingOption[];
+  correctOrder?: string[];
+}
 
-  const [orderedAnswers, setOrderedAnswers] = useState<Answer[]>([]);
-
+export const useOrderingQuestion = (
+  question: Question, 
+  onAnswer: (answers: OrderingAnswer[]) => void
+) => {
+  const [items, setItems] = useState<OrderingOption[]>([]);
+  
   useEffect(() => {
-    if (showFeedback) {
-      // Affiche dans l'ordre soumis pour feedback
-      setOrderedAnswers((prev) =>
-        prev.length ? prev : correctAnswers.map((a) => ({ ...a }))
-      );
-    } else {
-      // Mélange au départ pour interaction
-      const shuffled = [...correctAnswers].sort(() => Math.random() - 0.5);
-      setOrderedAnswers(shuffled);
-    }
-  }, [correctAnswers, showFeedback]);
-
-  useEffect(() => {
-    if (!showFeedback) {
-      onAnswer(orderedAnswers.map((a) => a.text));
-    }
-  }, [orderedAnswers]);
-
-  const isCorrectPosition = (answer: Answer, index: number) => {
-    if (!showFeedback) return undefined;
-    return correctAnswers[index]?.id === answer.id;
+    // Initialize items from question options or reponses
+    const sourceItems = question.options || question.reponses || [];
+    
+    // Shuffle the items to create a random initial order
+    const shuffled = [...sourceItems].sort(() => Math.random() - 0.5);
+    
+    setItems(shuffled);
+  }, [question]);
+  
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+    
+    const reordered = [...items];
+    const [removed] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, removed);
+    
+    setItems(reordered);
   };
-
-  const droppableId = `droppable-${question.id}`;
-
+  
+  const moveItemUp = (index: number) => {
+    if (index === 0) return;
+    
+    const newItems = [...items];
+    [newItems[index - 1], newItems[index]] = [newItems[index], newItems[index - 1]];
+    
+    setItems(newItems);
+  };
+  
+  const moveItemDown = (index: number) => {
+    if (index === items.length - 1) return;
+    
+    const newItems = [...items];
+    [newItems[index], newItems[index + 1]] = [newItems[index + 1], newItems[index]];
+    
+    setItems(newItems);
+  };
+  
+  const handleSubmitOrder = () => {
+    const answers: OrderingAnswer[] = items.map((item, index) => ({
+      id: item.id,
+      position: index
+    }));
+    
+    onAnswer(answers);
+  };
+  
+  const isCorrectPosition = (item: OrderingOption, currentIndex: number): boolean => {
+    // If we have explicit correctOrder, use it
+    if (question.correctOrder) {
+      return question.correctOrder[currentIndex] === item.id;
+    }
+    
+    // If items have position properties, use those
+    if (item.position !== undefined) {
+      return item.position === currentIndex;
+    }
+    
+    // Default to true if no validation method is available
+    return true;
+  };
+  
   return {
-    orderedAnswers,
-    setOrderedAnswers,
-    isCorrectPosition,
-    droppableId,
+    items,
+    handleDragEnd,
+    moveItemUp,
+    moveItemDown,
+    handleSubmitOrder,
+    isCorrectPosition
   };
 };
