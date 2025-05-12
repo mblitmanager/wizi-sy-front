@@ -1,63 +1,72 @@
+
+// Define the Image interface
+export interface Image {
+  id: number;
+  url: string;
+  name: string;
+}
+
+// Define the Formation interface
 export interface Formation {
   id: number;
-  titre: string;
-  description: string;
+  titre?: string;
+  description?: string;
   categorie?: string;
-  categoryId?: string;
-  image: string;
-  statut: number;
-  duree: string;
-  created_at: string;
-  updated_at: string;
-  pivot?: {
-    stagiaire_id: number;
-    formation_id: number;
-  };
-  catalogue_formation?: CatalogueFormationWithFormation | CatalogueFormation;
-}
-
-export interface CatalogueFormation {
-  id: number;
-  titre: string;
-  description: string;
-  prerequis?: string;
-  tarif?: string;
-  certification?: string;
-  statut: number;
+  image?: string;
   duree?: string;
+  statut?: string;
+  created_at?: string;
+  updated_at?: string;
+  catalogue_formation?: CatalogueFormation | CatalogueFormation[];
+}
+
+// Define the CatalogueFormation interface
+export interface CatalogueFormation {
+  id?: number | string;
+  titre?: string;
+  description?: string;
+  prerequis?: string;
+  certification?: string;
+  tarif?: string;
   image_url?: string;
-  formation?: {
-    titre: string;
-    description: string;
-    categorie?: string;
-  };
-
-  created_at: string;
-  updated_at: string;
-}
-export interface Stagiaire {
-  id: number;
-  prenom: string;
-  civilite: string;
-  telephone: string;
-  adresse: string;
-  date_naissance: string;
-  ville: string;
-  code_postal: string;
-  role: string;
-  statut: number;
-  user_id: number;
-  created_at: string;
-  updated_at: string;
-  formations: Formation[];
+  imageUrl?: string;
+  formation?: Formation;
 }
 
+// Define the ModuleFormation interface
+export interface ModuleFormation {
+  id?: number;
+  titre?: string;
+  description?: string;
+  duree?: string;
+  ordre?: number;
+  formation_id?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+// Define the StagiaireCatalogueFormation interface
+export interface StagiaireCatalogueFormation {
+  id?: number;
+  stagiaire_id?: number;
+  catalogue_formation_id?: number;
+  date_debut?: string;
+  date_fin?: string;
+  statut?: string;
+  created_at?: string;
+  updated_at?: string;
+  catalogue_formation?: CatalogueFormation;
+}
+
+// Define the CatalogueFormationResponse interface
 export interface CatalogueFormationResponse {
-  stagiaire: Stagiaire;
-  formations: Formation[];
-  catalogues: CatalogueFormation[];
+  data?: CatalogueFormation[];
+  member?: any;
+  stagiaire?: { formations: Formation[] };
 }
 
 export interface CatalogueFormationWithFormation extends CatalogueFormation {
-  formation: Omit<Formation, "catalogue_formation" | "pivot">;
+  id: number;
+  formation_id: number;
+  formation?: Formation;
 }

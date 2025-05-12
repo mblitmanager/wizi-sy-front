@@ -25,6 +25,17 @@ export const quizAnswerService = {
     
     return processedResult;
   },
+
+  // Add missing methods referenced in QuizSubmissionService
+  getQuizQuestions: async (quizId: number): Promise<any[]> => {
+    const response = await api.get(`/quiz/${quizId}/questions`);
+    return response.data;
+  },
+  
+  submitQuiz: async (quizId: string, answers: Record<string, string[]>, timeSpent: number): Promise<QuizResult> => {
+    const response = await api.post(`/quiz/${quizId}/submit`, { answers, timeSpent });
+    return processQuizResult(response.data);
+  }
 };
 
 // Process the quiz result to calculate points based on 2 points per correct answer

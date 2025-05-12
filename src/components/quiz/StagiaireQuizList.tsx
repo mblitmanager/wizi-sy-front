@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { stagiaireQuizService } from "@/services/quiz/StagiaireQuizService";
 import { categoryService } from "@/services/quiz/CategoryService";
@@ -50,9 +49,10 @@ export function StagiaireQuizList() {
       const lastVisit = localStorage.getItem('lastQuizVisit');
       const now = new Date().toISOString();
       
-      // Check if there are new quizzes based on created_at date
+      // Check if there are new quizzes based on created_at date if it exists
       const newQuizzesExist = quizzes.some(quiz => {
-        return lastVisit && quiz.created_at && new Date(quiz.created_at) > new Date(lastVisit);
+        if (!lastVisit || !quiz.created_at) return false;
+        return new Date(quiz.created_at) > new Date(lastVisit);
       });
       
       if (newQuizzesExist) {
@@ -175,7 +175,7 @@ export function StagiaireQuizList() {
       )}
       
       <StagiaireQuizFilterBar
-        categories={categoriesWithCount}
+        categories={categories || []}
         levels={levels}
         selectedCategory={selectedCategory}
         selectedLevel={selectedLevel}

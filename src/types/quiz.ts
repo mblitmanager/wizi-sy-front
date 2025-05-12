@@ -1,3 +1,4 @@
+
 export interface Category {
   id: string;
   name: string;
@@ -20,6 +21,7 @@ export interface Quiz {
   duree?: number;
   completedCount?: number;
   thumbnail?: string;
+  created_at?: string; // Added for filtering by date
 }
 
 export interface Question {
@@ -32,13 +34,13 @@ export interface Question {
   audioUrl?: string;
   media_url?: string;
   answers?: Answer[];
-  reponses?: Answer[];
+  reponses?: Answer[]; // Required for Ordering component
   blanks?: Blank[];
   matching?: MatchingItem[];
   flashcard?: FlashCard;
   wordbank?: WordBankItem[];
   correctAnswers?: string[]; // Pour le résumé du quiz
-  selectedAnswers?: string[]; // Pour le résumé du quiz
+  selectedAnswers?: string[] | Record<string, string>; // Pour le résumé du quiz
   isCorrect?: boolean; // Pour le résumé du quiz
 }
 
@@ -160,31 +162,71 @@ export interface LeaderboardEntry {
   rang?: number;
   quizCount?: number;
   averageScore?: number;
+  totalPoints?: number; // Added for sponsorship component 
+  totalPointsEarned?: number; // Added for sponsorship component
+  pointsEarned?: number; // Added for referral
 }
 
-// Extend the existing QuizResult type with missing properties
 export interface QuizResult {
   id?: string;
   score: number;
   totalPoints: number;
-  quizTitle: string;
+  quizTitle?: string;
+  quiz_name?: string; // For backend compatibility
   correctAnswers: number;
   correct_answers?: number; 
   totalQuestions: number;
   total_questions?: number;
   timeSpent: number;
   questions: Question[];
-  quiz_name?: string;
-  completed_at?: string;
   completedAt?: string;
+  completed_at?: string;
   quizId?: string;
   userId?: string;
 }
 
-// Interface for quiz filter preferences
 export interface QuizFilterPreferences {
   category: string;
   level: string;
   sortBy: 'newest' | 'popular' | 'difficulty';
   showCompleted: boolean;
+}
+
+// Add interface for QuizHistoryProps to include loading
+export interface QuizHistoryProps {
+  history: QuizHistory[];
+  loading?: boolean;
+}
+
+// Add missing interfaces for Sponsorship components
+export interface SponsorshipResponse {
+  data?: {
+    link?: SponsorshipLink;
+    stats?: SponsorshipStats;
+    referrals?: Referral[];
+  };
+}
+
+export interface SponsorshipLink {
+  url: string;
+  shareText?: string;
+}
+
+export interface SponsorshipStats {
+  totalFilleuls?: number;
+  totalPoints?: number;
+  totalRewards?: number;
+  totalPointsEarned?: number;
+  nextReward?: {
+    points: number;
+    name: string;
+  };
+}
+
+export interface Referral {
+  id: number;
+  referredUserName?: string;
+  joinDate?: string;
+  pointsEarned?: number;
+  status: string;
 }

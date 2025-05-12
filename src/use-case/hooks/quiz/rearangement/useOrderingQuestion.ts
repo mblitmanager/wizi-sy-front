@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useMemo } from "react";
-import { Answer } from "@/types/quiz";
+import { Answer, Question } from "@/types/quiz";
 
 interface OrderingAnswer {
   id: string;
@@ -8,12 +8,6 @@ interface OrderingAnswer {
   position?: number;
   is_correct?: boolean | number;
   isCorrect?: boolean | number;
-}
-
-interface Question {
-  id: number | string;
-  type: string;
-  reponses: OrderingAnswer[];
 }
 
 interface UseOrderingQuestionParams {
@@ -27,12 +21,17 @@ export const useOrderingQuestion = ({
   showFeedback = false,
   onAnswer,
 }: UseOrderingQuestionParams) => {
+  // Ensure we have the reponses property by merging answers and reponses
+  const answers = useMemo(() => {
+    return question.reponses || question.answers || [];
+  }, [question.reponses, question.answers]);
+
   const correctAnswers = useMemo(
     () =>
-      [...question.reponses]
+      [...answers]
         .filter((r) => r.is_correct === true || r.is_correct === 1 || r.isCorrect === true)
         .sort((a, b) => (a.position ?? 0) - (b.position ?? 0)),
-    [question.reponses]
+    [answers]
   );
 
   const [orderedAnswers, setOrderedAnswers] = useState<OrderingAnswer[]>([]);

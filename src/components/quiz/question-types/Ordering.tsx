@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   DndContext,
@@ -17,12 +18,19 @@ import { Box, List, ListItemText, ListItemIcon, Paper } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { GripVertical, Check, X } from "lucide-react";
 import { useOrderingQuestion } from "@/use-case/hooks/quiz/rearangement/useOrderingQuestion";
-import { Question } from "@/types/quiz";
+import { Question, Answer } from "@/types/quiz";
 
 interface OrderingProps {
   question: Question;
   onAnswer: (answers: string[]) => void;
   showFeedback?: boolean;
+}
+
+interface SortableItemProps {
+  id: string;
+  text: string;
+  isCorrect?: boolean;
+  disabled?: boolean;
 }
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
@@ -39,7 +47,7 @@ const StyledListItem = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
 }));
 
-const SortableItem = ({ id, text, isCorrect, disabled }: any) => {
+const SortableItem = ({ id, text, isCorrect, disabled }: SortableItemProps) => {
   const {
     attributes,
     listeners,
@@ -105,6 +113,10 @@ export const Ordering: React.FC<OrderingProps> = ({
     }
   };
 
+  const correctAnswersList = question.reponses 
+    ? [...question.reponses].filter(a => a.is_correct || a.isCorrect).sort((a, b) => (a.position || 0) - (b.position || 0))
+    : [];
+
   return (
     <StyledPaper>
       <DndContext
@@ -136,13 +148,11 @@ export const Ordering: React.FC<OrderingProps> = ({
         ) && (
           <Box mt={2} color="error.main">
             <strong>L'ordre correct était :</strong>
-            {[...question.reponses]
-              .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
-              .map((answer, idx) => (
-                <Box key={answer.id} ml={2}>
-                  {idx + 1}. {answer.text}
-                </Box>
-              ))}
+            {correctAnswersList.map((answer, idx) => (
+              <Box key={answer.id} ml={2}>
+                {idx + 1}. {answer.text}
+              </Box>
+            ))}
           </Box>
         )}
     </StyledPaper>
