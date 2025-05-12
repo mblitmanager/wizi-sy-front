@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext } from 'react';
-import { useNotifications, UseNotificationsReturn } from '@/hooks/useNotifications';
+import { useNotifications as useNotificationsHook, UseNotificationsReturn } from '@/hooks/useNotifications';
 
 // This type now uses the full return type from useNotifications
 type NotificationContextType = UseNotificationsReturn;
@@ -8,7 +8,7 @@ type NotificationContextType = UseNotificationsReturn;
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const notifications = useNotifications();
+  const notifications = useNotificationsHook();
   
   return (
     <NotificationContext.Provider value={notifications}>
@@ -17,10 +17,13 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   );
 };
 
-export const useNotifications = () => {
+export const useNotificationContext = () => {
   const context = useContext(NotificationContext);
   if (context === undefined) {
-    throw new Error('useNotifications must be used within a NotificationProvider');
+    throw new Error('useNotificationContext must be used within a NotificationProvider');
   }
   return context;
 };
+
+// Re-export for backward compatibility
+export { useNotificationsHook as useNotifications };

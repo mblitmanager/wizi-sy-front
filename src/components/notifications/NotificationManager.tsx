@@ -1,12 +1,12 @@
 
 import { useEffect } from 'react';
-import { useNotifications } from '@/hooks/useNotifications';
+import { useNotificationContext } from '@/context/NotificationContext';
 import { useUser } from '@/context/UserContext';
 import { useToast } from '@/hooks/use-toast';
 import useLocalStorage from '@/hooks/useLocalStorage';
 
 export function NotificationManager() {
-  const { isSupported, permission, requestPermission } = useNotifications();
+  const { isSupported, permission, requestPermission } = useNotificationContext();
   const { user } = useUser();
   const { toast } = useToast();
   const [askedForPermission, setAskedForPermission] = useLocalStorage('notification-permission-asked', false);

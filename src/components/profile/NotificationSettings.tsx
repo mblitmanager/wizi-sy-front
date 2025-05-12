@@ -1,17 +1,23 @@
 
 import React from 'react';
-import { useNotifications } from '@/context/NotificationContext';
+import { useNotificationContext } from '@/context/NotificationContext';
 import { Bell, BellOff } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 
 const NotificationSettings: React.FC = () => {
-  const { notificationsEnabled, enableNotifications, disableNotifications } = useNotifications();
+  const { notificationsEnabled, enableNotifications, disableNotifications, requestPermission } = useNotificationContext();
 
-  const handleToggleNotifications = async (checked: boolean) => {
-    if (checked) {
-      const success = await enableNotifications();
-      if (!success) {
+  const handleToggleNotifications = async () => {
+    if (!notificationsEnabled) {
+      const success = await requestPermission();
+      if (success) {
+        enableNotifications();
+        toast({
+          title: 'Notifications activées',
+          description: 'Vous recevrez désormais des notifications de Wizi Learn.'
+        });
+      } else {
         toast({
           title: 'Permission refusée',
           description: 'Veuillez autoriser les notifications dans les paramètres de votre navigateur.',
