@@ -1,27 +1,31 @@
 import { useState, useMemo } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Trophy, Medal, Award, User } from "lucide-react";
+import { Trophy, Medal, Award, User, ArrowUpDown, ArrowUp, ArrowDown, RefreshCw } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { LeaderboardEntry } from "@/types/quiz";
+import React from "react";
 
 export interface GlobalRankingProps {
   ranking?: LeaderboardEntry[];
   loading?: boolean;
   currentUserId?: string;
+  onRefresh?: () => void;
 }
 
 type SortKey = "rang" | "name" | "quizCount" | "averageScore" | "score";
-
 type SortOrder = "asc" | "desc";
 
 export function GlobalRanking({
   ranking = [],
   loading = false,
   currentUserId,
+  onRefresh
 }: GlobalRankingProps) {
   const [sortKey, setSortKey] = useState<SortKey>("rang");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
   const [search, setSearch] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -54,9 +58,24 @@ export function GlobalRanking({
     });
   }, [filteredRanking, sortKey, sortOrder]);
 
-  // Calcul des totaux à partir du classement global
+  // Calculate totals from the ranking
   const totalPoints = sortedRanking.reduce((sum, entry) => sum + (entry.score || 0), 0);
   const totalQuizzes = sortedRanking.reduce((sum, entry) => sum + (entry.quizCount || 0), 0);
+
+  const handleRowClick = (userId: string) => {
+    if (selectedUserId === userId) {
+      setSelectedUserId(null); // Deselect if already selected
+    } else {
+      setSelectedUserId(userId); // Select the user
+    }
+  };
+
+  const getSortIcon = (key: SortKey) => {
+    if (sortKey !== key) return <ArrowUpDown className="h-4 w-4 ml-1 inline" />;
+    return sortOrder === "asc" ? 
+      <ArrowUp className="h-4 w-4 ml-1 inline text-blue-500" /> : 
+      <ArrowDown className="h-4 w-4 ml-1 inline text-blue-500" />;
+  };
 
   if (loading) {
     return (
@@ -100,15 +119,29 @@ export function GlobalRanking({
 
       {/* Content */}
       <div className="p-4 sm:p-6">
-        {/* Search */}
-        <div className="mb-4">
+        {/* Search and Actions */}
+        <div className="mb-4 flex flex-wrap gap-2 justify-between items-center">
+          {/* Search Box */}
           <input
             type="text"
-            placeholder="Rechercher..."
+            placeholder="Rechercher un utilisateur..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring focus:ring-blue-200"
+            className="border border-gray-300 rounded-lg px-4 py-2 flex-1 focus:ring focus:ring-blue-200"
           />
+          
+          {/* Refresh Button */}
+          {onRefresh && (
+            <Button 
+              variant="outline" 
+              onClick={onRefresh}
+              className="flex items-center gap-1"
+              size="sm"
+            >
+              <RefreshCw className="h-4 w-4" />
+              <span className="hidden sm:inline">Actualiser</span>
+            </Button>
+          )}
         </div>
 
         {/* Empty State */}
@@ -121,14 +154,19 @@ export function GlobalRanking({
             {/* Mobile List View */}
             {sortedRanking.map((entry, index) => {
               const isCurrentUser = entry.id?.toString() === currentUserId;
+              const isSelected = entry.id?.toString() === selectedUserId;
               return (
                 <div
                   key={entry.id || index}
-                  className={`p-3 rounded-lg shadow-sm border ${
+                  className={`p-3 rounded-lg shadow-sm border transition-all duration-200 cursor-pointer ${
                     isCurrentUser
                       ? "bg-blue-100 border-blue-200"
+                      : isSelected
+                      ? "bg-blue-50 border-blue-100"
                       : "bg-white border-gray-200"
-                  }`}>
+                  }`}
+                  onClick={() => handleRowClick(entry.id?.toString() || "")}
+                >
                   <div className="flex justify-between items-start">
                     <div className="flex items-center">
                       <span className="font-medium mr-2">
@@ -164,6 +202,25 @@ export function GlobalRanking({
                       {entry.score} pts
                     </div>
                   </div>
+                  
+                  {/* Details section that shows when selected */}
+                  {isSelected && (
+                    <div className="mt-3 pt-3 border-t border-gray-100 text-sm space-y-1">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="text-gray-500">Rang:</div>
+                        <div className="font-medium">{entry.rang || index + 1}</div>
+                        
+                        <div className="text-gray-500">Points:</div>
+                        <div className="font-medium">{entry.score} pts</div>
+                        
+                        <div className="text-gray-500">Quiz complétés:</div>
+                        <div className="font-medium">{entry.quizCount}</div>
+                        
+                        <div className="text-gray-500">Score moyen:</div>
+                        <div className="font-medium">{Math.round(entry.averageScore)}%</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -177,93 +234,122 @@ export function GlobalRanking({
               <thead>
                 <tr className="bg-gradient-to-r from-blue-100 to-blue-50">
                   <th
-                    className="px-4 py-3 text-left font-semibold text-gray-600 cursor-pointer"
-                    onClick={() => handleSort("rang")}>
-                    Rang{" "}
-                    {sortKey === "rang" && (sortOrder === "asc" ? "▲" : "▼")}
+                    className="px-4 py-3 text-left font-semibold text-gray-600 cursor-pointer hover:bg-blue-100 transition-colors"
+                    onClick={() => handleSort("rang")}
+                  >
+                    Rang {getSortIcon("rang")}
                   </th>
                   <th
-                    className="px-4 py-3 text-left font-semibold text-gray-600 cursor-pointer"
-                    onClick={() => handleSort("name")}>
-                    Stagiaire{" "}
-                    {sortKey === "name" && (sortOrder === "asc" ? "▲" : "▼")}
+                    className="px-4 py-3 text-left font-semibold text-gray-600 cursor-pointer hover:bg-blue-100 transition-colors"
+                    onClick={() => handleSort("name")}
+                  >
+                    Stagiaire {getSortIcon("name")}
                   </th>
                   <th
-                    className="px-4 py-3 text-left font-semibold text-gray-600 cursor-pointer"
-                    onClick={() => handleSort("quizCount")}>
-                    Quiz{" "}
-                    {sortKey === "quizCount" &&
-                      (sortOrder === "asc" ? "▲" : "▼")}
+                    className="px-4 py-3 text-left font-semibold text-gray-600 cursor-pointer hover:bg-blue-100 transition-colors"
+                    onClick={() => handleSort("quizCount")}
+                  >
+                    Quiz {getSortIcon("quizCount")}
                   </th>
                   <th
-                    className="px-4 py-3 text-left font-semibold text-gray-600 cursor-pointer"
-                    onClick={() => handleSort("averageScore")}>
-                    Score moyen{" "}
-                    {sortKey === "averageScore" &&
-                      (sortOrder === "asc" ? "▲" : "▼")}
+                    className="px-4 py-3 text-left font-semibold text-gray-600 cursor-pointer hover:bg-blue-100 transition-colors"
+                    onClick={() => handleSort("averageScore")}
+                  >
+                    Score moyen {getSortIcon("averageScore")}
                   </th>
                   <th
-                    className="px-4 py-3 text-left font-semibold text-gray-600 cursor-pointer"
-                    onClick={() => handleSort("score")}>
-                    Points{" "}
-                    {sortKey === "score" && (sortOrder === "asc" ? "▲" : "▼")}
+                    className="px-4 py-3 text-left font-semibold text-gray-600 cursor-pointer hover:bg-blue-100 transition-colors"
+                    onClick={() => handleSort("score")}
+                  >
+                    Points {getSortIcon("score")}
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {sortedRanking.map((entry, index) => {
                   const isCurrentUser = entry.id?.toString() === currentUserId;
+                  const isSelected = entry.id?.toString() === selectedUserId;
                   return (
-                    <tr
-                      key={entry.id || index}
-                      className={`hover:bg-blue-50 transition-colors duration-300 ${
-                        isCurrentUser ? "bg-blue-100" : "bg-white"
-                      } ${index < 3 ? "font-semibold" : ""}`}>
-                      <td className="px-4 py-3">
-                        {index < 3 ? (
-                          <Trophy
-                            className={`inline h-5 w-5 mr-2 align-middle ${
-                              index === 0
-                                ? "text-yellow-500"
-                                : index === 1
-                                ? "text-gray-400"
-                                : "text-amber-700"
-                            }`}
-                          />
-                        ) : null}
-                        {entry.rang || index + 1}
-                      </td>
-                      <td className="px-4 py-3 flex items-center gap-3">
-                        <Avatar>
-                          <AvatarImage
-                            src={entry.image}
-                            alt={entry.name || "User"}
-                          />
-                          <AvatarFallback>
-                            {entry.name
-                              ? entry.name.substring(0, 2).toUpperCase()
-                              : "UN"}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex items-center">
-                          <span className="text-gray-700 font-medium">
-                            {entry.name || "Unknown"}
-                          </span>
-                          {isCurrentUser && (
-                            <User className="h-4 w-4 ml-2 text-blue-500" />
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-gray-600">
-                        {entry.quizCount}
-                      </td>
-                      <td className="px-4 py-3 text-gray-600">
-                        {Math.round(entry.averageScore)}%
-                      </td>
-                      <td className="px-4 py-3 text-primary font-semibold">
-                        {entry.score}
-                      </td>
-                    </tr>
+                    <React.Fragment key={entry.id || index}>
+                      <tr
+                        className={`hover:bg-blue-50 transition-colors duration-300 cursor-pointer ${
+                          isCurrentUser ? "bg-blue-100" : 
+                          isSelected ? "bg-blue-50" : "bg-white"
+                        } ${index < 3 ? "font-semibold" : ""}`}
+                        onClick={() => handleRowClick(entry.id?.toString() || "")}
+                      >
+                        <td className="px-4 py-3">
+                          {index < 3 ? (
+                            <Trophy
+                              className={`inline h-5 w-5 mr-2 align-middle ${
+                                index === 0
+                                  ? "text-yellow-500"
+                                  : index === 1
+                                  ? "text-gray-400"
+                                  : "text-amber-700"
+                              }`}
+                            />
+                          ) : null}
+                          {entry.rang || index + 1}
+                        </td>
+                        <td className="px-4 py-3 flex items-center gap-3">
+                          <Avatar>
+                            <AvatarImage
+                              src={entry.image}
+                              alt={entry.name || "User"}
+                            />
+                            <AvatarFallback>
+                              {entry.name
+                                ? entry.name.substring(0, 2).toUpperCase()
+                                : "UN"}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex items-center">
+                            <span className="text-gray-700 font-medium">
+                              {entry.name || "Unknown"}
+                            </span>
+                            {isCurrentUser && (
+                              <User className="h-4 w-4 ml-2 text-blue-500" />
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-gray-600">
+                          {entry.quizCount}
+                        </td>
+                        <td className="px-4 py-3 text-gray-600">
+                          {Math.round(entry.averageScore)}%
+                        </td>
+                        <td className="px-4 py-3 text-primary font-semibold">
+                          {entry.score}
+                        </td>
+                      </tr>
+                      
+                      {/* Detail row that expands when clicked */}
+                      {isSelected && (
+                        <tr className="bg-blue-50 border-t border-b border-blue-100">
+                          <td colSpan={5} className="px-6 py-3">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                              <div>
+                                <p className="text-gray-500">Classement</p>
+                                <p className="font-semibold">{entry.rang || index + 1}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500">Score total</p>
+                                <p className="font-semibold">{entry.score} points</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500">Quiz complétés</p>
+                                <p className="font-semibold">{entry.quizCount}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500">Score moyen</p>
+                                <p className="font-semibold">{Math.round(entry.averageScore)}%</p>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   );
                 })}
               </tbody>

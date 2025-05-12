@@ -11,7 +11,14 @@ export class QuizSubmissionService {
   }
 
   async submitQuiz(quizId: string, answers: Record<string, string[]>, timeSpent: number): Promise<QuizResult> {
-    return quizAnswerService.submitQuiz(quizId, answers, timeSpent);
+    const result = await quizAnswerService.submitQuiz(quizId, answers, timeSpent);
+    
+    // After submitting the quiz, update the classement with correct answers
+    if (result && result.stagiaireId) {
+      await this.updateClassement(quizId, result.stagiaireId, result.correctAnswers);
+    }
+    
+    return result;
   }
 
   async getQuizHistory(): Promise<QuizHistory[]> {
@@ -26,8 +33,9 @@ export class QuizSubmissionService {
     return quizHistoryService.getQuizResult(quizId);
   }
 
-  async updateClassement(quizId: string, stagiaireId: string, score: number): Promise<any> {
-    return rankingService.updateClassement(quizId, stagiaireId, score);
+  async updateClassement(quizId: string, stagiaireId: string, correctAnswers: number): Promise<any> {
+    // Now we pass correctAnswers instead of a total score
+    return rankingService.updateClassement(quizId, stagiaireId, correctAnswers);
   }
 
   async getClassement(quizId: string): Promise<any> {

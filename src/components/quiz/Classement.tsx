@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfileStats } from "./classement/ProfileStats";
@@ -5,6 +6,9 @@ import { GlobalRanking } from "./classement/GlobalRanking";
 import { QuizHistory } from "./classement/QuizHistory";
 import { quizSubmissionService } from "@/services/quiz/QuizSubmissionService";
 import type { QuizHistory as QuizHistoryType } from "@/types/quiz";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
 
 export function Classement() {
   const [profile, setProfile] = useState<any>(null);
@@ -17,72 +21,71 @@ export function Classement() {
     stats: true,
     ranking: true,
   });
-console.log("globalRanking", globalRanking);
-console.log("profile", profile);
+  const [refresh, setRefresh] = useState(false);
+  const { toast } = useToast();
+
+  const fetchAllData = async () => {
+    setLoading({
+      profile: true,
+      history: true,
+      stats: true,
+      ranking: true,
+    });
+    
+    try {
+      const [profileData, stats, ranking, history] = await Promise.all([
+        quizSubmissionService.getStagiaireProfile(),
+        quizSubmissionService.getQuizStats(),
+        quizSubmissionService.getGlobalClassement(),
+        quizSubmissionService.getQuizHistory()
+      ]);
+      
+      setProfile(profileData);
+      setQuizStats(stats);
+      
+      const mappedRanking = (ranking || []).map((item: any) => ({
+        id: item.stagiaire.id,
+        name: item.stagiaire.prenom,
+        image: item.stagiaire.image,
+        score: item.totalPoints,
+        quizCount: item.quizCount,
+        averageScore: item.averageScore,
+        rang: item.rang,
+      }));
+      
+      setGlobalRanking(mappedRanking);
+      setQuizHistory(history);
+      
+      toast({
+        title: "Mise à jour des données",
+        description: "Les informations ont été actualisées avec succès.",
+      });
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les données. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading({
+        profile: false,
+        history: false,
+        stats: false,
+        ranking: false,
+      });
+    }
+  };
+
   useEffect(() => {
-    const fetchProfileData = async () => {
-      try {
-        const profileData = await quizSubmissionService.getStagiaireProfile();
-        setProfile(profileData);
-      } catch (error) {
-        console.error("Error fetching profile:", error);
-      } finally {
-        setLoading((prev) => ({ ...prev, profile: false }));
-      }
-    };
+    fetchAllData();
+  }, [refresh]);
 
-    const fetchQuizStats = async () => {
-      try {
-        const stats = await quizSubmissionService.getQuizStats();
-        setQuizStats(stats);
-      } catch (error) {
-        console.error("Error fetching quiz stats:", error);
-      } finally {
-        setLoading((prev) => ({ ...prev, stats: false }));
-      }
-    };
-
-    const fetchGlobalRanking = async () => {
-      try {
-        const ranking = await quizSubmissionService.getGlobalClassement();
-        const mappedRanking = (ranking || []).map((item: any) => ({
-          id: item.stagiaire.id,
-          name: item.stagiaire.prenom,
-          image: item.stagiaire.image,
-          score: item.totalPoints,
-          quizCount: item.quizCount,
-          averageScore: item.averageScore,
-          rang: item.rang,
-        }));
-        setGlobalRanking(mappedRanking);
-      } catch (error) {
-        console.error("Error fetching global ranking:", error);
-      } finally {
-        setLoading((prev) => ({ ...prev, ranking: false }));
-      }
-    };
-
-    const fetchQuizHistory = async () => {
-      try {
-        const history = await quizSubmissionService.getQuizHistory();
-        setQuizHistory(history);
-      } catch (error) {
-        console.error("Error fetching quiz history:", error);
-      } finally {
-        setLoading((prev) => ({ ...prev, history: false }));
-      }
-    };
-
-    fetchProfileData();
-    fetchQuizStats();
-    fetchGlobalRanking();
-    fetchQuizHistory();
-  }, []);
-
-  // Calcul des stats utilisateur à partir du classement global
+  // Calculate user stats from global ranking
   const userEntry = globalRanking.find(
     (entry) => entry.id?.toString() === profile?.stagiaire?.id?.toString()
   );
+  
   const stats = userEntry
     ? {
         totalScore: userEntry.score || 0,
@@ -95,12 +98,27 @@ console.log("profile", profile);
         averageScore: 0,
       };
 
+  const handleRefresh = () => {
+    setRefresh(prev => !prev);
+  };
+
   return (
     <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
-      {/* Header */}
-      <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-4 text-center lg:text-left">
-        Mon classement
-      </h1>
+      {/* Header with refresh button */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-4">
+          Mon classement
+        </h1>
+        <Button 
+          variant="outline" 
+          onClick={handleRefresh}
+          disabled={loading.profile || loading.ranking || loading.history || loading.stats}
+          className="flex items-center gap-2"
+        >
+          <RefreshCw className={`h-4 w-4 ${(loading.profile || loading.ranking || loading.history || loading.stats) ? "animate-spin" : ""}`} />
+          Actualiser
+        </Button>
+      </div>
 
       {/* Statistiques */}
       <div className="w-full">
@@ -128,13 +146,21 @@ console.log("profile", profile);
 
         <TabsContent value="ranking" className="mt-4">
           <div className="bg-white p-3 sm:p-4 lg:p-6 rounded-lg shadow-sm border border-gray-200">
-            <GlobalRanking ranking={globalRanking} loading={loading.ranking} currentUserId={profile?.stagiaire?.id?.toString()}  />
+            <GlobalRanking 
+              ranking={globalRanking} 
+              loading={loading.ranking} 
+              currentUserId={profile?.stagiaire?.id?.toString()} 
+              onRefresh={handleRefresh}
+            />
           </div>
         </TabsContent>
 
         <TabsContent value="history" className="mt-4">
           <div className="bg-white p-3 sm:p-4 lg:p-6 rounded-lg shadow-sm border border-gray-200">
-            <QuizHistory history={quizHistory} loading={loading.history} />
+            <QuizHistory 
+              history={quizHistory} 
+              loading={loading.history} 
+            />
           </div>
         </TabsContent>
       </Tabs>

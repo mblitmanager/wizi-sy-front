@@ -30,6 +30,12 @@ export function QuizResultsDialog({
   onRestart
 }: QuizResultsDialogProps) {
   const navigate = useNavigate();
+  
+  // Calculate total correct answers
+  const correctAnswersCount = answers.filter((a) => a.isCorrect).length;
+  
+  // Calculate total points (2 points per correct answer)
+  const totalPoints = correctAnswersCount * 2;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -38,9 +44,12 @@ export function QuizResultsDialog({
           <DialogTitle>Résultats du Quiz</DialogTitle>
         </DialogHeader>
         <div className="text-center py-6">
-          <div className="text-4xl font-bold mb-2">{score} points</div>
+          <div className="text-4xl font-bold mb-2">{totalPoints} points</div>
           <p className="text-muted-foreground">
-            {answers.filter((a) => a.isCorrect).length} bonnes réponses sur {totalQuestions}
+            {correctAnswersCount} bonnes réponses sur {totalQuestions}
+          </p>
+          <p className="text-sm text-muted-foreground mt-1">
+            (2 points par bonne réponse)
           </p>
         </div>
         <div className="space-y-4">
@@ -55,7 +64,7 @@ export function QuizResultsDialog({
                   ) : (
                     <XCircle className="text-red-500 h-5 w-5" />
                   )}
-                  <span>{answer.points} points</span>
+                  <span>{answer.isCorrect ? "2 points" : "0 points"}</span>
                 </div>
               </div>
             );
