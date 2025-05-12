@@ -4,12 +4,12 @@ import type { QuizHistory, QuizStats } from '@/types/quiz';
 
 export class RankingService {
   async updateClassement(quizId: string, stagiaireId: string, correctAnswers: number): Promise<any> {
-    // Now we pass correctAnswers instead of score, to calculate points (2 per correct answer)
+    // Award 2 points per correct answer
     const points = correctAnswers * 2;
     
     const response = await apiClient.post(`/api/quiz/${quizId}/classement`, {
       stagiaire_id: stagiaireId,
-      points: points, // 2 points per correct answer
+      points: points,
       correct_answers: correctAnswers
     });
     return response.data;
@@ -17,7 +17,8 @@ export class RankingService {
 
   async getClassement(quizId: string): Promise<any> {
     try {
-      const response = await apiClient.get(`/quiz/${quizId}/classement`);
+      // Fixed the API endpoint path
+      const response = await apiClient.get(`/api/quiz/${quizId}/classement`);
       return response.data;
     } catch (error) {
       console.error('Error fetching quiz ranking:', error);
@@ -26,7 +27,7 @@ export class RankingService {
   }
 
   async getGlobalClassement(): Promise<any> {
-    const response = await apiClient.get('/quiz/classement/global');
+    const response = await apiClient.get('/api/quiz/classement/global');
     return response.data;
   }
 }

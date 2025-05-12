@@ -14,6 +14,7 @@ export class QuizSubmissionService {
     const result = await quizAnswerService.submitQuiz(quizId, answers, timeSpent);
     
     // After submitting the quiz, update the classement with correct answers
+    // This will award 2 points per correct answer via the RankingService
     if (result && result.stagiaireId) {
       await this.updateClassement(quizId, result.stagiaireId, result.correctAnswers);
     }
@@ -34,7 +35,6 @@ export class QuizSubmissionService {
   }
 
   async updateClassement(quizId: string, stagiaireId: string, correctAnswers: number): Promise<any> {
-    // Now we pass correctAnswers instead of a total score
     return rankingService.updateClassement(quizId, stagiaireId, correctAnswers);
   }
 
