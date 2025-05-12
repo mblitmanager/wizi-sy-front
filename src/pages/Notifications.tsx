@@ -153,7 +153,7 @@ const Notifications = () => {
   if (loading) {
     return (
       <Layout>
-        <Shell>
+        <div className="container mx-auto px-4 py-6">
           <Card>
             <CardHeader>
               <CardTitle>Chargement des notifications...</CardTitle>
@@ -164,14 +164,14 @@ const Notifications = () => {
               </div>
             </CardContent>
           </Card>
-        </Shell>
+        </div>
       </Layout>
     );
   }
 
   return (
     <Layout>
-      <Shell>
+      <div className="container mx-auto px-4 py-6">
         <NotificationBanner className="mb-4" />
         <Card>
           <CardHeader>
@@ -252,7 +252,7 @@ const Notifications = () => {
             )}
           </CardContent>
         </Card>
-      </Shell>
+      </div>
     </Layout>
   );
 };
