@@ -57,18 +57,36 @@ const SortableItem = ({ id, text, isCorrect, disabled }: SortableItemProps) => {
     isDragging,
   } = useSortable({ id });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
+  // Custom transform handler to manage potential issues with the CSS import
+  const getTransformStyles = () => {
+    if (!transform) return {};
+    
+    try {
+      return {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+      };
+    } catch (error) {
+      // Fallback if CSS utility isn't working properly
+      const { x, y, scaleX, scaleY } = transform;
+      return {
+        transform: `translate3d(${x}px, ${y}px, 0) scaleX(${scaleX}) scaleY(${scaleY})`,
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+      };
+    }
   };
+
+  const style = getTransformStyles();
 
   return (
     <StyledListItem
       ref={setNodeRef}
       style={style}
       {...attributes}
-      {...listeners}>
+      {...listeners}
+    >
       <ListItemIcon sx={{ cursor: disabled ? "default" : "grab" }}>
         <GripVertical size={20} />
       </ListItemIcon>

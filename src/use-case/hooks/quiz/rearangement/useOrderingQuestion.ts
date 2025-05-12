@@ -23,7 +23,13 @@ export const useOrderingQuestion = ({
 }: UseOrderingQuestionParams) => {
   // Ensure we have the reponses property by merging answers and reponses
   const answers = useMemo(() => {
-    return question.reponses || question.answers || [];
+    const responseData = question.reponses || question.answers || [];
+    
+    // Ensure all answers have an id
+    return responseData.map(answer => ({
+      ...answer,
+      id: answer.id || `answer-${Math.random().toString(36).substring(2, 11)}`
+    }));
   }, [question.reponses, question.answers]);
 
   const correctAnswers = useMemo(
@@ -50,7 +56,7 @@ export const useOrderingQuestion = ({
   }, [correctAnswers, showFeedback]);
 
   useEffect(() => {
-    if (!showFeedback) {
+    if (!showFeedback && orderedAnswers.length > 0) {
       // Send answer IDs instead of text to match expected format
       onAnswer(orderedAnswers.map((a) => a.id));
     }
