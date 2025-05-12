@@ -36,8 +36,6 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
     showFeedback
   );
 
-  console.log("AudioQuestion", question);
-
   const VITE_API_URL = import.meta.env.VITE_API_URL;
 
   return (

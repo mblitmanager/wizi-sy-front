@@ -24,7 +24,6 @@ export default function QuizAnswerCard({
   const userResponse = formatAnswer(question, userAnswer);
   const correctResponse = formatCorrectAnswer(question);
   const isCorrect = isAnswerCorrect(question, userAnswer);
-  console.log("isCorrect", isCorrect);
 
   return (
     <div className="p-4 mb-4 rounded-2xl shadow-lg bg-white grid grid-cols-2 gap-4">
@@ -45,8 +44,7 @@ export default function QuizAnswerCard({
           isCorrect
             ? "bg-green-50 border border-green-500"
             : "bg-red-50 border border-red-500"
-        }`}
-      >
+        }`}>
         {isCorrect ? (
           <CheckCircle className="text-green-500 mr-2" size={24} />
         ) : (
@@ -59,8 +57,7 @@ export default function QuizAnswerCard({
           <p
             className={`text-base font-medium ${
               isCorrect ? "text-green-600" : "text-red-600"
-            }`}
-          >
+            }`}>
             {userResponse}
           </p>
         </div>
