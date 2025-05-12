@@ -27,6 +27,11 @@ export default function QuizAnswerCard({
 
   return (
     <div className="p-4 mb-4 rounded-2xl shadow-lg bg-white grid grid-cols-2 gap-4">
+      {/* Question affichée en haut */}
+      <div className="col-span-2 mb-2">
+        <div className="font-semibold text-base text-gray-700 mb-1">Question :</div>
+        <div className="text-gray-900 text-lg">{question.text}</div>
+      </div>
       {/* Correct Response */}
       <div className="flex items-center p-4 bg-green-50 rounded-lg border border-green-500">
         <CheckCircle className="text-green-500 mr-2" size={24} />
@@ -51,9 +56,7 @@ export default function QuizAnswerCard({
           <XCircle className="text-red-500 mr-2" size={24} />
         )}
         <div>
-          <h4 className="font-semibold text-lg {isCorrect ? 'text-green-700' : 'text-red-700'}">
-            Votre réponse
-          </h4>
+          <h4 className={`font-semibold text-lg ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>Votre réponse</h4>
           <p
             className={`text-base font-medium ${
               isCorrect ? "text-green-600" : "text-red-600"
