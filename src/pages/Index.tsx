@@ -1,3 +1,5 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { Layout } from "@/components/layout/Layout";
 import { useUser } from "@/context/UserContext";
 import { Button } from "@/components/ui/button";
@@ -5,21 +7,49 @@ import { Link } from "react-router-dom";
 import { ArrowRight, PenTool, FileText, MessageSquare, Globe } from "lucide-react";
 import { ProgressCard } from "@/components/dashboard/ProgressCard";
 import { CategoryCard } from "@/components/dashboard/CategoryCard";
-import { FormationCard } from "@/components/dashboard/FormationCard";
-import { ChallengeCard } from "@/components/dashboard/ChallengeCard";
 import { RankingCard } from "@/components/dashboard/RankingCard";
 import { AgendaCard } from "@/components/dashboard/AgendaCard";
-import { useLoadQuizData } from "@/use-case/hooks/profile/useLoadQuizData";
-import { useLoadRankings } from "@/use-case/hooks/profile/useLoadRankings";
-import { categories, formations, challenges, rankings, agendaEvents } from "@/data/mockData";
-import StatsSummary from "@/components/profile/StatsSummary";
-import FormationCatalogue from "@/components/profile/FormationCatalogue";
-import ContactsSection  from "@/components/profile/ContactsSection";
-import ParrainageSection  from "@/components/profile/ParrainageSection";
+import { useQuery } from "@tanstack/react-query";
 
+import { useLoadRankings } from "@/use-case/hooks/profile/useLoadRankings";
+import { categories, rankings, agendaEvents } from "@/data/mockData";
+import StatsSummary from "@/components/profile/StatsSummary";
+import { Contact } from "@/types/contact";
+import ContactsSection from "@/components/FeatureHomePage/ContactSection";
+import ParrainageSection from "@/components/profile/ParrainageSection";
+
+const API_URL = import.meta.env.VITE_API_URL;
+
+const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
+  const response = await axios.get(
+    `${API_URL}/stagiaire/contacts/${endpoint}`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+  // Adapt to paginated response
+  return response.data.data; // <-- get the array from .data
+};
 export function Index() {
   const { user } = useUser();
-const { userProgress } = useLoadRankings();
+  const { userProgress } = useLoadRankings();
+  // Récupération des contacts
+  const { data: commerciaux, isLoading: loadingCommerciaux } = useQuery<Contact[]>({
+    queryKey: ["contacts", "commerciaux"],
+    queryFn: () => fetchContacts("commerciaux"),
+  });
+
+  const { data: formateurs, isLoading: loadingFormateurs } = useQuery<Contact[]>({
+    queryKey: ["contacts", "formateurs"],
+    queryFn: () => fetchContacts("formateurs"),
+  });
+
+  const { data: poleRelation, isLoading: loadingPoleRelation } = useQuery<Contact[]>({
+    queryKey: ["contacts", "pole-relation"],
+    queryFn: () => fetchContacts("pole-relation"),
+  });
   if (!user) {
     return (
       <Layout>
@@ -40,9 +70,9 @@ const { userProgress } = useLoadRankings();
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
-                  {/* <Button size="lg" variant="outline" asChild>
+                  <Button size="lg" variant="outline" asChild>
                     <Link to="/login">Connexion</Link>
-                  </Button> */}
+                  </Button>
                 </div>
               </div>
               <div className="lg:w-1/2">
@@ -149,7 +179,7 @@ const { userProgress } = useLoadRankings();
   // User dashboard
   return (
     <Layout>
-        
+
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold">Tableau de bord</h1>
@@ -162,20 +192,26 @@ const { userProgress } = useLoadRankings();
         </div>
         <div className="mt-16 space-y-12">
           {userProgress && <StatsSummary userProgress={userProgress} />}
-          
+          <ParrainageSection />
+
         </div>
         <div className="bg-white p-4 rounded-lg shadow-sm">
-          <ContactsSection />
+          {/* Section des contacts */}
+          <ContactsSection
+            commerciaux={commerciaux}
+            formateurs={formateurs}
+            poleRelation={poleRelation}
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <ProgressCard user={user} />
           <AgendaCard events={agendaEvents} />
           <RankingCard rankings={rankings} currentUserId={user.id} />
-          
-          
+
+
         </div>
-        
+
         {/* <h2 className="text-2xl font-semibold mb-4">Formations récentes</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {formations.slice(0, 3).map((formation) => (
@@ -189,7 +225,7 @@ const { userProgress } = useLoadRankings();
             <ChallengeCard key={challenge.id} challenge={challenge} />
           ))}
         </div> */}
-        <ParrainageSection />
+        
       </div>
     </Layout>
   );

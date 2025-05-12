@@ -24,16 +24,16 @@ export default function Quizzes() {
           </div>
         ) : (
           <Tabs defaultValue="mes-quizzes" className="space-y-6">
-            {/* <TabsList className="grid w-full grid-cols-2"> */}
-              {/* <TabsTrigger value="mes-quizzes">Mes Quiz</TabsTrigger> */}
-              {/* <TabsTrigger value="tous-quizzes">Tous les Quiz</TabsTrigger> */}
-            {/* </TabsList> */}
-            {/* <TabsContent value="mes-quizzes"> */}
-              {/* <StagiaireQuizList /> */}
-            {/* </TabsContent> */}
-            {/* <TabsContent value="tous-quizzes"> */}
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="mes-quizzes">Mes Quiz</TabsTrigger>
+              <TabsTrigger value="tous-quizzes">Tous les Quiz</TabsTrigger>
+            </TabsList>
+            <TabsContent value="mes-quizzes">
+              <StagiaireQuizList />
+            </TabsContent>
+            <TabsContent value="tous-quizzes">
               <QuizList />
-            {/* </TabsContent> */}
+            </TabsContent>
           </Tabs>
         )}
       </div>
