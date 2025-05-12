@@ -1,19 +1,14 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNotifications as useNotificationsHook } from '@/hooks/useNotifications';
+import React, { createContext, useContext } from 'react';
+import { useNotifications, UseNotificationsReturn } from '@/hooks/useNotifications';
 
-interface NotificationContextType {
-  notificationsEnabled: boolean;
-  requestPermission: () => Promise<boolean>;
-  showNotification: (title: string, options?: any) => Promise<void>;
-  notifyForNewQuiz: (quizTitle: string, category: string) => Promise<boolean>;
-  notifyForQuizCompletion: (stagiaireId: string, quizTitle: string) => Promise<boolean>;
-}
+// This type now uses the full return type from useNotifications
+type NotificationContextType = UseNotificationsReturn;
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const notifications = useNotificationsHook();
+  const notifications = useNotifications();
   
   return (
     <NotificationContext.Provider value={notifications}>
