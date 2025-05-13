@@ -316,6 +316,8 @@ export function isAnswerCorrect(
 
   switch (question.type) {
     case "remplir le champ vide": {
+      console.log("userAnswerData dans remplir le champ vide")
+      console.log(userAnswerData);
       // Pour les questions à blancs, vérifier chaque champ
       if (typeof userAnswerData !== "object" || Array.isArray(userAnswerData))
         return false;
