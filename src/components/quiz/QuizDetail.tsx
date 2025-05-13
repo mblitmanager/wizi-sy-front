@@ -49,10 +49,8 @@ export function QuizDetail() {
         <div className="flex items-center justify-center min-h-[50vh]">
           <div className="container mx-auto py-8 px-4">
             <div className="flex items-center justify-center flex-col gap-4">
-              <img src={quiziload} alt="Chargement" className="h-16 w-16" />
-              <h1 className="text-2xl font-bold">
-                Chargement des résultats...
-              </h1>
+              <img src={quiziload} alt="Chargement" className="h-40 w-40" />
+              <span className="text-gray-600">Chargement des résultats...</span>
             </div>
           </div>
         </div>
@@ -176,8 +174,7 @@ export function QuizDetail() {
                     return;
                   }
                   navigate(`/quiz/${quiz.id}/start`);
-                }}
-              >
+                }}>
                 <span className="flex items-center gap-2 font-semibold">
                   Lancer le défi <ArrowRight className="w-5 h-5" />
                 </span>

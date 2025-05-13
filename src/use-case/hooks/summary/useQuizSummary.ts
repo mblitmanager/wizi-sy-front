@@ -316,7 +316,7 @@ export function isAnswerCorrect(
 
   switch (question.type) {
     case "remplir le champ vide": {
-      console.log("userAnswerData dans remplir le champ vide")
+      console.log("userAnswerData dans remplir le champ vide");
       console.log(userAnswerData);
       // Pour les questions à blancs, vérifier chaque champ
       if (typeof userAnswerData !== "object" || Array.isArray(userAnswerData))
@@ -450,6 +450,7 @@ export function isAnswerCorrect(
     }
 
     case "rearrangement": {
+      console.log("rearrangement", question);
       if (!Array.isArray(userAnswerData)) return false;
 
       return userAnswerData.every(
@@ -533,7 +534,7 @@ export function isAnswerCorrect(
     case "vrai/faux": {
       // Vérification que la réponse est un tableau
       if (!Array.isArray(userAnswerData)) return false;
-console.log("questionType", question.type);
+      console.log("questionType", question.type);
       console.log("userAnswerData", userAnswerData);
       console.log("vrai/faux", question.correctAnswers);
 

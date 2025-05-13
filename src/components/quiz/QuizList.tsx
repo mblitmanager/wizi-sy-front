@@ -86,7 +86,7 @@ function QuizListByCategory({
         <div className="container mx-auto py-8 px-4">
           <div className="flex items-center justify-center flex-col gap-4">
             <img src={quizimg} alt="Chargement" className="h-40 w-40" />
-            <h1 className="text-2xl font-bold">Chargement des résultats...</h1>
+            <span className="text-gray-600">Chargement des résultats...</span>
           </div>
         </div>
       </div>
@@ -240,7 +240,7 @@ export function QuizList() {
         <div className="container mx-auto py-8 px-4">
           <div className="flex items-center justify-center flex-col gap-4">
             <img src={quizimg} alt="Chargement" className="h-40 w-40" />
-            <h1 className="text-2xl font-bold">Chargement des résultats...</h1>
+            <span className="text-gray-600">Chargement des résultats...</span>
           </div>
         </div>
       </div>
