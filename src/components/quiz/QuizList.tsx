@@ -65,8 +65,11 @@ function QuizListByCategory({
       !!localStorage.getItem("token") &&
       !!stagiaireQuizService.getStagiaireQuizJoue,
   });
+  type Participation = { id: string | number }; // Adjust fields as needed
+
   const playedQuizIds = useMemo(
-    () => new Set((participations || []).map((p: any) => String(p.id))),
+    () =>
+      new Set((participations || []).map((p: Participation) => String(p.id))),
     [participations]
   );
   const playedQuizzes = useMemo(
@@ -86,7 +89,7 @@ function QuizListByCategory({
         <div className="container mx-auto py-8 px-4">
           <div className="flex items-center justify-center flex-col gap-4">
             <img src={quizimg} alt="Chargement" className="h-40 w-40" />
-            <h1 className="text-2xl font-bold">Chargement des résultats...</h1>
+            <span className="text-gray-600">Chargement des résultats...</span>
           </div>
         </div>
       </div>
@@ -172,7 +175,7 @@ function QuizListByCategory({
           {selectedLevel !== "all" && (
             <Button
               variant="outline"
-              size="xs"
+              size="sm"
               onClick={() => setSelectedLevel("all")}>
               Réinitialiser
             </Button>
@@ -188,11 +191,7 @@ function QuizListByCategory({
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {notPlayedQuizzes.map((quiz) => (
             <Link key={quiz.id} to={`/quiz/${quiz.id}`} className="opacity-100">
-              <QuizCard
-                quiz={quiz}
-                categories={categories}
-                className="p-2 text-xs"
-              />
+              <QuizCard quiz={quiz} categories={categories} />
             </Link>
           ))}
         </div>
@@ -240,7 +239,7 @@ export function QuizList() {
         <div className="container mx-auto py-8 px-4">
           <div className="flex items-center justify-center flex-col gap-4">
             <img src={quizimg} alt="Chargement" className="h-40 w-40" />
-            <h1 className="text-2xl font-bold">Chargement des résultats...</h1>
+            <span className="text-gray-600">Chargement des résultats...</span>
           </div>
         </div>
       </div>

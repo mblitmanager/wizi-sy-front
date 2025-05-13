@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import axios from "axios";
 import { Users, GraduationCap, Phone } from "lucide-react";
 import PaginationControls from "../catalogueFormation/PaginationControls";
+import { Button } from "@mui/material";
 
 const SkeletonCard = () => (
   <div className="rounded-lg border p-4 space-y-3">
@@ -68,6 +69,55 @@ const ContactsSection = () => {
     fetchContacts("pole-relation");
   }, []);
 
+  const [showAll, setShowAll] = useState({
+    commerciaux: false,
+    formateurs: false,
+    "pole-relation": false,
+  });
+
+  const toggleShowAll = (type) => {
+    setShowAll((prev) => ({ ...prev, [type]: !prev[type] }));
+  };
+
+  const renderContacts = (contacts, type) => {
+    const bgColors = {
+      commerciaux: "bg-slate-100",
+      formateurs: "bg-slate-100",
+      "pole-relation": "bg-slate-100",
+    };
+    const visibleContacts = showAll[type] ? contacts : contacts.slice(0, 1);
+    return (
+      <div className={`space-y-4 border rounded-lg p-4 ${bgColors[type]}`}>
+        {isLoading[type] ? (
+          Array.from({ length: 3 }).map((_, idx) => (
+            <SkeletonCard key={`${type}-skeleton-${idx}`} />
+          ))
+        ) : contacts.length === 0 ? (
+          <p className="text-center text-muted-foreground">
+            Aucun contact disponible
+          </p>
+        ) : (
+          visibleContacts.map((contact, index) => (
+            <ContactCard key={contact.id} contact={contact} index={index + 1} />
+          ))
+        )}
+        {contacts.length > 5 && (
+          <button
+            className="w-full flex items-center text-gold-700 border border-gold py-2 px-6 gap-2 rounded inline-flex items-center justify-center hover:bg-gold hover:text-white transition-colors duration-200"
+            color="success"
+            onClick={() => toggleShowAll(type)}>
+            {showAll[type] ? "Voir moins" : "Voir plus"}
+            {showAll[type] ? (
+              <Phone className="w-4 h-4" />
+            ) : (
+              <Users className="w-4 h-4" />
+            )}
+          </button>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col space-y-4">
@@ -77,82 +127,22 @@ const ContactsSection = () => {
         </p>
       </div>
 
-      <Tabs defaultValue="commerciaux" className="w-full">
-        <TabsList className="flex flex-wrap justify-start gap-2 mb-6">
-          <TabsTrigger
-            value="commerciaux"
-            className="text-xs sm:text-sm px-3 py-2">
-            <Users className="h-4 w-4 mr-2" />
-            Commerciaux
-          </TabsTrigger>
-          <TabsTrigger
-            value="formateurs"
-            className="text-xs sm:text-sm px-3 py-2">
-            <GraduationCap className="h-4 w-4 mr-2" />
-            Formateurs
-          </TabsTrigger>
-          <TabsTrigger
-            value="pole-relation"
-            className="text-xs sm:text-sm px-3 py-2">
-            <Phone className="h-4 w-4 mr-2" />
-            Pôle Relation
-          </TabsTrigger>
-        </TabsList>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Commerciaux</h3>
+          {renderContacts(commerciaux, "commerciaux")}
+        </div>
 
-        <TabsContent value="commerciaux">
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {isLoading.commerciaux ? (
-              Array.from({ length: 3 }).map((_, idx) => (
-                <SkeletonCard key={`commerciaux-skeleton-${idx}`} />
-              ))
-            ) : commerciaux.length === 0 ? (
-              <div className="col-span-full text-center py-8 text-muted-foreground">
-                Aucun commercial disponible
-              </div>
-            ) : (
-              commerciaux.map((contact) => (
-                <ContactCard key={contact.id} contact={contact} />
-              ))
-            )}
-          </div>
-        </TabsContent>
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Formateurs</h3>
+          {renderContacts(formateurs, "formateurs")}
+        </div>
 
-        <TabsContent value="formateurs">
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {isLoading.formateurs ? (
-              Array.from({ length: 3 }).map((_, idx) => (
-                <SkeletonCard key={`formateurs-skeleton-${idx}`} />
-              ))
-            ) : formateurs.length === 0 ? (
-              <div className="col-span-full text-center py-8 text-muted-foreground">
-                Aucun formateur disponible
-              </div>
-            ) : (
-              formateurs.map((contact) => (
-                <ContactCard key={contact.id} contact={contact} />
-              ))
-            )}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="pole-relation">
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {isLoading["pole-relation"] ? (
-              Array.from({ length: 3 }).map((_, idx) => (
-                <SkeletonCard key={`pole-relation-skeleton-${idx}`} />
-              ))
-            ) : poleRelation.length === 0 ? (
-              <div className="col-span-full text-center py-8 text-muted-foreground">
-                Aucun contact disponible pour le Pôle Relation
-              </div>
-            ) : (
-              poleRelation.map((contact) => (
-                <ContactCard key={contact.id} contact={contact} />
-              ))
-            )}
-          </div>
-        </TabsContent>
-      </Tabs>
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Pôle Relation</h3>
+          {renderContacts(poleRelation, "pole-relation")}
+        </div>
+      </div>
     </div>
   );
 };

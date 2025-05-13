@@ -1,3 +1,4 @@
+import { Stagiaire } from "./stagiaire";
 
 export interface User {
   id: string;
@@ -5,6 +6,7 @@ export interface User {
   email: string;
   points: number;
   level: number;
+  stagiaire: Stagiaire;
   role?: "stagiaire" | "admin";
   avatar?: string;
   progress?: Progress;
@@ -77,7 +79,7 @@ export interface Quiz {
   completed: boolean;
   score?: number;
   gameMode: GameMode;
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty: "easy" | "medium" | "hard";
 }
 
 export interface Question {
@@ -87,7 +89,7 @@ export interface Question {
   answers: Answer[];
   type: GameMode;
   media?: {
-    type: 'image' | 'audio' | 'video';
+    type: "image" | "audio" | "video";
     url: string;
   };
 }
@@ -98,15 +100,15 @@ export interface Answer {
   isCorrect: boolean;
 }
 
-export type GameMode = 
-  | 'multiple-choice'
-  | 'true-false'
-  | 'fill-in-blank'
-  | 'rearrangement'
-  | 'matching'
-  | 'flash-card'
-  | 'word-bank'
-  | 'audio-question';
+export type GameMode =
+  | "multiple-choice"
+  | "true-false"
+  | "fill-in-blank"
+  | "rearrangement"
+  | "matching"
+  | "flash-card"
+  | "word-bank"
+  | "audio-question";
 
 export interface Ranking {
   id: string;
@@ -132,7 +134,7 @@ export interface Notification {
   message: string;
   read: boolean;
   date: Date;
-  type: 'schedule' | 'achievement' | 'challenge' | 'system';
+  type: "schedule" | "achievement" | "challenge" | "system";
 }
 
 export interface AgendaEvent {

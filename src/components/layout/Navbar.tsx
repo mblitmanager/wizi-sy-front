@@ -15,14 +15,40 @@ import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Input } from "@/components/ui/input";
 import logo from "../../assets/logo.png";
-
+const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
 export function Navbar() {
   const { user, logout } = useUser();
   const isMobile = useIsMobile();
 
-  const getInitial = () => {
-    if (!user || !user.name) return "U";
-    return user.name.charAt(0).toUpperCase();
+  const getInitials = () => {
+    if (!user || !user.user.name) return "U";
+    // Récupère la première lettre du prénom si disponible
+    const firstNameInitial = user.stagiaire?.prenom
+      ? user.stagiaire.prenom.charAt(0).toUpperCase()
+      : "";
+
+    // Récupère la première lettre du nom
+    const lastNameInitial = user.user.name.charAt(0).toUpperCase();
+
+    return `${firstNameInitial}${lastNameInitial}`;
+  };
+
+  const handleLogout = async () => {
+    try {
+      // 1. Nettoyage immédiat
+      localStorage.removeItem("token");
+
+      // 2. Déconnexion globale (si votre hook gère un état)
+      if (logout) logout();
+
+      // 3. Option 1: Redirection ultra-rapide (recharge la page)
+      // window.location.assign("/login");
+
+      // OU Option 2: Redirection avec React Router (moins instantanée)
+      navigate("/login", { replace: true });
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   return (
@@ -33,8 +59,8 @@ export function Navbar() {
           {isMobile && <img src={logo} alt="Logo" className="h-8 w-auto" />}
         </div>
 
-        {/* Bloc droite - Notifications + Dropdown uniquement mobile */}
-        {isMobile && user && (
+        {/* Bloc droite - Notifications + Dropdown */}
+        {user && (
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
@@ -48,14 +74,36 @@ export function Navbar() {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="relative h-10 w-10 p-0 rounded-full border hover:shadow-md transition">
-                  <Avatar>
-                    <AvatarImage src={user.avatar} alt={user.name || "User"} />
-                    <AvatarFallback>{getInitial()}</AvatarFallback>
-                  </Avatar>
-                </Button>
+                <button className="relative flex items-center gap-2 p-1 rounded-full hover:shadow-md transition focus:outline-none">
+                  <div className="relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 text-white">
+                    {user.user.image ? (
+                      <img
+                        src={`${VITE_API_URL_MEDIA}/${user.user.image}`}
+                        alt={user.user.name || "User"}
+                        className="w-full h-full rounded-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                          e.currentTarget.nextSibling.style.display = "flex";
+                        }}
+                      />
+                    ) : null}
+                    <span
+                      className="font-medium"
+                      style={{ display: user.user.image ? "none" : "flex" }}>
+                      {getInitials()}
+                    </span>
+                  </div>
+                  {!isMobile && (
+                    <div className="flex flex-col items-start mr-2">
+                      <span className="text-sm font-medium">
+                        {user.stagiaire.prenom} {user.user.name}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {user.user.role}
+                      </span>
+                    </div>
+                  )}
+                </button>
               </DropdownMenuTrigger>
 
               <DropdownMenuContent align="end" className="w-48 shadow-lg">
@@ -81,7 +129,7 @@ export function Navbar() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={logout}
+                  onClick={handleLogout}
                   className="cursor-pointer text-red-600 hover:bg-red-50 px-2 py-1 rounded">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Déconnexion</span>
