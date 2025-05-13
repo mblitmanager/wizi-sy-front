@@ -7,9 +7,13 @@ export function LoadingState({
   message?: string;
 }) {
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <div className="flex items-center justify-center flex-col gap-4">
-        <img src={quizimg} alt="Chargement" className="h-40 w-40" />
+        <img
+          src={quizimg}
+          alt="Chargement"
+          className="h-72 w-72 animate-bounce-slow"
+        />
         <span className="text-gray-600">{message}</span>
       </div>
     </div>
