@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { useFormations } from "@/use-case/hooks/media/useFormations";
 import { useMediaByFormation } from "@/use-case/hooks/media/useMediaByFormation";
 import { MediaList, MediaPlayer, MediaTabs } from "@/Media";
 import HeaderSection from "@/components/features/HeaderSection";
 import { Layout } from "@/components/layout/Layout";
 import { Media } from "@/types/media";
+import { useUser } from "@/context/UserContext";
+import { useFormationStagiaire } from "@/use-case/hooks/stagiaire/useFormationStagiaire";
 
 // Composant de squelette de chargement
 const MediaSkeleton = () => (
@@ -29,7 +30,10 @@ export default function TutoAstucePage() {
   );
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
 
-  const { data: formations = [] } = useFormations();
+  const { user } = useUser();
+  const { data: formations = [] } = useFormationStagiaire(
+    user?.stagiaire.id ?? null
+  );
   const {
     data: mediasData,
     isLoading,
@@ -60,8 +64,10 @@ export default function TutoAstucePage() {
               className="px-3 py-1.5 text-sm sm:text-base min-w-[180px] sm:min-w-[250px] bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition duration-200">
               <option value="">Toutes les formations</option>
               {formations.map((formation) => (
-                <option key={formation.id} value={formation.id}>
-                  {formation.titre}
+                <option
+                  key={formation.formation?.id}
+                  value={formation.formation.id}>
+                  {formation.formation?.titre ?? formation.titre}
                 </option>
               ))}
             </select>

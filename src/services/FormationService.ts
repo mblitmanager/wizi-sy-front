@@ -20,5 +20,12 @@ const formationService = {
     const response = await axiosInstance.get(`/formations/${id}/modules`);
     return response.data;
   },
+
+  async getFormationStagiaire(stagiaireId: number) {
+    const response = await axiosInstance.get(
+      `/formations/${stagiaireId}/quizzes`
+    );
+    return response.data;
+  },
 };
 export default formationService;
