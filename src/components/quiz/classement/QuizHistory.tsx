@@ -43,7 +43,7 @@ interface QuizHistoryProps {
 export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
   const [page, setPage] = useState(1);
   const itemsPerPage = 5;
-
+  console.log("history", history);
   const paginatedHistory = useMemo(() => {
     const startIndex = (page - 1) * itemsPerPage;
     return history.slice(startIndex, startIndex + itemsPerPage);
