@@ -4,7 +4,7 @@ import { Layout } from "@/components/layout/Layout";
 import { useUser } from "@/context/UserContext";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, PenTool, FileText, MessageSquare, Globe } from "lucide-react";
+import { ArrowRight, PenTool, FileText, MessageSquare, Globe, WifiOff } from "lucide-react";
 import { ProgressCard } from "@/components/dashboard/ProgressCard";
 import { CategoryCard } from "@/components/dashboard/CategoryCard";
 import { RankingCard } from "@/components/dashboard/RankingCard";
@@ -17,6 +17,8 @@ import StatsSummary from "@/components/profile/StatsSummary";
 import { Contact } from "@/types/contact";
 import ContactsSection from "@/components/FeatureHomePage/ContactSection";
 import ParrainageSection from "@/components/profile/ParrainageSection";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import useOnlineStatus from "@/hooks/useOnlineStatus";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -35,6 +37,7 @@ const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
 export function Index() {
   const { user } = useUser();
   const { userProgress } = useLoadRankings();
+  const isOnline = useOnlineStatus();
   // Récupération des contacts
   const { data: commerciaux, isLoading: loadingCommerciaux } = useQuery<Contact[]>({
     queryKey: ["contacts", "commerciaux"],
@@ -53,6 +56,15 @@ export function Index() {
   if (!user) {
     return (
       <Layout>
+        {!isOnline && (
+          <Alert variant="destructive" className="mb-4 mx-4 mt-4">
+            <WifiOff className="h-4 w-4" />
+            <AlertTitle>Vous êtes hors ligne</AlertTitle>
+            <AlertDescription>
+              Certaines fonctionnalités peuvent être limitées. Les données affichées peuvent ne pas être à jour.
+            </AlertDescription>
+          </Alert>
+        )}
         <div className="bg-gradient-to-b from-white to-gray-100 py-16">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex flex-col lg:flex-row items-center gap-12">
@@ -179,7 +191,16 @@ export function Index() {
   // User dashboard
   return (
     <Layout>
-
+      {!isOnline && (
+        <Alert variant="destructive" className="mb-4 mx-4 mt-4">
+          <WifiOff className="h-4 w-4" />
+          <AlertTitle>Vous êtes hors ligne</AlertTitle>
+          <AlertDescription>
+            Certaines fonctionnalités peuvent être limitées. Les données affichées peuvent ne pas être à jour.
+          </AlertDescription>
+        </Alert>
+      )}
+      
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold">Tableau de bord</h1>

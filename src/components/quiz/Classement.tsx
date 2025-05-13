@@ -17,8 +17,7 @@ export function Classement() {
     stats: true,
     ranking: true,
   });
-console.log("globalRanking", globalRanking);
-console.log("profile", profile);
+
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
