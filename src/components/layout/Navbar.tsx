@@ -21,8 +21,6 @@ export function Navbar() {
   const isMobile = useIsMobile();
 
   const getInitials = () => {
-    
-
     if (!user || !user.user.name) return "U";
     // Récupère la première lettre du prénom si disponible
     const firstNameInitial = user.stagiaire?.prenom

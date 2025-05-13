@@ -1,4 +1,5 @@
 import apiClient from "@/lib/api-client";
+import { questionApi } from "@/services/api";
 import type { Question, Answer } from "@/types/quiz";
 
 export class QuizAnswerService {
@@ -27,10 +28,18 @@ export class QuizAnswerService {
       // Instead of submitting answer IDs, submit the answer text
       const formattedAnswers: Record<string, any> = {};
       for (const questionId in answers) {
+        let questionType = null;
         const answer = answers[questionId];
-        // Récupère le type de question depuis la clé 'questionType' si présente, sinon '__type'
-        const questionType = answer?.questionType || answer?.__type || null;
-
+        try {
+          const response = await questionApi.getQuestionById(questionId);
+          questionType = response.data.data.type || null;
+        } catch (error) {
+          console.error(
+            `Erreur lors de la récupération du type de question pour l'ID ${questionId}`,
+            error
+          );
+          continue;
+        }
         if (
           questionType === "correspondance" &&
           typeof answer === "object" &&
@@ -38,7 +47,7 @@ export class QuizAnswerService {
         ) {
           formattedAnswers[questionId] = Object.entries(answer).reduce(
             (acc, [key, value]) => {
-              acc[key] = value.text || value; // Use text if available
+              acc[key] = typeof value === "object" ? value.text : value;
               return acc;
             },
             {}

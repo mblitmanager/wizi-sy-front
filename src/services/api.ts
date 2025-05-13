@@ -138,4 +138,7 @@ export const formationApi = {
   getFormations: () => api.get("formation/listFormation"),
 };
 
+export const questionApi = {
+  getQuestionById: (id: string) => api.get(`questions/questionById/${id}`),
+};
 export default api;
