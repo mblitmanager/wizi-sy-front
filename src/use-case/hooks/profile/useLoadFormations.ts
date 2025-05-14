@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
 import { formationService } from "@/services/formationServiceA";
+import { Formation } from "@/types";
 
 export const useLoadFormations = () => {
-  interface Formation {
-    id: number;
-    name: string;
-  }
-
   const [formations, setFormations] = useState<Formation[]>([]);
 
   useEffect(() => {
     formationService.getFormationsByStagiaire().then((res) => {
       setFormations(
         (res?.data || []).map((entry) => ({
-          id: entry.id,
-          name: entry.titre || "Unknown",
+          id: entry.id?.toString?.() ?? "",
+          titre: entry.titre || "Unknown",
+          categorie: entry.categorie,
+          description: entry.description || "",
+          image: entry.image,
+          duree: entry.duree,
         }))
       );
     });

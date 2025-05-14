@@ -206,8 +206,8 @@ export function Index() {
   return (
     <Layout>
       <div className="mt-2 h-[calc(100vh-8rem)] overflow-y-auto p-4">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="flex items-center justify-between mb-8">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between mb-4">
             <h1 className="text-3xl font-bold">Tableau de bord</h1>
             <Button asChild>
               <Link to="/catalogue">
@@ -217,7 +217,7 @@ export function Index() {
             </Button>
           </div>
 
-          <div className="mt-16 space-y-12">
+          <div className="mt-2 space-y-12">
             {userProgress && <StatsSummary userProgress={userProgress} />}
             <ParrainageSection />
           </div>

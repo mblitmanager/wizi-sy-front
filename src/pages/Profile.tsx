@@ -19,14 +19,8 @@ const ProfilePage = () => {
 
   const user = useLoadProfile();
   const { results, categories } = useLoadQuizData();
-  console.log("results", results);
-  console.log("categories", categories);
-  console.log("user", user);
   const { userProgress, rankings } = useLoadRankings();
-  console.log("userProgress", userProgress);
-  console.log("rankings", rankings);
   const formations = useLoadFormations();
-  console.log("formations", formations);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);

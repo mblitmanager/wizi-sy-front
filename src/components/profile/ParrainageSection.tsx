@@ -119,7 +119,7 @@ const ParrainageSection = () => {
       )}
 
       {/* Génération de lien de parrainage */}
-      <Card>
+      <Card className="mb-4">
         <CardContent className="p-6">
           <div className="flex items-center mb-4">
             <Users className="h-6 w-6 text-blue-500 mr-2" />

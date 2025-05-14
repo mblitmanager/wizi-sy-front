@@ -102,7 +102,7 @@ export function QuizDetail() {
       <div className="mx-auto px-4 max-w-7xl ">
         {" "}
         <div className="py-4">
-          <HeaderSection titre={quiz.titre} />
+          <HeaderSection titre="" />
         </div>
         <div className="flex justify-center items-center min-h-screen  px-4 sm:py-0">
           <div className=" rounded-3xl shadow-2xl overflow-hidden max-w-5xl w-full flex flex-col md:flex-row">
