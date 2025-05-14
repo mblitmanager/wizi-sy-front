@@ -22,7 +22,7 @@ export const UserContext = createContext<UserContextType | undefined>(
 );
 
 export function UserProvider({ children }: { children: ReactNode }) {
-    const VITE_API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+    const VITE_API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
