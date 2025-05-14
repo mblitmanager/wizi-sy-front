@@ -1,6 +1,7 @@
 import { useUser } from "@/context/UserContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,12 +15,30 @@ import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Input } from "@/components/ui/input";
+import { rankingService } from "@/services/rankingService";
 import logo from "../../assets/logo.png";
+
 const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
 export function Navbar() {
   const { user, logout } = useUser();
   const isMobile = useIsMobile();
-
+  const [userScore, setUserScore] = useState<number | null>(null);
+  useEffect(() => {
+    const fetchScore = async () => {
+      if (!user || !user.stagiaire) return;
+      try {
+        const ranking = await rankingService.getGlobalRanking();
+        // Les données du backend sont sous la forme { stagiaire: { id, ... }, totalPoints, ... }
+        const entry = ranking.find(
+          (e: any) => e.stagiaire?.id?.toString() === user.stagiaire.id?.toString()
+        );
+        setUserScore(entry ? entry.totalPoints : 0);
+      } catch (e) {
+        setUserScore(null);
+      }
+    };
+    fetchScore();
+  }, [user]);
   const getInitials = () => {
     if (!user || !user.user.name) return "U";
     // Récupère la première lettre du prénom si disponible
@@ -71,7 +90,11 @@ export function Navbar() {
                 2
               </Badge>
             </Button>
-
+              {userScore !== null && (
+                <span className="ml-2 text-yellow-600 font-bold text-sm">
+                  {userScore} pts
+                </span>
+              )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="relative flex items-center gap-2 p-1 rounded-full hover:shadow-md transition focus:outline-none">
