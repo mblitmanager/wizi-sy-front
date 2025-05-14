@@ -101,8 +101,8 @@ export function QuizSummary() {
       <Layout>
         <div className="container mx-auto py-8 px-4">
           <div className="flex items-center justify-center flex-col gap-4">
-            <img src={quizimg} alt="Chargement" className="h-40 w-40" />
-            <span className="text-gray-600">Chargement des résultats...</span>
+            <img src={quizimg} alt="Chargement" className="h-72 w-72" />
+            <span className="text-gray-600">Chargement...</span>
           </div>
         </div>
       </Layout>
@@ -182,13 +182,13 @@ export function QuizSummary() {
 
       {/* Header avec titre et bouton de retour */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gradient bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
+        <h1 className="text-3xl font-bold text-gradient bg-clip-text text-transparent bg-gradient-to-r from-blue-custom-100 to-blue-custom-50">
           Résultats du Quiz
         </h1>
         <Button
           onClick={handleBack}
           variant="outline"
-          className="flex items-center gap-2 border-2 border-blue-500 text-blue-600 hover:bg-blue-50">
+          className="flex items-center gap-2 border-2 border-blue-custom-100 text-blue-custom-100 hover:bg-blue-50">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5"

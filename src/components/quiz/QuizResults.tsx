@@ -69,7 +69,7 @@ export function QuizResults() {
       <Layout>
         <div className="container mx-auto py-8 px-4">
           <div className="flex items-center justify-center flex-col gap-4">
-            <img src={quizimg} alt="Chargement" className="h-40 w-40" />
+            <img src={quizimg} alt="Chargement" className="h-72 w-72" />
             <span className="text-gray-600">Chargement des résultats...</span>
           </div>
         </div>

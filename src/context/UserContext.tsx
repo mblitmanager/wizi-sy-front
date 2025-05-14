@@ -15,6 +15,8 @@ interface UserContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   updateUser: (updatedUser: Partial<User>) => void;
+  refetchUser: () => Promise<void>;
+  handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
 }
 
 export const UserContext = createContext<UserContextType | undefined>(
@@ -25,6 +27,31 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const refetchUser = async () => {
+    const storedToken = localStorage.getItem("token");
+    if (!storedToken) return;
+
+    try {
+      const response = await fetch("http://localhost:8000/api/me", {
+        headers: {
+          Authorization: `Bearer ${storedToken}`,
+        },
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+      } else {
+        // Token invalide ou expiré
+        localStorage.removeItem("token");
+        setUser(null);
+        setToken(null);
+      }
+    } catch (error) {
+      console.error("Error refetching user:", error);
+    }
+  };
 
   // Vérifier le token au chargement de l'application
   useEffect(() => {
@@ -125,6 +152,60 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (file && user) {
+      const validTypes = ["image/jpeg", "image/png", "image/gif"];
+      const maxSize = 5 * 1024 * 1024;
+
+      if (!validTypes.includes(file.type)) {
+        toast.error(
+          "Type de fichier invalide. Veuillez choisir un JPEG, PNG ou GIF."
+        );
+        return;
+      }
+
+      if (file.size > maxSize) {
+        toast.error("Fichier trop volumineux. Taille maximale : 5MB.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("image", file);
+
+      setIsLoading(true);
+
+      try {
+        const response = await fetch(
+          `http://localhost:8000/api/avatar/${user.id}/update-profile`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          }
+        );
+
+        if (response.ok) {
+          toast.success("Image mise à jour avec succès");
+          await refetchUser();
+        } else {
+          const errorData = await response.json();
+          toast.error(
+            errorData.message || "Erreur lors de la mise à jour de l'image"
+          );
+        }
+      } catch (error) {
+        toast.error("Erreur inattendue");
+        console.error("Image upload error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
   return (
     <UserContext.Provider
       value={{
@@ -134,6 +215,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         updateUser,
+        refetchUser,
+        handleImageChange,
       }}>
       {children}
     </UserContext.Provider>

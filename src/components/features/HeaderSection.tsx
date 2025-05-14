@@ -25,13 +25,13 @@ export default function HeaderSection({
 
   return (
     <div className="flex justify-between items-center mb-6">
-      <h1 className="text-3xl font-bold text-gradient bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
+      <h1 className="text-3xl font-bold text-gradient bg-clip-text text-transparent bg-gradient-to-r  from-blue-custom-100 to-blue-custom-50">
         {titre}
       </h1>
       <Button
         onClick={handleClick}
         variant="outline"
-        className="flex items-center gap-2 border-2 border-blue-500 text-blue-600 hover:bg-blue-50">
+        className="flex items-center gap-2 border-2 border-blue-custom-100 text-blue-600 hover:bg-blue-50">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-5 w-5"

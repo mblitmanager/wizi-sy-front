@@ -1,15 +1,16 @@
-import React from "react";
-import { User } from "@/types";
-import { CameraIcon, Trophy } from "lucide-react";
-import { useUser } from "@/context/UserContext";
-import { useRef } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
+import { toast } from "sonner";
+import { useUser } from "@/context/UserContext";
+import { CameraIcon, Trophy } from "lucide-react";
+import { LoadingState } from "../quiz/quiz-play/LoadingState";
 
 const ProfileHeader: React.FC = () => {
   const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
   const VITE_API_URL = import.meta.env.VITE_API_URL;
-  const { user, logout } = useUser();
+  const { user, logout, refetchUser } = useUser();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleImageClick = () => {
     if (fileInputRef.current) {
@@ -21,24 +22,25 @@ const ProfileHeader: React.FC = () => {
     const file = e.target.files?.[0];
 
     if (file) {
-      // Validate file type and size before sending
       const validTypes = ["image/jpeg", "image/png", "image/gif"];
-      const maxSize = 5 * 1024 * 1024; // 5MB
+      const maxSize = 5 * 1024 * 1024;
 
       if (!validTypes.includes(file.type)) {
-        console.error(
-          "Invalid file type. Please upload a JPEG, PNG, or GIF image."
+        toast.error(
+          "Type de fichier invalide. Veuillez choisir un JPEG, PNG ou GIF."
         );
         return;
       }
 
       if (file.size > maxSize) {
-        console.error("File too large. Maximum size is 5MB.");
+        toast.error("Fichier trop volumineux. Taille maximale : 5MB.");
         return;
       }
 
       const formData = new FormData();
-      formData.append("image", file); // Try "avatar" or "file" if "image" doesn't work
+      formData.append("image", file);
+
+      setLoading(true);
 
       try {
         const response = await axios.post(
@@ -47,58 +49,52 @@ const ProfileHeader: React.FC = () => {
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
-              // Don't set Content-Type manually for FormData
             },
           }
         );
 
-        console.log("Image mise à jour :", response.data.image);
+        toast.success("Image mise à jour avec succès");
+        await refetchUser();
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          console.error(
-            "Erreur lors de la mise à jour de l'image :",
-            error.response?.data
+          toast.error(
+            error.response?.data?.message ||
+              "Erreur lors de la mise à jour de l'image"
           );
-          // Check for validation errors in response
-          if (error.response?.status === 422) {
-            console.error("Validation errors:", error.response.data.errors);
-          }
         } else {
-          console.error("Erreur inattendue :", error);
+          toast.error("Erreur inattendue");
         }
+      } finally {
+        setLoading(false);
       }
     }
   };
+
   const getInitials = () => {
     if (!user || !user.name) return "U";
-    const firstNameInitial = user.stagiaire?.prenom
-      ? user.stagiaire.prenom.charAt(0).toUpperCase()
-      : "";
+    const firstNameInitial =
+      user.stagiaire?.prenom?.charAt(0).toUpperCase() || "";
     const lastNameInitial = user.name.charAt(0).toUpperCase();
     return `${firstNameInitial}${lastNameInitial}`;
   };
 
   return (
     <div className="container mx-auto mb-2 sm:p-4 border rounded-xl bg-white shadow-sm dark:bg-gray-900 dark:border-gray-800">
+      {loading && <LoadingState />}
       <div className="flex items-center">
         <div
           className="relative w-20 h-20 cursor-pointer group"
           onClick={handleImageClick}>
-          {user.user.image ? (
-            <div className="relative w-full h-full rounded-full overflow-hidden bg-gradient-to-r from-green-400 to-blue-500 shadow-lg flex items-center justify-center">
-              <img
-                src={`${VITE_API_URL_MEDIA}/${user.user.image}`}
-                alt={user.user.name || "User"}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                  const nextElem = e.currentTarget.nextSibling;
-                  if (nextElem && nextElem instanceof HTMLElement) {
-                    nextElem.style.display = "flex";
-                  }
-                }}
-              />
+          {loading ? (
+            <div className="w-full h-full rounded-full bg-gray-300 flex items-center justify-center">
+              <span className="loader"></span>
             </div>
+          ) : user.user.image ? (
+            <img
+              src={`${VITE_API_URL_MEDIA}/${user.user.image}`}
+              alt={user.user.name || "User"}
+              className="w-full h-full object-cover rounded-full"
+            />
           ) : (
             <div className="bg-blue-500 text-white w-full h-full rounded-full flex items-center justify-center text-2xl font-bold font-nunito">
               {getInitials()}
@@ -113,7 +109,6 @@ const ProfileHeader: React.FC = () => {
             onChange={handleImageChange}
           />
 
-          {/* Icone caméra à l'extérieur */}
           <div className="absolute bottom-[-10px] right-[-10px] bg-white p-2 rounded-full shadow-lg hover:scale-110 transition duration-300">
             <CameraIcon className="text-blue-500" />
           </div>
@@ -127,7 +122,7 @@ const ProfileHeader: React.FC = () => {
             {user.user.email}
           </div>
           <div className="text-sm font-medium font-nunito text-gray-600">
-            {user?.points || 0} points - Niveau {user?.level || 1}
+            {user.points || 0} points - Niveau {user.level || 1}
           </div>
         </div>
       </div>

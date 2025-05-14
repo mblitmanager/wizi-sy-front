@@ -16,7 +16,9 @@ export default function Quizzes() {
   return (
     <Layout>
       <div className="container mx-auto px-4 md:pb-4 max-w-7xl">
-        <h1 className="text-3xl font-bold mb-8">Quiz disponibles</h1>
+        <h1 className="text-3xl text-blue-custom-100 font-bold mb-8">
+          Quiz disponibles
+        </h1>
 
         {categoriesLoading ? (
           <div className="flex items-center justify-center min-h-[50vh]">

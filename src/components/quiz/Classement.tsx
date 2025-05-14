@@ -17,8 +17,8 @@ export function Classement() {
     stats: true,
     ranking: true,
   });
-console.log("globalRanking", globalRanking);
-console.log("profile", profile);
+  console.log("globalRanking", globalRanking);
+  console.log("profile", profile);
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
@@ -98,7 +98,7 @@ console.log("profile", profile);
   return (
     <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
       {/* Header */}
-      <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-4 text-center lg:text-left">
+      <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-4 text-blue-custom-200 text-center lg:text-left">
         Mon classement
       </h1>
 
@@ -113,7 +113,7 @@ console.log("profile", profile);
 
       {/* Tabs */}
       <Tabs defaultValue="ranking" className="mt-6">
-        <TabsList className="grid grid-cols-2 gap-2 rounded-lg bg-gray-100 p-2 shadow-sm">
+        <TabsList className="grid grid-cols-2 gap-2 rounded-lg bg-gray-100 shadow-sm">
           <TabsTrigger
             value="ranking"
             className="text-xs sm:text-sm md:text-base font-medium py-2 px-3 lg:px-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -128,7 +128,11 @@ console.log("profile", profile);
 
         <TabsContent value="ranking" className="mt-4">
           <div className="bg-white p-3 sm:p-4 lg:p-6 rounded-lg shadow-sm border border-gray-200">
-            <GlobalRanking ranking={globalRanking} loading={loading.ranking} currentUserId={profile?.stagiaire?.id?.toString()}  />
+            <GlobalRanking
+              ranking={globalRanking}
+              loading={loading.ranking}
+              currentUserId={profile?.stagiaire?.id?.toString()}
+            />
           </div>
         </TabsContent>
 

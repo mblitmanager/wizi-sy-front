@@ -101,7 +101,9 @@ export function StagiaireQuizList() {
   return (
     <div className="">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-        <h2 className="text-2xl sm:text-3xl font-bold">Mes Quiz</h2>
+        <h2 className="text-2xl sm:text-3xl text-blue-custom-100 font-bold">
+          Mes Quiz
+        </h2>
 
         <div className="flex flex-row flex-wrap gap-2 sm:gap-4 items-center">
           {/* Catégorie */}
