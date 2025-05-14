@@ -85,8 +85,8 @@ export default {
         "blue-custom-50": "#00296b",
         "blue-custom-100": "#00509d",
         "blue-custom-200": "#00296b",
-        "jaune-custom-50": "#ffd500",
-        "jaune-custom-100": "#fdc500",
+        "yellow-custom-50": "#ffd500",
+        "yellow-custom-100": "#fdc500",
       },
       borderRadius: {
         lg: "var(--radius)",

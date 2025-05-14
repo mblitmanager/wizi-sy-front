@@ -23,6 +23,8 @@ import StatsSummary from "@/components/profile/StatsSummary";
 import { Contact } from "@/types/contact";
 import ContactsSection from "@/components/FeatureHomePage/ContactSection";
 import ParrainageSection from "@/components/profile/ParrainageSection";
+import AdvertBanner from "@/components/publiciter/AdvertBanner";
+import useAdvert from "@/components/publiciter/useAdvert";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -55,7 +57,9 @@ export function Index() {
     queryKey: ["contacts", "formateurs"],
     queryFn: () => fetchContacts("formateurs"),
   });
-
+  const { isVisible, message, closeAdvert } = useAdvert(
+    "Je parraine et je gagne 50 € !"
+  );
   const { data: poleRelation, isLoading: loadingPoleRelation } = useQuery<
     Contact[]
   >({
@@ -207,6 +211,11 @@ export function Index() {
     <Layout>
       <div className="mt-2 h-[calc(100vh-8rem)] overflow-y-auto p-4">
         <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="mb-3">
+            {isVisible && (
+              <AdvertBanner message={message} onClose={closeAdvert} />
+            )}
+          </div>
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-3xl font-bold">Tableau de bord</h1>
             <Button asChild>
