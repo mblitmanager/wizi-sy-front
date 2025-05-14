@@ -23,6 +23,7 @@ const SkeletonCard = () => (
 );
 
 const ContactsSection = () => {
+  const VITE_API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
   const [commerciaux, setCommerciaux] = useState<Contact[]>([]);
   const [formateurs, setFormateurs] = useState<Contact[]>([]);
   const [poleRelation, setPoleRelation] = useState<Contact[]>([]);
@@ -37,14 +38,10 @@ const ContactsSection = () => {
     try {
       const token = localStorage.getItem("token"); // Retrieve the JWT token from local storage
       const response = await axios.get(
-        type === "commerciaux"
-          ? "http://localhost:8000/api/stagiaire/contacts/commerciaux"
-          : type === "formateurs"
-          ? "http://localhost:8000/api/stagiaire/contacts/formateurs"
-          : "http://localhost:8000/api/stagiaire/contacts/pole-relation",
+        `${VITE_API_URL}/stagiaire/contacts/${type}`,
         {
           headers: {
-            Authorization: `Bearer ${token}`, // Add the JWT token to the headers
+        Authorization: `Bearer ${token}`, // Add the JWT token to the headers
           },
         }
       );

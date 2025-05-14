@@ -22,6 +22,7 @@ export const UserContext = createContext<UserContextType | undefined>(
 );
 
 export function UserProvider({ children }: { children: ReactNode }) {
+    const VITE_API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,12 +34,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       if (storedToken) {
         try {
-          // Vérifier si le token est valide
-          const response = await fetch("http://localhost:8000/api/me", {
+            // Vérifier si le token est valide
+            const response = await fetch(`${VITE_API_URL}/me`, {
             headers: {
               Authorization: `Bearer ${storedToken}`,
             },
-          });
+            });
 
           if (response.ok) {
             const userData = await response.json();
@@ -67,7 +68,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:8000/api/login", {
+      const response = await fetch(`${VITE_API_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -82,7 +83,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         localStorage.setItem("token", data.token);
 
         // Fetch user details
-        const userResponse = await fetch("http://localhost:8000/api/me", {
+        const userResponse = await fetch(`${VITE_API_URL}/me`, {
           headers: {
             Authorization: `Bearer ${data.token}`,
           },
@@ -109,7 +110,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setToken(null);
     toast.success("Déconnexion réussie");
     // Optionnel : vous pouvez faire l'appel API en arrière-plan si besoin
-    fetch("http://localhost:8000/api/logout", {
+    fetch(`${VITE_API_URL}/logout`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
