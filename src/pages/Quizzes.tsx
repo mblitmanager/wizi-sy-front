@@ -10,21 +10,21 @@ export default function Quizzes() {
   const { data: categories, isLoading: categoriesLoading } = useQuery({
     queryKey: ["quiz-categories"],
     queryFn: () => categoryService.getCategories(),
-    enabled: !!localStorage.getItem('token')
+    enabled: !!localStorage.getItem("token"),
   });
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 md:pb-4 max-w-7xl">
         <h1 className="text-3xl font-bold mb-8">Quiz disponibles</h1>
-        
+
         {categoriesLoading ? (
           <div className="flex items-center justify-center min-h-[50vh]">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : (
-          <Tabs defaultValue="mes-quizzes" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2">
+          <Tabs defaultValue="mes-quizzes" className="space-y-6 ">
+            <TabsList className="grid w-full grid-cols-2 bg-slate-200">
               <TabsTrigger value="mes-quizzes">Mes Quiz</TabsTrigger>
               <TabsTrigger value="tous-quizzes">Tous les Quiz</TabsTrigger>
             </TabsList>

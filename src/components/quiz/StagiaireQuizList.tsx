@@ -99,7 +99,7 @@ export function StagiaireQuizList() {
     );
   }
   return (
-    <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8 space-y-6">
+    <div className="">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
         <h2 className="text-2xl sm:text-3xl font-bold">Mes Quiz</h2>
 
@@ -161,7 +161,7 @@ export function StagiaireQuizList() {
         </div>
 
         {/* Section des quiz joués */}
-        <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6">
+        <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6 sm:mb-4">
           <h3 className="text-lg font-semibold mb-2 text-gray-700">
             Rejouez à vos anciens quiz
           </h3>
