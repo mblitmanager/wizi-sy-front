@@ -96,7 +96,7 @@ export function Navbar() {
                   {!isMobile && (
                     <div className="flex flex-col items-start mr-2">
                       <span className="text-sm font-medium">
-                        {user.stagiaire.prenom} {user.user.name}
+                        {user.user.name.toUpperCase()} {user.stagiaire.prenom}
                       </span>
                       <span className="text-xs text-gray-500">
                         {user.user.role}

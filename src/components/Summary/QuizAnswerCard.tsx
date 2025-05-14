@@ -27,51 +27,54 @@ export default function QuizAnswerCard({
   const isCorrect = isAnswerCorrect(question, userAnswer);
 
   return (
-    <div className="p-4 mb-4 rounded-2xl shadow-lg bg-white">
-  {/* Question Text */}
-  <h3 className="text-xl font-bold mb-4 text-gray-800">{questionText}</h3>
+    <div className="p-2 mb-4 rounded-2xl shadow-lg bg-white">
+      {/* Question Text */}
+      <h3 className="text-xl font-bold mb-2 text-gray-800">
+        Question {question.id}:{" "}
+        <span className="text-gray-600 text-md font-light">{questionText}</span>
+      </h3>
 
-  {/* Grid for Responses */}
-  <div className="grid grid-cols-2 gap-4">
-    {/* Correct Response */}
-    <div className="flex items-center p-4 bg-green-50 rounded-lg border border-green-500">
-      <CheckCircle className="text-green-500 mr-2" size={24} />
-      <div>
-        <h4 className="font-semibold text-lg">Bonne réponse</h4>
-        <p className="text-base font-medium text-green-600">{correctResponse}</p>
+      {/* Grid for Responses */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Correct Response */}
+        <div className="flex items-center p-4 bg-green-50 rounded border border-green-500">
+          <CheckCircle className="text-green-500 mr-2" size={24} />
+          <div>
+            <h4 className="font-semibold text-lg">Bonne réponse</h4>
+            <p className="text-base font-medium text-green-600">
+              {correctResponse}
+            </p>
+          </div>
+        </div>
+
+        {/* User Response */}
+        <div
+          className={`flex items-center p-4 rounded ${
+            isCorrect
+              ? "bg-green-50 border border-green-500"
+              : "bg-red-50 border border-red-500"
+          }`}>
+          {isCorrect ? (
+            <CheckCircle className="text-green-500 mr-2" size={24} />
+          ) : (
+            <XCircle className="text-red-500 mr-2" size={24} />
+          )}
+          <div>
+            <h4
+              className={`font-semibold text-lg ${
+                isCorrect ? "text-green-700" : "text-red-700"
+              }`}>
+              Votre réponse
+            </h4>
+            <p
+              className={`text-base font-medium ${
+                isCorrect ? "text-green-600" : "text-red-600"
+              }`}>
+              {userResponse}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
-
-    {/* User Response */}
-    <div
-      className={`flex items-center p-4 rounded-lg ${
-        isCorrect ? "bg-green-50 border border-green-500" : "bg-red-50 border border-red-500"
-      }`}
-    >
-      {isCorrect ? (
-        <CheckCircle className="text-green-500 mr-2" size={24} />
-      ) : (
-        <XCircle className="text-red-500 mr-2" size={24} />
-      )}
-      <div>
-        <h4
-          className={`font-semibold text-lg ${
-            isCorrect ? "text-green-700" : "text-red-700"
-          }`}
-        >
-          Votre réponse
-        </h4>
-        <p
-          className={`text-base font-medium ${
-            isCorrect ? "text-green-600" : "text-red-600"
-          }`}
-        >
-          {userResponse}
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
-
   );
 }

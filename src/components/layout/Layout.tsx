@@ -37,7 +37,7 @@ export function Layout({ children }: LayoutProps) {
         </header>
 
         {/* Contenu principal */}
-        <main className="flex-1 overflow-y-auto bg-gray-50 p-4">
+        <main className="bg-gray-100 p-4 h-[calc(100vh-4rem)] overflow-hidden">
           {children}
         </main>
 

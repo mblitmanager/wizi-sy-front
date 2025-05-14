@@ -38,7 +38,7 @@ const ProfilePage = () => {
   if (isLoading) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl space-y-12">
+        <div className="container mx-auto px-4 md:pb-4 max-w-7xl space-y-5">
           {/* En-tête profil */}
           <div className="flex items-center space-x-4 mt-8">
             <div className="w-20 h-20 bg-gray-200 rounded-full animate-pulse" />
@@ -53,7 +53,7 @@ const ProfilePage = () => {
             {Array.from({ length: 3 }).map((_, idx) => (
               <div
                 key={idx}
-                className="p-4 bg-white rounded-2xl shadow space-y-3 animate-pulse">
+                className="p-4 bg-white rounded-2xl shadow space-y-2 animate-pulse">
                 <div className="h-4 w-1/2 bg-gray-200 rounded" />
                 <div className="h-6 w-full bg-gray-100 rounded" />
               </div>
@@ -78,22 +78,24 @@ const ProfilePage = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
-        {user && <ProfileHeader user={user} />}
-        <div className="mt-16 space-y-12">
-          {userProgress && <StatsSummary userProgress={userProgress} />}
-          <FormationCatalogue formations={formations} />
+      <div className="container mx-auto px-4 md:pb-4 max-w-7xl">
+        <div className="mt-2 h-[calc(100vh-8rem)] overflow-y-auto p-4">
+          {user && <ProfileHeader user={user} />}
+          <div className="mt-2 space-y-3">
+            {userProgress && <StatsSummary userProgress={userProgress} />}
+            <FormationCatalogue formations={formations} />
+          </div>
+          <ProfileTabs
+            user={user}
+            results={results}
+            categories={categories}
+            userProgress={userProgress}
+            isLoading={isLoading}
+            rankings={rankings}
+            activeTab={activeTab}
+            setActiveTab={handleTabChange}
+          />
         </div>
-        <ProfileTabs
-          user={user}
-          results={results}
-          categories={categories}
-          userProgress={userProgress}
-          isLoading={isLoading}
-          rankings={rankings}
-          activeTab={activeTab}
-          setActiveTab={handleTabChange}
-        />
       </div>
     </Layout>
   );
