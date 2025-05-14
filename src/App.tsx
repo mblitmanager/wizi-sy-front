@@ -28,6 +28,7 @@ import TutoAstucePage from "@/pages/TutoAstucePage";
 // Components
 import { QuizDetail } from "@/components/quiz/QuizDetail";
 import { QuizResults } from "@/components/quiz/QuizResults";
+import Contact from "./pages/Contact";
 
 // Create a React Query client
 const queryClient = new QueryClient({
@@ -149,6 +150,14 @@ const App = () => {
                     element={
                       <ProtectedRoute>
                         <TutoAstucePage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/contacts"
+                    element={
+                      <ProtectedRoute>
+                        <Contact />
                       </ProtectedRoute>
                     }
                   />
