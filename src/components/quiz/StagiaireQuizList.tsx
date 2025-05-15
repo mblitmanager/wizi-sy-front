@@ -17,7 +17,29 @@ export function StagiaireQuizList() {
     error: quizzesError,
   } = useQuery({
     queryKey: ["stagiaire-quizzes"],
-    queryFn: () => stagiaireQuizService.getStagiaireQuizzes(),
+    queryFn: async () => {
+      const quizzes = await stagiaireQuizService.getStagiaireQuizzes();
+      // Pour chaque quiz, calculer le total des points correctement
+      return quizzes.map((quiz) => {
+        // Convertir tous les points en nombres et les sommer
+        const totalPoints =
+          quiz.questions?.reduce((sum, question) => {
+            // Convertir les points en number (gère les strings et les numbers)
+            const points =
+              typeof question.points === "string"
+                ? parseInt(question.points, 10) || 0
+                : question.points || 0;
+            return sum + points;
+          }, 0) || 0;
+
+        return {
+          ...quiz,
+          totalPoints, // Utiliser le total calculé
+          // Si vous voulez garder le format string à 2 chiffres comme dans les données
+          totalPointsFormatted: totalPoints.toString().padStart(2, "0"),
+        };
+      });
+    },
     enabled: !!localStorage.getItem("token"),
   });
 
@@ -32,7 +54,6 @@ export function StagiaireQuizList() {
     queryFn: () => stagiaireQuizService.getStagiaireQuizJoue(),
     enabled: !!localStorage.getItem("token"),
   });
-
   const isLoading = quizzesLoading || categoriesLoading;
   const error = quizzesError;
 
@@ -112,7 +133,8 @@ export function StagiaireQuizList() {
             <select
               className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring focus:ring-blue-200"
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}>
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
               <option value="all">Toutes</option>
               {(categories || []).map((category) => (
                 <option key={category.id} value={category.id}>
@@ -128,7 +150,8 @@ export function StagiaireQuizList() {
             <select
               className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring focus:ring-blue-200"
               value={selectedLevel}
-              onChange={(e) => setSelectedLevel(e.target.value)}>
+              onChange={(e) => setSelectedLevel(e.target.value)}
+            >
               <option value="all">Tous les niveaux</option>
               {levels.map((level) => (
                 <option key={level} value={level}>
@@ -139,7 +162,8 @@ export function StagiaireQuizList() {
             {selectedLevel !== "all" && (
               <button
                 className="px-2 py-1 border border-gray-300 rounded-md text-xs text-gray-600 hover:bg-gray-100"
-                onClick={() => setSelectedLevel("all")}>
+                onClick={() => setSelectedLevel("all")}
+              >
                 Réinitialiser
               </button>
             )}
@@ -170,7 +194,7 @@ export function StagiaireQuizList() {
           <hr className="mb-4" />
           {playedQuizzes.length === 0 ? (
             <div className="text-center py-12 sm:py-16 bg-gray-50 rounded-lg">
-              <p className="text-gray-500">Aucun quiz joué pour l’instant.</p>
+              <p className="text-gray-500">Aucun quiz joué pour l'instant.</p>
             </div>
           ) : (
             <StagiaireQuizGrid

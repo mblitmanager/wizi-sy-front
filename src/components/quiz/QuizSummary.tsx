@@ -178,22 +178,24 @@ export function QuizSummary() {
 
   return (
     <div className="mx-auto px-4 max-w-7xl">
-      <NotificationBanner />
+      {/* <NotificationBanner /> */}
 
       {/* Header avec titre et bouton de retour */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gradient bg-clip-text text-transparent bg-gradient-to-r from-blue-custom-100 to-blue-custom-50">
-          Résultats du Quiz
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold text-gradient bg-clip-text text-transparent bg-gradient-to-r from-blue-custom-100 to-blue-custom-50">
+          Résultats du Quiz : {}
         </h1>
         <Button
           onClick={handleBack}
           variant="outline"
-          className="flex items-center gap-2 border-2 border-blue-custom-100 text-blue-custom-100 hover:bg-blue-50">
+          className="flex items-center gap-2 border border-blue-custom-100 text-blue-custom-100 hover:bg-blue-50 text-sm py-1.5 px-3"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
+            className="h-4 w-4"
             viewBox="0 0 20 20"
-            fill="currentColor">
+            fill="currentColor"
+          >
             <path
               fillRule="evenodd"
               d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
@@ -205,21 +207,21 @@ export function QuizSummary() {
       </div>
 
       {/* Section des statistiques principales */}
-      <div className="mb-8">
+      <div className="mb-6">
         {/* Titre de section */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300">
-            <TrendingUp size={20} />
+        <div className="flex items-center gap-2 mb-3">
+          <div className="p-1.5 rounded-md bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300">
+            <TrendingUp size={16} />
           </div>
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
             Résultats du quiz
           </h2>
         </div>
 
         {/* Conteneur flex pour aligner les deux composants */}
-        <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex flex-col md:flex-row gap-3">
           {/* Carte de résumé (QuizSummaryCard) */}
-          <div className="flex-1 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex-1 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm">
             <QuizSummaryCard
               score={result.score}
               totalQuestions={result.totalQuestions}
@@ -227,22 +229,22 @@ export function QuizSummary() {
           </div>
 
           {/* Statistiques compactes */}
-          <div className="flex-1 grid grid-cols-2 gap-4">
+          <div className="flex-1 grid grid-cols-2 gap-3">
             {/* Bonnes réponses */}
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-300">
-                  <CheckCircle size={18} />
+            <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-300">
+                  <CheckCircle size={16} />
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                     Bonnes réponses
                   </p>
                   <div className="flex items-end gap-1">
-                    <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                    <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
                       {result.correctAnswers}
                     </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       / {result.totalQuestions}
                     </p>
                   </div>
@@ -251,16 +253,16 @@ export function QuizSummary() {
             </div>
 
             {/* Temps passé */}
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-300">
-                  <Clock size={18} />
+            <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-md bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-300">
+                  <Clock size={16} />
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                     Temps passé
                   </p>
-                  <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                  <p className="text-xl font-bold text-amber-600 dark:text-amber-400">
                     {Math.floor(result.timeSpent / 60)}:
                     {(result.timeSpent % 60).toString().padStart(2, "0")}
                   </p>
@@ -269,16 +271,16 @@ export function QuizSummary() {
             </div>
 
             {/* Score */}
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300">
-                  <TrendingUp size={18} />
+            <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-md bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300">
+                  <TrendingUp size={16} />
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                     Score
                   </p>
-                  <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                  <p className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
                     {result.score}%
                   </p>
                 </div>
@@ -286,16 +288,16 @@ export function QuizSummary() {
             </div>
 
             {/* Date */}
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300">
-                  <Calendar size={18} />
+            <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-md bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300">
+                  <Calendar size={16} />
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                     Complété le
                   </p>
-                  <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                  <p className="text-xl font-bold text-purple-600 dark:text-purple-400">
                     {new Date(result.completedAt).toLocaleDateString("fr-FR", {
                       day: "numeric",
                       month: "short",
@@ -309,16 +311,17 @@ export function QuizSummary() {
       </div>
 
       {/* Section détaillée des résultats */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-100 dark:border-gray-700 mb-6">
         {/* En-tête du résumé */}
-        <div className="p-2 bg-gradient-to-r bg-slate-600 via-slate-700 to-slate-800  text-white flex items-center gap-3 justify-between">
-          <h3 className=" font-bold flex items-center gap-3">
+        <div className="p-3 bg-gradient-to-r bg-slate-300 via-slate-700 to-slate-800 text-black flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 justify-between">
+          <h3 className="font-bold flex items-center gap-2 text-sm sm:text-base">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8"
+              className="h-5 w-5 sm:h-6 sm:w-6"
               fill="none"
               viewBox="0 0 24 24"
-              stroke="currentColor">
+              stroke="currentColor"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -328,16 +331,18 @@ export function QuizSummary() {
             </svg>
             Détail des réponses
           </h3>
-          <span className="opacity-90 mt-1">
+          <span className="text-xs sm:text-sm opacity-90">
             Revoyez chaque question et vos réponses
           </span>
         </div>
+
         {/* Liste des questions/réponses */}
-        <div className="divide-y divide-gray-100 dark:divide-gray-700 h-[370px] overflow-y-auto">
+        <div className="divide-y divide-gray-100 dark:divide-gray-700 max-h-[400px] overflow-y-auto">
           {result.questions.map((question: Question, index: number) => (
             <div
               key={question.id}
-              className="p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+              className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+            >
               <QuizAnswerCard
                 question={question}
                 userAnswer={formattedUserAnswers[question.id]}

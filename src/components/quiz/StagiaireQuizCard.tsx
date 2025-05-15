@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen, Award } from "lucide-react";
 import type { Quiz, Category } from "@/types/quiz";
 import React from "react";
+import { stripHtmlTags } from "@/utils/UtilsFunction";
 
 const getLevelColor = (level: string) => {
   switch (level.toLowerCase()) {
@@ -133,7 +134,7 @@ export function StagiaireQuizCard({
           </Badge>
         </div>
         <CardTitle className="text-xl">{quiz.titre}</CardTitle>
-        <CardDescription>{quiz.description}</CardDescription>
+        <CardDescription>{stripHtmlTags(quiz.description)}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex items-center space-x-4">
@@ -146,7 +147,7 @@ export function StagiaireQuizCard({
           </Badge>
           <Badge variant="outline" className="text-sm">
             <Award className="w-4 h-4 mr-2" />
-            {quiz.points} pts
+            Total: {quiz.totalPoints} pts
           </Badge>
         </div>
       </CardContent>

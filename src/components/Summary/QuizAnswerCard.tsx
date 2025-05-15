@@ -27,21 +27,30 @@ export default function QuizAnswerCard({
   const isCorrect = isAnswerCorrect(question, userAnswer);
 
   return (
-    <div className="p-2 mb-4 rounded-2xl shadow-lg bg-white">
+    <div className="p-4 mb-3 rounded-xl shadow-sm bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
       {/* Question Text */}
-      <h3 className="text-xl font-bold mb-2 text-gray-800">
-        Question {question.id}:{" "}
-        <span className="text-gray-600 text-md font-light">{questionText}</span>
-      </h3>
+      <div className="mb-3">
+        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+          Question {questionNumber}
+        </span>
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+          {questionText}
+        </h3>
+      </div>
 
       {/* Grid for Responses */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {/* Correct Response */}
-        <div className="flex items-center p-4 bg-green-50 rounded border border-green-500">
-          <CheckCircle className="text-green-500 mr-2" size={24} />
+        <div className="flex items-start p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+          <CheckCircle
+            className="flex-shrink-0 text-green-500 dark:text-green-400 mt-0.5 mr-2"
+            size={18}
+          />
           <div>
-            <h4 className="font-semibold text-lg">Bonne réponse</h4>
-            <p className="text-base font-medium text-green-600">
+            <h4 className="text-sm font-medium text-green-700 dark:text-green-300">
+              Réponse correcte
+            </h4>
+            <p className="text-sm font-normal text-green-600 dark:text-green-200">
               {correctResponse}
             </p>
           </div>
@@ -49,27 +58,40 @@ export default function QuizAnswerCard({
 
         {/* User Response */}
         <div
-          className={`flex items-center p-4 rounded ${
+          className={`flex items-start p-3 rounded-lg border ${
             isCorrect
-              ? "bg-green-50 border border-green-500"
-              : "bg-red-50 border border-red-500"
-          }`}>
+              ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+              : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
+          }`}
+        >
           {isCorrect ? (
-            <CheckCircle className="text-green-500 mr-2" size={24} />
+            <CheckCircle
+              className="flex-shrink-0 text-green-500 dark:text-green-400 mt-0.5 mr-2"
+              size={18}
+            />
           ) : (
-            <XCircle className="text-red-500 mr-2" size={24} />
+            <XCircle
+              className="flex-shrink-0 text-red-500 dark:text-red-400 mt-0.5 mr-2"
+              size={18}
+            />
           )}
           <div>
             <h4
-              className={`font-semibold text-lg ${
-                isCorrect ? "text-green-700" : "text-red-700"
-              }`}>
+              className={`text-sm font-medium ${
+                isCorrect
+                  ? "text-green-700 dark:text-green-300"
+                  : "text-red-700 dark:text-red-300"
+              }`}
+            >
               Votre réponse
             </h4>
             <p
-              className={`text-base font-medium ${
-                isCorrect ? "text-green-600" : "text-red-600"
-              }`}>
+              className={`text-sm font-normal ${
+                isCorrect
+                  ? "text-green-600 dark:text-green-200"
+                  : "text-red-600 dark:text-red-200"
+              }`}
+            >
               {userResponse}
             </p>
           </div>
