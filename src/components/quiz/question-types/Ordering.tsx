@@ -60,7 +60,8 @@ const SortableItem = ({ id, text, isCorrect, disabled }: any) => {
       ref={setNodeRef}
       style={style}
       {...attributes}
-      {...listeners}>
+      {...listeners}
+    >
       <ListItemIcon sx={{ cursor: disabled ? "default" : "grab" }}>
         <GripVertical size={20} />
       </ListItemIcon>
@@ -106,45 +107,49 @@ export const Ordering: React.FC<OrderingProps> = ({
   };
 
   return (
-    <StyledPaper>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}>
-        <SortableContext
-          items={orderedAnswers.map((a) => a.id)}
-          strategy={verticalListSortingStrategy}>
-          <List sx={{ padding: 0 }}>
-            {orderedAnswers.map((answer, index) => (
-              <SortableItem
-                key={answer.id}
-                id={answer.id}
-                text={answer.text}
-                isCorrect={
-                  showFeedback ? isCorrectPosition(answer, index) : undefined
-                }
-                disabled={showFeedback}
-              />
-            ))}
-          </List>
-        </SortableContext>
-      </DndContext>
-
-      {showFeedback &&
-        !orderedAnswers.every((answer, index) =>
-          isCorrectPosition(answer, index)
-        ) && (
-          <Box mt={2} color="error.main">
-            <strong>L'ordre correct était :</strong>
-            {[...question.reponses]
-              .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
-              .map((answer, idx) => (
-                <Box key={answer.id} ml={2}>
-                  {idx + 1}. {answer.text}
-                </Box>
+    <div className="mt-2 h-[calc(60vh-8rem)] overflow-y-auto p-4">
+      <StyledPaper>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={orderedAnswers.map((a) => a.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <List sx={{ padding: 0 }}>
+              {orderedAnswers.map((answer, index) => (
+                <SortableItem
+                  key={answer.id}
+                  id={answer.id}
+                  text={answer.text}
+                  isCorrect={
+                    showFeedback ? isCorrectPosition(answer, index) : undefined
+                  }
+                  disabled={showFeedback}
+                />
               ))}
-          </Box>
-        )}
-    </StyledPaper>
+            </List>
+          </SortableContext>
+        </DndContext>
+
+        {showFeedback &&
+          !orderedAnswers.every((answer, index) =>
+            isCorrectPosition(answer, index)
+          ) && (
+            <Box mt={2} color="error.main">
+              <strong>L'ordre correct était :</strong>
+              {[...question.reponses]
+                .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+                .map((answer, idx) => (
+                  <Box key={answer.id} ml={2}>
+                    {idx + 1}. {answer.text}
+                  </Box>
+                ))}
+            </Box>
+          )}
+      </StyledPaper>
+    </div>
   );
 };
