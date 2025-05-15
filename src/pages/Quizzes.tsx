@@ -6,6 +6,8 @@ import { useQuery } from "@tanstack/react-query";
 import { categoryService } from "@/services/quiz/CategoryService";
 import { Loader2, WifiOff } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import useAdvert from "@/components/publiciter/useAdvert";
+import AdvertBanner from "@/components/publiciter/AdvertBanner";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
@@ -16,11 +18,13 @@ export default function Quizzes() {
     queryFn: () => categoryService.getCategories(),
     enabled: !!localStorage.getItem('token') && isOnline
   });
-
+  const { isVisible, message, closeAdvert } = useAdvert(
+    "Je parraine et je gagne 50 € !"
+  );
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
-        {!isOnline && (
+      <div className="container mx-auto px-4 md:pb-4 max-w-7xl">
+      {!isOnline && (
           <Alert variant="destructive" className="mb-4">
             <WifiOff className="h-4 w-4" />
             <AlertTitle>Vous êtes hors ligne</AlertTitle>
@@ -30,15 +34,19 @@ export default function Quizzes() {
           </Alert>
         )}
         
-        <h1 className="text-3xl font-bold mb-8">Quiz disponibles</h1>
-        
+        <h1 className="text-3xl text-blue-custom-100 font-bold mb-8">
+          Quiz disponibles
+        </h1>
+
+        {isVisible && <AdvertBanner message={message} onClose={closeAdvert} />}
+
         {categoriesLoading ? (
           <div className="flex items-center justify-center min-h-[50vh]">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : (
-          <Tabs defaultValue="mes-quizzes" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2">
+          <Tabs defaultValue="mes-quizzes" className="space-y-6 ">
+            <TabsList className="grid w-full grid-cols-2 bg-slate-200">
               <TabsTrigger value="mes-quizzes">Mes Quiz</TabsTrigger>
               <TabsTrigger value="tous-quizzes">Tous les Quiz</TabsTrigger>
             </TabsList>

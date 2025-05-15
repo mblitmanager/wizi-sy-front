@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import quizimg from "../../assets/quiz_2.png";
 import { stripHtmlTags } from "@/utils/UtilsFunction";
 import quiziload from "../../assets/loading_img.png";
+import HeaderSection from "../features/HeaderSection";
 
 export function QuizDetail() {
   const { quizId } = useParams<{ quizId: string }>();
@@ -49,8 +50,8 @@ export function QuizDetail() {
         <div className="flex items-center justify-center min-h-[50vh]">
           <div className="container mx-auto py-8 px-4">
             <div className="flex items-center justify-center flex-col gap-4">
-              <img src={quiziload} alt="Chargement" className="h-40 w-40" />
-              <span className="text-gray-600">Chargement des résultats...</span>
+              <img src={quiziload} alt="Chargement" className="h-72 w-72" />
+              <span className="text-gray-600">Chargement des quizes...</span>
             </div>
           </div>
         </div>
@@ -98,10 +99,10 @@ export function QuizDetail() {
 
   return (
     <Layout>
-      <div className="flex justify-center items-center min-h-screen bg-gradient-to-br px-4 py-4 sm:py-0">
-        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-5xl w-full flex flex-col md:flex-row">
+      <div className="flex justify-center items-center min-h-screen  px-4 sm:py-0">
+        <div className=" rounded-3xl shadow-2xl overflow-hidden max-w-5xl w-full flex flex-col md:flex-row">
           {/* Illustration - Taille réduite pour mobile */}
-          <div className="w-full md:w-1/2 bg-white relative flex flex-col items-center justify-center p-2 sm:p-4">
+          <div className="w-full md:w-1/2  relative flex flex-col items-center justify-center p-2 sm:p-4">
             <div className="flex flex-col items-center justify-center">
               <img
                 src={quizimg}

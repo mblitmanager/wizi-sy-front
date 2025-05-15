@@ -41,7 +41,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
   poleRelation,
 }) => {
   return (
-    <div className="mb-8 p-4 bg-card rounded-lg shadow-sm">
+    <div className="mb-4 bg-card rounded-lg shadow-sm">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold text-yellow-400">Vos contacts</h2>
         <Link to="/contacts">

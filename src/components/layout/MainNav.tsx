@@ -3,23 +3,16 @@ import {
   GraduationCap,
   Brain,
   Video,
-  LayoutGrid,
   User,
-  Settings,
   Trophy,
-  LogOut,
+  Gift,
+  X,
 } from "lucide-react";
-import { NavLink, useNavigate, useLocation } from "react-router-dom";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { NavLink, useNavigate, useLocation, Link } from "react-router-dom";
+
 import { useUser } from "@/context/UserContext";
+import useAdvert from "../publiciter/useAdvert";
+import { motion } from "framer-motion";
 
 interface MainNavProps {
   showBottomNav?: boolean;
@@ -31,6 +24,8 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
   const { user, logout } = useUser();
   const pathname = location.pathname;
 
+  const { isVisible, message } = useAdvert("Je parraine et je gagne 50 € !");
+
   // Main navigation items
   const items = [
     {
@@ -38,11 +33,6 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
       href: "/",
       icon: Home,
     },
-    // {
-    //   title: "Formations",
-    //   href: "/formations",
-    //   icon: GraduationCap,
-    // },
     {
       title: "Quiz",
       href: "/quizzes",
@@ -52,6 +42,11 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
       title: "Classement",
       href: "/classement",
       icon: Trophy,
+    },
+    {
+      title: "Parrainage",
+      href: "/parainage",
+      icon: Gift,
     },
     {
       title: "Tutoriels",
@@ -74,14 +69,8 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
     try {
       // 1. Nettoyage immédiat
       localStorage.removeItem("token");
-
       // 2. Déconnexion globale (si votre hook gère un état)
       if (logout) logout();
-
-      // 3. Option 1: Redirection ultra-rapide (recharge la page)
-      // window.location.assign("/login");
-
-      // OU Option 2: Redirection avec React Router (moins instantanée)
       navigate("/login", { replace: true });
     } catch (error) {
       console.error("Logout error:", error);
@@ -124,39 +113,19 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
           </ul>
         </div>
       </div>
-
-      {/* Bottom user menu */}
-      {/* <div className="mt-auto px-3 py-4 border-t">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-3 w-full px-4 py-2 text-sm font-medium rounded-full hover:bg-gray-100 transition">
-              <Avatar className="w-8 h-8">
-                <AvatarImage src={user?.avatar} alt="Avatar" />
-                <AvatarFallback>
-                  {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-gray-700">Mon compte</span>
-              <Settings className="ml-auto w-4 h-4 text-gray-400" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="shadow-lg w-48">
-            <DropdownMenuLabel className="text-gray-500">
-              Mon compte
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => navigate("/profile")}>
-              Profil
-            </DropdownMenuItem>
-            <DropdownMenuItem>Paramètres</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} className="text-red-600">
-              <LogOut className="w-4 h-4 mr-2" />
-              Se déconnecter
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div> */}
+      <div className="mt-auto px-3 py-4 border-t">
+        <Link to="/parainage" className="w-full">
+          <motion.div
+            initial={{ opacity: 0, x: -300 }} // Commence à gauche de l'écran (en dehors de l'écran)
+            animate={{ opacity: 1, x: 0 }} // Anime vers la position originale
+            exit={{ opacity: 0, x: -300 }} // Quitte vers la gauche
+            transition={{ duration: 0.5 }}
+            className=" w-[calc(100%-2rem)] bg-gradient-to-br rounded-lg from-sky-500 via-blue-500 to-indigo-500 text-white p-2 mb-2 sm:p-4  flex items-center mx-auto  gap-3 z-50 cursor-pointer hover:shadow-xl transition-shadow duration-200">
+            <Gift className="w-10 h-10 animate-bounce" />
+            <span className="font-semibold text-md">{message}</span>
+          </motion.div>
+        </Link>
+      </div>
     </div>
   );
 }

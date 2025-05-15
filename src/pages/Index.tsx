@@ -19,6 +19,8 @@ import ContactsSection from "@/components/FeatureHomePage/ContactSection";
 import ParrainageSection from "@/components/profile/ParrainageSection";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
+import AdvertBanner from "@/components/publiciter/AdvertBanner";
+import useAdvert from "@/components/publiciter/useAdvert";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -39,17 +41,25 @@ export function Index() {
   const { userProgress } = useLoadRankings();
   const isOnline = useOnlineStatus();
   // Récupération des contacts
-  const { data: commerciaux, isLoading: loadingCommerciaux } = useQuery<Contact[]>({
+  const { data: commerciaux, isLoading: loadingCommerciaux } = useQuery<
+    Contact[]
+  >({
     queryKey: ["contacts", "commerciaux"],
     queryFn: () => fetchContacts("commerciaux"),
   });
 
-  const { data: formateurs, isLoading: loadingFormateurs } = useQuery<Contact[]>({
+  const { data: formateurs, isLoading: loadingFormateurs } = useQuery<
+    Contact[]
+  >({
     queryKey: ["contacts", "formateurs"],
     queryFn: () => fetchContacts("formateurs"),
   });
-
-  const { data: poleRelation, isLoading: loadingPoleRelation } = useQuery<Contact[]>({
+  const { isVisible, message, closeAdvert } = useAdvert(
+    "Je parraine et je gagne 50 € !"
+  );
+  const { data: poleRelation, isLoading: loadingPoleRelation } = useQuery<
+    Contact[]
+  >({
     queryKey: ["contacts", "pole-relation"],
     queryFn: () => fetchContacts("pole-relation"),
   });
@@ -73,7 +83,9 @@ export function Index() {
                   Apprenez de façon interactive et ludique
                 </h1>
                 <p className="text-lg text-gray-600">
-                  Bienvenue sur Wizi Learn, la plateforme de quiz éducatifs pour nos stagiaires. Testez vos connaissances, suivez votre progression et développez vos compétences professionnelles.
+                  Bienvenue sur Wizi Learn, la plateforme de quiz éducatifs pour
+                  nos stagiaires. Testez vos connaissances, suivez votre
+                  progression et développez vos compétences professionnelles.
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <Button size="lg" asChild>
@@ -128,9 +140,12 @@ export function Index() {
         <div className="py-16">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">Nos catégories de formations</h2>
+              <h2 className="text-3xl font-bold mb-4">
+                Nos catégories de formations
+              </h2>
               <p className="text-gray-600 max-w-3xl mx-auto">
-                Découvrez notre large éventail de formations pour développer vos compétences professionnelles.
+                Découvrez notre large éventail de formations pour développer vos
+                compétences professionnelles.
               </p>
             </div>
 
@@ -147,7 +162,8 @@ export function Index() {
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">Comment ça marche</h2>
               <p className="text-gray-600 max-w-3xl mx-auto">
-                Une approche simple et efficace pour améliorer vos compétences grâce à notre plateforme de quiz.
+                Une approche simple et efficace pour améliorer vos compétences
+                grâce à notre plateforme de quiz.
               </p>
             </div>
 
@@ -156,7 +172,9 @@ export function Index() {
                 <div className="w-12 h-12 bg-bureautique/10 text-bureautique rounded-full flex items-center justify-center mb-4">
                   <span className="font-bold">1</span>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Choisissez un quiz</h3>
+                <h3 className="text-xl font-semibold mb-2">
+                  Choisissez un quiz
+                </h3>
                 <p className="text-gray-600">
                   Sélectionnez parmi nos quiz, suivant votre formation.
                 </p>
@@ -166,9 +184,12 @@ export function Index() {
                 <div className="w-12 h-12 bg-langues/10 text-langues rounded-full flex items-center justify-center mb-4">
                   <span className="font-bold">2</span>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Testez vos connaissances</h3>
+                <h3 className="text-xl font-semibold mb-2">
+                  Testez vos connaissances
+                </h3>
                 <p className="text-gray-600">
-                  Répondez aux questions dans différents formats: QCM, vrai/faux, remplir les blancs et plus encore.
+                  Répondez aux questions dans différents formats: QCM,
+                  vrai/faux, remplir les blancs et plus encore.
                 </p>
               </div>
 
@@ -176,9 +197,12 @@ export function Index() {
                 <div className="w-12 h-12 bg-creation/10 text-creation rounded-full flex items-center justify-center mb-4">
                   <span className="font-bold">3</span>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Suivez votre progression</h3>
+                <h3 className="text-xl font-semibold mb-2">
+                  Suivez votre progression
+                </h3>
                 <p className="text-gray-600">
-                  Consultez vos statistiques, comparez vos performances et remportez des défis pour gagner des points.
+                  Consultez vos statistiques, comparez vos performances et
+                  remportez des défis pour gagner des points.
                 </p>
               </div>
             </div>
@@ -200,53 +224,55 @@ export function Index() {
           </AlertDescription>
         </Alert>
       )}
-      
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold">Tableau de bord</h1>
-          <Button asChild>
-            <Link to="/catalogue">
-              Voir le catalogue
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-        <div className="mt-16 space-y-12">
-          {userProgress && <StatsSummary userProgress={userProgress} />}
-          <ParrainageSection />
+      <div className="mt-2 h-[calc(100vh-8rem)] overflow-y-auto p-4">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-3xl text-blue-custom-100 font-bold mb-8">
+              Tableau de bord
+            </h1>
+            <Button asChild>
+              <Link to="/catalogue">
+                Voir le catalogue
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+          {isVisible && (
+            <AdvertBanner message={message} onClose={closeAdvert} />
+          )}
 
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          {/* Section des contacts */}
-          <ContactsSection
-            commerciaux={commerciaux}
-            formateurs={formateurs}
-            poleRelation={poleRelation}
-          />
-        </div>
+          <div className="mt-2 space-y-12">
+            <ParrainageSection />
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            {/* Section des contacts */}
+            <ContactsSection
+              commerciaux={commerciaux}
+              formateurs={formateurs}
+              poleRelation={poleRelation}
+            />
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <ProgressCard user={user} />
-          <AgendaCard events={agendaEvents} />
-          <RankingCard rankings={rankings} currentUserId={user.id} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <ProgressCard user={user} />
+            <AgendaCard events={agendaEvents} />
+            {/* <RankingCard rankings={rankings} currentUserId={user.id} /> */}
+          </div>
 
-
-        </div>
-
-        {/* <h2 className="text-2xl font-semibold mb-4">Formations récentes</h2>
+          {/* <h2 className="text-2xl font-semibold mb-4">Formations récentes</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {formations.slice(0, 3).map((formation) => (
             <FormationCard key={formation.id} formation={formation} />
           ))}
         </div> */}
 
-        {/* <h2 className="text-2xl font-semibold mb-4">Défis disponibles</h2>
+          {/* <h2 className="text-2xl font-semibold mb-4">Défis disponibles</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {challenges.map((challenge) => (
             <ChallengeCard key={challenge.id} challenge={challenge} />
           ))}
         </div> */}
-        
+        </div>
       </div>
     </Layout>
   );

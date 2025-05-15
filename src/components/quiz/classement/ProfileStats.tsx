@@ -50,33 +50,32 @@ export function ProfileStats({
   }
 
   return (
-    <div className="container mx-auto mb-10 p-4 sm:p-6 border rounded-2xl bg-white shadow-xl dark:bg-gray-900 dark:border-gray-800">
+    <div className="container mx-auto mb-4 sm:p-4 bg-white dark:bg-gray-900 rounded-xl shadow-sm border dark:border-gray-800">
       {/* Titre */}
-      <div className="mb-6 text-center md:text-left">
-        <h2 className="text-xl md:text-2xl font-bold text-[#FEB823] dark:text-yellow-400">
+      <div className="mb-4 text-center md:text-left">
+        <h3 className="text-lg md:text-xl font-semibold  dark:text-yellow-400">
           Mes statistiques
-        </h2>
+        </h3>
       </div>
-
+      <hr />
       {/* Grille de statistiques */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
-        {/* Carte Statistique */}
+      <div className="flex flex-wrap justify-between gap-4 sm:gap-6">
         {[
           {
             label: "Score total",
-            icon: <TrendingUp size={20} />,
+            icon: <TrendingUp size={24} className="text-yellow-500" />,
             value: stats.totalScore || 0,
             suffix: "",
           },
           {
             label: "Quiz complétés",
-            icon: <CheckCircle size={20} />,
+            icon: <CheckCircle size={24} className="text-green-500" />,
             value: stats.totalQuizzes || 0,
             suffix: "",
           },
           {
             label: "Score moyen",
-            icon: <BarChart2 size={20} />,
+            icon: <BarChart2 size={24} className="text-blue-500" />,
             value: stats.averageScore
               ? `${Math.round(stats.averageScore)}%`
               : "0%",
@@ -85,19 +84,18 @@ export function ProfileStats({
         ].map((stat, index) => (
           <div
             key={index}
-            className="p-4 rounded-2xl bg-yellow-100 dark:bg-yellow-700 text-yellow-900 dark:text-white shadow-md hover:shadow-lg hover:scale-105 transition-transform duration-300 min-h-[120px] flex items-center"
-          >
-            <div className="mr-4 flex items-center justify-center w-10 h-10 rounded-full bg-yellow-300/50 dark:bg-yellow-800">
+            className="flex items-center gap-4 p-2  border-gray-200 dark:border-gray-700 w-full sm:w-auto">
+            <div className="text-2xl flex items-center justify-center">
               {stat.icon}
             </div>
-            <div>
-              <p className="text-sm text-yellow-800 dark:text-yellow-300 font-medium">
+            <div className="flex flex-col">
+              <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
                 {stat.label}
-              </p>
-              <p className="text-xl font-bold mt-1">
+              </span>
+              <span className="text-lg font-bold text-gray-800 dark:text-white">
                 {stat.value}
                 {stat.suffix}
-              </p>
+              </span>
             </div>
           </div>
         ))}

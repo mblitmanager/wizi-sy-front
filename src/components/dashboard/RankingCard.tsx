@@ -9,7 +9,9 @@ import { rankingService } from "@/services/api";
 export function RankingCard() {
   const [ranking, setRanking] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [currentUserId, setCurrentUserId] = useState<string | undefined>(undefined);
+  const [currentUserId, setCurrentUserId] = useState<string | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,7 +37,9 @@ export function RankingCard() {
     };
     const fetchProfile = async () => {
       try {
-        const profile = await import("@/services/quiz/QuizSubmissionService").then(m => m.quizSubmissionService.getStagiaireProfile());
+        const profile = await import(
+          "@/services/quiz/QuizSubmissionService"
+        ).then((m) => m.quizSubmissionService.getStagiaireProfile());
         setCurrentUserId(profile?.stagiaire?.id?.toString());
       } catch (e) {
         setCurrentUserId(undefined);
@@ -46,7 +50,7 @@ export function RankingCard() {
   }, []);
 
   return (
-    <Card>
+    <Card className="mt-3">
       <CardHeader>
         <CardTitle>Classement</CardTitle>
       </CardHeader>
@@ -60,8 +64,7 @@ export function RankingCard() {
                 className={cn(
                   "flex items-center justify-between p-2 rounded-md",
                   isCurrentUser && "bg-blue-100"
-                )}
-              >
+                )}>
                 <div className="flex items-center gap-3">
                   <div className="flex items-center justify-center w-6">
                     {item.rang <= 3 ? (
@@ -71,8 +74,7 @@ export function RankingCard() {
                           item.rang === 1 && "bg-yellow-500",
                           item.rang === 2 && "bg-gray-400",
                           item.rang === 3 && "bg-amber-600"
-                        )}
-                      >
+                        )}>
                         {item.rang}
                       </span>
                     ) : (
@@ -102,8 +104,7 @@ export function RankingCard() {
         <div className="mt-4">
           <Link
             to="/classement"
-            className="text-sm text-primary hover:underline block text-center"
-          >
+            className="text-sm text-primary hover:underline block text-center">
             Voir le classement complet
           </Link>
         </div>

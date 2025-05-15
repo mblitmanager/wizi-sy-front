@@ -73,9 +73,9 @@ const ParrainageSection = () => {
 
   return (
     <section className="mb-6">
-      <h2 className="text-xl font-semibold mb-4 font-montserrat">
+      <h1 className="text-3xl text-blue-custom-100 font-bold mb-8">
         Programme de parrainage
-      </h2>
+      </h1>
 
       {/* Statistiques de parrainage */}
       {statsLoading ? (
@@ -119,7 +119,7 @@ const ParrainageSection = () => {
       )}
 
       {/* Génération de lien de parrainage */}
-      <Card>
+      <Card className="mb-4">
         <CardContent className="p-6">
           <div className="flex items-center mb-4">
             <Users className="h-6 w-6 text-blue-500 mr-2" />

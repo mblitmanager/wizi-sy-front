@@ -25,7 +25,7 @@ export interface CatalogueFormation {
   certification?: string;
   statut: number;
   duree?: string;
-  image_url?: string;
+  imageUrl?: string;
   formation?: {
     titre: string;
     description: string;

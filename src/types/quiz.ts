@@ -8,6 +8,15 @@ export interface Category {
   colorClass?: string;
 }
 
+export interface Participation {
+  stagiaire_id: number;
+  quiz_id: number;
+  date: string; // Format: 'YYYY-MM-DD'
+  heure: string; // Format: 'HH:MM' ou 'HH:MM:SS'
+  score: number;
+  deja_jouer: boolean;
+}
+
 export interface Quiz {
   id: string;
   titre: string;

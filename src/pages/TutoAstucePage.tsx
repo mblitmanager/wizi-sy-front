@@ -34,6 +34,7 @@ export default function TutoAstucePage() {
   const { data: formations = [] } = useFormationStagiaire(
     user?.stagiaire.id ?? null
   );
+  console.log("formations.data", formations.data);
   const {
     data: mediasData,
     isLoading,
@@ -63,11 +64,9 @@ export default function TutoAstucePage() {
               onChange={(e) => setSelectedFormationId(e.target.value || null)}
               className="px-3 py-1.5 text-sm sm:text-base min-w-[180px] sm:min-w-[250px] bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition duration-200">
               <option value="">Toutes les formations</option>
-              {formations.map((formation) => (
-                <option
-                  key={formation.formation?.id}
-                  value={formation.formation.id}>
-                  {formation.formation?.titre ?? formation.titre}
+              {formations.data?.map((formation) => (
+                <option key={formation.id} value={formation.id}>
+                  {formation.titre ?? formation.titre}
                 </option>
               ))}
             </select>
