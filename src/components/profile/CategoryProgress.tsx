@@ -1,32 +1,34 @@
-
-import React from 'react';
-import { Progress } from '@/components/ui/progress';
-import { Category, UserProgress } from '@/types/quiz';
+import React from "react";
+import { Progress } from "@/components/ui/progress";
+import { Category, UserProgress } from "@/types/quiz";
 
 interface CategoryProgressProps {
   categories: Category[];
   userProgress: UserProgress | null;
 }
 
-const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userProgress }) => {
+const CategoryProgress: React.FC<CategoryProgressProps> = ({
+  categories,
+  userProgress,
+}) => {
   const getProgressForCategory = (categoryId: string) => {
     if (!userProgress) {
-      return { 
+      return {
         completed: 0,
         total: 0,
-        percentage: 0
+        percentage: 0,
       };
     }
 
     // Handle both potential property names
     const categoryProgress = userProgress.category_progress || {};
-    
+
     const progress = categoryProgress[categoryId];
     if (!progress) {
       return {
-        completed: 0, 
-        total: 0, 
-        percentage: 0
+        completed: 0,
+        total: 0,
+        percentage: 0,
       };
     }
 
@@ -37,27 +39,30 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userPro
     return {
       completed,
       total,
-      percentage
+      percentage,
     };
   };
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold font-montserrat">Progression par catégorie</h2>
       <div className="space-y-6">
         {categories.map((category) => {
           const progress = getProgressForCategory(category.id);
-          
+
           return (
             <div key={category.id} className="space-y-2">
               <div className="flex justify-between items-center">
-                <h3 className="text-sm font-medium font-nunito">{category.name}</h3>
+                <h3 className="text-sm font-medium font-nunito">
+                  {category.name}
+                </h3>
                 <span className="text-xs text-muted-foreground font-roboto">
                   {progress.completed}/{progress.total} complétés
                 </span>
               </div>
-              <Progress value={progress.percentage} 
-                className={`h-2 ${category.colorClass || 'bg-primary/20'}`} />
+              <Progress
+                value={progress.percentage}
+                className={`h-2 ${category.colorClass || "bg-primary/20"}`}
+              />
             </div>
           );
         })}

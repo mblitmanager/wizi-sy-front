@@ -1,5 +1,5 @@
-import { UserProgress, QuizStats, QuizHistory } from '@/types/quiz';
-import { ProfileStats } from '@/components/quiz/classement/ProfileStats';
+import { UserProgress, QuizStats, QuizHistory } from "@/types/quiz";
+import { ProfileStats } from "@/components/quiz/classement/ProfileStats";
 import React, { useEffect, useState } from "react";
 import { quizSubmissionService } from "@/services/quiz/QuizSubmissionService";
 

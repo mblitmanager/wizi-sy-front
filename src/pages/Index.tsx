@@ -211,13 +211,10 @@ export function Index() {
     <Layout>
       <div className="mt-2 h-[calc(100vh-8rem)] overflow-y-auto p-4">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="mb-3">
-            {isVisible && (
-              <AdvertBanner message={message} onClose={closeAdvert} />
-            )}
-          </div>
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-bold">Tableau de bord</h1>
+            <h1 className="text-3xl text-blue-custom-100 font-bold mb-8">
+              Tableau de bord
+            </h1>
             <Button asChild>
               <Link to="/catalogue">
                 Voir le catalogue
@@ -225,9 +222,11 @@ export function Index() {
               </Link>
             </Button>
           </div>
+          {isVisible && (
+            <AdvertBanner message={message} onClose={closeAdvert} />
+          )}
 
           <div className="mt-2 space-y-12">
-            {userProgress && <StatsSummary userProgress={userProgress} />}
             <ParrainageSection />
           </div>
           <div className="bg-white p-4 rounded-lg shadow-sm">
@@ -242,7 +241,7 @@ export function Index() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <ProgressCard user={user} />
             <AgendaCard events={agendaEvents} />
-            <RankingCard rankings={rankings} currentUserId={user.id} />
+            {/* <RankingCard rankings={rankings} currentUserId={user.id} /> */}
           </div>
 
           {/* <h2 className="text-2xl font-semibold mb-4">Formations récentes</h2>

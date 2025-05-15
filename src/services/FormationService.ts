@@ -23,7 +23,7 @@ const formationService = {
 
   async getFormationStagiaire(stagiaireId: number) {
     const response = await axiosInstance.get(
-      `/formations/${stagiaireId}/quizzes`
+      `/stagiaire/${stagiaireId}/formations`
     );
     return response.data;
   },

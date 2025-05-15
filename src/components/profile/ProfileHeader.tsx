@@ -2,7 +2,13 @@ import React, { useState, useRef } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import { useUser } from "@/context/UserContext";
-import { CameraIcon, Trophy } from "lucide-react";
+import {
+  CameraIcon,
+  MapPinIcon,
+  PhoneIcon,
+  StarIcon,
+  Trophy,
+} from "lucide-react";
 import { LoadingState } from "../quiz/quiz-play/LoadingState";
 import useAdvert from "../publiciter/useAdvert";
 import AdvertBanner from "../publiciter/AdvertBanner";
@@ -86,27 +92,29 @@ const ProfileHeader: React.FC = () => {
 
   return (
     <>
-      <div className="container mx-auto mb-2 sm:p-4 border rounded-xl bg-white shadow-sm dark:bg-gray-900 dark:border-gray-800">
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm mb-4 mx-2 sm:mx-0">
         {loading && <LoadingState />}
-        <div className="flex items-center">
-          <div
-            className="relative w-20 h-20 cursor-pointer group"
-            onClick={handleImageClick}>
-            {loading ? (
-              <div className="w-full h-full rounded-full bg-gray-300 flex items-center justify-center">
-                <span className="loader"></span>
-              </div>
-            ) : user.user.image ? (
-              <img
-                src={`${VITE_API_URL_MEDIA}/${user.user.image}`}
-                alt={user.user.name || "User"}
-                className="w-full h-full object-cover rounded-full"
-              />
-            ) : (
-              <div className="bg-blue-500 text-white w-full h-full rounded-full flex items-center justify-center text-2xl font-bold font-nunito">
-                {getInitials()}
-              </div>
-            )}
+        <div className="flex flex-col items-center gap-3">
+          <div className="relative group">
+            <div
+              className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full border-4 border-white dark:border-gray-700 shadow-md cursor-pointer overflow-hidden transition-all duration-300 group-hover:shadow-lg"
+              onClick={handleImageClick}>
+              {loading ? (
+                <div className="w-full h-full rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                  <span className="loader"></span>
+                </div>
+              ) : user.user.image ? (
+                <img
+                  src={`${VITE_API_URL_MEDIA}/${user.user.image}`}
+                  alt={user.user.name || "User"}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white w-full h-full rounded-full flex items-center justify-center text-xl sm:text-2xl font-bold font-montserrat">
+                  {getInitials()}
+                </div>
+              )}
+            </div>
 
             <input
               type="file"
@@ -116,20 +124,59 @@ const ProfileHeader: React.FC = () => {
               onChange={handleImageChange}
             />
 
-            <div className="absolute bottom-[-10px] right-[-10px] bg-white p-2 rounded-full shadow-lg hover:scale-110 transition duration-300">
-              <CameraIcon className="text-blue-500" />
+            <div className="absolute bottom-0 right-0 bg-white dark:bg-gray-800 p-1 rounded-full shadow-sm hover:scale-110 transition duration-300 border border-gray-200 dark:border-gray-600">
+              <CameraIcon className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400" />
             </div>
           </div>
 
-          <div className="ml-4">
-            <h2 className="text-xl font-semibold font-montserrat text-gray-800">
-              {user.user.name.toUpperCase()} {user.stagiaire.prenom}
+          <div className="text-center space-y-1 w-full max-w-[90vw]">
+            <h2 className="text-base sm:text-lg font-bold font-montserrat text-gray-800 dark:text-white break-words px-2">
+              {user.stagiaire.civilite} {user.user.name.toUpperCase()}{" "}
+              {user.stagiaire.prenom}
             </h2>
-            <div className="text-gray-500 font-roboto mb-1">
+
+            <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 font-medium break-words px-2">
               {user.user.email}
             </div>
-            <div className="text-sm font-medium font-nunito text-gray-600">
-              {user.points || 0} points - Niveau {user.level || 1}
+
+            <div className="my-1 sm:my-2">
+              <span
+                className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                  user.user.role === "admin"
+                    ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200"
+                    : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                }`}>
+                {user.user.role === "admin" ? "Admin" : "Stagiaire"}
+              </span>
+            </div>
+
+            <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1 mt-1 sm:mt-2 px-2">
+              <div className="flex items-center justify-center gap-1 break-words">
+                <PhoneIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0" />
+                <span>{user.stagiaire.telephone || "Non renseigné"}</span>
+              </div>
+              <div className="flex items-center justify-center gap-1 break-words">
+                <MapPinIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0" />
+                <span>
+                  {[
+                    user.stagiaire.adresse,
+                    user.stagiaire.code_postal,
+                    user.stagiaire.ville,
+                  ]
+                    .filter(Boolean)
+                    .join(", ") || "Adresse non renseignée"}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex justify-center gap-2 mt-2 sm:mt-3 flex-wrap">
+              <span className="text-xs px-2 py-0.5 sm:py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 rounded-full">
+                Niveau.{user.level || 1}
+              </span>
+              <span className="text-xs px-2 py-0.5 sm:py-1 bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 rounded-full flex items-center gap-1">
+                <StarIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3" />{" "}
+                {user.points || 0} points
+              </span>
             </div>
           </div>
         </div>

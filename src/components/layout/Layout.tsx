@@ -37,7 +37,7 @@ export function Layout({ children }: LayoutProps) {
         </header>
 
         {/* Contenu principal */}
-        <main className="bg-gray-100 p-4 h-[calc(100vh-4rem)] overflow-y-auto md:overflow-hidden ">
+        <main className="bg-gray-100 p-4 h-auto overflow-y-auto md:overflow-hidden ">
           {children}
         </main>
 

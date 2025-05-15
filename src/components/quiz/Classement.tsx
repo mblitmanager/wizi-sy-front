@@ -98,7 +98,7 @@ export function Classement() {
   return (
     <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
       {/* Header */}
-      <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-4 text-blue-custom-200 text-center lg:text-left">
+      <h1 className="text-3xl text-blue-custom-100 font-bold mb-8">
         Mon classement
       </h1>
 
