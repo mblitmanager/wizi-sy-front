@@ -20,7 +20,8 @@ interface QuizAnswerCardProps {
 export default function QuizAnswerCard({
   question,
   userAnswer,
-}: QuizAnswerCardProps) {
+  questionNumber, // Ajout du paramètre optionnel
+}: QuizAnswerCardProps & { questionNumber?: number }) {
   const userResponse = formatAnswer(question, userAnswer);
   const questionText = question.text;
   const correctResponse = formatCorrectAnswer(question);
@@ -31,7 +32,8 @@ export default function QuizAnswerCard({
       {/* Question Text */}
       <div className="mb-3">
         <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-          Question {questionNumber}
+          Question{" "}
+          {typeof questionNumber !== "undefined" ? questionNumber : ""}
         </span>
         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
           {questionText}

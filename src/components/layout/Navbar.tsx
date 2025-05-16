@@ -9,42 +9,79 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, LogOut, Settings, User } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Bell, LogOut, Settings, User, Users } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Input } from "@/components/ui/input";
 import logo from "../../assets/logo.png";
+import { useEffect, useState } from "react";
+import { rankingService } from "@/services/rankingService";
+import { parrainageService } from "@/services/parrainageService";
+
 const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
+
 export function Navbar() {
   const { user, logout } = useUser();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+  const [userScore, setUserScore] = useState<number | null>(null);
+  const [filleulsCount, setFilleulsCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchScore = async () => {
+      if (!user || !user.stagiaire) return;
+      try {
+        const ranking = await rankingService.getGlobalRanking();
+        // Les données du backend sont sous la forme { id, prenom, points, ... }
+        const entry = ranking.find(
+          (e: any) => e.id?.toString() === user.stagiaire.id?.toString()
+        );
+        setUserScore(entry ? entry.totalPoints : 0);
+      } catch (e) {
+        setUserScore(null);
+      }
+    };
+    fetchScore();
+  }, [user]);
+
+  useEffect(() => {
+    const fetchFilleuls = async () => {
+      try {
+        const stats = await parrainageService.getParrainageStats();
+        setFilleulsCount(stats.total_filleuls ?? 0);
+      } catch (e) {
+        setFilleulsCount(null);
+      }
+    };
+    if (user) fetchFilleuls();
+  }, [user]);
 
   const getInitials = () => {
-    if (!user || !user.user.name) return "U";
-    // Récupère la première lettre du prénom si disponible
+    if (!user) return "U";
     const firstNameInitial = user.stagiaire?.prenom
       ? user.stagiaire.prenom.charAt(0).toUpperCase()
       : "";
+    const lastNameInitial =
+      user.name && typeof user.name === "string"
+        ? user.name.charAt(0).toUpperCase()
+        : "";
+    return `${firstNameInitial}${lastNameInitial}` || "U";
+  };
 
-    // Récupère la première lettre du nom
-    const lastNameInitial = user.user.name.charAt(0).toUpperCase();
-
-    return `${firstNameInitial}${lastNameInitial}`;
+  const getFullName = () => {
+    const nom =
+      user?.name && typeof user.name === "string"
+        ? user.name.toUpperCase()
+        : "UTILISATEUR";
+    const prenom = user?.stagiaire?.prenom ?? "";
+    return `${nom} ${prenom}`.trim();
   };
 
   const handleLogout = async () => {
     try {
-      // 1. Nettoyage immédiat
       localStorage.removeItem("token");
-
-      // 2. Déconnexion globale (si votre hook gère un état)
       if (logout) logout();
-
-      // 3. Option 1: Redirection ultra-rapide (recharge la page)
-      // window.location.assign("/login");
-
-      // OU Option 2: Redirection avec React Router (moins instantanée)
       navigate("/login", { replace: true });
     } catch (error) {
       console.error("Logout error:", error);
@@ -65,42 +102,51 @@ export function Navbar() {
             <Button
               variant="ghost"
               size="icon"
-              className="relative hover:bg-gray-100 transition">
+              className="relative hover:bg-gray-100 transition"
+            >
               <Bell className="h-5 w-5 text-gray-600" />
               <Badge className="absolute -top-1 -right-1 px-1.5 h-5 min-w-5 text-xs bg-red-500 text-white animate-pulse">
                 2
               </Badge>
             </Button>
-
+            {userScore !== null && (
+              <span className="ml-2 text-yellow-600 font-bold text-sm">
+                {userScore} pts
+              </span>
+            )}
+            {filleulsCount !== null && (
+              <span className="ml-2 text-blue-600 font-bold text-sm flex items-center">
+                <Users className="inline h-4 w-4 mr-1" />
+                {filleulsCount} filleul{filleulsCount > 1 ? 's' : ''}
+              </span>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="relative flex items-center gap-2 p-1 rounded-full hover:shadow-md transition focus:outline-none">
                   <div className="relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 text-white">
-                    {user.user.image ? (
+                    {user.avatar ? (
                       <img
-                        src={`${VITE_API_URL_MEDIA}/${user.user.image}`}
-                        alt={user.user.name || "User"}
+                        src={`${VITE_API_URL_MEDIA}/${user.avatar}`}
+                        alt={user.name || "User"}
                         className="w-full h-full rounded-full object-cover"
                         onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                          e.currentTarget.nextSibling.style.display = "flex";
+                          (e.currentTarget as HTMLImageElement).style.display = "none";
+                          const next = e.currentTarget.nextSibling as HTMLElement | null;
+                          if (next) next.style.display = "flex";
                         }}
                       />
                     ) : null}
                     <span
                       className="font-medium"
-                      style={{ display: user.user.image ? "none" : "flex" }}>
+                      style={{ display: user.avatar ? "none" : "flex" }}
+                    >
                       {getInitials()}
                     </span>
                   </div>
                   {!isMobile && (
                     <div className="flex flex-col items-start mr-2">
-                      <span className="text-sm font-medium">
-                        {user.user.name.toUpperCase()} {user.stagiaire.prenom}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        {user.user.role}
-                      </span>
+                      <span className="text-sm font-medium">{getFullName()}</span>
+                      <span className="text-xs text-gray-500">{user.role}</span>
                     </div>
                   )}
                 </button>
@@ -114,7 +160,8 @@ export function Navbar() {
                 <DropdownMenuItem asChild>
                   <Link
                     to="/profile"
-                    className="flex items-center w-full hover:bg-gray-100 px-2 py-1 rounded">
+                    className="flex items-center w-full hover:bg-gray-100 px-2 py-1 rounded"
+                  >
                     <User className="mr-2 h-4 w-4" />
                     <span>Profil</span>
                   </Link>
@@ -122,7 +169,8 @@ export function Navbar() {
                 <DropdownMenuItem asChild>
                   <Link
                     to="/settings"
-                    className="flex items-center w-full hover:bg-gray-100 px-2 py-1 rounded">
+                    className="flex items-center w-full hover:bg-gray-100 px-2 py-1 rounded"
+                  >
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Paramètres</span>
                   </Link>
@@ -130,7 +178,8 @@ export function Navbar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="cursor-pointer text-red-600 hover:bg-red-50 px-2 py-1 rounded">
+                  className="cursor-pointer text-red-600 hover:bg-red-50 px-2 py-1 rounded"
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Déconnexion</span>
                 </DropdownMenuItem>
