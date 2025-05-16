@@ -20,7 +20,8 @@ interface QuizAnswerCardProps {
 export default function QuizAnswerCard({
   question,
   userAnswer,
-}: QuizAnswerCardProps) {
+  questionNumber, // Ajout du paramètre optionnel
+}: QuizAnswerCardProps & { questionNumber?: number }) {
   const userResponse = formatAnswer(question, userAnswer);
   const questionText = question.text;
   const correctResponse = formatCorrectAnswer(question);
