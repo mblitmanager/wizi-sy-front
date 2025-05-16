@@ -188,14 +188,12 @@ export function QuizSummary() {
         <Button
           onClick={handleBack}
           variant="outline"
-          className="flex items-center gap-2 border border-blue-custom-100 text-blue-custom-100 hover:bg-blue-50 text-sm py-1.5 px-3"
-        >
+          className="flex items-center gap-2 border border-blue-custom-100 text-blue-custom-100 hover:bg-blue-50 text-sm py-1.5 px-3">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-4 w-4"
             viewBox="0 0 20 20"
-            fill="currentColor"
-          >
+            fill="currentColor">
             <path
               fillRule="evenodd"
               d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
@@ -320,8 +318,7 @@ export function QuizSummary() {
               className="h-5 w-5 sm:h-6 sm:w-6"
               fill="none"
               viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
+              stroke="currentColor">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -341,12 +338,10 @@ export function QuizSummary() {
           {result.questions.map((question: Question, index: number) => (
             <div
               key={question.id}
-              className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-            >
+              className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <QuizAnswerCard
                 question={question}
                 userAnswer={formattedUserAnswers[question.id]}
-                questionNumber={index + 1}
               />
             </div>
           ))}

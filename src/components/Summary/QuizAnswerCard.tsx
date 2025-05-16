@@ -31,7 +31,7 @@ export default function QuizAnswerCard({
       {/* Question Text */}
       <div className="mb-3">
         <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-          Question {questionNumber}
+          Question
         </span>
         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
           {questionText}
@@ -62,8 +62,7 @@ export default function QuizAnswerCard({
             isCorrect
               ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
               : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
-          }`}
-        >
+          }`}>
           {isCorrect ? (
             <CheckCircle
               className="flex-shrink-0 text-green-500 dark:text-green-400 mt-0.5 mr-2"
@@ -81,8 +80,7 @@ export default function QuizAnswerCard({
                 isCorrect
                   ? "text-green-700 dark:text-green-300"
                   : "text-red-700 dark:text-red-300"
-              }`}
-            >
+              }`}>
               Votre réponse
             </h4>
             <p
@@ -90,8 +88,7 @@ export default function QuizAnswerCard({
                 isCorrect
                   ? "text-green-600 dark:text-green-200"
                   : "text-red-600 dark:text-red-200"
-              }`}
-            >
+              }`}>
               {userResponse}
             </p>
           </div>
