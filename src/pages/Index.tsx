@@ -21,6 +21,8 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
 import AdvertBanner from "@/components/publiciter/AdvertBanner";
 import useAdvert from "@/components/publiciter/useAdvert";
+import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
+import { catalogueFormationApi } from "@/services/api";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -63,6 +65,29 @@ export function Index() {
     queryKey: ["contacts", "pole-relation"],
     queryFn: () => fetchContacts("pole-relation"),
   });
+
+  const [catalogueData, setCatalogueData] = useState([]);
+
+  useEffect(() => {
+    catalogueFormationApi.getAllCatalogueFormation().then((response) => {
+      console.log('Réponse brute catalogueFormationApi:', response);
+      let formations = [];
+      // Vérifie la structure de la réponse
+      if (response && typeof response === 'object') {
+        if (Array.isArray(response.data?.data)) {
+          formations = response.data.data;
+        } else if (Array.isArray(response.data?.member)) {
+          formations = response.data.member;
+        } else if (Array.isArray(response.member)) {
+          formations = response.member;
+        } else if (Array.isArray(response?.data)) {
+          formations = response.data;
+        }
+      }
+      setCatalogueData(formations);
+    });
+  }, []);
+
   if (!user) {
     return (
       <Layout>
@@ -259,12 +284,14 @@ export function Index() {
             {/* <RankingCard rankings={rankings} currentUserId={user.id} /> */}
           </div>
 
-          {/* <h2 className="text-2xl font-semibold mb-4">Formations récentes</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {formations.slice(0, 3).map((formation) => (
-            <FormationCard key={formation.id} formation={formation} />
-          ))}
-        </div> */}
+          
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"> */}
+          {catalogueData && catalogueData.length > 0 ? (
+            <><h2 className="text-2xl font-semibold mb-4">Découvrez notre catalogue</h2><AdCatalogueBlock formations={catalogueData} /></>
+          ) : (
+            <div className="col-span-full text-center text-muted-foreground"></div>
+          )}
+        {/* </div> */}
 
           {/* <h2 className="text-2xl font-semibold mb-4">Défis disponibles</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -272,6 +299,7 @@ export function Index() {
             <ChallengeCard key={challenge.id} challenge={challenge} />
           ))}
         </div> */}
+        
         </div>
       </div>
     </Layout>

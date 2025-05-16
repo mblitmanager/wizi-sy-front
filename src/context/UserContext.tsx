@@ -61,12 +61,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       if (storedToken) {
         try {
-            // Vérifier si le token est valide
+           // Vérifier si le token est valide
             const response = await fetch(`${VITE_API_URL}/me`, {
             headers: {
               Authorization: `Bearer ${storedToken}`,
             },
-            });
+          });
 
           if (response.ok) {
             const userData = await response.json();
