@@ -6,6 +6,8 @@ import { Layout } from "@/components/layout/Layout";
 import { Media } from "@/types/media";
 import { useUser } from "@/context/UserContext";
 import { useFormationStagiaire } from "@/use-case/hooks/stagiaire/useFormationStagiaire";
+import useAdvert from "@/components/publiciter/useAdvert";
+import AdvertBanner from "@/components/publiciter/AdvertBanner";
 
 // Composant de squelette de chargement
 const MediaSkeleton = () => (
@@ -49,11 +51,14 @@ export default function TutoAstucePage() {
   useEffect(() => {
     setSelectedMedia(medias.length > 0 ? medias[0] : null);
   }, [activeCategory, medias]);
-
+  const { isVisible, message, closeAdvert } = useAdvert(
+    "Je parraine et je gagne 50 € !"
+  );
   return (
     <Layout>
       <div className="px-4 sm:px-6 lg:px-8 py-6 bg-gray-50 min-h-screen">
         <HeaderSection titre="Tutoriels & Astuces" buttonText="Retour" />
+        {isVisible && <AdvertBanner message={message} onClose={closeAdvert} />}
 
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
           <MediaTabs active={activeCategory} onChange={setActiveCategory} />

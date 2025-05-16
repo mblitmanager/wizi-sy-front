@@ -5,6 +5,8 @@ import { GlobalRanking } from "./classement/GlobalRanking";
 import { QuizHistory } from "./classement/QuizHistory";
 import { quizSubmissionService } from "@/services/quiz/QuizSubmissionService";
 import type { QuizHistory as QuizHistoryType } from "@/types/quiz";
+import useAdvert from "../publiciter/useAdvert";
+import AdvertBanner from "../publiciter/AdvertBanner";
 
 export function Classement() {
   const [profile, setProfile] = useState<any>(null);
@@ -95,13 +97,17 @@ export function Classement() {
         averageScore: 0,
       };
 
+  const { isVisible, message, closeAdvert } = useAdvert(
+    "Je parraine et je gagne 50 € !"
+  );
+
   return (
     <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
       {/* Header */}
       <h1 className="text-3xl text-blue-custom-100 font-bold mb-8">
         Mon classement
       </h1>
-
+      {isVisible && <AdvertBanner message={message} onClose={closeAdvert} />}
       {/* Statistiques */}
       <div className="w-full">
         <ProfileStats

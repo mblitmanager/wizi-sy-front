@@ -21,6 +21,8 @@ import SkeletonCard from "@/components/ui/SkeletonCard";
 import { catalogueFormationApi, progressAPI } from "@/services/api";
 import { CatalogueFormationWithFormation, Formation } from "@/types/stagiaire";
 import { mapCatalogueToFormation } from "@/utils/mapCatalogueToFormation";
+import AdvertBanner from "@/components/publiciter/AdvertBanner";
+import useAdvert from "@/components/publiciter/useAdvert";
 
 export default function Catalogue() {
   // Catégories
@@ -108,13 +110,17 @@ export default function Catalogue() {
         />
       ));
   }, [formationsDisponibles]);
-
+  const { isVisible, message, closeAdvert } = useAdvert(
+    "Je parraine et je gagne 50 € !"
+  );
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl text-blue-custom-100 font-bold mb-8">
           Catalogue
         </h1>
+        {isVisible && <AdvertBanner message={message} onClose={closeAdvert} />}
+
         <div className="mt-2 h-[calc(100vh-8rem)] overflow-y-auto p-4 mb-6">
           <Tabs
             value={activeTab}
