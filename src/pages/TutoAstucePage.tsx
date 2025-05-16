@@ -85,7 +85,7 @@ export default function TutoAstucePage() {
         </div>
 
         <hr />
-        <div className="mt-2 h-[calc(100vh-30rem)] overflow-y-auto p-4 mb-6">
+        <div className="mt-2 h-[calc(100vh-10rem)] overflow-y-auto p-4 mb-2">
           {isLoading ? (
             <MediaSkeleton />
           ) : medias.length === 0 ? (
