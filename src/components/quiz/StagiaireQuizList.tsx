@@ -133,8 +133,7 @@ export function StagiaireQuizList() {
             <select
               className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring focus:ring-blue-200"
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-            >
+              onChange={(e) => setSelectedCategory(e.target.value)}>
               <option value="all">Toutes</option>
               {(categories || []).map((category) => (
                 <option key={category.id} value={category.id}>
@@ -150,8 +149,7 @@ export function StagiaireQuizList() {
             <select
               className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring focus:ring-blue-200"
               value={selectedLevel}
-              onChange={(e) => setSelectedLevel(e.target.value)}
-            >
+              onChange={(e) => setSelectedLevel(e.target.value)}>
               <option value="all">Tous les niveaux</option>
               {levels.map((level) => (
                 <option key={level} value={level}>
@@ -162,46 +160,47 @@ export function StagiaireQuizList() {
             {selectedLevel !== "all" && (
               <button
                 className="px-2 py-1 border border-gray-300 rounded-md text-xs text-gray-600 hover:bg-gray-100"
-                onClick={() => setSelectedLevel("all")}
-              >
+                onClick={() => setSelectedLevel("all")}>
                 Réinitialiser
               </button>
             )}
           </div>
         </div>
       </div>
+      <hr className="mb-2" />
+      <div className="mt-2 h-[calc(100vh-30rem)] overflow-y-auto p-4 mb-6">
+        <div className="space-y-6">
+          {/* Section des quiz non joués */}
+          <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6">
+            {notPlayedQuizzes.length === 0 ? (
+              <div className="text-center py-12 sm:py-16 bg-gray-50 rounded-lg">
+                <p className="text-gray-500">Tous les quiz ont été joués !</p>
+              </div>
+            ) : (
+              <StagiaireQuizGrid
+                quizzes={notPlayedQuizzes}
+                categories={categories || []}
+              />
+            )}
+          </div>
 
-      <div className="space-y-6">
-        {/* Section des quiz non joués */}
-        <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6">
-          {notPlayedQuizzes.length === 0 ? (
-            <div className="text-center py-12 sm:py-16 bg-gray-50 rounded-lg">
-              <p className="text-gray-500">Tous les quiz ont été joués !</p>
-            </div>
-          ) : (
-            <StagiaireQuizGrid
-              quizzes={notPlayedQuizzes}
-              categories={categories || []}
-            />
-          )}
-        </div>
-
-        {/* Section des quiz joués */}
-        <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6 sm:mb-4">
-          <h3 className="text-lg font-semibold mb-2 text-gray-700">
-            Rejouez à vos anciens quiz
-          </h3>
-          <hr className="mb-4" />
-          {playedQuizzes.length === 0 ? (
-            <div className="text-center py-12 sm:py-16 bg-gray-50 rounded-lg">
-              <p className="text-gray-500">Aucun quiz joué pour l'instant.</p>
-            </div>
-          ) : (
-            <StagiaireQuizGrid
-              quizzes={playedQuizzes}
-              categories={categories || []}
-            />
-          )}
+          {/* Section des quiz joués */}
+          <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6 sm:mb-4">
+            <h3 className="text-lg font-semibold mb-2 text-gray-700">
+              Rejouez à vos anciens quiz
+            </h3>
+            <hr className="mb-4" />
+            {playedQuizzes.length === 0 ? (
+              <div className="text-center py-12 sm:py-16 bg-gray-50 rounded-lg">
+                <p className="text-gray-500">Aucun quiz joué pour l'instant.</p>
+              </div>
+            ) : (
+              <StagiaireQuizGrid
+                quizzes={playedQuizzes}
+                categories={categories || []}
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>
