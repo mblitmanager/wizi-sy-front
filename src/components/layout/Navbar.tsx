@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, LogOut, Settings, User } from "lucide-react";
+import { Bell, LogOut, Settings, User, Users } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import logo from "../../assets/logo.png";
 import { useEffect, useState } from "react";
 import { rankingService } from "@/services/rankingService";
+import { parrainageService } from "@/services/parrainageService";
 
 const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
 
@@ -25,15 +26,16 @@ export function Navbar() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const [userScore, setUserScore] = useState<number | null>(null);
+  const [filleulsCount, setFilleulsCount] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchScore = async () => {
       if (!user || !user.stagiaire) return;
       try {
         const ranking = await rankingService.getGlobalRanking();
-        // Les données du backend sont sous la forme { stagiaire: { id, ... }, totalPoints, ... }
+        // Les données du backend sont sous la forme { id, prenom, points, ... }
         const entry = ranking.find(
-          (e: any) => e.stagiaire?.id?.toString() === user.stagiaire.id?.toString()
+          (e: any) => e.id?.toString() === user.stagiaire.id?.toString()
         );
         setUserScore(entry ? entry.totalPoints : 0);
       } catch (e) {
@@ -41,6 +43,18 @@ export function Navbar() {
       }
     };
     fetchScore();
+  }, [user]);
+
+  useEffect(() => {
+    const fetchFilleuls = async () => {
+      try {
+        const stats = await parrainageService.getParrainageStats();
+        setFilleulsCount(stats.total_filleuls ?? 0);
+      } catch (e) {
+        setFilleulsCount(null);
+      }
+    };
+    if (user) fetchFilleuls();
   }, [user]);
 
   const getInitials = () => {
@@ -95,11 +109,17 @@ export function Navbar() {
                 2
               </Badge>
             </Button>
-             {userScore !== null && (
-                <span className="ml-2 text-yellow-600 font-bold text-sm">
-                  {userScore} pts
-                </span>
-              )}
+            {userScore !== null && (
+              <span className="ml-2 text-yellow-600 font-bold text-sm">
+                {userScore} pts
+              </span>
+            )}
+            {filleulsCount !== null && (
+              <span className="ml-2 text-blue-600 font-bold text-sm flex items-center">
+                <Users className="inline h-4 w-4 mr-1" />
+                {filleulsCount} filleul{filleulsCount > 1 ? 's' : ''}
+              </span>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="relative flex items-center gap-2 p-1 rounded-full hover:shadow-md transition focus:outline-none">
