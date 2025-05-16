@@ -27,6 +27,7 @@ import AdvertBanner from "@/components/publiciter/AdvertBanner";
 import useAdvert from "@/components/publiciter/useAdvert";
 import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
 import { catalogueFormationApi } from "@/services/api";
+import backImage from "../assets/back.jpg";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -73,10 +74,10 @@ export function Index() {
 
   useEffect(() => {
     catalogueFormationApi.getAllCatalogueFormation().then((response) => {
-      console.log('Réponse brute catalogueFormationApi:', response);
+      console.log("Réponse brute catalogueFormationApi:", response);
       let formations = [];
       // Vérifie la structure de la réponse
-      if (response && typeof response === 'object') {
+      if (response && typeof response === "object") {
         if (Array.isArray(response.data?.data)) {
           formations = response.data.data;
         } else if (Array.isArray(response.data?.member)) {
@@ -269,14 +270,26 @@ export function Index() {
             {/* <RankingCard rankings={rankings} currentUserId={user.id} /> */}
           </div>
 
-          
-        {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"> */}
+          {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"> */}
           {catalogueData && catalogueData.length > 0 ? (
-            <><h2 className="text-2xl font-semibold mb-4">Découvrez notre catalogue</h2><AdCatalogueBlock formations={catalogueData} /></>
+            <>
+              <h2 className="text-2xl font-semibold mb-4">
+                Découvrez notre catalogue
+              </h2>
+              <AdCatalogueBlock formations={catalogueData} />
+
+              <div
+                className="h-screen bg-cover bg-center bg-no-repeat"
+                style={{ backgroundImage: `url(${backImage})` }}>
+                <div className="flex items-center justify-center h-full bg-black bg-opacity-50">
+                  <h1 className="text-white text-3xl font-bold">Bienvenue !</h1>
+                </div>
+              </div>
+            </>
           ) : (
             <div className="col-span-full text-center text-muted-foreground"></div>
           )}
-        {/* </div> */}
+          {/* </div> */}
 
           {/* <h2 className="text-2xl font-semibold mb-4">Défis disponibles</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -284,7 +297,6 @@ export function Index() {
             <ChallengeCard key={challenge.id} challenge={challenge} />
           ))}
         </div> */}
-        
         </div>
       </div>
     </Layout>

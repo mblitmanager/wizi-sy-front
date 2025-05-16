@@ -24,7 +24,8 @@ export const UserContext = createContext<UserContextType | undefined>(
 );
 
 export function UserProvider({ children }: { children: ReactNode }) {
-    const VITE_API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
+  const VITE_API_URL =
+    import.meta.env.VITE_API_URL || "http://localhost:8000/api";
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -61,8 +62,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       if (storedToken) {
         try {
-           // Vérifier si le token est valide
-            const response = await fetch(`${VITE_API_URL}/me`, {
+          // Vérifier si le token est valide
+          const response = await fetch(`${VITE_API_URL}/me`, {
             headers: {
               Authorization: `Bearer ${storedToken}`,
             },

@@ -1,5 +1,4 @@
 import type { Config } from "tailwindcss";
-
 export default {
   darkMode: ["class"],
   content: [
@@ -18,6 +17,9 @@ export default {
       },
     },
     extend: {
+      backgroundImage: {
+        "custom-bg": "url('assets/back.jpg')",
+      },
       fontFamily: {
         astria: ["Astria Pro", "serif"],
         poppins: ["Poppins", "sans-serif"],
