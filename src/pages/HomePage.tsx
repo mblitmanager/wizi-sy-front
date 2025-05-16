@@ -28,6 +28,7 @@ import {
   QuizSection,
   TutorielSection,
 } from "@/components/FeatureHomePage";
+import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_IMG;
@@ -260,6 +261,8 @@ const HomePage: React.FC = () => {
         poleRelation={poleRelation}
       />
 
+      {/* Blocs publicitaires catalogue dynamiques */}
+      <AdCatalogueBlock formations={catalogueData || []} />
       {/* Section des formations */}
       <CatalogueFormationSection
         CATALOGUE_FORMATION="Catalogue des formations"
