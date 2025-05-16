@@ -1,47 +1,64 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Mail, Phone, User } from "lucide-react";
+import { contactService } from "@/services/contactService copy";
 
 // Données mock
-const contacts = [
-  {
-    id: 1,
-    type: "Formateur",
-    name: "Alice Dupont",
-    email: "alice.dupont@example.com",
-    phone: "+33 6 12 34 56 78",
-  },
-  {
-    id: 2,
-    type: "Commercial",
-    name: "Benjamin Leroy",
-    email: "benjamin.leroy@example.com",
-    phone: "+33 7 89 12 34 56",
-  },
-  {
-    id: 3,
-    type: "Pôle Relation Client",
-    name: "Claire Moreau",
-    email: "claire.moreau@example.com",
-    phone: "+33 1 23 45 67 89",
-  },
-  {
-    id: 4,
-    type: "Formateur",
-    name: "David Martin",
-    email: "david.martin@example.com",
-    phone: "+33 6 98 76 54 32",
-  },
-];
-
-// Couleurs par type
 const typeStyles: Record<string, string> = {
   Formateur: "bg-blue-100 text-blue-800",
   Commercial: "bg-green-100 text-green-800",
   "Pôle Relation Client": "bg-yellow-100 text-yellow-800",
 };
 
+interface Contact {
+  id: number;
+  type: string;
+  name: string;
+  email: string;
+  phone?: string;
+}
+
 export default function Contact() {
+  const [contacts, setContacts] = useState<Contact[]>([]);
+
+  useEffect(() => {
+    const fetchContacts = async () => {
+      try {
+        const data = await contactService.getContacts();
+
+        const formateurs = data.formateurs.map((f: any) => ({
+          id: f.id,
+          type: "Formateur",
+          name: f.user.name,
+          email: f.user.email,
+          phone: f.user.phone ?? "", // si `user.phone` existe
+        }));
+
+        const commerciaux = data.commerciaux.map((c: any) => ({
+          id: c.id,
+          type: "Commercial",
+          name: c.user.name,
+          email: c.user.email,
+          phone: c.user.phone ?? "",
+        }));
+
+        const poleRelation = data.pole_relation.map((p: any) => ({
+          id: p.id,
+          type: "Pôle Relation Client",
+          name: p.user.name,
+          email: p.user.email,
+          phone: p.user.phone ?? "",
+        }));
+
+        setContacts([...formateurs, ...commerciaux, ...poleRelation]);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des contacts :", error);
+      }
+    };
+
+    fetchContacts();
+  }, []);
+
   return (
     <Layout>
       <div className="max-w-6xl mx-auto px-4 py-10">
