@@ -10,7 +10,7 @@ interface ContactSectionProps {
     id: number;
     name: string;
     email: string;
-    phone?: string;
+    telephone?: string;
     role?: string;
     avatar?: string;
     created_at?: string;
@@ -19,7 +19,7 @@ interface ContactSectionProps {
     id: number;
     name: string;
     email: string;
-    phone?: string;
+    telephone?: string;
     role?: string;
     avatar?: string;
     created_at?: string;
@@ -28,7 +28,7 @@ interface ContactSectionProps {
     id: number;
     name: string;
     email: string;
-    phone?: string;
+    telephone?: string;
     role?: string;
     avatar?: string;
     created_at?: string;
@@ -55,7 +55,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
           <ContactCard
             contact={{
               ...commerciaux[0],
-              phone: commerciaux[0].phone || "N/A",
+              telephone: commerciaux[0].telephone || "N/A",
               role: commerciaux[0].role || "N/A",
               avatar: commerciaux[0].avatar || "",
               created_at: commerciaux[0].created_at || new Date().toISOString(),
@@ -66,7 +66,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
           <ContactCard
             contact={{
               ...formateurs[0],
-              phone: formateurs[0].phone || "N/A",
+              telephone: formateurs[0].telephone || "N/A",
               role: formateurs[0].role || "N/A",
               avatar: formateurs[0].avatar || "",
               created_at: formateurs[0].created_at || new Date().toISOString(),
@@ -77,7 +77,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
           <ContactCard
             contact={{
               ...poleRelation[0],
-              phone: poleRelation[0].phone || "N/A",
+              telephone: poleRelation[0].telephone || "N/A",
               role: poleRelation[0].role || "N/A",
               avatar: poleRelation[0].avatar || "",
               created_at:

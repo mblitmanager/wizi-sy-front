@@ -15,7 +15,7 @@ interface Contact {
   type: string;
   name: string;
   email: string;
-  phone?: string;
+  telephone?: string;
 }
 
 export default function Contact() {
@@ -31,7 +31,7 @@ export default function Contact() {
           type: "Formateur",
           name: f.user.name,
           email: f.user.email,
-          phone: f.user.phone ?? "", // si `user.phone` existe
+          telephone: f.user.telephone ?? "", // si `user.phone` existe
         }));
 
         const commerciaux = data.commerciaux.map((c: any) => ({
@@ -39,7 +39,7 @@ export default function Contact() {
           type: "Commercial",
           name: c.user.name,
           email: c.user.email,
-          phone: c.user.phone ?? "",
+          telephone: c.user.telephone ?? "",
         }));
 
         const poleRelation = data.pole_relation.map((p: any) => ({
@@ -47,7 +47,7 @@ export default function Contact() {
           type: "Pôle Relation Client",
           name: p.user.name,
           email: p.user.email,
-          phone: p.user.phone ?? "",
+          telephone: p.user.telephone ?? "",
         }));
 
         setContacts([...formateurs, ...commerciaux, ...poleRelation]);
@@ -68,8 +68,7 @@ export default function Contact() {
           {contacts.map((contact) => (
             <div
               key={contact.id}
-              className="bg-white shadow-md rounded-2xl p-5 border hover:shadow-lg transition"
-            >
+              className="bg-white shadow-md rounded-2xl p-5 border hover:shadow-lg transition">
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4">
                   <User className="text-gray-500" />
@@ -81,8 +80,7 @@ export default function Contact() {
                   <span
                     className={`text-xs px-2 py-1 rounded-full font-medium ${
                       typeStyles[contact.type]
-                    }`}
-                  >
+                    }`}>
                     {contact.type}
                   </span>
                 </div>
@@ -93,8 +91,7 @@ export default function Contact() {
                   <Mail className="w-4 h-4" />
                   <a
                     href={`mailto:${contact.email}`}
-                    className="hover:underline"
-                  >
+                    className="hover:underline">
                     {contact.email}
                   </a>
                 </div>
