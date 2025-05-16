@@ -6,6 +6,8 @@ import { Layout } from "@/components/layout/Layout";
 import { Media } from "@/types/media";
 import { useUser } from "@/context/UserContext";
 import { useFormationStagiaire } from "@/use-case/hooks/stagiaire/useFormationStagiaire";
+import useAdvert from "@/components/publiciter/useAdvert";
+import AdvertBanner from "@/components/publiciter/AdvertBanner";
 
 // Composant de squelette de chargement
 const MediaSkeleton = () => (
@@ -49,11 +51,14 @@ export default function TutoAstucePage() {
   useEffect(() => {
     setSelectedMedia(medias.length > 0 ? medias[0] : null);
   }, [activeCategory, medias]);
-
+  const { isVisible, message, closeAdvert } = useAdvert(
+    "Je parraine et je gagne 50 € !"
+  );
   return (
     <Layout>
       <div className="px-4 sm:px-6 lg:px-8 py-6 bg-gray-50 min-h-screen">
         <HeaderSection titre="Tutoriels & Astuces" buttonText="Retour" />
+        {isVisible && <AdvertBanner message={message} onClose={closeAdvert} />}
 
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
           <MediaTabs active={activeCategory} onChange={setActiveCategory} />
@@ -80,28 +85,29 @@ export default function TutoAstucePage() {
         </div>
 
         <hr />
-
-        {isLoading ? (
-          <MediaSkeleton />
-        ) : medias.length === 0 ? (
-          <div className="text-center text-gray-500 mt-8">
-            Aucun média disponible pour cette catégorie.
-          </div>
-        ) : (
-          <div className="flex flex-col sm:gap-4 md:grid md:grid-cols-2 bg-white rounded-2xl shadow-lg gap-6 mt-6">
-            <div className="order-2 md:order-1 p-3 sm:p-4 overflow-y-auto max-h-[60vh] sm:max-h-none sm:overflow-auto">
-              <MediaList
-                medias={medias}
-                selectedMedia={selectedMedia}
-                onSelect={setSelectedMedia}
-              />
+        <div className="mt-2 h-[calc(100vh-10rem)] overflow-y-auto p-4 mb-2">
+          {isLoading ? (
+            <MediaSkeleton />
+          ) : medias.length === 0 ? (
+            <div className="text-center text-gray-500 mt-8">
+              Aucun média disponible pour cette catégorie.
             </div>
+          ) : (
+            <div className="flex flex-col sm:gap-4 md:grid md:grid-cols-2 bg-white rounded-2xl shadow-lg gap-6 mt-6">
+              <div className="order-2 md:order-1 p-3 sm:p-4 overflow-y-auto max-h-[60vh] sm:max-h-none sm:overflow-auto">
+                <MediaList
+                  medias={medias}
+                  selectedMedia={selectedMedia}
+                  onSelect={setSelectedMedia}
+                />
+              </div>
 
-            <div className="order-1 md:order-2 p-3 sm:p-4 sticky top-0 bg-white rounded-2xl shadow-lg max-h-[60vh] sm:max-h-none overflow-hidden ">
-              <MediaPlayer media={selectedMedia} />
+              <div className="order-1 md:order-2 p-3 sm:p-4 sticky top-0 bg-white rounded-2xl shadow-lg max-h-[60vh] sm:max-h-none overflow-hidden ">
+                <MediaPlayer media={selectedMedia} />
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </Layout>
   );

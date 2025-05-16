@@ -6,7 +6,7 @@ import { CardFooter } from "../ui/card";
 import { Button } from "../ui/button";
 import { ArrowRight } from "lucide-react";
 import { VOIR_LES_DETAILS } from "@/utils/langue-type";
-
+import nomedia from "../../assets/nomedia.png";
 const stripHtml = (html: string) => {
   const tmp = document.createElement("div");
   tmp.innerHTML = html;
@@ -20,7 +20,7 @@ const FormationCard = ({ formation }: { formation: Formation }) => {
 
   // Déterminer l'image à afficher
   const url = formation.catalogue_formation.imageUrl?.toLowerCase() || "";
-  let image = "/default-image.jpg";
+  let image = nomedia;
   if (url.endsWith(".mp4")) {
     image = mp4;
   } else if (url.endsWith(".mp3")) {
