@@ -119,9 +119,8 @@ export default function Catalogue() {
         <h1 className="text-3xl text-blue-custom-100 font-bold mb-8">
           Catalogue
         </h1>
-        {isVisible && <AdvertBanner message={message} onClose={closeAdvert} />}
 
-        <div className="mt-2 h-[calc(100vh-8rem)] overflow-y-auto p-4 mb-6">
+        <div className="mt-2 h-[calc(100vh-18rem)] overflow-y-auto p-4 mb-6">
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}
@@ -180,6 +179,10 @@ export default function Catalogue() {
                 <h2 className="text-2xl font-bold mb-2">
                   Découvrez Nos Formations
                 </h2>
+                {isVisible && (
+                  <AdvertBanner message={message} onClose={closeAdvert} />
+                )}
+
                 <p className="text-gray-600 max-w-2xl">
                   Accédez à une sélection de formations enrichissantes pour
                   développer vos compétences à votre rythme.

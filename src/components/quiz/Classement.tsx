@@ -116,38 +116,40 @@ export function Classement() {
           loading={loading.profile || loading.ranking}
         />
       </div>
+      <hr className="mn-2" />
+      <div className="mt-2 h-[calc(100vh-30rem)] overflow-y-auto p-4 mb-6">
+        {/* Tabs */}
+        <Tabs defaultValue="ranking" className="mt-6">
+          <TabsList className="grid grid-cols-2 gap-2 rounded-lg bg-gray-100 shadow-sm">
+            <TabsTrigger
+              value="ranking"
+              className="text-xs sm:text-sm md:text-base font-medium py-2 px-3 lg:px-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              Classement global
+            </TabsTrigger>
+            <TabsTrigger
+              value="history"
+              className="text-xs sm:text-sm md:text-base font-medium py-2 px-3 lg:px-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              Mon historique
+            </TabsTrigger>
+          </TabsList>
 
-      {/* Tabs */}
-      <Tabs defaultValue="ranking" className="mt-6">
-        <TabsList className="grid grid-cols-2 gap-2 rounded-lg bg-gray-100 shadow-sm">
-          <TabsTrigger
-            value="ranking"
-            className="text-xs sm:text-sm md:text-base font-medium py-2 px-3 lg:px-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            Classement global
-          </TabsTrigger>
-          <TabsTrigger
-            value="history"
-            className="text-xs sm:text-sm md:text-base font-medium py-2 px-3 lg:px-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            Mon historique
-          </TabsTrigger>
-        </TabsList>
+          <TabsContent value="ranking" className="mt-4">
+            <div className="bg-white p-3 sm:p-4 lg:p-6 rounded-lg shadow-sm border border-gray-200">
+              <GlobalRanking
+                ranking={globalRanking}
+                loading={loading.ranking}
+                currentUserId={profile?.stagiaire?.id?.toString()}
+              />
+            </div>
+          </TabsContent>
 
-        <TabsContent value="ranking" className="mt-4">
-          <div className="bg-white p-3 sm:p-4 lg:p-6 rounded-lg shadow-sm border border-gray-200">
-            <GlobalRanking
-              ranking={globalRanking}
-              loading={loading.ranking}
-              currentUserId={profile?.stagiaire?.id?.toString()}
-            />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="history" className="mt-4">
-          <div className="bg-white p-3 sm:p-4 lg:p-6 rounded-lg shadow-sm border border-gray-200">
-            <QuizHistory history={quizHistory} loading={loading.history} />
-          </div>
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="history" className="mt-4">
+            <div className="bg-white p-3 sm:p-4 lg:p-6 rounded-lg shadow-sm border border-gray-200">
+              <QuizHistory history={quizHistory} loading={loading.history} />
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }

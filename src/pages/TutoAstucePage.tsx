@@ -85,28 +85,29 @@ export default function TutoAstucePage() {
         </div>
 
         <hr />
-
-        {isLoading ? (
-          <MediaSkeleton />
-        ) : medias.length === 0 ? (
-          <div className="text-center text-gray-500 mt-8">
-            Aucun média disponible pour cette catégorie.
-          </div>
-        ) : (
-          <div className="flex flex-col sm:gap-4 md:grid md:grid-cols-2 bg-white rounded-2xl shadow-lg gap-6 mt-6">
-            <div className="order-2 md:order-1 p-3 sm:p-4 overflow-y-auto max-h-[60vh] sm:max-h-none sm:overflow-auto">
-              <MediaList
-                medias={medias}
-                selectedMedia={selectedMedia}
-                onSelect={setSelectedMedia}
-              />
+        <div className="mt-2 h-[calc(100vh-30rem)] overflow-y-auto p-4 mb-6">
+          {isLoading ? (
+            <MediaSkeleton />
+          ) : medias.length === 0 ? (
+            <div className="text-center text-gray-500 mt-8">
+              Aucun média disponible pour cette catégorie.
             </div>
+          ) : (
+            <div className="flex flex-col sm:gap-4 md:grid md:grid-cols-2 bg-white rounded-2xl shadow-lg gap-6 mt-6">
+              <div className="order-2 md:order-1 p-3 sm:p-4 overflow-y-auto max-h-[60vh] sm:max-h-none sm:overflow-auto">
+                <MediaList
+                  medias={medias}
+                  selectedMedia={selectedMedia}
+                  onSelect={setSelectedMedia}
+                />
+              </div>
 
-            <div className="order-1 md:order-2 p-3 sm:p-4 sticky top-0 bg-white rounded-2xl shadow-lg max-h-[60vh] sm:max-h-none overflow-hidden ">
-              <MediaPlayer media={selectedMedia} />
+              <div className="order-1 md:order-2 p-3 sm:p-4 sticky top-0 bg-white rounded-2xl shadow-lg max-h-[60vh] sm:max-h-none overflow-hidden ">
+                <MediaPlayer media={selectedMedia} />
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </Layout>
   );
