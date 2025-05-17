@@ -26,7 +26,7 @@ jobs:
     - name: Create views directory structure
       run: |
         mkdir -p temp_views
-        cp build/index.html temp_views/stagiaire.blade.php
+        cp dist/index.html temp_views/stagiaire.blade.php
 
     - name: Deploy public assets
       uses: SamKirkland/FTP-Deploy-Action@4.3.0
