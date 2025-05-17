@@ -30,4 +30,4 @@ jobs:
         username: ${{ secrets.FTP_USER }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./dist/
-        server-dir: ../react/public  # ou le chemin de votre dossier public
+        server-dir: ../react/public/  # ou le chemin de votre dossier public
