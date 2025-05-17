@@ -4,7 +4,14 @@ import { Layout } from "@/components/layout/Layout";
 import { useUser } from "@/context/UserContext";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, PenTool, FileText, MessageSquare, Globe, WifiOff } from "lucide-react";
+import {
+  ArrowRight,
+  PenTool,
+  FileText,
+  MessageSquare,
+  Globe,
+  WifiOff,
+} from "lucide-react";
 import { ProgressCard } from "@/components/dashboard/ProgressCard";
 import { CategoryCard } from "@/components/dashboard/CategoryCard";
 import { RankingCard } from "@/components/dashboard/RankingCard";
@@ -97,7 +104,8 @@ export function Index() {
             <WifiOff className="h-4 w-4" />
             <AlertTitle>Vous êtes hors ligne</AlertTitle>
             <AlertDescription>
-              Certaines fonctionnalités peuvent être limitées. Les données affichées peuvent ne pas être à jour.
+              Certaines fonctionnalités peuvent être limitées. Les données
+              affichées peuvent ne pas être à jour.
             </AlertDescription>
           </Alert>
         )}
@@ -246,7 +254,8 @@ export function Index() {
           <WifiOff className="h-4 w-4" />
           <AlertTitle>Vous êtes hors ligne</AlertTitle>
           <AlertDescription>
-            Certaines fonctionnalités peuvent être limitées. Les données affichées peuvent ne pas être à jour.
+            Certaines fonctionnalités peuvent être limitées. Les données
+            affichées peuvent ne pas être à jour.
           </AlertDescription>
         </Alert>
       )}
