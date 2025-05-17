@@ -22,7 +22,7 @@ export class NotificationService {
     if ('serviceWorker' in navigator) {
       try {
         this.serviceWorkerRegistration = await navigator.serviceWorker.register('/service-worker.js');
-        console.log('Service Worker enregistré avec succès');
+        // console.log('Service Worker enregistré avec succès');
       } catch (error) {
         console.error('Erreur lors de l\'enregistrement du Service Worker:', error);
       }

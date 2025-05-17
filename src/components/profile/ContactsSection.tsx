@@ -38,14 +38,10 @@ const ContactsSection = () => {
     try {
       const token = localStorage.getItem("token"); // Retrieve the JWT token from local storage
       const response = await axios.get(
-        type === "commerciaux"
-          ? "http://localhost:8000/api/stagiaire/contacts/commerciaux"
-          : type === "formateurs"
-          ? "http://localhost:8000/api/stagiaire/contacts/formateurs"
-          : "http://localhost:8000/api/stagiaire/contacts/pole-relation",
+        `${VITE_API_URL}/stagiaire/contacts/${type}`,
         {
           headers: {
-            Authorization: `Bearer ${token}`, // Add the JWT token to the headers
+        Authorization: `Bearer ${token}`, // Add the JWT token to the headers
           },
         }
       );

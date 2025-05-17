@@ -90,12 +90,12 @@ export function GlobalRanking({
         <h2 className="text-lg font-semibold text-gray-700">
           Classement global
         </h2>
-        <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-700">
+        {/* <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-700">
           <span className="font-semibold">Total points : </span>
           <span>{totalPoints}</span>
           <span className="font-semibold ml-6">Total quiz joués : </span>
           <span>{totalQuizzes}</span>
-        </div>
+        </div> */}
       </div>
 
       {/* Content */}
@@ -156,7 +156,7 @@ export function GlobalRanking({
                         </div>
                         <div className="text-xs text-gray-500">
                           {entry.quizCount} quiz •{" "}
-                          {Math.round(entry.averageScore)}%
+                          {/* {Math.round(entry.averageScore)}% */}
                         </div>
                       </div>
                     </div>
@@ -195,13 +195,13 @@ export function GlobalRanking({
                     {sortKey === "quizCount" &&
                       (sortOrder === "asc" ? "▲" : "▼")}
                   </th>
-                  <th
+                  {/* <th
                     className="px-4 py-3 text-left font-semibold text-gray-600 cursor-pointer"
                     onClick={() => handleSort("averageScore")}>
                     Score moyen{" "}
                     {sortKey === "averageScore" &&
                       (sortOrder === "asc" ? "▲" : "▼")}
-                  </th>
+                  </th> */}
                   <th
                     className="px-4 py-3 text-left font-semibold text-gray-600 cursor-pointer"
                     onClick={() => handleSort("score")}>
@@ -257,9 +257,9 @@ export function GlobalRanking({
                       <td className="px-4 py-3 text-gray-600">
                         {entry.quizCount}
                       </td>
-                      <td className="px-4 py-3 text-gray-600">
+                      {/* <td className="px-4 py-3 text-gray-600">
                         {Math.round(entry.averageScore)}%
-                      </td>
+                      </td> */}
                       <td className="px-4 py-3 text-primary font-semibold">
                         {entry.score}
                       </td>
