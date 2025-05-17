@@ -1,11 +1,11 @@
-name: Deploy to OVH
+name: Deploy React to OVH
 
 on:
   push:
     branches: [main]
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,11 +23,31 @@ jobs:
     - name: Build project
       run: npm run build
 
-    - name: Deploy via FTP
+    - name: Create views directory structure
+      run: |
+        mkdir -p temp_views
+        cp build/index.html temp_views/stagiaire.blade.php
+
+    - name: Deploy public assets
       uses: SamKirkland/FTP-Deploy-Action@4.3.0
       with:
         server: ${{ secrets.FTP_HOST }}
         username: ${{ secrets.FTP_USER }}
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./dist/
-        server-dir: ../react/public/  # ou le chemin de votre dossier public
+        local-dir: ./build/
+        server-dir: ../react/public/
+        exclude: index.html
+        dangerous-clean-slate: false
+
+    - name: Deploy Blade template
+      uses: SamKirkland/FTP-Deploy-Action@4.3.0
+      with:
+        server: ${{ secrets.FTP_HOST }}
+        username: ${{ secrets.FTP_USER }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./temp_views/
+        server-dir: ../react/ressources/views/
+        dangerous-clean-slate: true
+
+    - name: Clean temporary files
+      run: rm -rf temp_views
