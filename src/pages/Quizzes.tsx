@@ -48,14 +48,14 @@ export default function Quizzes() {
           <Tabs defaultValue="mes-quizzes" className="space-y-6 ">
             <TabsList className="grid w-full grid-cols-2 bg-slate-200">
               <TabsTrigger value="mes-quizzes">Mes Quiz</TabsTrigger>
-              <TabsTrigger value="tous-quizzes">Tous les Quiz</TabsTrigger>
+              {/* <TabsTrigger value="tous-quizzes">Tous les Quiz</TabsTrigger> */}
             </TabsList>
             <TabsContent value="mes-quizzes">
               <StagiaireQuizList />
             </TabsContent>
-            <TabsContent value="tous-quizzes">
+            {/* <TabsContent value="tous-quizzes">
               <QuizList />
-            </TabsContent>
+            </TabsContent> */}
           </Tabs>
         )}
       </div>
