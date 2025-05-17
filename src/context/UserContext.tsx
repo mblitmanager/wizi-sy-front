@@ -61,8 +61,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       if (storedToken) {
         try {
-           // Vérifier si le token est valide
-            const response = await fetch(`${VITE_API_URL}/me`, {
+          // Vérifier si le token est valide
+          const response = await fetch(`${VITE_API_URL}/me`, {
             headers: {
               Authorization: `Bearer ${storedToken}`,
             },

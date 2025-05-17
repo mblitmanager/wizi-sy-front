@@ -50,12 +50,14 @@ export default function Quizzes() {
               <TabsTrigger value="mes-quizzes">Mes Quiz</TabsTrigger>
               {/* <TabsTrigger value="tous-quizzes">Tous les Quiz</TabsTrigger> */}
             </TabsList>
-            <TabsContent value="mes-quizzes">
-              <StagiaireQuizList />
-            </TabsContent>
-            {/* <TabsContent value="tous-quizzes">
-              <QuizList />
-            </TabsContent> */}
+            <div className="mt-2 h-[calc(100vh-25rem)] overflow-y-auto p-4">
+              <TabsContent value="mes-quizzes">
+                <StagiaireQuizList />
+              </TabsContent>
+              <TabsContent value="tous-quizzes">
+                <QuizList />
+              </TabsContent>
+            </div>
           </Tabs>
         )}
       </div>

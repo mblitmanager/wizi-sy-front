@@ -2,6 +2,7 @@ import { StagiaireQuizCard } from "./StagiaireQuizCard";
 import type { Quiz, Category } from "@/types/quiz";
 import { Link } from "react-router-dom";
 import React from "react";
+import { QuizCard } from "./QuizCard";
 
 interface StagiaireQuizGridProps {
   quizzes: Quiz[];
@@ -24,7 +25,7 @@ export function StagiaireQuizGrid({
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {quizzes.map((quiz) => (
         <Link key={quiz.id} to={`/quiz/${quiz.id}`}>
-          <StagiaireQuizCard quiz={quiz} categories={categories} />
+          <QuizCard quiz={quiz} categories={categories} />
         </Link>
       ))}
     </div>

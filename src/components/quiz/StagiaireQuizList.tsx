@@ -168,41 +168,41 @@ export function StagiaireQuizList() {
         </div>
       </div>
       <hr className="mb-2" />
-      <div className="mt-2 h-[calc(100vh-30rem)] overflow-y-auto p-4 mb-6">
-        <div className="space-y-6">
-          {/* Section des quiz non joués */}
-          <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6">
-            {notPlayedQuizzes.length === 0 ? (
-              <div className="text-center py-12 sm:py-16 bg-gray-50 rounded-lg">
-                <p className="text-gray-500">Tous les quiz ont été joués !</p>
-              </div>
-            ) : (
-              <StagiaireQuizGrid
-                quizzes={notPlayedQuizzes}
-                categories={categories || []}
-              />
-            )}
-          </div>
+      {/* <div className="mt-2 h-[calc(100vh-25rem)] overflow-y-auto p-4"> */}
+      <div className="space-y-6">
+        {/* Section des quiz non joués */}
+        <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6">
+          {notPlayedQuizzes.length === 0 ? (
+            <div className="text-center py-12 sm:py-16 bg-gray-50 rounded-lg">
+              <p className="text-gray-500">Tous les quiz ont été joués !</p>
+            </div>
+          ) : (
+            <StagiaireQuizGrid
+              quizzes={notPlayedQuizzes}
+              categories={categories || []}
+            />
+          )}
+        </div>
 
-          {/* Section des quiz joués */}
-          <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6 sm:mb-4">
-            <h3 className="text-lg font-semibold mb-2 text-gray-700">
-              Rejouez à vos anciens quiz
-            </h3>
-            <hr className="mb-4" />
-            {playedQuizzes.length === 0 ? (
-              <div className="text-center py-12 sm:py-16 bg-gray-50 rounded-lg">
-                <p className="text-gray-500">Aucun quiz joué pour l'instant.</p>
-              </div>
-            ) : (
-              <StagiaireQuizGrid
-                quizzes={playedQuizzes}
-                categories={categories || []}
-              />
-            )}
-          </div>
+        {/* Section des quiz joués */}
+        <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6 sm:mb-4">
+          <h3 className="text-lg font-semibold mb-2 text-gray-700">
+            Rejouez à vos anciens quiz
+          </h3>
+          <hr className="mb-4" />
+          {playedQuizzes.length === 0 ? (
+            <div className="text-center py-12 sm:py-16 bg-gray-50 rounded-lg">
+              <p className="text-gray-500">Aucun quiz joué pour l'instant.</p>
+            </div>
+          ) : (
+            <StagiaireQuizGrid
+              quizzes={playedQuizzes}
+              categories={categories || []}
+            />
+          )}
         </div>
       </div>
+      {/* </div> */}
     </div>
   );
 }

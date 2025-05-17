@@ -117,7 +117,7 @@ export function Classement() {
         />
       </div>
       <hr className="mn-2" />
-      <div className="mt-2 h-[calc(100vh-35rem)] overflow-y-auto p-4">
+      <div className="mt-2 h-[calc(100vh-30rem)] overflow-y-auto p-4">
         {/* Tabs */}
         <Tabs defaultValue="ranking" className="mt-6">
           <TabsList className="grid grid-cols-2 gap-2 rounded-lg bg-gray-100 shadow-sm">
