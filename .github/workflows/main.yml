@@ -35,7 +35,7 @@ jobs:
         username: ${{ secrets.FTP_USER }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./dist/
-        server-dir: ../react/public/
+        server-dir: ./public/
         exclude: index.html
         dangerous-clean-slate: false
 
@@ -46,7 +46,7 @@ jobs:
         username: ${{ secrets.FTP_USER }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./temp_views/
-        server-dir: ../react/ressources/views/
+        server-dir: ./ressources/views/
         dangerous-clean-slate: true
 
     - name: Clean temporary files
