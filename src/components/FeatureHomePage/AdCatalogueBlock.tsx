@@ -19,7 +19,8 @@ function getRandomItems<T>(array: T[], n: number): T[] {
 
 function getAdContent(formation: CatalogueFormation) {
   const titre = formation.titre || "Formation";
-  const desc = stripHtml(formation.description)?.slice(0, 120) ||
+  const desc =
+    stripHtml(formation.description)?.slice(0, 120) ||
     "Une formation incontournable pour progresser rapidement.";
   const titles = [
     `🚀 ${titre} : Passez à la vitesse supérieure !`,
@@ -56,23 +57,30 @@ interface AdCatalogueBlockProps {
 const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
   const selected = useMemo(() => getRandomItems(formations, 3), [formations]);
   const ads = useMemo(() => selected.map(getAdContent), [selected]);
+
   if (!formations || formations.length === 0) return null;
+
   return (
-    <div className="grid gap-6 md:grid-cols-3 sm:grid-cols-1 my-8">
+    <div className="grid md:grid-cols-3 sm:grid-cols-1 gap-6 px-6 py-8 bg-white/20 rounded-2xl shadow-xl">
       {selected.map((formation, idx) => {
         const ad = ads[idx];
         return (
           <div
             key={formation.id || idx}
-            className="rounded-xl shadow-lg bg-white p-6 flex flex-col justify-between border border-gray-100 hover:shadow-2xl transition-all"
+            className="flex flex-col justify-between h-full p-6 rounded-2xl bg-white border border-gray-200 shadow-md hover:shadow-xl transition-all duration-300"
           >
-            <h3 className="text-xl font-bold mb-2 text-blue-700">{ad.title}</h3>
-            <p className="mb-2 text-gray-700">{ad.description}</p>
-            <p className="mb-4 text-green-700 font-semibold">{ad.benefit}</p>
-            <Button asChild className="w-full mt-auto">
-              <a href={"/catalogue/" + (formation.id || "")}>
-                {ad.cta}
-              </a>
+            <div>
+              <h3 className="text-xl font-bold text-blue-800 mb-2 flex items-center gap-2">
+                {ad.emoji} <span>{ad.title}</span>
+              </h3>
+              <p className="text-gray-600 mb-2">{ad.description}</p>
+              <p className="text-green-700 font-medium">{ad.benefit}</p>
+            </div>
+            <Button
+              asChild
+              className="w-full mt-6 bg-blue-700 hover:bg-blue-800 text-white"
+            >
+              <a href={`/catalogue/${formation.id || ""}`}>{ad.cta}</a>
             </Button>
           </div>
         );

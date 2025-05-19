@@ -28,6 +28,7 @@ import useAdvert from "@/components/publiciter/useAdvert";
 import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
 import { catalogueFormationApi } from "@/services/api";
 import backImage from "../assets/back.jpg";
+import { motion } from "framer-motion";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -42,6 +43,27 @@ const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
   );
   // Adapt to paginated response
   return response.data.data; // <-- get the array from .data
+};
+
+const fadeIn = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.6 } },
+};
+
+const slideUp = {
+  hidden: { y: 20, opacity: 0 },
+  visible: { y: 0, opacity: 1, transition: { duration: 0.5 } },
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      when: "beforeChildren",
+    },
+  },
 };
 export function Index() {
   const { user } = useUser();
@@ -95,21 +117,32 @@ export function Index() {
   if (!user) {
     return (
       <Layout>
-        <div className="bg-gradient-to-b from-white to-gray-100 py-16">
+        {/* Hero Section */}
+        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 py-20">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex flex-col lg:flex-row items-center gap-12">
-              <div className="lg:w-1/2 space-y-6">
-                <h1 className="text-4xl md:text-5xl font-bold font-astria leading-tight">
+              <motion.div
+                className="lg:w-1/2 space-y-6"
+                initial="hidden"
+                animate="visible"
+                variants={staggerContainer}
+              >
+                <motion.h1
+                  className="text-4xl md:text-5xl font-bold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600"
+                  variants={slideUp}
+                >
                   Apprenez de façon interactive et ludique
-                </h1>
-                <p className="text-lg text-gray-600">
+                </motion.h1>
+
+                <motion.p className="text-lg text-gray-700" variants={slideUp}>
                   Bienvenue sur Wizi Learn, la plateforme de quiz éducatifs pour
                   nos stagiaires. Testez vos connaissances, suivez votre
                   progression et développez vos compétences professionnelles.
-                </p>
-                <div className="flex flex-wrap gap-4">
+                </motion.p>
+
+                <motion.div className="flex flex-wrap gap-4" variants={slideUp}>
                   <Button size="lg" asChild>
-                    <Link to="/login">
+                    <Link to="/login" className="flex items-center">
                       Commencer maintenant
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
@@ -117,49 +150,70 @@ export function Index() {
                   <Button size="lg" variant="outline" asChild>
                     <Link to="/login">Connexion</Link>
                   </Button>
-                </div>
-              </div>
-              <div className="lg:w-1/2">
-                <div className="relative">
-                  <div className="absolute -top-6 -left-6 w-64 h-64 bg-bureautique/20 rounded-full blur-3xl"></div>
-                  <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-creation/20 rounded-full blur-3xl"></div>
-                  <div className="relative bg-white p-6 rounded-xl shadow-lg">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-bureautique/10 p-4 rounded-lg flex items-center gap-3">
-                        <div className="bg-bureautique text-white p-2 rounded-md">
-                          <FileText className="h-5 w-5" />
+                </motion.div>
+              </motion.div>
+
+              <motion.div
+                className="lg:w-1/2 relative"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6 }}
+              >
+                <div className="absolute -top-6 -left-6 w-64 h-64 bg-indigo-200 rounded-full blur-3xl opacity-40"></div>
+                <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-purple-200 rounded-full blur-3xl opacity-40"></div>
+
+                <motion.div
+                  className="relative bg-white p-8 rounded-2xl shadow-xl border border-gray-100"
+                  whileHover={{ y: -5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <div className="relative">
+                    <div className="absolute -top-6 -left-6 w-64 h-64 bg-bureautique/20 rounded-full blur-3xl"></div>
+                    <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-creation/20 rounded-full blur-3xl"></div>
+                    <div className="relative bg-white p-6 rounded-xl shadow-lg">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-bureautique/10 p-4 rounded-lg flex items-center gap-3">
+                          <div className="bg-bureautique text-white p-2 rounded-md">
+                            <FileText className="h-5 w-5" />
+                          </div>
+                          <span className="font-medium">Bureautique</span>
                         </div>
-                        <span className="font-medium">Bureautique</span>
-                      </div>
-                      <div className="bg-langues/10 p-4 rounded-lg flex items-center gap-3">
-                        <div className="bg-langues text-white p-2 rounded-md">
-                          <MessageSquare className="h-5 w-5" />
+                        <div className="bg-langues/10 p-4 rounded-lg flex items-center gap-3">
+                          <div className="bg-langues text-white p-2 rounded-md">
+                            <MessageSquare className="h-5 w-5" />
+                          </div>
+                          <span className="font-medium">Langues</span>
                         </div>
-                        <span className="font-medium">Langues</span>
-                      </div>
-                      <div className="bg-internet/10 p-4 rounded-lg flex items-center gap-3">
-                        <div className="bg-internet text-black p-2 rounded-md">
-                          <Globe className="h-5 w-5" />
+                        <div className="bg-internet/10 p-4 rounded-lg flex items-center gap-3">
+                          <div className="bg-internet text-black p-2 rounded-md">
+                            <Globe className="h-5 w-5" />
+                          </div>
+                          <span className="font-medium">Internet</span>
                         </div>
-                        <span className="font-medium">Internet</span>
-                      </div>
-                      <div className="bg-creation/10 p-4 rounded-lg flex items-center gap-3">
-                        <div className="bg-creation text-white p-2 rounded-md">
-                          <PenTool className="h-5 w-5" />
+                        <div className="bg-creation/10 p-4 rounded-lg flex items-center gap-3">
+                          <div className="bg-creation text-white p-2 rounded-md">
+                            <PenTool className="h-5 w-5" />
+                          </div>
+                          <span className="font-medium">Création</span>
                         </div>
-                        <span className="font-medium">Création</span>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             </div>
           </div>
         </div>
 
-        <div className="py-16">
+        {/* Categories Section */}
+        <div className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center mb-12">
+            <motion.div
+              className="text-center mb-12"
+              initial="hidden"
+              animate="visible"
+              variants={fadeIn}
+            >
               <h2 className="text-3xl font-bold mb-4">
                 Nos catégories de formations
               </h2>
@@ -167,65 +221,88 @@ export function Index() {
                 Découvrez notre large éventail de formations pour développer vos
                 compétences professionnelles.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+              initial="hidden"
+              animate="visible"
+              variants={staggerContainer}
+            >
               {categories.map((category) => (
-                <CategoryCard key={category.id} category={category} />
+                <motion.div
+                  key={category.id}
+                  variants={slideUp}
+                  whileHover={{ y: -5 }}
+                >
+                  <CategoryCard category={category} />
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
         </div>
 
-        <div className="bg-gray-50 py-16">
+        {/* How It Works Section */}
+        <div className="bg-gradient-to-br from-gray-50 to-indigo-50 py-20">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center mb-12">
+            <motion.div
+              className="text-center mb-12"
+              initial="hidden"
+              animate="visible"
+              variants={fadeIn}
+            >
               <h2 className="text-3xl font-bold mb-4">Comment ça marche</h2>
               <p className="text-gray-600 max-w-3xl mx-auto">
                 Une approche simple et efficace pour améliorer vos compétences
                 grâce à notre plateforme de quiz.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-white p-6 rounded-xl shadow-sm">
-                <div className="w-12 h-12 bg-bureautique/10 text-bureautique rounded-full flex items-center justify-center mb-4">
-                  <span className="font-bold">1</span>
-                </div>
-                <h3 className="text-xl font-semibold mb-2">
-                  Choisissez un quiz
-                </h3>
-                <p className="text-gray-600">
-                  Sélectionnez parmi nos quiz, suivant votre formation.
-                </p>
-              </div>
-
-              <div className="bg-white p-6 rounded-xl shadow-sm">
-                <div className="w-12 h-12 bg-langues/10 text-langues rounded-full flex items-center justify-center mb-4">
-                  <span className="font-bold">2</span>
-                </div>
-                <h3 className="text-xl font-semibold mb-2">
-                  Testez vos connaissances
-                </h3>
-                <p className="text-gray-600">
-                  Répondez aux questions dans différents formats: QCM,
-                  vrai/faux, remplir les blancs et plus encore.
-                </p>
-              </div>
-
-              <div className="bg-white p-6 rounded-xl shadow-sm">
-                <div className="w-12 h-12 bg-creation/10 text-creation rounded-full flex items-center justify-center mb-4">
-                  <span className="font-bold">3</span>
-                </div>
-                <h3 className="text-xl font-semibold mb-2">
-                  Suivez votre progression
-                </h3>
-                <p className="text-gray-600">
-                  Consultez vos statistiques, comparez vos performances et
-                  remportez des défis pour gagner des points.
-                </p>
-              </div>
-            </div>
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-3 gap-8"
+              initial="hidden"
+              animate="visible"
+              variants={staggerContainer}
+            >
+              {[
+                {
+                  step: "1",
+                  title: "Choisissez un quiz",
+                  description:
+                    "Sélectionnez parmi nos quiz, suivant votre formation.",
+                  color: "indigo",
+                },
+                {
+                  step: "2",
+                  title: "Testez vos connaissances",
+                  description:
+                    "Répondez aux questions dans différents formats: QCM, vrai/faux, remplir les blancs et plus encore.",
+                  color: "purple",
+                },
+                {
+                  step: "3",
+                  title: "Suivez votre progression",
+                  description:
+                    "Consultez vos statistiques, comparez vos performances et remportez des défis pour gagner des points.",
+                  color: "blue",
+                },
+              ].map((item, index) => (
+                <motion.div
+                  key={index}
+                  className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100"
+                  variants={slideUp}
+                  whileHover={{ y: -5 }}
+                >
+                  <div
+                    className={`w-12 h-12 bg-${item.color}-100 text-${item.color}-600 rounded-full flex items-center justify-center mb-4`}
+                  >
+                    <span className="font-bold">{item.step}</span>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
+                  <p className="text-gray-600">{item.description}</p>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
         </div>
       </Layout>
@@ -273,16 +350,16 @@ export function Index() {
           {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"> */}
           {catalogueData && catalogueData.length > 0 ? (
             <>
-              <h2 className="text-2xl font-semibold mb-4">
+              <h2 className="text-3xl font-bold mb-6 text-gray-900 text-center">
                 Découvrez notre catalogue
               </h2>
-              <AdCatalogueBlock formations={catalogueData} />
 
               <div
-                className="h-screen bg-cover bg-center bg-no-repeat"
-                style={{ backgroundImage: `url(${backImage})` }}>
-                <div className="flex items-center justify-center h-full bg-black bg-opacity-50">
-                  <h1 className="text-white text-3xl font-bold">Bienvenue !</h1>
+                className="min-h-screen bg-cover bg-no-repeat bg-right flex items-center justify-center px-4 py-12"
+                style={{ backgroundImage: `url(${backImage})` }}
+              >
+                <div className="max-w-7xl w-full">
+                  <AdCatalogueBlock formations={catalogueData} />
                 </div>
               </div>
             </>
