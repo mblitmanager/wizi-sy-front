@@ -29,18 +29,18 @@ const ProfilePage = () => {
   const isLoading = !user;
 
   // Transform rankings data
-  const safeRankings =
-    rankings?.map((entry, index) => ({
-      stagiaire: {
-        id: entry?.stagiaire?.id || entry?.id?.toString() || `rank-${index}`,
-        prenom: entry?.stagiaire?.prenom || entry?.prenom || "Anonyme",
-        image: null,
-      },
-      totalPoints: entry?.totalPoints || entry?.points || 0,
-      quizCount: entry?.quizCount || entry?.completed_quizzes || 0,
-      averageScore: entry?.averageScore || entry?.average_score || 0,
-      rang: entry?.rang || index + 1,
-    })) || [];
+  // const safeRankings =
+  //   rankings?.map((entry, index) => ({
+  //     stagiaire: {
+  //       id: entry?.stagiaire?.id || entry?.id?.toString() || `rank-${index}`,
+  //       prenom: entry?.stagiaire?.prenom || entry?.prenom || "Anonyme",
+  //       image: null,
+  //     },
+  //     totalPoints: entry?.totalPoints || entry?.points || 0,
+  //     quizCount: entry?.quizCount || entry?.completed_quizzes || 0,
+  //     averageScore: entry?.averageScore || entry?.average_score || 0,
+  //     rang: entry?.rang || index + 1,
+  //   })) || [];
 
   if (isLoading) {
     return (
@@ -92,18 +92,18 @@ const ProfilePage = () => {
           {/* Contenu des anciens onglets maintenant affiché directement */}
           <div className="space-y-4 px-2 sm:px-0">
             {/* Section Vue d'ensemble - 1 colonne mobile, 2 desktop */}
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-              <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
+            {/* <div className="grid gap-4 grid-cols-1 md:grid-cols-2"> */}
+              <div className="bg-white dark:bg-gray-800 p-3 sm:p-6 rounded-lg shadow-sm">
                 <UserStats user={user} userProgress={userProgress} />
-              </div>
-              <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
+              {/* </div> */}
+              {/* <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
                 <h3 className="text-lg font-semibold mb-3 font-montserrat dark:text-white">
                   Résultats récents
                 </h3>
                 <div className="overflow-x-auto">
                   <RecentResults results={results} isLoading={isLoading} />
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Section Progression */}

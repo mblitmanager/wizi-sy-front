@@ -1,4 +1,3 @@
-
 import { api } from './api';
 import { UserProgress } from '@/types/quiz';
 
@@ -54,27 +53,29 @@ export const rankingService = {
             const response = await api.get('/stagiaire/progress');
             
             // Map the response to our expected format
-            const data = response.data.progress || {};
+            const data = response.data || {};
             
             // Convertir les données de progression par catégorie dans le format attendu
             const categoryProgress: Record<string, { completed: number; total: number; average_score: number }> = {};
-            
-            if (data.categoryProgress) {
-                Object.entries(data.categoryProgress).forEach(([key, value]) => {
-                    const categoryData = value as any; // Type assertion
-                    categoryProgress[key] = {
-                        completed: categoryData.completed_quizzes || 0,
-                        total: categoryData.total_quizzes || 10,
-                        average_score: categoryData.average_score || 0
-                    };
-                });
-            }
-            
+            // Si les données de progression par catégorie existent, les traiter, sinon laisser vide
+            // if (data.categoryProgress && typeof data.categoryProgress === 'object') {
+            //     Object.entries(data.categoryProgress).forEach(([key, value]) => {
+            //         const categoryData: { completed_quizzes?: number; total_quizzes?: number; average_score?: number } = value || {};
+            //         categoryProgress[key] = {
+            //             completed: categoryData.completed_quizzes || 0,
+            //             total: categoryData.total_quizzes || 0,
+            //             average_score: categoryData.average_score || 0
+            //         };
+            //     });
+            // }
+            console.log('ProgressData ATO:', data);
+            console.log('CategoryProgress ATO:', categoryProgress);
             return {
                 total: {
-                    points: data.total_points || 0,
-                    completed_quizzes: data.completed_quizzes || 0,
-                    average_score: data.average_score || 0
+                    points: data.totalPoints || 0,
+                    completed_quizzes: data.completedQuizzes || 0,
+                    average_score: data.averageScore || 0,
+                    level: data.level || 1
                 },
                 by_category: categoryProgress
             };

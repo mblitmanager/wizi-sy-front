@@ -10,10 +10,14 @@ interface UserStatsProps {
 }
 
 const UserStats: React.FC<UserStatsProps> = ({ user, userProgress }) => {
+  console.log("UserStats component rendered");
+  console.log("User:", user);
+  console.log("UserProgressA:", userProgress);
   const totalPoints =
     user?.points ||
     userProgress?.total_points ||
-    userProgress?.totalPoints ||
+    userProgress?.totalPoints || userProgress?.points ||
+    userProgress?.totalScore ||
     0;
 
   // Since badges and streak may not exist in the updated UserProgress, we'll provide fallbacks

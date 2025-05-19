@@ -12,8 +12,10 @@ import {
 import { LoadingState } from "../quiz/quiz-play/LoadingState";
 import useAdvert from "../publiciter/useAdvert";
 import AdvertBanner from "../publiciter/AdvertBanner";
+import { useLoadRankings } from "@/use-case/hooks/profile/useLoadRankings";
 
 const ProfileHeader: React.FC = () => {
+  const { userProgress, rankings } = useLoadRankings();
   const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
   const VITE_API_URL = import.meta.env.VITE_API_URL;
   const { user, logout, refetchUser } = useUser();
@@ -89,7 +91,8 @@ const ProfileHeader: React.FC = () => {
   const { isVisible, message, closeAdvert } = useAdvert(
     "Je parraine et je gagne 50 € !"
   );
-
+  console.log("isVisible", isVisible);
+  console.log("userProgress", userProgress);
   return (
     <>
       <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm mb-4 mx-2 sm:mx-0">
@@ -171,11 +174,11 @@ const ProfileHeader: React.FC = () => {
 
             <div className="flex justify-center gap-2 mt-2 sm:mt-3 flex-wrap">
               <span className="text-xs px-2 py-0.5 sm:py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 rounded-full">
-                Niveau.{user.level || 1}
+                {/* Niveau.{userProgress.level || 1} */}
               </span>
               <span className="text-xs px-2 py-0.5 sm:py-1 bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 rounded-full flex items-center gap-1">
                 <StarIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3" />{" "}
-                {user.points || 0} points
+                {/* {userProgress.totalPoints || 0} points */}
               </span>
             </div>
           </div>
