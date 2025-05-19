@@ -121,7 +121,6 @@ export function Index() {
   if (!user) {
     return (
       <Layout>
-<<<<<<< .merge_file_21J4e8
         {!isOnline && (
           <Alert variant="destructive" className="mb-4 mx-4 mt-4">
             <WifiOff className="h-4 w-4" />
@@ -133,22 +132,16 @@ export function Index() {
           </Alert>
         )}
         <div className="bg-gradient-to-b from-white to-gray-100 py-16">
-=======
-        {/* Hero Section */}
-        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 py-20">
->>>>>>> .merge_file_zHiRCs
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex flex-col lg:flex-row items-center gap-12">
               <motion.div
                 className="lg:w-1/2 space-y-6"
                 initial="hidden"
                 animate="visible"
-                variants={staggerContainer}
-              >
+                variants={staggerContainer}>
                 <motion.h1
                   className="text-4xl md:text-5xl font-bold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600"
-                  variants={slideUp}
-                >
+                  variants={slideUp}>
                   Apprenez de façon interactive et ludique
                 </motion.h1>
 
@@ -175,16 +168,14 @@ export function Index() {
                 className="lg:w-1/2 relative"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6 }}
-              >
+                transition={{ duration: 0.6 }}>
                 <div className="absolute -top-6 -left-6 w-64 h-64 bg-indigo-200 rounded-full blur-3xl opacity-40"></div>
                 <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-purple-200 rounded-full blur-3xl opacity-40"></div>
 
                 <motion.div
                   className="relative bg-white p-8 rounded-2xl shadow-xl border border-gray-100"
                   whileHover={{ y: -5 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
+                  transition={{ type: "spring", stiffness: 300 }}>
                   <div className="relative">
                     <div className="absolute -top-6 -left-6 w-64 h-64 bg-bureautique/20 rounded-full blur-3xl"></div>
                     <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-creation/20 rounded-full blur-3xl"></div>
@@ -230,8 +221,7 @@ export function Index() {
               className="text-center mb-12"
               initial="hidden"
               animate="visible"
-              variants={fadeIn}
-            >
+              variants={fadeIn}>
               <h2 className="text-3xl font-bold mb-4">
                 Nos catégories de formations
               </h2>
@@ -245,14 +235,12 @@ export function Index() {
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
               initial="hidden"
               animate="visible"
-              variants={staggerContainer}
-            >
+              variants={staggerContainer}>
               {categories.map((category) => (
                 <motion.div
                   key={category.id}
                   variants={slideUp}
-                  whileHover={{ y: -5 }}
-                >
+                  whileHover={{ y: -5 }}>
                   <CategoryCard category={category} />
                 </motion.div>
               ))}
@@ -267,8 +255,7 @@ export function Index() {
               className="text-center mb-12"
               initial="hidden"
               animate="visible"
-              variants={fadeIn}
-            >
+              variants={fadeIn}>
               <h2 className="text-3xl font-bold mb-4">Comment ça marche</h2>
               <p className="text-gray-600 max-w-3xl mx-auto">
                 Une approche simple et efficace pour améliorer vos compétences
@@ -280,8 +267,7 @@ export function Index() {
               className="grid grid-cols-1 md:grid-cols-3 gap-8"
               initial="hidden"
               animate="visible"
-              variants={staggerContainer}
-            >
+              variants={staggerContainer}>
               {[
                 {
                   step: "1",
@@ -309,11 +295,9 @@ export function Index() {
                   key={index}
                   className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100"
                   variants={slideUp}
-                  whileHover={{ y: -5 }}
-                >
+                  whileHover={{ y: -5 }}>
                   <div
-                    className={`w-12 h-12 bg-${item.color}-100 text-${item.color}-600 rounded-full flex items-center justify-center mb-4`}
-                  >
+                    className={`w-12 h-12 bg-${item.color}-100 text-${item.color}-600 rounded-full flex items-center justify-center mb-4`}>
                     <span className="font-bold">{item.step}</span>
                   </div>
                   <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
@@ -384,8 +368,7 @@ export function Index() {
 
               <div
                 className="min-h-screen bg-cover bg-no-repeat bg-right flex items-center justify-center px-4 py-12"
-                style={{ backgroundImage: `url(${backImage})` }}
-              >
+                style={{ backgroundImage: `url(${backImage})` }}>
                 <div className="max-w-7xl w-full">
                   <AdCatalogueBlock formations={catalogueData} />
                 </div>
