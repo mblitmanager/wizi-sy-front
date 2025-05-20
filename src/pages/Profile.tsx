@@ -87,7 +87,7 @@ const ProfilePage = () => {
     <Layout>
       <div className="container mx-auto px-4 md:pb-4 max-w-7xl">
         <div className="mt-2 h-[calc(100vh-8rem)] overflow-y-auto p-4">
-          {user && <ProfileHeader user={user} />}
+          {user && <ProfileHeader user={user} userProgress={userProgress} />}
 
           {/* Contenu des anciens onglets maintenant affiché directement */}
           <div className="space-y-4 px-2 sm:px-0">

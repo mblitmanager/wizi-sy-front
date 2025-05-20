@@ -10,9 +10,7 @@ interface UserStatsProps {
 }
 
 const UserStats: React.FC<UserStatsProps> = ({ user, userProgress }) => {
-  console.log("UserStats component rendered");
-  console.log("User:", user);
-  console.log("UserProgressA:", userProgress);
+
   const totalPoints =
     user?.points ||
     userProgress?.total_points ||
@@ -55,7 +53,7 @@ const UserStats: React.FC<UserStatsProps> = ({ user, userProgress }) => {
               <Award className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="text-lg sm:text-xl font-bold font-nunito text-blue-800 dark:text-blue-200">
-              {user?.level || 1}
+              {userProgress?.level || 1}
             </div>
             <div className="text-xs sm:text-sm font-medium text-blue-600 dark:text-blue-400">
               Niveau
