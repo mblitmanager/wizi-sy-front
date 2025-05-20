@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { Button } from '@/components/ui/button';
-import { Bell, BellOff } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
 interface NotificationBannerProps {
@@ -26,7 +26,7 @@ export function NotificationBanner({ className }: NotificationBannerProps) {
           <div>
             <h3 className="font-medium text-blue-800 text-sm sm:text-base">Activez les notifications</h3>
             <p className="text-xs sm:text-sm text-blue-600">
-              Recevez des notifications pour les nouveaux quiz, récompenses et résultats.
+              Recevez des notifications pour les nouveaux quiz, formations et récompenses.
             </p>
           </div>
         </div>
@@ -36,7 +36,7 @@ export function NotificationBanner({ className }: NotificationBannerProps) {
           onClick={requestPermission}
           className="border-blue-300 bg-white text-blue-700 hover:bg-blue-50 w-full sm:w-auto"
         >
-          Activer
+          Activer les notifications
         </Button>
       </div>
     </Card>

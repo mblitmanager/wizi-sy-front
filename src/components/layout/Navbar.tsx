@@ -24,7 +24,14 @@ export function Navbar() {
   const { user, logout } = useUser();
   const isMobile = useIsMobile();
   const [userScore, setUserScore] = useState<number | null>(null);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [filleulsCount, setFilleulsCount] = useState<number | null>(null);
+
+    // Fetch unread notifications count
+  useEffect(() => {
+    // This would typically come from a backend API call
+    setUnreadNotifications(2);
+  }, []);
   useEffect(() => {
     const fetchScore = async () => {
       if (!user || !user.stagiaire) return;
@@ -95,15 +102,19 @@ export function Navbar() {
         {/* Bloc droite - Notifications + Dropdown */}
         {user && (
           <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative hover:bg-gray-100 transition">
-              <Bell className="h-5 w-5 text-gray-600" />
-              <Badge className="absolute -top-1 -right-1 px-1.5 h-5 min-w-5 text-xs bg-red-500 text-white animate-pulse">
-                2
-              </Badge>
-            </Button>
+            <Link to="/notifications">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative hover:bg-gray-100 transition">
+                <Bell className="h-5 w-5 text-gray-600" />
+                {unreadNotifications > 0 && (
+                  <Badge className="absolute -top-1 -right-1 px-1.5 h-5 min-w-5 text-xs bg-red-500 text-white animate-pulse">
+                    {unreadNotifications}
+                  </Badge>
+                )}
+              </Button>
+            </Link>
               {userScore !== null && (
                 <span className="ml-2 text-yellow-600 font-bold text-sm">
                   {userScore} pts
