@@ -6,7 +6,7 @@ import { useUser } from "@/context/UserContext";
 import logo from "../../assets/logo.png";
 import { Gift, X } from "lucide-react";
 import { Button } from "../ui/button";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useMediaQuery } from "@mui/system";
 
 interface LayoutProps {
@@ -27,8 +27,8 @@ export function Layout({ children }: LayoutProps) {
       {/* Sidebar - visible sur desktop */}
       <aside className="hidden md:flex md:flex-col md:w-64 border-r border-gray-200 bg-white shadow-sm">
         {/* Logo en haut de la sidebar */}
-        <div className="h-24 flex items-center justify-center border-b">
-          <img src={logo} alt="" className="object-contain h-14 w-40" />
+        <div className="h-[104px] flex items-center justify-center border-b">
+          <img src={logo} alt="" className="object-contain h-20 w-40" />
         </div>
         <div className="flex-1 overflow-y-auto">
           <MainNav />
@@ -39,14 +39,14 @@ export function Layout({ children }: LayoutProps) {
       <div className="flex flex-col flex-1 h-screen">
         {/* Bannière en haut (uniquement sur desktop) */}
         {showBanner && !isMobile && (
-          <div className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+          <div className="w-full bg-gradient-to-r from-blue-custom-300 to-cyan-600 text-white">
             <div className="container mx-auto px-3 py-2 flex items-center justify-between">
               <div className="flex items-center overflow-hidden">
-                <Gift className="h-4 w-4 mr-2 flex-shrink-0" />
+                <Gift className="h-6 w-6 mr-2 flex-shrink-0" />
                 <div className="truncate">
                   <span className="font-bold text-xs sm:text-sm">
                     Je parraine et je gagne{" "}
-                    <span className="text-yellow-300">50€</span>
+                    <span className="text-black text-2xl">50€</span>
                   </span>
                   <span className="ml-2 text-xs sm:text-sm hidden sm:inline">
                     Profitez de notre offre de parrainage dès maintenant !
@@ -54,18 +54,20 @@ export function Layout({ children }: LayoutProps) {
                 </div>
               </div>
               <div className="flex items-center space-x-1 sm:space-x-2">
-                <Button
+                <Link
                   size="xs"
                   variant="outline"
-                  className="text-white bg-blue-custom-50 border-white hover:bg-white/10 hover:text-white text-xs px-2"
-                  onClick={() => navigate("/parrainage")}>
+                  className="text-black underline hover:bg-white/10 hover:text-white text-xs px-2"
+                  onClick={() => navigate("/parrainage")}
+                >
                   Découvrir
-                </Button>
+                </Link>
                 <Button
                   size="xs"
                   variant="ghost"
                   className="text-white hover:bg-white/10 p-1"
-                  onClick={() => setShowBanner(false)}>
+                  onClick={() => setShowBanner(false)}
+                >
                   <X className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>
@@ -101,14 +103,16 @@ export function Layout({ children }: LayoutProps) {
                   size="xs"
                   variant="outline"
                   className="text-white bg-blue-custom-50 border-white hover:bg-white/10 hover:text-white text-xs px-2"
-                  onClick={() => navigate("/parrainage")}>
+                  onClick={() => navigate("/parrainage")}
+                >
                   Voir
                 </Button>
                 <Button
                   size="xs"
                   variant="ghost"
                   className="text-white hover:bg-white/10 p-1"
-                  onClick={() => setShowBanner(false)}>
+                  onClick={() => setShowBanner(false)}
+                >
                   <X className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>

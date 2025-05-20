@@ -15,8 +15,9 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { parrainageService } from "../../services/parrainageService";
 import { ParrainageStats as ParrainageStatsType } from "../../services/parrainageService";
-import image from "../../assets/aopia-parrainage.png";
+import image from "../../assets/aopia parrainage.png";
 import { useUser } from "@/context/UserContext";
+import LienParrainage from "../parrainage/LienParainage";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
@@ -31,19 +32,49 @@ const ParrainageSection = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const data = await parrainageService.getParrainageStats();
-        setStats(data);
+        // Vérification plus robuste de l'ID utilisateur
+        const userId = user?.user?.id;
+        if (!userId) {
+          console.log("Aucun ID utilisateur trouvé");
+          return;
+        }
+
+        const response = await fetch(`${API_URL}/parrainage/stats/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(
+            errorData.message ||
+              "Erreur lors de la récupération des statistiques"
+          );
+        }
+
+        const data = await response.json();
+
+        setStats({
+          total_filleuls: data.nombre_filleuls,
+          total_points: parseInt(data.total_points),
+          total_rewards: 0, // À adapter selon votre logique
+        });
       } catch (err) {
-        setStatsError("Erreur lors du chargement des statistiques");
-        console.error(err);
+        console.error("Error in fetchStats:", err);
+        setStatsError(
+          err instanceof Error
+            ? err.message
+            : "Erreur lors du chargement des statistiques"
+        );
       } finally {
         setStatsLoading(false);
       }
     };
 
     fetchStats();
-  }, []);
-
+  }, [user?.user?.id]);
+  console.log("stats:", stats);
   // Dans ParrainageSection.tsx
   const generateLink = async () => {
     try {
@@ -81,12 +112,10 @@ const ParrainageSection = () => {
     });
   };
 
-  console.log("link", parrainageLink);
-
   return (
     <section className="mb-6">
       <div className="flex flex-col md:flex-row gap-6 mb-8">
-        <div className="flex-1 order-2 md:order-1">
+        <div className="flex-2 order-2 md:order-2 md:w-full">
           {/* En-tête compact pour mobile */}
           <div className="md:hidden flex items-center gap-4 mb-4">
             <img
@@ -128,48 +157,21 @@ const ParrainageSection = () => {
           <div className="space-y-4">
             {/* Carte de génération de lien */}
             <Card className="border-blue-100">
-              <CardContent className="p-4 md:p-6">
-                <div className="flex items-center mb-3">
-                  <Megaphone className="h-5 w-5 text-blue-500 mr-2" />
-                  <h3 className="text-base md:text-lg font-medium">
-                    Partagez et gagnez
-                  </h3>
-                </div>
-
-                <p className="text-sm md:text-base text-gray-700 mb-3">
-                  Gagnez <span className="font-bold">50€</span> par ami inscrit
-                </p>
-
-                <div className="space-y-3">
-                  <Button
-                    onClick={generateLink}
-                    disabled={isLoading}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-sm md:text-base">
-                    <LinkIcon className="h-4 w-4 mr-2" />
-                    {isLoading ? "Génération..." : "Générer mon lien"}
-                  </Button>
-
-                  {parrainageLink && (
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={parrainageLink}
-                        readOnly
-                        aria-label="Lien de parrainage"
-                        className="flex-1 p-2 text-xs md:text-sm border rounded-md bg-gray-50 focus:ring-2 focus:ring-blue-500"
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={copyToClipboard}
-                        aria-label="Copier le lien"
-                        className="hover:bg-blue-50">
-                        <Copy className="h-3 w-3 md:h-4 md:w-4" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
+              <Card className="border-blue-100">
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex items-center mb-3">
+                    <Megaphone className="h-5 w-5 text-blue-500 mr-2" />
+                    <h3 className="text-base md:text-lg font-medium">
+                      Partagez et gagnez
+                    </h3>
+                  </div>
+                  <p className="text-sm md:text-base text-gray-700 mb-3">
+                    Gagnez <span className="font-bold">50€</span> par ami
+                    inscrit
+                  </p>
+                  <LienParrainage />
+                </CardContent>
+              </Card>
             </Card>
 
             {/* Statistiques - version compacte mobile */}
@@ -235,7 +237,7 @@ const ParrainageSection = () => {
         </div>
 
         {/* Image seulement sur desktop */}
-        <div className="hidden md:flex flex-1 justify-center order-1 md:order-2">
+        <div className="hidden md:flex flex-1 justify-start order-1 md:order-1">
           <img
             src={image}
             alt="Programme de parrainage AOPIA"

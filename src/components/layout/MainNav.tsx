@@ -96,7 +96,8 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
                     return `${baseClasses} ${
                       isActive ? activeClasses : inactiveClasses
                     }`;
-                  }}>
+                  }}
+                >
                   {({ isActive }) => (
                     <>
                       <item.icon
@@ -120,11 +121,12 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
             animate={{ opacity: 1, x: 0 }} // Anime vers la position originale
             exit={{ opacity: 0, x: -300 }} // Quitte vers la gauche
             transition={{ duration: 0.5 }}
-            className=" w-[calc(100%-2rem)] bg-gradient-to-br from-sky-500 via-blue-500 to-indigo-500 text-white p-1 mb-2 sm:p-4  flex items-center mx-auto  gap-3 z-50 cursor-pointer hover:shadow-xl transition-all animate-pulse">
+            className=" w-[calc(100%-2rem)] bg-gradient-to-br  from-blue-custom-300 to-cyan-600 text-white p-1 mb-2 sm:p-4  flex items-center mx-auto  gap-3 z-50 cursor-pointer hover:shadow-xl transition-all"
+          >
             <Gift className="w-8 h-8 " />
             <span className="font-semibold text-xs">
               Je parraine et je gagne{" "}
-              <span className="text-yellow-300">50€</span>
+              <span className="text-black text-2xl">50€</span>
             </span>
           </motion.div>
         </Link>

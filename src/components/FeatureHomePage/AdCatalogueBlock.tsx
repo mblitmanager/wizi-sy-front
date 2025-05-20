@@ -59,29 +59,66 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
   const ads = useMemo(() => selected.map(getAdContent), [selected]);
 
   if (!formations || formations.length === 0) return null;
-
+  console.log("ads", ads);
   return (
-    <div className="grid md:grid-cols-3 sm:grid-cols-1 gap-6 px-6 py-8 bg-white/20 rounded-2xl shadow-xl">
+    <div className="grid md:grid-cols-3 sm:grid-cols-1 gap-3 px-4 py-3">
       {selected.map((formation, idx) => {
         const ad = ads[idx];
         return (
           <div
             key={formation.id || idx}
-            className="flex flex-col justify-between h-full p-6 rounded-2xl bg-white border border-gray-200 shadow-md hover:shadow-xl transition-all duration-300"
+            className="flex flex-col justify-between h-full rounded-xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group"
+            style={{ minHeight: "320px" }} // Hauteur fixe pour l'uniformité
           >
-            <div>
-              <h3 className="text-xl font-bold text-blue-800 mb-2 flex items-center gap-2">
-                {ad.emoji} <span>{ad.title}</span>
-              </h3>
-              <p className="text-gray-600 mb-2">{ad.description}</p>
-              <p className="text-green-700 font-medium">{ad.benefit}</p>
+            <div className="p-5">
+              {/* En-tête avec emoji et badge */}
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-xl animate-wiggle">
+                  {ad.emoji || "📚"}
+                </span>
+                <span className="text-xs bg-blue-100/80 text-blue-800 px-3 py-1 rounded-full font-medium uppercase tracking-wider">
+                  Formation
+                </span>
+              </div>
+
+              {/* Contenu texte */}
+              <div className="space-y-3">
+                <h3 className="text-xl font-bold text-gray-900 leading-tight group-hover:text-blue-600 transition-colors">
+                  {ad.title}
+                </h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  {ad.description}
+                </p>
+                <div className="flex items-center text-green-600 text-xs font-medium">
+                  <svg
+                    className="w-4 h-4 mr-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  {ad.benefit}
+                </div>
+              </div>
             </div>
-            <Button
-              asChild
-              className="w-full mt-6 bg-blue-700 hover:bg-blue-800 text-white"
-            >
-              <a href={`/catalogue/${formation.id || ""}`}>{ad.cta}</a>
-            </Button>
+
+            {/* Bouton avec effet de gradient amélioré */}
+            <div className="px-5 pb-5">
+              <Button
+                asChild
+                className="w-full bg-gradient-to-r bg-blue-custom-300 hover:to-blue-700 text-white font-medium rounded-lg py-3 transition-all shadow-sm hover:shadow-md"
+              >
+                <a href={`/catalogue/${formation.id || ""}`}>
+                  <span className="drop-shadow-sm">{ad.cta}</span>
+                </a>
+              </Button>
+            </div>
           </div>
         );
       })}
