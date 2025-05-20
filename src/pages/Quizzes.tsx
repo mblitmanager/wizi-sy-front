@@ -1,4 +1,3 @@
-
 import { Layout } from "@/components/layout/Layout";
 import { QuizList } from "@/components/quiz/QuizList";
 import { StagiaireQuizList } from "@/components/quiz/StagiaireQuizList";
@@ -6,8 +5,6 @@ import { useQuery } from "@tanstack/react-query";
 import { categoryService } from "@/services/quiz/CategoryService";
 import { Loader2, WifiOff } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import useAdvert from "@/components/publiciter/useAdvert";
-import AdvertBanner from "@/components/publiciter/AdvertBanner";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
@@ -16,29 +13,26 @@ export default function Quizzes() {
   const { data: categories, isLoading: categoriesLoading } = useQuery({
     queryKey: ["quiz-categories"],
     queryFn: () => categoryService.getCategories(),
-    enabled: !!localStorage.getItem('token') && isOnline
+    enabled: !!localStorage.getItem("token") && isOnline,
   });
-  const { isVisible, message, closeAdvert } = useAdvert(
-    "Je parraine et je gagne 50 € !"
-  );
+
   return (
     <Layout>
       <div className="container mx-auto px-4 md:pb-4 max-w-7xl">
-      {!isOnline && (
+        {!isOnline && (
           <Alert variant="destructive" className="mb-4">
             <WifiOff className="h-4 w-4" />
             <AlertTitle>Vous êtes hors ligne</AlertTitle>
             <AlertDescription>
-              Certaines fonctionnalités peuvent être limitées. Vous pourrez toujours accéder aux quiz que vous avez déjà chargés.
+              Certaines fonctionnalités peuvent être limitées. Vous pourrez
+              toujours accéder aux quiz que vous avez déjà chargés.
             </AlertDescription>
           </Alert>
         )}
-        
+
         <h1 className="text-3xl text-blue-custom-100 font-bold mb-8">
           Quiz disponibles
         </h1>
-
-        {isVisible && <AdvertBanner message={message} onClose={closeAdvert} />}
 
         {categoriesLoading ? (
           <div className="flex items-center justify-center min-h-[50vh]">

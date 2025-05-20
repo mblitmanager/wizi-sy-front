@@ -30,7 +30,8 @@ export function Navbar() {
         const ranking = await rankingService.getGlobalRanking();
         // Les données du backend sont sous la forme { stagiaire: { id, ... }, totalPoints, ... }
         const entry = ranking.find(
-          (e: any) => e.stagiaire?.id?.toString() === user.stagiaire.id?.toString()
+          (e: any) =>
+            e.stagiaire?.id?.toString() === user.stagiaire.id?.toString()
         );
         setUserScore(entry ? entry.totalPoints : 0);
       } catch (e) {
@@ -71,7 +72,7 @@ export function Navbar() {
   };
 
   return (
-    <nav className="px-4 md:px-6 py-3 sticky top-0 z-50 w-full">
+    <nav className="px-4 md:px-6 py-2 sticky top-0 z-50 w-full">
       <div className="flex justify-between items-center w-full">
         {/* Bloc gauche - Logo uniquement mobile */}
         <div className="max-w-sm">
@@ -90,11 +91,11 @@ export function Navbar() {
                 2
               </Badge>
             </Button>
-              {userScore !== null && (
-                <span className="ml-2 text-yellow-600 font-bold text-sm">
-                  {userScore} pts
-                </span>
-              )}
+            {userScore !== null && (
+              <span className="ml-2 text-yellow-600 font-bold text-sm">
+                {userScore} pts
+              </span>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="relative flex items-center gap-2 p-1 rounded-full hover:shadow-md transition focus:outline-none">

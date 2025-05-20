@@ -1,10 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Link as LinkIcon, Copy } from "lucide-react";
+import {
+  Users,
+  Link as LinkIcon,
+  Copy,
+  BarChart2,
+  UserPlus,
+  Star,
+  Award,
+  Megaphone,
+  Gift,
+} from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { parrainageService } from "../../services/parrainageService";
 import { ParrainageStats as ParrainageStatsType } from "../../services/parrainageService";
+import image from "../../assets/aopia-parrainage.png";
+import { useUser } from "@/context/UserContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
@@ -15,7 +27,7 @@ const ParrainageSection = () => {
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState<string | null>(null);
   const { toast } = useToast();
-
+  const { user } = useUser();
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -32,30 +44,28 @@ const ParrainageSection = () => {
     fetchStats();
   }, []);
 
+  // Dans ParrainageSection.tsx
   const generateLink = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(
-        `${API_URL}/stagiaire/parrainage/generate-link`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la génération du lien");
-      }
+      const response = await fetch(`${API_URL}/parrainage/generate-link`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       const data = await response.json();
-      setParrainageLink(data.link);
+      if (data.success) {
+        setParrainageLink(data.link);
+      } else {
+        throw new Error(data.message || "Erreur lors de la génération du lien");
+      }
     } catch (error) {
       toast({
         title: "Erreur",
-        description: "Impossible de générer le lien de parrainage",
+        description: error.message,
         variant: "destructive",
       });
     } finally {
@@ -71,96 +81,168 @@ const ParrainageSection = () => {
     });
   };
 
+  console.log("link", parrainageLink);
+
   return (
     <section className="mb-6">
-      <h1 className="text-3xl text-blue-custom-100 font-bold mb-8">
-        Programme de parrainage
-      </h1>
-
-      {/* Statistiques de parrainage */}
-      {statsLoading ? (
-        <div className="mb-6">Chargement des statistiques...</div>
-      ) : statsError ? (
-        <div className="mb-6 text-red-500">{statsError}</div>
-      ) : (
-        stats && (
-          <Card className="mb-6">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-medium mb-4">
-                Vos statistiques de parrainage
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h4 className="text-sm font-semibold text-blue-700">
-                    Filleuls
-                  </h4>
-                  <p className="text-2xl font-bold">{stats.total_filleuls}</p>
-                </div>
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <h4 className="text-sm font-semibold text-green-700">
-                    Points Gagnés
-                  </h4>
-                  <p className="text-2xl font-bold">
-                    {stats.total_points || 0}
-                  </p>
-                </div>
-                <div className="bg-purple-50 p-4 rounded-lg">
-                  <h4 className="text-sm font-semibold text-purple-700">
-                    Récompenses
-                  </h4>
-                  <p className="text-2xl font-bold">
-                    {stats.total_rewards || 0}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )
-      )}
-
-      {/* Génération de lien de parrainage */}
-      <Card className="mb-4">
-        <CardContent className="p-6">
-          <div className="flex items-center mb-4">
-            <Users className="h-6 w-6 text-blue-500 mr-2" />
-            <h3 className="text-lg font-medium">Invitez vos amis</h3>
+      <div className="flex flex-col md:flex-row gap-6 mb-8">
+        <div className="flex-1 order-2 md:order-1">
+          {/* En-tête compact pour mobile */}
+          <div className="md:hidden flex items-center gap-4 mb-4">
+            <img
+              src={image}
+              alt="Parrainage"
+              className="w-20 h-20 object-contain"
+            />
+            <div>
+              <h1 className="text-2xl text-blue-custom-100 font-bold">
+                Programme de parrainage
+              </h1>
+              <p className="text-sm text-gray-700">
+                Gagnez <span className="font-bold text-green-600">50€</span> par
+                filleul
+              </p>
+            </div>
           </div>
 
-          <p className="text-gray-600 mb-4">
-            Partagez votre lien de parrainage et gagnez des points à chaque fois
-            qu'un ami s'inscrit et commence à apprendre !
+          {/* Version desktop */}
+          <h1 className="hidden md:block text-3xl text-blue-custom-100 font-bold mb-4">
+            Programme de parrainage
+          </h1>
+
+          <p className="hidden md:block text-lg text-gray-700 mb-4">
+            Parlez de nos formations à votre entourage (famille, amis, collègues
+            et connaissances) et gagnez{" "}
+            <span className="font-bold text-green-600">50 €</span> par filleul !
           </p>
 
-          <div className="space-y-4">
-            <Button
-              onClick={generateLink}
-              disabled={isLoading}
-              className="w-full">
-              <LinkIcon className="h-4 w-4 mr-2" />
-              {isLoading ? "Génération..." : "Générer mon lien de parrainage"}
-            </Button>
+          {/* Bouton principal plus compact sur mobile */}
+          <Button className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-400 text-white hover:from-blue-700 hover:to-blue-500 mb-4">
+            <Gift className="h-5 w-5 mr-2" />
+            <span className="text-sm md:text-base">
+              Je parraine et je gagne 50€
+            </span>
+          </Button>
 
-            {parrainageLink && (
-              <div className="flex items-center space-x-2">
-                <input
-                  type="text"
-                  value={parrainageLink}
-                  readOnly
-                  aria-label="Lien de parrainage"
-                  className="flex-1 p-2 border rounded-md bg-gray-50"
-                />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={copyToClipboard}
-                  aria-label="Copier le lien">
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
+          {/* Cartes en colonne unique sur mobile */}
+          <div className="space-y-4">
+            {/* Carte de génération de lien */}
+            <Card className="border-blue-100">
+              <CardContent className="p-4 md:p-6">
+                <div className="flex items-center mb-3">
+                  <Megaphone className="h-5 w-5 text-blue-500 mr-2" />
+                  <h3 className="text-base md:text-lg font-medium">
+                    Partagez et gagnez
+                  </h3>
+                </div>
+
+                <p className="text-sm md:text-base text-gray-700 mb-3">
+                  Gagnez <span className="font-bold">50€</span> par ami inscrit
+                </p>
+
+                <div className="space-y-3">
+                  <Button
+                    onClick={generateLink}
+                    disabled={isLoading}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-sm md:text-base">
+                    <LinkIcon className="h-4 w-4 mr-2" />
+                    {isLoading ? "Génération..." : "Générer mon lien"}
+                  </Button>
+
+                  {parrainageLink && (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={parrainageLink}
+                        readOnly
+                        aria-label="Lien de parrainage"
+                        className="flex-1 p-2 text-xs md:text-sm border rounded-md bg-gray-50 focus:ring-2 focus:ring-blue-500"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={copyToClipboard}
+                        aria-label="Copier le lien"
+                        className="hover:bg-blue-50">
+                        <Copy className="h-3 w-3 md:h-4 md:w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Statistiques - version compacte mobile */}
+            {statsLoading ? (
+              <div className="text-center py-4">Chargement...</div>
+            ) : statsError ? (
+              <div className="text-red-500 text-sm py-4">{statsError}</div>
+            ) : (
+              stats && (
+                <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100">
+                  <CardContent className="p-4 md:p-6">
+                    <h3 className="text-base md:text-lg font-medium mb-3 flex items-center">
+                      <BarChart2 className="h-4 w-4 md:h-5 md:w-5 mr-2 text-blue-600" />
+                      <span>Vos stats</span>
+                    </h3>
+                    <div className="grid grid-cols-3 gap-2 md:gap-4">
+                      <div className="bg-white p-2 md:p-4 rounded-lg shadow-sm border border-blue-100">
+                        <h4 className="text-xs md:text-sm font-semibold text-blue-700 flex items-center">
+                          <UserPlus className="h-3 w-3 md:h-4 md:w-4 mr-1" />
+                          <span className="truncate">Filleuls</span>
+                        </h4>
+                        <p className="text-xl md:text-2xl font-bold text-blue-800">
+                          {stats.total_filleuls}
+                        </p>
+                      </div>
+                      <div className="bg-white p-2 md:p-4 rounded-lg shadow-sm border border-green-100">
+                        <h4 className="text-xs md:text-sm font-semibold text-green-700 flex items-center">
+                          <Star className="h-3 w-3 md:h-4 md:w-4 mr-1" />
+                          <span className="truncate">Points</span>
+                        </h4>
+                        <p className="text-xl md:text-2xl font-bold text-green-800">
+                          {stats.total_points || 0}
+                        </p>
+                      </div>
+                      <div className="bg-white p-2 md:p-4 rounded-lg shadow-sm border border-purple-100">
+                        <h4 className="text-xs md:text-sm font-semibold text-purple-700 flex items-center">
+                          <Award className="h-3 w-3 md:h-4 md:w-4 mr-1" />
+                          <span className="truncate">Gains</span>
+                        </h4>
+                        <p className="text-xl md:text-2xl font-bold text-purple-800">
+                          {stats.total_rewards || 0}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
             )}
+
+            {/* Guide compact */}
+            <div className="bg-blue-50 p-3 md:p-4 rounded-lg border border-blue-200">
+              <h3 className="font-medium text-blue-800 text-sm md:text-base mb-1 md:mb-2">
+                Comment ça marche ?
+              </h3>
+              <ul className="text-xs md:text-sm text-gray-700 space-y-1 pl-4">
+                <li className="list-disc">Générez votre lien unique</li>
+                <li className="list-disc">Partagez avec vos proches</li>
+                <li className="list-disc">50€ par inscription valide</li>
+                <li className="list-disc">Suivez vos gains</li>
+              </ul>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Image seulement sur desktop */}
+        <div className="hidden md:flex flex-1 justify-center order-1 md:order-2">
+          <img
+            src={image}
+            alt="Programme de parrainage AOPIA"
+            className="max-w-xs md:max-w-sm"
+          />
+        </div>
+      </div>
     </section>
   );
 };

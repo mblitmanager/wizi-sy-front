@@ -337,9 +337,9 @@ export function Index() {
               </Link>
             </Button>
           </div>
-          {isVisible && (
+          {/* {isVisible && (
             <AdvertBanner message={message} onClose={closeAdvert} />
-          )}
+          )} */}
 
           <div className="mt-2 space-y-12">
             <ParrainageSection />

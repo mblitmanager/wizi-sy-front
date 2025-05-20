@@ -45,7 +45,7 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
     },
     {
       title: "Parrainage",
-      href: "/parainage",
+      href: "/parrainage",
       icon: Gift,
     },
     {
@@ -114,15 +114,18 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
         </div>
       </div>
       <div className="mt-auto px-3 py-4 border-t">
-        <Link to="/parainage" className="w-full">
+        <Link to="/parrainage" className="w-full">
           <motion.div
             initial={{ opacity: 0, x: -300 }} // Commence à gauche de l'écran (en dehors de l'écran)
             animate={{ opacity: 1, x: 0 }} // Anime vers la position originale
             exit={{ opacity: 0, x: -300 }} // Quitte vers la gauche
             transition={{ duration: 0.5 }}
-            className=" w-[calc(100%-2rem)] bg-gradient-to-br rounded-lg from-sky-500 via-blue-500 to-indigo-500 text-white p-2 mb-2 sm:p-4  flex items-center mx-auto  gap-3 z-50 cursor-pointer hover:shadow-xl transition-shadow duration-200">
-            <Gift className="w-10 h-10 animate-bounce" />
-            <span className="font-semibold text-md">{message}</span>
+            className=" w-[calc(100%-2rem)] bg-gradient-to-br from-sky-500 via-blue-500 to-indigo-500 text-white p-1 mb-2 sm:p-4  flex items-center mx-auto  gap-3 z-50 cursor-pointer hover:shadow-xl transition-all animate-pulse">
+            <Gift className="w-8 h-8 " />
+            <span className="font-semibold text-xs">
+              Je parraine et je gagne{" "}
+              <span className="text-yellow-300">50€</span>
+            </span>
           </motion.div>
         </Link>
       </div>

@@ -179,9 +179,6 @@ export default function Catalogue() {
                 <h2 className="text-2xl font-bold mb-2">
                   Découvrez Nos Formations
                 </h2>
-                {isVisible && (
-                  <AdvertBanner message={message} onClose={closeAdvert} />
-                )}
 
                 <p className="text-gray-600 max-w-2xl">
                   Accédez à une sélection de formations enrichissantes pour
