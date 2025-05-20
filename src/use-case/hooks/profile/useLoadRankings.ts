@@ -18,8 +18,7 @@ export const useLoadRankings = () => {
         rankingService.getUserProgress(),
         rankingService.getGlobalRanking(),
       ]);
-      console.log("ProgressResA:", progressRes);
-      console.log("RankingsResA:", rankingsRes);
+      
       if (progressRes?.total) {
         setUserProgress({
           totalScore: progressRes.total.points || 0,
@@ -40,7 +39,6 @@ export const useLoadRankings = () => {
 
     fetchProgressAndRankings();
   }, []);
-  console.log("Okok porgress:", userProgress);
-  console.log("Ok Rankings:", rankings);
+  
   return { userProgress, rankings };
 };

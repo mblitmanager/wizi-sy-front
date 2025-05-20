@@ -1,10 +1,10 @@
 import { useSearchParams } from "react-router-dom";
-import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import StatsSummary from "@/components/profile/StatsSummary";
 import FormationCatalogue from "@/components/profile/FormationCatalogue";
 import ProfileTabs from "@/components/profile/ProfileTabs";
+import React, { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useLoadProfile } from "@/use-case/hooks/profile/useLoadProfile";
 import { useLoadQuizData } from "@/use-case/hooks/profile/useLoadQuizData";
@@ -14,6 +14,8 @@ import { RecentResults } from "@/components/profile/RecentResults";
 import RankingComponent from "@/components/Ranking/RankingComponent";
 import CategoryProgress from "@/components/profile/CategoryProgress";
 import UserStats from "@/components/profile/UserStats";
+import type { QuizHistory as QuizHistoryType } from "@/types/quiz";
+import { quizSubmissionService } from "@/services/quiz/QuizSubmissionService";
 
 const ProfilePage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -25,7 +27,7 @@ const ProfilePage = () => {
   const { results, categories } = useLoadQuizData();
   const { userProgress, rankings } = useLoadRankings();
   const formations = useLoadFormations();
-
+const [quizHistory, setQuizHistory] = useState<QuizHistoryType[]>([]);
   const isLoading = !user;
 
   // Transform rankings data
@@ -41,7 +43,23 @@ const ProfilePage = () => {
   //     averageScore: entry?.averageScore || entry?.average_score || 0,
   //     rang: entry?.rang || index + 1,
   //   })) || [];
+useEffect(() => {
+   
 
+    const fetchQuizHistory = async () => {
+      try {
+        const history = await quizSubmissionService.getQuizHistory();
+        setQuizHistory(history);
+      } catch (error) {
+        console.error("Error fetching quiz history:", error);
+      } finally {
+        setLoading((prev) => ({ ...prev, history: false }));
+      }
+    };
+
+ 
+    fetchQuizHistory();
+  }, []);
   if (isLoading) {
     return (
       <Layout>
@@ -122,13 +140,13 @@ const ProfilePage = () => {
             {/* Section Résultats complets */}
             <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
               <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
-                Tous vos résultats
+                Résultats récents
               </h3>
               <div className="overflow-x-auto">
                 <RecentResults
-                  results={results}
+                  results={quizHistory}
                   isLoading={isLoading}
-                  showAll={true}
+                  showAll={false}
                 />
               </div>
             </div>

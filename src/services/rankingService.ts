@@ -68,8 +68,7 @@ export const rankingService = {
             //         };
             //     });
             // }
-            console.log('ProgressData ATO:', data);
-            console.log('CategoryProgress ATO:', categoryProgress);
+            
             return {
                 total: {
                     points: data.totalPoints || 0,
