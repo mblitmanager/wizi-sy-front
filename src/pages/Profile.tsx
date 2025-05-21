@@ -1,5 +1,5 @@
 import { useSearchParams } from "react-router-dom";
-import { Layout } from "@/components/layout/Layout";
+import { Layout } from "@/components/layout/Layout"; 
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import StatsSummary from "@/components/profile/StatsSummary";
 import FormationCatalogue from "@/components/profile/FormationCatalogue";
