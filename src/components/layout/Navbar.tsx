@@ -25,6 +25,7 @@ export function Navbar() {
   const isMobile = useIsMobile();
   const [userScore, setUserScore] = useState<number | null>(null);
   const [filleulsCount, setFilleulsCount] = useState<number | null>(null);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   // Fetch unread notifications count
   useEffect(() => {
@@ -116,20 +117,7 @@ export function Navbar() {
                 )}
               </Button>
             </Link>
-            {userScore !== null && (
-              <span className="ml-2 text-yellow-600 font-bold text-sm">
-                {userScore} pts
-              </span>
-            )}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative hover:bg-gray-100 transition">
-              <Bell className="h-5 w-5 text-gray-600" />
-              <Badge className="absolute -top-1 -right-1 px-1.5 h-5 min-w-5 text-xs bg-red-500 text-white animate-pulse">
-                2
-              </Badge>
-            </Button>
+                   
               {userScore !== null && (
                 <span className="ml-2 text-yellow-600 font-bold text-sm">
                   {userScore} pts
