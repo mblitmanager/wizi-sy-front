@@ -338,90 +338,90 @@ export function Index() {
           </AlertDescription>
         </Alert>
       )}
-      <div className="mt-2 h-[calc(100vh-8rem)] overflow-y-auto p-4">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl text-blue-custom-100 font-bold mb-8">
-              Tableau de bord
-            </h1>
-            {/* <Button asChild>
+      {/* <div className="mt-2 h-[calc(100vh-8rem)] overflow-y-auto p-4"> */}
+      <div className="max-w-7xl mx-auto px-4 py-4">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-3xl text-blue-custom-100 font-bold mb-8">
+            Tableau de bord
+          </h1>
+          {/* <Button asChild>
               <Link to="/catalogue">
                 Voir le catalogue
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button> */}
-          </div>
-          {/* {isVisible && (
+        </div>
+        {/* {isVisible && (
             <AdvertBanner message={message} onClose={closeAdvert} />
           )} */}
 
-          <div className="mt-2 space-y-12 mb-3">
-            <Card className="border-blue-100">
-              <CardContent className="p-4 md:p-6">
-                <div className="flex items-center mb-3">
-                  <Megaphone className="h-5 w-5 text-blue-500 mr-2" />
-                  <h3 className="text-base md:text-lg font-medium">
-                    Partagez et gagnez
-                  </h3>
-                </div>
-                <p className="text-sm md:text-base text-gray-700 mb-3">
-                  Gagnez <span className="font-bold">50€</span> par ami inscrit
-                </p>
-                <LienParrainage />
-              </CardContent>
-            </Card>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            {/* Section des contacts */}
-            <ContactsSection
-              commerciaux={commerciaux}
-              formateurs={formateurs}
-              poleRelation={poleRelation}
-            />
-          </div>
+        <div className="mt-2 space-y-12 mb-3">
+          <Card className="border-blue-100">
+            <CardContent className="p-4 md:p-6">
+              <div className="flex items-center mb-3">
+                <Megaphone className="h-5 w-5 text-blue-500 mr-2" />
+                <h3 className="text-base md:text-lg font-medium">
+                  Partagez et gagnez
+                </h3>
+              </div>
+              <p className="text-sm md:text-base text-gray-700 mb-3">
+                Gagnez <span className="font-bold">50€</span> par ami inscrit
+              </p>
+              <LienParrainage />
+            </CardContent>
+          </Card>
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow-sm">
+          {/* Section des contacts */}
+          <ContactsSection
+            commerciaux={commerciaux}
+            formateurs={formateurs}
+            poleRelation={poleRelation}
+          />
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <ProgressCard user={user} />
-            <AgendaCard events={agendaEvents} />
-            {/* <RankingCard rankings={rankings} currentUserId={user.id} /> */}
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <ProgressCard user={user} />
+          <AgendaCard events={agendaEvents} />
+          {/* <RankingCard rankings={rankings} currentUserId={user.id} /> */}
+        </div>
 
-          {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"> */}
-          {catalogueData && catalogueData.length > 0 ? (
-            <>
-              <h2 className="text-3xl font-bold mb-6 text-gray-900 text-center">
-                Découvrez notre catalogue
-              </h2>
-              <div className="flex flex-col md:flex-row items-center justify-center gap-8 px-2 py-12 bg-white rounded-xl shadow-md">
-                {/* Colonne illustration */}
-                <div className="md:w-1/3 flex justify-center mb-8 md:mb-0">
-                  <img
-                    src={illustration}
-                    alt="Catalogue Illustration"
-                    className="max-w-xs w-full h-auto object-contain"
-                  />
-                </div>
-                {/* Colonne catalogue */}
-                <div className=" w-full flex flex-col items-center">
-                  <div className="w-full">
-                    <AdCatalogueBlock formations={catalogueData.slice(0, 4)} />
-                  </div>
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"> */}
+        {catalogueData && catalogueData.length > 0 ? (
+          <>
+            <h2 className="text-3xl font-bold mb-6 text-gray-900 text-center">
+              Découvrez notre catalogue
+            </h2>
+            <div className="flex flex-col md:flex-row items-center justify-center gap-8 px-2 py-12 bg-white rounded-xl shadow-md">
+              {/* Colonne illustration */}
+              <div className="md:w-1/3 flex justify-center mb-8 md:mb-0">
+                <img
+                  src={illustration}
+                  alt="Catalogue Illustration"
+                  className="max-w-xs w-full h-auto object-contain"
+                />
+              </div>
+              {/* Colonne catalogue */}
+              <div className=" w-full flex flex-col items-center">
+                <div className="w-full">
+                  <AdCatalogueBlock formations={catalogueData.slice(0, 4)} />
                 </div>
               </div>
-            </>
-          ) : (
-            <div className="col-span-full text-center text-muted-foreground"></div>
-          )}
-          {/* </div> */}
+            </div>
+          </>
+        ) : (
+          <div className="col-span-full text-center text-muted-foreground"></div>
+        )}
+        {/* </div> */}
 
-          {/* <h2 className="text-2xl font-semibold mb-4">Défis disponibles</h2>
+        {/* <h2 className="text-2xl font-semibold mb-4">Défis disponibles</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {challenges.map((challenge) => (
             <ChallengeCard key={challenge.id} challenge={challenge} />
           ))}
         </div> */}
-        </div>
       </div>
+      {/* </div> */}
     </Layout>
   );
 }

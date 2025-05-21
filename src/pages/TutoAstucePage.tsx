@@ -34,7 +34,6 @@ export default function TutoAstucePage() {
   const { data: formations = [] } = useFormationStagiaire(
     user?.stagiaire.id ?? null
   );
-  console.log("formations.data", formations.data);
   const {
     data: mediasData,
     isLoading,
@@ -62,7 +61,8 @@ export default function TutoAstucePage() {
             <select
               value={selectedFormationId ?? ""}
               onChange={(e) => setSelectedFormationId(e.target.value || null)}
-              className="px-3 py-1.5 text-sm sm:text-base min-w-[180px] sm:min-w-[250px] bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition duration-200">
+              className="px-3 py-1.5 text-sm sm:text-base min-w-[180px] sm:min-w-[250px] bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition duration-200"
+            >
               <option value="">Toutes les formations</option>
               {formations.data?.map((formation) => (
                 <option key={formation.id} value={formation.id}>
@@ -73,7 +73,8 @@ export default function TutoAstucePage() {
 
             <button
               onClick={() => refetch()}
-              className="text-sm px-3 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-white rounded-xl shadow transition duration-150">
+              className="text-sm px-3 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-white rounded-xl shadow transition duration-150"
+            >
               {isFetching ? "Chargement..." : "Rafraîchir"}
             </button>
           </div>

@@ -81,9 +81,7 @@ export function Layout({ children }: LayoutProps) {
         </header>
 
         {/* Contenu principal */}
-        <main className="p-4 h-auto overflow-y-auto md:overflow-hidden">
-          {children}
-        </main>
+        <main className="p-4">{children}</main>
 
         {/* Bannière en bas (uniquement sur mobile) */}
         {showBanner && isMobile && (

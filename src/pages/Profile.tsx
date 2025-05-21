@@ -60,7 +60,8 @@ const ProfilePage = () => {
             {Array.from({ length: 3 }).map((_, idx) => (
               <div
                 key={idx}
-                className="p-4 bg-white rounded-2xl shadow space-y-2 animate-pulse">
+                className="p-4 bg-white rounded-2xl shadow space-y-2 animate-pulse"
+              >
                 <div className="h-4 w-1/2 bg-gray-200 rounded" />
                 <div className="h-6 w-full bg-gray-100 rounded" />
               </div>
@@ -86,55 +87,55 @@ const ProfilePage = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 md:pb-4 max-w-7xl">
-        <div className="mt-2 h-[calc(100vh-8rem)] overflow-y-auto p-4">
-          {user && <ProfileHeader user={user} />}
+        {/* <div className="mt-2 h-[calc(100vh-8rem)] overflow-y-auto p-4"> */}
+        {user && <ProfileHeader user={user} />}
 
-          {/* Contenu des anciens onglets maintenant affiché directement */}
-          <div className="space-y-4 px-2 sm:px-0">
-            {/* Section Vue d'ensemble - 1 colonne mobile, 2 desktop */}
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-              <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
-                <UserStats user={user} userProgress={userProgress} />
-              </div>
-              <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
-                <h3 className="text-lg font-semibold mb-3 font-montserrat dark:text-white">
-                  Résultats récents
-                </h3>
-                <div className="overflow-x-auto">
-                  <RecentResults results={results} isLoading={isLoading} />
-                </div>
-              </div>
-            </div>
-
-            {/* Section Progression */}
+        {/* Contenu des anciens onglets maintenant affiché directement */}
+        <div className="space-y-4 px-2 sm:px-0">
+          {/* Section Vue d'ensemble - 1 colonne mobile, 2 desktop */}
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
             <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
-                Votre progression
+              <UserStats user={user} userProgress={userProgress} />
+            </div>
+            <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
+              <h3 className="text-lg font-semibold mb-3 font-montserrat dark:text-white">
+                Résultats récents
               </h3>
               <div className="overflow-x-auto">
-                <CategoryProgress
-                  categories={categories}
-                  userProgress={userProgress}
-                />
+                <RecentResults results={results} isLoading={isLoading} />
               </div>
             </div>
+          </div>
 
-            {/* Section Résultats complets */}
-            <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
-                Tous vos résultats
-              </h3>
-              <div className="overflow-x-auto">
-                <RecentResults
-                  results={results}
-                  isLoading={isLoading}
-                  showAll={true}
-                />
-              </div>
+          {/* Section Progression */}
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
+            <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
+              Votre progression
+            </h3>
+            <div className="overflow-x-auto">
+              <CategoryProgress
+                categories={categories}
+                userProgress={userProgress}
+              />
             </div>
+          </div>
 
-            {/* Section Classement */}
-            {/* <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
+          {/* Section Résultats complets */}
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
+            <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
+              Tous vos résultats
+            </h3>
+            <div className="overflow-x-auto">
+              <RecentResults
+                results={results}
+                isLoading={isLoading}
+                showAll={true}
+              />
+            </div>
+          </div>
+
+          {/* Section Classement */}
+          {/* <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
               <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
                 Classement Global
               </h3>
@@ -143,16 +144,16 @@ const ProfilePage = () => {
               </div>
             </div> */}
 
-            {/* Section Formations */}
-            <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
-                Formations disponibles
-              </h3>
-              <FormationCatalogue formations={formations} />
-            </div>
+          {/* Section Formations */}
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
+            <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
+              Formations disponibles
+            </h3>
+            <FormationCatalogue formations={formations} />
           </div>
         </div>
       </div>
+      {/* </div> */}
     </Layout>
   );
 };
