@@ -88,7 +88,7 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
                   <h3 className="font-medium text-sm truncate">
                     {quiz.quiz.title}
                   </h3>
-                  <p className="text-xs text-gray-500 truncate">
+                  <p className="text-xs text-gray truncate">
                     {quiz.quiz.category}
                   </p>
                 </div>
@@ -96,13 +96,13 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
                   {quiz.score}%
                 </div>
               </div>
-              <div className="mt-1 flex justify-between text-xs text-gray-900">
+              <div className="mt-1 flex justify-between font-semibold text-xs text-gray-900">
                 <div>
                   {format(new Date(quiz.completedAt), "dd/MM/yyyy HH:mm", {
                     locale: fr,
                   })}
                 </div>
-                <div className="text-primary-900">{Math.floor(quiz.timeSpent / 60)}:{(quiz.timeSpent % 60).toString().padStart(2, '0')}</div>
+                <div>{Math.floor(quiz.timeSpent / 60)}:{(quiz.timeSpent % 60).toString().padStart(2, '0')}</div>
               </div>
             </div>
           ))}
