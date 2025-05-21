@@ -50,42 +50,61 @@ export interface CatalogueResponse {
   total: number;
 }
 
-const catalogueService = {
-  async getFormations(page = 1): Promise<CatalogueResponse> {
-    const response = await axiosInstance.get(
-      `/catalogueFormations/formations?page=${page}`
-    );
+export interface Category {
+  id: number;
+  name: string;
+  description: string;
+  count: number;
+}
+
+// Fonctions séparées pour plus de clarté
+async function fetchFormations(): Promise<CatalogueResponse> {
+  try {
+    const response = await axiosInstance.get(`/catalogueFormations/formations`);
     return response.data;
-  },
+  } catch (error) {
+    console.error("Error fetching formations:", error);
+    throw new Error("Failed to fetch formations");
+  }
+}
 
-  async getCategories(): Promise<
-    { id: number; name: string; description: string; count: number }[]
-  > {
-    const response = await this.getFormations(1);
-    const categoriesMap = new Map<
-      string,
-      { id: number; name: string; description: string; count: number }
-    >();
+function processCategories(formations: any): Category[] {
+  const categoriesMap = new Map<string, Category>();
 
-    response.data.forEach((formation) => {
-      const catName = formation.formation.categorie;
-      if (categoriesMap.has(catName)) {
-        const existing = categoriesMap.get(catName)!;
-        categoriesMap.set(catName, {
-          ...existing,
-          count: existing.count + 1,
-        });
-      } else {
-        categoriesMap.set(catName, {
-          id: formation.formation.id,
-          name: catName,
-          description: formation.formation.description,
-          count: 1,
-        });
-      }
-    });
+  formations.forEach((formation) => {
+    const catName = formation.formation.categorie;
+    console.log(catName);
+    const existing = categoriesMap.get(catName);
 
-    return Array.from(categoriesMap.values());
+    if (existing) {
+      categoriesMap.set(catName, {
+        ...existing,
+        count: existing.count + 1,
+      });
+    } else {
+      categoriesMap.set(catName, {
+        id: formation.formation.id,
+        name: catName,
+        description: formation.formation.description,
+        count: 1,
+      });
+    }
+  });
+
+  return Array.from(categoriesMap.values());
+}
+
+const catalogueService = {
+  getFormations: fetchFormations,
+
+  async getCategories(): Promise<Category[]> {
+    try {
+      const formationsData = await fetchFormations();
+      return processCategories(formationsData);
+    } catch (error) {
+      console.error("Error in getCategories:", error);
+      throw new Error("Failed to fetch categories");
+    }
   },
 
   getFullImageUrl(path: string): string {

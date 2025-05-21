@@ -4,7 +4,7 @@ import mp4 from "../../assets/mp4.png";
 import { Link, useNavigate } from "react-router-dom";
 import { CardFooter } from "../ui/card";
 import { Button } from "../ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Clock } from "lucide-react";
 import { VOIR_LES_DETAILS } from "@/utils/langue-type";
 import nomedia from "../../assets/nomedia.png";
 const stripHtml = (html: string) => {
@@ -15,111 +15,101 @@ const stripHtml = (html: string) => {
 
 const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_IMG;
 
-const FormationCard = ({ formation }: { formation: Formation }) => {
+const FormationCard = ({ formation }: { formation: any }) => {
   const navigate = useNavigate();
 
-  // Déterminer l'image à afficher
-  const url = formation.catalogue_formation.imageUrl?.toLowerCase() || "";
+  // Couleurs par catégorie
+  const categoryColors: Record<string, string> = {
+    Bureautique: "border-[#3D9BE9]",
+    Langues: "border-[#A55E6E]",
+    Internet: "border-[#FFC533]",
+    Création: "border-[#9392BE]",
+  };
+
+  const categoryColor =
+    categoryColors[formation.formation.categorie] ||
+    "bg-gray-50/10 border-gray-200";
+
+  // Get image URL
+  const url = formation.image_url?.toLowerCase() || "";
   let image = nomedia;
   if (url.endsWith(".mp4")) {
     image = mp4;
   } else if (url.endsWith(".mp3")) {
     image = mp3;
-  } else if (formation.catalogue_formation.imageUrl) {
-    image = `${VITE_API_URL_IMG}/${formation.catalogue_formation.imageUrl}`;
+  } else if (formation.image_url) {
+    image = `${VITE_API_URL_IMG}/${formation.image_url}`;
   }
 
   return (
-    <div className="group p-5 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col h-full overflow-hidden hover:border-blue-100">
-      {/* Image container with better aspect ratio and overflow hidden */}
-      <div className="relative rounded-lg overflow-hidden mb-4 h-48 bg-gray-50 flex items-center justify-center">
+    <div
+      className={`group p-4 border-t-4 rounded-lg border-t ${categoryColor} shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full overflow-hidden hover:translate-y-[-2px]`}>
+      {/* Image container - plus compact */}
+      <div className="relative rounded-md overflow-hidden mb-3 h-36 bg-gray-100 flex items-center justify-center">
         <img
           src={image}
-          alt={formation.catalogue_formation.titre}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          alt={formation.titre}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           loading="lazy"
         />
-        {/* Overlay effect on hover */}
         <div className="absolute inset-0 bg-black/5 group-hover:bg-black/10 transition-colors duration-300" />
       </div>
 
-      {/* Content container with better spacing */}
-      <div className="flex flex-col flex-grow">
-        {/* Title with better typography */}
-        <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 leading-tight">
-          {formation.catalogue_formation.titre}
+      {/* Content container - plus compact */}
+      <div className="flex flex-col flex-grow space-y-2">
+        {/* Title - plus petit */}
+        <h3 className="text-base font-semibold text-gray-800 line-clamp-2 leading-snug">
+          {formation.titre}
         </h3>
 
-        {/* Certification badge */}
-        {formation.catalogue_formation.certification && (
-          <span className="inline-block bg-blue-50 text-blue-700 text-xs font-medium px-2.5 py-0.5 rounded-full mb-3 self-start">
-            {formation.catalogue_formation.certification}
+        {/* Category badge - couleur dynamique */}
+        <div className="flex justify-between items-start">
+          <span
+            className={`text-xs font-medium px-2 py-1 rounded-full ${
+              formation.formation.categorie === "Bureautique"
+                ? "bg-[#3D9BE9]/20 text-[#3D9BE9]"
+                : formation.formation.categorie === "Langues"
+                ? "bg-[#A55E6E]/20 text-[#A55E6E]"
+                : formation.formation.categorie === "Internet"
+                ? "bg-[#FFC533]/20 text-[#FFC533]"
+                : "bg-[#9392BE]/20 text-[#9392BE]"
+            }`}>
+            {formation.formation.categorie}
           </span>
-        )}
 
-        {/* Description with better readability */}
-        <p className="text-sm text-gray-600 mb-4 line-clamp-3 leading-relaxed">
-          {stripHtml(formation.catalogue_formation.description || "")}
+          {/* Certification badge - plus petit */}
+          {formation.certification && (
+            <span className="text-xs font-medium px-2 py-1 rounded-full bg-blue-50 text-blue-600">
+              {formation.certification}
+            </span>
+          )}
+        </div>
+
+        {/* Description - plus compacte */}
+        <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
+          {stripHtml(formation.description || "")}
         </p>
 
-        {/* Prerequisites with icon */}
-        {formation.catalogue_formation.prerequis && (
-          <div className="flex items-start gap-2 text-sm text-gray-600 mb-4">
-            <svg
-              className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span className="line-clamp-2">
-              {formation.catalogue_formation.prerequis}
-            </span>
-          </div>
-        )}
-
-        {/* Metadata with better layout */}
-        <div className="mt-auto pt-4 border-t border-gray-100">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <svg
-                className="w-4 h-4 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <span className="text-sm font-medium text-gray-700">
-                {formation.duree}h
-              </span>
+        {/* Metadata - plus compact */}
+        <div className="mt-auto pt-2">
+          <div className="flex justify-between items-center text-xs">
+            <div className="flex items-center gap-1 text-gray-600">
+              <Clock className="w-3 h-3" />
+              <span>{formation.duree}h</span>
             </div>
 
-            <span className="text-lg font-bold text-yellow-c">
-              {formation.catalogue_formation.tarif} €
-            </span>
+            <span className="font-bold text-gray-800">{formation.tarif} €</span>
           </div>
         </div>
       </div>
 
-      {/* Button with better styling */}
-      <CardFooter className="p-0 pt-4 mt-4">
+      {/* Button - plus petit et stylisé */}
+      <CardFooter className="p-0 pt-3 mt-2">
         <Button
-          className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 transition-colors duration-200"
-          onClick={() =>
-            navigate(`/catalogue_formation/${formation.catalogue_formation.id}`)
-          }>
+          className="w-full h-8 text-xs flex items-center justify-center gap-1 bg-gray-800 hover:bg-gray-900 text-white transition-colors duration-200"
+          onClick={() => navigate(`/catalogue-formation/${formation.id}`)}>
           {VOIR_LES_DETAILS}
-          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+          <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />
         </Button>
       </CardFooter>
     </div>

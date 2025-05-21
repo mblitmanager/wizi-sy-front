@@ -8,7 +8,13 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  Loader2,
+  Funnel,
+  LucideTrainFrontTunnel,
+} from "lucide-react";
 
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -20,36 +26,46 @@ import { Layout } from "@/components/layout/Layout";
 import PaginationControls from "@/components/catalogueFormation/PaginationControls";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 import FormationCard from "@/components/catalogueFormation/FormationCard";
+import { stripHtmlTags } from "@/utils/UtilsFunction";
 
 export default function Catalogue() {
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState("categories");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const formationsPerPage = 6;
 
   const {
     data: formationsResponse,
     isLoading: isLoadingFormations,
     isFetching: isFetchingFormations,
     error: formationsError,
-  } = useFormations(currentPage);
+  } = useFormations();
 
   const {
     data: categories,
     isLoading: categoriesLoading,
     error: categoriesError,
   } = useCategories();
-
+  console.log(formationsResponse);
   const filteredFormations = useMemo(() => {
-    if (!formationsResponse?.data) return [];
-    if (selectedCategory === "all") return formationsResponse.data;
-    return formationsResponse.data.filter(
+    if (!formationsResponse) return [];
+    // Toujours convertir en tableau si ce n'est pas déjà un tableau
+    const data = Array.isArray(formationsResponse)
+      ? formationsResponse
+      : Object.values(formationsResponse);
+
+    if (selectedCategory === "all") return data;
+    return data.filter(
       (formation) => formation.formation.categorie === selectedCategory
     );
   }, [formationsResponse, selectedCategory]);
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+  const paginatedFormations = useMemo(() => {
+    const start = (currentPage - 1) * formationsPerPage;
+    const end = start + formationsPerPage;
+    return filteredFormations.slice(start, end);
+  }, [filteredFormations, currentPage]);
+  const totalPages = Math.ceil(filteredFormations.length / formationsPerPage);
 
   if (categoriesError || formationsError) {
     return (
@@ -61,6 +77,10 @@ export default function Catalogue() {
     );
   }
 
+  function handlePageChange(page: number): void {
+    setCurrentPage(page);
+  }
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
@@ -68,118 +88,157 @@ export default function Catalogue() {
           Catalogue de formations
         </h1>
 
-        <div className="mt-2 h-[calc(100vh-18rem)] overflow-y-auto p-4 mb-6">
-          <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="space-y-8"
-          >
-            <TabsList className="mb-4">
-              <TabsTrigger value="categories">Catégories</TabsTrigger>
-              <TabsTrigger value="formations">
-                Toutes les formations
-              </TabsTrigger>
-            </TabsList>
+        {categoriesLoading ? (
+          <div className="flex items-center justify-center min-h-[50vh]">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
+            {categories?.map((category) => {
+              const categoryStyles = {
+                Bureautique: "bg-[#3D9BE9] border-[#3D9BE9]/30 text-[#3D9BE9]",
+                Langues: "bg-[#A55E6E] border-[#A55E6E]/30 text-[#A55E6E]",
+                Internet: "bg-[#FFC533] border-[#FFC533]/30 text-[#FFC533]",
+                Création: "bg-[#9392BE] border-[#9392BE]/30 text-[#9392BE]",
+              };
 
-            <TabsContent value="categories">
-              {categoriesLoading ? (
-                <div className="flex items-center justify-center min-h-[50vh]">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {categories?.map((category) => (
-                    <Card
-                      key={category.id}
-                      className="overflow-hidden transition-all hover:shadow-lg"
-                    >
-                      <CardHeader className="pb-2 bg-opacity-10 bg-gray-200">
-                        <CardTitle className="text-xl pt-2">
+              const defaultStyle = "border-gray-200 text-white";
+              const cardStyle =
+                categoryStyles[category.name as keyof typeof categoryStyles] ||
+                defaultStyle;
+
+              return (
+                <Card
+                  key={category.id}
+                  className={`group relative overflow-hidden border rounded-xl transition-all hover:shadow-lg ${
+                    cardStyle.split(" ")[0]
+                  } ${cardStyle.split(" ")[1]}`}>
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 opacity-20"></div>
+
+                  <CardHeader className="relative z-10 pb-2">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`p-2 rounded-lg ${cardStyle.split(" ")[2]}`}>
+                        <svg
+                          className="w-5 h-5 text-white"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                          />
+                        </svg>
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg font-bold text-white">
                           {category.name}
                         </CardTitle>
-                        <CardDescription>
-                          {category.description}
+                        <CardDescription className="text-sm line-clamp-1 text-white">
+                          {stripHtmlTags(category.description)}
                         </CardDescription>
-                      </CardHeader>
-                      <CardContent className="pt-6">
-                        <p className="mb-6 text-sm text-muted-foreground">
-                          {category.count} formations disponibles
-                        </p>
-                        <Button
-                          asChild
-                          className="w-full"
-                          onClick={() => {
-                            setActiveTab("formations");
-                            setSelectedCategory(category.name);
-                          }}
-                        >
-                          <Link to="#">Explorer</Link>
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
+                      </div>
+                    </div>
+                  </CardHeader>
 
-            <TabsContent value="formations">
-              <div className="mb-10">
-                <h2 className="text-2xl font-bold mb-2">
-                  Découvrez Nos Formations
-                </h2>
-                <p className="text-gray-600 max-w-2xl">
-                  Accédez à une sélection de formations enrichissantes pour
-                  développer vos compétences à votre rythme.
-                </p>
-              </div>
+                  <CardContent className="relative z-10 pt-0 pb-4">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-1 text-sm text-white">
+                        <BookOpen className="w-4 h-4" />
+                        <span>{category.count} formations</span>
+                      </div>
 
-              <div className="mb-6 flex flex-wrap gap-2">
-                <Button
-                  variant={selectedCategory === "all" ? "default" : "outline"}
-                  onClick={() => setSelectedCategory("all")}
-                >
-                  Toutes les catégories
-                </Button>
-                {categories?.map((cat) => (
+                      <Button
+                        variant="ghost"
+                        className="h-8 px-3 text-xs font-medium rounded-full hover:bg-opacity-30 border border-white text-white group-hover:bg-white group-hover:text-black transition duration-300 ease-in-out"
+                        onClick={() => {
+                          setActiveTab("formations");
+                          setSelectedCategory(category.name);
+                        }}>
+                        Explorer
+                        <ArrowRight className="ml-1 w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+
+        <div className="mb-10">
+          <h2 className="text-2xl font-bold mb-2">Découvrez Nos Formations</h2>
+          <p className="text-gray-600 max-w-2xl">
+            Accédez à une sélection de formations enrichissantes pour développer
+            vos compétences à votre rythme.
+          </p>
+        </div>
+
+        <div className="mb-6 flex items-center justify-between flex-wrap gap-2">
+          <Button
+            variant={selectedCategory === "all" ? "default" : "outline"}
+            onClick={() => setSelectedCategory("all")}>
+            Toutes les catégories
+          </Button>
+          {/* <div className="flex gap-3 items-center">
+            <span className="text-gray-500 text-sm"> Filtrer par :</span>
+            <div className="flex gap-2">
+              {(() => {
+                const categoryStyles = {
+                  Bureautique: "bg-[#3D9BE9] border-[#3D9BE9]/30",
+                  Langues: "bg-[#A55E6E] border-[#A55E6E]/30 ",
+                  Internet: "bg-[#FFC533] border-[#FFC533]/30 ",
+                  Création: "bg-[#9392BE] border-[#9392BE]/30 ",
+                };
+                return categories?.map((cat) => (
                   <Button
                     key={cat.id}
                     variant={
                       selectedCategory === cat.name ? "default" : "outline"
                     }
-                    onClick={() => setSelectedCategory(cat.name)}
-                  >
+                    className={`hover:bg-opacity-30 text-white ${
+                      categoryStyles[cat.name]
+                    }`}
+                    onClick={() => {
+                      setSelectedCategory(cat.name);
+                      setCurrentPage(1);
+                    }}>
                     {cat.name}
                   </Button>
-                ))}
-              </div>
-
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {isLoadingFormations || isFetchingFormations
-                  ? Array.from({ length: 6 }).map((_, idx) => (
-                      <SkeletonCard key={idx} />
-                    ))
-                  : filteredFormations.map((formation) => (
-                      <FormationCard
-                        key={`formation-${formation.id}`}
-                        formation={formation}
-                      />
-                    ))}
-              </div>
-
-              {formationsResponse && (
-                <div className="mt-10 flex justify-center">
-                  <PaginationControls
-                    currentPage={currentPage}
-                    lastPage={formationsResponse.last_page}
-                    onPageChange={handlePageChange}
-                    nextPageUrl={formationsResponse.next_page_url}
-                    prevPageUrl={formationsResponse.prev_page_url}
-                  />
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
+                ));
+              })()}
+            </div>
+          </div> */}
         </div>
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {isLoadingFormations || isFetchingFormations
+            ? Array.from({ length: 6 }).map((_, idx) => (
+                <SkeletonCard key={idx} />
+              ))
+            : // Correction : vérification supplémentaire que filteredFormations est un tableau
+              Array.isArray(filteredFormations) &&
+              paginatedFormations.map((formation) => (
+                <FormationCard
+                  key={`formation-${formation.id}`}
+                  formation={formation}
+                />
+              ))}
+        </div>
+        {selectedCategory === "all" && totalPages > 1 && (
+          <div className="flex justify-center mt-8 gap-2 flex-wrap">
+            {Array.from({ length: totalPages }, (_, index) => (
+              <Button
+                key={index + 1}
+                variant={currentPage === index + 1 ? "default" : "outline"}
+                onClick={() => handlePageChange(index + 1)}>
+                {index + 1}
+              </Button>
+            ))}
+          </div>
+        )}
       </div>
     </Layout>
   );

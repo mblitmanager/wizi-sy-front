@@ -22,7 +22,6 @@ export const ContactCard = ({ contact }: ContactCardProps) => {
     `${contact.prenom || ""} ${contact.nom || ""}`.trim() ||
     "Nom inconnu";
   const displayPhone = contact.telephone || contact.telephone;
-  console.log(contact);
   return (
     <div
       key={contact.id}

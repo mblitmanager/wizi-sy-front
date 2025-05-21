@@ -1,13 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import catalogueService from "@/services/catalogue/catalogueService";
 
-export const useFormations = (page = 1) => {
+export const useFormations = () => {
   return useQuery({
-    queryKey: ["formations", page],
-    queryFn: () => catalogueService.getFormations(page),
+    queryKey: ["formations"],
+    queryFn: () => catalogueService.getFormations(),
+    placeholderData: keepPreviousData,
   });
 };
-console.log("useFormations", useFormations);
+
 export const useCategories = () => {
   return useQuery({
     queryKey: ["formation-categories"],
