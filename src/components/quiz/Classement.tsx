@@ -5,8 +5,6 @@ import { GlobalRanking } from "./classement/GlobalRanking";
 import { QuizHistory } from "./classement/QuizHistory";
 import { quizSubmissionService } from "@/services/quiz/QuizSubmissionService";
 import type { QuizHistory as QuizHistoryType } from "@/types/quiz";
-import useAdvert from "../publiciter/useAdvert";
-import AdvertBanner from "../publiciter/AdvertBanner";
 
 export function Classement() {
   const [profile, setProfile] = useState<any>(null);
@@ -97,17 +95,13 @@ export function Classement() {
         averageScore: 0,
       };
 
-  const { isVisible, message, closeAdvert } = useAdvert(
-    "Je parraine et je gagne 50 € !"
-  );
-
   return (
     <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
       {/* Header */}
       <h1 className="text-3xl text-blue-custom-100 font-bold mb-8">
         Mon classement
       </h1>
-      {isVisible && <AdvertBanner message={message} onClose={closeAdvert} />}
+
       {/* Statistiques */}
       <div className="w-full">
         <ProfileStats
@@ -117,39 +111,41 @@ export function Classement() {
         />
       </div>
       <hr className="mn-2" />
-      <div className="mt-2 h-[calc(100vh-30rem)] overflow-y-auto p-4">
-        {/* Tabs */}
-        <Tabs defaultValue="ranking" className="mt-6">
-          <TabsList className="grid grid-cols-2 gap-2 rounded-lg bg-gray-100 shadow-sm">
-            <TabsTrigger
-              value="ranking"
-              className="text-xs sm:text-sm md:text-base font-medium py-2 px-3 lg:px-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              Classement global
-            </TabsTrigger>
-            <TabsTrigger
-              value="history"
-              className="text-xs sm:text-sm md:text-base font-medium py-2 px-3 lg:px-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              Mon historique
-            </TabsTrigger>
-          </TabsList>
+      {/* <div className="mt-2 h-[calc(100vh-30rem)] overflow-y-auto p-4"> */}
+      {/* Tabs */}
+      <Tabs defaultValue="ranking" className="mt-6">
+        <TabsList className="grid grid-cols-2 gap-2 rounded-lg bg-gray-100 shadow-sm">
+          <TabsTrigger
+            value="ranking"
+            className="text-xs sm:text-sm md:text-base font-medium py-2 px-3 lg:px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Classement global
+          </TabsTrigger>
+          <TabsTrigger
+            value="history"
+            className="text-xs sm:text-sm md:text-base font-medium py-2 px-3 lg:px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Mon historique
+          </TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="ranking" className="mt-4">
-            <div className="bg-white p-3 sm:p-4 lg:p-6 rounded-lg shadow-sm border border-gray-200">
-              <GlobalRanking
-                ranking={globalRanking}
-                loading={loading.ranking}
-                currentUserId={profile?.stagiaire?.id?.toString()}
-              />
-            </div>
-          </TabsContent>
+        <TabsContent value="ranking" className="mt-4">
+          <div className="bg-white p-3 sm:p-4 lg:p-6 rounded-lg shadow-sm border border-gray-200">
+            <GlobalRanking
+              ranking={globalRanking}
+              loading={loading.ranking}
+              currentUserId={profile?.stagiaire?.id?.toString()}
+            />
+          </div>
+        </TabsContent>
 
-          <TabsContent value="history" className="mt-4">
-            <div className="bg-white p-3 sm:p-4 lg:p-6 rounded-lg shadow-sm border border-gray-200">
-              <QuizHistory history={quizHistory} loading={loading.history} />
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
+        <TabsContent value="history" className="mt-4">
+          <div className="bg-white p-3 sm:p-4 lg:p-6 rounded-lg shadow-sm border border-gray-200">
+            <QuizHistory history={quizHistory} loading={loading.history} />
+          </div>
+        </TabsContent>
+      </Tabs>
+      {/* </div> */}
     </div>
   );
 }

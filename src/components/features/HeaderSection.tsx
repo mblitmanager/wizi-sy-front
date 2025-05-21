@@ -25,9 +25,9 @@ export default function HeaderSection({
 
   return (
     <div className="flex justify-between items-center mb-6">
-      <h1 className="text-3xl font-bold text-gradient bg-clip-text text-transparent bg-gradient-to-r  from-blue-custom-100 to-blue-custom-50">
+      <h3 className="text-xl font-bold text-gradient bg-clip-text text-transparent bg-gradient-to-r  from-blue-custom-100 to-blue-custom-50">
         {titre}
-      </h1>
+      </h3>
       <Button
         onClick={handleClick}
         variant="outline"

@@ -6,8 +6,6 @@ import { Layout } from "@/components/layout/Layout";
 import { Media } from "@/types/media";
 import { useUser } from "@/context/UserContext";
 import { useFormationStagiaire } from "@/use-case/hooks/stagiaire/useFormationStagiaire";
-import useAdvert from "@/components/publiciter/useAdvert";
-import AdvertBanner from "@/components/publiciter/AdvertBanner";
 
 // Composant de squelette de chargement
 const MediaSkeleton = () => (
@@ -36,7 +34,6 @@ export default function TutoAstucePage() {
   const { data: formations = [] } = useFormationStagiaire(
     user?.stagiaire.id ?? null
   );
-  console.log("formations.data", formations.data);
   const {
     data: mediasData,
     isLoading,
@@ -51,14 +48,11 @@ export default function TutoAstucePage() {
   useEffect(() => {
     setSelectedMedia(medias.length > 0 ? medias[0] : null);
   }, [activeCategory, medias]);
-  const { isVisible, message, closeAdvert } = useAdvert(
-    "Je parraine et je gagne 50 € !"
-  );
+
   return (
     <Layout>
       <div className="px-4 sm:px-6 lg:px-8 py-6 bg-gray-50 min-h-screen">
         <HeaderSection titre="Tutoriels & Astuces" buttonText="Retour" />
-        {isVisible && <AdvertBanner message={message} onClose={closeAdvert} />}
 
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
           <MediaTabs active={activeCategory} onChange={setActiveCategory} />
@@ -67,7 +61,8 @@ export default function TutoAstucePage() {
             <select
               value={selectedFormationId ?? ""}
               onChange={(e) => setSelectedFormationId(e.target.value || null)}
-              className="px-3 py-1.5 text-sm sm:text-base min-w-[180px] sm:min-w-[250px] bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition duration-200">
+              className="px-3 py-1.5 text-sm sm:text-base min-w-[180px] sm:min-w-[250px] bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition duration-200"
+            >
               <option value="">Toutes les formations</option>
               {formations.data?.map((formation) => (
                 <option key={formation.id} value={formation.id}>
@@ -78,14 +73,15 @@ export default function TutoAstucePage() {
 
             <button
               onClick={() => refetch()}
-              className="text-sm px-3 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-white rounded-xl shadow transition duration-150">
+              className="text-sm px-3 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-white rounded-xl shadow transition duration-150"
+            >
               {isFetching ? "Chargement..." : "Rafraîchir"}
             </button>
           </div>
         </div>
 
         <hr />
-        <div className="mt-2 h-[calc(100vh-10rem)] overflow-y-auto p-4 mb-2">
+        <div className="mt-2 h-[calc(100vh-18rem)] overflow-y-auto p-4 mb-2">
           {isLoading ? (
             <MediaSkeleton />
           ) : medias.length === 0 ? (

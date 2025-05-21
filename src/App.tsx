@@ -30,6 +30,7 @@ import { QuizDetail } from "@/components/quiz/QuizDetail";
 import { QuizResults } from "@/components/quiz/QuizResults";
 import Contact from "./pages/Contact";
 import Parainage from "./pages/Parainage";
+import ParrainageInscriptionPage from "./pages/ParrainageInscriptionPage";
 
 // Create a React Query client
 const queryClient = new QueryClient({
@@ -56,7 +57,10 @@ const App = () => {
                   <Route path="/" element={<Index />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
-
+                  <Route
+                    path="/parrainage/:token"
+                    element={<ParrainageInscriptionPage />}
+                  />
                   {/* 🔒 Routes protégées */}
                   <Route
                     path="/catalogue"
@@ -164,7 +168,7 @@ const App = () => {
                   />
 
                   <Route
-                    path="/parainage"
+                    path="/parrainage"
                     element={
                       <ProtectedRoute>
                         <Parainage />

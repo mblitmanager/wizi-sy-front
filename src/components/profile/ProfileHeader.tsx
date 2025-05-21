@@ -10,8 +10,6 @@ import {
   Trophy,
 } from "lucide-react";
 import { LoadingState } from "../quiz/quiz-play/LoadingState";
-import useAdvert from "../publiciter/useAdvert";
-import AdvertBanner from "../publiciter/AdvertBanner";
 
 const ProfileHeader: React.FC = () => {
   const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
@@ -85,10 +83,6 @@ const ProfileHeader: React.FC = () => {
     const lastNameInitial = user.name.charAt(0).toUpperCase();
     return `${firstNameInitial}${lastNameInitial}`;
   };
-
-  const { isVisible, message, closeAdvert } = useAdvert(
-    "Je parraine et je gagne 50 € !"
-  );
 
   return (
     <>
@@ -181,7 +175,6 @@ const ProfileHeader: React.FC = () => {
           </div>
         </div>
       </div>
-      {isVisible && <AdvertBanner message={message} onClose={closeAdvert} />}
     </>
   );
 };
