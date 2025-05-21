@@ -44,7 +44,7 @@ export const catalogueFormationApi = {
   getFormationDetails: async (formationId: string): Promise<any> => {
     try {
       const response = await axios.get(
-        `${VITE_API_URL}/formations/${formationId}`,
+        `${VITE_API_URL}/catalogueFormations/formations/${formationId}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

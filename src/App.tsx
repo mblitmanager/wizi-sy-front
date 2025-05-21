@@ -31,6 +31,7 @@ import { QuizResults } from "@/components/quiz/QuizResults";
 import Contact from "./pages/Contact";
 import Parainage from "./pages/Parainage";
 import ParrainageInscriptionPage from "./pages/ParrainageInscriptionPage";
+import CatalogueFormationDetails from "./components/catalogueFormation/CatalogueFormationDetails";
 
 // Create a React Query client
 const queryClient = new QueryClient({
@@ -172,6 +173,15 @@ const App = () => {
                     element={
                       <ProtectedRoute>
                         <Parainage />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/catalogue-formation/:id"
+                    element={
+                      <ProtectedRoute>
+                        <CatalogueFormationDetails />
                       </ProtectedRoute>
                     }
                   />

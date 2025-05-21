@@ -20,6 +20,7 @@ import {
 } from "@/utils/langue-type";
 import HeaderSection from "../features/HeaderSection";
 import SkeletonCard from "../ui/SkeletonCard";
+import { Layout } from "../layout/Layout";
 
 export default function CatalogueFormationDetails() {
   const { id } = useParams();
@@ -68,9 +69,8 @@ export default function CatalogueFormationDetails() {
       catalogueFormationApi
         .getFormationDetails(id)
         .then((response) => {
-          setDetails(response.data as CatalogueFormationDetailsType);
+          setDetails(response as CatalogueFormationDetailsType);
           setLoading(false);
-          
         })
         .catch((err) => {
           console.error("Error fetching details:", err);
@@ -132,81 +132,92 @@ export default function CatalogueFormationDetails() {
     );
   }
 
+  console.log(details);
+
   return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl">
-      <HeaderSection titre={CATALOGUE_FORMATION_DETAILS} buttonText={RETOUR} />
-      <Card className="overflow-hidden">
-        <div className="grid grid-cols-1 md:grid-cols-3">
-          {/* Affichage du média (image, vidéo ou audio) */}
-          {mediaElement}
-          <div className="md:col-span-2 p-6 space-y-4">
-            <CardHeader className="p-0 space-y-1">
-              <CardTitle className="text-2xl font-bold text-gray-900">
-                {details.catalogueFormation.titre}
-              </CardTitle>
-              <CardDescription className="text-gray-700">
-                {details.catalogueFormation.prerequis
-                  ? `Pré-requis : ${details.catalogueFormation.prerequis}`
-                  : "Aucun pré-requis"}
-              </CardDescription>
-            </CardHeader>
+    <Layout>
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
+        <HeaderSection
+          titre={CATALOGUE_FORMATION_DETAILS}
+          buttonText={RETOUR}
+        />
 
-            <CardContent className="p-0 text-gray-700 dark:text-gray-300 space-y-2">
-              <p className="text-base leading-relaxed">
-                {details.catalogueFormation.description.replace(/<[^>]*>/g, "")}
+        {/* Bloc secondaire : infos pédagogiques de la formation liée */}
+        {details.catalogueFormation.formation && (
+          <div className="mt-8 mb-8">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+              Domaine de formation :{" "}
+              {details.catalogueFormation.formation.titre}
+            </h2>
+            <Card className="p-6">
+              <p className="text-gray-500 dark:text-gray-500 mb-2">
+                {details.catalogueFormation.formation.description.replace(
+                  /<[^>]*>/g,
+                  ""
+                )}
               </p>
+            </Card>
+          </div>
+        )}
+        <Card className="overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-3">
+            {/* Affichage du média (image, vidéo ou audio) */}
+            {mediaElement}
+            <div className="md:col-span-2 p-6 space-y-4">
+              <CardHeader className="p-0 space-y-1">
+                <CardTitle className="text-2xl font-bold text-gray-900">
+                  {details.catalogueFormation.titre}
+                </CardTitle>
+                <CardDescription className="text-gray-700">
+                  {details.catalogueFormation.prerequis
+                    ? `Pré-requis : ${details.catalogueFormation.prerequis}`
+                    : "Aucun pré-requis"}
+                </CardDescription>
+              </CardHeader>
 
-              <ul className="text-sm space-y-1">
-                <li className="text-gray-500">
-                  <strong>Durée :</strong> {details.catalogueFormation.duree}{" "}
-                  heures
-                </li>
-                <li className="text-gray-500">
-                  <strong>Tarif :</strong> {details.catalogueFormation.tarif} €
-                  HT
-                </li>
-                <li className="text-gray-500">
-                  <strong>Certification :</strong>{" "}
-                  {details.catalogueFormation.certification}
-                </li>
-              </ul>
-            </CardContent>
+              <CardContent className="p-0 text-gray-700 dark:text-gray-300 space-y-2">
+                <p className="text-base leading-relaxed">
+                  {details.catalogueFormation.description.replace(
+                    /<[^>]*>/g,
+                    ""
+                  )}
+                </p>
 
-            <div className="pt-4">
-              <Badge
-                variant="outline"
-                className="text-sm"
-                style={{
-                  backgroundColor: getCategoryColor(
-                    details.catalogueFormation.formation?.categorie
-                  ),
-                  color: "#fff", // Couleur du texte pour un bon contraste
-                }}>
-                Catégorie :{" "}
-                {details.catalogueFormation.formation?.categorie ||
-                  "Non spécifiée"}
-              </Badge>
+                <ul className="text-sm space-y-1">
+                  <li className="text-gray-500">
+                    <strong>Durée :</strong> {details.catalogueFormation.duree}{" "}
+                    heures
+                  </li>
+                  <li className="text-gray-500">
+                    <strong>Tarif :</strong> {details.catalogueFormation.tarif}{" "}
+                    € HT
+                  </li>
+                  <li className="text-gray-500">
+                    <strong>Certification :</strong>{" "}
+                    {details.catalogueFormation.certification}
+                  </li>
+                </ul>
+              </CardContent>
+
+              <div className="pt-4">
+                <Badge
+                  variant="outline"
+                  className="text-sm"
+                  style={{
+                    backgroundColor: getCategoryColor(
+                      details.catalogueFormation.formation?.categorie
+                    ),
+                    color: "#fff", // Couleur du texte pour un bon contraste
+                  }}>
+                  Catégorie :{" "}
+                  {details.catalogueFormation.formation?.categorie ||
+                    "Non spécifiée"}
+                </Badge>
+              </div>
             </div>
           </div>
-        </div>
-      </Card>
-
-      {/* Bloc secondaire : infos pédagogiques de la formation liée */}
-      {details.catalogueFormation.formation && (
-        <div className="mt-8">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-700">
-            Détails pédagogiques : {details.catalogueFormation.formation.titre}
-          </h2>
-          <Card className="p-6">
-            <p className="text-gray-500 dark:text-gray-500 mb-2">
-              {details.catalogueFormation.formation.description.replace(
-                /<[^>]*>/g,
-                ""
-              )}
-            </p>
-          </Card>
-        </div>
-      )}
-    </div>
+        </Card>
+      </div>
+    </Layout>
   );
 }
