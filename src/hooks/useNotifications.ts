@@ -1,129 +1,102 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/services/api";
 
-import { useState, useEffect } from 'react';
-import { notificationService } from '@/services/NotificationService';
-import { useToast } from '@/hooks/use-toast';
-import useLocalStorage from '@/hooks/useLocalStorage';
-
-export function useNotifications() {
-  const [permission, setPermission] = useState<NotificationPermission>('default');
-  const [isSupported, setIsSupported] = useState(false);
-  const [settings, setSettings] = useLocalStorage('notification-settings', {
-    quizCompleted: true, 
-    quizAvailable: true, 
-    rewardEarned: true,
-    formationUpdates: true
-  });
-  const { toast } = useToast();
-
-  useEffect(() => {
-    const supported = notificationService.isNotificationSupported();
-    setIsSupported(supported);
-    
-    if (supported) {
-      notificationService.getPermissionStatus().then(status => {
-        setPermission(status);
-      });
-    }
-  }, []);
-  
-  const requestPermission = async (): Promise<NotificationPermission> => {
-    if (!isSupported) {
-      toast({
-        title: "Non supporté",
-        description: "Votre navigateur ne prend pas en charge les notifications.",
-        variant: "destructive"
-      });
-      return 'denied';
-    }
-    
-    try {
-      const result = await notificationService.requestPermission();
-      setPermission(result);
-      
-      if (result === 'granted') {
-        toast({
-          title: "Notifications activées",
-          description: "Vous recevrez maintenant des notifications pour les événements importants.",
-          variant: "default"
-        });
-      } else if (result === 'denied') {
-        toast({
-          title: "Notifications refusées",
-          description: "Vous ne recevrez pas de notifications pour les événements importants.",
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: "En attente",
-          description: "Veuillez accorder l'autorisation dans votre navigateur pour recevoir des notifications.",
-          variant: "default"
-        });
-      }
-      
-      return result;
-    } catch (error) {
-      console.error('Error requesting permission:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de demander l'autorisation pour les notifications.",
-        variant: "destructive"
-      });
-      return 'denied';
-    }
-  };
-  
-  const sendNotification = async (title: string, options?: NotificationOptions): Promise<boolean> => {
-    // Check if permission is not granted and try to request it
-    if (permission !== 'granted') {
-      const newPermission = await requestPermission();
-      // If permission is still not granted after request, return false
-      if (newPermission !== 'granted') return false;
-    }
-    
-    const notification = await notificationService.sendNotification(title, options);
-    return notification !== null;
-  };
-
-  const updateSettings = (newSettings: Partial<typeof settings>) => {
-    setSettings({...settings, ...newSettings});
-  };
-  
-  const notifyQuizCompleted = async (score: number, totalQuestions: number): Promise<void> => {
-    if (permission === 'granted' && settings.quizCompleted) {
-      return notificationService.notifyQuizCompleted(score, totalQuestions);
-    }
-  };
-
-  const notifyQuizAvailable = async (quizTitle: string, quizId: string): Promise<void> => {
-    if (permission === 'granted' && settings.quizAvailable) {
-      return notificationService.notifyQuizAvailable(quizTitle, quizId);
-    }
-  };
-
-  const notifyRewardEarned = async (points: number, rewardType?: string): Promise<void> => {
-    if (permission === 'granted' && settings.rewardEarned) {
-      return notificationService.notifyRewardEarned(points, rewardType);
-    }
-  };
-
-  const notifyFormationUpdate = async (formationTitle: string, formationId: string): Promise<void> => {
-    if (permission === 'granted' && settings.formationUpdates) {
-      return notificationService.notifyFormationUpdate(formationTitle, formationId);
-    }
-  };
-  
-  return {
-    permission,
-    isSupported,
-    requestPermission,
-    sendNotification,
-    settings,
-    updateSettings,
-    notifyQuizCompleted,
-    notifyQuizAvailable,
-    notifyRewardEarned,
-    notifyFormationUpdate
-  };
+interface NotificationData {
+  quiz_id?: string;
+  quiz_title?: string;
+  score?: number;
+  total_questions?: number;
+  points?: number;
+  reward_type?: string;
+  formation_id?: string;
+  formation_title?: string;
+  badge_id?: string;
+  badge_name?: string;
+  action?: string;
 }
 
-export default useNotifications;
+interface Notification {
+  id: number;
+  user_id: number;
+  type: string;
+  message: string;
+  data: NotificationData;
+  read: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface ApiResponse {
+  data: Notification[];
+}
+
+export function useNotifications() {
+  const queryClient = useQueryClient();
+
+  const { data: notificationsData } = useQuery<ApiResponse>({
+    queryKey: ["notifications"],
+    queryFn: async () => {
+      try {
+        const response = await api.get<ApiResponse>("/notifications");
+        return response.data;
+      } catch (error) {
+        console.error("Erreur lors de la récupération des notifications:", error);
+        return { data: [] };
+      }
+    },
+  });
+
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ["notifications", "unread-count"],
+    queryFn: async () => {
+      try {
+        const response = await api.get("/notifications/unread-count");
+        return response.data.count || 0;
+      } catch (error) {
+        console.error("Erreur lors de la récupération du nombre de notifications non lues:", error);
+        return 0;
+      }
+    },
+  });
+
+  const markAsReadMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await api.post(`/notifications/${id}/read`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications", "unread-count"] });
+    },
+  });
+
+  const markAllAsReadMutation = useMutation({
+    mutationFn: async () => {
+      await api.post("/notifications/mark-all-read");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications", "unread-count"] });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await api.delete(`/notifications/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications", "unread-count"] });
+    },
+  });
+
+  // S'assurer que notifications est toujours un tableau
+  const notifications = notificationsData?.data || [];
+
+  return {
+    notifications,
+    unreadCount,
+    markAsRead: markAsReadMutation.mutate,
+    markAllAsRead: markAllAsReadMutation.mutate,
+    deleteNotification: deleteMutation.mutate,
+  };
+}
