@@ -422,7 +422,7 @@ export function Index() {
             {/* <RankingCard rankings={rankings} currentUserId={user.id} /> */}
           </div>
         </div>
-      </div>
+    
     </Layout>
   );
 }
