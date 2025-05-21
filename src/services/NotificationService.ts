@@ -1,180 +1,123 @@
+import { api } from './api';
+import { BookOpen, Trophy, Bell, FileText } from 'lucide-react';
 
-type NotificationPermissionCallback = (permission: NotificationPermission) => void;
-
-interface ExtendedNotificationOptions extends NotificationOptions {
-  vibrate?: number[];
-  renotify?: boolean;
-  badge?: string;
-  data?: any;
+export interface Notification {
+  id: string;
+  message: string;
+  timestamp: number;
+  read: boolean;
+  type: 'quiz' | 'formation' | 'badge' | 'system';
 }
 
-export class NotificationService {
-  private static instance: NotificationService;
-  private isSupported: boolean;
-  private serviceWorkerRegistration: ServiceWorkerRegistration | null = null;
-  
-  constructor() {
-    this.isSupported = 'Notification' in window;
-    this.initServiceWorker();
-  }
-  
-  private async initServiceWorker() {
-    if ('serviceWorker' in navigator) {
-      try {
-        this.serviceWorkerRegistration = await navigator.serviceWorker.register('/service-worker.js');
-        // console.log('Service Worker enregistré avec succès');
-      } catch (error) {
-        console.error('Erreur lors de l\'enregistrement du Service Worker:', error);
-      }
-    }
-  }
-  
-  public static getInstance(): NotificationService {
-    if (!NotificationService.instance) {
-      NotificationService.instance = new NotificationService();
-    }
-    return NotificationService.instance;
-  }
-  
+class NotificationService {
   isNotificationSupported(): boolean {
-    return this.isSupported;
+    return 'Notification' in window;
   }
-  
-  async requestPermission(callback?: NotificationPermissionCallback): Promise<NotificationPermission> {
-    if (!this.isSupported) return 'denied';
-    
-    try {
-      const permission = await Notification.requestPermission();
-      if (callback) callback(permission);
-      return permission;
-    } catch (error) {
-      console.error('Error requesting notification permission:', error);
+
+  async getPermissionStatus(): Promise<NotificationPermission> {
+    if (!this.isNotificationSupported()) {
       return 'denied';
     }
-  }
-  
-  async getPermissionStatus(): Promise<NotificationPermission> {
-    if (!this.isSupported) return 'denied';
     return Notification.permission;
   }
-  
-  async sendNotification(title: string, options?: ExtendedNotificationOptions): Promise<Notification | null> {
-    if (!this.isSupported) return null;
-    
-    const permission = await this.getPermissionStatus();
-    if (permission !== 'granted') {
-      console.warn('Notification permission not granted');
-      return null;
+
+  async requestPermission(): Promise<NotificationPermission> {
+    if (!this.isNotificationSupported()) {
+      return 'denied';
     }
-    
-    try {
-      // Utiliser le service worker si disponible
-      if (this.serviceWorkerRegistration && 'showNotification' in this.serviceWorkerRegistration) {
-        await this.serviceWorkerRegistration.showNotification(title, options);
-        return null; // La notification est gérée par le service worker
-      } else {
-        // Fallback à la notification standard
-        const notification = new Notification(title, options as NotificationOptions);
-        return notification;
-      }
-    } catch (error) {
-      console.error('Error sending notification:', error);
-      return null;
-    }
+    return await Notification.requestPermission();
   }
-  
-  // Notifications pour les événements spécifiques de l'application
+
+  async sendNotification(title: string, options?: NotificationOptions): Promise<Notification | null> {
+    if (!this.isNotificationSupported() || Notification.permission !== 'granted') {
+      return null;
+    }
+    return new Notification(title, options);
+  }
+
   async notifyQuizCompleted(score: number, totalQuestions: number): Promise<void> {
-    const scorePercentage = Math.round((score / totalQuestions) * 100);
-    let message = '';
-    let icon = '';
-    
-    if (scorePercentage >= 80) {
-      message = `Bravo ! Vous avez obtenu ${score}/${totalQuestions} (${scorePercentage}%)`;
-      icon = '/icons/trophy.png';
-    } else if (scorePercentage >= 60) {
-      message = `Bien joué ! Vous avez obtenu ${score}/${totalQuestions} (${scorePercentage}%)`;
-      icon = '/icons/medal.png';
-    } else {
-      message = `Quiz terminé avec un score de ${score}/${totalQuestions} (${scorePercentage}%)`;
-      icon = '/icons/quiz.png';
-    }
-    
-    const options: ExtendedNotificationOptions = {
-      body: message,
-      icon: icon,
-      badge: '/icons/badge.png',
-      vibrate: [200, 100, 200],
-      tag: 'quiz-result',
-      renotify: true,
-      data: {
-        type: 'quiz-completed',
-        score,
-        totalQuestions,
-        percentage: scorePercentage
-      }
+    const title = 'Quiz terminé !';
+    const options = {
+      body: `Vous avez obtenu ${score}/${totalQuestions} points !`,
+      icon: FileText
     };
-    
-    await this.sendNotification('Quiz terminé', options);
+    await this.sendNotification(title, options);
   }
-  
+
   async notifyQuizAvailable(quizTitle: string, quizId: string): Promise<void> {
-    const options: ExtendedNotificationOptions = {
-      body: `Le quiz "${quizTitle}" est maintenant disponible`,
-      icon: '/icons/notification.png',
-      tag: 'quiz-available',
-      renotify: true,
-      data: {
-        type: 'quiz-available',
-        quizId,
-        quizTitle
-      }
+    const title = 'Nouveau quiz disponible';
+    const options = {
+      body: `Un nouveau quiz "${quizTitle}" est disponible !`,
+      icon: FileText
     };
-    
-    await this.sendNotification('Nouveau quiz disponible', options);
+    await this.sendNotification(title, options);
   }
-  
+
   async notifyRewardEarned(points: number, rewardType?: string): Promise<void> {
-    const rewardMessage = rewardType 
-      ? `Vous avez gagné ${points} points pour : ${rewardType}`
-      : `Vous avez gagné ${points} points !`;
-      
-    const options: ExtendedNotificationOptions = {
-      body: rewardMessage,
-      icon: '/icons/reward.png',
-      tag: 'reward',
-      renotify: true,
-      data: {
-        type: 'reward-earned',
-        points,
-        rewardType
-      }
+    const title = 'Récompense obtenue !';
+    const options = {
+      body: `Vous avez gagné ${points} points${rewardType ? ` et un ${rewardType}` : ''} !`,
+      icon: Trophy
     };
-    
-    await this.sendNotification('Récompense gagnée', options);
+    await this.sendNotification(title, options);
   }
-  
+
   async notifyFormationUpdate(formationTitle: string, formationId: string): Promise<void> {
-    const options: ExtendedNotificationOptions = {
-      body: `La formation "${formationTitle}" a été mise à jour.`,
-      icon: '/icons/formation.png',
-      tag: 'formation-update',
-      renotify: true,
-      data: {
-        type: 'formation-update',
-        formationId,
-        formationTitle
-      }
+    const title = 'Mise à jour de formation';
+    const options = {
+      body: `La formation "${formationTitle}" a été mise à jour !`,
+      icon: BookOpen
     };
-    
-    await this.sendNotification('Mise à jour de formation', options);
+    await this.sendNotification(title, options);
   }
-  
-  async scheduleNotification(title: string, body: string, delay: number): Promise<void> {
-    setTimeout(() => {
-      this.sendNotification(title, { body });
-    }, delay);
+
+  async getNotifications(): Promise<Notification[]> {
+    try {
+      const response = await api.get('/notifications');
+      const notifications = response.data?.data || response.data?.notifications || response.data;
+      return Array.isArray(notifications) ? notifications : [];
+    } catch (error) {
+      console.error('Erreur lors de la récupération des notifications:', error);
+      return [];
+    }
+  }
+
+  async markAsRead(notificationId: string): Promise<void> {
+    try {
+      await api.post(`/notifications/${notificationId}/read`);
+    } catch (error) {
+      console.error('Erreur lors du marquage de la notification comme lue:', error);
+      throw error;
+    }
+  }
+
+  async markAllAsRead(): Promise<void> {
+    try {
+      await api.post('/notifications/mark-all-read');
+    } catch (error) {
+      console.error('Erreur lors du marquage de toutes les notifications comme lues:', error);
+      throw error;
+    }
+  }
+
+  async deleteNotification(notificationId: string): Promise<void> {
+    try {
+      await api.delete(`/notifications/${notificationId}`);
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la notification:', error);
+      throw error;
+    }
+  }
+
+  async getUnreadCount(): Promise<number> {
+    try {
+      const response = await api.get('/notifications/unread-count');
+      return response.data.count;
+    } catch (error) {
+      console.error('Erreur lors de la récupération du nombre de notifications non lues:', error);
+      return 0;
+    }
   }
 }
 
-export const notificationService = NotificationService.getInstance();
+export const notificationService = new NotificationService();
