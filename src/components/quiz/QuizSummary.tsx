@@ -334,18 +334,17 @@ export function QuizSummary() {
         </div>
 
         {/* Liste des questions/réponses */}
-        <div className="divide-y divide-gray-100 dark:divide-gray-700 max-h-[400px] overflow-y-auto">
-          {result.questions.map((question: Question, index: number) => (
-            <div
-              key={question.id}
-              className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <QuizAnswerCard
-                question={question}
-                userAnswer={formattedUserAnswers[question.id]}
-              />
-            </div>
-          ))}
-        </div>
+
+        {result.questions.map((question: Question, index: number) => (
+          <div
+            key={question.id}
+            className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+            <QuizAnswerCard
+              question={question}
+              userAnswer={formattedUserAnswers[question.id]}
+            />
+          </div>
+        ))}
 
         {/* Pied de page avec actions */}
         <div className="p-3 bg-gray-50 dark:bg-gray-700/30 border-t border-gray-100 dark:border-gray-700">

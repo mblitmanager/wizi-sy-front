@@ -40,7 +40,7 @@ export default function TutoAstucePage() {
     isFetching,
     refetch,
   } = useMediaByFormation(selectedFormationId);
-
+  const formationsWithTutos = formations.data ?? [];
   const tutoriels = mediasData?.tutoriels || [];
   const astuces = mediasData?.astuces || [];
   const medias = activeCategory === "tutoriel" ? tutoriels : astuces;
@@ -61,49 +61,46 @@ export default function TutoAstucePage() {
             <select
               value={selectedFormationId ?? ""}
               onChange={(e) => setSelectedFormationId(e.target.value || null)}
-              className="px-3 py-1.5 text-sm sm:text-base min-w-[180px] sm:min-w-[250px] bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition duration-200"
-            >
-              <option value="">Toutes les formations</option>
-              {formations.data?.map((formation) => (
+              className="px-3 py-1.5 text-sm sm:text-base min-w-[180px] sm:min-w-[250px] bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition duration-200">
+              <option>Sélectionnez une formation</option>
+              {formationsWithTutos.map((formation) => (
                 <option key={formation.id} value={formation.id}>
-                  {formation.titre ?? formation.titre}
+                  {formation.titre}
                 </option>
               ))}
             </select>
 
             <button
               onClick={() => refetch()}
-              className="text-sm px-3 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-white rounded-xl shadow transition duration-150"
-            >
+              className="text-sm px-3 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-white rounded-xl shadow transition duration-150">
               {isFetching ? "Chargement..." : "Rafraîchir"}
             </button>
           </div>
         </div>
 
         <hr />
-        <div className="mt-2 h-[calc(100vh-18rem)] overflow-y-auto p-4 mb-2">
-          {isLoading ? (
-            <MediaSkeleton />
-          ) : medias.length === 0 ? (
-            <div className="text-center text-gray-500 mt-8">
-              Aucun média disponible pour cette catégorie.
-            </div>
-          ) : (
-            <div className="flex flex-col sm:gap-4 md:grid md:grid-cols-2 bg-white rounded-2xl shadow-lg gap-6 mt-6">
-              <div className="order-2 md:order-1 p-3 sm:p-4 overflow-y-auto max-h-[60vh] sm:max-h-none sm:overflow-auto">
-                <MediaList
-                  medias={medias}
-                  selectedMedia={selectedMedia}
-                  onSelect={setSelectedMedia}
-                />
-              </div>
 
-              <div className="order-1 md:order-2 p-3 sm:p-4 sticky top-0 bg-white rounded-2xl shadow-lg max-h-[60vh] sm:max-h-none overflow-hidden ">
-                <MediaPlayer media={selectedMedia} />
-              </div>
+        {isLoading ? (
+          <MediaSkeleton />
+        ) : medias.length === 0 ? (
+          <div className="text-center text-gray-500 mt-8">
+            Aucun média disponible pour cette catégorie.
+          </div>
+        ) : (
+          <div className="flex flex-col sm:gap-4 md:grid md:grid-cols-2 bg-white rounded-2xl shadow-lg gap-6 mt-6">
+            <div className="order-2 md:order-1 p-3 sm:p-4 overflow-y-auto max-h-[60vh] sm:max-h-none sm:overflow-auto">
+              <MediaList
+                medias={medias}
+                selectedMedia={selectedMedia}
+                onSelect={setSelectedMedia}
+              />
             </div>
-          )}
-        </div>
+
+            <div className="order-1 md:order-2 p-3 sm:p-4 sticky top-0 bg-white rounded-2xl shadow-lg max-h-[60vh] sm:max-h-none overflow-hidden ">
+              <MediaPlayer media={selectedMedia} />
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   );
