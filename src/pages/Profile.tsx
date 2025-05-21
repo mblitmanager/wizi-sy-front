@@ -78,7 +78,8 @@ useEffect(() => {
             {Array.from({ length: 3 }).map((_, idx) => (
               <div
                 key={idx}
-                className="p-4 bg-white rounded-2xl shadow space-y-2 animate-pulse">
+                className="p-4 bg-white rounded-2xl shadow space-y-2 animate-pulse"
+              >
                 <div className="h-4 w-1/2 bg-gray-200 rounded" />
                 <div className="h-6 w-full bg-gray-100 rounded" />
               </div>
@@ -124,18 +125,18 @@ useEffect(() => {
               </div> */}
             </div>
 
-            {/* Section Progression */}
-            <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
-                Votre progression
-              </h3>
-              <div className="overflow-x-auto">
-                <CategoryProgress
-                  categories={categories}
-                  userProgress={userProgress}
-                />
-              </div>
+          {/* Section Progression */}
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
+            <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
+              Votre progression
+            </h3>
+            <div className="overflow-x-auto">
+              <CategoryProgress
+                categories={categories}
+                userProgress={userProgress}
+              />
             </div>
+          </div>
 
             {/* Section Résultats complets */}
             <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
@@ -151,8 +152,8 @@ useEffect(() => {
               </div>
             </div>
 
-            {/* Section Classement */}
-            {/* <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
+          {/* Section Classement */}
+          {/* <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
               <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
                 Classement Global
               </h3>
@@ -161,15 +162,15 @@ useEffect(() => {
               </div>
             </div> */}
 
-            {/* Section Formations */}
-            <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
-                Formations disponibles
-              </h3>
-              <FormationCatalogue formations={formations} />
-            </div>
+          {/* Section Formations */}
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
+            <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
+              Formations disponibles
+            </h3>
+            <FormationCatalogue formations={formations} />
           </div>
         </div>
+      </div>
       </div>
     </Layout>
   );

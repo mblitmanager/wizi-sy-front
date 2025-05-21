@@ -87,6 +87,7 @@ export default {
         "blue-custom-50": "#00296b",
         "blue-custom-100": "#00509d",
         "blue-custom-200": "#00296b",
+        "blue-custom-300": "#1D55A0",
         "yellow-custom-50": "#ffd500",
         "yellow-custom-100": "#fdc500",
       },
