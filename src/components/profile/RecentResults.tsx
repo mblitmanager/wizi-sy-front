@@ -53,7 +53,7 @@ export const RecentResults: React.FC<RecentResultsProps> = ({
       {displayResults.map((result) => {
         // Use appropriate property name depending on what's available
         const resultId = result.id || `quiz-result-${Math.random()}`;
-        const quizName = result.quiz.title || result.quizTitle || "Quiz";
+        const quizName = result.title || result.titre || result.quiz.title || result.quizTitle || "Quiz";
         const correctAnswers =
           result.correct_answers || result.correctAnswers || 0;
         const totalQuestions =

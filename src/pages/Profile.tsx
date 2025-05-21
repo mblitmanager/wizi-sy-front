@@ -130,7 +130,7 @@ useEffect(() => {
               </h3>
               <div className="overflow-x-auto">
                 <RecentResults
-                  results={results}
+                  results={quizHistory}
                   isLoading={isLoading}
                   showAll={false}
                 />
