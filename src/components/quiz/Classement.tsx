@@ -5,8 +5,15 @@ import { GlobalRanking } from "./classement/GlobalRanking";
 import { QuizHistory } from "./classement/QuizHistory";
 import { quizSubmissionService } from "@/services/quiz/QuizSubmissionService";
 import type { QuizHistory as QuizHistoryType } from "@/types/quiz";
+import useAdvert from "../publiciter/useAdvert";
+import AdvertBanner from "../publiciter/AdvertBanner";
+import { useLocation } from "react-router-dom";
 
 export function Classement() {
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const tabParam = params.get("tab");
+
   const [profile, setProfile] = useState<any>(null);
   const [quizHistory, setQuizHistory] = useState<QuizHistoryType[]>([]);
   const [quizStats, setQuizStats] = useState<any>(null);
@@ -113,7 +120,7 @@ export function Classement() {
       <hr className="mn-2" />
       {/* <div className="mt-2 h-[calc(100vh-30rem)] overflow-y-auto p-4"> */}
       {/* Tabs */}
-      <Tabs defaultValue="ranking" className="mt-6">
+      <Tabs defaultValue={tabParam === "history" ? "history" : "ranking"} className="mt-6">
         <TabsList className="grid grid-cols-2 gap-2 rounded-lg bg-gray-100 shadow-sm">
           <TabsTrigger
             value="ranking"
