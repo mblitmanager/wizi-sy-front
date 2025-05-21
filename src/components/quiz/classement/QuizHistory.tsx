@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { QuizHistory as QuizHistoryType } from "@/types/quiz";
-
+import { Loader2, Trophy, Clock3 } from 'lucide-react';
 // Color map for categories
 const CATEGORY_COLORS: Record<string, string> = {
   Math: "bg-blue-100 text-blue-800",
@@ -96,13 +96,13 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
                   {quiz.score}%
                 </div>
               </div>
-              <div className="mt-1 flex justify-between text-xs text-gray-400">
+              <div className="mt-1 flex justify-between text-xs text-gray-900">
                 <div>
-                  {format(new Date(quiz.completedAt), "dd/MM/yy", {
+                  {format(new Date(quiz.completedAt), "dd/MM/yyyy HH:mm", {
                     locale: fr,
                   })}
                 </div>
-                <div>{Math.round(quiz.timeSpent / 60)} min</div>
+                <div className="text-primary-900">{Math.floor(quiz.timeSpent / 60)}:{(quiz.timeSpent % 60).toString().padStart(2, '0')}</div>
               </div>
             </div>
           ))}
@@ -166,12 +166,12 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
                       {quiz.score}%
                     </td>
                     <td className="px-3 py-2">
-                      {format(new Date(quiz.completedAt), "PPP", {
-                        locale: fr,
-                      })}
+                       {format(new Date(quiz.completedAt), "PPP - HH:mm", {
+                    locale: fr,
+                  })}
                     </td>
                     <td className="px-3 py-2">
-                      {Math.round(quiz.timeSpent / 60)} min
+                      {Math.floor(quiz.timeSpent / 60)}:{(quiz.timeSpent % 60).toString().padStart(2, '0')}
                     </td>
                   </tr>
                 ))}

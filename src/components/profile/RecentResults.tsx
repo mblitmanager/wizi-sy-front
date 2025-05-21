@@ -53,17 +53,19 @@ export const RecentResults: React.FC<RecentResultsProps> = ({
       {displayResults.map((result) => {
         // Use appropriate property name depending on what's available
         const resultId = result.id || `quiz-result-${Math.random()}`;
-        const quizName = result.quiz_name || result.quizTitle || "Quiz";
+        const quizName = result.quiz.title || result.quizTitle || "Quiz";
         const correctAnswers =
           result.correct_answers || result.correctAnswers || 0;
         const totalQuestions =
           result.total_questions || result.totalQuestions || 0;
 
         // Date de complétion avec fallback
-        const completedAt = result.completed_at
-          ? format(new Date(result.completed_at), "PPP", { locale: fr })
-          : "Date inconnue";
-
+        const completedAt =
+          result.completedAt || result.completed_at
+            ? format(new Date(result.completedAt || result.completed_at), "dd/MM/yyyy HH:mm", { locale: fr })
+            : "Date inconnue";
+        console.log("result:", result);
+        console.log("displayResults:", displayResults);
         return (
           <Card key={resultId} className="w-full p-3 border border-gray-100">
             <div className="flex justify-between items-center">
@@ -91,7 +93,7 @@ export const RecentResults: React.FC<RecentResultsProps> = ({
 
       {!showAll && results.length > 5 && (
         <Link
-          to="/profile?tab=results"
+          to="/classement?tab=history"
           className="text-blue-500 hover:text-blue-700 font-nunito text-sm flex justify-center mt-3">
           Voir tous les résultats ({results.length})
         </Link>

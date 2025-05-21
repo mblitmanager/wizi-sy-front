@@ -18,26 +18,27 @@ export const useLoadRankings = () => {
         rankingService.getUserProgress(),
         rankingService.getGlobalRanking(),
       ]);
-
+      
       if (progressRes?.total) {
         setUserProgress({
           totalScore: progressRes.total.points || 0,
           completedQuizzes: progressRes.total.completed_quizzes || 0,
           averageScore: progressRes.total.average_score || 0,
+          level: progressRes.total.level || 1,
         });
       }
 
       setRankings(
-        (rankingsRes || []).map((entry) => ({
-          id: entry.id,
-          name: entry.prenom || "Unknown",
-          score: entry.points || 0,
+        (rankingsRes || []).map((entry: { stagiaire: { id: string; prenom: string }; totalPoints: number }) => ({
+          id: entry.stagiaire?.id ? Number(entry.stagiaire.id) : 0,
+          name: entry.stagiaire?.prenom || "Unknown",
+          score: entry.totalPoints || 0,
         }))
       );
     };
 
     fetchProgressAndRankings();
   }, []);
-
+  
   return { userProgress, rankings };
 };

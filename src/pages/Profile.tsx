@@ -1,10 +1,10 @@
 import { useSearchParams } from "react-router-dom";
-import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import StatsSummary from "@/components/profile/StatsSummary";
 import FormationCatalogue from "@/components/profile/FormationCatalogue";
 import ProfileTabs from "@/components/profile/ProfileTabs";
+import React, { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useLoadProfile } from "@/use-case/hooks/profile/useLoadProfile";
 import { useLoadQuizData } from "@/use-case/hooks/profile/useLoadQuizData";
@@ -14,6 +14,8 @@ import { RecentResults } from "@/components/profile/RecentResults";
 import RankingComponent from "@/components/Ranking/RankingComponent";
 import CategoryProgress from "@/components/profile/CategoryProgress";
 import UserStats from "@/components/profile/UserStats";
+import type { QuizHistory as QuizHistoryType } from "@/types/quiz";
+import { quizSubmissionService } from "@/services/quiz/QuizSubmissionService";
 
 const ProfilePage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -25,23 +27,39 @@ const ProfilePage = () => {
   const { results, categories } = useLoadQuizData();
   const { userProgress, rankings } = useLoadRankings();
   const formations = useLoadFormations();
-
+const [quizHistory, setQuizHistory] = useState<QuizHistoryType[]>([]);
   const isLoading = !user;
 
   // Transform rankings data
-  const safeRankings =
-    rankings?.map((entry, index) => ({
-      stagiaire: {
-        id: entry?.stagiaire?.id || entry?.id?.toString() || `rank-${index}`,
-        prenom: entry?.stagiaire?.prenom || entry?.prenom || "Anonyme",
-        image: null,
-      },
-      totalPoints: entry?.totalPoints || entry?.points || 0,
-      quizCount: entry?.quizCount || entry?.completed_quizzes || 0,
-      averageScore: entry?.averageScore || entry?.average_score || 0,
-      rang: entry?.rang || index + 1,
-    })) || [];
+  // const safeRankings =
+  //   rankings?.map((entry, index) => ({
+  //     stagiaire: {
+  //       id: entry?.stagiaire?.id || entry?.id?.toString() || `rank-${index}`,
+  //       prenom: entry?.stagiaire?.prenom || entry?.prenom || "Anonyme",
+  //       image: null,
+  //     },
+  //     totalPoints: entry?.totalPoints || entry?.points || 0,
+  //     quizCount: entry?.quizCount || entry?.completed_quizzes || 0,
+  //     averageScore: entry?.averageScore || entry?.average_score || 0,
+  //     rang: entry?.rang || index + 1,
+  //   })) || [];
+useEffect(() => {
+   
 
+    const fetchQuizHistory = async () => {
+      try {
+        const history = await quizSubmissionService.getQuizHistory();
+        setQuizHistory(history);
+      } catch (error) {
+        console.error("Error fetching quiz history:", error);
+      } finally {
+        setLoading((prev) => ({ ...prev, history: false }));
+      }
+    };
+
+ 
+    fetchQuizHistory();
+  }, []);
   if (isLoading) {
     return (
       <Layout>
@@ -87,25 +105,25 @@ const ProfilePage = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 md:pb-4 max-w-7xl">
-        {/* <div className="mt-2 h-[calc(100vh-8rem)] overflow-y-auto p-4"> */}
-        {user && <ProfileHeader user={user} />}
+        <div className="mt-2 h-[calc(100vh-8rem)] overflow-y-auto p-4">
+          {user && <ProfileHeader user={user} userProgress={userProgress} />}
 
-        {/* Contenu des anciens onglets maintenant affiché directement */}
-        <div className="space-y-4 px-2 sm:px-0">
-          {/* Section Vue d'ensemble - 1 colonne mobile, 2 desktop */}
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-            <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
-              <UserStats user={user} userProgress={userProgress} />
+          {/* Contenu des anciens onglets maintenant affiché directement */}
+          <div className="space-y-4 px-2 sm:px-0">
+            {/* Section Vue d'ensemble - 1 colonne mobile, 2 desktop */}
+            {/* <div className="grid gap-4 grid-cols-1 md:grid-cols-2"> */}
+              <div className="bg-white dark:bg-gray-800 p-3 sm:p-6 rounded-lg shadow-sm">
+                <UserStats user={user} userProgress={userProgress} />
+              {/* </div> */}
+              {/* <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
+                <h3 className="text-lg font-semibold mb-3 font-montserrat dark:text-white">
+                  Résultats récents
+                </h3>
+                <div className="overflow-x-auto">
+                  <RecentResults results={results} isLoading={isLoading} />
+                </div>
+              </div> */}
             </div>
-            <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg font-semibold mb-3 font-montserrat dark:text-white">
-                Résultats récents
-              </h3>
-              <div className="overflow-x-auto">
-                <RecentResults results={results} isLoading={isLoading} />
-              </div>
-            </div>
-          </div>
 
           {/* Section Progression */}
           <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
@@ -120,19 +138,19 @@ const ProfilePage = () => {
             </div>
           </div>
 
-          {/* Section Résultats complets */}
-          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
-            <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
-              Tous vos résultats
-            </h3>
-            <div className="overflow-x-auto">
-              <RecentResults
-                results={results}
-                isLoading={isLoading}
-                showAll={true}
-              />
+            {/* Section Résultats complets */}
+            <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
+              <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
+                Résultats récents
+              </h3>
+              <div className="overflow-x-auto">
+                <RecentResults
+                  results={quizHistory}
+                  isLoading={isLoading}
+                  showAll={false}
+                />
+              </div>
             </div>
-          </div>
 
           {/* Section Classement */}
           {/* <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">

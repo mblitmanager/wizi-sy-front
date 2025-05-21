@@ -12,6 +12,7 @@ export const useLoadQuizData = () => {
         quizService.getUserResults(),
         quizService.getQuizCategories(),
       ]);
+   
 
       setResults(quizResults || []);
 
@@ -45,6 +46,7 @@ export const useLoadQuizData = () => {
 
     fetchQuizData();
   }, []);
-
+   console.log("QuizResultBBBs:", results);
+      console.log("CategorieBBBs:", categories);
   return { results, categories };
 };

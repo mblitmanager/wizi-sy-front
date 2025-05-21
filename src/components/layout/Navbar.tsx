@@ -10,12 +10,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, LogOut, Settings, User } from "lucide-react";
+import { Bell, LogOut, Settings, User,Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Input } from "@/components/ui/input";
 import { rankingService } from "@/services/rankingService";
+import { parrainageService } from "@/services/parrainageService";
 import logo from "../../assets/logo.png";
 
 const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
@@ -23,6 +24,14 @@ export function Navbar() {
   const { user, logout } = useUser();
   const isMobile = useIsMobile();
   const [userScore, setUserScore] = useState<number | null>(null);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [filleulsCount, setFilleulsCount] = useState<number | null>(null);
+
+    // Fetch unread notifications count
+  useEffect(() => {
+    // This would typically come from a backend API call
+    setUnreadNotifications(2);
+  }, []);
   useEffect(() => {
     const fetchScore = async () => {
       if (!user || !user.stagiaire) return;
@@ -39,6 +48,18 @@ export function Navbar() {
       }
     };
     fetchScore();
+  }, [user]);
+
+   useEffect(() => {
+    const fetchFilleuls = async () => {
+      try {
+        const stats = await parrainageService.getParrainageStats();
+        setFilleulsCount(stats.total_filleuls ?? 0);
+      } catch (e) {
+        setFilleulsCount(null);
+      }
+    };
+    if (user) fetchFilleuls();
   }, [user]);
   const getInitials = () => {
     if (!user || !user.user.name) return "U";
@@ -82,18 +103,28 @@ export function Navbar() {
         {/* Bloc droite - Notifications + Dropdown */}
         {user && (
           <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative hover:bg-gray-100 transition">
-              <Bell className="h-5 w-5 text-gray-600" />
-              <Badge className="absolute -top-1 -right-1 px-1.5 h-5 min-w-5 text-xs bg-red-500 text-white animate-pulse">
-                2
-              </Badge>
-            </Button>
-            {userScore !== null && (
-              <span className="ml-2 text-yellow-600 font-bold text-sm">
-                {userScore} pts
+            <Link to="/notifications">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative hover:bg-gray-100 transition">
+                <Bell className="h-5 w-5 text-gray-600" />
+                {unreadNotifications > 0 && (
+                  <Badge className="absolute -top-1 -right-1 px-1.5 h-5 min-w-5 text-xs bg-red-500 text-white animate-pulse">
+                    {unreadNotifications}
+                  </Badge>
+                )}
+              </Button>
+            </Link>
+              {userScore !== null && (
+                <span className="ml-2 text-yellow-600 font-bold text-sm">
+                  {userScore} pts
+                </span>
+              )}
+               {filleulsCount !== null && (
+              <span className="ml-2 text-blue-600 font-bold text-sm flex items-center">
+                <Users className="inline h-4 w-4 mr-1" />
+                {filleulsCount} filleul{filleulsCount > 1 ? 's' : ''}
               </span>
             )}
             <DropdownMenu>
