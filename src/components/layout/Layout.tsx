@@ -58,16 +58,14 @@ export function Layout({ children }: LayoutProps) {
                   size="xs"
                   variant="outline"
                   className="text-black underline hover:bg-white/10 hover:text-white text-xs px-2"
-                  onClick={() => navigate("/parrainage")}
-                >
+                  onClick={() => navigate("/parrainage")}>
                   Découvrir
                 </Link>
                 <Button
                   size="xs"
                   variant="ghost"
                   className="text-white hover:bg-white/10 p-1"
-                  onClick={() => setShowBanner(false)}
-                >
+                  onClick={() => setShowBanner(false)}>
                   <X className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>
@@ -76,12 +74,12 @@ export function Layout({ children }: LayoutProps) {
         )}
 
         {/* Barre du haut (Navbar) */}
-        <header className="h-14 border-b border-gray-200 bg-white shadow-sm px-4 flex items-center">
+        <header className="h-14 border-b border-gray-200 bg-white shadow-sm px-4 flex items-center flex-shrink-0">
           <Navbar />
         </header>
 
         {/* Contenu principal */}
-        <main className="p-4">{children}</main>
+        <main className="flex-1 overflow-y-auto p-4">{children}</main>
 
         {/* Bannière en bas (uniquement sur mobile) */}
         {showBanner && isMobile && (
@@ -101,16 +99,14 @@ export function Layout({ children }: LayoutProps) {
                   size="xs"
                   variant="outline"
                   className="text-white bg-blue-custom-50 border-white hover:bg-white/10 hover:text-white text-xs px-2"
-                  onClick={() => navigate("/parrainage")}
-                >
+                  onClick={() => navigate("/parrainage")}>
                   Voir
                 </Button>
                 <Button
                   size="xs"
                   variant="ghost"
                   className="text-white hover:bg-white/10 p-1"
-                  onClick={() => setShowBanner(false)}
-                >
+                  onClick={() => setShowBanner(false)}>
                   <X className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>
