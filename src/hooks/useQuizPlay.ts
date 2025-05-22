@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useQuizData } from './quiz/useQuizData';
 import { useQuizNavigation } from './quiz/useQuizNavigation';
@@ -79,7 +78,7 @@ export const useQuizPlay = (quizId: string) => {
 
   // Calculate points based on filtered questions (2 points per question)
   const calculateTotalPoints = () => {
-    return filteredQuestions.length * 2;
+    return filteredQuestions.length * 2; // 2 points par question
   };
 
   return {

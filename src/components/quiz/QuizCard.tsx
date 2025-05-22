@@ -148,7 +148,7 @@ export function QuizCard({ quiz, categories }: QuizCardProps) {
             variant="outline"
             className="text-[0.65rem] px-1.5 py-0.5 sm:text-xs sm:px-2">
             <Award className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" />
-            {quiz.points} pts
+            {quiz.questions?.length * 2} pts
           </Badge>
         </div>
       </CardContent>

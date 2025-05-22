@@ -136,7 +136,7 @@ export function QuizDetail() {
                 </Badge>
                 <Badge className="bg-green-100 text-green-600 text-xs sm:text-sm py-1 px-2">
                   <Award className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                  {quiz.points} pts à gagner
+                  {quiz.questions?.length * 2} pts à gagner
                 </Badge>
               </div>
 
