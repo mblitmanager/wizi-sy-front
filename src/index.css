@@ -35,6 +35,20 @@ body {
   scrollbar-width: thin;
   scrollbar-color: #00509d #e0e7ef;
 }
+
+/* Améliore le scroll sur mobile */
+@media (max-width: 1023px) {
+  html {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Empêche le zoom sur les selects */
+  select {
+    font-size: 16px;
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
