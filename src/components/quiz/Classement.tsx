@@ -90,11 +90,20 @@ export function Classement() {
   const userEntry = globalRanking.find(
     (entry) => entry.id?.toString() === profile?.stagiaire?.id?.toString()
   );
-  const stats = userEntry
+  // Calcul des stats utilisateur à partir de quizHistory
+  const stats = quizHistory && quizHistory.length > 0
     ? {
-        totalScore: userEntry.score || 0,
-        totalQuizzes: userEntry.quizCount || 0,
-        averageScore: userEntry.averageScore || 0,
+        totalScore: userEntry?.score || 0,
+        totalQuizzes: userEntry?.quizCount || 0,
+        averageScore:
+          quizHistory.reduce(
+            (acc, quiz) =>
+              acc +
+              (quiz.totalQuestions && quiz.totalQuestions > 0
+                ? Math.round((quiz.correctAnswers / quiz.totalQuestions) * 100)
+                : 0),
+            0
+          ) / quizHistory.length,
       }
     : {
         totalScore: 0,

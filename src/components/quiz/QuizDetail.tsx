@@ -99,7 +99,7 @@ export function QuizDetail() {
 
   return (
     <Layout>
-      <div className="flex justify-center items-center min-h-screen  px-4 sm:py-0">
+      <div className="flex justify-center items-center min-h-screen px-4 sm:py-0 mt-[-20%] md:mt-[-5%]">
         <div className=" rounded-3xl shadow-2xl overflow-hidden max-w-5xl w-full flex flex-col md:flex-row">
           {/* Illustration - Taille réduite pour mobile */}
           <div className="w-full md:w-1/2  relative flex flex-col items-center justify-center p-2 sm:p-4">
@@ -114,7 +114,8 @@ export function QuizDetail() {
               🌟 Testez vos connaissances et débloquez des récompenses ! 🌟
             </p>
             <p className="text-center text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2">
-              Chaque quiz est une aventure : prêt(e) à relever le défi ?
+              Chaque quiz est une aventure
+               {/* : prêt(e) à relever le défi ? */}
             </p>
           </div>
 
