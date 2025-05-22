@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 
 export const useQuizTimer = (initialTime: number = 30 * 60) => {
@@ -23,11 +22,19 @@ export const useQuizTimer = (initialTime: number = 30 * 60) => {
     };
   }, [timeLeft, isPaused]);
 
+  // Fonction pour réinitialiser le timer
+  const reset = () => {
+    setTimeLeft(initialTime);
+    setTimeSpent(0);
+    setIsPaused(false);
+  };
+
   return {
     timeLeft,
     timeSpent,
     isPaused,
     setIsPaused,
-    setTimeLeft
+    setTimeLeft,
+    reset
   };
 };

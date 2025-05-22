@@ -25,7 +25,7 @@ export const useQuizPlay = (quizId: string) => {
     if (quiz.niveau && quiz.niveau.toLowerCase() === 'intermédiaire') {
       questionCount = 10;
     } else if (quiz.niveau && quiz.niveau.toLowerCase() === 'avancé') {
-      questionCount = 20;
+      questionCount = 10;
     }
     
     // Shuffle the questions array to get random questions
@@ -41,14 +41,29 @@ export const useQuizPlay = (quizId: string) => {
   const navigation = useQuizNavigation(filteredQuestions);
   
   // Setup timer - use quiz duration if available
-  const defaultDuration = 30 * 60; // 30 minutes in seconds
-  const timer = useQuizTimer(quiz?.duree || defaultDuration);
+  const defaultDuration = 30 ; // 30 minutes in seconds
+  // const timer = useQuizTimer(quiz?.duree || defaultDuration);
+   const timer = useQuizTimer (defaultDuration);
   
   // Setup dialogs
   const dialogs = useQuizDialogs();
   
   // Setup submission
   const { isSubmitting, submitQuiz } = useQuizSubmission(quizId);
+
+  // Passe à la question suivante automatiquement après expiration du timer
+  useEffect(() => {
+    if (timer.timeLeft === 0 && !navigation.isLastQuestion) {
+      navigation.goToNextQuestion();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timer.timeLeft]);
+
+  // Réinitialise le timer à chaque changement de question
+  useEffect(() => {
+    timer.reset();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigation.currentQuestionIndex]);
   
   // Reset timer when quiz changes
   useEffect(() => {
