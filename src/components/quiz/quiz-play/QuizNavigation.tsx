@@ -32,7 +32,7 @@ export function QuizNavigation({
         <ChevronLeft className={`${isMobile ? 'mr-0' : 'mr-2'} h-4 w-4`} />
         {!isMobile && "Précédent"}
       </Button>
-      <Button
+      {/* <Button
         onClick={activeStep === totalSteps - 1 ? onFinish : onNext}
         className={`${isMobile ? 'px-3' : 'min-w-[120px]'}`}
       >
@@ -44,7 +44,22 @@ export function QuizNavigation({
         {activeStep !== totalSteps - 1 && (
           <ChevronRight className={`${isMobile ? 'ml-0' : 'ml-2'} h-4 w-4`} />
         )}
-      </Button>
-    </div>
+      </Button> */}
+      <div className="flex justify-center w-full"></div>
+        <Button
+          onClick={activeStep === totalSteps - 1 ? onFinish : onNext}
+          className={`${isMobile ? 'px-3' : 'min-w-[120px]'}`}
+        >
+          
+          {activeStep === totalSteps - 1
+            ? "Terminer"
+            : "Continuer"}
+          {activeStep !== totalSteps - 1 && (
+            <ChevronRight className={`${isMobile ? 'ml-0' : 'ml-2'} h-4 w-4`} />
+          )}
+        </Button>
+      </div>
+
+
   );
 }
