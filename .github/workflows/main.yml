@@ -47,7 +47,7 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./temp_views/
         server-dir: ../www/resources/views/
-        dangerous-clean-slate: false
+        dangerous-clean-slate: true
 
     - name: Clean temporary files
       run: rm -rf temp_views
