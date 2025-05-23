@@ -84,12 +84,11 @@ export default {
           light: "#FEF7CD",
         },
         // Custom colors
-        "blue-custom-50": "#00296b",
-        "blue-custom-100": "#00509d",
-        "blue-custom-200": "#00296b",
-        "blue-custom-300": "#1D55A0",
-        "yellow-custom-50": "#ffd500",
-        "yellow-custom-100": "#fdc500",
+        "brown-shade": "#b07661",
+        "yellow-shade": "#feb823",
+        "yellow-shade-1": "#ffb65a",
+        "yellow-shade-2": "#ffb888",
+        "yellow-shade-3": "#ffc1b4",
       },
       borderRadius: {
         lg: "var(--radius)",

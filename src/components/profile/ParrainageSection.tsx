@@ -124,7 +124,7 @@ const ParrainageSection = () => {
               className="w-20 h-20 object-contain"
             />
             <div>
-              <h1 className="text-2xl text-blue-custom-100 font-bold">
+              <h1 className="text-2xl text-brown-shade font-bold">
                 Programme de parrainage
               </h1>
               <p className="text-sm text-gray-700">
@@ -135,7 +135,7 @@ const ParrainageSection = () => {
           </div>
 
           {/* Version desktop */}
-          <h1 className="hidden md:block text-3xl text-blue-custom-100 font-bold mb-4">
+          <h1 className="hidden md:block text-3xl text-brown-shade font-bold mb-4">
             Programme de parrainage
           </h1>
 

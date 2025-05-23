@@ -16,7 +16,9 @@ export function ProfileStats({
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Chargement des statistiques...</CardTitle>
+          <span className="text-muted-foreground">
+            Chargement des statistiques...
+          </span>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

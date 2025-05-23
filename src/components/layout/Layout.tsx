@@ -19,7 +19,9 @@ export function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
 
   // Détecter si on est sur la page QuizPlay
-  const isQuizPlay = window.location.pathname.startsWith("/quiz/") && window.location.pathname.includes("start");
+  const isQuizPlay =
+    window.location.pathname.startsWith("/quiz/") &&
+    window.location.pathname.includes("start");
 
   if (!token) {
     return <>{children}</>; // Pas de layout si pas connecté
@@ -30,8 +32,8 @@ export function Layout({ children }: LayoutProps) {
       {/* Sidebar - visible sur desktop */}
       <aside className="hidden md:flex md:flex-col md:w-64 border-r border-gray-200 bg-white shadow-sm">
         {/* Logo en haut de la sidebar */}
-        <div className="h-[104px] flex items-center justify-center border-b">
-          <img src={logo} alt="" className="object-contain h-20 w-40" />
+        <div className="flex items-center justify-center border-b">
+          <img src={logo} alt="" className="object-contain h-14 w-40" />
         </div>
         <div className="flex-1 overflow-y-auto">
           <MainNav />
@@ -40,9 +42,13 @@ export function Layout({ children }: LayoutProps) {
 
       {/* Contenu principal */}
       <div className="flex flex-col flex-1 h-screen">
+        {/* Barre du haut (Navbar) */}
+        <header className="h-14 border-b border-gray-200 bg-white shadow-sm px-4 flex items-center flex-shrink-0">
+          <Navbar />
+        </header>
         {/* Bannière en haut (uniquement sur desktop) */}
         {showBanner && !isMobile && (
-          <div className="w-full bg-gradient-to-r from-blue-custom-300 to-cyan-600 text-white">
+          <div className="w-full bg-gradient-to-r from-yellow-shade-2 via-yellow-shade to-yellow-shade-2 rounded-b-lg text-white">
             <div className="container mx-auto px-3 py-2 flex items-center justify-between">
               <div className="flex items-center overflow-hidden">
                 <Gift className="h-6 w-6 mr-2 flex-shrink-0" />
@@ -76,11 +82,6 @@ export function Layout({ children }: LayoutProps) {
           </div>
         )}
 
-        {/* Barre du haut (Navbar) */}
-        <header className="h-14 border-b border-gray-200 bg-white shadow-sm px-4 flex items-center flex-shrink-0">
-          <Navbar />
-        </header>
-
         {/* Contenu principal */}
         <main className="flex-1 overflow-y-auto">
           <div className="p-3">{children}</div>
@@ -88,7 +89,7 @@ export function Layout({ children }: LayoutProps) {
 
         {/* Bannière en bas (uniquement sur mobile) */}
         {showBanner && isMobile && (
-          <div className="fixed top-[54px] left-0 right-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white z-40">
+          <div className="fixed top-[54px] left-0 right-0 bg-gradient-to-r from-yellow-shade-2 via-yellow-shade to-yellow-shade-2 rounded-2xl text-white z-40">
             <div className="container mx-auto px-3 py-2 flex items-center justify-between">
               <div className="flex items-center overflow-hidden">
                 <Gift className="h-4 w-4 mr-2 flex-shrink-0" />

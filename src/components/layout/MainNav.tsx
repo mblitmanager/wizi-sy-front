@@ -83,26 +83,26 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
         <div className="px-3 py-2">
           <ul className="space-y-1 p-3">
             {items.map((item) => (
-              <li key={item.href} className="py-2">
+              <li key={item.href} className="py-1">
                 <NavLink
                   to={item.href}
                   className={({ isActive }) => {
                     const baseClasses =
-                      "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-full transition-all";
-                    const activeClasses = "bg-yellow-400 text-white shadow-md";
+                      "flex items-center gap-3 px-4 py-2 text-sm font-medium rounded-full transition-all";
+                    const activeClasses =
+                      "bg-yellow-shade hover:bg-yellow-shade-1  text-white shadow-md";
                     const inactiveClasses =
-                      "text-gray-500 hover:bg-gray-100 hover:text-gray-800";
+                      "text-gray-500 hover:bg-yellow-shade-1";
 
                     return `${baseClasses} ${
                       isActive ? activeClasses : inactiveClasses
                     }`;
-                  }}
-                >
+                  }}>
                   {({ isActive }) => (
                     <>
                       <item.icon
                         className={`w-6 h-6 ${
-                          isActive ? "text-white" : "text-gray-400"
+                          isActive ? "text-white" : "text-gray-500 "
                         }`}
                       />
                       {item.title}
@@ -121,8 +121,7 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
             animate={{ opacity: 1, x: 0 }} // Anime vers la position originale
             exit={{ opacity: 0, x: -300 }} // Quitte vers la gauche
             transition={{ duration: 0.5 }}
-            className=" w-[calc(100%-2rem)] bg-gradient-to-br  from-blue-custom-300 to-cyan-600 text-white p-1 mb-2 sm:p-4  flex items-center mx-auto  gap-3 z-50 cursor-pointer hover:shadow-xl transition-all"
-          >
+            className=" w-[calc(100%-2rem)] bg-gradient-to-br from-yellow-shade-2 via-yellow-shade to-yellow-shade-2 rounded-2xl text-white p-1 mb-2 sm:p-4  flex items-center mx-auto  gap-3 z-50 cursor-pointer hover:shadow-xl transition-all">
             <Gift className="w-8 h-8 " />
             <span className="font-semibold text-xs">
               Je parraine et je gagne{" "}

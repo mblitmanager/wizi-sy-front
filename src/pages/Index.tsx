@@ -141,12 +141,10 @@ export function Index() {
                 className="lg:w-1/2 space-y-6"
                 initial="hidden"
                 animate="visible"
-                variants={staggerContainer}
-              >
+                variants={staggerContainer}>
                 <motion.h1
                   className="text-4xl md:text-5xl font-bold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600"
-                  variants={slideUp}
-                >
+                  variants={slideUp}>
                   Apprenez de façon interactive et ludique
                 </motion.h1>
 
@@ -173,16 +171,14 @@ export function Index() {
                 className="lg:w-1/2 relative"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6 }}
-              >
+                transition={{ duration: 0.6 }}>
                 <div className="absolute -top-6 -left-6 w-64 h-64 bg-indigo-200 rounded-full blur-3xl opacity-40"></div>
                 <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-purple-200 rounded-full blur-3xl opacity-40"></div>
 
                 <motion.div
                   className="relative bg-white p-8 rounded-2xl shadow-xl border border-gray-100"
                   whileHover={{ y: -5 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
+                  transition={{ type: "spring", stiffness: 300 }}>
                   <div className="relative">
                     <div className="absolute -top-6 -left-6 w-64 h-64 bg-bureautique/20 rounded-full blur-3xl"></div>
                     <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-creation/20 rounded-full blur-3xl"></div>
@@ -228,8 +224,7 @@ export function Index() {
               className="text-center mb-12"
               initial="hidden"
               animate="visible"
-              variants={fadeIn}
-            >
+              variants={fadeIn}>
               <h2 className="text-3xl font-bold mb-4">
                 Nos catégories de formations
               </h2>
@@ -243,14 +238,12 @@ export function Index() {
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
               initial="hidden"
               animate="visible"
-              variants={staggerContainer}
-            >
+              variants={staggerContainer}>
               {categories.map((category) => (
                 <motion.div
                   key={category.id}
                   variants={slideUp}
-                  whileHover={{ y: -5 }}
-                >
+                  whileHover={{ y: -5 }}>
                   <CategoryCard category={category} />
                 </motion.div>
               ))}
@@ -265,8 +258,7 @@ export function Index() {
               className="text-center mb-12"
               initial="hidden"
               animate="visible"
-              variants={fadeIn}
-            >
+              variants={fadeIn}>
               <h2 className="text-3xl font-bold mb-4">Comment ça marche</h2>
               <p className="text-gray-600 max-w-3xl mx-auto">
                 Une approche simple et efficace pour améliorer vos compétences
@@ -278,8 +270,7 @@ export function Index() {
               className="grid grid-cols-1 md:grid-cols-3 gap-8"
               initial="hidden"
               animate="visible"
-              variants={staggerContainer}
-            >
+              variants={staggerContainer}>
               {[
                 {
                   step: "1",
@@ -307,11 +298,9 @@ export function Index() {
                   key={index}
                   className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100"
                   variants={slideUp}
-                  whileHover={{ y: -5 }}
-                >
+                  whileHover={{ y: -5 }}>
                   <div
-                    className={`w-12 h-12 bg-${item.color}-100 text-${item.color}-600 rounded-full flex items-center justify-center mb-4`}
-                  >
+                    className={`w-12 h-12 bg-${item.color}-100 text-${item.color}-600 rounded-full flex items-center justify-center mb-4`}>
                     <span className="font-bold">{item.step}</span>
                   </div>
                   <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
@@ -341,9 +330,7 @@ export function Index() {
       {/* <div className="mt-2 h-[calc(100vh-8rem)] overflow-y-auto p-4"> */}
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl text-blue-custom-100 font-bold mb-8">
-            Tableau de bord
-          </h1>
+          <h1 className="text-2xl font-bold mb-8">Tableau de bord</h1>
           {/* <Button asChild>
               <Link to="/catalogue">
                 Voir le catalogue
@@ -359,7 +346,7 @@ export function Index() {
           <Card className="border-blue-100">
             <CardContent className="p-4 md:p-6">
               <div className="flex items-center mb-3">
-                <Megaphone className="h-5 w-5 text-blue-500 mr-2" />
+                <Megaphone className="h-5 w-5 text-brown-shade mr-2" />
                 <h3 className="text-base md:text-lg font-medium">
                   Partagez et gagnez
                 </h3>
@@ -379,8 +366,6 @@ export function Index() {
             poleRelation={poleRelation}
           />
         </div>
-
-
 
         {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"> */}
         {catalogueData && catalogueData.length > 0 ? (
@@ -422,7 +407,6 @@ export function Index() {
           {/* <RankingCard rankings={rankings} currentUserId={user.id} /> */}
         </div>
       </div>
-
     </Layout>
   );
 }
