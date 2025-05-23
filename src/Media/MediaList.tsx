@@ -1,7 +1,16 @@
 import { Media } from "@/types/media";
 import clsx from "clsx";
-import { PlayCircle, FileText, ImageIcon, Music, Video } from "lucide-react";
+import {
+  PlayCircle,
+  FileText,
+  ImageIcon,
+  Music,
+  Video,
+  ChevronDown,
+} from "lucide-react";
+import { useMemo, useState } from "react";
 
+// MediaList.tsx
 interface Props {
   medias: Media[];
   selectedMedia: Media | null;
@@ -25,74 +34,99 @@ const typeLabels: Record<"video" | "document" | "image" | "audio", string> = {
   document: "Documents",
 };
 
-export default function MediaList({ medias, selectedMedia, onSelect }: Props) {
-  console.log("MediaList", medias, selectedMedia, onSelect);
-  const grouped = medias
-    .filter((m) => ["video", "audio", "image", "document"].includes(m.type))
-    .reduce((acc, media) => {
-      const type = media.type as keyof typeof typeLabels;
-      acc[type] = acc[type] || [];
-      acc[type].push(media);
-      return acc;
-    }, {} as Record<keyof typeof typeLabels, Media[]>);
+const typeColors: Record<"video" | "document" | "image" | "audio", string> = {
+  video: "text-red-500",
+  audio: "text-purple-500",
+  image: "text-green-500",
+  document: "text-yellow-500",
+};
 
-  Object.keys(grouped).forEach((type) => {
-    grouped[type as keyof typeof grouped].sort((a, b) => a.ordre - b.ordre);
+export default function MediaList({ medias, selectedMedia, onSelect }: Props) {
+  const [expandedTypes, setExpandedTypes] = useState<Record<string, boolean>>({
+    video: true,
+    audio: true,
+    image: true,
+    document: true,
   });
 
+  const grouped = useMemo(() => {
+    return medias
+      .filter((m) => ["video", "audio", "image", "document"].includes(m.type))
+      .reduce((acc, media) => {
+        const type = media.type as keyof typeof typeLabels;
+        acc[type] = acc[type] || [];
+        acc[type].push(media);
+        return acc;
+      }, {} as Record<keyof typeof typeLabels, Media[]>);
+  }, [medias]);
+
+  const toggleType = (type: string) => {
+    setExpandedTypes((prev) => ({
+      ...prev,
+      [type]: !prev[type],
+    }));
+  };
+
   return (
-    <div className="mb-6 p-2 sm:p-4 space-y-6">
+    <div className="space-y-6 p-4">
       {Object.entries(grouped).map(([type, mediaGroup]) => {
         const Icon = typeIcons[type as keyof typeof typeIcons];
         const label = typeLabels[type as keyof typeof typeLabels];
+        const color = typeColors[type as keyof typeof typeColors];
+
         return (
-          <div key={type}>
-            <h2 className="text-xs sm:text-sm font-semibold text-gray-700 flex items-center gap-2 mb-3">
-              <Icon className="w-5 h-5 text-yellow-400" />
-              {label}
-            </h2>
-            <div className="space-y-3 max-h-[30vh] sm:max-h-[60vh] overflow-y-auto">
-              {mediaGroup.map((media) => {
-                const MediaIcon =
-                  typeIcons[media.type as keyof typeof typeIcons];
-                return (
-                  <div
+          <div
+            key={type}
+            className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+            <div
+              className="flex justify-between items-center cursor-pointer p-3 hover:bg-gray-50 transition-colors"
+              onClick={() => toggleType(type)}>
+              <div className="flex items-center gap-3">
+                <Icon className={`w-5 h-5 ${color}`} />
+                <h2 className="text-sm font-semibold text-gray-800">{label}</h2>
+                <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-600">
+                  {mediaGroup.length}
+                </span>
+              </div>
+              <ChevronDown
+                className={`w-4 h-4 text-gray-400 transition-transform ${
+                  expandedTypes[type] ? "rotate-180" : ""
+                }`}
+              />
+            </div>
+
+            {expandedTypes[type] && (
+              <ul className="divide-y divide-gray-100">
+                {mediaGroup.map((media) => (
+                  <li
                     key={media.id}
                     onClick={() => onSelect(media)}
-                    className={clsx(
-                      "flex items-start gap-3 p-3 rounded-xl shadow-sm transition-all cursor-pointer border sm:items-center",
+                    className={`p-3 transition-colors cursor-pointer flex items-center gap-3 ${
                       selectedMedia?.id === media.id
-                        ? "bg-blue-50 border-yellow-400"
-                        : "bg-white hover:bg-gray-50 border-gray-200"
-                    )}>
-                    <div className="shrink-0 w-9 h-9 bg-yellow-100 rounded-full flex items-center justify-center">
-                      <MediaIcon className="w-5 h-5 text-yellow-600" />
-                    </div>
-
-                    <div className="flex-1 space-y-1">
-                      <h3 className="text-xs sm:text-sm font-semibold text-gray-800">
-                        {media.titre}
-                      </h3>
-                      <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-500">
-                        <span className="bg-yellow-100 text-yellow-600 px-2 py-0.5 rounded-full font-medium">
-                          {media.categorie}
-                        </span>
-                        <span>{media.duree} min</span>
-                      </div>
-                    </div>
-
-                    <div
-                      className={clsx(
-                        "w-2.5 h-2.5 rounded-full mt-1 sm:mt-0",
+                        ? "bg-blue-50"
+                        : "hover:bg-gray-50"
+                    }`}>
+                    <span
+                      className={`flex-shrink-0 w-2 h-2 rounded-full ${
                         selectedMedia?.id === media.id
-                          ? "bg-wizi"
+                          ? "bg-blue-500"
                           : "bg-gray-300"
-                      )}
-                    />
-                  </div>
-                );
-              })}
-            </div>
+                      }`}></span>
+                    <span
+                      className={`truncate text-sm flex-1 ${
+                        selectedMedia?.id === media.id
+                          ? "text-blue-600 font-medium"
+                          : "text-gray-700"
+                      }`}>
+                      {media.titre}
+                    </span>
+                    <span className="text-xs text-gray-500 whitespace-nowrap">
+                      {media.duree} min
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         );
       })}

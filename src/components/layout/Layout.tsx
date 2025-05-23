@@ -55,14 +55,14 @@ export function Layout({ children }: LayoutProps) {
               </div>
               <div className="flex items-center space-x-1 sm:space-x-2">
                 <Link
-                  size="xs"
+                  size="sm"
                   variant="outline"
                   className="text-black underline hover:bg-white/10 hover:text-white text-xs px-2"
                   onClick={() => navigate("/parrainage")}>
                   Découvrir
                 </Link>
                 <Button
-                  size="xs"
+                  size="sm"
                   variant="ghost"
                   className="text-white hover:bg-white/10 p-1"
                   onClick={() => setShowBanner(false)}>
@@ -79,7 +79,9 @@ export function Layout({ children }: LayoutProps) {
         </header>
 
         {/* Contenu principal */}
-        <main className="flex-1 overflow-y-auto p-4">{children}</main>
+        <main className="flex-1 overflow-y-auto">
+          <div className="p-3">{children}</div>
+        </main>
 
         {/* Bannière en bas (uniquement sur mobile) */}
         {showBanner && isMobile && (
@@ -96,14 +98,14 @@ export function Layout({ children }: LayoutProps) {
               </div>
               <div className="flex items-center space-x-1 sm:space-x-2">
                 <Button
-                  size="xs"
+                  size="sm"
                   variant="outline"
                   className="text-white bg-blue-custom-50 border-white hover:bg-white/10 hover:text-white text-xs px-2"
                   onClick={() => navigate("/parrainage")}>
                   Voir
                 </Button>
                 <Button
-                  size="xs"
+                  size="sm"
                   variant="ghost"
                   className="text-white hover:bg-white/10 p-1"
                   onClick={() => setShowBanner(false)}>
