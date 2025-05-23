@@ -69,14 +69,15 @@ export function QuizPlay() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-2 sm:px-4 sm:py-8 flex flex-col overflow-x-hidden">
+    <div className="max-w-4xl mx-auto px-2 sm:px-4 sm:py-8 flex flex-col overflow-x-hidden min-h-screen relative">
       <QuizHeader
-        timeLeft={timeLeft}
-        niveau={quiz.niveau}
-        points={quiz.points}
-        onToggleHint={toggleHint}
-        onToggleHistory={toggleHistory}
-        onToggleStats={toggleStats}
+      titre={quiz.titre}
+      timeLeft={timeLeft}
+      niveau={quiz.niveau}
+      points={quiz.points}
+      onToggleHint={toggleHint}
+      onToggleHistory={toggleHistory}
+      onToggleStats={toggleStats}
       />
 
       <QuizProgress currentStep={activeStep} totalSteps={totalQuestions} />
@@ -84,48 +85,41 @@ export function QuizPlay() {
       <QuizHint hint={currentQuestion?.astuce} visible={showHint} />
 
       {currentQuestion && (
-        <div className="flex-grow w-full max-w-full overflow-x-hidden">
-          <Question
-            question={currentQuestion}
-            onAnswer={(answer) => handleAnswer(answer)}
-            showFeedback={showResults}
-          />
-        </div>
+      <div className="flex-grow w-full max-w-full overflow-x-hidden">
+        <Question
+        question={currentQuestion}
+        onAnswer={(answer) => handleAnswer(answer)}
+        showFeedback={showResults}
+        />
+      </div>
       )}
 
-      <QuizNavigation
+      {/* Fixed footer */}
+      <div className="fixed left-0 w-full bg-white border-t z-50 mb-10 sm:mb-0 bottom-0 md:left-64 md:w-[calc(100%-16rem)]">
+      <div className="max-w-4xl mx-auto px-2 sm:px-4">
+        <QuizNavigation
         activeStep={activeStep}
         totalSteps={totalQuestions}
         onBack={handleBack}
         onNext={handleNext}
         onFinish={handleFinish}
-      />
-
-      <QuizHistoryDialog
-        open={showHistory}
-        onClose={closeHistoryDialog}
-        history={quizHistory || []}
-      />
-
-      <QuizStatsDialog
-        open={showStats}
-        onClose={closeStatsDialog}
-        stats={quizStats}
-      />
+        />
+      </div>
+      </div>
 
       <QuizResultsDialog
-        open={showResults}
-        onClose={closeResults}
-        score={calculateScore()}
-        totalQuestions={totalQuestions}
-        answers={Object.entries(answers).map(([questionId, answer]) => ({
-          questionId,
-          selectedOptions: answer,
-          isCorrect: false,
-          points: 0,
-        }))}
-        questions={quiz.questions || []}
-        onRestart={handleRestart}
+      open={showResults}
+      onClose={closeResults}
+      score={calculateScore()}
+      totalQuestions={totalQuestions}
+      answers={Object.entries(answers).map(([questionId, answer]) => ({
+        questionId,
+        selectedOptions: answer,
+        isCorrect: false,
+        points: 0,
+      }))}
+      questions={quiz.questions || []}
+      onRestart={handleRestart}
       />
     </div>
   );

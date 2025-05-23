@@ -105,7 +105,7 @@ export function FillBlank({ question, onAnswer, showFeedback = false }: FillBlan
     <Card className="border-0 shadow-none">
       <CardContent className="pt-4 px-2 md:px-6">
         <div className="space-y-4">
-          <div className="text-base">
+          <div className="text-xl font-semibold mb-4">
             {renderQuestionWithInputs()}
           </div>
 

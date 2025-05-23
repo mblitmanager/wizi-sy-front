@@ -30,10 +30,18 @@ function getCategoryColor(category: string) {
 }
 
 // Helper to get color class for score
-function getScoreColor(score: number) {
-  if (score >= 80) return "text-green-600 font-bold";
-  if (score >= 50) return "text-orange-500 font-semibold";
-  return "text-red-600 font-semibold";
+function getScoreColor(correctAnswers: number, totalQuestions: number) {
+  // if (score >= 8) return "text-green-600 font-bold";
+  // if (score >= 5) return "text-orange-500 font-semibold";
+  // return "text-red-600 font-semibold";
+  const level = Math.round((correctAnswers / totalQuestions) * 100);
+  // if (level === "Débutant" ||level === "débutant" || level === "Débutante") {
+  //   return score >= 8 ? "text-green-600 font-bold" : (score >= 5 ? "text-orange-500 font-semibold" : "text-red-600 font-semibold");
+  // } else if (level === "intermédiaire" || level === "Intermédiaire") {
+  //   return score >= 15 ? "text-green-600 font-bold" : (score >= 10 ? "text-orange-500 font-semibold" : "text-red-600 font-semibold");
+  // } else if (level === "avancé" || level === "Avancé" || level === "Avancée") {
+    return level >= 75 ? "text-green-600 font-bold" : (level >= 50 ? "text-orange-500 font-semibold" : "text-red-600 font-semibold");
+  // }
 }
 
 interface QuizHistoryProps {
@@ -89,11 +97,12 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
                     {quiz.quiz.title}
                   </h3>
                   <p className="text-xs text-gray truncate">
-                    {quiz.quiz.category}
+                    {quiz.quiz.category} - Niveau : {quiz.quiz.level}
                   </p>
                 </div>
                 <div className="text-primary font-semibold text-sm">
-                  {quiz.score}%
+                  {quiz.correctAnswers} / {quiz.totalQuestions}
+                   {/* ({Math.round((quiz.correctAnswers / quiz.totalQuestions) * 100)}%) */}
                 </div>
               </div>
               <div className="mt-2 flex justify-between font-semibold text-sm text-gray-900">
@@ -142,7 +151,13 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
                     Catégorie
                   </th>
                   <th className="px-3 py-2 text-xs text-left text-gray-500">
+                    Niveau
+                  </th>
+                  <th className="px-3 py-2 text-xs text-left text-gray-500">
                     Score
+                  </th>
+                  <th className="px-3 py-2 text-xs text-left text-gray-500">
+                    Bonnes réponses
                   </th>
                   <th className="px-3 py-2 text-xs text-left text-gray-500">
                     Date
@@ -156,19 +171,14 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
                 {paginatedHistory.map((quiz) => (
                   <tr key={quiz.id} className="border-b hover:bg-gray-50">
                     <td className="px-3 py-2 truncate">{quiz.quiz.title}</td>
-                    <td
-                      className={`px-3 py-2 truncate ${getCategoryColor(
-                        quiz.quiz.category
-                      )}`}>
+                    <td className={`px-3 py-2 truncate ${getCategoryColor(quiz.quiz.category)}`}>
                       {quiz.quiz.category}
                     </td>
-                    <td className={`px-3 py-2 ${getScoreColor(quiz.score)}`}>
-                      {quiz.score}%
-                    </td>
+                    <td className="px-3 py-2 truncate">{quiz.quiz.level}</td>
+                    <td className={`px-3 py-2 ${getScoreColor(quiz.correctAnswers,quiz.totalQuestions)}`}>{quiz.score}</td>
+                    <td className="px-3 py-2">{quiz.correctAnswers} / {quiz.totalQuestions} ({Math.round((quiz.correctAnswers / quiz.totalQuestions) * 100)}%)</td>
                     <td className="px-4 py-3 whitespace-nowrap">
-                       {format(new Date(quiz.completedAt), "PPP - HH:mm", {
-                    locale: fr,
-                  })}
+                      {format(new Date(quiz.completedAt), "PPP - HH:mm", { locale: fr })}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       {Math.floor(quiz.timeSpent / 60)}:{(quiz.timeSpent % 60).toString().padStart(2, '0')}

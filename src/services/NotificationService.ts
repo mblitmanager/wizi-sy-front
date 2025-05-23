@@ -90,13 +90,13 @@ export class NotificationService {
     let icon = '';
     
     if (scorePercentage >= 80) {
-      message = `Bravo ! Vous avez obtenu ${score}/${totalQuestions} (${scorePercentage}%)`;
+      message = `Bravo ! Vous avez obtenu ${score*2}/${totalQuestions*2} points (${scorePercentage}%)`;
       icon = '/icons/trophy.png';
     } else if (scorePercentage >= 60) {
-      message = `Bien joué ! Vous avez obtenu ${score}/${totalQuestions} (${scorePercentage}%)`;
+      message = `Bien joué ! Vous avez obtenu ${score*2}/${totalQuestions*2} points (${scorePercentage}%)`;
       icon = '/icons/medal.png';
     } else {
-      message = `Quiz terminé avec un score de ${score}/${totalQuestions} (${scorePercentage}%)`;
+      message = `Quiz terminé avec un score de ${score*2}/${totalQuestions*2} points (${scorePercentage}%)`;
       icon = '/icons/quiz.png';
     }
     

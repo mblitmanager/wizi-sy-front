@@ -20,7 +20,9 @@ export default function QuizSummaryCard({
         {isSuccess ? "Bravo !" : "Réessayez !"}
       </h3>
       <p className="text-gray-600 mt-1 text-sm">
-        Vous avez obtenu {score} sur {totalQuestions}.
+        Vous avez obtenu {score} points.
+        {/* / {totalQuestions}  */}
+         {/* points. */}
       </p>
     </div>
   );

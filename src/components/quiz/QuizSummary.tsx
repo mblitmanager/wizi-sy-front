@@ -221,8 +221,8 @@ export function QuizSummary() {
           {/* Carte de résumé (QuizSummaryCard) */}
           <div className="flex-1 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm">
             <QuizSummaryCard
-              score={result.score}
-              totalQuestions={result.totalQuestions}
+              score={result.correctAnswers*2}
+              totalQuestions={result.totalQuestions*2}
             />
           </div>
 
@@ -279,7 +279,7 @@ export function QuizSummary() {
                     Score
                   </p>
                   <p className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
-                    {result.score}%
+                    {result.score} pts
                   </p>
                 </div>
               </div>

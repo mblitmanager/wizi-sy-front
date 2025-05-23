@@ -100,10 +100,13 @@ export interface QuizHistory {
     title: string;
     category: string;
     totalPoints?: number;
+    level?: string;
   };
   score: number;
   completedAt: string;
   timeSpent: number;
+  totalQuestions: number;
+  correctAnswers: number;
 }
 
 export interface QuizStats {

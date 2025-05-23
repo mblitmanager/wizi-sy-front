@@ -18,6 +18,9 @@ export function Layout({ children }: LayoutProps) {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const navigate = useNavigate();
 
+  // Détecter si on est sur la page QuizPlay
+  const isQuizPlay = window.location.pathname.startsWith("/quiz/") && window.location.pathname.includes("start");
+
   if (!token) {
     return <>{children}</>; // Pas de layout si pas connecté
   }
@@ -85,7 +88,7 @@ export function Layout({ children }: LayoutProps) {
 
         {/* Bannière en bas (uniquement sur mobile) */}
         {showBanner && isMobile && (
-          <div className="fixed bottom-[54px] left-0 right-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white z-40">
+          <div className="fixed top-[54px] left-0 right-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white z-40">
             <div className="container mx-auto px-3 py-2 flex items-center justify-between">
               <div className="flex items-center overflow-hidden">
                 <Gift className="h-4 w-4 mr-2 flex-shrink-0" />
@@ -116,10 +119,12 @@ export function Layout({ children }: LayoutProps) {
           </div>
         )}
 
-        {/* Menu bas pour mobile */}
-        <footer className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-white shadow-md z-50">
-          <MobileNav />
-        </footer>
+        {/* Menu bas pour mobile - MASQUER sur QuizPlay */}
+        {!isQuizPlay && (
+          <footer className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-white shadow-md z-50">
+            <MobileNav />
+          </footer>
+        )}
       </div>
     </div>
   );
