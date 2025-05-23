@@ -39,7 +39,7 @@ jobs:
         exclude: index.html
         dangerous-clean-slate: false
 
-    - name: Deploy Blade template
+    - name: Deploy Blade template (overwrite only stagiaire.blade.php)
       uses: SamKirkland/FTP-Deploy-Action@4.3.0
       with:
         server: ${{ secrets.FTP_HOST }}
@@ -47,7 +47,9 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./temp_views/
         server-dir: ../www/resources/views/
-        dangerous-clean-slate: true
+        exclude: |
+          !stagiaire.blade.php
+        dangerous-clean-slate: false
 
     - name: Clean temporary files
       run: rm -rf temp_views
