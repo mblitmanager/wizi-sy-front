@@ -39,7 +39,7 @@ export default function CatalogueFormationSection({
   return (
     <div className="mb-8 p-4 bg-card rounded-lg shadow-sm">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-yellow-400">
+        <h2 className="text-xl font-semibold brown-shade">
           {CATALOGUE_FORMATION}
         </h2>
         <Link to="/formations">

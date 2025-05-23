@@ -188,7 +188,7 @@ export function QuizSummary() {
         <Button
           onClick={handleBack}
           variant="outline"
-          className="flex items-center gap-2 border border-blue-custom-100 text-blue-custom-100 hover:bg-blue-50 text-sm py-1.5 px-3">
+          className="flex items-center gap-2 border border-blue-custom-100 text-brown-shade hover:bg-blue-50 text-sm py-1.5 px-3">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-4 w-4"
@@ -221,8 +221,8 @@ export function QuizSummary() {
           {/* Carte de résumé (QuizSummaryCard) */}
           <div className="flex-1 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm">
             <QuizSummaryCard
-              score={result.correctAnswers*2}
-              totalQuestions={result.totalQuestions*2}
+              score={result.correctAnswers * 2}
+              totalQuestions={result.totalQuestions * 2}
             />
           </div>
 

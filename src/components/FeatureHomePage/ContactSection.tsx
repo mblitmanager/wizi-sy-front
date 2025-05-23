@@ -69,7 +69,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
     return (
       <div className="mb-4 bg-card rounded-lg shadow-sm p-4">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-yellow-400">
+          <h2 className="text-xl font-semibold text-brown-shade">
             Vos contacts
           </h2>
           <Skeleton className="h-8 w-24 rounded-md" />
@@ -86,7 +86,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
   return (
     <div className="mb-4 bg-card rounded-lg shadow-sm">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-yellow-400">Vos contacts</h2>
+        <h2 className="text-xl font-semibold text-brown-shade">Vos contacts</h2>
         <Link to="/contacts">
           <Button className="text-blue-400" variant="ghost" size="sm">
             Voir tous <ChevronRight className="h-4 w-4 ml-1" />

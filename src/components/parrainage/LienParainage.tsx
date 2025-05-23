@@ -24,7 +24,9 @@ export default function LienParrainage() {
 
       const data = await response.json();
       if (data.success) {
-        setParrainageLink(data.link);
+        // Construire l'URL complète côté frontend
+        const fullLink = `${window.location.origin}/parrainage/${data.token}`;
+        setParrainageLink(fullLink);
       } else {
         throw new Error(data.message || "Erreur lors de la génération du lien");
       }
@@ -69,8 +71,7 @@ export default function LienParrainage() {
       <Button
         onClick={generateLink}
         disabled={isLoading}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-      >
+        className="w-full border-2 border-yellow-shade bg-transparent hover:bg-yellow-shade-1 text-black">
         <LinkIcon className="h-4 w-4 mr-2" />
         {isLoading ? "Génération..." : "Générer mon lien de parrainage"}
       </Button>
@@ -88,8 +89,7 @@ export default function LienParrainage() {
             variant="outline"
             size="sm"
             onClick={copyToClipboard}
-            aria-label="Copier le lien"
-          >
+            aria-label="Copier le lien">
             <Copy className="h-4 w-4" />
           </Button>
         </div>
