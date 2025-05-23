@@ -1,4 +1,4 @@
-name: Deploy React to OVH
+name: Deploy React to OVH (SSH)
 
 on:
   push:
@@ -28,27 +28,27 @@ jobs:
         mkdir -p temp_views
         cp dist/index.html temp_views/stagiaire.blade.php
 
-    - name: Deploy public assets
-      uses: SamKirkland/FTP-Deploy-Action@4.3.0
-      with:
-        server: ${{ secrets.FTP_HOST }}
-        username: ${{ secrets.FTP_USER }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./dist/
-        server-dir: ../www/public/
-        exclude: index.html
-        dangerous-clean-slate: false
+    - name: Deploy public assets via SSH (rsync)
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        REMOTE_HOST: ${{ secrets.SSH_HOST }}
+        REMOTE_USER: ${{ secrets.SSH_USER }}
+      run: |
+        echo "$SSH_PRIVATE_KEY" > private_key
+        chmod 600 private_key
+        rsync -avz --exclude='index.html' -e "ssh -i private_key -o StrictHostKeyChecking=no" ./dist/ $REMOTE_USER@$REMOTE_HOST:../www/public/
+        rm -f private_key
 
-    - name: Deploy Blade template (overwrite only stagiaire.blade.php)
-      uses: SamKirkland/FTP-Deploy-Action@4.3.0
-      with:
-        server: ${{ secrets.FTP_HOST }}
-        username: ${{ secrets.FTP_USER }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./temp_views/
-        server-dir: ../www/resources/views/
-        exclude: ! stagiaire.blade.php
-        dangerous-clean-slate: false
+    - name: Deploy Blade template via SSH (stagiaire.blade.php)
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        REMOTE_HOST: ${{ secrets.SSH_HOST }}
+        REMOTE_USER: ${{ secrets.SSH_USER }}
+      run: |
+        echo "$SSH_PRIVATE_KEY" > private_key
+        chmod 600 private_key
+        rsync -avz -e "ssh -i private_key -o StrictHostKeyChecking=no" ./temp_views/stagiaire.blade.php $REMOTE_USER@$REMOTE_HOST:../www/resources/views/
+        rm -f private_key
 
     - name: Clean temporary files
       run: rm -rf temp_views
