@@ -47,8 +47,8 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./temp_views/
         server-dir: ../www/resources/views/
-        exclude: |
-          !stagiaire.blade.php
+        include : |
+          stagiaire.blade.php
         dangerous-clean-slate: false
 
     - name: Clean temporary files
