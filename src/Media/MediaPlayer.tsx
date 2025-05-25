@@ -3,6 +3,7 @@ import VideoPlayer from "./VideoPlayer";
 import { Bookmark, FileText, Music } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import SkeletonCard from "@/components/ui/SkeletonCard";
+import { stripHtmlTags } from "@/utils/UtilsFunction";
 
 const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
 const VITE_API_URL = import.meta.env.VITE_API_URL;
@@ -102,6 +103,11 @@ export default function MediaPlayer({ media }: Props) {
           <button className="text-gray-400 hover:text-gray-600 shrink-0">
             <Bookmark className="w-4 h-4 lg:w-5 lg:h-5" />
           </button>
+        </div>
+        <div className="mt-2 text-wrap ">
+          <p className="text-sm text-gray-600">
+            {stripHtmlTags(media.description)}
+          </p>
         </div>
       </div>
     </div>
