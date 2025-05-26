@@ -115,21 +115,22 @@ export default function TutoAstucePage() {
   };
 
   const MobileView = () => (
-    <div className="lg:hidden flex flex-col h-[calc(100vh-120px)]">
+    <div className="lg:hidden flex flex-col h-auto ">
       {/* Player en plein écran */}
       <div className="flex-1 bg-white rounded-lg shadow-md mb-2 overflow-hidden">
         <MediaPlayer key={selectedMedia?.id || "empty"} media={selectedMedia} />
       </div>
 
       {/* Contrôles et liste */}
-      <div className="bg-white rounded-lg shadow-md  flex flex-col">
+      <div className="bg-white rounded-lg shadow-md  flex flex-col mb-8">
         <div className="flex gap-2 mb-3">
           <MediaTabs active={activeCategory} onChange={setActiveCategory} />
 
           <select
             value={selectedFormationId ?? ""}
             onChange={(e) => setSelectedFormationId(e.target.value || null)}
-            className="flex-1 text-sm bg-white border border-gray-300 rounded-lg px-2 py-1">
+            className="flex-1 text-sm bg-white border border-gray-300 rounded-lg px-2 py-1"
+          >
             {formationsWithTutos.map((formation) => (
               <option key={formation.id} value={formation.id}>
                 {formation.titre}
@@ -139,7 +140,8 @@ export default function TutoAstucePage() {
 
           <button
             onClick={() => refetch()}
-            className="px-2 bg-yellow-400 text-white rounded-lg shadow text-sm">
+            className="px-2 bg-yellow-400 text-white rounded-lg shadow text-sm"
+          >
             {isFetching ? "..." : "↻"}
           </button>
         </div>
@@ -169,7 +171,8 @@ export default function TutoAstucePage() {
                   <div key={category} className="mb-2 ml-4">
                     <div
                       className="flex justify-between items-center p-2 bg-gray-50 rounded-lg text-sm"
-                      onClick={() => toggleSection(`${type}-${category}`)}>
+                      onClick={() => toggleSection(`${type}-${category}`)}
+                    >
                       <span className="font-medium">{category}</span>
                       <ChevronDown
                         className={`w-4 h-4 transition-transform ${
@@ -190,7 +193,8 @@ export default function TutoAstucePage() {
                               selectedMedia?.id === media.id
                                 ? "bg-blue-50 text-blue-600 border-l-2 border-blue-500"
                                 : "hover:bg-gray-50"
-                            }`}>
+                            }`}
+                          >
                             <span
                               className={`w-2 h-2 rounded-full ${
                                 selectedMedia?.id === media.id
@@ -228,7 +232,8 @@ export default function TutoAstucePage() {
           <select
             value={selectedFormationId ?? ""}
             onChange={(e) => setSelectedFormationId(e.target.value || null)}
-            className="px-3 py-1 text-sm bg-white border border-gray-300 rounded-lg shadow-sm">
+            className="px-3 py-1 text-sm bg-white border border-gray-300 rounded-lg shadow-sm"
+          >
             {formationsWithTutos.map((formation) => (
               <option key={formation.id} value={formation.id}>
                 {formation.titre}
@@ -238,7 +243,8 @@ export default function TutoAstucePage() {
 
           <button
             onClick={() => refetch()}
-            className="px-3 py-1 bg-yellow-400 text-white rounded-lg shadow text-sm">
+            className="px-3 py-1 bg-yellow-400 text-white rounded-lg shadow text-sm"
+          >
             {isFetching ? "Chargement..." : "Rafraîchir"}
           </button>
         </div>
@@ -252,7 +258,7 @@ export default function TutoAstucePage() {
           Aucun média disponible
         </div>
       ) : (
-        <div className="flex flex-1 gap-4 overflow-hidden">
+        <div className="flex flex-1 gap-4 overflow-hidden p-4">
           {/* Playlist */}
           <div className="w-1/3 bg-white rounded-lg shadow-md p-4 overflow-y-auto">
             <h2 className="text-lg font-bold mb-4">Playlist</h2>
@@ -268,7 +274,8 @@ export default function TutoAstucePage() {
                   <div key={category} className="mb-4 ml-4">
                     <div
                       className="flex justify-between items-center cursor-pointer p-2 hover:bg-gray-100 rounded"
-                      onClick={() => toggleSection(`${type}-${category}`)}>
+                      onClick={() => toggleSection(`${type}-${category}`)}
+                    >
                       <h3 className="font-semibold text-sm">{category}</h3>
                       <ChevronDown
                         className={`w-4 h-4 transition-transform ${
@@ -289,7 +296,8 @@ export default function TutoAstucePage() {
                               selectedMedia?.id === media.id
                                 ? "bg-blue-50 text-blue-600 border-l-2 border-blue-500"
                                 : "hover:bg-gray-50"
-                            }`}>
+                            }`}
+                          >
                             <span
                               className={`w-2 h-2 rounded-full ${
                                 selectedMedia?.id === media.id

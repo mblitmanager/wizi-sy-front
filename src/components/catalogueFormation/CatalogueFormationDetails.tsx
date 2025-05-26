@@ -21,6 +21,7 @@ import {
 import HeaderSection from "../features/HeaderSection";
 import SkeletonCard from "../ui/SkeletonCard";
 import { Layout } from "../layout/Layout";
+import { stripHtmlTags } from "@/utils/UtilsFunction";
 
 export default function CatalogueFormationDetails() {
   const { id } = useParams();
@@ -104,7 +105,8 @@ export default function CatalogueFormationDetails() {
     mediaElement = (
       <video
         controls
-        className="h-full w-full object-cover md:col-span-1 rounded-lg">
+        className="h-full w-full object-cover md:col-span-1 rounded-lg"
+      >
         <source
           src={`${import.meta.env.VITE_API_URL_IMG}/${url}`}
           type="video/mp4"
@@ -151,9 +153,8 @@ export default function CatalogueFormationDetails() {
             </h2>
             <Card className="p-6">
               <p className="text-gray-500 dark:text-gray-500 mb-2">
-                {details.catalogueFormation.formation.description.replace(
-                  /<[^>]*>/g,
-                  ""
+                {stripHtmlTags(
+                  details.catalogueFormation.formation.description
                 )}
               </p>
             </Card>
@@ -208,7 +209,8 @@ export default function CatalogueFormationDetails() {
                       details.catalogueFormation.formation?.categorie
                     ),
                     color: "#fff", // Couleur du texte pour un bon contraste
-                  }}>
+                  }}
+                >
                   Catégorie :{" "}
                   {details.catalogueFormation.formation?.categorie ||
                     "Non spécifiée"}
