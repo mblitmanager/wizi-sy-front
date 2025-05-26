@@ -375,13 +375,13 @@ export function Index() {
             </h2>
             <div className="flex flex-col md:flex-row items-center justify-center gap-8 px-2 py-12 bg-white rounded-xl shadow-md">
               {/* Colonne illustration */}
-              <div className="md:w-1/3 flex justify-center mb-8 md:mb-0">
+                <div className="hidden md:flex md:w-1/3 justify-center mb-8 md:mb-0">
                 <img
                   src={illustration}
                   alt="Catalogue Illustration"
                   className="max-w-xs w-full h-auto object-contain"
                 />
-              </div>
+                </div>
               {/* Colonne catalogue */}
               <div className=" w-full flex flex-col items-center">
                 <div className="w-full">
