@@ -23,20 +23,20 @@ function getAdContent(formation: CatalogueFormation) {
     stripHtml(formation.description)?.slice(0, 120) ||
     "Une formation incontournable pour progresser rapidement.";
   const titles = [
-    `🚀 ${titre} : Passez à la vitesse supérieure !`,
-    `🌟 Découvrez « ${titre} » !`,
-    `🎯 ${titre} : Votre nouvel atout !`,
+    `🚀 ${titre}`,
+    `🌟 ${titre} `,
+    `🎯 ${titre}`,
   ];
   const descriptions = [
     desc,
     "Développez vos compétences avec des modules interactifs et concrets.",
     "Rejoignez une communauté d'apprenants motivés et bénéficiez d'un accompagnement personnalisé.",
   ];
-  const benefits = [
-    "Progressez à votre rythme et boostez votre carrière.",
-    "Accédez à des ressources exclusives et des conseils d'experts.",
-    "Valorisez votre CV avec une certification reconnue.",
-  ];
+  // const benefits = [
+  //   "Progressez à votre rythme et boostez votre carrière.",
+  //   "Accédez à des ressources exclusives et des conseils d'experts.",
+  //   "Valorisez votre CV avec une certification reconnue.",
+  // ];
   const ctas = [
     "Découvrez maintenant",
     "Je m’inscris",
@@ -45,7 +45,7 @@ function getAdContent(formation: CatalogueFormation) {
   return {
     title: titles[Math.floor(Math.random() * titles.length)],
     description: descriptions[Math.floor(Math.random() * descriptions.length)],
-    benefit: benefits[Math.floor(Math.random() * benefits.length)],
+    // benefit: benefits[Math.floor(Math.random() * benefits.length)],
     cta: ctas[Math.floor(Math.random() * ctas.length)],
   };
 }
@@ -89,7 +89,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                 <p className="text-gray-600 text-sm leading-relaxed">
                   {ad.description}
                 </p>
-                <div className="flex items-center text-green-600 text-xs font-medium">
+                {/* <div className="flex items-center text-green-600 text-xs font-medium">
                   <svg
                     className="w-4 h-4 mr-1"
                     fill="none"
@@ -104,7 +104,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                     />
                   </svg>
                   {ad.benefit}
-                </div>
+                </div> */}
               </div>
             </div>
 
