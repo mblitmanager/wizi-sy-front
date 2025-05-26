@@ -177,7 +177,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
               </div>
             </div>
 
-            <div className="flex justify-center gap-2 mt-2 sm:mt-3 flex-wrap">
+            {/* <div className="flex justify-center gap-2 mt-2 sm:mt-3 flex-wrap">
               <span className="text-xs px-2 py-0.5 sm:py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 rounded-full">
                 Niveau {userProgress?.level || 1}
               </span>
@@ -185,7 +185,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
                 <StarIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3" />{" "}
                 {totalPoints || 0} points
               </span>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

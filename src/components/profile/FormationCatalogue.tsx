@@ -24,9 +24,9 @@ const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
 }) => {
   return (
     <div className="bg-white p-4 rounded-lg shadow-sm">
-      <h2 className="text-xl font-semibold font-montserrat mb-4">
+      {/* <h2 className="text-xl font-semibold font-montserrat mb-4">
         Catalogue des formations
-      </h2>
+      </h2> */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {formations && formations.length > 0 ? (
           formations.map((formation) => {
