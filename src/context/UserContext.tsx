@@ -19,12 +19,24 @@ interface UserContextType {
   handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
 }
 
+const getClientIp = async (): Promise<string> => {
+  try {
+    const response = await fetch("https://api.ipify.org?format=json");
+    const data = await response.json();
+    return data.ip;
+  } catch (error) {
+    console.error("Erreur lors de la récupération de l'IP:", error);
+    return "unknown";
+  }
+};
+
 export const UserContext = createContext<UserContextType | undefined>(
   undefined
 );
 
 export function UserProvider({ children }: { children: ReactNode }) {
-    const VITE_API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+  const VITE_API_URL =
+    import.meta.env.VITE_API_URL || "http://localhost:8000/api";
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -95,10 +107,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
+      const clientIp = await getClientIp();
+      console.log("Client IP:", clientIp);
       const response = await fetch(`${VITE_API_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-Client-IP": clientIp,
         },
         body: JSON.stringify({ email, password }),
       });
@@ -131,20 +146,34 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    setUser(null);
-    setToken(null);
-    toast.success("Déconnexion réussie");
-    // Optionnel : vous pouvez faire l'appel API en arrière-plan si besoin
-    fetch(`${VITE_API_URL}/logout`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    }).catch((error) => {
-      console.error("Logout error:", error);
-    });
+  const logout = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      // On n'appelle pas l'API s'il n'y a pas de token
+      setUser(null);
+      setToken(null);
+      toast.success("Déconnexion réussie");
+      return;
+    }
+
+    try {
+      // ✅ Appeler l'API avec le token AVANT de le supprimer
+      await fetch(`${VITE_API_URL}/logout`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      });
+    } catch (error) {
+      console.error("Logout API error:", error);
+    } finally {
+      // ✅ Nettoyage APRÈS l'appel
+      localStorage.removeItem("token");
+      setUser(null);
+      setToken(null);
+      toast.success("Déconnexion réussie");
+    }
   };
 
   const updateUser = (updatedUser: Partial<User>) => {

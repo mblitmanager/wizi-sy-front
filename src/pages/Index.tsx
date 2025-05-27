@@ -176,7 +176,7 @@ export function Index() {
                 <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-purple-200 rounded-full blur-3xl opacity-40"></div>
 
                 <motion.div
-                  className="relative bg-white p-8 rounded-2xl shadow-xl border border-gray-100"
+                  className="relative bg-white"
                   whileHover={{ y: -5 }}
                   transition={{ type: "spring", stiffness: 300 }}>
                   <div className="relative">

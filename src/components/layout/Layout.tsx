@@ -83,7 +83,10 @@ export function Layout({ children }: LayoutProps) {
         )}
 
         {/* Contenu principal */}
-        <main className="flex-1 overflow-y-auto">
+        <main
+          className={`flex-1 overflow-y-auto ${
+            isMobile && showBanner ? "pt-20" : ""
+          }`}>
           <div className="p-3">{children}</div>
         </main>
 
