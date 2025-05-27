@@ -20,21 +20,16 @@ export interface CatalogueFormation {
   id: number;
   titre: string;
   description: string;
-  prerequis?: string;
-  tarif?: string;
-  certification?: string;
-  statut: number;
-  duree?: string;
-  imageUrl?: string;
-  formation?: {
-    titre: string;
-    description: string;
-    categorie?: string;
-  };
-
+  duree: number;
+  tarif: number;
+  statut: string;
+  image_url: string;
+  cursus_pdf?: string;
+  formation_id: number;
   created_at: string;
   updated_at: string;
 }
+
 export interface Stagiaire {
   id: number;
   prenom: string;

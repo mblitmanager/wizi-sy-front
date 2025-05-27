@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { CatalogueFormation } from "@/types/stagiaire";
+import DownloadPdfButton  from "@/components/FeatureHomePage/DownloadPdfButton"; 
 
 function stripHtml(html: string): string {
   if (!html) return "";
@@ -121,44 +122,17 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
             </div>
 
             {/* Bouton avec effet de gradient amélioré */}
-            <div className="px-5 pb-5">
-              <div className="flex gap-2">
-                <Button
-                  asChild
-                  className="flex-1 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-indigo-700 text-white font-medium rounded-lg py-3 transition-all shadow-sm hover:shadow-md focus:ring-2 focus:ring-blue-300 focus:ring-offset-2"
-                >
-                  <a href={`/catalogue/${formation.id || ""}`}>
-                    <span className="drop-shadow-sm">{ad.cta}</span>
-                  </a>
-                </Button>
-                {/* {formation.cursus_pdf && ( */}
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="flex-none bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-lg py-3 transition-all shadow-sm hover:shadow-md focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
-                  >
-                    <a href={`/api/catalogueFormations/formations/${formation.id}/download-pdf`} 
-                       target="_blank" 
-                       rel="noopener noreferrer"
-                       onClick={async (e) => {
-                         e.preventDefault();
-                         try {
-                           const response = await fetch(`/api/catalogueFormations/formations/${formation.id}/download-pdf`);
-                           const data = await response.json();
-                           if (data.success && data.data.url) {
-                             window.open(data.data.url, '_blank');
-                           }
-                         } catch (error) {
-                           console.error('Erreur lors du téléchargement du PDF:', error);
-                         }
-                       }}>
-                      <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      PDF
-                    </a>
-                  </Button>
-                // )}
+            <div className="px-5 pb-5 flex flex-col items-center justify-center">
+              <DownloadPdfButton formationId={formation.id} />
+              <div className="flex gap-2 w-full mt-3">
+              <Button
+                asChild
+                className="flex-1 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-indigo-700 text-white font-medium rounded-lg py-3 transition-all shadow-sm hover:shadow-md focus:ring-2 focus:ring-blue-300 focus:ring-offset-2"
+              >
+                <a href={`/catalogue/${formation.id || ""}`}>
+                <span className="drop-shadow-sm">{ad.cta}</span>
+                </a>
+              </Button>
               </div>
             </div>
           </div>
