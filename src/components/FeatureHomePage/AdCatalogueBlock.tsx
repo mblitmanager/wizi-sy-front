@@ -69,7 +69,7 @@ function getAdContent(formation: CatalogueFormation) {
   const ctas = [
     "Découvrez maintenant",
     "Je m'inscris",
-    "Commencer la formation",
+    // "Commencer la formation",
   ];
   return {
     title: titles[Math.floor(Math.random() * titles.length)],
