@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, LogOut, Settings, User, Users } from "lucide-react";
+import { Bell, LogOut, Settings, User, Users,Trophy } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -119,14 +119,16 @@ export function Navbar() {
             </Link>
                    
               {userScore !== null && (
-                <span className="ml-2 text-yellow-600 font-bold text-sm">
+                <span className="ml-2 text-sm">
+                  <Trophy className="inline h-4 w-4 mr-1" />
                   {userScore} pts
                 </span>
               )}
                {filleulsCount !== null && (
-              <span className="ml-2 text-blue-600 font-bold text-sm flex items-center">
+              <span className="ml-2 text-sm flex items-center">
                 <Users className="inline h-4 w-4 mr-1" />
-                {filleulsCount} filleul{filleulsCount > 1 ? "s" : ""}
+                {filleulsCount} 
+                {/* filleul{filleulsCount > 1 ? "s" : ""} */}
               </span>
             )}
             <DropdownMenu>

@@ -7,14 +7,15 @@ export const useLoadFormations = () => {
 
   useEffect(() => {
     formationService.getFormationsByStagiaire().then((res) => {
+      console.log("res", res);
       setFormations(
         (res?.data || []).map((entry) => ({
           id: entry.id?.toString?.() ?? "",
-          titre: entry.titre || "Unknown",
+          titre: entry.catalogue_formation[0]?.titre || "Unknown",
           categorie: entry.categorie,
-          description: entry.description || "",
-          image: entry.image,
-          duree: entry.duree,
+          description: entry.catalogue_formation[0]?.description || "",
+          image: entry.catalogue_formation[0]?.image_url,
+          duree: entry.catalogue_formation[0]?.duree,
         }))
       );
     });

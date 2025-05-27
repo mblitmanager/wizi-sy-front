@@ -139,7 +139,7 @@ useEffect(() => {
             {/* Section Formations */}
             <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
               <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
-                Formations disponibles
+                Mes formations
               </h3>
               <FormationCatalogue formations={formations} />
             </div>

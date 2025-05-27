@@ -40,7 +40,7 @@ export default function Quizzes() {
           <Tabs defaultValue="mes-quizzes" className="space-y-6 ">
             <TabsList className="grid w-full grid-cols-2 bg-slate-200">
               <TabsTrigger value="mes-quizzes">Mes Quiz</TabsTrigger>
-              {/* <TabsTrigger value="tous-quizzes">Tous les Quiz</TabsTrigger> */}
+              <TabsTrigger value="tous-quizzes">Tous les Quiz</TabsTrigger>
             </TabsList>
             {/* <div className="mt-2 h-[calc(100vh-25rem)] overflow-y-auto p-4"> */}
             <TabsContent value="mes-quizzes">
