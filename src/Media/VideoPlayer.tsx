@@ -84,38 +84,20 @@ export default function VideoPlayer({ url }: Props) {
             "fullscreen",
           ],
           settings: ["quality", "speed", "loop"],
+          quality: {
+            default: 1080,
+            options: [1080, 720, 480],
+          },
+          ratio: "16:9",
+          volume: 0.5,
         });
       }
 
-    if (video && !playerRef.current) {
-      playerRef.current = new Plyr(video, {
-        controls: [
-          "play-large",
-          "play",
-          "progress",
-          "current-time",
-          "mute",
-          "volume",
-          "captions",
-          "settings",
-          "pip",
-          "airplay",
-          "fullscreen",
-        ],
-        settings: ["quality", "speed", "loop"],
-        quality: {
-          default: 1080,
-          options: [1080, 720, 480],
-        },
-        ratio: "16:9",
-        volume: 0.5,
-      });
-    }
-
-    if (video) {
-      video.src = `${VITE_API_URL}/media/stream/${url}`;
-      video.load();
-      video.pause();
+      if (video) {
+        video.src = `${VITE_API_URL}/media/stream/${url}`;
+        video.load();
+        video.pause();
+      }
     }
   }, [url]);
 
