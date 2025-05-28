@@ -11,16 +11,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { QuizHistory as QuizHistoryType } from "@/types/quiz";
-import { Loader2, Trophy, Clock3 } from 'lucide-react';
+import { Loader2, Trophy, Clock3 } from "lucide-react";
 // Color map for categories
 const CATEGORY_COLORS: Record<string, string> = {
   Math: "bg-blue-100 text-blue-800",
   Science: "bg-green-100 text-green-800",
   History: "bg-yellow-100 text-yellow-800",
-  Bureautique: "bg-[#3D9BE9] text-white",
-  Langues: "bg-[#A55E6E] text-white",
-  Internet: "bg-[#FFC533] text-black",
-  Création: "bg-[#9392BE] text-white",
+  Bureautique: " border-t-4 border-[#3D9BE9] ",
+  Langues: " border-t-4 border-[#A55E6E] ",
+  Internet: " border-t-4 border-[#FFC533] ",
+  Création: " border-t-4 border-[#9392BE] ",
   default: "bg-gray-100 text-gray-800",
 };
 
@@ -40,7 +40,11 @@ function getScoreColor(correctAnswers: number, totalQuestions: number) {
   // } else if (level === "intermédiaire" || level === "Intermédiaire") {
   //   return score >= 15 ? "text-green-600 font-bold" : (score >= 10 ? "text-orange-500 font-semibold" : "text-red-600 font-semibold");
   // } else if (level === "avancé" || level === "Avancé" || level === "Avancée") {
-    return level >= 75 ? "text-green-600 font-bold" : (level >= 50 ? "text-orange-500 font-semibold" : "text-red-600 font-semibold");
+  return level >= 75
+    ? "text-green-600 font-bold"
+    : level >= 50
+    ? "text-orange-500 font-semibold"
+    : "text-red-600 font-semibold";
   // }
 }
 
@@ -74,6 +78,8 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
     );
   }
 
+  console.log("paginatedHistory", paginatedHistory);
+
   return (
     <div className="border rounded-lg bg-white shadow-sm">
       {/* Header */}
@@ -88,21 +94,22 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
           {paginatedHistory.map((quiz) => (
             <div
               key={quiz.id}
-              className={`p-2 border rounded-lg ${getCategoryColor(
+              className={`p-2 rounded-lg  ${getCategoryColor(
                 quiz.quiz.category
-              )} shadow-md`}>
+              )} shadow-md`}
+            >
               <div className="flex justify-between items-center">
                 <div>
                   <h3 className="font-medium text-sm truncate">
                     {quiz.quiz.title}
                   </h3>
-                  <p className="text-xs text-gray truncate">
+                  <p className="text-xs truncate">
                     {quiz.quiz.category} - Niveau : {quiz.quiz.level}
                   </p>
                 </div>
                 <div className="text-primary font-semibold text-sm">
                   {quiz.correctAnswers} / {quiz.totalQuestions}
-                   {/* ({Math.round((quiz.correctAnswers / quiz.totalQuestions) * 100)}%) */}
+                  {/* ({Math.round((quiz.correctAnswers / quiz.totalQuestions) * 100)}%) */}
                 </div>
               </div>
               <div className="mt-2 flex justify-between font-semibold text-sm text-gray-900">
@@ -111,7 +118,10 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
                     locale: fr,
                   })}
                 </div>
-                <div>{Math.floor(quiz.timeSpent / 60)}:{(quiz.timeSpent % 60).toString().padStart(2, '0')}</div>
+                <div>
+                  {Math.floor(quiz.timeSpent / 60)}:
+                  {(quiz.timeSpent % 60).toString().padStart(2, "0")}
+                </div>
               </div>
             </div>
           ))}
@@ -122,7 +132,8 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
               <button
                 className="px-2 py-1 border rounded text-xs disabled:opacity-50"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}>
+                disabled={page === 1}
+              >
                 Précédent
               </button>
               <span className="text-xs">
@@ -131,7 +142,8 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
               <button
                 className="px-2 py-1 border rounded text-xs disabled:opacity-50"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}>
+                disabled={page === totalPages}
+              >
                 Suivant
               </button>
             </div>
@@ -171,17 +183,37 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
                 {paginatedHistory.map((quiz) => (
                   <tr key={quiz.id} className="border-b hover:bg-gray-50">
                     <td className="px-3 py-2 truncate">{quiz.quiz.title}</td>
-                    <td className={`px-3 py-2 truncate ${getCategoryColor(quiz.quiz.category)}`}>
+                    <td
+                      className={`px-3 py-2 truncate ${getCategoryColor(
+                        quiz.quiz.category
+                      )}`}
+                    >
                       {quiz.quiz.category}
                     </td>
                     <td className="px-3 py-2 truncate">{quiz.quiz.level}</td>
-                    <td className={`px-3 py-2 ${getScoreColor(quiz.correctAnswers,quiz.totalQuestions)}`}>{quiz.score}</td>
-                    <td className="px-3 py-2">{quiz.correctAnswers} / {quiz.totalQuestions} ({Math.round((quiz.correctAnswers / quiz.totalQuestions) * 100)}%)</td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      {format(new Date(quiz.completedAt), "PPP - HH:mm", { locale: fr })}
+                    <td
+                      className={`px-3 py-2 ${getScoreColor(
+                        quiz.correctAnswers,
+                        quiz.totalQuestions
+                      )}`}
+                    >
+                      {quiz.score}
+                    </td>
+                    <td className="px-3 py-2">
+                      {quiz.correctAnswers} / {quiz.totalQuestions} (
+                      {Math.round(
+                        (quiz.correctAnswers / quiz.totalQuestions) * 100
+                      )}
+                      %)
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
-                      {Math.floor(quiz.timeSpent / 60)}:{(quiz.timeSpent % 60).toString().padStart(2, '0')}
+                      {format(new Date(quiz.completedAt), "PPP - HH:mm", {
+                        locale: fr,
+                      })}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      {Math.floor(quiz.timeSpent / 60)}:
+                      {(quiz.timeSpent % 60).toString().padStart(2, "0")}
                     </td>
                   </tr>
                 ))}
@@ -195,7 +227,8 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
               <button
                 className="px-2 py-1 border rounded text-xs disabled:opacity-50"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}>
+                disabled={page === 1}
+              >
                 Précédent
               </button>
               <span className="text-xs">
@@ -204,7 +237,8 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
               <button
                 className="px-2 py-1 border rounded text-xs disabled:opacity-50"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}>
+                disabled={page === totalPages}
+              >
                 Suivant
               </button>
             </div>
