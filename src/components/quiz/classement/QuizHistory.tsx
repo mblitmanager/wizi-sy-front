@@ -17,10 +17,10 @@ const CATEGORY_COLORS: Record<string, string> = {
   Math: "bg-blue-100 text-blue-800",
   Science: "bg-green-100 text-green-800",
   History: "bg-yellow-100 text-yellow-800",
-  Bureautique: " border-t-4 border-[#3D9BE9] text-white",
-  Langues: " border-t-4 border-[#A55E6E] text-white",
-  Internet: " border-t-4 border-[#FFC533] text-black",
-  Création: " border-t-4 border-[#9392BE] text-white",
+  Bureautique: " border-t-4 border-[#3D9BE9] ",
+  Langues: " border-t-4 border-[#A55E6E] ",
+  Internet: " border-t-4 border-[#FFC533] ",
+  Création: " border-t-4 border-[#9392BE] ",
   default: "bg-gray-100 text-gray-800",
 };
 
@@ -103,7 +103,7 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
                   <h3 className="font-medium text-sm truncate">
                     {quiz.quiz.title}
                   </h3>
-                  <p className="text-xs text-gray truncate">
+                  <p className="text-xs truncate">
                     {quiz.quiz.category} - Niveau : {quiz.quiz.level}
                   </p>
                 </div>
