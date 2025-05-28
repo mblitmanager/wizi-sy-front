@@ -108,7 +108,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       const clientIp = await getClientIp();
-      console.log("Client IP:", clientIp);
       const response = await fetch(`${VITE_API_URL}/login`, {
         method: "POST",
         headers: {
@@ -118,28 +117,20 @@ export function UserProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ email, password }),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Login failed");
+      }
+
       const data = await response.json();
 
-      if (response.ok) {
-        // Save token to localStorage
-        localStorage.setItem("token", data.token);
-
-        // Fetch user details
-        const userResponse = await fetch(`${VITE_API_URL}/me`, {
-          headers: {
-            Authorization: `Bearer ${data.token}`,
-          },
-        });
-
-        const userData = await userResponse.json();
-        setUser(userData);
-        setToken(data.token);
-        toast.success("Connexion réussie");
-      } else {
-        toast.error(data.message || "Email ou mot de passe incorrect");
-      }
+      // Ensure the data structure matches what your app expects
+      localStorage.setItem("token", data.token);
+      setUser(data.user); // Set only the user object
+      setToken(data.token);
+      toast.success("Connexion réussie");
     } catch (error) {
-      toast.error("Erreur lors de la connexion");
+      toast.error(error.message || "Erreur lors de la connexion");
       console.error("Login error:", error);
     } finally {
       setIsLoading(false);
@@ -147,35 +138,34 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      // On n'appelle pas l'API s'il n'y a pas de token
-      setUser(null);
-      setToken(null);
-      toast.success("Déconnexion réussie");
-      return;
-    }
-
+    setIsLoading(true);
     try {
-      // ✅ Appeler l'API avec le token AVANT de le supprimer
-      await fetch(`${VITE_API_URL}/logout`, {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found");
+
+      const response = await fetch(`${VITE_API_URL}/logout`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-          Accept: "application/json",
+          "Content-Type": "application/json",
         },
       });
-    } catch (error) {
-      console.error("Logout API error:", error);
-    } finally {
-      // ✅ Nettoyage APRÈS l'appel
+
+      if (!response.ok) {
+        throw new Error("Logout failed");
+      }
+
       localStorage.removeItem("token");
       setUser(null);
       setToken(null);
       toast.success("Déconnexion réussie");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error(error.message || "Erreur lors de la déconnexion");
+    } finally {
+      setIsLoading(false);
     }
   };
-
   const updateUser = (updatedUser: Partial<User>) => {
     if (user) {
       setUser({ ...user, ...updatedUser });

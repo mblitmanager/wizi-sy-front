@@ -10,8 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, LogOut, Settings, User, Users,Trophy } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Bell, LogOut, Settings, User, Users, Trophy } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,7 @@ export function Navbar() {
   const [userScore, setUserScore] = useState<number | null>(null);
   const [filleulsCount, setFilleulsCount] = useState<number | null>(null);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const navigate = useNavigate();
 
   // Fetch unread notifications count
   useEffect(() => {
@@ -62,33 +63,22 @@ export function Navbar() {
     if (user) fetchFilleuls();
   }, [user]);
   const getInitials = () => {
-    if (!user || !user.user.name) return "U";
-    // Récupère la première lettre du prénom si disponible
-    const firstNameInitial = user.stagiaire?.prenom
-      ? user.stagiaire.prenom.charAt(0).toUpperCase()
-      : "";
-
-    // Récupère la première lettre du nom
-    const lastNameInitial = user.user.name.charAt(0).toUpperCase();
-
+    if (!user) return "U";
+    const firstNameInitial = user?.stagiaire?.prenom?.[0]?.toUpperCase() || "";
+    const lastNameInitial = user?.user?.name?.[0]?.toUpperCase() || "U";
     return `${firstNameInitial}${lastNameInitial}`;
   };
 
   const handleLogout = async () => {
     try {
-      // 1. Nettoyage immédiat
-      localStorage.removeItem("token");
+      // Appel de la fonction logout du UserProvider
+      await logout();
 
-      // 2. Déconnexion globale (si votre hook gère un état)
-      if (logout) logout();
-
-      // 3. Option 1: Redirection ultra-rapide (recharge la page)
-      // window.location.assign("/login");
-
-      // OU Option 2: Redirection avec React Router (moins instantanée)
+      // Redirection après déconnexion
       navigate("/login", { replace: true });
     } catch (error) {
       console.error("Logout error:", error);
+      // Optionnel: Afficher un message d'erreur à l'utilisateur
     }
   };
 
@@ -103,12 +93,11 @@ export function Navbar() {
         {/* Bloc droite - Notifications + Dropdown */}
         {user && (
           <div className="flex items-center gap-4">
-           <Link to="/notifications">
+            <Link to="/notifications">
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative hover:bg-gray-100 transition"
-              >
+                className="relative hover:bg-gray-100 transition">
                 <Bell className="h-5 w-5 text-gray-600" />
                 {unreadNotifications > 0 && (
                   <Badge className="absolute -top-1 -right-1 px-1.5 h-5 min-w-5 text-xs bg-red-500 text-white animate-pulse">
@@ -117,17 +106,17 @@ export function Navbar() {
                 )}
               </Button>
             </Link>
-                   
-              {userScore !== null && (
-                <span className="ml-2 text-sm">
-                  <Trophy className="inline h-4 w-4 mr-1" />
-                  {userScore} pts
-                </span>
-              )}
-               {filleulsCount !== null && (
+
+            {userScore !== null && (
+              <span className="ml-2 text-sm">
+                <Trophy className="inline h-4 w-4 mr-1" />
+                {userScore} pts
+              </span>
+            )}
+            {filleulsCount !== null && (
               <span className="ml-2 text-sm flex items-center">
                 <Users className="inline h-4 w-4 mr-1" />
-                {filleulsCount} 
+                {filleulsCount}
                 {/* filleul{filleulsCount > 1 ? "s" : ""} */}
               </span>
             )}
@@ -142,8 +131,13 @@ export function Navbar() {
                         className="w-full h-full rounded-full object-cover"
                         onError={(e) => {
                           e.currentTarget.style.display = "none";
-                          if (e.currentTarget.nextSibling && e.currentTarget.nextSibling instanceof HTMLElement) {
-                            (e.currentTarget.nextSibling as HTMLElement).style.display = "flex";
+                          if (
+                            e.currentTarget.nextSibling &&
+                            e.currentTarget.nextSibling instanceof HTMLElement
+                          ) {
+                            (
+                              e.currentTarget.nextSibling as HTMLElement
+                            ).style.display = "flex";
                           }
                         }}
                       />
@@ -157,11 +151,10 @@ export function Navbar() {
                   {!isMobile && (
                     <div className="flex flex-col items-start mr-2">
                       <span className="text-sm font-medium">
-                        {(user.user?.name || '').toUpperCase()} {user.stagiaire?.prenom || ''}
+                        {(user?.user?.name || "").toUpperCase()}{" "}
+                        {user?.stagiaire?.prenom || ""}
                       </span>
-                      <span className="text-xs text-gray-500">
-                        {user.role}
-                      </span>
+                      <span className="text-xs text-gray-500">{user.role}</span>
                     </div>
                   )}
                 </button>
@@ -175,8 +168,7 @@ export function Navbar() {
                 <DropdownMenuItem asChild>
                   <Link
                     to="/profile"
-                    className="flex items-center w-full hover:bg-gray-100 px-2 py-1 rounded"
-                  >
+                    className="flex items-center w-full hover:bg-gray-100 px-2 py-1 rounded">
                     <User className="mr-2 h-4 w-4" />
                     <span>Profil</span>
                   </Link>
@@ -184,8 +176,7 @@ export function Navbar() {
                 <DropdownMenuItem asChild>
                   <Link
                     to="/settings"
-                    className="flex items-center w-full hover:bg-gray-100 px-2 py-1 rounded"
-                  >
+                    className="flex items-center w-full hover:bg-gray-100 px-2 py-1 rounded">
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Paramètres</span>
                   </Link>
@@ -193,8 +184,7 @@ export function Navbar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="cursor-pointer text-red-600 hover:bg-red-50 px-2 py-1 rounded"
-                >
+                  className="cursor-pointer text-red-600 hover:bg-red-50 px-2 py-1 rounded">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Déconnexion</span>
                 </DropdownMenuItem>
