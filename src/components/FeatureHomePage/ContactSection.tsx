@@ -42,6 +42,8 @@ const ContactSection: React.FC<ContactSectionProps> = ({
   poleRelation,
 }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [showAllContacts, setShowAllContacts] = useState(false);
+
   useEffect(() => {
     // Simule le chargement ou attend que les données soient disponibles
     const timer = setTimeout(() => {
@@ -50,6 +52,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
 
     return () => clearTimeout(timer);
   }, [commerciaux, formateurs, poleRelation]);
+
   const ContactCardSkeleton = () => (
     <div className="border rounded-lg p-4">
       <div className="flex items-center space-x-4">
@@ -65,12 +68,13 @@ const ContactSection: React.FC<ContactSectionProps> = ({
       </div>
     </div>
   );
+
   if (isLoading) {
     return (
       <div className="mb-4 bg-card rounded-lg shadow-sm p-4">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-brown-shade">
-            Vos contacts
+            Mes contacts
           </h2>
           <Skeleton className="h-8 w-24 rounded-md" />
         </div>
@@ -83,51 +87,53 @@ const ContactSection: React.FC<ContactSectionProps> = ({
     );
   }
 
+  const allContacts = [
+    commerciaux?.[0],
+    formateurs?.[0],
+    poleRelation?.[0],
+  ].filter(Boolean);
+
+  const displayedContacts = showAllContacts ? allContacts : [allContacts[0]];
+
   return (
-    <div className="mb-4 bg-card rounded-lg shadow-sm">
+    <div className="mb-4 bg-card rounded-lg shadow-sm p-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold text-brown-shade">Vos contacts</h2>
-        <Link to="/contacts">
-          <Button className="text-blue-400" variant="ghost" size="sm">
-            Voir tous <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+    
+          <Link to="/contacts">
+            <Button className="text-blue-400" variant="ghost" size="sm">
+              Voir tous <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </Link>
+        </div>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
-        {commerciaux?.[0] && (
-          <ContactCard
-            contact={{
-              ...commerciaux[0],
-              telephone: commerciaux[0].phone || "N/A",
-              role: commerciaux[0].role || "N/A",
-              avatar: commerciaux[0].avatar || "",
-              created_at: commerciaux[0].created_at || new Date().toISOString(),
-            }}
-          />
-        )}
-        {formateurs?.[0] && (
-          <ContactCard
-            contact={{
-              ...formateurs[0],
-              telephone: formateurs[0].phone || "N/A",
-              role: formateurs[0].role || "N/A",
-              avatar: formateurs[0].avatar || "",
-              created_at: formateurs[0].created_at || new Date().toISOString(),
-            }}
-          />
-        )}
-        {poleRelation?.[0] && (
-          <ContactCard
-            contact={{
-              ...poleRelation[0],
-              telephone: poleRelation[0].phone || "N/A",
-              role: poleRelation[0].role || "N/A",
-              avatar: poleRelation[0].avatar || "",
-              created_at:
-                poleRelation[0].created_at || new Date().toISOString(),
-            }}
-          />
-        )}
+        {displayedContacts.map((contact, index) => {
+          if (!contact) return null;
+          return (
+            <ContactCard
+              key={contact.id}
+              contact={{
+                ...contact,
+                telephone: contact.phone || "N/A",
+                role: contact.role || "N/A",
+                avatar: contact.avatar || "",
+                created_at: contact.created_at || new Date().toISOString(),
+              }}
+            />
+          );
+        })}
+              {!showAllContacts && allContacts.length > 1 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowAllContacts(true)}
+              className="text-brown-shade md:hidden"
+            >
+              +{allContacts.length - 1} autres
+            </Button>
+          )}
       </div>
     </div>
   );

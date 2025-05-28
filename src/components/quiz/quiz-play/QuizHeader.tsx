@@ -6,6 +6,7 @@ import { formatTime } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface QuizHeaderProps {
+  title: string;
   timeLeft: number | null;
   niveau: string;
   points: number;
@@ -15,13 +16,13 @@ interface QuizHeaderProps {
 }
 
 export function QuizHeader({
+  title,
   timeLeft,
   niveau,
-  titre,
-  // points,
+  points,
   onToggleHint,
-  // onToggleHistory,
-  // onToggleStats
+  onToggleHistory,
+  onToggleStats,
 }: QuizHeaderProps) {
   const isMobile = useIsMobile();
 
@@ -41,36 +42,48 @@ export function QuizHeader({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-6 w-full">
-      <div className="flex items-center gap-2 w-full sm:w-auto">
-      <h1
-        className={`text-2xl font-bold truncate ${isMobile ? 'text-center w-full' : 'text-left'}`}
-        title={titre}
-      >
-        {titre}
-      </h1>
+    <div className="flex flex-col gap-4 mb-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">{title}</h1>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggleHint}
+            className="h-8 w-8"
+          >
+            <HelpCircle className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggleHistory}
+            className="h-8 w-8"
+          >
+            <Trophy className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggleStats}
+            className="h-8 w-8"
+          >
+            <Timer className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
-      <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-      <div className="flex items-center gap-1">
-        <Timer className="h-5 w-5" />
-        <span className="font-mono text-base">
-        {timeLeft !== null ? formatTime(timeLeft) : '--:--'}
-        </span>
-      </div>
-      <Badge className={getLevelBadgeClass() + ' text-xs px-2 py-1'}>
-        {niveau}
-      </Badge>
-      {/* <div className="flex items-center gap-1">
-        <Trophy className="h-4 w-4 text-yellow-500" />
-      </div> */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onToggleHint}
-        className="ml-auto sm:ml-0 text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200 dark:hover:text-white"
-      >
-        <HelpCircle className="h-5 w-5 text-blue-900" />
-      </Button>
+      <div className="flex items-center gap-4">
+        {timeLeft !== null && (
+          <Badge variant="outline" className="flex items-center gap-1">
+            <Timer className="h-3 w-3" />
+            {formatTime(timeLeft)}
+          </Badge>
+        )}
+        <Badge variant="outline" className="flex items-center gap-1">
+          <Trophy className="h-3 w-3" />
+          {points} points
+        </Badge>
+        <Badge variant="outline">{niveau}</Badge>
       </div>
     </div>
   );
