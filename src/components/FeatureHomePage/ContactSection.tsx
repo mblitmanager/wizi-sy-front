@@ -98,7 +98,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
           <ContactCard
             contact={{
               ...commerciaux[0],
-              telephone: commerciaux[0].telephone || "N/A",
+              telephone: commerciaux[0].phone || "N/A",
               role: commerciaux[0].role || "N/A",
               avatar: commerciaux[0].avatar || "",
               created_at: commerciaux[0].created_at || new Date().toISOString(),
@@ -109,7 +109,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
           <ContactCard
             contact={{
               ...formateurs[0],
-              telephone: formateurs[0].telephone || "N/A",
+              telephone: formateurs[0].phone || "N/A",
               role: formateurs[0].role || "N/A",
               avatar: formateurs[0].avatar || "",
               created_at: formateurs[0].created_at || new Date().toISOString(),
@@ -120,7 +120,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
           <ContactCard
             contact={{
               ...poleRelation[0],
-              telephone: poleRelation[0].telephone || "N/A",
+              telephone: poleRelation[0].phone || "N/A",
               role: poleRelation[0].role || "N/A",
               avatar: poleRelation[0].avatar || "",
               created_at:

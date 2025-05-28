@@ -371,7 +371,7 @@ export function Index() {
         {catalogueData && catalogueData.length > 0 ? (
           <>
             <h2 className="text-3xl font-bold mb-6 text-gray-900 text-center">
-              Découvrez notre catalogue
+              Découvrez nos formations
             </h2>
             <div className="flex flex-col md:flex-row items-center justify-center gap-8 px-2 py-12 bg-white rounded-xl shadow-md">
               {/* Colonne illustration */}
