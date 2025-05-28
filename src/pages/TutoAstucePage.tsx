@@ -116,14 +116,7 @@ export default function TutoAstucePage() {
 
   const MobileView = () => (
     <div className="lg:hidden flex flex-col h-auto ">
-      {/* Player en plein écran */}
-      <div className="flex-1 bg-white rounded-lg shadow-md mb-2 overflow-hidden">
-        <MediaPlayer key={selectedMedia?.id || "empty"} media={selectedMedia} />
-      </div>
-
-      {/* Contrôles et liste */}
-      <div className="bg-white rounded-lg shadow-md  flex flex-col mb-8">
-        <div className="flex gap-2 mb-3">
+      <div className="flex gap-2 mb-3">
           <MediaTabs active={activeCategory} onChange={setActiveCategory} />
 
           <select
@@ -146,6 +139,14 @@ export default function TutoAstucePage() {
           </button>
         </div>
 
+      {/* Player en plein écran */}
+      <div className="flex-1 bg-white rounded-lg shadow-md mb-2 overflow-hidden">
+        <MediaPlayer key={selectedMedia?.id || "empty"} media={selectedMedia} />
+      </div>
+
+      {/* Contrôles et liste */}
+      <div className="bg-white rounded-lg shadow-md  flex flex-col mb-8">
+        
         {isLoading ? (
           <div className="space-y-2">
             {[...Array(3)].map((_, i) => (
