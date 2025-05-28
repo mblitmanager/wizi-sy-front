@@ -6,7 +6,7 @@ import { useFormations } from "@/use-case/hooks/catalogue/useCatalogue";
 
 // ParrainageInscriptionPage.tsx
 
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
+const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
 
 const ParrainageInscriptionPage = () => {
   const { token } = useParams();
@@ -14,13 +14,17 @@ const ParrainageInscriptionPage = () => {
   const [parrainData, setParrainData] = useState<any>(null);
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false); // État pour le loading de soumission
   const [formData, setFormData] = useState({
     civilite: "M",
     prenom: "",
     nom: "",
     email: "",
     telephone: "",
+    // adresse: "",
+    // code_postal: "",
+    // ville: "",
+    // date_naissance: "",
+    // date_debut_formation: "",
     catalogue_formation_id: "",
     statut: "1",
     parrain_id: "",
@@ -65,10 +69,17 @@ const ParrainageInscriptionPage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleDateChange = (name: string, date: Date | null) => {
+    if (date) {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: date.toISOString().split("T")[0],
+      }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitting(true); // Activer le loading
-
     try {
       const response = await fetch(`${API_URL}/parrainage/register-filleul`, {
         method: "POST",
@@ -77,6 +88,8 @@ const ParrainageInscriptionPage = () => {
         },
         body: JSON.stringify({
           ...formData,
+          // date_naissance: formData.date_naissance,
+          // date_debut_formation: formData.date_debut_formation || null,
           date_inscription: new Date().toISOString().split("T")[0],
         }),
       });
@@ -97,12 +110,20 @@ const ParrainageInscriptionPage = () => {
         nom: "",
         email: "",
         telephone: "",
+        // adresse: "",
+        // code_postal: "",
+        // ville: "",
+        // date_naissance: "",
+        // date_debut_formation: "",
         catalogue_formation_id: "",
         statut: "1",
         parrain_id: formData.parrain_id,
       });
 
+      // Réinitialiser les erreurs
       setErrors({});
+
+      // Afficher le message de succès
       setIsSuccess(true);
 
       toast({
@@ -115,8 +136,6 @@ const ParrainageInscriptionPage = () => {
         description: error.message,
         variant: "destructive",
       });
-    } finally {
-      setSubmitting(false); // Désactiver le loading dans tous les cas
     }
   };
 
@@ -129,19 +148,19 @@ const ParrainageInscriptionPage = () => {
 
   return (
     <div className="bg-gradient-to-br from-yellow-50 to-amber-50 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch overflow-hidden">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch overflow-hidden h-[100vh] ">
         {/* Colonne Illustration */}
         <div className="hidden lg:flex flex-col items-center justify-center">
-          <div className="relative w-full flex items-center justify-center">
+          {" "}
+          <div className="relative w-full  flex items-center justify-center">
             <img
               src={image}
               alt="Parrainage Illustration"
-              className="w-full object-contain animate-float"
+              className="w-full object-contain animate-float" /* Ajout de h-full et max-h */
               style={{ objectPosition: "center", height: "880px" }}
             />
           </div>
         </div>
-
         {/* Colonne Formulaire */}
         <div className="flex flex-col justify-center mx-auto rounded-lg shadow-lg p-6 lg:p-8">
           {/* En-tête */}
@@ -343,9 +362,7 @@ const ParrainageInscriptionPage = () => {
                     }`}
                   />
                   {errors.email && (
-                    <p className="mt-1 text-red-600 text-sm">
-                      {errors.email[0]}
-                    </p>
+                    <p className="mt-1 text-red-600 text-sm">{errors.email[0]}</p>
                   )}
                 </div>
 
@@ -390,9 +407,9 @@ const ParrainageInscriptionPage = () => {
                           : "border-gray-200 hover:border-amber-300 hover:bg-amber-50/50"
                       }`}
                       onClick={() => {
-                        setFormData((prev) => ({
+                        setFormData(prev => ({
                           ...prev,
-                          catalogue_formation_id: formation.id,
+                          catalogue_formation_id: formation.id
                         }));
                       }}
                     >
@@ -401,24 +418,19 @@ const ParrainageInscriptionPage = () => {
                         id={`formation-${formation.id}`}
                         name="catalogue_formation_id"
                         value={formation.id}
-                        checked={
-                          formData.catalogue_formation_id === formation.id
-                        }
+                        checked={formData.catalogue_formation_id === formation.id}
                         onChange={handleChange}
                         className="sr-only"
                         aria-label={`Sélectionner la formation ${formation.titre}`}
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center">
-                          <div
-                            className={`flex-shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center mr-2.5 sm:mr-3 ${
-                              formData.catalogue_formation_id === formation.id
-                                ? "border-amber-500"
-                                : "border-gray-300"
-                            }`}
-                          >
-                            {formData.catalogue_formation_id ===
-                              formation.id && (
+                          <div className={`flex-shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center mr-2.5 sm:mr-3 ${
+                            formData.catalogue_formation_id === formation.id
+                              ? "border-amber-500"
+                              : "border-gray-300"
+                          }`}>
+                            {formData.catalogue_formation_id === formation.id && (
                               <div className="w-2 h-2 rounded-full bg-amber-500" />
                             )}
                           </div>
@@ -446,36 +458,9 @@ const ParrainageInscriptionPage = () => {
             <div className="pt-4">
               <button
                 type="submit"
-                disabled={submitting} // Désactiver le bouton pendant la soumission
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-shade hover:bg-yellow-shade-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-shade transition duration-150 ease-in-out disabled:opacity-75 disabled:cursor-not-allowed"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-shade hover:bg-yellow-shade-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-shade transition duration-150 ease-in-out"
               >
-                {submitting ? (
-                  <>
-                    <svg
-                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    En cours...
-                  </>
-                ) : (
-                  "Finaliser mon inscription"
-                )}
+                Finaliser mon inscription
               </button>
             </div>
           </form>
@@ -484,5 +469,4 @@ const ParrainageInscriptionPage = () => {
     </div>
   );
 };
-
 export default ParrainageInscriptionPage;
