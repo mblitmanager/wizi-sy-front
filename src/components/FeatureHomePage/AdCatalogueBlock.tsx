@@ -129,7 +129,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                 asChild
                 className="flex-1 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-indigo-700 text-white font-medium rounded-lg py-3 transition-all shadow-sm hover:shadow-md focus:ring-2 focus:ring-blue-300 focus:ring-offset-2"
               >
-                <a href={`/catalogue/${formation.id || ""}`}>
+                <a href={`/catalogue-formation/${formation.id || ""}`}>
                 <span className="drop-shadow-sm">{ad.cta}</span>
                 </a>
               </Button>

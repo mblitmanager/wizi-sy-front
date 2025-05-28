@@ -10,6 +10,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Loader2, AlertTriangle } from "lucide-react";
 import { catalogueFormationApi } from "@/services/api";
+import { inscrireAFormation } from "@/services/inscriptionApi";
 import {
   BUREAUTIQUE,
   CATALOGUE_FORMATION_DETAILS,
@@ -22,11 +23,14 @@ import HeaderSection from "../features/HeaderSection";
 import SkeletonCard from "../ui/SkeletonCard";
 import { Layout } from "../layout/Layout";
 import { stripHtmlTags } from "@/utils/UtilsFunction";
+import DownloadPdfButton from "../FeatureHomePage/DownloadPdfButton";
+import { Button } from "@/components/ui/button";
 
 export default function CatalogueFormationDetails() {
   const { id } = useParams();
   interface CatalogueFormationDetailsType {
     catalogueFormation: {
+      id: number;
       titre: string;
       description: string;
       prerequis?: string;
@@ -48,6 +52,11 @@ export default function CatalogueFormationDetails() {
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [inscriptionLoading, setInscriptionLoading] = useState(false);
+  const [inscriptionSuccess, setInscriptionSuccess] = useState<string | null>(
+    null
+  );
+  const [inscriptionError, setInscriptionError] = useState<string | null>(null);
 
   const getCategoryColor = useCallback((category?: string): string => {
     switch (category) {
@@ -80,6 +89,20 @@ export default function CatalogueFormationDetails() {
         });
     }
   }, [id]);
+
+  const handleInscription = async () => {
+    setInscriptionLoading(true);
+    setInscriptionSuccess(null);
+    setInscriptionError(null);
+    try {
+      await inscrireAFormation(details.catalogueFormation.id);
+      setInscriptionSuccess("Inscription réussie !");
+    } catch (e) {
+      setInscriptionError("Erreur lors de l'inscription. Veuillez réessayer.");
+    } finally {
+      setInscriptionLoading(false);
+    }
+  };
 
   if (loading) {
     return <SkeletonCard />;
@@ -148,7 +171,7 @@ export default function CatalogueFormationDetails() {
         {details.catalogueFormation.formation && (
           <div className="mt-8 mb-8">
             <h2 className="text-2xl font-semibold mb-4 text-gray-700">
-              Domaine de formation :{" "}
+              {/* Formation :{" "} */}
               {details.catalogueFormation.formation.titre}
             </h2>
             <Card className="p-6">
@@ -199,7 +222,7 @@ export default function CatalogueFormationDetails() {
                   </li>
                 </ul>
               </CardContent>
-
+              
               <div className="pt-4">
                 <Badge
                   variant="outline"
@@ -215,6 +238,28 @@ export default function CatalogueFormationDetails() {
                   {details.catalogueFormation.formation?.categorie ||
                     "Non spécifiée"}
                 </Badge>
+              </div>
+              <DownloadPdfButton formationId={details.catalogueFormation.id} />
+              <div className="pt-2">
+                <Button
+                  onClick={handleInscription}
+                  disabled={inscriptionLoading}
+                  className="w-full md:w-auto"
+                >
+                  {inscriptionLoading
+                    ? "Inscription en cours..."
+                    : "S'inscrire à la formation"}
+                </Button>
+                {inscriptionSuccess && (
+                  <div className="text-green-600 mt-2 text-sm">
+                    {inscriptionSuccess}
+                  </div>
+                )}
+                {inscriptionError && (
+                  <div className="text-red-600 mt-2 text-sm">
+                    {inscriptionError}
+                  </div>
+                )}
               </div>
             </div>
           </div>
