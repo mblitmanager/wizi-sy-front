@@ -5,6 +5,7 @@ import NotificationsPage from "@/pages/NotificationsPage";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import NotificationListener from "@/components/notifications/NotificationListener";
 
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -52,6 +53,7 @@ const App = () => {
             <TooltipProvider>
               <Toaster />
               <Sonner />
+              <NotificationListener />
               <BrowserRouter>
                 <Routes>
                   {/* ✅ Routes publiques */}
@@ -185,14 +187,14 @@ const App = () => {
                       </ProtectedRoute>
                     }
                   />
-                     <Route
-              path="/notifications"
-              element={
-                <ProtectedRoute>
-                  <NotificationsPage />
-                </ProtectedRoute>
-              }
-            />
+                  <Route
+                    path="/notifications"
+                    element={
+                      <ProtectedRoute>
+                        <NotificationsPage />
+                      </ProtectedRoute>
+                    }
+                  />
 
                   {/* 🚫 Route introuvable */}
                   <Route path="*" element={<NotFound />} />
