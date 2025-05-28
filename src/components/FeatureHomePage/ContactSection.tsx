@@ -2,38 +2,22 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
-import { ChevronRight } from "lucide-react";
-import { ContactCard } from "../Contacts/ContactCard";
+import { ChevronRight, Mail, Phone, User } from "lucide-react";
 import { Skeleton } from "@mui/material";
 
+interface Contact {
+  id: number;
+  name: string;
+  email: string;
+  telephone?: string;
+  type?: string;
+  avatar?: string;
+}
+
 interface ContactSectionProps {
-  commerciaux: {
-    id: number;
-    name: string;
-    email: string;
-    telephone?: string;
-    role?: string;
-    avatar?: string;
-    created_at?: string;
-  }[];
-  formateurs: {
-    id: number;
-    name: string;
-    email: string;
-    telephone?: string;
-    role?: string;
-    avatar?: string;
-    created_at?: string;
-  }[];
-  poleRelation: {
-    id: number;
-    name: string;
-    email: string;
-    telephone?: string;
-    role?: string;
-    avatar?: string;
-    created_at?: string;
-  }[];
+  commerciaux: Contact[];
+  formateurs: Contact[];
+  poleRelation: Contact[];
 }
 
 const ContactSection: React.FC<ContactSectionProps> = ({
@@ -42,39 +26,47 @@ const ContactSection: React.FC<ContactSectionProps> = ({
   poleRelation,
 }) => {
   const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    // Simule le chargement ou attend que les données soient disponibles
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
 
     return () => clearTimeout(timer);
   }, [commerciaux, formateurs, poleRelation]);
+
+  const typeStyles: Record<string, string> = {
+    Formateur: "bg-blue-100 text-blue-800",
+    Commercial: "bg-green-100 text-green-800",
+    "Pôle Relation Client": "bg-yellow-100 text-yellow-800",
+  };
+
   const ContactCardSkeleton = () => (
-    <div className="border rounded-lg p-4">
-      <div className="flex items-center space-x-4">
-        <Skeleton className="h-12 w-12 rounded-full" />
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-[120px]" />
-          <Skeleton className="h-4 w-[80px]" />
+    <div className="bg-white shadow-md rounded-2xl p-5 border">
+      <div className="animate-pulse">
+        <div className="flex items-center mb-4">
+          <div className="w-12 h-12 rounded-full bg-gray-200 mr-4"></div>
+          <div>
+            <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+          </div>
         </div>
-      </div>
-      <div className="mt-4 space-y-2">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-[100px]" />
+        <div className="space-y-2">
+          <div className="h-3 bg-gray-200 rounded w-full"></div>
+          <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+        </div>
       </div>
     </div>
   );
+
   if (isLoading) {
     return (
-      <div className="mb-4 bg-card rounded-lg shadow-sm p-4">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-brown-shade">
-            Vos contacts
-          </h2>
+      <div className="mb-8">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">Vos contacts</h2>
           <Skeleton className="h-8 w-24 rounded-md" />
         </div>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <ContactCardSkeleton />
           <ContactCardSkeleton />
           <ContactCardSkeleton />
@@ -83,51 +75,59 @@ const ContactSection: React.FC<ContactSectionProps> = ({
     );
   }
 
+  const renderContactCard = (contact: Contact | undefined, type: string) => {
+    if (!contact) return null;
+
+    return (
+      <div className="bg-white shadow-md rounded-2xl p-5 border hover:shadow-lg transition">
+        <div className="flex items-center mb-4">
+          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4">
+            <User className="text-gray-500" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-gray-800">
+              {contact.name}
+            </h2>
+            <span
+              className={`text-xs px-2 py-1 rounded-full font-medium ${typeStyles[type]}`}
+            >
+              {type}
+            </span>
+          </div>
+        </div>
+
+        <div className="text-sm text-gray-600 space-y-1 mt-2">
+          <div className="flex items-center gap-2">
+            <Mail className="w-4 h-4" />
+            <a href={`mailto:${contact.email}`} className="hover:underline">
+              {contact.email}
+            </a>
+          </div>
+          <div className="flex items-center gap-2">
+            <Phone className="w-4 h-4" />
+            <a href={`tel:${contact.telephone}`} className="hover:underline">
+              {contact.telephone || "Non renseigné"}
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="mb-4 bg-card rounded-lg shadow-sm">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-brown-shade">Vos contacts</h2>
+    <div className="mb-8">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">Vos contacts</h2>
         <Link to="/contacts">
-          <Button className="text-blue-400" variant="ghost" size="sm">
+          <Button className="text-blue-600" variant="ghost" size="sm">
             Voir tous <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
         </Link>
       </div>
-      <div className="grid gap-4 md:grid-cols-3">
-        {commerciaux?.[0] && (
-          <ContactCard
-            contact={{
-              ...commerciaux[0],
-              telephone: commerciaux[0].telephone || "N/A",
-              role: commerciaux[0].role || "N/A",
-              avatar: commerciaux[0].avatar || "",
-              created_at: commerciaux[0].created_at || new Date().toISOString(),
-            }}
-          />
-        )}
-        {formateurs?.[0] && (
-          <ContactCard
-            contact={{
-              ...formateurs[0],
-              telephone: formateurs[0].telephone || "N/A",
-              role: formateurs[0].role || "N/A",
-              avatar: formateurs[0].avatar || "",
-              created_at: formateurs[0].created_at || new Date().toISOString(),
-            }}
-          />
-        )}
-        {poleRelation?.[0] && (
-          <ContactCard
-            contact={{
-              ...poleRelation[0],
-              telephone: poleRelation[0].telephone || "N/A",
-              role: poleRelation[0].role || "N/A",
-              avatar: poleRelation[0].avatar || "",
-              created_at:
-                poleRelation[0].created_at || new Date().toISOString(),
-            }}
-          />
-        )}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        {renderContactCard(commerciaux?.[0], "Commercial")}
+        {renderContactCard(formateurs?.[0], "Formateur")}
+        {renderContactCard(poleRelation?.[0], "Pôle Relation Client")}
       </div>
     </div>
   );
