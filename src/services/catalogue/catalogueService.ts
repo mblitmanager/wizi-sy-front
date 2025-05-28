@@ -1,7 +1,7 @@
 import axios from "axios";
 import axiosInstance from "../axios";
 
-const VITE_API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const VITE_API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com";
 
 export interface Formation {
   id: number;
