@@ -12,8 +12,7 @@ import { QuizHeader } from "./quiz-play/QuizHeader";
 import { QuizProgress } from "./quiz-play/QuizProgress";
 import { QuizHint } from "./quiz-play/QuizHint";
 import { useSwipeable } from "react-swipeable";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 
 export function QuizPlay() {
   console.log("QuizPlay component mounted");
@@ -51,36 +50,50 @@ export function QuizPlay() {
   console.log("quiz data from useQuizPlay:", { quiz, isLoading, error });
 
   const [showHint, setShowHint] = React.useState(false);
-  const [direction, setDirection] = React.useState(0);
   const [showSwipeHint, setShowSwipeHint] = React.useState(true);
+  const [tutorialStep, setTutorialStep] = React.useState(0);
 
   // Masquer l'indication de glissement après 5 secondes
   React.useEffect(() => {
+    console.log("Tutorial visibility effect:", { showSwipeHint, activeStep });
     if (showSwipeHint) {
       const timer = setTimeout(() => {
+        console.log("Hiding tutorial after timeout");
         setShowSwipeHint(false);
       }, 5000);
       return () => clearTimeout(timer);
     }
   }, [showSwipeHint]);
 
+  // Animation du tutoriel
+  React.useEffect(() => {
+    console.log("Tutorial animation effect:", { showSwipeHint, activeStep, tutorialStep });
+    if (showSwipeHint && activeStep === 0) {
+      const interval = setInterval(() => {
+        setTutorialStep((prev) => (prev + 1) % 3);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [showSwipeHint, activeStep]);
+
   const handlers = useSwipeable({
     onSwipedLeft: () => {
       if (!isLastQuestion) {
-        setDirection(1);
         handleNext();
         setShowSwipeHint(false);
       }
     },
     onSwipedRight: () => {
       if (activeStep > 0) {
-        setDirection(-1);
         handleBack();
         setShowSwipeHint(false);
       }
     },
     preventScrollOnSwipe: true,
-    trackMouse: true
+    trackMouse: true,
+    delta: 10,
+    swipeDuration: 500,
+    touchEventOptions: { passive: false }
   });
 
   if (isLoading) {
@@ -108,40 +121,13 @@ export function QuizPlay() {
     window.location.reload();
   };
 
-  const slideVariants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 1000 : -1000,
-      opacity: 0
-    }),
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1
-    },
-    exit: (direction: number) => ({
-      zIndex: 0,
-      x: direction < 0 ? 1000 : -1000,
-      opacity: 0
-    })
-  };
-
-  const swipeHintVariants = {
-    initial: { opacity: 0 },
-    animate: { 
-      opacity: [0, 1, 1, 0],
-      transition: {
-        duration: 2,
-        repeat: 2,
-        repeatType: "reverse" as const
-      }
-    }
-  };
-
   console.log("Rendering quiz with data:", {
     currentQuestion,
     activeStep,
     totalQuestions,
-    answers
+    answers,
+    showSwipeHint,
+    tutorialStep
   });
 
   return (
@@ -166,49 +152,54 @@ export function QuizPlay() {
           className="flex-grow w-full max-w-full overflow-x-hidden touch-pan-y relative"
         >
           {showSwipeHint && activeStep === 0 && (
-            <motion.div
-              className="absolute inset-0 flex items-center justify-between px-4 pointer-events-none z-10"
-              variants={swipeHintVariants}
-              initial="initial"
-              animate="animate"
-            >
-              <div className="flex items-center gap-2 text-blue-500">
-                <ChevronLeft className="h-6 w-6" />
-                <span className="text-sm font-medium">Glissez</span>
+            <div className="fixed inset-0 flex flex-col items-center justify-center bg-white/90 z-50">
+              <div className="text-center mb-8">
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">Bienvenue dans le quiz !</h3>
+                <p className="text-gray-600">Apprenez à naviguer entre les questions</p>
               </div>
-              <div className="flex items-center gap-2 text-blue-500">
-                <span className="text-sm font-medium">Glissez</span>
-                <ChevronRight className="h-6 w-6" />
+              
+              <div className="relative w-64 h-32 bg-gray-100 rounded-lg shadow-lg mb-8">
+                <div 
+                  className={`absolute top-1/2 -translate-y-1/2 w-16 h-16 bg-blue-500 rounded-lg shadow-md transition-transform duration-500 ease-in-out ${
+                    tutorialStep === 0 ? 'left-4' : 
+                    tutorialStep === 1 ? 'left-1/2 -translate-x-1/2' : 
+                    'right-4'
+                  }`}
+                >
+                  <div className="absolute inset-0 flex items-center justify-center text-white">
+                    <ArrowRight className="w-8 h-8" />
+                  </div>
+                </div>
               </div>
-            </motion.div>
+
+              <div className="flex items-center gap-4 text-blue-500">
+                <div className="flex items-center gap-2">
+                  <ChevronLeft className="h-6 w-6" />
+                  <span className="text-sm font-medium">Glissez à gauche</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">Glissez à droite</span>
+                  <ChevronRight className="h-6 w-6" />
+                </div>
+              </div>
+            </div>
           )}
-          <AnimatePresence initial={false} custom={direction}>
-            <motion.div
-              key={activeStep}
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{
-                x: { type: "spring", stiffness: 300, damping: 30 },
-                opacity: { duration: 0.2 }
-              }}
-              className="w-full"
-            >
-              <Question
-                question={currentQuestion}
-                onAnswer={(answer) => handleAnswer(answer)}
-                showFeedback={showResults}
-              />
-            </motion.div>
-          </AnimatePresence>
+          <div className="w-full">
+            <Question
+              question={currentQuestion}
+              onAnswer={(answer) => handleAnswer(answer)}
+              showFeedback={showResults}
+            />
+          </div>
         </div>
       )}
 
       {/* Fixed footer */}
       <div className="fixed left-0 w-full bg-white border-t z-50 mb-10 sm:mb-0 bottom-0 md:left-64 md:w-[calc(100%-16rem)]">
         <div className="max-w-4xl mx-auto px-2 sm:px-4">
+          <div className="text-center text-sm text-gray-500 mb-2">
+            Utilisez les flèches ou glissez pour naviguer entre les questions
+          </div>
           <QuizNavigation
             activeStep={activeStep}
             totalSteps={totalQuestions}
