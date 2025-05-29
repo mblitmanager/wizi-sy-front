@@ -66,48 +66,73 @@ export function StagiaireQuizList() {
     return Array.from(uniqueLevels);
   }, [quizzes]);
 
+  // Récupérer les points utilisateur depuis la progression (getProgress)
+  const { data: progress } = useQuery({
+    queryKey: ["profile-progress"],
+    queryFn: async () => {
+      try {
+        const res = await import("@/services/ProfileService");
+        return await res.userProfileService.getProgress();
+      } catch {
+        return null;
+      }
+    },
+    enabled: !!localStorage.getItem("token"),
+  });
+  const userPoints = progress?.totalScore || 0;
+
+  // Filtrage avancé selon les points utilisateur (pour les quiz à jouer)
   const filteredQuizzes = useMemo(() => {
     if (!quizzes) return [];
-    
-    console.log('Selected Category:', selectedCategory);
-    console.log('Available Categories:', categories);
-    console.log('Quizzes before filter:', quizzes);
-
-    return quizzes.filter((quiz) => {
+    // 1. Séparer les quiz par niveau
+    const debutant = quizzes.filter((q) => q.niveau?.toLowerCase() === "débutant");
+    const inter = quizzes.filter((q) => q.niveau?.toLowerCase() === "intermédiaire");
+    const avance = quizzes.filter((q) => q.niveau?.toLowerCase() === "avancé");
+    let result: typeof quizzes = [];
+    if (userPoints < 10) {
+      // Montrer 1 ou 2 quiz débutant max
+      result = debutant.slice(0, 2);
+    } else if (userPoints < 20) {
+      // Montrer tous les quiz débutant
+      result = debutant;
+    } else if (userPoints < 50) {
+      // Débutant + intermédiaire
+      result = [...debutant, ...inter];
+    } else {
+      // Tous les quiz
+      result = [...debutant, ...inter, ...avance];
+    }
+    // Appliquer les filtres catégorie/niveau si besoin
+    return result.filter((quiz) => {
       const categoryMatch =
         selectedCategory === "all" ||
         (quiz.categorieId && String(quiz.categorieId) === String(selectedCategory));
-      
       const levelMatch =
-        selectedLevel === "all" || 
-        (quiz.niveau && quiz.niveau === selectedLevel);
-
-      console.log('Quiz:', quiz.title, {
-        categorieId: quiz.categorieId,
-        selectedCategory,
-        categoryMatch,
-        niveau: quiz.niveau,
-        selectedLevel,
-        levelMatch
-      });
-
+        selectedLevel === "all" || (quiz.niveau && quiz.niveau === selectedLevel);
       return categoryMatch && levelMatch;
     });
-  }, [quizzes, selectedCategory, selectedLevel, categories]);
+  }, [quizzes, selectedCategory, selectedLevel, userPoints]);
 
-  const playedQuizIds = useMemo(
-    () => new Set((participations || []).map((p) => String(p.quizId || p.id))),
-    [participations]
-  );
-
+  // Quiz déjà joués : toujours affichés, sans restriction de points
   const playedQuizzes = useMemo(
-    () => filteredQuizzes.filter((q) => playedQuizIds.has(String(q.id))),
-    [filteredQuizzes, playedQuizIds]
+    () =>
+      quizzes && participations
+        ? quizzes.filter((q) =>
+            participations.some((p) => String(p.quizId || p.id) === String(q.id))
+          )
+        : [],
+    [quizzes, participations]
   );
 
+  // Quiz non joués filtrés par points
   const notPlayedQuizzes = useMemo(
-    () => filteredQuizzes.filter((q) => !playedQuizIds.has(String(q.id))),
-    [filteredQuizzes, playedQuizIds]
+    () =>
+      quizzes && participations
+        ? filteredQuizzes.filter((q) =>
+            !participations.some((p) => String(p.quizId || p.id) === String(q.id))
+          )
+        : [],
+    [filteredQuizzes, quizzes, participations]
   );
 
   if (isLoading) {

@@ -1,4 +1,3 @@
-
 import { Home, LayoutList, Trophy, Bell, BookOpen, Video, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -10,6 +9,7 @@ interface NavItem {
   label: string;
   href: string;
   badge?: number;
+  gold?: boolean; // Ajout de la propriété gold pour le style spécial Quiz
 }
 
 export function MobileNav() {
@@ -30,7 +30,9 @@ export function MobileNav() {
     {
       icon: BookOpen,
       label: "Quiz",
-      href: "/quizzes"
+      href: "/quizzes",
+      // Ajout d'une propriété spéciale pour le style
+      gold: true
     },
     {
       icon: Trophy,
@@ -61,24 +63,31 @@ export function MobileNav() {
       <div className="flex items-center justify-around">
         {items.map((item) => {
           const isActive = location.pathname === item.href;
+          const isQuiz = item.label === "Quiz";
           return (
             <Link
               key={item.href}
               to={item.href}
               className={cn(
-                "flex flex-col items-center gap-0.5 p-2 relative text-muted-foreground",
-                isActive && "text-primary"
+              "flex flex-col items-center gap-0.5 p-2 relative text-muted-foreground",
+              isActive && "text-primary",
+              isQuiz && "z-10 scale-[1] -mt-6 bg-white rounded-full shadow-xl border-b-4 border-yellow-400",
+              isQuiz && "!p-2"
               )}
+              style={isQuiz ? { boxShadow: '0 4px 24px 0 #facc15, 0 4px 0 0 #fde68a' } : {}}
             >
               <span className="relative">
-                <item.icon className="h-5 w-5" />
-                {item.badge !== undefined && (
-                  <Badge variant="destructive" className="absolute -top-1.5 -right-1.5 h-4 w-4 p-0 flex items-center justify-center">
-                    {item.badge}
-                  </Badge>
-                )}
+              <item.icon className={cn(
+                "h-10 w-10 transition-all",
+                isQuiz ? "text-yellow-500 drop-shadow-lg" : "h-5 w-5"
+              )} />
+              {item.badge !== undefined && (
+                <Badge variant="destructive" className="absolute -top-1.5 -right-1.5 h-4 w-4 p-0 flex items-center justify-center">
+                {item.badge}
+                </Badge>
+              )}
               </span>
-              <span className="text-[10px] font-medium">{item.label}</span>
+              <span className={cn("text-[12px] font-bold", isQuiz && "text-yellow-700")}>{item.label}</span>
             </Link>
           );
         })}
