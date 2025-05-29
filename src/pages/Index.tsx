@@ -351,14 +351,7 @@ export function Index() {
             </CardContent>
           </Card>
         </div>
-        <div className="bg-white p-3 md:p-4 rounded-lg shadow-sm">
-          {/* Section des contacts */}
-          <ContactsSection
-            commerciaux={commerciaux}
-            formateurs={formateurs}
-            poleRelation={poleRelation}
-          />
-        </div>
+       
 
         {catalogueData && catalogueData.length > 0 ? (
           <>
@@ -393,6 +386,14 @@ export function Index() {
             <ChallengeCard key={challenge.id} challenge={challenge} />
           ))}
         </div> */}
+         <div className="bg-white p-3 md:p-4 rounded-lg shadow-sm">
+          {/* Section des contacts */}
+          <ContactsSection
+            commerciaux={commerciaux}
+            formateurs={formateurs}
+            poleRelation={poleRelation}
+          />
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
           <ProgressCard user={user} />
           <AgendaCard events={agendaEvents} />
