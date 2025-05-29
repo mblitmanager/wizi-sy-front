@@ -127,9 +127,20 @@ export function QuizSummary() {
 
   // Format data for QuizSummary component
   const formattedUserAnswers: Record<string, any> = {};
-  // Ajout du flag isPlayed à chaque question
+  // Ajout du flag isPlayed à chaque question (jouée = réponse non vide)
   const questionsWithFlag = result.questions.map((q: any) => {
-    const isPlayed = q.selectedAnswers !== null && q.selectedAnswers !== undefined;
+    let isPlayed = false;
+    if (q.selectedAnswers !== null && q.selectedAnswers !== undefined) {
+      if (Array.isArray(q.selectedAnswers)) {
+        isPlayed = q.selectedAnswers.length > 0;
+      } else if (typeof q.selectedAnswers === "object") {
+        isPlayed = Object.keys(q.selectedAnswers).length > 0;
+      } else if (typeof q.selectedAnswers === "string") {
+        isPlayed = q.selectedAnswers.trim() !== "";
+      } else {
+        isPlayed = true;
+      }
+    }
     if (q.selectedAnswers) {
       if (Array.isArray(q.selectedAnswers)) {
         formattedUserAnswers[q.id] = q.selectedAnswers;
