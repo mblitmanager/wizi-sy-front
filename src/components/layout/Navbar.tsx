@@ -17,6 +17,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Input } from "@/components/ui/input";
 import { rankingService } from "@/services/rankingService";
 import { parrainageService } from "@/services/parrainageService";
+import { useNotifications } from "@/hooks/useNotifications";
 import logo from "../../assets/logo.png";
 
 const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
@@ -25,14 +26,9 @@ export function Navbar() {
   const isMobile = useIsMobile();
   const [userScore, setUserScore] = useState<number | null>(null);
   const [filleulsCount, setFilleulsCount] = useState<number | null>(null);
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const { unreadCount } = useNotifications();
   const navigate = useNavigate();
 
-  // Fetch unread notifications count
-  useEffect(() => {
-    // This would typically come from a backend API call
-    setUnreadNotifications(2);
-  }, []);
   useEffect(() => {
     const fetchScore = async () => {
       if (!user || !user.stagiaire) return;
@@ -99,9 +95,9 @@ export function Navbar() {
                 size="icon"
                 className="relative hover:bg-gray-100 transition">
                 <Bell className="h-5 w-5 text-gray-600" />
-                {unreadNotifications > 0 && (
+                {unreadCount > 0 && (
                   <Badge className="absolute -top-1 -right-1 px-1.5 h-5 min-w-5 text-xs bg-red-500 text-white animate-pulse">
-                    {unreadNotifications}
+                    {unreadCount}
                   </Badge>
                 )}
               </Button>

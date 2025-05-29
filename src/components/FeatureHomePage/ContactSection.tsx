@@ -118,7 +118,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
   return (
     <div className="mb-8">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Vos contacts</h2>
+        <h2 className="text-2xl font-bold text-gray-800">Mes contacts</h2>
         <Link to="/contacts">
           <Button className="text-blue-600" variant="ghost" size="sm">
             Voir tous <ChevronRight className="h-4 w-4 ml-1" />
