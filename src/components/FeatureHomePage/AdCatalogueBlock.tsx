@@ -127,7 +127,8 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
               <div className="flex gap-2 w-full mt-3">
                 <Button
                   asChild
-                  className="flex-1 bg-gradient-to-r from-blue-800 to-blue-900 hover:from-blue-900 hover:to-indigo-900 text-white font-medium rounded-lg py-3 transition-all shadow-sm hover:shadow-md focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="flex-1 bg-gradient-to-r from-[#0a1a2f] to-[#0a1a2f] hover:from-[#0a1a2f] hover:to-[#1a2a3f] text-white font-medium rounded-lg py-3 transition-all shadow-sm hover:shadow-md focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+
                 >
                   <a href={`/catalogue-formation/${formation.id || ""}`}>
                     <span className="drop-shadow-sm">{ad.cta}</span>

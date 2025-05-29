@@ -263,7 +263,7 @@ const ParrainageInscriptionPage = () => {
               value={formData.parrain_id}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
               {/* Civilité */}
               <div>
                 <label
@@ -281,7 +281,6 @@ const ParrainageInscriptionPage = () => {
                     errors.civilite ? "border-red-500" : "border-gray-300"
                   }`}
                 >
-                  {" "}
                   <option value="M">Monsieur</option>
                   <option value="Mme">Madame</option>
                 </select>
@@ -292,127 +291,159 @@ const ParrainageInscriptionPage = () => {
                 )}
               </div>
 
-              {/* Prénom */}
-              <div>
-                <label
-                  htmlFor="prenom"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Prénom
-                </label>
-                <input
-                  type="text"
-                  id="prenom"
-                  name="prenom"
-                  value={formData.prenom}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.prenom ? "border-red-500" : "border-gray-300"
-                  }`}
-                />
-                {errors.prenom && (
-                  <p className="mt-1 text-red-600 text-sm">
-                    {errors.prenom[0]}
-                  </p>
-                )}
+              {/* Nom et Prénom */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Prénom */}
+                <div>
+                  <label
+                    htmlFor="prenom"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Prénom
+                  </label>
+                  <input
+                    type="text"
+                    id="prenom"
+                    name="prenom"
+                    value={formData.prenom}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.prenom ? "border-red-500" : "border-gray-300"
+                    }`}
+                  />
+                  {errors.prenom && (
+                    <p className="mt-1 text-red-600 text-sm">
+                      {errors.prenom[0]}
+                    </p>
+                  )}
+                </div>
+
+                {/* Nom */}
+                <div>
+                  <label
+                    htmlFor="nom"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Nom
+                  </label>
+                  <input
+                    type="text"
+                    id="nom"
+                    name="nom"
+                    value={formData.nom}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500
+                      ${errors.nom ? "border-red-500" : "border-gray-300"}`}
+                  />
+                  {errors.nom && (
+                    <p className="mt-1 text-red-600 text-sm">{errors.nom[0]}</p>
+                  )}
+                </div>
               </div>
 
-              {/* Nom */}
-              <div>
-                <label
-                  htmlFor="nom"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Nom
-                </label>
-                <input
-                  type="text"
-                  id="nom"
-                  name="nom"
-                  value={formData.nom}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500
-                    ${errors.nom ? "border-red-500" : "border-gray-300"}`}
-                />
-                {errors.nom && (
-                  <p className="mt-1 text-red-600 text-sm">{errors.nom[0]}</p>
-                )}
+              {/* Email et Téléphone */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Email */}
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.email ? "border-red-500" : "border-gray-300"
+                    }`}
+                  />
+                  {errors.email && (
+                    <p className="mt-1 text-red-600 text-sm">{errors.email[0]}</p>
+                  )}
+                </div>
+
+                {/* Téléphone */}
+                <div>
+                  <label
+                    htmlFor="telephone"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Téléphone
+                  </label>
+                  <input
+                    type="tel"
+                    id="telephone"
+                    name="telephone"
+                    value={formData.telephone}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.telephone ? "border-red-500" : "border-gray-300"
+                    }`}
+                  />
+                  {errors.telephone && (
+                    <p className="mt-1 text-red-600 text-sm">
+                      {errors.telephone[0]}
+                    </p>
+                  )}
+                </div>
               </div>
 
-              {/* Email */}
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.email ? "border-red-500" : "border-gray-300"
-                  }`}
-                />
-                {errors.email && (
-                  <p className="mt-1 text-red-600 text-sm">{errors.email[0]}</p>
-                )}
-              </div>
-
-              {/* Téléphone */}
-              <div>
-                <label
-                  htmlFor="telephone"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Téléphone
-                </label>
-                <input
-                  type="tel"
-                  id="telephone"
-                  name="telephone"
-                  value={formData.telephone}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.telephone ? "border-red-500" : "border-gray-300"
-                  }`}
-                />
-                {errors.telephone && (
-                  <p className="mt-1 text-red-600 text-sm">
-                    {errors.telephone[0]}
-                  </p>
-                )}
-              </div>
-
-              {/* Formation */}
-              <div>
-                <label
-                  htmlFor="Formations"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+              {/* Formation Radio Buttons */}
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Catalogue de formations
                 </label>
-                <select
-                  id="catalogue_formation_id"
-                  name="catalogue_formation_id"
-                  value={formData.catalogue_formation_id}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.catalogue_formation_id
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  }`}
-                >
-                  <option value="">-- Choisissez une formation --</option>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
                   {formationsResponse?.map((formation: any) => (
-                    <option key={formation.id} value={formation.id}>
-                      {formation.titre}
-                    </option>
+                    <div
+                      key={formation.id}
+                      className={`relative flex items-center p-2.5 sm:p-3 rounded-lg border cursor-pointer transition-all ${
+                        formData.catalogue_formation_id === formation.id
+                          ? "border-amber-500 bg-amber-50 shadow-sm"
+                          : "border-gray-200 hover:border-amber-300 hover:bg-amber-50/50"
+                      }`}
+                      onClick={() => {
+                        setFormData(prev => ({
+                          ...prev,
+                          catalogue_formation_id: formation.id
+                        }));
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        id={`formation-${formation.id}`}
+                        name="catalogue_formation_id"
+                        value={formation.id}
+                        checked={formData.catalogue_formation_id === formation.id}
+                        onChange={handleChange}
+                        className="sr-only"
+                        aria-label={`Sélectionner la formation ${formation.titre}`}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center">
+                          <div className={`flex-shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center mr-2.5 sm:mr-3 ${
+                            formData.catalogue_formation_id === formation.id
+                              ? "border-amber-500"
+                              : "border-gray-300"
+                          }`}>
+                            {formData.catalogue_formation_id === formation.id && (
+                              <div className="w-2 h-2 rounded-full bg-amber-500" />
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium text-gray-900 break-words">
+                              {formation.titre}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   ))}
-                </select>
+                </div>
                 {errors.catalogue_formation_id && (
                   <p className="mt-1 text-red-600 text-sm">
                     {errors.catalogue_formation_id[0]}

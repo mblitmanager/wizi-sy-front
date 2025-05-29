@@ -96,7 +96,7 @@ export function Navbar() {
                 className="relative hover:bg-gray-100 transition">
                 <Bell className="h-5 w-5 text-gray-600" />
                 {unreadCount > 0 && (
-                  <Badge className="absolute -top-1 -right-1 px-1.5 h-5 min-w-5 text-xs bg-red-500 text-white animate-pulse">
+                  <Badge className="absolute -top-1 -right-1 px-1.5 h-5 min-w-5 text-xs bg-amber-500 text-white animate-pulse">
                     {unreadCount}
                   </Badge>
                 )}

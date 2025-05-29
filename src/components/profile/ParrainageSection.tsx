@@ -149,7 +149,8 @@ const ParrainageSection = () => {
           <Button className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-400 text-white hover:from-blue-700 hover:to-blue-500 mb-4">
             <Gift className="h-5 w-5 mr-2" />
             <span className="text-sm md:text-base">
-              Je parraine et je gagne 50€
+              {/* Je parraine et je gagne  */}
+              50€
             </span>
           </Button>
 
@@ -166,7 +167,8 @@ const ParrainageSection = () => {
                     </h3>
                   </div>
                   <p className="text-sm md:text-base text-gray-700 mb-3">
-                    Gagnez <span className="font-bold">50€</span> par ami
+                    {/* Gagnez  */}
+                    <span className="font-bold">50€</span> par ami
                     inscrit
                   </p>
                   <LienParrainage />

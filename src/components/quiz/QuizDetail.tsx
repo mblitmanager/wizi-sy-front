@@ -137,17 +137,53 @@ export function QuizDetail() {
                 </Badge>
                 <Badge className="bg-green-100 text-green-600 text-xs sm:text-sm py-1 px-2">
                   <Award className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                  {quiz.questions?.length * 2} pts à gagner
+                    {quiz.niveau !== "débutant"
+                    ? (quiz.questions?.length || 0) > 10
+                      ? "20 pts à gagner"
+                      : `${(quiz.questions?.length || 0) * 2} pts à gagner`
+                    : (quiz.questions?.length || 0) > 5
+                      ? "10 pts à gagner"
+                      : `${(quiz.questions?.length || 0) * 2} pts à gagner`
+                    }
                 </Badge>
               </div>
 
+              {/* Bouton mobile */}
+              <div className="block md:hidden mb-3 sm:mb-6 text-right">
+                <Button
+                  size="sm"
+                  className="sm:size-lg bg-[#1a237e] text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-xl shadow-md hover:bg-[#283593] hover:scale-105 hover:shadow-xl transition-transform duration-300"
+                  onClick={() => {
+                    if (!quiz.id) {
+                      toast({
+                        title: "Erreur",
+                        description:
+                          "Impossible de démarrer le quiz. ID manquant.",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    navigate(`/quiz/${quiz.id}/start`);
+                  }}>
+                  <span className="flex items-center gap-1 sm:gap-2 font-semibold text-xs sm:text-base">
+                    Lancer le défi{" "}
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </span>
+                </Button>
+              </div>
+              
               <div className="mb-3 sm:mb-6">
                 <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-1">
                   Nombre de questions :
                 </p>
                 <p className="text-xs sm:text-sm text-gray-600">
-                  {quiz.questions?.length || 0} question
-                  {(quiz.questions?.length || 0) > 1 ? "s" : ""}
+                  {quiz.niveau === "débutant" && (quiz.questions?.length || 0) > 5
+                    ? "5 questions"
+                    : `${quiz.questions?.length || 0} question${(quiz.questions?.length || 0) > 1 ? "s" : ""}`
+                  }
+                  {(quiz.niveau !== "débutant" && (quiz.questions?.length || 0) > 10)
+                    ? "10 questions"
+                    : ""}
                 </p>
               </div>
 
@@ -162,20 +198,20 @@ export function QuizDetail() {
               </div>
             </div>
 
-            {/* Button */}
-            <div className="mt-4 sm:mt-6 md:mt-8 text-right">
-              <Button
+            {/* Bouton desktop */}
+            <div className="mt-4 sm:mt-6 md:mt-8 text-right hidden md:block">
+                <Button
                 size="sm"
-                className="sm:size-lg bg-gradient-to-r from-indigo-500 to-blue-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-xl shadow-md hover:scale-105 hover:shadow-xl transition-transform duration-300"
+                className="sm:size-lg bg-[#1a237e] text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-xl shadow-md hover:bg-[#283593] hover:scale-105 hover:shadow-xl transition-transform duration-300"
                 onClick={() => {
                   if (!quiz.id) {
-                    toast({
-                      title: "Erreur",
-                      description:
-                        "Impossible de démarrer le quiz. ID manquant.",
-                      variant: "destructive",
-                    });
-                    return;
+                  toast({
+                    title: "Erreur",
+                    description:
+                    "Impossible de démarrer le quiz. ID manquant.",
+                    variant: "destructive",
+                  });
+                  return;
                   }
                   navigate(`/quiz/${quiz.id}/start`);
                 }}>
@@ -183,7 +219,7 @@ export function QuizDetail() {
                   Lancer le défi{" "}
                   <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                 </span>
-              </Button>
+                </Button>
             </div>
           </div>
         </div>

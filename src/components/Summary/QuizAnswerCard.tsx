@@ -15,11 +15,13 @@ interface QuizAnswerCardProps {
     | Array<string | number>
     | null
     | undefined;
+  isPlayed?: boolean; // Ajout du flag isPlayed
 }
 
 export default function QuizAnswerCard({
   question,
   userAnswer,
+  isPlayed,
   questionNumber, // Ajout du paramètre optionnel
 }: QuizAnswerCardProps & { questionNumber?: number }) {
   const userResponse = formatAnswer(question, userAnswer);
@@ -29,6 +31,13 @@ export default function QuizAnswerCard({
 
   return (
     <div className="p-4 mb-3 rounded-xl shadow-sm bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
+      {/* Badge si la question a été jouée */}
+      {isPlayed && (
+        <span className="inline-block mb-2 px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-xs font-semibold">
+          Question jouée
+        </span>
+      )}
+
       {/* Question Text */}
       <div className="mb-3">
         <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
