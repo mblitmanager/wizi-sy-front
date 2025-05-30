@@ -160,7 +160,7 @@ export function QuizPlay() {
               
               <div className="relative w-64 h-32 bg-gray-100 rounded-lg shadow-lg mb-8">
                 <div 
-                  className={`absolute top-1/2 -translate-y-1/2 w-16 h-16 bg-blue-500 rounded-lg shadow-md transition-transform duration-500 ease-in-out ${
+                  className={`absolute top-1/2 -translate-y-1/2 w-16 h-16 bg-amber-500 rounded-lg shadow-md transition-transform duration-500 ease-in-out ${
                     tutorialStep === 0 ? 'left-4' : 
                     tutorialStep === 1 ? 'left-1/2 -translate-x-1/2' : 
                     'right-4'
@@ -172,7 +172,7 @@ export function QuizPlay() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 text-blue-500">
+              <div className="flex items-center gap-4 text-amber-500">
                 <div className="flex items-center gap-2">
                   <ChevronLeft className="h-6 w-6" />
                   <span className="text-sm font-medium">Glissez à gauche</span>

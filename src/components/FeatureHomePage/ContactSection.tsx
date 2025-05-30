@@ -2,8 +2,9 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
-import { ChevronRight, Mail, Phone, User } from "lucide-react";
+import { ChevronRight, Mail, Phone, User, ChevronDown } from "lucide-react";
 import { Skeleton } from "@mui/material";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Contact {
   id: number;
@@ -26,6 +27,8 @@ const ContactSection: React.FC<ContactSectionProps> = ({
   poleRelation,
 }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [showAllContacts, setShowAllContacts] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -116,19 +119,31 @@ const ContactSection: React.FC<ContactSectionProps> = ({
   };
 
   return (
-    <div className="mb-8">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Vos contacts</h2>
-        <Link to="/contacts">
-          <Button className="text-blue-600" variant="ghost" size="sm">
-            Voir tous <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-        </Link>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        {renderContactCard(commerciaux?.[0], "Commercial")}
-        {renderContactCard(formateurs?.[0], "Formateur")}
-        {renderContactCard(poleRelation?.[0], "Pôle Relation Client")}
+    <div className="py-12 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">Contactez-nous</h2>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          {renderContactCard(commerciaux?.[0], "Commercial")}
+          {(showAllContacts || !isMobile) && (
+            <>
+              {renderContactCard(formateurs?.[0], "Formateur")}
+              {renderContactCard(poleRelation?.[0], "Pôle Relation Client")}
+            </>
+          )}
+        </div>
+
+        {isMobile && !showAllContacts && (
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => setShowAllContacts(true)}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-amber-600 bg-amber-50 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+            >
+              Voir plus de contacts
+              <ChevronDown className="ml-2 h-4 w-4" />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

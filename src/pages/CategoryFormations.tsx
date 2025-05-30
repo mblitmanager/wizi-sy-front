@@ -5,9 +5,10 @@ import { Formation } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronLeft } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
-const backendUrl = import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
+const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 async function fetchFormations(categoryId: string): Promise<Formation[]> {
   try {
@@ -26,6 +27,7 @@ async function fetchFormations(categoryId: string): Promise<Formation[]> {
 
 export default function CategoryFormations() {
   const { categorySlug } = useParams<{ categorySlug: string }>();
+  const isMobile = useIsMobile();
 
   const {
     data: formations,
@@ -43,15 +45,15 @@ export default function CategoryFormations() {
 
   return (
     <Layout>
-      <div className="container py-8">
+      <div className="container py-4 sm:py-8">
         <Link
           to="/catalogue"
-          className="flex items-center text-blue-600 hover:underline mb-6">
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Retour au catalogue
+          className="inline-flex items-center text-amber-600 hover:text-amber-700 mb-4 sm:mb-6">
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          <span className="text-sm sm:text-base">Retour au catalogue</span>
         </Link>
 
-        <h1 className="text-3xl font-bold mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">
           {categorySlug === "bureautique" && "Bureautique"}
           {categorySlug === "langues" && "Langues"}
           {categorySlug === "internet" && "Internet"}
@@ -59,26 +61,28 @@ export default function CategoryFormations() {
         </h1>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, index) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {[...Array(isMobile ? 3 : 6)].map((_, index) => (
               <div key={index} className="space-y-3">
-                <Skeleton className="h-40 w-full" />
+                <Skeleton className="h-40 w-full rounded-xl" />
                 <Skeleton className="h-4 w-full" />
                 <Skeleton className="h-4 w-3/4" />
               </div>
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {formations && formations.length > 0 ? (
               formations.map((formation) => (
                 <FormationCard key={formation.id} formation={formation} />
               ))
             ) : (
-              <p className="col-span-full text-center py-12 text-gray-500">
-                Aucune formation n'est disponible dans cette catégorie pour le
-                moment.
-              </p>
+              <div className="col-span-full text-center py-8 sm:py-12">
+                <p className="text-gray-500 text-sm sm:text-base">
+                  Aucune formation n'est disponible dans cette catégorie pour le
+                  moment.
+                </p>
+              </div>
             )}
           </div>
         )}

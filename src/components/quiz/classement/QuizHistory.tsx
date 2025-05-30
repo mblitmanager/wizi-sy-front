@@ -17,10 +17,10 @@ const CATEGORY_COLORS: Record<string, string> = {
   Math: "bg-blue-100 text-blue-800",
   Science: "bg-green-100 text-green-800",
   History: "bg-yellow-100 text-yellow-800",
-  Bureautique: " border-t-4 border-[#3D9BE9] ",
-  Langues: " border-t-4 border-[#A55E6E] ",
-  Internet: " border-t-4 border-[#FFC533] ",
-  Création: " border-t-4 border-[#9392BE] ",
+  Bureautique: " border-b-4 border-[#3D9BE9] ",
+  Langues: " border-b-4 border-[#A55E6E] ",
+  Internet: " border-b-4 border-[#FFC533] ",
+  Création: " border-b-4 border-[#9392BE] ",
   default: "bg-gray-100 text-gray-800",
 };
 

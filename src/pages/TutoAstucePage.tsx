@@ -100,12 +100,14 @@ export default function TutoAstucePage() {
 
     setExpandedSections((prev) => {
       const newExpanded = { ...prev };
-      Object.keys(groupedMedias).forEach((key) => {
-        newExpanded[key] = newExpanded[key] ?? true;
+      Object.keys(groupedMediasByType).forEach((type) => {
+        Object.keys(groupedMediasByType[type]).forEach((category) => {
+          newExpanded[`${type}-${category}`] = newExpanded[`${type}-${category}`] ?? true;
+        });
       });
       return newExpanded;
     });
-  }, [activeCategory, medias, groupedMedias]);
+  }, [activeCategory, medias, groupedMediasByType]);
 
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => ({
@@ -115,37 +117,16 @@ export default function TutoAstucePage() {
   };
 
   const MobileView = () => (
-    <div className="lg:hidden flex flex-col h-auto ">
-      <div className="flex gap-2 mb-3">
-          <MediaTabs active={activeCategory} onChange={setActiveCategory} />
-
-          <select
-            value={selectedFormationId ?? ""}
-            onChange={(e) => setSelectedFormationId(e.target.value || null)}
-            className="flex-1 text-sm bg-white border border-gray-300 rounded-lg px-2 py-1"
-          >
-            {formationsWithTutos.map((formation) => (
-              <option key={formation.id} value={formation.id}>
-                {formation.titre}
-              </option>
-            ))}
-          </select>
-
-          <button
-            onClick={() => refetch()}
-            className="px-2 bg-yellow-400 text-white rounded-lg shadow text-sm"
-          >
-            {isFetching ? "..." : "↻"}
-          </button>
-        </div>
-
+    <div className="lg:hidden flex flex-col h-auto">
       {/* Player en plein écran */}
-      <div className="flex-1 bg-white rounded-lg shadow-md mb-2 overflow-hidden">
-        <MediaPlayer key={selectedMedia?.id || "empty"} media={selectedMedia} />
+      <div className="flex-1 bg-white rounded-lg shadow-md mb-4 overflow-hidden">
+        <div className="aspect-video w-full">
+          <MediaPlayer key={selectedMedia?.id || "empty"} media={selectedMedia} />
+        </div>
       </div>
 
       {/* Contrôles et liste */}
-      <div className="bg-white rounded-lg shadow-md  flex flex-col mb-8">
+      <div className="bg-white rounded-lg shadow-md flex flex-col mb-8 max-h-[60vh] overflow-y-auto">
         
         {isLoading ? (
           <div className="space-y-2">
@@ -224,33 +205,7 @@ export default function TutoAstucePage() {
   );
 
   const DesktopView = () => (
-    <div className="hidden lg:flex flex-col h-[calc(100vh-120px)]">
-      {/* En-tête */}
-      <div className="flex justify-between items-center mb-4">
-        <MediaTabs active={activeCategory} onChange={setActiveCategory} />
-
-        <div className="flex gap-2">
-          <select
-            value={selectedFormationId ?? ""}
-            onChange={(e) => setSelectedFormationId(e.target.value || null)}
-            className="px-3 py-1 text-sm bg-white border border-gray-300 rounded-lg shadow-sm"
-          >
-            {formationsWithTutos.map((formation) => (
-              <option key={formation.id} value={formation.id}>
-                {formation.titre}
-              </option>
-            ))}
-          </select>
-
-          <button
-            onClick={() => refetch()}
-            className="px-3 py-1 bg-yellow-400 text-white rounded-lg shadow text-sm"
-          >
-            {isFetching ? "Chargement..." : "Rafraîchir"}
-          </button>
-        </div>
-      </div>
-
+    <div className="hidden lg:flex flex-col h-[calc(100vh-180px)]">
       {/* Contenu principal */}
       {isLoading ? (
         <MediaSkeleton />
@@ -259,9 +214,9 @@ export default function TutoAstucePage() {
           Aucun média disponible
         </div>
       ) : (
-        <div className="flex flex-1 gap-4 overflow-hidden p-4">
+        <div className="flex flex-1 gap-4 overflow-hidden">
           {/* Playlist */}
-          <div className="w-1/3 bg-white rounded-lg shadow-md p-4 overflow-y-auto">
+          <div className="w-1/4 min-w-[300px] bg-white rounded-lg shadow-md p-4 overflow-y-auto">
             <h2 className="text-lg font-bold mb-4">Playlist</h2>
 
             {Object.entries(groupedMediasByType).map(([type, categories]) => (
@@ -323,11 +278,15 @@ export default function TutoAstucePage() {
           </div>
 
           {/* Player */}
-          <div className="flex-1 bg-white rounded-lg shadow-md overflow-hidden">
-            <MediaPlayer
-              key={selectedMedia?.id || "empty"}
-              media={selectedMedia}
-            />
+          <div className="flex-1 bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
+            <div className="w-full max-w-4xl mx-auto p-4">
+              <div className="aspect-video w-full">
+                <MediaPlayer
+                  key={selectedMedia?.id || "empty"}
+                  media={selectedMedia}
+                />
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -336,10 +295,38 @@ export default function TutoAstucePage() {
 
   return (
     <Layout>
-      <div className="mx-auto  sm:px-6 lg:px-8 py-4 bg-gray-50 min-h-screen">
-        <HeaderSection titre="Tutoriels & Astuces" buttonText="Retour" />
-        <MobileView />
-        <DesktopView />
+      <div className="mx-auto sm:px-6 lg:px-8 py-4 bg-gray-50 min-h-screen">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            {/* <HeaderSection titre="Tutoriels & Astuces" buttonText="Retour" /> */}
+            <div className="flex flex-col sm:flex-row gap-2">
+              <select
+                value={selectedFormationId ?? ""}
+                onChange={(e) => setSelectedFormationId(e.target.value || null)}
+                className="w-full sm:w-auto px-3 py-1 text-sm bg-white border border-gray-300 rounded-lg shadow-sm"
+                aria-label="Sélectionner une formation"
+              >
+                {formationsWithTutos.map((formation) => (
+                  <option key={formation.id} value={formation.id}>
+                    {formation.titre}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                onClick={() => refetch()}
+                className="w-full sm:w-auto px-3 py-1 bg-yellow-400 text-white rounded-lg shadow text-sm"
+              >
+                {isFetching ? "..." : "Rafraîchir"}
+              </button>
+            </div>
+          </div>
+          <div className="w-full">
+            <MediaTabs active={activeCategory} onChange={setActiveCategory} />
+          </div>
+          <MobileView />
+          <DesktopView />
+        </div>
       </div>
     </Layout>
   );
