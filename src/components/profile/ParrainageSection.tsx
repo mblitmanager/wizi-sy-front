@@ -240,11 +240,11 @@ const ParrainageSection = () => {
 
         {/* Image seulement sur desktop */}
         <div className="hidden md:flex flex-1 justify-start order-1 md:order-1">
-          <img
+          {/* <img
             src={image}
             alt="Programme de parrainage AOPIA"
             className="max-w-xs md:max-w-sm"
-          />
+          /> */}
         </div>
       </div>
     </section>
