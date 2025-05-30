@@ -13,8 +13,10 @@ import {
   ArcElement,
 } from 'chart.js';
 import { Line, Doughnut } from 'react-chartjs-2';
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { quizService, CategoryStats, ProgressStats, QuizTrends, PerformanceStats } from "@/services/quiz/QuizService";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
 
 ChartJS.register(
   CategoryScale,
@@ -57,6 +59,7 @@ const CategoryProgress: React.FC = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
+        setError(null);
         const [stats, progress, trends, performance] = await Promise.all([
           quizService.getCategoryStats(),
           quizService.getProgressStats(),
@@ -68,7 +71,7 @@ const CategoryProgress: React.FC = () => {
         setQuizTrends(trends);
         setPerformanceStats(performance);
       } catch (err) {
-        setError('Erreur lors du chargement des statistiques');
+        setError('Une erreur est survenue lors du chargement des statistiques. Veuillez réessayer plus tard.');
         console.error('Error fetching stats:', err);
       } finally {
         setLoading(false);
@@ -78,19 +81,29 @@ const CategoryProgress: React.FC = () => {
     fetchData();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+  const LoadingSkeleton = () => (
+    <div className="space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {[1, 2, 3].map((i) => (
+          <Skeleton key={i} className="h-32 w-full" />
+        ))}
       </div>
-    );
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <Skeleton className="h-80 w-full" />
+        <Skeleton className="h-80 w-full" />
+      </div>
+    </div>
+  );
+
+  if (loading) {
+    return <LoadingSkeleton />;
   }
 
   if (error) {
     return (
-      <div className="text-center text-red-500 p-4">
-        {error}
-      </div>
+      <Alert variant="destructive">
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
     );
   }
 
@@ -102,6 +115,7 @@ const CategoryProgress: React.FC = () => {
         data: quizTrends?.overall_trend.map(trend => trend.average_score) || [],
         borderColor: 'rgb(75, 192, 192)',
         tension: 0.1,
+        fill: false,
       },
     ],
   };
@@ -121,7 +135,17 @@ const CategoryProgress: React.FC = () => {
       y: {
         beginAtZero: true,
         max: 100,
+        title: {
+          display: true,
+          text: 'Score (%)'
+        }
       },
+      x: {
+        title: {
+          display: true,
+          text: 'Date'
+        }
+      }
     },
   };
 
@@ -137,6 +161,7 @@ const CategoryProgress: React.FC = () => {
           'rgba(75, 192, 192, 0.8)',
           'rgba(153, 102, 255, 0.8)',
         ],
+        borderWidth: 1,
       },
     ],
   };
@@ -155,140 +180,163 @@ const CategoryProgress: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8">
-      {/* En-tête avec statistiques globales */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-lg shadow p-6"
-        >
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">Quiz complétés</h3>
-          <p className="text-3xl font-bold text-primary">
-            {categoryStats.reduce((acc, stat) => acc + stat.completed_quizzes, 0)}
-          </p>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white rounded-lg shadow p-6"
-        >
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">Score moyen</h3>
-          <p className="text-3xl font-bold text-primary">
-            {categoryStats.length > 0
-              ? Math.round(
-                  categoryStats.reduce((acc, stat) => acc + stat.average_score, 0) /
-                    categoryStats.length
-                )
-              : 0}
-            %
-          </p>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-white rounded-lg shadow p-6"
-        >
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">Taux de réussite</h3>
-          <p className="text-3xl font-bold text-primary">
-            {categoryStats.length > 0
-              ? Math.round(
-                  categoryStats.reduce((acc, stat) => acc + stat.success_rate, 0) /
-                    categoryStats.length
-                )
-              : 0}
-            %
-          </p>
-        </motion.div>
-      </div>
-
-      {/* Graphiques */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="bg-white rounded-lg shadow p-6"
-        >
-          <Line data={lineChartData} options={lineChartOptions} />
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="bg-white rounded-lg shadow p-6"
-        >
-          <Doughnut data={doughnutChartData} options={doughnutChartOptions} />
-        </motion.div>
-      </div>
-
-      {/* Forces et faiblesses */}
-      {performanceStats && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-lg shadow p-6"
-          >
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Points forts</h3>
-            <div className="space-y-4">
-              {performanceStats.strengths.map((strength, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <span className="text-gray-600">{strength.category_name}</span>
-                  <span className="text-primary font-semibold">{strength.score}%</span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-lg shadow p-6"
-          >
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Points à améliorer</h3>
-            <div className="space-y-4">
-              {performanceStats.weaknesses.map((weakness, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <span className="text-gray-600">{weakness.category_name}</span>
-                  <span className="text-red-500 font-semibold">{weakness.score}%</span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      )}
-
-      {/* Progression détaillée par catégorie */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-lg shadow p-6"
+    <AnimatePresence>
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="space-y-8"
       >
-        <h3 className="text-lg font-semibold text-gray-700 mb-4">Progression par catégorie</h3>
-        <div className="space-y-6">
-          {categoryStats.map((stat, index) => (
-            <div key={index} className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600">{stat.category_name}</span>
-                <span className="text-primary font-semibold">{stat.average_score}%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${stat.success_rate}%` }}
-                  transition={{ duration: 1, delay: index * 0.1 }}
-                  className="bg-primary rounded-full h-2"
-                />
-              </div>
-              <div className="flex justify-between text-sm text-gray-500">
-                <span>{stat.completed_quizzes} quiz complétés</span>
-                <span>{stat.total_quizzes} quiz au total</span>
-              </div>
-            </div>
+        {/* En-tête avec statistiques globales */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            {
+              title: "Quiz complétés",
+              value: categoryStats.reduce((acc, stat) => acc + stat.completed_quizzes, 0),
+              delay: 0
+            },
+            {
+              title: "Score moyen",
+              value: categoryStats.length > 0
+                ? Math.round(
+                    categoryStats.reduce((acc, stat) => acc + stat.average_score, 0) /
+                      categoryStats.length
+                  )
+                : 0,
+              suffix: "%",
+              delay: 0.1
+            },
+            {
+              title: "Taux de réussite",
+              value: categoryStats.length > 0
+                ? Math.round(
+                    categoryStats.reduce((acc, stat) => acc + stat.success_rate, 0) /
+                      categoryStats.length
+                  )
+                : 0,
+              suffix: "%",
+              delay: 0.2
+            }
+          ].map((stat, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: stat.delay }}
+              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+            >
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">{stat.title}</h3>
+              <p className="text-3xl font-bold text-primary">
+                {stat.value}{stat.suffix}
+              </p>
+            </motion.div>
           ))}
         </div>
+
+        {/* Graphiques */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+          >
+            <Line data={lineChartData} options={lineChartOptions} />
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+          >
+            <Doughnut data={doughnutChartData} options={doughnutChartOptions} />
+          </motion.div>
+        </div>
+
+        {/* Forces et faiblesses */}
+        {performanceStats && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+            >
+              <h3 className="text-lg font-semibold text-gray-700 mb-4">Points forts</h3>
+              <div className="space-y-4">
+                {performanceStats.strengths.map((strength, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex items-center justify-between"
+                  >
+                    <span className="text-gray-600">{strength.category_name}</span>
+                    <span className="text-primary font-semibold">{strength.score}%</span>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+            >
+              <h3 className="text-lg font-semibold text-gray-700 mb-4">Points à améliorer</h3>
+              <div className="space-y-4">
+                {performanceStats.weaknesses.map((weakness, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex items-center justify-between"
+                  >
+                    <span className="text-gray-600">{weakness.category_name}</span>
+                    <span className="text-red-500 font-semibold">{weakness.score}%</span>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Progression détaillée par catégorie */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+        >
+          <h3 className="text-lg font-semibold text-gray-700 mb-4">Progression par catégorie</h3>
+          <div className="space-y-6">
+            {categoryStats.map((stat, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="space-y-2"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">{stat.category_name}</span>
+                  <span className="text-primary font-semibold">{stat.average_score}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${stat.success_rate}%` }}
+                    transition={{ duration: 1, delay: index * 0.1 }}
+                    className="bg-primary rounded-full h-2"
+                  />
+                </div>
+                <div className="flex justify-between text-sm text-gray-500">
+                  <span>{stat.completed_quizzes} quiz complétés</span>
+                  <span>{stat.total_quizzes} quiz au total</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
       </motion.div>
-    </div>
+    </AnimatePresence>
   );
 };
 
