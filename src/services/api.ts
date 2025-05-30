@@ -84,13 +84,14 @@ export const catalogueFormationApi = {
   getAllCatalogueFormation: async (): Promise<CatalogueFormationResponse> => {
     try {
       const response = await axios.get<CatalogueFormationResponse>(
-        `${VITE_API_URL}/catalogue_formations`,
+        `${VITE_API_URL}/catalogueFormations/with-formations`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
+      // La réponse inclut déjà les formations associées
       return response.data;
     } catch (error) {
       console.error(
