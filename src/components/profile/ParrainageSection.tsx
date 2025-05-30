@@ -19,7 +19,7 @@ import image from "../../assets/aopia parrainage.png";
 import { useUser } from "@/context/UserContext";
 import LienParrainage from "../parrainage/LienParainage";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
 
 const ParrainageSection = () => {
   const [parrainageLink, setParrainageLink] = useState<string>("");
@@ -168,8 +168,7 @@ const ParrainageSection = () => {
                   </div>
                   <p className="text-sm md:text-base text-gray-700 mb-3">
                     {/* Gagnez  */}
-                    <span className="font-bold">50€</span> par ami
-                    inscrit
+                    <span className="font-bold">50€</span> par ami inscrit
                   </p>
                   <LienParrainage />
                 </CardContent>
