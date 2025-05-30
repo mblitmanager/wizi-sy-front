@@ -14,7 +14,6 @@ import {
 } from 'chart.js';
 import { Line, Doughnut } from 'react-chartjs-2';
 import { motion, AnimatePresence } from "framer-motion";
-import { quizService, CategoryStats, ProgressStats, QuizTrends, PerformanceStats } from "@/services/quiz/QuizService";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -34,20 +33,65 @@ interface CategoryProgressProps {
   userProgress: UserProgress | null;
 }
 
-interface QuizStats {
-  total_quizzes: number;
-  completed_quizzes: number;
-  average_score: number;
-  category_stats: {
-    [key: string]: {
-      total: number;
-      completed: number;
-      average_score: number;
-    };
-  };
+interface CategoryStats {
+  category: string;
+  totalQuizzes: number;
+  completedQuizzes: number;
+  completionRate: number;
 }
 
-const CategoryProgress: React.FC = () => {
+interface ProgressStats {
+  daily_progress: Array<{
+    date: string;
+    completed_quizzes: number;
+    average_score: number;
+  }>;
+  weekly_progress: Array<{
+    week: string;
+    completed_quizzes: number;
+    average_score: number;
+  }>;
+  monthly_progress: Array<{
+    month: string;
+    completed_quizzes: number;
+    average_score: number;
+  }>;
+}
+
+interface QuizTrends {
+  category_trends: Array<{
+    category_id: string;
+    category_name: string;
+    trend_data: Array<{
+      date: string;
+      score: number;
+    }>;
+  }>;
+  overall_trend: Array<{
+    date: string;
+    average_score: number;
+  }>;
+}
+
+interface PerformanceStats {
+  strengths: Array<{
+    category_id: string;
+    category_name: string;
+    score: number;
+  }>;
+  weaknesses: Array<{
+    category_id: string;
+    category_name: string;
+    score: number;
+  }>;
+  improvement_areas: Array<{
+    category_id: string;
+    category_name: string;
+    score: number;
+  }>;
+}
+
+const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userProgress }) => {
   const [categoryStats, setCategoryStats] = useState<CategoryStats[]>([]);
   const [progressStats, setProgressStats] = useState<ProgressStats | null>(null);
   const [quizTrends, setQuizTrends] = useState<QuizTrends | null>(null);
@@ -60,11 +104,12 @@ const CategoryProgress: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
+        const cacheBuster = `?_t=${Date.now()}`;
         const [stats, progress, trends, performance] = await Promise.all([
-          quizService.getCategoryStats(),
-          quizService.getProgressStats(),
-          quizService.getQuizTrends(),
-          quizService.getPerformanceStats(),
+          fetch(`/api/quiz/stats/categories${cacheBuster}`).then(res => res.json()),
+          fetch(`/api/quiz/stats/progress${cacheBuster}`).then(res => res.json()),
+          fetch(`/api/quiz/stats/trends${cacheBuster}`).then(res => res.json()),
+          fetch(`/api/quiz/stats/performance${cacheBuster}`).then(res => res.json()),
         ]);
         setCategoryStats(stats);
         setProgressStats(progress);
@@ -150,10 +195,10 @@ const CategoryProgress: React.FC = () => {
   };
 
   const doughnutChartData = {
-    labels: categoryStats.map(stat => stat.category_name),
+    labels: categoryStats.map(stat => stat.category),
     datasets: [
       {
-        data: categoryStats.map(stat => stat.completed_quizzes),
+        data: categoryStats.map(stat => stat.completedQuizzes),
         backgroundColor: [
           'rgba(255, 99, 132, 0.8)',
           'rgba(54, 162, 235, 0.8)',
@@ -192,17 +237,12 @@ const CategoryProgress: React.FC = () => {
           {[
             {
               title: "Quiz complétés",
-              value: categoryStats.reduce((acc, stat) => acc + stat.completed_quizzes, 0),
+              value: categoryStats.reduce((acc, stat) => acc + stat.completedQuizzes, 0),
               delay: 0
             },
             {
               title: "Score moyen",
-              value: categoryStats.length > 0
-                ? Math.round(
-                    categoryStats.reduce((acc, stat) => acc + stat.average_score, 0) /
-                      categoryStats.length
-                  )
-                : 0,
+              value: progressStats?.daily_progress[0]?.average_score || 0,
               suffix: "%",
               delay: 0.1
             },
@@ -210,7 +250,7 @@ const CategoryProgress: React.FC = () => {
               title: "Taux de réussite",
               value: categoryStats.length > 0
                 ? Math.round(
-                    categoryStats.reduce((acc, stat) => acc + stat.success_rate, 0) /
+                    categoryStats.reduce((acc, stat) => acc + stat.completionRate, 0) /
                       categoryStats.length
                   )
                 : 0,
@@ -316,20 +356,20 @@ const CategoryProgress: React.FC = () => {
                 className="space-y-2"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">{stat.category_name}</span>
-                  <span className="text-primary font-semibold">{stat.average_score}%</span>
+                  <span className="text-gray-600">{stat.category}</span>
+                  <span className="text-primary font-semibold">{stat.completionRate}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <motion.div
                     initial={{ width: 0 }}
-                    animate={{ width: `${stat.success_rate}%` }}
+                    animate={{ width: `${stat.completionRate}%` }}
                     transition={{ duration: 1, delay: index * 0.1 }}
                     className="bg-primary rounded-full h-2"
                   />
                 </div>
                 <div className="flex justify-between text-sm text-gray-500">
-                  <span>{stat.completed_quizzes} quiz complétés</span>
-                  <span>{stat.total_quizzes} quiz au total</span>
+                  <span>{stat.completedQuizzes} quiz complétés</span>
+                  <span>{stat.totalQuizzes} quiz au total</span>
                 </div>
               </motion.div>
             ))}
