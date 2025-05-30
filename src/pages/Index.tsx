@@ -133,79 +133,79 @@ export function Index() {
             </AlertDescription>
           </Alert>
         )}
-        <div className="bg-gradient-to-b from-white to-gray-100 py-16">
+        <div className="bg-gradient-to-b from-white to-gray-100 py-8 md:py-16">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="flex flex-col lg:flex-row items-center gap-12">
+            <div className="flex flex-col lg:flex-row items-center gap-6 md:gap-12">
               <motion.div
-                className="lg:w-1/2 space-y-6"
+                className="lg:w-1/2 space-y-4 md:space-y-6"
                 initial="hidden"
                 animate="visible"
                 variants={staggerContainer}>
                 <motion.h1
-                  className="text-4xl md:text-5xl font-bold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600"
+                  className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600"
                   variants={slideUp}>
                   Apprenez de façon interactive et ludique
                 </motion.h1>
 
-                <motion.p className="text-lg text-gray-700" variants={slideUp}>
+                <motion.p className="text-base md:text-lg text-gray-700" variants={slideUp}>
                   Bienvenue sur Wizi Learn, la plateforme de quiz éducatifs pour
                   nos stagiaires. Testez vos connaissances, suivez votre
                   progression et développez vos compétences professionnelles.
                 </motion.p>
 
-                <motion.div className="flex flex-wrap gap-4" variants={slideUp}>
-                  <Button size="lg" asChild>
-                    <Link to="/login" className="flex items-center">
+                <motion.div className="flex flex-wrap gap-3 md:gap-4" variants={slideUp}>
+                  <Button size="lg" asChild className="w-full md:w-auto">
+                    <Link to="/login" className="flex items-center justify-center">
                       Commencer maintenant
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
-                  <Button size="lg" variant="outline" asChild>
+                  <Button size="lg" variant="outline" asChild className="w-full md:w-auto">
                     <Link to="/login">Connexion</Link>
                   </Button>
                 </motion.div>
               </motion.div>
 
               <motion.div
-                className="lg:w-1/2 relative"
+                className="lg:w-1/2 relative mt-8 md:mt-0"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6 }}>
-                <div className="absolute -top-6 -left-6 w-64 h-64 bg-indigo-200 rounded-full blur-3xl opacity-40"></div>
-                <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-purple-200 rounded-full blur-3xl opacity-40"></div>
+                <div className="absolute -top-6 -left-6 w-48 md:w-64 h-48 md:h-64 bg-indigo-200 rounded-full blur-3xl opacity-40"></div>
+                <div className="absolute -bottom-10 -right-10 w-56 md:w-72 h-56 md:h-72 bg-purple-200 rounded-full blur-3xl opacity-40"></div>
 
                 <motion.div
                   className="relative bg-white"
                   whileHover={{ y: -5 }}
                   transition={{ type: "spring", stiffness: 300 }}>
                   <div className="relative">
-                    <div className="absolute -top-6 -left-6 w-64 h-64 bg-bureautique/20 rounded-full blur-3xl"></div>
-                    <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-creation/20 rounded-full blur-3xl"></div>
-                    <div className="relative bg-white p-6 rounded-xl shadow-lg">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-bureautique/10 p-4 rounded-lg flex items-center gap-3">
-                          <div className="bg-bureautique text-white p-2 rounded-md">
-                            <FileText className="h-5 w-5" />
+                    <div className="absolute -top-6 -left-6 w-48 md:w-64 h-48 md:h-64 bg-bureautique/20 rounded-full blur-3xl"></div>
+                    <div className="absolute -bottom-10 -right-10 w-56 md:w-72 h-56 md:h-72 bg-creation/20 rounded-full blur-3xl"></div>
+                    <div className="relative bg-white p-4 md:p-6 rounded-xl shadow-lg">
+                      <div className="grid grid-cols-2 gap-3 md:gap-4">
+                        <div className="bg-bureautique/10 p-3 md:p-4 rounded-lg flex items-center gap-2 md:gap-3">
+                          <div className="bg-bureautique text-white p-1.5 md:p-2 rounded-md">
+                            <FileText className="h-4 w-4 md:h-5 md:w-5" />
                           </div>
-                          <span className="font-medium">Bureautique</span>
+                          <span className="font-medium text-sm md:text-base">Bureautique</span>
                         </div>
-                        <div className="bg-langues/10 p-4 rounded-lg flex items-center gap-3">
-                          <div className="bg-langues text-white p-2 rounded-md">
-                            <MessageSquare className="h-5 w-5" />
+                        <div className="bg-langues/10 p-3 md:p-4 rounded-lg flex items-center gap-2 md:gap-3">
+                          <div className="bg-langues text-white p-1.5 md:p-2 rounded-md">
+                            <MessageSquare className="h-4 w-4 md:h-5 md:w-5" />
                           </div>
-                          <span className="font-medium">Langues</span>
+                          <span className="font-medium text-sm md:text-base">Langues</span>
                         </div>
-                        <div className="bg-internet/10 p-4 rounded-lg flex items-center gap-3">
-                          <div className="bg-internet text-black p-2 rounded-md">
-                            <Globe className="h-5 w-5" />
+                        <div className="bg-internet/10 p-3 md:p-4 rounded-lg flex items-center gap-2 md:gap-3">
+                          <div className="bg-internet text-black p-1.5 md:p-2 rounded-md">
+                            <Globe className="h-4 w-4 md:h-5 md:w-5" />
                           </div>
-                          <span className="font-medium">Internet</span>
+                          <span className="font-medium text-sm md:text-base">Internet</span>
                         </div>
-                        <div className="bg-creation/10 p-4 rounded-lg flex items-center gap-3">
-                          <div className="bg-creation text-white p-2 rounded-md">
-                            <PenTool className="h-5 w-5" />
+                        <div className="bg-creation/10 p-3 md:p-4 rounded-lg flex items-center gap-2 md:gap-3">
+                          <div className="bg-creation text-white p-1.5 md:p-2 rounded-md">
+                            <PenTool className="h-4 w-4 md:h-5 md:w-5" />
                           </div>
-                          <span className="font-medium">Création</span>
+                          <span className="font-medium text-sm md:text-base">Création</span>
                         </div>
                       </div>
                     </div>
@@ -329,52 +329,38 @@ export function Index() {
       {/* <div className="mt-2 h-[calc(100vh-8rem)] overflow-y-auto p-4"> */}
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold mb-8">Tableau de bord</h1>
-          {/* <Button asChild>
-              <Link to="/catalogue">
-                Voir le catalogue
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button> */}
+          <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-8">Tableau de bord</h1>
         </div>
         {/* {isVisible && (
             <AdvertBanner message={message} onClose={closeAdvert} />
           )} */}
 
-        <div className="mt-2 space-y-12 mb-3">
+        <div className="mt-2 space-y-6 md:space-y-12 mb-3">
           <Card className="border-blue-100">
-            <CardContent className="p-4 md:p-6">
-              <div className="flex items-center mb-3">
-                <Megaphone className="h-5 w-5 text-brown-shade mr-2" />
-                <h3 className="text-base md:text-lg font-medium">
+            <CardContent className="p-3 md:p-6">
+              <div className="flex items-center mb-2 md:mb-3">
+                <Megaphone className="h-4 w-4 md:h-5 md:w-5 text-brown-shade mr-2" />
+                <h3 className="text-sm md:text-lg font-medium">
                   Partagez et gagnez
                 </h3>
               </div>
-              <p className="text-sm md:text-base text-gray-700 mb-3">
+              <p className="text-xs md:text-base text-gray-700 mb-2 md:mb-3">
                 Gagnez <span className="font-bold">50€</span> par ami inscrit
               </p>
               <LienParrainage />
             </CardContent>
           </Card>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          {/* Section des contacts */}
-          <ContactsSection
-            commerciaux={commerciaux}
-            formateurs={formateurs}
-            poleRelation={poleRelation}
-          />
-        </div>
+       
 
-        {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"> */}
         {catalogueData && catalogueData.length > 0 ? (
           <>
-            <h2 className="text-3xl font-bold mb-6 text-gray-900 text-center">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-gray-900 text-center">
               Découvrez nos formations
             </h2>
-            <div className="flex flex-col md:flex-row items-center justify-center gap-8 px-2 py-12 bg-white rounded-xl shadow-md">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 px-2 py-6 md:py-12 bg-white rounded-xl shadow-md">
               {/* Colonne illustration */}
-              <div className="hidden md:flex md:w-1/3 justify-center mb-8 md:mb-0">
+              <div className="hidden md:flex md:w-1/3 justify-center mb-4 md:mb-0">
                 <img
                   src={illustration}
                   alt="Catalogue Illustration"
@@ -382,7 +368,7 @@ export function Index() {
                 />
               </div>
               {/* Colonne catalogue */}
-              <div className=" w-full flex flex-col items-center">
+              <div className="w-full flex flex-col items-center">
                 <div className="w-full">
                   <AdCatalogueBlock formations={catalogueData.slice(0, 4)} />
                 </div>
@@ -400,7 +386,15 @@ export function Index() {
             <ChallengeCard key={challenge.id} challenge={challenge} />
           ))}
         </div> */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+         <div className="bg-white p-3 md:p-4 rounded-lg shadow-sm">
+          {/* Section des contacts */}
+          <ContactsSection
+            commerciaux={commerciaux}
+            formateurs={formateurs}
+            poleRelation={poleRelation}
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
           <ProgressCard user={user} />
           <AgendaCard events={agendaEvents} />
           {/* <RankingCard rankings={rankings} currentUserId={user.id} /> */}

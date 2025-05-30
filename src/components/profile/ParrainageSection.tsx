@@ -19,7 +19,7 @@ import image from "../../assets/aopia parrainage.png";
 import { useUser } from "@/context/UserContext";
 import LienParrainage from "../parrainage/LienParainage";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
 
 const ParrainageSection = () => {
   const [parrainageLink, setParrainageLink] = useState<string>("");
@@ -149,7 +149,8 @@ const ParrainageSection = () => {
           <Button className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-400 text-white hover:from-blue-700 hover:to-blue-500 mb-4">
             <Gift className="h-5 w-5 mr-2" />
             <span className="text-sm md:text-base">
-              Je parraine et je gagne 50€
+              {/* Je parraine et je gagne  */}
+              50€
             </span>
           </Button>
 
@@ -166,7 +167,8 @@ const ParrainageSection = () => {
                     </h3>
                   </div>
                   <p className="text-sm md:text-base text-gray-700 mb-3">
-                    Gagnez <span className="font-bold">50€</span> par ami
+                    {/* Gagnez  */}
+                    <span className="font-bold">50€</span> par ami
                     inscrit
                   </p>
                   <LienParrainage />

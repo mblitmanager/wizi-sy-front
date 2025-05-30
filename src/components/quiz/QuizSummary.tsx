@@ -127,50 +127,50 @@ export function QuizSummary() {
 
   // Format data for QuizSummary component
   const formattedUserAnswers: Record<string, any> = {};
-  result.questions.forEach((q: any) => {
-    if (q.type === "rearrangement") {
-      const isCorrect = isRearrangementCorrect(
-        q.selectedAnswers,
-        q.correctAnswers
-      );
+  // Ajout du flag isPlayed à chaque question (jouée = réponse non vide)
+  const questionsWithFlag = result.questions.map((q: any) => {
+    let isPlayed = false;
+    if (q.selectedAnswers !== null && q.selectedAnswers !== undefined) {
+      if (Array.isArray(q.selectedAnswers)) {
+        isPlayed = q.selectedAnswers.length > 0;
+      } else if (typeof q.selectedAnswers === "object") {
+        isPlayed = Object.keys(q.selectedAnswers).length > 0;
+      } else if (typeof q.selectedAnswers === "string") {
+        isPlayed = q.selectedAnswers.trim() !== "";
+      } else {
+        isPlayed = true;
+      }
     }
-
     if (q.selectedAnswers) {
-      // Si la réponse est un tableau (choix multiples, etc.)
       if (Array.isArray(q.selectedAnswers)) {
         formattedUserAnswers[q.id] = q.selectedAnswers;
-      }
-      // Pour les questions de type "correspondance"
-      else if (typeof q.selectedAnswers === "object") {
+      } else if (typeof q.selectedAnswers === "object") {
         if (q.type === "correspondance") {
           const answersById: Record<string, string> = {};
           q.answers.forEach((a: { id: string; text: string }) => {
             answersById[a.id] = a.text;
           });
-
-          // Remplace les ID par leur texte correspondant
           const mapped: Record<string, string> = {};
           Object.entries(q.selectedAnswers).forEach(([leftId, rightVal]) => {
             const leftText = answersById[leftId] || leftId;
-            const rightText =
-              answersById[rightVal as string] || (rightVal as string);
+            const rightText = answersById[rightVal as string] || (rightVal as string);
             mapped[leftText] = rightText;
           });
-
           formattedUserAnswers[q.id] = mapped;
         } else {
-          // Pour les autres types utilisant des objets (ex: remplir les champs)
           formattedUserAnswers[q.id] = q.selectedAnswers;
         }
-      }
-      // Réponse simple (ex: QCM, vrai/faux)
-      else {
+      } else {
         formattedUserAnswers[q.id] = q.selectedAnswers;
       }
     } else {
       formattedUserAnswers[q.id] = null;
     }
+    return { ...q, isPlayed };
   });
+
+  // Filtrer les questions jouées (celles où isPlayed est true)
+  const playedQuestions = questionsWithFlag.filter((q: any) => q.isPlayed);
 
   const handleBack = () => {
     window.history.back();
@@ -185,7 +185,7 @@ export function QuizSummary() {
         <h1 className="text-2xl font-bold text-gradient bg-clip-text text-transparent bg-gradient-to-r from-blue-custom-100 to-blue-custom-50">
           Résultats du Quiz : {}
         </h1>
-        <Button
+        {/* <Button
           onClick={handleBack}
           variant="outline"
           className="flex items-center gap-2 border border-blue-custom-100 text-brown-shade hover:bg-blue-50 text-sm py-1.5 px-3">
@@ -201,7 +201,7 @@ export function QuizSummary() {
             />
           </svg>
           Retour
-        </Button>
+        </Button> */}
       </div>
 
       {/* Section des statistiques principales */}
@@ -243,7 +243,7 @@ export function QuizSummary() {
                       {result.correctAnswers}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      / {result.totalQuestions}
+                      / {playedQuestions.length}
                     </p>
                   </div>
                 </div>
@@ -335,13 +335,14 @@ export function QuizSummary() {
 
         {/* Liste des questions/réponses */}
 
-        {result.questions.map((question: Question, index: number) => (
+        {playedQuestions.map((question: Question & { isPlayed: boolean }, index: number) => (
           <div
             key={question.id}
             className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
             <QuizAnswerCard
               question={question}
               userAnswer={formattedUserAnswers[question.id]}
+              isPlayed={question.isPlayed}
             />
           </div>
         ))}

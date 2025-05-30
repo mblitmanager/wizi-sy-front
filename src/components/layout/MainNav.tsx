@@ -59,7 +59,7 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
       icon: GraduationCap,
     },
     {
-      title: "Profile",
+      title: "Profil",
       href: "/profile",
       icon: User,
     },

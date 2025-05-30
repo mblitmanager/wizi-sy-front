@@ -22,7 +22,7 @@ export function QuizNavigation({
 
   return (
     <div className="flex justify-between mt-auto pt-3 gap-2 sticky bottom-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-4 border-t">
-      <Button
+      {/* <Button
         variant="outline"
         onClick={onBack}
         disabled={activeStep === 0}
@@ -31,7 +31,7 @@ export function QuizNavigation({
       >
         <ChevronLeft className={`${isMobile ? 'mr-0' : 'mr-2'} h-4 w-4`} />
         {!isMobile && "Précédent"}
-      </Button>
+      </Button> */}
       {/* <Button
         onClick={activeStep === totalSteps - 1 ? onFinish : onNext}
         className={`${isMobile ? 'px-3' : 'min-w-[120px]'}`}

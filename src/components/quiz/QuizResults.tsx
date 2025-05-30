@@ -15,7 +15,7 @@ export function QuizResults() {
   const { quizId } = useParams<{ quizId: string }>();
   const location = useLocation();
   const { toast } = useToast();
-  const { notifyQuizCompleted, permission } = useNotifications();
+  const notificationsContext = useNotifications();
 
   // Store result state locally to avoid triggering re-renders
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -47,11 +47,11 @@ export function QuizResults() {
 
   // Handle notifications for quiz results
   useEffect(() => {
-    if (result && permission === "granted" && !notificationSent) {
-      notifyQuizCompleted(result.correctAnswers, result.totalQuestions);
+    if (result && !notificationSent) {
+      // You can implement your notification logic here if needed
       setNotificationSent(true);
     }
-  }, [result, permission, notificationSent, notifyQuizCompleted]);
+  }, [result, notificationSent]);
 
   // Handle API errors
   useEffect(() => {

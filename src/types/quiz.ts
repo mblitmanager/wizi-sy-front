@@ -27,6 +27,17 @@ export interface Quiz {
   categorieId: string;
   questions?: Question[];
   duree?: number;
+  /**
+   * Liste des tutoriels associés au quiz (optionnel)
+   */
+  tutos?: Array<{
+    titre?: string;
+    title?: string;
+    description?: string;
+    desc?: string;
+    lien?: string;
+    url?: string;
+  }>;
 }
 
 export interface Question {

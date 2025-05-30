@@ -66,29 +66,73 @@ export function StagiaireQuizList() {
     return Array.from(uniqueLevels);
   }, [quizzes]);
 
+  // Récupérer les points utilisateur depuis la progression (getProgress)
+  const { data: progress } = useQuery({
+    queryKey: ["profile-progress"],
+    queryFn: async () => {
+      try {
+        const res = await import("@/services/ProfileService");
+        return await res.userProfileService.getProgress();
+      } catch {
+        return null;
+      }
+    },
+    enabled: !!localStorage.getItem("token"),
+  });
+  const userPoints = progress?.totalScore || 0;
+
+  // Filtrage avancé selon les points utilisateur (pour les quiz à jouer)
   const filteredQuizzes = useMemo(() => {
     if (!quizzes) return [];
-    return quizzes.filter((quiz) => {
+    // 1. Séparer les quiz par niveau
+    const debutant = quizzes.filter((q) => q.niveau?.toLowerCase() === "débutant");
+    const inter = quizzes.filter((q) => q.niveau?.toLowerCase() === "intermédiaire");
+    const avance = quizzes.filter((q) => q.niveau?.toLowerCase() === "avancé");
+    let result: typeof quizzes = [];
+    if (userPoints < 10) {
+      // Montrer 1 ou 2 quiz débutant max
+      result = debutant.slice(0, 2);
+    } else if (userPoints < 20) {
+      // Montrer tous les quiz débutant
+      result = debutant;
+    } else if (userPoints < 50) {
+      // Débutant + intermédiaire
+      result = [...debutant, ...inter];
+    } else {
+      // Tous les quiz
+      result = [...debutant, ...inter, ...avance];
+    }
+    // Appliquer les filtres catégorie/niveau si besoin
+    return result.filter((quiz) => {
       const categoryMatch =
         selectedCategory === "all" ||
-        String(quiz.categorieId) === String(selectedCategory);
+        (quiz.categorieId && String(quiz.categorieId) === String(selectedCategory));
       const levelMatch =
-        selectedLevel === "all" || quiz.niveau === selectedLevel;
+        selectedLevel === "all" || (quiz.niveau && quiz.niveau === selectedLevel);
       return categoryMatch && levelMatch;
     });
-  }, [quizzes, selectedCategory, selectedLevel]);
+  }, [quizzes, selectedCategory, selectedLevel, userPoints]);
 
-  const playedQuizIds = useMemo(
-    () => new Set((participations || []).map((p: any) => String(p.id))),
-    [participations]
-  );
+  // Quiz déjà joués : toujours affichés, sans restriction de points
   const playedQuizzes = useMemo(
-    () => (quizzes || []).filter((q) => playedQuizIds.has(String(q.id))),
-    [quizzes, playedQuizIds]
+    () =>
+      quizzes && participations
+        ? quizzes.filter((q) =>
+            participations.some((p) => String(p.quizId || p.id) === String(q.id))
+          )
+        : [],
+    [quizzes, participations]
   );
+
+  // Quiz non joués filtrés par points
   const notPlayedQuizzes = useMemo(
-    () => (quizzes || []).filter((q) => !playedQuizIds.has(String(q.id))),
-    [quizzes, playedQuizIds]
+    () =>
+      quizzes && participations
+        ? filteredQuizzes.filter((q) =>
+            !participations.some((p) => String(p.quizId || p.id) === String(q.id))
+          )
+        : [],
+    [filteredQuizzes, quizzes, participations]
   );
 
   if (isLoading) {
@@ -122,19 +166,19 @@ export function StagiaireQuizList() {
   return (
     <div className="">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-        <h2 className="text-2xl sm:text-3xl text-brown-shade font-bold">
+        <h2 className="text-xl sm:text-2xl md:text-3xl text-brown-shade font-bold">
           Mes Quiz
         </h2>
 
-        <div className="flex flex-row flex-wrap gap-2 sm:gap-4 items-center">
+        <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-3 sm:gap-4">
           {/* Catégorie */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Catégorie :</span>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1.5 sm:gap-2">
+            {/* <span className="text-xs sm:text-sm text-gray-600 whitespace-nowrap">Catégorie :</span> */}
             <select
-              className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring focus:ring-blue-200"
+              className="w-full sm:w-auto border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring focus:ring-blue-200 bg-white"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}>
-              <option value="all">Toutes</option>
+              <option value="all">Catégorie</option>
               {(categories || []).map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -144,30 +188,32 @@ export function StagiaireQuizList() {
           </div>
 
           {/* Niveau */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Niveau :</span>
-            <select
-              className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring focus:ring-blue-200"
-              value={selectedLevel}
-              onChange={(e) => setSelectedLevel(e.target.value)}>
-              <option value="all">Tous les niveaux</option>
-              {levels.map((level) => (
-                <option key={level} value={level}>
-                  {level}
-                </option>
-              ))}
-            </select>
-            {selectedLevel !== "all" && (
-              <button
-                className="px-2 py-1 border border-gray-300 rounded-md text-xs text-gray-600 hover:bg-gray-100"
-                onClick={() => setSelectedLevel("all")}>
-                Réinitialiser
-              </button>
-            )}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1.5 sm:gap-2">
+            {/* <span className="text-xs sm:text-sm text-gray-600 whitespace-nowrap">Niveau :</span> */}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <select
+                className="flex-1 sm:flex-none border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring focus:ring-blue-200 bg-white"
+                value={selectedLevel}
+                onChange={(e) => setSelectedLevel(e.target.value)}>
+                <option value="all">Niveau</option>
+                {levels.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </select>
+              {selectedLevel !== "all" && (
+                <button
+                  className="px-2 py-1.5 border border-gray-300 rounded-md text-xs text-gray-600 hover:bg-gray-100 bg-white"
+                  onClick={() => setSelectedLevel("all")}>
+                  Réinitialiser
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
-      <hr className="mb-2" />
+      <hr className="mb-4" />
       {/* <div className="mt-2 h-[calc(100vh-25rem)] overflow-y-auto p-4"> */}
       <div className="space-y-6">
         {/* Section des quiz non joués */}

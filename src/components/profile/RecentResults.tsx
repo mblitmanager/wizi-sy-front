@@ -67,23 +67,23 @@ export const RecentResults: React.FC<RecentResultsProps> = ({
         console.log("result:", result);
         console.log("displayResults:", displayResults);
         return (
-          <Card key={resultId} className="w-full p-3 border border-gray-100">
-            <div className="flex justify-between items-center">
-              <div className="flex-1">
-                <h4 className="font-medium text-sm font-nunito truncate pr-3">
+          <Card key={resultId} className="w-full p-2.5 md:p-3 border border-gray-100">
+            <div className="flex justify-between items-start md:items-center">
+              <div className="flex-1 min-w-0 mr-2">
+                <h4 className="font-medium text-xs md:text-sm font-nunito truncate">
                   {quizName}
                 </h4>
-                <div className="text-xs text-gray-500 font-roboto">
+                <div className="text-[10px] md:text-xs text-gray-500 font-roboto mt-0.5">
                   {completedAt}
                 </div>
               </div>
-              <div className="text-right">
-                <div className="text-sm font-medium font-nunito flex items-center">
-                  <Trophy className="h-4 w-4 text-yellow-500 mr-1" />
-                  {result.score}%
+              <div className="text-right flex-shrink-0">
+                <div className="text-xs md:text-sm font-medium font-nunito flex items-center justify-end">
+                  <Trophy className="h-3.5 w-3.5 md:h-4 md:w-4 text-yellow-500 mr-1" />
+                  {result.score} pts
                 </div>
-                <div className="text-xs text-gray-500 font-roboto">
-                  {correctAnswers}/{totalQuestions} correct
+                <div className="text-[10px] md:text-xs text-gray-500 font-roboto">
+                  {correctAnswers}/{totalQuestions} correctes
                 </div>
               </div>
             </div>
@@ -94,7 +94,7 @@ export const RecentResults: React.FC<RecentResultsProps> = ({
       {!showAll && results.length > 5 && (
         <Link
           to="/classement?tab=history"
-          className="text-blue-500 hover:text-blue-700 font-nunito text-sm flex justify-center mt-3">
+          className="text-blue-500 hover:text-blue-700 font-nunito text-xs md:text-sm flex justify-center mt-2 md:mt-3">
           Voir tous les résultats ({results.length})
         </Link>
       )}
