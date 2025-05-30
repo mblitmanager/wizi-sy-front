@@ -147,17 +147,17 @@ const ParrainageInscriptionPage = () => {
     );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-amber-50 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch overflow-hidden">
+    <div className="bg-gradient-to-br from-yellow-50 to-amber-50 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch overflow-hidden h-[100vh] ">
         {/* Colonne Illustration */}
         <div className="hidden lg:flex flex-col items-center justify-center">
           {" "}
-          <div className="relative w-full h-full flex items-center justify-center">
+          <div className="relative w-full  flex items-center justify-center">
             <img
               src={image}
               alt="Parrainage Illustration"
-              className="w-full object-cover animate-float" /* Ajout de h-full et max-h */
-              style={{ objectPosition: "center" }}
+              className="w-full object-contain animate-float" /* Ajout de h-full et max-h */
+              style={{ objectPosition: "center", height: "880px" }}
             />
           </div>
         </div>
