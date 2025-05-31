@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Copy, Link as LinkIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
 
 export default function LienParrainage() {
   const [parrainageLink, setParrainageLink] = useState<string>("");
@@ -71,8 +71,7 @@ export default function LienParrainage() {
       <Button
         onClick={generateLink}
         disabled={isLoading}
-        className="w-full border-2 border-yellow-shade bg-transparent hover:bg-yellow-shade-1 text-black"
-      >
+        className="w-full border-2 border-yellow-shade bg-transparent hover:bg-yellow-shade-1 text-black">
         <LinkIcon className="h-4 w-4 mr-2" />
         {isLoading ? "Génération..." : "Générer mon lien de parrainage"}
       </Button>
@@ -90,8 +89,7 @@ export default function LienParrainage() {
             variant="outline"
             size="sm"
             onClick={copyToClipboard}
-            aria-label="Copier le lien"
-          >
+            aria-label="Copier le lien">
             <Copy className="h-4 w-4" />
           </Button>
         </div>
