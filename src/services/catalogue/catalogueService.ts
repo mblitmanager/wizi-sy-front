@@ -1,3 +1,4 @@
+import axios from "axios";
 import axiosInstance from "../axios";
 
 const VITE_API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com";
@@ -60,7 +61,8 @@ export interface Category {
 // Fonctions séparées pour plus de clarté
 async function fetchFormations(): Promise<CatalogueResponse> {
   try {
-    const response = await axiosInstance.get(`/catalogueFormations/formations`);
+    // Utilisation d'axios sans header Authorization pour endpoint public
+    const response = await axios.get(`${VITE_API_URL}/formationParrainage`);
     return response.data;
   } catch (error) {
     console.error("Error fetching formations:", error);

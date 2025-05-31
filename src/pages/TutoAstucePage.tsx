@@ -109,6 +109,14 @@ export default function TutoAstucePage() {
     });
   }, [activeCategory, medias, groupedMediasByType]);
 
+  // Sélectionner la première formation par défaut
+  useEffect(() => {
+    if (!selectedFormationId && formationsWithTutos.length > 0) {
+      setSelectedFormationId(formationsWithTutos[0].id.toString());
+    }
+    // eslint-disable-next-line
+  }, [formationsWithTutos]);
+
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => ({
       ...prev,
@@ -295,37 +303,42 @@ export default function TutoAstucePage() {
 
   return (
     <Layout>
-      <div className="mx-auto sm:px-6 lg:px-8 py-4 bg-gray-50 min-h-screen">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="mx-auto sm:px-2 lg:px-8 py-2 bg-gray-50 min-h-screen">
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
             {/* <HeaderSection titre="Tutoriels & Astuces" buttonText="Retour" /> */}
-            <div className="flex flex-col sm:flex-row gap-2">
-              <select
-                value={selectedFormationId ?? ""}
-                onChange={(e) => setSelectedFormationId(e.target.value || null)}
-                className="w-full sm:w-auto px-3 py-1 text-sm bg-white border border-gray-300 rounded-lg shadow-sm"
-                aria-label="Sélectionner une formation"
-              >
-                {formationsWithTutos.map((formation) => (
-                  <option key={formation.id} value={formation.id}>
-                    {formation.titre}
-                  </option>
-                ))}
-              </select>
-
-              <button
-                onClick={() => refetch()}
-                className="w-full sm:w-auto px-3 py-1 bg-yellow-400 text-white rounded-lg shadow text-sm"
-              >
-                {isFetching ? "..." : "Rafraîchir"}
-              </button>
+            <div className="flex flex-col gap-2 w-full lg:flex-row lg:items-center lg:gap-4 lg:justify-between">
+              <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+                <select
+                  value={selectedFormationId ?? ""}
+                  onChange={(e) => setSelectedFormationId(e.target.value || null)}
+                  className="w-full sm:w-auto px-3 py-1 text-sm bg-white border border-gray-300 rounded-lg shadow-sm"
+                  aria-label="Sélectionner une formation"
+                >
+                  {formationsWithTutos.map((formation) => (
+                    <option key={formation.id} value={formation.id}>
+                      {formation.titre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto lg:ml-auto lg:justify-end">
+                <MediaTabs active={activeCategory} onChange={setActiveCategory} />
+                <button
+                  onClick={() => refetch()}
+                  className="w-full sm:w-auto px-3 py-1 bg-yellow-400 text-white rounded-lg shadow text-sm lg:ml-2"
+                >
+                  {isFetching ? "..." : "Rafraîchir"}
+                </button>
+              </div>
             </div>
           </div>
-          <div className="w-full">
-            <MediaTabs active={activeCategory} onChange={setActiveCategory} />
+          <div className="block lg:hidden">
+            <MobileView />
           </div>
-          <MobileView />
-          <DesktopView />
+          <div className="hidden lg:block">
+            <DesktopView />
+          </div>
         </div>
       </div>
     </Layout>
