@@ -15,11 +15,10 @@ import { LoadingState } from "../quiz/quiz-play/LoadingState";
 import useAdvert from "../publiciter/useAdvert";
 import AdvertBanner from "../publiciter/AdvertBanner";
 interface UserStatsProps {
-    userProgress?: UserProgress | null;
+  userProgress?: UserProgress | null;
 }
 
 const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
-  
   const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
   const VITE_API_URL = import.meta.env.VITE_API_URL;
   const { user, logout, refetchUser } = useUser();
@@ -50,6 +49,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
         toast.error("Fichier trop volumineux. Taille maximale : 5MB.");
         return;
       }
+      console.log(user);
 
       const formData = new FormData();
       formData.append("image", file);
@@ -58,7 +58,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
 
       try {
         const response = await axios.post(
-          `${VITE_API_URL}/avatar/${user.user.id}/update-profile`,
+          `${VITE_API_URL}/avatar/${user?.user.id}/update-profile`,
           formData,
           {
             headers: {
@@ -91,12 +91,8 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
     const lastNameInitial = user.name.charAt(0).toUpperCase();
     return `${firstNameInitial}${lastNameInitial}`;
   };
-    const totalPoints =
-    user?.points ||
-    userProgress?.total_points ||
-    userProgress?.totalPoints || userProgress?.points ||
-    userProgress?.totalScore ||
-    0;
+  const totalPoints =
+    user?.points || userProgress?.total_points || userProgress?.totalScore || 0;
 
   return (
     <>
@@ -111,10 +107,10 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
                 <div className="w-full h-full rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                   <span className="loader"></span>
                 </div>
-              ) : user.user.image ? (
+              ) : user?.user.image ? (
                 <img
-                  src={`${VITE_API_URL_MEDIA}/${user.user.image}`}
-                  alt={user.user.name || "User"}
+                  src={`${VITE_API_URL_MEDIA}/${user?.user.image}`}
+                  alt={user?.user.name || "User"}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -139,8 +135,8 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
 
           <div className="text-center space-y-1 w-full max-w-[90vw]">
             <h2 className="text-base sm:text-lg font-bold font-montserrat text-gray-800 dark:text-white break-words px-2">
-              {user.stagiaire.civilite} {user.user.name.toUpperCase()}{" "}
-              {user.stagiaire.prenom}
+              {user?.stagiaire?.civilite} {user.user.name.toUpperCase()}{" "}
+              {user?.stagiaire.prenom}
             </h2>
 
             <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 font-medium break-words px-2">
@@ -150,26 +146,26 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
             <div className="my-1 sm:my-2">
               <span
                 className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                  user.user.role === "admin"
+                  user?.user.role === "admin"
                     ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200"
                     : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                 }`}>
-                {user.user.role === "admin" ? "Admin" : "Stagiaire"}
+                {user?.user.role === "admin" ? "Admin" : "Stagiaire"}
               </span>
             </div>
 
             <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1 mt-1 sm:mt-2 px-2">
               <div className="flex items-center justify-center gap-1 break-words">
                 <PhoneIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0" />
-                <span>{user.stagiaire.telephone || "Non renseigné"}</span>
+                <span>{user?.stagiaire?.telephone || "Non renseigné"}</span>
               </div>
               <div className="flex items-center justify-center gap-1 break-words">
                 <MapPinIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0" />
                 <span>
                   {[
-                    user.stagiaire.adresse,
-                    user.stagiaire.code_postal,
-                    user.stagiaire.ville,
+                    user.stagiaire?.adresse,
+                    user.stagiaire?.code_postal,
+                    user.stagiaire?.ville,
                   ]
                     .filter(Boolean)
                     .join(", ") || "Adresse non renseignée"}
