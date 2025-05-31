@@ -70,11 +70,11 @@ export function MobileNav() {
               to={item.href}
               className={cn(
               "flex flex-col items-center gap-0.5 p-2 relative text-muted-foreground",
-              isActive && "text-primary",
-              isQuiz && "z-10 scale-[1] -mt-6 bg-white rounded-full shadow-xl border-b-4 border-yellow-400",
-              isQuiz && "!p-2"
+              isActive && (!isQuiz || (isQuiz && !isActive)) && "text-primary",
+              isQuiz && !isActive && "z-10 scale-[0.8] -mt-3 bg-white rounded-full shadow-xl border-b-4 border-yellow-900 !p-2",
+              isQuiz && isActive && "z-10 scale-[0.8] -mt-3 bg-white rounded-full shadow-xl border-b-4 border-yellow-400 !p-2 text-yellow-700"
               )}
-              style={isQuiz ? { boxShadow: '0 4px 24px 0 #facc15, 0 4px 0 0 #fde68a' } : {}}
+              // style={isQuiz ? { boxShadow: '0 4px 24px 0 #facc15, 0 4px 0 0 #fde68a' } : {}}
             >
               <span className="relative">
               <item.icon className={cn(

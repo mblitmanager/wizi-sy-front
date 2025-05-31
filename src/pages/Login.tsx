@@ -40,7 +40,7 @@ const Login = () => {
     <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-t from-[#FEB823] via-[#FFF8E1] to-white">
       {/* Logo en haut */}
       <div className="flex flex-col items-center mb-8">
-        <img src={logo} alt="Wizi Learn" className="h-16 mb-2 drop-shadow-lg" />
+        <img src={logo} alt="Wizi Learn" className="h-32 mb-2 drop-shadow-lg" />
         <p className="text-[#000] font-bold text-center max-w-xs">
           La plateforme de quiz éducatifs pour nos stagiaires
         </p>
@@ -102,7 +102,7 @@ const Login = () => {
               </div>
               <Button
                 type="submit"
-                className="w-full bg-[#FEB823] hover:bg-[#FFC533] text-black font-semibold shadow-md transition"
+                className="w-full bg-[#8B5C2A]  hover:bg-[#FFC533] text-white font-semibold shadow-md transition"
                 disabled={isLoading}>
                 {isLoading ? "Connexion en cours..." : "Se connecter"}
               </Button>

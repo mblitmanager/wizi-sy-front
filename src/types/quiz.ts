@@ -151,6 +151,8 @@ export interface UserProgress {
   longestStreak?: number;
   lastQuizDate?: string;
   total_points?: number;
+  totalPoints?: number;
+  points?: number;
   category_progress?: {
     [key: string]: {
       completed: number;

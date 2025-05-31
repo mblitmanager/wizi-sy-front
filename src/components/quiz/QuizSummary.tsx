@@ -16,6 +16,7 @@ import QuizAnswerCard from "../Summary/QuizAnswerCard";
 import QuizSummaryFooter from "../Summary/QuizSummaryFooter";
 import { Question } from "@/types/quiz";
 import quizimg from "../../assets/loading_img.png";
+import React from "react";
 
 interface QuizSummaryProps {
   quiz?: {
@@ -95,6 +96,38 @@ export function QuizSummary() {
       });
     }
   }, [error, toast]);
+
+  // Notification toast pour niveau débloqué (mêmes règles que StagiaireQuizList)
+  useEffect(() => {
+    if (!isLoading && result) {
+      const userPoints = result.score;
+      if (userPoints >= 50) {
+        toast({
+          title: "Niveau avancé débloqué !",
+          description: "Vous pouvez maintenant jouer aux quiz avancés.",
+          variant: "default",
+          className:
+            "bg-gradient-to-r from-orange-700 to-yellow-700 text-white border-0",
+        });
+      } else if (userPoints >= 20) {
+        toast({
+          title: "Niveau intermédiaire débloqué !",
+          description: "Vous pouvez maintenant jouer aux quiz intermédiaires.",
+          variant: "default",
+          className:
+            "bg-gradient-to-r from-orange-700 to-yellow-700 text-white border-0",
+        });
+      } else if (userPoints >= 10) {
+        toast({
+          title: "Nouveaux quiz disponibles !",
+          description: "Vous avez débloqué de nouveaux quiz débutant.",
+          variant: "default",
+          className:
+            "bg-gradient-to-r from-orange-700 to-yellow-700 text-white border-0",
+        });
+      }
+    }
+  }, [isLoading, result, toast]);
 
   if (isLoading || (!result && !error)) {
     return (

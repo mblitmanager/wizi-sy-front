@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import React from "react";
 import { stagiaireQuizService } from "@/services/quiz/StagiaireQuizService";
 import { categoryService } from "@/services/quiz/CategoryService";
 import type { Category } from "@/types/quiz";
@@ -6,10 +7,13 @@ import { Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useState, useMemo } from "react";
 import { StagiaireQuizGrid } from "./StagiaireQuizGrid";
+import { useClassementPoints } from "@/hooks/useClassementPoints";
+import { useToast } from "@/hooks/use-toast";
 
 export function StagiaireQuizList() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedLevel, setSelectedLevel] = useState<string>("all");
+  const { toast } = useToast();
 
   const {
     data: quizzes,
@@ -66,20 +70,41 @@ export function StagiaireQuizList() {
     return Array.from(uniqueLevels);
   }, [quizzes]);
 
-  // Récupérer les points utilisateur depuis la progression (getProgress)
-  const { data: progress } = useQuery({
-    queryKey: ["profile-progress"],
-    queryFn: async () => {
-      try {
-        const res = await import("@/services/ProfileService");
-        return await res.userProfileService.getProgress();
-      } catch {
-        return null;
+  // Récupérer les points utilisateur depuis le classement global
+  const { points: userPoints } = useClassementPoints();
+
+  // Notification si l'utilisateur peut jouer un quiz de niveau supérieur
+  const [notifiedLevel, setNotifiedLevel] = useState<number | null>(null);
+  // Utiliser useEffect (et pas useMemo) pour la notification
+  React.useEffect(() => {
+    if (quizzes) {
+      if (userPoints >= 50 && notifiedLevel !== 2) {
+        toast({
+          title: "Niveau avancé débloqué !",
+          description: "Vous pouvez maintenant jouer aux quiz avancés.",
+          variant: "default",
+          className: "bg-gradient-to-r from-orange-700 to-yellow-700 text-white border-0"
+        });
+        setNotifiedLevel(2);
+      } else if (userPoints >= 20 && userPoints < 50 && notifiedLevel !== 1) {
+        toast({
+          title: "Niveau intermédiaire débloqué !",
+          description: "Vous pouvez maintenant jouer aux quiz intermédiaires.",
+          variant: "default",
+          className: "bg-gradient-to-r from-orange-700 to-yellow-700 text-white border-0"
+        });
+        setNotifiedLevel(1);
+      } else if (userPoints >= 10 && userPoints < 20 && notifiedLevel !== 0) {
+        toast({
+          title: "Nouveaux quiz disponibles !",
+          description: "Vous avez débloqué de nouveaux quiz débutant.",
+          variant: "default",
+          className: "bg-gradient-to-r from-orange-700 to-yellow-700 text-white border-0"
+        });
+        setNotifiedLevel(0);
       }
-    },
-    enabled: !!localStorage.getItem("token"),
-  });
-  const userPoints = progress?.totalScore || 0;
+    }
+  }, [userPoints, quizzes, notifiedLevel, toast]);
 
   // Filtrage avancé selon les points utilisateur (pour les quiz à jouer)
   const filteredQuizzes = useMemo(() => {
@@ -89,15 +114,33 @@ export function StagiaireQuizList() {
     const inter = quizzes.filter((q) => q.niveau?.toLowerCase() === "intermédiaire");
     const avance = quizzes.filter((q) => q.niveau?.toLowerCase() === "avancé");
     let result: typeof quizzes = [];
+    let inter1: typeof quizzes = [];
+    let avance1: typeof quizzes = [];
+    let avance2: typeof quizzes = [];
     if (userPoints < 10) {
       // Montrer 1 ou 2 quiz débutant max
+      
       result = debutant.slice(0, 2);
     } else if (userPoints < 20) {
+      
       // Montrer tous les quiz débutant
+      console.log(debutant)
       result = debutant;
+    } else if (userPoints < 40) {
+      // Débutant + intermédiaire (2 quiz intermédiaire max)
+      inter1 = inter.slice(0, 2);
+      result = [...debutant, ...inter1];
     } else if (userPoints < 50) {
-      // Débutant + intermédiaire
+      // Débutant + tous les intermédiaires
       result = [...debutant, ...inter];
+    }else if (userPoints < 80) {
+      // Débutant + tous les intermédiaires
+      avance1 = avance.slice(0, 2);
+      result = [...debutant, ...inter, ...avance1];
+    } else if (userPoints < 100) { 
+      // Débutant + intermédiaire + avancé
+      avance2 = avance.slice(0, 4);
+      result = [...debutant, ...inter, ...avance2];
     } else {
       // Tous les quiz
       result = [...debutant, ...inter, ...avance];
