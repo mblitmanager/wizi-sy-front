@@ -50,11 +50,11 @@ jobs:
         rsync -avz -e "ssh -i private_key -o StrictHostKeyChecking=no" ./temp_views/stagiaire.blade.php $REMOTE_USER@$REMOTE_HOST:./www/resources/views/
         rm -f private_key
 
-    ame: Execute deployment via SSH
+    - name: Execute deployment via SSH
       uses: appleboy/ssh-action@v0.1.10
       with:
         host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USERNAME }}
+        username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         timeout: 30s
         script_stop: true
@@ -68,8 +68,8 @@ jobs:
           php artisan view:cache
           echo "✓ Application optimized"
           php artisan queue:restart
-          echo "✓ Database updated"
-          
+          echo "✓ Queue restarted"
+
           echo "➤ Fixing permissions..."
           chmod -R 755 storage
           chmod -R 755 bootstrap/cache
