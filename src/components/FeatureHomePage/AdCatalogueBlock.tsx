@@ -102,6 +102,7 @@ interface AdCatalogueBlockProps {
 }
 const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
   const [inscriptionLoading, setInscriptionLoading] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
   const [inscriptionSuccess, setInscriptionSuccess] = useState<string | null>(
     null
   );
@@ -154,40 +155,40 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
             <div className="p-5">
               {/* En-tête avec emoji et badge */}
               <div className="flex items-center gap-3 mb-4">
-                <span className="text-3xl animate-bounce-slow drop-shadow-sm select-none">
+                {/* <span className="text-3xl animate-bounce-slow drop-shadow-sm select-none">
                   {ad.emoji || "📚"}
-                </span>
+                </span> */}
                 {/* Badge catégorie avant le bouton PDF */}
-              {formation.formation && (
-                <div className="pt-2 pb-2 w-full flex items-center gap-2">
-                  <span
-                    className="inline-block text-xs rounded-full px-3 py-1 font-semibold"
-                    style={{
-                      color: formation.formation.categorie === "Bureautique"
-                        ? "#3D9BE9"
-                        : formation.formation.categorie === "Langues"
-                        ? "#A55E6E"
-                        : formation.formation.categorie === "Internet"
-                        ? "#FFC533"
-                        : formation.formation.categorie === "Création"
-                        ? "#9392BE"
-                        : "#888",
-                      backgroundColor: "transparent",
-                    }}
-                  >
-                    {(formation.formation.categorie || "Non spécifiée").toUpperCase()} :
-                  </span>
+                {formation.formation && (
+                  <div className="pt-2 pb-2 w-full flex items-center gap-2">
+                    <span
+                      className="inline-block text-xs rounded-full px-3 py-1 font-semibold"
+                      style={{
+                        color: formation.formation.categorie === "Bureautique"
+                          ? "#3D9BE9"
+                          : formation.formation.categorie === "Langues"
+                            ? "#A55E6E"
+                            : formation.formation.categorie === "Internet"
+                              ? "#FFC533"
+                              : formation.formation.categorie === "Création"
+                                ? "#9392BE"
+                                : "#888",
+                        backgroundColor: "transparent",
+                      }}
+                    >
+                      {(formation.formation.categorie || "Non spécifiée").toUpperCase()} :
+                    </span>
+                    <span className="text-xs text-orange-600 px-3 py-1 rounded-full font-medium uppercase tracking-wider shadow-sm">
+                      {formation.formation?.titre || formation.titre || "Formation"}
+                    </span>
+                  </div>
+                )}
+                {!formation.formation && (
                   <span className="text-xs text-orange-600 px-3 py-1 rounded-full font-medium uppercase tracking-wider shadow-sm">
-                    {formation.formation?.titre || formation.titre || "Formation"}
+                    {formation.titre || "Formation"}
                   </span>
-                </div>
-              )}
-              {!formation.formation && (
-                <span className="text-xs text-orange-600 px-3 py-1 rounded-full font-medium uppercase tracking-wider shadow-sm">
-                  {formation.titre || "Formation"}
-                </span>
-              )}
-                
+                )}
+
               </div>
 
               {/* Contenu texte */}
@@ -200,66 +201,78 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                 </p>
               </div>
             </div>
-            {/* Bloc détaillé type Card (optionnel, affiché si formation.formation existe) */}
-            {formation.formation && (
-                <div className="overflow-hidden w-full mb-2">
-                <div className="grid grid-cols-1 md:grid-cols-3">
-                 
-                  <div className="md:col-span-2 p-6 space-y-4">
-                  <div className="p-0 text-gray-700 dark:text-gray-300 space-y-2">
-                    <ul className="text-sm space-y-1">
-                    <li className="text-gray-500">
-                      <strong>Durée :</strong> {formation.formation.duree || formation.duree} heures
-                    </li>
-                    <li className="text-gray-500">
-                      <strong>Tarif :</strong> {formation.tarif ? `${formation.tarif} € HT` : "-"}
-                    </li>
-                    <li className="text-gray-500">
-                      <strong>Certication :</strong> {formation.certification ? `${formation.certification} ` : "-"}
-                    </li>
-                    </ul>
-                  </div>
-                  </div>
-                </div>
-                </div>
-            )}
-            {/* Bouton PDF et CTA */}
-            <DownloadPdfButton formationId={formation.id} />
-            <div className="flex gap-2 w-full mt-3">
-              {/* <Button
-                variant="default"
-                className="flex-1"
-                asChild
-                // onClick={handleClick}
-              >
-                <a
-                  href={`/formation/${formation.id}`}
-                  className="w-full h-full flex items-center justify-center"
-                >
-                  {ad.cta}
-                </a>
-              </Button> */}
-                <div className="pt-2">
+        <div className="flex flex-col items-center">
+      {/* Bouton Voir plus */}
+      {formation.formation && (
+        <button
+          onClick={() => setShowDetails(!showDetails)}
+          className="text-orange-500 text-sm mb-2 underline focus:outline-none"
+        >
+          {showDetails ? "Voir moins" : "Voir plus"}
+        </button>
+      )}
+      
+
+      {/* Bloc détaillé */}
+      {formation.formation && showDetails && (
+        
+        <div className="overflow-hidden w-full justify-center">
+         
+          <div className="grid grid-cols-1 md:grid-cols-3">
+            <div className="md:col-span-2 p-6 space-y-4">
+              <div className="p-0 text-gray-700 dark:text-gray-300 space-y-2">
+                <ul className="text-sm space-y-1">
+                  <li className="text-gray-500">
+                    <strong>Durée :</strong> {formation.formation.duree || formation.duree} heures
+                  </li>
+                  <li className="text-gray-500">
+                    <strong>Tarif :</strong> {formation.tarif ? `${formation.tarif} € HT` : "-"}
+                  </li>
+                  <li className="text-gray-500">
+                    <strong>Certification :</strong>{" "}
+                    <span className="inline-block bg-yellow-500 text-orange-800 text-xs px-2 py-1 rounded font-medium">
+                      {formation.certification || "-"}
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+          </div>
+           <div className="flex justify-center w-full">
+        <DownloadPdfButton formationId={formation.id} />
+      </div>
+            
+      
+        </div>
+      )}
+
+    
+    </div>
+  
+            <div className="flex gap-2 w-full mt-3 justify-center">
+
+              <div className="pt-2">
                 <Button
                   onClick={handleInscription}
                   disabled={inscriptionLoading}
                   className="w-full md:w-auto bg-[#8B5C2A]  hover:bg-[#FFC533] text-white font-semibold shadow-md transition"
                 >
                   {inscriptionLoading
-                  ? "Inscription en cours..."
-                  : "S'inscrire à la formation"}
+                    ? "Inscription en cours..."
+                    : "S'inscrire à la formation"}
                 </Button>
                 {inscriptionSuccess && (
                   <div className="text-green-600 mt-2 text-sm">
-                  {inscriptionSuccess}
+                    {inscriptionSuccess}
                   </div>
                 )}
                 {inscriptionError && (
                   <div className="text-red-600 mt-2 text-sm">
-                  {inscriptionError}
+                    {inscriptionError}
                   </div>
                 )}
-                </div>
+              </div>
             </div>
           </div>
         );
