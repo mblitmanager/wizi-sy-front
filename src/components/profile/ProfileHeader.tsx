@@ -15,11 +15,10 @@ import { LoadingState } from "../quiz/quiz-play/LoadingState";
 import useAdvert from "../publiciter/useAdvert";
 import AdvertBanner from "../publiciter/AdvertBanner";
 interface UserStatsProps {
-    userProgress?: UserProgress | null;
+  userProgress?: UserProgress | null;
 }
 
 const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
-  
   const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
   const VITE_API_URL = import.meta.env.VITE_API_URL;
   const { user, logout, refetchUser } = useUser();
@@ -50,6 +49,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
         toast.error("Fichier trop volumineux. Taille maximale : 5MB.");
         return;
       }
+      console.log(user);
 
       const formData = new FormData();
       formData.append("image", file);
@@ -58,7 +58,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
 
       try {
         const response = await axios.post(
-          `${VITE_API_URL}/avatar/${user?.id}/update-profile`,
+          `${VITE_API_URL}/avatar/${user?.user.id}/update-profile`,
           formData,
           {
             headers: {
@@ -91,11 +91,8 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
     const lastNameInitial = user.name.charAt(0).toUpperCase();
     return `${firstNameInitial}${lastNameInitial}`;
   };
-    const totalPoints =
-    user?.points ||
-    userProgress?.total_points ||
-    userProgress?.totalScore ||
-    0;
+  const totalPoints =
+    user?.points || userProgress?.total_points || userProgress?.totalScore || 0;
 
   return (
     <>
@@ -110,9 +107,9 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
                 <div className="w-full h-full rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                   <span className="loader"></span>
                 </div>
-              ) : user?.avatar ? (
+              ) : user?.user.image ? (
                 <img
-                  src={`${VITE_API_URL_MEDIA}/${user.avatar}`}
+                  src={`${VITE_API_URL_MEDIA}/${user?.user.image}`}
                   alt={user?.name || "User"}
                   className="w-full h-full object-cover"
                 />
