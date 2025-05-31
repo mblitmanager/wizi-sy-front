@@ -101,11 +101,9 @@ interface AdCatalogueBlockProps {
   formations: CatalogueFormation[];
 }
 const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
-  const [inscriptionLoading, setInscriptionLoading] = useState(false);
+  const [inscriptionLoading, setInscriptionLoading] = useState<number | null>(null);
   const [showDetails, setShowDetails] = useState(false);
-  const [inscriptionSuccess, setInscriptionSuccess] = useState<string | null>(
-    null
-  );
+  const [inscriptionSuccess, setInscriptionSuccess] = useState<string | null>(null);
   const [inscriptionError, setInscriptionError] = useState<string | null>(null);
 
   const getCategoryColor = useCallback((category?: string): string => {
@@ -125,18 +123,17 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
   const selected = useMemo(() => getRandomItems(formations, 3), [formations]);
   const ads = useMemo(() => selected.map(getAdContent), [selected]);
 
-  const handleInscription = async () => {
-    setInscriptionLoading(true);
+  const handleInscription = async (idx: number) => {
+    setInscriptionLoading(idx);
     setInscriptionSuccess(null);
     setInscriptionError(null);
     try {
-      // Remplacer details.catalogueFormation.id par la bonne valeur formation.id
-      await inscrireAFormation(selected[0]?.id);
+      await inscrireAFormation(selected[idx]?.id);
       setInscriptionSuccess("Inscription réussie !");
     } catch (e) {
       setInscriptionError("Erreur lors de l'inscription. Veuillez réessayer.");
     } finally {
-      setInscriptionLoading(false);
+      setInscriptionLoading(null);
     }
   };
 
@@ -178,7 +175,18 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                     >
                       {(formation.formation.categorie || "Non spécifiée").toUpperCase()} :
                     </span>
-                    <span className="text-xs text-orange-600 px-3 py-1 rounded-full font-medium uppercase tracking-wider shadow-sm">
+                    <span className="text-xs text-white px-3 py-1 rounded-full font-medium uppercase tracking-wider shadow-sm"   style={{
+                        backgroundColor: formation.formation.categorie === "Bureautique"
+                          ? "#3D9BE9"
+                          : formation.formation.categorie === "Langues"
+                            ? "#A55E6E"
+                            : formation.formation.categorie === "Internet"
+                              ? "#FFC533"
+                              : formation.formation.categorie === "Création"
+                                ? "#9392BE"
+                                : "#888",
+                        
+                      }}>
                       {formation.formation?.titre || formation.titre || "Formation"}
                     </span>
                   </div>
@@ -254,20 +262,20 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
 
               <div className="pt-2">
                 <Button
-                  onClick={handleInscription}
-                  disabled={inscriptionLoading}
+                  onClick={() => handleInscription(idx)}
+                  disabled={inscriptionLoading === idx}
                   className="w-full md:w-auto bg-[#8B5C2A]  hover:bg-[#FFC533] text-white font-semibold shadow-md transition"
                 >
-                  {inscriptionLoading
+                  {inscriptionLoading === idx
                     ? "Inscription en cours..."
                     : "S'inscrire à la formation"}
                 </Button>
-                {inscriptionSuccess && (
-                  <div className="text-green-600 mt-2 text-sm">
+                {inscriptionSuccess && inscriptionLoading === null && (
+                  <div className="text-yellow-400 mt-2 text-sm">
                     {inscriptionSuccess}
                   </div>
                 )}
-                {inscriptionError && (
+                {inscriptionError && inscriptionLoading === null && (
                   <div className="text-red-600 mt-2 text-sm">
                     {inscriptionError}
                   </div>
