@@ -1,7 +1,24 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CatalogueFormation } from "@/types/stagiaire";
 import DownloadPdfButton from "@/components/FeatureHomePage/DownloadPdfButton";
+import { inscrireAFormation } from "@/services/inscriptionApi";
+import {
+  BUREAUTIQUE,
+  CATALOGUE_FORMATION_DETAILS,
+  CREATION,
+  INTERNET,
+  LANGUES,
+  RETOUR,
+} from "@/utils/langue-type";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 function stripHtml(html: string): string {
   if (!html) return "";
@@ -76,16 +93,49 @@ function getAdContent(formation: CatalogueFormation) {
     description: descriptions[Math.floor(Math.random() * descriptions.length)],
     cta: ctas[Math.floor(Math.random() * ctas.length)],
     emoji,
+    formation, // <-- Ajout de la formation d'origine
   };
 }
 
 interface AdCatalogueBlockProps {
   formations: CatalogueFormation[];
 }
-
 const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
+  const [inscriptionLoading, setInscriptionLoading] = useState<number | null>(null);
+  const [showDetails, setShowDetails] = useState(false);
+  const [inscriptionSuccess, setInscriptionSuccess] = useState<string | null>(null);
+  const [inscriptionError, setInscriptionError] = useState<string | null>(null);
+
+  const getCategoryColor = useCallback((category?: string): string => {
+    switch (category) {
+      case BUREAUTIQUE:
+        return "#3D9BE9";
+      case LANGUES:
+        return "#A55E6E";
+      case INTERNET:
+        return "#FFC533";
+      case CREATION:
+        return "#9392BE";
+      default:
+        return "#E0E0E0";
+    }
+  }, []);
   const selected = useMemo(() => getRandomItems(formations, 3), [formations]);
   const ads = useMemo(() => selected.map(getAdContent), [selected]);
+
+  const handleInscription = async (idx: number) => {
+    setInscriptionLoading(idx);
+    setInscriptionSuccess(null);
+    setInscriptionError(null);
+    try {
+      await inscrireAFormation(selected[idx]?.id);
+      setInscriptionSuccess("Inscription réussie !");
+    } catch (e) {
+      setInscriptionError("Erreur lors de l'inscription. Veuillez réessayer.");
+    } finally {
+      setInscriptionLoading(null);
+    }
+  };
 
   if (!formations || formations.length === 0) return null;
   console.log("ads", ads);
@@ -102,39 +152,134 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
             <div className="p-5">
               {/* En-tête avec emoji et badge */}
               <div className="flex items-center gap-3 mb-4">
-                <span className="text-3xl animate-bounce-slow drop-shadow-sm select-none">
+                {/* <span className="text-3xl animate-bounce-slow drop-shadow-sm select-none">
                   {ad.emoji || "📚"}
-                </span>
-                <span className="text-xs bg-blue-100/80 text-blue-800 px-3 py-1 rounded-full font-medium uppercase tracking-wider shadow-sm">
-                  Formation
-                </span>
+                </span> */}
+                {/* Badge catégorie avant le bouton PDF */}
+                {formation.formation && (
+                  <div className="pt-2 pb-2 w-full flex items-center gap-2">
+                    <span
+                      className="inline-block text-xs rounded-full px-3 py-1 font-semibold"
+                      style={{
+                        color: formation.formation.categorie === "Bureautique"
+                          ? "#3D9BE9"
+                          : formation.formation.categorie === "Langues"
+                            ? "#A55E6E"
+                            : formation.formation.categorie === "Internet"
+                              ? "#FFC533"
+                              : formation.formation.categorie === "Création"
+                                ? "#9392BE"
+                                : "#888",
+                        backgroundColor: "transparent",
+                      }}
+                    >
+                      {(formation.formation.categorie || "Non spécifiée").toUpperCase()} :
+                    </span>
+                    <span className="text-xs text-white px-3 py-1 rounded-full font-medium uppercase tracking-wider shadow-sm"   style={{
+                        backgroundColor: formation.formation.categorie === "Bureautique"
+                          ? "#3D9BE9"
+                          : formation.formation.categorie === "Langues"
+                            ? "#A55E6E"
+                            : formation.formation.categorie === "Internet"
+                              ? "#FFC533"
+                              : formation.formation.categorie === "Création"
+                                ? "#9392BE"
+                                : "#888",
+                        
+                      }}>
+                      {formation.formation?.titre || formation.titre || "Formation"}
+                    </span>
+                  </div>
+                )}
+                {!formation.formation && (
+                  <span className="text-xs text-orange-600 px-3 py-1 rounded-full font-medium uppercase tracking-wider shadow-sm">
+                    {formation.titre || "Formation"}
+                  </span>
+                )}
+
               </div>
 
               {/* Contenu texte */}
               <div className="space-y-3">
                 <h3 className="text-xl font-bold text-gray-900 leading-tight group-hover:text-orange-600 transition-colors">
-                  {ad.title}
+                  {ad.title.toUpperCase()}
                 </h3>
                 <p className="text-gray-600 text-sm leading-relaxed">
                   {ad.description}
                 </p>
               </div>
             </div>
+        <div className="flex flex-col items-center">
+      {/* Bouton Voir plus */}
+      {formation.formation && (
+        <button
+          onClick={() => setShowDetails(!showDetails)}
+          className="text-orange-500 text-sm mb-2 underline focus:outline-none"
+        >
+          {showDetails ? "Voir moins" : "Voir plus"}
+        </button>
+      )}
+      
 
-            {/* Bouton avec effet de gradient amélioré */}
-            <div className="px-5 pb-5 flex flex-col items-center justify-center">
-              <DownloadPdfButton formationId={formation.id} />
-              <div className="flex gap-2 w-full mt-3">
+      {/* Bloc détaillé */}
+      {formation.formation && showDetails && (
+        
+        <div className="overflow-hidden w-full justify-center">
+         
+          <div className="grid grid-cols-1 md:grid-cols-3">
+            <div className="md:col-span-2 p-6 space-y-4">
+              <div className="p-0 text-gray-700 dark:text-gray-300 space-y-2">
+                <ul className="text-sm space-y-1">
+                  <li className="text-gray-500">
+                    <strong>Durée :</strong> {formation.formation.duree || formation.duree} heures
+                  </li>
+                  <li className="text-gray-500">
+                    <strong>Tarif :</strong> {formation.tarif ? `${formation.tarif} € HT` : "-"}
+                  </li>
+                  <li className="text-gray-500">
+                    <strong>Certification :</strong>{" "}
+                    <span className="inline-block bg-yellow-500 text-orange-800 text-xs px-2 py-1 rounded font-medium">
+                      {formation.certification || "-"}
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+          </div>
+           <div className="flex justify-center w-full">
+        <DownloadPdfButton formationId={formation.id} />
+      </div>
+            
+      
+        </div>
+      )}
+
+    
+    </div>
+  
+            <div className="flex gap-2 w-full mt-3 justify-center">
+
+              <div className="pt-2">
                 <Button
-                  asChild
-                  className="flex-1 bg-gradient-to-r from-[#0a1a2f] to-[#0a1a2f] hover:from-[#0a1a2f] hover:to-[#1a2a3f] text-white font-medium rounded-lg py-3 transition-all shadow-sm hover:shadow-md focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-
+                  onClick={() => handleInscription(idx)}
+                  disabled={inscriptionLoading === idx}
+                  className="w-full md:w-auto bg-[#8B5C2A]  hover:bg-[#FFC533] text-white font-semibold shadow-md transition"
                 >
-                  <a href={`/catalogue-formation/${formation.id || ""}`}>
-                    <span className="drop-shadow-sm">{ad.cta}</span>
-                  </a>
+                  {inscriptionLoading === idx
+                    ? "Inscription en cours..."
+                    : "S'inscrire à la formation"}
                 </Button>
-
+                {inscriptionSuccess && inscriptionLoading === null && (
+                  <div className="text-yellow-400 mt-2 text-sm">
+                    {inscriptionSuccess}
+                  </div>
+                )}
+                {inscriptionError && inscriptionLoading === null && (
+                  <div className="text-red-600 mt-2 text-sm">
+                    {inscriptionError}
+                  </div>
+                )}
               </div>
             </div>
           </div>

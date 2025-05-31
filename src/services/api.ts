@@ -2,7 +2,7 @@ import { CatalogueFormationResponse } from "@/types/stagiaire";
 import axios from "axios";
 
 const VITE_API_URL =
-  import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
+  import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
 
 export const api = axios.create({
   baseURL: VITE_API_URL,
@@ -84,13 +84,14 @@ export const catalogueFormationApi = {
   getAllCatalogueFormation: async (): Promise<CatalogueFormationResponse> => {
     try {
       const response = await axios.get<CatalogueFormationResponse>(
-        `${VITE_API_URL}/catalogue_formations`,
+        `${VITE_API_URL}/catalogueFormations/with-formations`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
+      // La réponse inclut déjà les formations associées
       return response.data;
     } catch (error) {
       console.error(

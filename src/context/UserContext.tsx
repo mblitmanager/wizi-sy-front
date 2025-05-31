@@ -36,7 +36,7 @@ export const UserContext = createContext<UserContextType | undefined>(
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const VITE_API_URL =
-    import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
+    import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -46,7 +46,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     if (!storedToken) return;
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/me", {
+      const response = await fetch("https://wizi-learn.com/api/me", {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
@@ -198,7 +198,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       try {
         const response = await fetch(
-          `http://127.0.0.1:8000/api/avatar/${user.id}/update-profile`,
+          `https://wizi-learn.com/api/avatar/${user.id}/update-profile`,
           {
             method: "POST",
             headers: {

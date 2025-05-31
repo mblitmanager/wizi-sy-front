@@ -96,7 +96,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm mb-4 mx-2 sm:mx-0">
+      <div className={`bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm mb-4 mx-2 sm:mx-0 ${loading ? 'overflow-hidden' : ''}`}>
         {loading && <LoadingState />}
         <div className="flex flex-col items-center gap-3">
           <div className="relative group">
@@ -110,7 +110,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
               ) : user?.user.image ? (
                 <img
                   src={`${VITE_API_URL_MEDIA}/${user?.user.image}`}
-                  alt={user?.name || "User"}
+                  alt={user?.user.name || "User"}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -135,22 +135,22 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
 
           <div className="text-center space-y-1 w-full max-w-[90vw]">
             <h2 className="text-base sm:text-lg font-bold font-montserrat text-gray-800 dark:text-white break-words px-2">
-              {user?.stagiaire?.civilite} {user?.name?.toUpperCase()}{" "}
-              {user?.stagiaire?.prenom}
+              {user?.stagiaire?.civilite} {user.user.name.toUpperCase()}{" "}
+              {user?.stagiaire.prenom}
             </h2>
 
             <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 font-medium break-words px-2">
-              {user?.email}
+              {user.user.email}
             </div>
 
             <div className="my-1 sm:my-2">
               <span
                 className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                  user?.role === "admin"
+                  user?.user.role === "admin"
                     ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200"
                     : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                 }`}>
-                {user?.role === "admin" ? "Admin" : "Stagiaire"}
+                {user?.user.role === "admin" ? "Admin" : "Stagiaire"}
               </span>
             </div>
 
@@ -163,9 +163,9 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
                 <MapPinIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0" />
                 <span>
                   {[
-                    user?.stagiaire?.adresse,
-                    user?.stagiaire?.code_postal,
-                    user?.stagiaire?.ville,
+                    user.stagiaire?.adresse,
+                    user.stagiaire?.code_postal,
+                    user.stagiaire?.ville,
                   ]
                     .filter(Boolean)
                     .join(", ") || "Adresse non renseignée"}

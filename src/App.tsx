@@ -56,7 +56,6 @@ const App = () => {
               <NotificationListener />
               <BrowserRouter>
                 <Routes>
-                  {/* ✅ Routes publiques */}
                   <Route path="/" element={<Index />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Card, CardContent } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { UserProgress } from "@/types/quiz";
 import CategoryCard from "@/components/Home/CategoryCard";
@@ -13,6 +14,16 @@ import { Contact } from "@/types/contact";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { BookOpen, Zap } from "lucide-react";
+import LienParrainage from "@/components/parrainage/LienParainage";
+import {
+  ArrowRight,
+  PenTool,
+  FileText,
+  MessageSquare,
+  Globe,
+  WifiOff,
+  Megaphone,
+} from "lucide-react";
 
 import {
   CatalogueFormation,
@@ -229,6 +240,22 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">
+       <div className="mt-2 space-y-6 md:space-y-12 mb-3">
+          <Card className="border-blue-100">
+            <CardContent className="p-3 md:p-6">
+              <div className="flex items-center mb-2 md:mb-3">
+                <Megaphone className="h-4 w-4 md:h-5 md:w-5 text-brown-shade mr-2" />
+                <h3 className="text-sm md:text-lg font-medium">
+                  Partagez et gagnez
+                </h3>
+              </div>
+              <p className="text-xs md:text-base text-gray-700 mb-2 md:mb-3">
+                <span className="font-bold">50€</span> par ami inscrit
+              </p>
+              <LienParrainage />
+            </CardContent>
+          </Card>
+        </div>
       {/* En-tête avec bienvenue et progression */}
       <div className="mb-8">
         <img

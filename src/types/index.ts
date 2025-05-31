@@ -10,6 +10,13 @@ export interface User {
   role?: "stagiaire" | "admin";
   avatar?: string;
   progress?: Progress;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    role: string;
+    image: string | null;
+  };
 }
 
 export interface Progress {

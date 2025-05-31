@@ -6,7 +6,7 @@ import { useFormations } from "@/use-case/hooks/catalogue/useCatalogue";
 
 // ParrainageInscriptionPage.tsx
 
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
+const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
 
 const ParrainageInscriptionPage = () => {
   const { token } = useParams();
@@ -148,7 +148,7 @@ const ParrainageInscriptionPage = () => {
 
   return (
     <div className="bg-gradient-to-br from-yellow-50 to-amber-50 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch overflow-hidden h-[100vh] ">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch overflow-hidden min-h-screen ">
         {/* Colonne Illustration */}
         <div className="hidden lg:flex flex-col items-center justify-center">
           {" "}

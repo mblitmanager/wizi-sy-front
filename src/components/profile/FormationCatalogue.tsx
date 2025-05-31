@@ -61,7 +61,9 @@ const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
                       <BookAIcon className="w-6 h-6 text-primary" />{" "}
                     </span>
                     <h3 className="my-2 ml-3 text-lg font-bold text-gray-800 dark:text-white">
-                      {formation?.titre || "Sans titre"}
+                      {(formation?.titre || "Sans titre")
+                        .toLowerCase()
+                        .replace(/\b\w/g, (char) => char.toUpperCase())}
                     </h3>
                   </div>
                   <p className="text-gray-600 dark:text-gray-300">
