@@ -35,7 +35,7 @@ export function Layout({ children }: LayoutProps) {
         <div className="flex items-center justify-center border-b ">
           <img src={logo} alt="" className="object-contain h-14 w-40" />
         </div>
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1">
           <MainNav />
         </div>
       </aside>
@@ -166,10 +166,8 @@ export function Layout({ children }: LayoutProps) {
 
         {/* Contenu principal */}
         <main
-          className={`flex-1 overflow-y-auto ${
-            isMobile && showBanner ? "pt-20 pb-20" : ""
-          }`}>
-          <div className="p-3 mx-8">{children}</div>
+          className={`flex-1 ${isMobile && showBanner ? "pt-20 pb-20" : ""}`}>
+          <div className=" mx-8">{children}</div>
         </main>
 
         {/* Bannière en bas (uniquement sur mobile) */}
