@@ -1,4 +1,12 @@
-import { Home, LayoutList, Trophy, Bell, BookOpen, Video, Settings } from "lucide-react";
+import {
+  Home,
+  LayoutList,
+  Trophy,
+  Bell,
+  BookOpen,
+  Video,
+  Settings,
+} from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -20,26 +28,26 @@ export function MobileNav() {
     {
       icon: Home,
       label: "Accueil",
-      href: "/"
+      href: "/",
     },
     {
       icon: LayoutList,
       label: "Formations",
-      href: "/catalogue"
+      href: "/catalogue",
     },
     {
       icon: BookOpen,
       label: "Quiz",
       href: "/quizzes",
       // Ajout d'une propriété spéciale pour le style
-      gold: true
+      gold: true,
     },
     {
       icon: Trophy,
       label: "Classement",
-      href: "/classement"
+      href: "/classement",
     },
-    
+
     // {
     //   icon: Bell,
     //   label: "Notifs",
@@ -50,7 +58,7 @@ export function MobileNav() {
       label: "Tutoriels",
       href: "/tuto-astuce",
       icon: Video,
-    }
+    },
     // {
     //   icon: UserRound,
     //   label: "Profile",
@@ -63,31 +71,43 @@ export function MobileNav() {
       <div className="flex items-center justify-around">
         {items.map((item) => {
           const isActive = location.pathname === item.href;
-          const isQuiz = item.label === "Quiz";
+          const isHoverOrActive = isActive;
+
           return (
             <Link
               key={item.href}
               to={item.href}
               className={cn(
-              "flex flex-col items-center gap-0.5 p-2 relative text-muted-foreground",
-              isActive && "text-primary",
-              isQuiz && "z-10 scale-[1] -mt-6 bg-white rounded-full shadow-xl border-b-4 border-yellow-400",
-              isQuiz && "!p-2"
-              )}
-              style={isQuiz ? { boxShadow: '0 4px 24px 0 #facc15, 0 4px 0 0 #fde68a' } : {}}
-            >
-              <span className="relative">
-              <item.icon className={cn(
-                "h-10 w-10 transition-all",
-                isQuiz ? "text-yellow-500 drop-shadow-lg" : "h-5 w-5"
-              )} />
-              {item.badge !== undefined && (
-                <Badge variant="destructive" className="absolute -top-1.5 -right-1.5 h-4 w-4 p-0 flex items-center justify-center">
-                {item.badge}
-                </Badge>
-              )}
+                "group flex flex-col items-center gap-0.5 p-1 relative transition-all duration-200",
+                (isActive || item.label === "Quiz") &&
+                  "z-10 mt-0 border-t-2 rounded-lg border-yellow-500 !p-2 text-yellow-700"
+              )}>
+              <span className="relative flex items-center justify-center">
+                <item.icon
+                  className={cn(
+                    "transition-all",
+                    isActive || item.label === "Quiz"
+                      ? "h-6 w-6 text-yellow-500 drop-shadow-lg"
+                      : "h-5 w-5 text-muted-foreground group-hover:text-yellow-500 group-hover:h-7 group-hover:w-7"
+                  )}
+                />
+                {item.badge !== undefined && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -top-1.5 -right-1.5 h-4 w-4 p-0 flex items-center justify-center">
+                    {item.badge}
+                  </Badge>
+                )}
               </span>
-              <span className={cn("text-[12px] font-bold", isQuiz && "text-yellow-700")}>{item.label}</span>
+              <span
+                className={cn(
+                  "text-[12px] font-bold transition-all",
+                  isActive || item.label === "Quiz"
+                    ? "text-yellow-700"
+                    : "text-muted-foreground group-hover:text-yellow-700"
+                )}>
+                {item.label}
+              </span>
             </Link>
           );
         })}

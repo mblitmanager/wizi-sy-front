@@ -1,48 +1,68 @@
-// components/ContactSection.tsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { User, Mail, Phone, ChevronDown, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Button } from "../ui/button";
-import { ChevronRight, Mail, Phone, User, ChevronDown } from "lucide-react";
-import { Skeleton } from "@mui/material";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { contactService } from "@/services";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useQuery } from "@tanstack/react-query";
 
-interface Contact {
-  id: number;
+const typeStyles: Record<string, string> = {
+  Formateur: "bg-blue-100 text-blue-800",
+  Commercial: "bg-green-100 text-green-800",
+  "Pôle Relation Client": "bg-yellow-100 text-yellow-800",
+};
+
+type Contact = {
+  id: string;
+  type: string;
   name: string;
   email: string;
-  telephone?: string;
-  type?: string;
-  avatar?: string;
-}
+  phone: string;
+};
 
-interface ContactSectionProps {
-  commerciaux: Contact[];
-  formateurs: Contact[];
-  poleRelation: Contact[];
-}
-
-const ContactSection: React.FC<ContactSectionProps> = ({
-  commerciaux,
-  formateurs,
-  poleRelation,
-}) => {
-  const [isLoading, setIsLoading] = useState(true);
+const ContactSection = () => {
   const [showAllContacts, setShowAllContacts] = useState(false);
   const isMobile = useIsMobile();
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+  const {
+    data: contacts,
+    isLoading,
+    error,
+  } = useQuery<Contact[]>({
+    queryKey: ["contacts"],
+    queryFn: async () => {
+      const data = await contactService.getContacts();
 
-    return () => clearTimeout(timer);
-  }, [commerciaux, formateurs, poleRelation]);
+      const formateurs = data.formateurs.map((f: any) => ({
+        id: f.id,
+        type: "Formateur",
+        name: f.user.name,
+        email: f.user.email,
+        phone: f.telephone ?? "",
+      }));
 
-  const typeStyles: Record<string, string> = {
-    Formateur: "bg-blue-100 text-blue-800",
-    Commercial: "bg-green-100 text-green-800",
-    "Pôle Relation Client": "bg-yellow-100 text-yellow-800",
-  };
+      const commerciaux = data.commerciaux.map((c: any) => ({
+        id: c.id,
+        type: "Commercial",
+        name: c.user.name,
+        email: c.user.email,
+        phone: c.telephone ?? "",
+      }));
+
+      const poleRelation = data.pole_relation.map((p: any) => ({
+        id: p.id,
+        type: "Pôle Relation Client",
+        name: p.user.name,
+        email: p.user.email,
+        phone: p.telephone ?? "",
+      }));
+
+      return [...formateurs, ...commerciaux, ...poleRelation];
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes de cache
+    retry: 2, // 2 tentatives en cas d'erreur
+  });
 
   const ContactCardSkeleton = () => (
     <div className="bg-white shadow-md rounded-2xl p-5 border">
@@ -62,88 +82,112 @@ const ContactSection: React.FC<ContactSectionProps> = ({
     </div>
   );
 
-
-  if (isLoading) {
-    return (
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Mes contacts</h2>
-          <Skeleton className="h-8 w-24 rounded-md" />
+  const renderContactCard = (contact: Contact) => (
+    <div
+      key={contact.id}
+      className="bg-white shadow-md rounded-2xl p-5 border hover:shadow-lg transition">
+      <div className="flex items-center mb-4">
+        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4">
+          <User className="text-gray-500" />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <ContactCardSkeleton />
-          <ContactCardSkeleton />
-          <ContactCardSkeleton />
-        </div>
-      </div>
-    );
-  }
-
-  const renderContactCard = (contact: Contact | undefined, type: string) => {
-    if (!contact) return null;
-
-    return (
-      <div className="bg-white shadow-md rounded-2xl p-5 border hover:shadow-lg transition">
-        <div className="flex items-center mb-4">
-          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4">
-            <User className="text-gray-500" />
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-gray-800">
-              {contact.name}
-            </h2>
-            <span
-              className={`text-xs px-2 py-1 rounded-full font-medium ${typeStyles[type]}`}
-            >
-              {type}
-            </span>
-          </div>
-        </div>
-
-        <div className="text-sm text-gray-600 space-y-1 mt-2">
-          <div className="flex items-center gap-2">
-            <Mail className="w-4 h-4" />
-            <a href={`mailto:${contact.email}`} className="hover:underline">
-              {contact.email}
-            </a>
-          </div>
-          <div className="flex items-center gap-2">
-            <Phone className="w-4 h-4" />
-            <a href={`tel:${contact.phone}`} className="hover:underline">
-              {contact.phone || "Non renseigné"}
-            </a>
-          </div>
+        <div>
+          <h2 className="text-lg font-semibold text-gray-800">
+            {contact.name}
+          </h2>
+          <span
+            className={`text-xs px-2 py-1 rounded-full font-medium ${
+              typeStyles[contact.type]
+            }`}>
+            {contact.type}
+          </span>
         </div>
       </div>
-    );
+
+      <div className="text-sm text-gray-600 space-y-1 mt-2">
+        <div className="flex items-center gap-2">
+          <Mail className="w-4 h-4" />
+          <a href={`mailto:${contact.email}`} className="hover:underline">
+            {contact.email}
+          </a>
+        </div>
+        <div className="flex items-center gap-2">
+          <Phone className="w-4 h-4" />
+          <a href={`tel:${contact.phone}`} className="hover:underline">
+            {contact.phone || "Non renseigné"}
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+
+  const groupedContacts = (type: string) =>
+    contacts.filter((c) => c.type === type);
+
+  const getVisibleContacts = () => {
+    if (showAllContacts || !isMobile) {
+      return [
+        ...groupedContacts("Commercial").slice(0, 3),
+        ...groupedContacts("Formateur").slice(0, 3),
+        ...groupedContacts("Pôle Relation Client").slice(0, 3),
+      ];
+    }
+    return [
+      groupedContacts("Commercial")[0],
+      groupedContacts("Formateur")[0],
+      groupedContacts("Pôle Relation Client")[0],
+    ].filter(Boolean);
   };
 
   return (
-    <div className="py-12 bg-gray-50">
+    <div className="py-12 mt-4">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">Contactez-nous</h2>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {renderContactCard(commerciaux?.[0], "Commercial")}
-          {(showAllContacts || !isMobile) && (
-            <>
-              {renderContactCard(formateurs?.[0], "Formateur")}
-              {renderContactCard(poleRelation?.[0], "Pôle Relation Client")}
-            </>
-          )}
+        <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-8 text-gray-800 text-center">
+          Contactez-nous
+        </h1>
+
+        <div className="flex justify-between items-center mb-6">
+          <div></div>
+          <Link to="/contacts">
+            <Button className="text-brown-shade" variant="ghost" size="sm">
+              Voir tous <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </Link>
         </div>
 
-        {isMobile && !showAllContacts && (
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => setShowAllContacts(true)}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-amber-600 bg-amber-50 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
-            >
-              Voir plus de contacts
-              <ChevronDown className="ml-2 h-4 w-4" />
-            </button>
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <ContactCardSkeleton />
+            <ContactCardSkeleton />
+            <ContactCardSkeleton />
+          </div>
+        ) : error ? (
+          <div className="bg-red-100 text-red-700 px-4 py-3 rounded">
+            Erreur lors du chargement des contacts
+          </div>
+        ) : !contacts?.length ? (
+          <div className="bg-blue-100 text-blue-800 px-4 py-3 rounded">
+            Aucun contact disponible.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {getVisibleContacts().map(renderContactCard)}
           </div>
         )}
+
+        {isMobile &&
+          !showAllContacts &&
+          !isLoading &&
+          contacts &&
+          contacts.length > 3 && (
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => setShowAllContacts(true)}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-amber-600 bg-amber-50 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+                Voir plus de contacts
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </button>
+            </div>
+          )}
       </div>
     </div>
   );

@@ -78,9 +78,9 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white border-r">
+    <div className="flex flex-col h-full  border-r">
       <div className="space-y-4 py-4">
-        <div className="px-3 py-2">
+        <div className="px-3 py-2 ">
           <ul className="space-y-1 p-3">
             {items.map((item) => (
               <li key={item.href} className="py-1">
@@ -114,18 +114,18 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
           </ul>
         </div>
       </div>
-      <div className="mt-auto px-3 py-4 border-t">
+      <div className="mt-auto  border-t bg-gradient-to-br from-yellow-shade-2 via-yellow-shade to-yellow-shade-2">
         <Link to="/parrainage" className="w-full">
           <motion.div
             initial={{ opacity: 0, x: -300 }} // Commence à gauche de l'écran (en dehors de l'écran)
             animate={{ opacity: 1, x: 0 }} // Anime vers la position originale
             exit={{ opacity: 0, x: -300 }} // Quitte vers la gauche
             transition={{ duration: 0.5 }}
-            className=" w-[calc(100%-2rem)] bg-gradient-to-br from-yellow-shade-2 via-yellow-shade to-yellow-shade-2 rounded-2xl text-white p-1 mb-2 sm:p-4  flex items-center mx-auto  gap-3 z-50 cursor-pointer hover:shadow-xl transition-all">
-            <Gift className="w-8 h-8 " />
+            className=" bg-gradient-to-br w-full rounded-2xl text-white sm:p-2 flex items-center mx-auto gap-2 z-50 cursor-pointer hover:shadow-xl transition-all">
+            <Gift className="w-10 h-10 flex-shrink-0" />
             <span className="font-semibold text-xs">
               Je parraine et je gagne{" "}
-              <span className="text-black text-2xl">50€</span>
+              <span className="text-black text-xl">50€</span>
             </span>
           </motion.div>
         </Link>

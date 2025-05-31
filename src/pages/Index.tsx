@@ -75,6 +75,31 @@ export function Index() {
   const { user } = useUser();
   const { userProgress } = useLoadRankings();
   const isOnline = useOnlineStatus();
+
+  // ✅ Récupération du catalogue via React Query
+  const {
+    data: catalogueData = [],
+    isLoading: isLoadingCatalogue,
+    isError,
+  } = useQuery({
+    queryKey: ["catalogueFormations"],
+    queryFn: async () => {
+      const response = await catalogueFormationApi.getAllCatalogueFormation();
+      if (response && typeof response === "object") {
+        if (Array.isArray(response.data?.data)) {
+          return response.data.data;
+        } else if (Array.isArray(response.data?.member)) {
+          return response.data.member;
+        } else if (Array.isArray(response.member)) {
+          return response.member;
+        } else if (Array.isArray(response?.data)) {
+          return response.data;
+        }
+      }
+      return [];
+    },
+  });
+  const isLoading = isLoadingCatalogue;
   // Récupération des contacts
   const { data: commerciaux, isLoading: loadingCommerciaux } = useQuery<
     Contact[]
@@ -89,9 +114,7 @@ export function Index() {
     queryKey: ["contacts", "formateurs"],
     queryFn: () => fetchContacts("formateurs"),
   });
-  const { isVisible, message, closeAdvert } = useAdvert(
-    "Je parraine et je gagne 50 € !"
-  );
+
   const { data: poleRelation, isLoading: loadingPoleRelation } = useQuery<
     Contact[]
   >({
@@ -99,26 +122,9 @@ export function Index() {
     queryFn: () => fetchContacts("pole-relation"),
   });
 
-  const [catalogueData, setCatalogueData] = useState([]);
-
-  useEffect(() => {
-    catalogueFormationApi.getAllCatalogueFormation().then((response) => {
-      let formations = [];
-      // Vérifie la structure de la réponse
-      if (response && typeof response === "object") {
-        if (Array.isArray(response.data?.data)) {
-          formations = response.data.data;
-        } else if (Array.isArray(response.data?.member)) {
-          formations = response.data.member;
-        } else if (Array.isArray(response.member)) {
-          formations = response.member;
-        } else if (Array.isArray(response?.data)) {
-          formations = response.data;
-        }
-      }
-      setCatalogueData(formations);
-    });
-  }, []);
+  const { isVisible, message, closeAdvert } = useAdvert(
+    "Je parraine et je gagne 50 € !"
+  );
 
   if (!user) {
     return (
@@ -147,20 +153,30 @@ export function Index() {
                   Apprenez de façon interactive et ludique
                 </motion.h1>
 
-                <motion.p className="text-base md:text-lg text-gray-700" variants={slideUp}>
+                <motion.p
+                  className="text-base md:text-lg text-gray-700"
+                  variants={slideUp}>
                   Bienvenue sur Wizi Learn, la plateforme de quiz éducatifs pour
                   nos stagiaires. Testez vos connaissances, suivez votre
                   progression et développez vos compétences professionnelles.
                 </motion.p>
 
-                <motion.div className="flex flex-wrap gap-3 md:gap-4" variants={slideUp}>
+                <motion.div
+                  className="flex flex-wrap gap-3 md:gap-4"
+                  variants={slideUp}>
                   <Button size="lg" asChild className="w-full md:w-auto">
-                    <Link to="/login" className="flex items-center justify-center">
+                    <Link
+                      to="/login"
+                      className="flex items-center justify-center">
                       Commencer maintenant
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
-                  <Button size="lg" variant="outline" asChild className="w-full md:w-auto">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    asChild
+                    className="w-full md:w-auto">
                     <Link to="/login">Connexion</Link>
                   </Button>
                 </motion.div>
@@ -187,25 +203,33 @@ export function Index() {
                           <div className="bg-bureautique text-white p-1.5 md:p-2 rounded-md">
                             <FileText className="h-4 w-4 md:h-5 md:w-5" />
                           </div>
-                          <span className="font-medium text-sm md:text-base">Bureautique</span>
+                          <span className="font-medium text-sm md:text-base">
+                            Bureautique
+                          </span>
                         </div>
                         <div className="bg-langues/10 p-3 md:p-4 rounded-lg flex items-center gap-2 md:gap-3">
                           <div className="bg-langues text-white p-1.5 md:p-2 rounded-md">
                             <MessageSquare className="h-4 w-4 md:h-5 md:w-5" />
                           </div>
-                          <span className="font-medium text-sm md:text-base">Langues</span>
+                          <span className="font-medium text-sm md:text-base">
+                            Langues
+                          </span>
                         </div>
                         <div className="bg-internet/10 p-3 md:p-4 rounded-lg flex items-center gap-2 md:gap-3">
                           <div className="bg-internet text-black p-1.5 md:p-2 rounded-md">
                             <Globe className="h-4 w-4 md:h-5 md:w-5" />
                           </div>
-                          <span className="font-medium text-sm md:text-base">Internet</span>
+                          <span className="font-medium text-sm md:text-base">
+                            Internet
+                          </span>
                         </div>
                         <div className="bg-creation/10 p-3 md:p-4 rounded-lg flex items-center gap-2 md:gap-3">
                           <div className="bg-creation text-white p-1.5 md:p-2 rounded-md">
                             <PenTool className="h-4 w-4 md:h-5 md:w-5" />
                           </div>
-                          <span className="font-medium text-sm md:text-base">Création</span>
+                          <span className="font-medium text-sm md:text-base">
+                            Création
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -329,7 +353,9 @@ export function Index() {
       {/* <div className="mt-2 h-[calc(100vh-8rem)] overflow-y-auto p-4"> */}
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-8">Tableau de bord</h1>
+          <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-8 text-gray-800">
+            Tableau de bord
+          </h1>
         </div>
         {/* {isVisible && (
             <AdvertBanner message={message} onClose={closeAdvert} />
@@ -351,13 +377,17 @@ export function Index() {
             </CardContent>
           </Card>
         </div>
-       
 
-        {catalogueData && catalogueData.length > 0 ? (
+        {isLoading ? (
+          // === Loader visible pendant le chargement ===
+          <div className="flex justify-center items-center py-16">
+            <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-yellow-400 border-solid"></div>
+          </div>
+        ) : catalogueData && catalogueData.length > 0 ? (
           <>
-            <h2 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-gray-900 text-center">
+            <h1 className="text-xl md:text-2xl text-gray-800 font-bold mb-4 md:mb-8 text-center">
               Découvrez nos formations
-            </h2>
+            </h1>
             <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 px-2 py-6 md:py-12 bg-white rounded-xl shadow-md">
               {/* Colonne illustration */}
               <div className="hidden md:flex md:w-1/3 justify-center mb-4 md:mb-0">
@@ -376,8 +406,11 @@ export function Index() {
             </div>
           </>
         ) : (
-          <div className="col-span-full text-center text-muted-foreground"></div>
+          <div className="col-span-full text-center text-muted-foreground">
+            Aucune formation disponible.
+          </div>
         )}
+
         {/* </div> */}
 
         {/* <h2 className="text-2xl font-semibold mb-4">Défis disponibles</h2>
@@ -386,7 +419,7 @@ export function Index() {
             <ChallengeCard key={challenge.id} challenge={challenge} />
           ))}
         </div> */}
-         <div className="bg-white p-3 md:p-4 rounded-lg shadow-sm">
+        <div className="bg-white p-3 md:p-4 rounded-lg shadow-sm mt-4">
           {/* Section des contacts */}
           <ContactsSection
             commerciaux={commerciaux}
