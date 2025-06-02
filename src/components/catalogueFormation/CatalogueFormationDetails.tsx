@@ -141,7 +141,7 @@ export default function CatalogueFormationDetails() {
     mediaElement = (
       <audio controls className="w-full md:col-span-1 rounded-lg">
         <source
-          src={`${import.meta.env.VITE_API_URL_IMG}/${url}`}
+          src={`${import.meta.env.VITE_API_URL_MEDIA}/${url}`}
           type="audio/mp3"
         />
         Votre navigateur ne supporte pas la lecture d'audios.
@@ -150,7 +150,7 @@ export default function CatalogueFormationDetails() {
   } else {
     mediaElement = (
       <img
-        src={`${import.meta.env.VITE_API_URL_IMG}/${url}`}
+        src={`${import.meta.env.VITE_API_URL_MEDIA}/${url}`}
         alt={details.catalogueFormation.titre}
         className="h-full w-full object-cover md:col-span-1 rounded-lg"
       />
@@ -170,12 +170,12 @@ export default function CatalogueFormationDetails() {
         {/* Bloc secondaire : infos pédagogiques de la formation liée */}
         {details.catalogueFormation.formation && (
           <div className="mt-8 mb-8">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+            <h2 className="text-2xl font-semibold mb-4 text-brown-shade">
               {/* Formation :{" "} */}
               {details.catalogueFormation.formation.titre}
             </h2>
             <Card className="p-6">
-              <p className="text-gray-500 dark:text-gray-500 mb-2">
+              <p className="text-gray-800 dark:text-gray-500 mb-2">
                 {stripHtmlTags(
                   details.catalogueFormation.formation.description
                 )}
@@ -189,7 +189,7 @@ export default function CatalogueFormationDetails() {
             {mediaElement}
             <div className="md:col-span-2 p-6 space-y-4">
               <CardHeader className="p-0 space-y-1">
-                <CardTitle className="text-2xl font-bold text-gray-900">
+                <CardTitle className="text-2xl font-bold text-orange-400">
                   {details.catalogueFormation.titre}
                 </CardTitle>
                 <CardDescription className="text-gray-700">
@@ -213,8 +213,7 @@ export default function CatalogueFormationDetails() {
                     heures
                   </li>
                   <li className="text-gray-500">
-                    <strong>Tarif :</strong> {details.catalogueFormation.tarif}{" "}
-                    € HT
+                    <strong>Tarif :</strong> <span className=" text-orange-500 font-bold text-xl">{details.catalogueFormation.tarif}{" "} € HT</span>                    
                   </li>
                   <li className="text-gray-500">
                     <strong>Certification :</strong>{" "}
@@ -244,7 +243,7 @@ export default function CatalogueFormationDetails() {
                 <Button
                   onClick={handleInscription}
                   disabled={inscriptionLoading}
-                  className="w-full md:w-auto"
+                  className="w-full md:w-auto bg-brown-shade"
                 >
                   {inscriptionLoading
                     ? "Inscription en cours..."
