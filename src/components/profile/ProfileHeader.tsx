@@ -85,10 +85,10 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
   };
 
   const getInitials = () => {
-    if (!user || !user.name) return "U";
+    if (!user || !user.stagiaire.prenom) return "U";
     const firstNameInitial =
       user.stagiaire?.prenom?.charAt(0).toUpperCase() || "";
-    const lastNameInitial = user.name.charAt(0).toUpperCase();
+    const lastNameInitial = user.user.name.charAt(0).toUpperCase();
     return `${firstNameInitial}${lastNameInitial}`;
   };
   const totalPoints =
@@ -96,13 +96,18 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
 
   return (
     <>
-      <div className={`bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm mb-4 mx-2 sm:mx-0 ${loading ? 'overflow-hidden' : ''}`}>
+      <div
+        className={`bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm mb-4 mx-2 sm:mx-0 ${
+          loading ? "overflow-hidden" : ""
+        }`}
+      >
         {loading && <LoadingState />}
         <div className="flex flex-col items-center gap-3">
           <div className="relative group">
             <div
               className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full border-4 border-white dark:border-gray-700 shadow-md cursor-pointer overflow-hidden transition-all duration-300 group-hover:shadow-lg"
-              onClick={handleImageClick}>
+              onClick={handleImageClick}
+            >
               {loading ? (
                 <div className="w-full h-full rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                   <span className="loader"></span>
@@ -114,7 +119,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white w-full h-full rounded-full flex items-center justify-center text-xl sm:text-2xl font-bold font-montserrat">
+                <div className="bg-brown-shade text-white w-full h-full rounded-full flex items-center justify-center text-xl sm:text-2xl font-bold font-montserrat">
                   {getInitials()}
                 </div>
               )}
@@ -149,7 +154,8 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
                   user?.user.role === "admin"
                     ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200"
                     : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                }`}>
+                }`}
+              >
                 {user?.user.role === "admin" ? "Admin" : "Stagiaire"}
               </span>
             </div>

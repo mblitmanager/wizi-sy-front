@@ -5,7 +5,7 @@ import {
   Answer as AnswerType,
 } from "@/types/quiz";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000api";
 
 interface Quiz {
   id: string;

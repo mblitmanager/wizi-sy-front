@@ -97,7 +97,8 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
                     return `${baseClasses} ${
                       isActive ? activeClasses : inactiveClasses
                     }`;
-                  }}>
+                  }}
+                >
                   {({ isActive }) => (
                     <>
                       <item.icon
@@ -117,15 +118,18 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
       <div className="mt-auto  border-t bg-gradient-to-br from-yellow-shade-2 via-yellow-shade to-yellow-shade-2">
         <Link to="/parrainage" className="w-full">
           <motion.div
-            initial={{ opacity: 0, x: -300 }} // Commence à gauche de l'écran (en dehors de l'écran)
-            animate={{ opacity: 1, x: 0 }} // Anime vers la position originale
-            exit={{ opacity: 0, x: -300 }} // Quitte vers la gauche
+            initial={{ opacity: 0, x: -300 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -300 }}
             transition={{ duration: 0.5 }}
-            className=" bg-gradient-to-br w-full rounded-2xl text-white sm:p-2 flex items-center mx-auto gap-2 z-50 cursor-pointer hover:shadow-xl transition-all">
+            className=" bg-gradient-to-br w-full rounded-2xl text-white sm:p-2 flex items-center mx-auto gap-2 z-50 cursor-pointer hover:shadow-xl transition-all"
+          >
             <Gift className="w-10 h-10 flex-shrink-0" />
             <span className="font-semibold text-xs">
               Je parraine et je gagne{" "}
-              <span className="text-black text-xl">50€</span>
+              <span className="text-white text-2xl font-extrabold drop-shadow-lg">
+                50€
+              </span>{" "}
             </span>
           </motion.div>
         </Link>

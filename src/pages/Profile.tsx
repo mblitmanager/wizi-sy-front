@@ -1,5 +1,5 @@
 import { useSearchParams } from "react-router-dom";
-import { Layout } from "@/components/layout/Layout"; 
+import { Layout } from "@/components/layout/Layout";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import StatsSummary from "@/components/profile/StatsSummary";
 import FormationCatalogue from "@/components/profile/FormationCatalogue";
@@ -27,7 +27,7 @@ const ProfilePage = () => {
   const { results, categories } = useLoadQuizData();
   const { userProgress, rankings } = useLoadRankings();
   const formations = useLoadFormations();
-const [quizHistory, setQuizHistory] = useState<QuizHistoryType[]>([]);
+  const [quizHistory, setQuizHistory] = useState<QuizHistoryType[]>([]);
   const isLoading = !user;
 
   // Transform rankings data
@@ -43,9 +43,7 @@ const [quizHistory, setQuizHistory] = useState<QuizHistoryType[]>([]);
   //     averageScore: entry?.averageScore || entry?.average_score || 0,
   //     rang: entry?.rang || index + 1,
   //   })) || [];
-useEffect(() => {
-   
-
+  useEffect(() => {
     const fetchQuizHistory = async () => {
       try {
         const history = await quizSubmissionService.getQuizHistory();
@@ -102,7 +100,7 @@ useEffect(() => {
   return (
     <Layout>
       <div className="container mx-auto px-4 md:pb-4 max-w-7xl">
-        <div className="mt-2 h-[calc(100vh-8rem)] overflow-y-auto p-4">
+        <div className="">
           {user && <ProfileHeader user={user} userProgress={userProgress} />}
 
           {/* Contenu des anciens onglets maintenant affiché directement */}

@@ -32,7 +32,7 @@ export function Layout({ children }: LayoutProps) {
       {/* Sidebar - visible sur desktop */}
       <aside className="hidden md:flex md:flex-col md:w-64 border-r border-gray-200 bg-white shadow-sm">
         {/* Logo en haut de la sidebar */}
-        <div className="flex items-center justify-center border-b ">
+        <div className="flex items-center justify-center border-b">
           <img src={logo} alt="" className="object-contain h-14 w-40" />
         </div>
         <div className="flex-1 overflow-y-auto">
@@ -43,103 +43,23 @@ export function Layout({ children }: LayoutProps) {
       {/* Contenu principal */}
       <div className="flex flex-col flex-1 h-screen">
         {/* Barre du haut (Navbar) */}
-        <header className="h-14 shadow-sm px-4 flex items-center flex-shrink-0">
+        <header className="h-14 border-b border-gray-200 bg-white shadow-sm px-4 flex items-center flex-shrink-0">
           <Navbar />
         </header>
         {/* Bannière en haut (uniquement sur desktop) */}
         {showBanner && !isMobile && (
-          <div className="w-full relative rounded-b-lg text-white overflow-hidden h-[70px]">
-            {/* Conteneur de l'animation SVG en arrière-plan */}
-            <div className="absolute inset-0 w-full h-full overflow-hidden z-0">
-              <svg
-                className="w-full h-full object-cover"
-                viewBox="0 0 1200 200"
-                preserveAspectRatio="none"
-                xmlns="http://www.w3.org/2000/svg">
-                {/* Dégradé de fond */}
-                <defs>
-                  <linearGradient
-                    id="gradient"
-                    x1="0%"
-                    y1="0%"
-                    x2="100%"
-                    y2="0%">
-                    <stop offset="0%" stopColor="#f59e0b" /> {/* yellow-500 */}
-                    <stop offset="50%" stopColor="#ec4899" /> {/* pink-500 */}
-                    <stop offset="100%" stopColor="#8b5cf6" />{" "}
-                    {/* purple-500 */}
-                  </linearGradient>
-                </defs>
-
-                {/* Rectangle de fond avec dégradé */}
-                <rect width="100%" height="100%" fill="url(#gradient)" />
-
-                {/* Vague animée */}
-                <path
-                  fill="rgba(255,255,255,0.15)"
-                  d="M0,150 C150,170 350,130 500,150 C650,170 850,130 1200,150 L1200,200 L0,200 Z">
-                  <animate
-                    attributeName="d"
-                    dur="10s"
-                    repeatCount="indefinite"
-                    values="
-            M0,150 C150,170 350,130 500,150 C650,170 850,130 1200,150 L1200,200 L0,200 Z;
-            M0,140 C150,160 350,140 500,160 C650,180 850,140 1200,160 L1200,200 L0,200 Z;
-            M0,150 C150,130 350,170 500,150 C650,130 850,170 1200,150 L1200,200 L0,200 Z;
-            M0,150 C150,170 350,130 500,150 C650,170 850,130 1200,150 L1200,200 L0,200 Z
-          "
-                  />
-                </path>
-
-                {/* Seconde vague pour plus de profondeur */}
-                <path
-                  fill="rgba(255,255,255,0.1)"
-                  d="M0,160 C200,140 400,180 600,160 C800,140 1000,180 1200,160 L1200,200 L0,200 Z">
-                  <animate
-                    attributeName="d"
-                    dur="12s"
-                    repeatCount="indefinite"
-                    values="
-            M0,160 C200,140 400,180 600,160 C800,140 1000,180 1200,160 L1200,200 L0,200 Z;
-            M0,150 C200,130 400,170 600,150 C800,130 1000,170 1200,150 L1200,200 L0,200 Z;
-            M0,170 C200,150 400,190 600,170 C800,150 1000,190 1200,170 L1200,200 L0,200 Z;
-            M0,160 C200,140 400,180 600,160 C800,140 1000,180 1200,160 L1200,200 L0,200 Z
-          "
-                  />
-                </path>
-              </svg>
-            </div>
-
-            {/* Points lumineux */}
-            <div className="absolute inset-0 opacity-30 z-0">
-              {[...Array(15)].map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute rounded-full bg-white animate-pulse"
-                  style={{
-                    width: `${Math.random() * 5 + 2}px`,
-                    height: `${Math.random() * 5 + 2}px`,
-                    top: `${Math.random() * 100}%`,
-                    left: `${Math.random() * 100}%`,
-                    opacity: Math.random() * 0.3 + 0.1,
-                    animationDuration: `${Math.random() * 3 + 2}s`,
-                  }}
-                />
-              ))}
-            </div>
-
-            {/* Contenu de la bannière */}
-            <div className="container mx-auto px-3 py-2 flex items-center justify-between relative z-10 h-full">
+          <div className="w-full bg-[#feb823] rounded-b-lg text-white">
+            <div className="container mx-auto px-3 py-2 flex items-center justify-between">
               <div className="flex items-center overflow-hidden">
-                <Gift className="h-6 w-6 mr-2 flex-shrink-0 text-white drop-shadow-md" />
+                <Gift className="h-6 w-6 mr-2 flex-shrink-0" />
                 <div className="truncate">
-                  <span className="font-bold text-xs sm:text-sm drop-shadow-md">
+                  <span className="font-bold text-xs sm:text-sm">
                     Je parraine et je gagne{" "}
                     <span className="text-white text-2xl font-extrabold drop-shadow-lg">
                       50€
-                    </span>
+                    </span>{" "}
                   </span>
-                  <span className="ml-2 text-xs sm:text-sm hidden sm:inline drop-shadow-md">
+                  <span className="ml-2 text-xs sm:text-sm text-blue-700 hidden sm:inline">
                     Profitez de notre offre de parrainage dès maintenant !
                   </span>
                 </div>
@@ -148,15 +68,17 @@ export function Layout({ children }: LayoutProps) {
                 <Link
                   size="sm"
                   variant="outline"
-                  className="text-purple-900 bg-white/90 hover:bg-white hover:text-purple-800 font-medium text-xs px-2 py-1 rounded-md transition-all shadow-sm"
-                  to="/parrainage">
+                  className="text-black underline hover:bg-white/10 hover:text-white text-xs px-2"
+                  onClick={() => navigate("/parrainage")}
+                >
                   Découvrir
                 </Link>
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="text-white hover:bg-white/20 p-1 rounded-full"
-                  onClick={() => setShowBanner(false)}>
+                  className="text-white hover:bg-white/10 p-1"
+                  onClick={() => setShowBanner(false)}
+                >
                   <X className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>
@@ -168,121 +90,41 @@ export function Layout({ children }: LayoutProps) {
         <main
           className={`flex-1 overflow-y-auto ${
             isMobile && showBanner ? "pt-20 pb-20" : ""
-          }`}>
-          <div className="p-3 mx-8">{children}</div>
+          }`}
+        >
+          <div className="">{children}</div>
         </main>
 
         {/* Bannière en bas (uniquement sur mobile) */}
         {showBanner && isMobile && (
-          <div className="fixed top-[54px] left-0 right-0 bg-gradient-to-r from-yellow-shade-2 via-yellow-shade to-yellow-shade-2 rounded-2xl text-white z-40">
-            {/* Conteneur de l'animation SVG en arrière-plan */}
-            <div className="absolute inset-0 w-full h-full overflow-hidden z-0">
-              <svg
-                className="w-full h-full object-cover"
-                viewBox="0 0 1200 200"
-                preserveAspectRatio="none"
-                xmlns="http://www.w3.org/2000/svg">
-                {/* Dégradé de fond */}
-                <defs>
-                  <linearGradient
-                    id="gradient"
-                    x1="0%"
-                    y1="0%"
-                    x2="100%"
-                    y2="0%">
-                    <stop offset="0%" stopColor="#f59e0b" /> {/* yellow-500 */}
-                    <stop offset="50%" stopColor="#ec4899" /> {/* pink-500 */}
-                    <stop offset="100%" stopColor="#8b5cf6" />{" "}
-                    {/* purple-500 */}
-                  </linearGradient>
-                </defs>
-
-                {/* Rectangle de fond avec dégradé */}
-                <rect width="100%" height="100%" fill="url(#gradient)" />
-
-                {/* Vague animée */}
-                <path
-                  fill="rgba(255,255,255,0.15)"
-                  d="M0,150 C150,170 350,130 500,150 C650,170 850,130 1200,150 L1200,200 L0,200 Z">
-                  <animate
-                    attributeName="d"
-                    dur="10s"
-                    repeatCount="indefinite"
-                    values="
-            M0,150 C150,170 350,130 500,150 C650,170 850,130 1200,150 L1200,200 L0,200 Z;
-            M0,140 C150,160 350,140 500,160 C650,180 850,140 1200,160 L1200,200 L0,200 Z;
-            M0,150 C150,130 350,170 500,150 C650,130 850,170 1200,150 L1200,200 L0,200 Z;
-            M0,150 C150,170 350,130 500,150 C650,170 850,130 1200,150 L1200,200 L0,200 Z
-          "
-                  />
-                </path>
-
-                {/* Seconde vague pour plus de profondeur */}
-                <path
-                  fill="rgba(255,255,255,0.1)"
-                  d="M0,160 C200,140 400,180 600,160 C800,140 1000,180 1200,160 L1200,200 L0,200 Z">
-                  <animate
-                    attributeName="d"
-                    dur="12s"
-                    repeatCount="indefinite"
-                    values="
-            M0,160 C200,140 400,180 600,160 C800,140 1000,180 1200,160 L1200,200 L0,200 Z;
-            M0,150 C200,130 400,170 600,150 C800,130 1000,170 1200,150 L1200,200 L0,200 Z;
-            M0,170 C200,150 400,190 600,170 C800,150 1000,190 1200,170 L1200,200 L0,200 Z;
-            M0,160 C200,140 400,180 600,160 C800,140 1000,180 1200,160 L1200,200 L0,200 Z
-          "
-                  />
-                </path>
-              </svg>
-            </div>
-
-            {/* Points lumineux */}
-            <div className="absolute inset-0 opacity-30 z-0">
-              {[...Array(15)].map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute rounded-full bg-white animate-pulse"
-                  style={{
-                    width: `${Math.random() * 5 + 2}px`,
-                    height: `${Math.random() * 5 + 2}px`,
-                    top: `${Math.random() * 100}%`,
-                    left: `${Math.random() * 100}%`,
-                    opacity: Math.random() * 0.3 + 0.1,
-                    animationDuration: `${Math.random() * 3 + 2}s`,
-                  }}
-                />
-              ))}
-            </div>
-
-            {/* Contenu de la bannière */}
-            <div className="container mx-auto px-3 py-2 flex items-center justify-between relative z-10 h-full">
+          <div className="fixed top-[54px] left-0 right-0 bg-[#feb823] rounded-2xl text-white z-40">
+            <div className="container mx-auto px-3 py-2 flex items-center justify-between">
               <div className="flex items-center overflow-hidden">
-                <Gift className="h-6 w-6 mr-2 flex-shrink-0 text-white drop-shadow-md" />
+                <Gift className="h-4 w-4 mr-2 flex-shrink-0" />
                 <div className="truncate">
-                  <span className="font-bold text-xs sm:text-sm drop-shadow-md">
-                    Je parraine et je gagne{" "}
+                  <span className="font-bold text-xs sm:text-sm">
+                    Parraine et gagne{" "}
                     <span className="text-white text-2xl font-extrabold drop-shadow-lg">
                       50€
-                    </span>
-                  </span>
-                  <span className="ml-2 text-xs sm:text-sm hidden sm:inline drop-shadow-md">
-                    Profitez de notre offre de parrainage dès maintenant !
+                    </span>{" "}
                   </span>
                 </div>
               </div>
               <div className="flex items-center space-x-1 sm:space-x-2">
-                <Link
+                <Button
                   size="sm"
                   variant="outline"
-                  className="text-purple-900 bg-white/90 hover:bg-white hover:text-purple-800 font-medium text-xs px-2 py-1 rounded-md transition-all shadow-sm"
-                  to="/parrainage">
-                  Découvrir
-                </Link>
+                  className="text-white bg-blue-custom-50 border-white hover:bg-white/10 hover:text-white text-xs px-2"
+                  onClick={() => navigate("/parrainage")}
+                >
+                  Voir
+                </Button>
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="text-white hover:bg-white/20 p-1 rounded-full"
-                  onClick={() => setShowBanner(false)}>
+                  className="text-white hover:bg-white/10 p-1"
+                  onClick={() => setShowBanner(false)}
+                >
                   <X className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>

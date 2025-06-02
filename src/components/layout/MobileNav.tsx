@@ -80,8 +80,9 @@ export function MobileNav() {
               className={cn(
                 "group flex flex-col items-center gap-0.5 p-1 relative transition-all duration-200",
                 (isActive || item.label === "Quiz") &&
-                  "z-10 mt-0 border-t-2 rounded-lg border-yellow-500 !p-2 text-yellow-700"
-              )}>
+                  "z-10 mt-0!p-2 text-yellow-700"
+              )}
+            >
               <span className="relative flex items-center justify-center">
                 <item.icon
                   className={cn(
@@ -94,7 +95,8 @@ export function MobileNav() {
                 {item.badge !== undefined && (
                   <Badge
                     variant="destructive"
-                    className="absolute -top-1.5 -right-1.5 h-4 w-4 p-0 flex items-center justify-center">
+                    className="absolute -top-1.5 -right-1.5 h-4 w-4 p-0 flex items-center justify-center"
+                  >
                     {item.badge}
                   </Badge>
                 )}
@@ -105,7 +107,8 @@ export function MobileNav() {
                   isActive || item.label === "Quiz"
                     ? "text-yellow-700"
                     : "text-muted-foreground group-hover:text-yellow-700"
-                )}>
+                )}
+              >
                 {item.label}
               </span>
             </Link>

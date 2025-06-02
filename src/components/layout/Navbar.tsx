@@ -93,7 +93,8 @@ export function Navbar() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative hover:bg-gray-100 transition">
+                className="relative hover:bg-gray-100 transition"
+              >
                 <Bell className="h-5 w-5 text-gray-600" />
                 {unreadCount > 0 && (
                   <Badge className="absolute -top-1 -right-1 px-1.5 h-5 min-w-5 text-xs bg-amber-500 text-white animate-pulse">
@@ -119,7 +120,7 @@ export function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="relative flex items-center gap-2 p-1 rounded-full hover:shadow-md transition focus:outline-none">
-                  <div className="relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 text-white">
+                  <div className="relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-brown-shade text-white">
                     {user.image ? (
                       <img
                         src={`${VITE_API_URL_MEDIA}/${user.image}`}
@@ -140,7 +141,8 @@ export function Navbar() {
                     ) : null}
                     <span
                       className="font-medium"
-                      style={{ display: user.image ? "none" : "flex" }}>
+                      style={{ display: user.image ? "none" : "flex" }}
+                    >
                       {getInitials()}
                     </span>
                   </div>
@@ -164,7 +166,8 @@ export function Navbar() {
                 <DropdownMenuItem asChild>
                   <Link
                     to="/profile"
-                    className="flex items-center w-full hover:bg-gray-100 px-2 py-1 rounded">
+                    className="flex items-center w-full hover:bg-gray-100 px-2 py-1 rounded"
+                  >
                     <User className="mr-2 h-4 w-4" />
                     <span>Profil</span>
                   </Link>
@@ -172,7 +175,8 @@ export function Navbar() {
                 <DropdownMenuItem asChild>
                   <Link
                     to="/settings"
-                    className="flex items-center w-full hover:bg-gray-100 px-2 py-1 rounded">
+                    className="flex items-center w-full hover:bg-gray-100 px-2 py-1 rounded"
+                  >
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Paramètres</span>
                   </Link>
@@ -180,7 +184,8 @@ export function Navbar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="cursor-pointer text-red-600 hover:bg-red-50 px-2 py-1 rounded">
+                  className="cursor-pointer text-red-600 hover:bg-red-50 px-2 py-1 rounded"
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Déconnexion</span>
                 </DropdownMenuItem>

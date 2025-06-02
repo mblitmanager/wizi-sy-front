@@ -6,7 +6,7 @@ import { useFormations } from "@/use-case/hooks/catalogue/useCatalogue";
 
 // ParrainageInscriptionPage.tsx
 
-const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000api";
 
 const ParrainageInscriptionPage = () => {
   const { token } = useParams();
@@ -177,7 +177,8 @@ const ParrainageInscriptionPage = () => {
               <svg
                 className="h-5 w-5 text-green-500 mt-0.5 mr-3"
                 fill="currentColor"
-                viewBox="0 0 20 20">
+                viewBox="0 0 20 20"
+              >
                 <path
                   fillRule="evenodd"
                   d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -199,7 +200,8 @@ const ParrainageInscriptionPage = () => {
                     <button
                       type="button"
                       onClick={() => setIsSuccess(false)}
-                      className="px-2 py-1.5 rounded-md text-sm font-medium text-green-800 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                      className="px-2 py-1.5 rounded-md text-sm font-medium text-green-800 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                    >
                       Fermer
                     </button>
                   </div>
@@ -217,7 +219,8 @@ const ParrainageInscriptionPage = () => {
                     className="h-6 w-6 text-yellow-shade-1"
                     fill="none"
                     stroke="currentColor"
-                    viewBox="0 0 24 24">
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -265,7 +268,8 @@ const ParrainageInscriptionPage = () => {
               <div>
                 <label
                   htmlFor="civilite"
-                  className="block text-sm font-medium text-gray-700 mb-1">
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Civilité
                 </label>
                 <select
@@ -275,7 +279,8 @@ const ParrainageInscriptionPage = () => {
                   onChange={handleChange}
                   className={`w-full px-4 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
                     errors.civilite ? "border-red-500" : "border-gray-300"
-                  }`}>
+                  }`}
+                >
                   <option value="M">Monsieur</option>
                   <option value="Mme">Madame</option>
                 </select>
@@ -292,7 +297,8 @@ const ParrainageInscriptionPage = () => {
                 <div>
                   <label
                     htmlFor="prenom"
-                    className="block text-sm font-medium text-gray-700 mb-1">
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Prénom
                   </label>
                   <input
@@ -316,7 +322,8 @@ const ParrainageInscriptionPage = () => {
                 <div>
                   <label
                     htmlFor="nom"
-                    className="block text-sm font-medium text-gray-700 mb-1">
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Nom
                   </label>
                   <input
@@ -340,7 +347,8 @@ const ParrainageInscriptionPage = () => {
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium text-gray-700 mb-1">
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Email
                   </label>
                   <input
@@ -364,7 +372,8 @@ const ParrainageInscriptionPage = () => {
                 <div>
                   <label
                     htmlFor="telephone"
-                    className="block text-sm font-medium text-gray-700 mb-1">
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Téléphone
                   </label>
                   <input
@@ -404,7 +413,8 @@ const ParrainageInscriptionPage = () => {
                           ...prev,
                           catalogue_formation_id: formation.id,
                         }));
-                      }}>
+                      }}
+                    >
                       <input
                         type="radio"
                         id={`formation-${formation.id}`}
@@ -424,7 +434,8 @@ const ParrainageInscriptionPage = () => {
                               formData.catalogue_formation_id === formation.id
                                 ? "border-amber-500"
                                 : "border-gray-300"
-                            }`}>
+                            }`}
+                          >
                             {formData.catalogue_formation_id ===
                               formation.id && (
                               <div className="w-2 h-2 rounded-full bg-amber-500" />
@@ -454,7 +465,8 @@ const ParrainageInscriptionPage = () => {
             <div className="pt-4">
               <button
                 type="submit"
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-shade hover:bg-yellow-shade-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-shade transition duration-150 ease-in-out">
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-shade hover:bg-yellow-shade-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-shade transition duration-150 ease-in-out"
+              >
                 Finaliser mon inscription
               </button>
             </div>
