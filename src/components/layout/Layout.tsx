@@ -56,12 +56,12 @@ export function Layout({ children }: LayoutProps) {
                   <span className="font-bold text-xs sm:text-sm">
                     Je parraine et je gagne{" "}
                     <span className="text-white text-2xl font-extrabold drop-shadow-lg">
-                      50€
+                      50€.
                     </span>{" "}
                   </span>
-                  <span className="ml-2 text-xs sm:text-sm text-blue-700 hidden sm:inline">
+                    <span className="ml-2 text-xs sm:text-sm text-[#895129] hidden sm:inline font-bold">
                     Profitez de notre offre de parrainage dès maintenant !
-                  </span>
+                    </span>
                 </div>
               </div>
               <div className="flex items-center space-x-1 sm:space-x-2">
@@ -104,7 +104,7 @@ export function Layout({ children }: LayoutProps) {
                 <div className="truncate">
                   <span className="font-bold text-xs sm:text-sm">
                     Parraine et gagne{" "}
-                    <span className="text-white text-2xl font-extrabold drop-shadow-lg">
+                    <span className="text-2xl text-[#895129] font-extrabold drop-shadow-lg">
                       50€
                     </span>{" "}
                   </span>

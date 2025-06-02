@@ -110,7 +110,7 @@ const ProfilePage = () => {
               <UserStats user={user} userProgress={userProgress} />
             </div>
             {/* Section Progression */}
-            {/* <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
+            <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
               <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
                 Votre progression
               </h3>
@@ -120,7 +120,7 @@ const ProfilePage = () => {
                   userProgress={userProgress}
                 />
               </div>
-            </div> */}
+            </div>
             {/* Section Résultats complets */}
             <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
               <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">

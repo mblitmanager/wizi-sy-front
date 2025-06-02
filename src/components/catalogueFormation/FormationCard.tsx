@@ -13,7 +13,7 @@ const stripHtml = (html: string) => {
   return tmp.textContent || tmp.innerText || "";
 };
 
-const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_IMG;
+const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_MEDIA;
 
 const FormationCard = ({ formation }: { formation: any }) => {
   const navigate = useNavigate();

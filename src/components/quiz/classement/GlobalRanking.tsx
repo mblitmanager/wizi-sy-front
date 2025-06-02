@@ -68,7 +68,7 @@ export function GlobalRanking({
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Chargement du classement...</CardTitle>
+          <CardTitle className="text-brown-shade">Chargement du classement...</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {Array(5)

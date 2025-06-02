@@ -24,7 +24,7 @@ const AdvertBanner = ({ message, onClose }) => {
           <span className="font-bold text-lg sm:text-xl mb-1 block">
             {message}
           </span>
-          <span className="text-sm sm:text-base opacity-80">
+          <span className="text-sm sm:text-base text-brown-shade opacity-80">
             Profitez de notre offre de parrainage dès maintenant !
           </span>
         </div>
