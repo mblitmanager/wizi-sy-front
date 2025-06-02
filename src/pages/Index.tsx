@@ -144,8 +144,8 @@ export function Index() {
           </AlertDescription>
         </Alert>
       )}
-      {/* <div className="mt-2 h-[calc(100vh-8rem)] overflow-y-auto p-4"> */}
-      <div className="max-w-7xl mx-auto px-4 py-4">
+      {/* <div className=""> */}
+      <div className="mx-auto px-4 py-4">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-8 text-gray-800">
             Tableau de bord

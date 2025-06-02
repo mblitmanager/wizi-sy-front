@@ -8,7 +8,7 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, ChevronLeft } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-const backendUrl = import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
+const backendUrl = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000api";
 
 async function fetchFormations(categoryId: string): Promise<Formation[]> {
   try {
@@ -48,7 +48,8 @@ export default function CategoryFormations() {
       <div className="container py-4 sm:py-8">
         <Link
           to="/catalogue"
-          className="inline-flex items-center text-amber-600 hover:text-amber-700 mb-4 sm:mb-6">
+          className="inline-flex items-center text-amber-600 hover:text-amber-700 mb-4 sm:mb-6"
+        >
           <ChevronLeft className="h-4 w-4 mr-1" />
           <span className="text-sm sm:text-base">Retour au catalogue</span>
         </Link>
