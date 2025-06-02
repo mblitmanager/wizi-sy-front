@@ -133,9 +133,9 @@ export default function NotificationsPage() {
       const newNotif = notifications.find(n => !n.read);
       if (newNotif) {
         toast(
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 bg-orange-400 text-white p-3 rounded">
             <span>{getNotificationIcon(newNotif.type)}</span>
-            <span className="font-medium">Nouvelle notification :</span>
+            {/* <span className="font-medium">Nouvelle notification :</span> */}
             <span className="truncate max-w-xs">{newNotif.message}</span>
           </div>,
           { duration: 5000 }
@@ -165,11 +165,11 @@ export default function NotificationsPage() {
 
   return (
     <Layout>
-      <div className="w-[70%] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8 py-6 mt-[-15%] md:mt-0">
         {/* Header sticky */}
         <div className="sticky top-0 z-10 bg-white border-b border-gray-100 py-3 px-4 mb-6">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4">
-            <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">Notifications</h1>
+            <h1 className="text-2xl font-semibold text-brown-shade">Notifications</h1>
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <Button
                 variant="outline"
