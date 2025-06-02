@@ -91,18 +91,21 @@ export default function Catalogue() {
   return (
     <Layout>
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
-          <h1 className="text-lg sm:text-2xl font-bold">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-2 sm:gap-0 mt-[-5%] md:mt-0 sm:mt-0">
+          <h1 className="text-3xl sm:text-2xl md:text-3xl text-brown-shade font-bold">
             Catalogue de formations
           </h1>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setSelectedCategory(null)}
-            className="mb-4">
-            Réinitialiser le filtre
-          </Button>
+            {selectedCategory && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSelectedCategory(null)}
+              className="sm:mb-0 hover:bg-orange-100">
+              Réinitialiser le filtre
+            </Button>
+            )}
         </div>
+        
 
         {/* Afficher les catégories si aucune n'est sélectionnée */}
 
@@ -196,7 +199,7 @@ export default function Catalogue() {
         {selectedCategory && (
           <>
             <div className="mb-4 sm:mb-10">
-              <h1 className="text-xl sm:text-2xl font-bold mb-1 sm:mb-2">
+              <h1 className="text-2xl sm:text-2xl text-orange-400 font-bold mb-1 sm:mb-2">
                 Formations {selectedCategory}
               </h1>
               <p className="text-xs sm:text-base text-gray-600 max-w-2xl">

@@ -93,8 +93,8 @@ export function GlobalRanking({
     <div className="bg-gradient-to-br from-white to-gray-50 shadow-sm rounded-lg">
       {/* Header */}
       <div className="border-b p-4">
-        <h2 className="text-base font-semibold text-gray-700">
-          Classement global
+        <h2 className="text-base font-semibold text-orange-400">
+          Classement
         </h2>
       </div>
 

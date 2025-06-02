@@ -9,7 +9,7 @@ const Formation = () => {
     <Layout>
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold">Formations et Tutoriels</h1>
+          <h1 className="text-3xl sm:text-2xl md:text-3xl text-brown-shade font-bold">Formations et Tutoriels</h1>
           <p className="text-muted-foreground">
             Découvrez nos formations interactives et tutoriels pour progresser à votre rythme
           </p>
