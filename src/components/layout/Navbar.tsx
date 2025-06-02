@@ -122,7 +122,7 @@ export function Navbar() {
               <DropdownMenuTrigger asChild>
                 <button className="relative flex items-center gap-2 p-1 rounded-full hover:shadow-md transition focus:outline-none">
                   <div className="relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-brown-shade text-white">
-                    {user.user.image ? (
+                    {user.user && user.user.image ? (
                       <img
                         src={`${VITE_API_URL_MEDIA}/${user.user?.image}`}
                         alt={user.name || "User"}
@@ -142,7 +142,7 @@ export function Navbar() {
                     ) : null}
                     <span
                       className="font-medium"
-                      style={{ display: user.user?.image ? "none" : "flex" }}
+                      style={{ display: user.user && user.user.image ? "none" : "flex" }}
                     >
                       {getInitials()}
                     </span>
