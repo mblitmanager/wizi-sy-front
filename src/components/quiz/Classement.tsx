@@ -114,7 +114,14 @@ export function Classement() {
 
   return (
     <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
-     
+        {/* Statistiques */}
+      <div className="w-full">
+        <ProfileStats
+          profile={profile}
+          stats={stats}
+          loading={loading.profile || loading.ranking}
+        />
+      </div>
       <hr className="mn-2" />
       {/* <div className="mt-2 h-[calc(100vh-30rem)] overflow-y-auto p-4"> */}
       {/* Tabs */}
@@ -154,14 +161,7 @@ export function Classement() {
        {/* Header */}
       <h1 className="text-2xl font-bold mb-8">Mes statistiques</h1>
 
-      {/* Statistiques */}
-      <div className="w-full">
-        <ProfileStats
-          profile={profile}
-          stats={stats}
-          loading={loading.profile || loading.ranking}
-        />
-      </div>
+   
     </div>
   );
 }

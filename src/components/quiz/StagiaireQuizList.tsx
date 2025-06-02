@@ -208,8 +208,8 @@ export function StagiaireQuizList() {
   }
   return (
     <div className="">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-        <h2 className="text-xl sm:text-2xl md:text-3xl text-brown-shade font-bold">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4 mt-[-10%] md:mt-0">
+        <h2 className="text-3xl sm:text-2xl md:text-3xl text-brown-shade font-bold">
           Mes Quiz
         </h2>
 

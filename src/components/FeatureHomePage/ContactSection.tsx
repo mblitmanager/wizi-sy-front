@@ -141,7 +141,7 @@ const ContactSection = () => {
   return (
     <div className="py-12 mt-4">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-8 text-gray-800 text-center">
+        <h1 className="text-2xl md:text-2xl font-bold mb-4 md:mb-8 text-orange-400 text-center">
           Contactez-nous
         </h1>
 
