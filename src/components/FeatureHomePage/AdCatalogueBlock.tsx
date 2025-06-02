@@ -148,7 +148,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
         return (
           <div
             key={formation.id || idx}
-            className="flex flex-col justify-between h-full rounded-xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group hover:-translate-y-1 hover:shadow-lg hover:border-blue-200"
+            className="flex flex-col justify-between h-full rounded-xl bg-white  shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group hover:-translate-y-1 hover:shadow-lg hover:border-blue-200"
             style={{ minHeight: "340px" }}
           >
             <div className="p-5">
@@ -232,11 +232,11 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                             <strong>Durée :</strong> {formation.formation.duree || formation.duree} heures
                           </li>
                           <li className="text-gray-500">
-                            <strong>Tarif :</strong> {formation.tarif ? `${formation.tarif} € HT` : "-"}
+                            <strong>Tarif :</strong> <span className="text-l font-bold text-orange-400">{formation.tarif ? `${formation.tarif} € HT` : "-"}</span>
                           </li>
                           <li className="text-gray-500">
                             <strong>Certification :</strong>{" "}
-                            <span className="inline-block bg-yellow-500 text-orange-800 text-xs px-2 py-1 rounded font-medium">
+                            <span className="inline-block text-l font-bold text-orange-400 px-2 py-1 rounded font-medium">
                               {formation.certification || "-"}
                             </span>
                           </li>
