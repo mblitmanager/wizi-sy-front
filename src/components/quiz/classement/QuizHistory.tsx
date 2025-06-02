@@ -84,7 +84,7 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
     <div className="border rounded-lg bg-white shadow-sm">
       {/* Header */}
       <div className="p-4 border-b">
-        <h2 className="text-lg font-semibold">Historique des Quiz</h2>
+        <h2 className="text-lg text-orange-400 font-semibold">Historique des Quiz</h2>
       </div>
 
       {/* Content */}

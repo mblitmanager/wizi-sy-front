@@ -41,7 +41,7 @@ import {
 } from "@/components/FeatureHomePage";
 
 const API_URL = import.meta.env.VITE_API_URL;
-const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_IMG;
+const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_MEDIA;
 
 interface LocalCategory {
   id: string;
@@ -292,7 +292,7 @@ const HomePage: React.FC = () => {
         CATALOGUE_FORMATION="Catalogue des formations"
         catalogueData={catalogueData}
         isLoading={isLoading}
-        VITE_API_URL_IMG={import.meta.env.VITE_API_URL_IMG} // Utilise l'URL de ton environnement
+        VITE_API_URL_IMG={import.meta.env.VITE_API_URL_MEDIA} // Utilise l'URL de ton environnement
       />
 
       {/* Section des quiz */}

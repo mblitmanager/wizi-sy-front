@@ -13,7 +13,7 @@ const stripHtml = (html: string) => {
   return tmp.textContent || tmp.innerText || "";
 };
 
-const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_IMG;
+const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_MEDIA;
 
 const FormationCard = ({ formation }: { formation: any }) => {
   const navigate = useNavigate();
@@ -106,7 +106,7 @@ const FormationCard = ({ formation }: { formation: any }) => {
       {/* Button - plus petit et stylisé */}
       <CardFooter className="p-0 pt-3 mt-2">
         <Button
-          className="w-full h-8 text-xs flex items-center justify-center gap-1 bg-gray-800 hover:bg-gray-900 text-white transition-colors duration-200"
+          className="w-full h-8 text-xs flex items-center justify-center gap-1 bg-[#8B5C2A]  hover:bg-[#FFC533] text-white transition-colors duration-200"
           onClick={() => navigate(`/catalogue-formation/${formation.id}`)}>
           {VOIR_LES_DETAILS}
           <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />

@@ -87,10 +87,15 @@ export default function NotificationsPage() {
   // État local pour affichage instantané
   const [notifications, setNotifications] = useState(notificationsFromHook);
 
-  // Sync local state si notifications changent (ex: ajout via push)
+  // Sync local state uniquement si le contenu a changé (évite boucle infinie)
   useEffect(() => {
-    setNotifications(notificationsFromHook);
-  }, [notificationsFromHook]);
+    if (
+      notificationsFromHook.length !== notifications.length ||
+      notificationsFromHook.some((n, i) => n.id !== notifications[i]?.id)
+    ) {
+      setNotifications(notificationsFromHook);
+    }
+  }, [notificationsFromHook, notifications]);
 
   // Suppression instantanée
   const handleDelete = useCallback((id: string) => {

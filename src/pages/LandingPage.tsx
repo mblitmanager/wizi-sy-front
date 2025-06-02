@@ -33,7 +33,7 @@ export default function LandingPage() {
   const isOnline = useOnlineStatus();
   return (
     <Layout>
-      <div className="bg-gradient-to-br from-[#FDF6ED] via-[#F7E7D2] to-[#F9E0C7]) min-h-screen">
+      <div className="bg-gradient-to-br from-[#FDF6ED] via-[#F7E7D2] to-[#F9E0C7]) min-h-screen mt-[-2%]">
         {!isOnline && (
           <Alert variant="destructive" className="mb-4 mx-4 mt-4">
             <WifiOff className="h-4 w-4" />
@@ -66,7 +66,7 @@ export default function LandingPage() {
                 </motion.p>
                 <motion.div className="flex flex-wrap gap-3 md:gap-4" variants={slideUp}>
                   <Button size="lg" asChild className="w-full md:w-auto">
-                    <Link to="/login" className="flex items-center justify-center bg-[#8B5C2A] hover:bg-[#A76C36] text-white font-semibold rounded-md px-4 py-2 transition-colors duration-200">
+                    <Link to="/login" className="flex items-center justify-center bg-[#B07661] hover:bg-[#A76C36] text-white font-semibold rounded-md px-4 py-2 transition-colors duration-200">
                       Commencer maintenant
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>

@@ -15,7 +15,7 @@ import {
   EN_COURS,
   VOIR_LES_DETAILS,
 } from "@/utils/langue-type";
-const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_IMG;
+const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_MEDIA;
 
 export default function CatalogueFormation({
   catalogueData,

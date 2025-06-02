@@ -1,7 +1,7 @@
 import {
   Home,
   LayoutList,
-  Trophy,
+  Trophy,Brain,
   Bell,
   BookOpen,
   Video,
@@ -36,7 +36,7 @@ export function MobileNav() {
       href: "/catalogue",
     },
     {
-      icon: BookOpen,
+      icon: Brain,
       label: "Quiz",
       href: "/quizzes",
       // Ajout d'une propriété spéciale pour le style

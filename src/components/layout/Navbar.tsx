@@ -142,7 +142,9 @@ export function Navbar() {
                     ) : null}
                     <span
                       className="font-medium"
-                      style={{ display: user.user?.image ? "none" : "flex" }}
+                      style={{
+                        display: user.user && user.user.image ? "none" : "flex",
+                      }}
                     >
                       {getInitials()}
                     </span>

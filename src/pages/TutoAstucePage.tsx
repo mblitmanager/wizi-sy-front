@@ -181,14 +181,14 @@ export default function TutoAstucePage() {
                             onClick={() => setSelectedMedia(media)}
                             className={`p-2 text-xs rounded flex items-center gap-2 ${
                               selectedMedia?.id === media.id
-                                ? "bg-blue-50 text-blue-600 border-l-2 border-blue-500"
+                                ? "bg-orange-50 text-brown-600 border-l-2 border-orange-500"
                                 : "hover:bg-gray-50"
                             }`}
                           >
                             <span
                               className={`w-2 h-2 rounded-full ${
                                 selectedMedia?.id === media.id
-                                  ? "bg-blue-500"
+                                  ? "bg-brown-shade"
                                   : "bg-gray-300"
                               }`}
                             />
