@@ -147,9 +147,9 @@ export function Index() {
       {/* <div className=""> */}
       <div className="mx-auto px-4 py-4">
         <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl sm:text-2xl md:text-3xl text-brown-shade font-bold">
+          <h1 className="text-3xl sm:text-2xl md:text-3xl text-brown-shade font-bold">
             Tableau de bord
-            </h1>
+          </h1>
         </div>
         {/* {isVisible && (
             <AdvertBanner message={message} onClose={closeAdvert} />
@@ -179,7 +179,7 @@ export function Index() {
           </div>
         ) : catalogueData && catalogueData.length > 0 ? (
           <>
-            <h1 className="text-2xl md:text-2xl text-orange-400 font-bold mb-4 md:mb-8 text-center">
+            <h1 className="text-2xl md:text-2xl text-orange-400 font-bold mb-4 md:mb-8 text-center mt-4 py-12">
               Découvrez nos formations
             </h1>
             <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 px-2 py-6 md:py-12 bg-white rounded-xl shadow-md mt-[-5%]">
