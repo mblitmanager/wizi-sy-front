@@ -124,7 +124,7 @@ export function Navbar() {
                   <div className="relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-brown-shade text-white">
                     {user.user.image ? (
                       <img
-                        src={`${VITE_API_URL_MEDIA}/${user.user.image}`}
+                        src={`${VITE_API_URL_MEDIA}/${user.user?.image}`}
                         alt={user.name || "User"}
                         className="w-full h-full rounded-full object-cover"
                         onError={(e) => {
@@ -142,7 +142,7 @@ export function Navbar() {
                     ) : null}
                     <span
                       className="font-medium"
-                      style={{ display: user.user.image ? "none" : "flex" }}
+                      style={{ display: user.user?.image ? "none" : "flex" }}
                     >
                       {getInitials()}
                     </span>
