@@ -148,7 +148,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
         return (
           <div
             key={formation.id || idx}
-            className="flex flex-col justify-between h-full rounded-xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group hover:-translate-y-1 hover:shadow-lg hover:border-blue-200"
+            className="flex flex-col justify-between h-full rounded-xl bg-white  shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group hover:-translate-y-1 hover:shadow-lg hover:border-blue-200"
             style={{ minHeight: "340px" }}
           >
             <div className="p-5">
@@ -223,33 +223,50 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
               )}
               {/* Bloc détaillé */}
               {formation.formation && isOpen && (
-                <div className="overflow-hidden w-full justify-center">
-                  <div className="grid grid-cols-1 md:grid-cols-3">
-                    <div className="md:col-span-2 p-6 space-y-4">
-                      <div className="p-0 text-gray-700 dark:text-gray-300 space-y-2">
-                        <ul className="text-sm space-y-1">
-                          <li className="text-gray-500">
-                            <strong>Durée :</strong> {formation.formation.duree || formation.duree} heures
-                          </li>
-                          <li className="text-gray-500">
-                            <strong>Tarif :</strong> {formation.tarif ? `${formation.tarif} € HT` : "-"}
-                          </li>
-                          <li className="text-gray-500">
-                            <strong>Certification :</strong>{" "}
-                            <span className="inline-block bg-yellow-500 text-orange-800 text-xs px-2 py-1 rounded font-medium">
-                              {formation.certification || "-"}
-                            </span>
-                          </li>
-                        </ul>
+                <div
+                  className="overflow-hidden w-full justify-center relative rounded-xl"
+                  style={
+                    formation.image_url
+                      ? {
+                          backgroundImage: `url(${formation.image_url})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                        }
+                      : undefined
+                  }
+                >
+                  {formation.image_url && (
+                    <div
+                      className="absolute inset-0 rounded-xl"
+                      style={{ background: 'rgba(255,255,255,0.7)', opacity: 0.3, zIndex: 1 }}
+                      aria-hidden="true"
+                    />
+                  )}
+                  <div className="relative z-10">
+                    <div className="grid grid-cols-1 md:grid-cols-3">
+                      <div className="md:col-span-2 p-6 space-y-4">
+                        <div className="p-0 text-gray-700 dark:text-gray-300 space-y-2">
+                          <ul className="text-sm space-y-1">
+                            <li className="text-gray-500">
+                              <strong>Durée :</strong> {formation.formation.duree || formation.duree} heures
+                            </li>
+                            <li className="text-gray-500">
+                              <strong>Tarif :</strong> <span className="text-l font-bold text-orange-400">{formation.tarif ? `${formation.tarif} € HT` : "-"}</span>
+                            </li>
+                            <li className="text-gray-500">
+                              <strong>Certification :</strong>{" "}
+                              <span className="inline-block text-l font-bold text-orange-400 px-2 py-1 rounded font-medium">
+                                -
+                              </span>
+                            </li>
+                          </ul>
+                        </div>
                       </div>
                     </div>
-                    
+                    <div className="flex justify-center w-full">
+                      <DownloadPdfButton formationId={formation.id} />
+                    </div>
                   </div>
-                   <div className="flex justify-center w-full">
-                <DownloadPdfButton formationId={formation.id} />
-              </div>
-                
-                
                 </div>
               )}
             </div>
