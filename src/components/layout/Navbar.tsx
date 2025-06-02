@@ -58,6 +58,7 @@ export function Navbar() {
     };
     if (user) fetchFilleuls();
   }, [user]);
+  console.log("user", user);
   const getInitials = () => {
     if (!user) return "U";
     const firstNameInitial = user?.stagiaire?.prenom?.[0]?.toUpperCase() || "";
@@ -121,9 +122,9 @@ export function Navbar() {
               <DropdownMenuTrigger asChild>
                 <button className="relative flex items-center gap-2 p-1 rounded-full hover:shadow-md transition focus:outline-none">
                   <div className="relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-brown-shade text-white">
-                    {user.image ? (
+                    {user.user.image ? (
                       <img
-                        src={`${VITE_API_URL_MEDIA}/${user.image}`}
+                        src={`${VITE_API_URL_MEDIA}/${user.user.image}`}
                         alt={user.name || "User"}
                         className="w-full h-full rounded-full object-cover"
                         onError={(e) => {
@@ -141,7 +142,7 @@ export function Navbar() {
                     ) : null}
                     <span
                       className="font-medium"
-                      style={{ display: user.image ? "none" : "flex" }}
+                      style={{ display: user.user.image ? "none" : "flex" }}
                     >
                       {getInitials()}
                     </span>
