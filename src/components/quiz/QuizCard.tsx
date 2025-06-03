@@ -100,10 +100,10 @@ export function QuizCard({ quiz, categories }: QuizCardProps) {
   const categoryColor = getCategoryColor(quiz, categories);
 
   return (
-    <Card className="w-full h-full hover:shadow-md transition-shadow relative border-0">
+    <Card className="w-full h-full hover:shadow-md transition-shadow relative border-1">
       {/* Ligne colorée en haut */}
       <div
-        className="absolute top-0 left-0 right-0 h-0.5 rounded-t-lg"
+        className="absolute top-0 left-0 right-0 h-1 rounded-t-lg"
         style={{ backgroundColor: categoryColor }}
       />
 
@@ -116,7 +116,8 @@ export function QuizCard({ quiz, categories }: QuizCardProps) {
               borderColor: categoryColor,
               color: categoryColor,
               backgroundColor: `${categoryColor}10`,
-            }}>
+            }}
+          >
             <div
               className="w-1.5 h-1.5 rounded-full"
               style={{ backgroundColor: categoryColor }}
@@ -140,13 +141,15 @@ export function QuizCard({ quiz, categories }: QuizCardProps) {
             variant={getLevelColor(quiz.niveau)}
             className={`text-[0.65rem] px-1.5 py-0.5 sm:text-xs sm:px-2 ${getLevelBackgroundColor(
               quiz.niveau
-            )}`}>
+            )}`}
+          >
             <BookOpen className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" />
             {quiz.niveau}
           </Badge>
           <Badge
             variant="outline"
-            className="text-[0.65rem] px-1.5 py-0.5 sm:text-xs sm:px-2">
+            className="text-[0.65rem] px-1.5 py-0.5 sm:text-xs sm:px-2"
+          >
             <Award className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" />
             {quiz.questions?.length * 2} pts
           </Badge>

@@ -152,7 +152,7 @@ export default function CatalogueFormationDetails() {
       <img
         src={`${import.meta.env.VITE_API_URL_MEDIA}/${url}`}
         alt={details.catalogueFormation.titre}
-        className="h-full w-full object-cover md:col-span-1 rounded-lg"
+        className="h-full w-full object-contain md:col-span-1 rounded-lg"
       />
     );
   }
@@ -213,7 +213,10 @@ export default function CatalogueFormationDetails() {
                     heures
                   </li>
                   <li className="text-gray-500">
-                    <strong>Tarif :</strong> <span className=" text-orange-500 font-bold text-xl">{details.catalogueFormation.tarif}{" "} € HT</span>                    
+                    <strong>Tarif :</strong>{" "}
+                    <span className=" text-orange-500 font-bold text-xl">
+                      {details.catalogueFormation.tarif} € HT
+                    </span>
                   </li>
                   <li className="text-gray-500">
                     <strong>Certification :</strong>{" "}
@@ -221,7 +224,7 @@ export default function CatalogueFormationDetails() {
                   </li>
                 </ul>
               </CardContent>
-              
+
               <div className="pt-4">
                 <Badge
                   variant="outline"

@@ -19,6 +19,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { BadgeCheckIcon, ClockIcon, EuroIcon } from "lucide-react";
 
 function stripHtml(html: string): string {
   if (!html) return "";
@@ -69,10 +70,11 @@ function getAdContent(formation: CatalogueFormation) {
   };
   const titreKey = titre.toLowerCase();
   const emoji =
-    Object.entries(iconMap).find(([key]) => titreKey.includes(key))?.[1] || "📚";
+    Object.entries(iconMap).find(([key]) => titreKey.includes(key))?.[1] ||
+    "📚";
 
   const titles = [
-    titre
+    titre,
     // ,
     // `Nouveau : ${titre}`,
     // `À découvrir : ${titre}`,
@@ -101,10 +103,16 @@ interface AdCatalogueBlockProps {
   formations: CatalogueFormation[];
 }
 const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
-  const [inscriptionLoading, setInscriptionLoading] = useState<number | null>(null);
+  const [inscriptionLoading, setInscriptionLoading] = useState<number | null>(
+    null
+  );
   const [showDetailsIdx, setShowDetailsIdx] = useState<number | null>(null);
-  const [inscriptionSuccessIdx, setInscriptionSuccessIdx] = useState<number | null>(null);
-  const [inscriptionErrorIdx, setInscriptionErrorIdx] = useState<number | null>(null);
+  const [inscriptionSuccessIdx, setInscriptionSuccessIdx] = useState<
+    number | null
+  >(null);
+  const [inscriptionErrorIdx, setInscriptionErrorIdx] = useState<number | null>(
+    null
+  );
 
   const getCategoryColor = useCallback((category?: string): string => {
     switch (category) {
@@ -137,161 +145,171 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
     }
   };
 
+  const formatTitle = (title: string) => {
+    if (!title) return "Sans titre";
+    return title
+      .replace(/formations?/gi, "")
+      .trim()
+      .replace(/\s{2,}/g, " ") // Supprime les espaces multiples
+      .replace(/^\w/, (c) => c.toUpperCase()); // Première lettre en majuscule
+  };
+
   if (!formations || formations.length === 0) return null;
   console.log("ads", ads);
   return (
     <div className="grid md:grid-cols-3 sm:grid-cols-1 gap-3 px-4 py-3">
-      
       {selected.map((formation, idx) => {
         const ad = ads[idx];
         const isOpen = showDetailsIdx === idx;
         return (
           <div
             key={formation.id || idx}
-            className="flex flex-col justify-between h-full rounded-xl bg-white  shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group hover:-translate-y-1 hover:shadow-lg hover:border-blue-200"
+            className="flex flex-col justify-between h-full rounded-xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group hover:-translate-y-1"
             style={{ minHeight: "340px" }}
           >
-            <div className="p-5">
-              {/* En-tête avec emoji et badge */}
-              <div className="flex items-center gap-3 mb-4">
-                {/* <span className="text-3xl animate-bounce-slow drop-shadow-sm select-none">
-                  {ad.emoji || "📚"}
-                </span> */}
-                {/* Badge catégorie avant le bouton PDF */}
-                {formation.formation && (
-                  <div className="pt-2 pb-2 w-full flex items-center gap-2">
+            {/* Header Section */}
+            <div className="p-5 space-y-4">
+              {/* Category Badge */}
+              <div className="flex flex-wrap items-center gap-2">
+                {formation.formation ? (
+                  <>
                     <span
-                      className="inline-block text-xs rounded-full px-3 py-1 font-semibold"
+                      className="text-xs font-medium px-3 py-1 rounded-full border"
                       style={{
-                        color: formation.formation.categorie === "Bureautique"
-                          ? "#3D9BE9"
-                          : formation.formation.categorie === "Langues"
+                        color:
+                          formation.formation.categorie === "Bureautique"
+                            ? "#3D9BE9"
+                            : formation.formation.categorie === "Langues"
                             ? "#A55E6E"
                             : formation.formation.categorie === "Internet"
-                              ? "#FFC533"
-                              : formation.formation.categorie === "Création"
-                                ? "#9392BE"
-                                : "#888",
+                            ? "#FFC533"
+                            : formation.formation.categorie === "Création"
+                            ? "#9392BE"
+                            : "#888",
+                        borderColor: "currentColor",
                         backgroundColor: "transparent",
                       }}
                     >
-                      {(formation.formation.categorie || "Non spécifiée").toUpperCase()} :
+                      {formation.formation.categorie?.toUpperCase() ||
+                        "CATÉGORIE"}
                     </span>
-                    <span className="text-xs text-white px-3 py-1 rounded-full font-medium uppercase tracking-wider shadow-sm"   style={{
-                        backgroundColor: formation.formation.categorie === "Bureautique"
-                          ? "#3D9BE9"
-                          : formation.formation.categorie === "Langues"
+                    <span
+                      className="text-xs text-white px-3 py-1 rounded-full font-medium"
+                      style={{
+                        backgroundColor:
+                          formation.formation.categorie === "Bureautique"
+                            ? "#3D9BE9"
+                            : formation.formation.categorie === "Langues"
                             ? "#A55E6E"
                             : formation.formation.categorie === "Internet"
-                              ? "#FFC533"
-                              : formation.formation.categorie === "Création"
-                                ? "#9392BE"
-                                : "#888",
-                        
-                      }}>
-                      {formation.formation?.titre || formation.titre || "Formation"}
+                            ? "#FFC533"
+                            : formation.formation.categorie === "Création"
+                            ? "#9392BE"
+                            : "#888",
+                      }}
+                    >
+                      {formatTitle(formation?.titre || "FORMATION")}
                     </span>
-                  </div>
-                )}
-                {!formation.formation && (
-                  <span className="text-xs text-orange-600 px-3 py-1 rounded-full font-medium uppercase tracking-wider shadow-sm">
-                    {formation.titre || "Formation"}
+                  </>
+                ) : (
+                  <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
+                    {formatTitle(formation.formation?.titre) || "SANS TITRE"}
                   </span>
                 )}
-
               </div>
 
-              {/* Contenu texte */}
-              <div className="space-y-3">
-                <h3 className="text-xl font-bold text-gray-900 leading-tight group-hover:text-orange-600 transition-colors">
-                  {ad.title.toUpperCase()}
+              {/* Content Section */}
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-gray-900 leading-snug group-hover:text-orange-600 transition-colors">
+                  {formatTitle(ad.title.toUpperCase()) || "SANS TITRE"}
                 </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
                   {ad.description}
                 </p>
               </div>
             </div>
-            <div className="flex flex-col items-center">
-              {/* Bouton Voir plus */}
-              {formation.formation && (
-                <button
-                  onClick={() => setShowDetailsIdx(isOpen ? null : idx)}
-                  className="text-orange-500 text-sm mb-2 underline focus:outline-none"
-                >
-                  {isOpen ? "Voir moins" : "Voir plus"}
-                </button>
-              )}
-              {/* Bloc détaillé */}
-              {formation.formation && isOpen && (
-                <div
-                  className="overflow-hidden w-full justify-center relative rounded-xl"
-                  style={
-                    formation.image_url
-                      ? {
-                          backgroundImage: `url(${formation.image_url})`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center',
-                        }
-                      : undefined
-                  }
-                >
-                  {formation.image_url && (
-                    <div
-                      className="absolute inset-0 rounded-xl"
-                      style={{ background: 'rgba(255,255,255,0.7)', opacity: 0.3, zIndex: 1 }}
-                      aria-hidden="true"
-                    />
-                  )}
-                  <div className="relative z-10">
-                    <div className="grid grid-cols-1 md:grid-cols-3">
-                      <div className="md:col-span-2 p-6 space-y-4">
-                        <div className="p-0 text-gray-700 dark:text-gray-300 space-y-2">
-                          <ul className="text-sm space-y-1">
-                            <li className="text-gray-500">
-                              <strong>Durée :</strong> {formation.formation.duree || formation.duree} heures
-                            </li>
-                            <li className="text-gray-500">
-                              <strong>Tarif :</strong> <span className="text-l font-bold text-orange-400">{formation.tarif ? `${formation.tarif} € HT` : "-"}</span>
-                            </li>
-                            <li className="text-gray-500">
-                              <strong>Certification :</strong>{" "}
-                              <span className="inline-block text-l font-bold text-orange-400 px-2 py-1 rounded font-medium">
-                                -
-                              </span>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
+
+            {/* Details Section */}
+            {formation.formation && isOpen && (
+              <div className="px-5 pb-3 space-y-4 border-t border-gray-100">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3">
+                  <div className="space-y-2">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <ClockIcon className="w-4 h-4 mr-2" />
+                      <span>
+                        <strong>Durée :</strong>{" "}
+                        {formation.formation.duree || formation.duree} heures
+                      </span>
                     </div>
-                    <div className="flex justify-center w-full">
-                      <DownloadPdfButton formationId={formation.id} />
+                    <div className="flex items-center text-sm text-gray-600">
+                      <EuroIcon className="w-4 h-4 mr-2" />
+                      <span>
+                        <strong>Tarif :</strong>{" "}
+                        <span className="text-orange-600 font-extrabold drop-shadow-lg">
+                          {formation.tarif
+                            ? `${
+                                Number.isInteger(Number(formation.tarif))
+                                  ? parseInt(formation.tarif)
+                                  : formation.tarif
+                              } € HT`
+                            : "-"}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <BadgeCheckIcon className="w-4 h-4 mr-2" />
+                      <span>
+                        <strong>Certification :</strong>{" "}
+                        <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded">
+                          {formation.certification || "-"}
+                        </span>
+                      </span>
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
-  
-            <div className="flex gap-2 w-full mt-3 justify-center mb-4">
+                <div className="flex justify-center pt-2">
+                  <DownloadPdfButton formationId={formation.id} />
+                </div>
+              </div>
+            )}
 
-              <div className="pt-2">
-                <Button
-                  onClick={() => handleInscription(idx)}
-                  disabled={inscriptionLoading === idx}
-                  className="w-full md:w-auto bg-[#8B5C2A]  hover:bg-[#FFC533] text-white font-semibold shadow-md transition"
+            {/* Footer Section */}
+            <div className="p-5 pt-0 space-y-3 border-t border-gray-100">
+              {/* Toggle Details Button */}
+              {formation.formation && (
+                <button
+                  onClick={() => setShowDetailsIdx(isOpen ? null : idx)}
+                  className="w-full text-center text-orange-500 text-sm font-medium hover:text-orange-600 transition-colors"
                 >
-                  {inscriptionLoading === idx
-                    ? "Inscription en cours..."
-                    : "S'inscrire à la formation"}
-                </Button>
-                {inscriptionSuccessIdx === idx && inscriptionLoading === null && (
-                  <div className="text-yellow-400 mt-2 text-sm">
-                    Inscription réussie !
-                  </div>
-                )}
+                  {isOpen ? "Voir moins de détails" : "Voir plus de détails"}
+                </button>
+              )}
+
+              {/* Registration Button */}
+              <Button
+                onClick={() => handleInscription(idx)}
+                disabled={inscriptionLoading === idx}
+                className="w-full bg-[#8B5C2A] hover:bg-[#A56B32] text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-colors"
+              >
+                {inscriptionLoading === idx
+                  ? "Inscription en cours..."
+                  : "S'inscrire à la formation"}
+              </Button>
+
+              {/* Status Messages */}
+              <div className="text-center">
+                {inscriptionSuccessIdx === idx &&
+                  inscriptionLoading === null && (
+                    <p className="text-green-600 text-sm">
+                      Inscription réussie !
+                    </p>
+                  )}
                 {inscriptionErrorIdx === idx && inscriptionLoading === null && (
-                  <div className="text-red-600 mt-2 text-sm">
+                  <p className="text-red-600 text-sm">
                     Erreur lors de l'inscription. Veuillez réessayer.
-                  </div>
+                  </p>
                 )}
               </div>
             </div>

@@ -112,10 +112,10 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
                 <div className="w-full h-full rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                   <span className="loader"></span>
                 </div>
-              ) : user?.user.image ? (
+              ) : user?.user?.image ? (
                 <img
                   src={`${VITE_API_URL_MEDIA}/${user?.user.image}`}
-                  alt={user?.user.name || "User"}
+                  alt={user?.user?.name || "User"}
                   className="w-full h-full object-cover"
                 />
               ) : (
