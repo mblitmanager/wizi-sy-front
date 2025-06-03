@@ -96,10 +96,6 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
     const firstNameInitial =
       user.stagiaire?.prenom?.charAt(0).toUpperCase() || "";
     const lastNameInitial = user?.user?.name.charAt(0).toUpperCase();
-  const getInitials = () => {
-    if (!user || !user.stagiaire || !user.stagiaire.prenom || !user.user || !user.user.name) return "U";
-    const firstNameInitial = user.stagiaire.prenom.charAt(0).toUpperCase();
-    const lastNameInitial = user.user.name.charAt(0).toUpperCase();
     return `${firstNameInitial}${lastNameInitial}`;
   }, [user]);
 
@@ -109,7 +105,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
   // URL d'image avec cache-buster
   const imageUrl = user?.user?.image
     ? `${VITE_API_URL_MEDIA}/${user.user.image}?${new Date(
-        user.user.updated_at
+        user?.user?.updated_at
       ).getTime()}`
     : null;
 
