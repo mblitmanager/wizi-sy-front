@@ -14,6 +14,7 @@ import UserStats from "@/components/profile/UserStats";
 import type { QuizHistory as QuizHistoryType } from "@/types/quiz";
 import { quizSubmissionService } from "@/services/quiz/QuizSubmissionService";
 import ProfileHeader from "@/components/profile/ProfileHeader";
+import { useUser } from "@/context/UserContext";
 
 const ProfilePage = () => {
   const [searchParams] = useSearchParams();
@@ -21,14 +22,14 @@ const ProfilePage = () => {
   const [activeTab] = useState(activeTabFromUrl);
   const { toast } = useToast();
 
-  const user = useLoadProfile();
+  const {user} = useUser();
   const { results, categories } = useLoadQuizData();
   const { userProgress, rankings } = useLoadRankings();
   const formations = useLoadFormations();
   const [quizHistory, setQuizHistory] = useState<QuizHistoryType[]>([]);
 
   const isLoading = !user || !categories || !userProgress || !formations;
-
+  
   // Mémoïsation des composants enfants pour éviter des rendus inutiles
   const MemoizedProfileHeader = useMemo(() => {
     return <ProfileHeader user={user} userProgress={userProgress} />;
