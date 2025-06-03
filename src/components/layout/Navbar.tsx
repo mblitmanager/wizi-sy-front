@@ -58,7 +58,7 @@ export function Navbar() {
     };
     if (user) fetchFilleuls();
   }, [user]);
-  console.log("user", user);
+  
   const getInitials = () => {
     if (!user) return "U";
     const firstNameInitial = user?.stagiaire?.prenom?.[0]?.toUpperCase() || "";
