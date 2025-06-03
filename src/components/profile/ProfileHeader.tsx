@@ -7,28 +7,38 @@ import { CameraIcon, PhoneIcon } from "lucide-react";
 
 // Ajout du type User pour correspondre à l'usage dans ProfileHeader
 export interface User {
-  id: string | number;
-  name: string;
-  email: string;
-  points?: number;
-  level?: number;
-  avatar?: string | null;
-  role?: string;
-  stagiaire: {
-    prenom?: string;
-    civilite?: string;
-    telephone?: string;
-    adresse?: string;
-    code_postal?: string;
-    ville?: string;
-  };
-  user?: {
-    id: string | number;
+  user: {
+    id: number;
     name: string;
     email: string;
-    role?: string;
-    image?: string | null;
-    updated_at?: string;
+    role: string;
+    image: string | null;
+    updated_at: string;
+    created_at: string;
+    email_verified_at: string | null;
+    last_login_at: string;
+    last_activity_at: string;
+    last_login_ip: string;
+    is_online: number;
+    points?: number;
+  };
+  stagiaire: {
+    id: number;
+    prenom: string;
+    civilite: string;
+    telephone: string;
+    adresse: string;
+    date_naissance: string;
+    ville: string;
+    code_postal: string;
+    date_debut_formation: string;
+    date_inscription: string;
+    role: string;
+    statut: number;
+    user_id: number;
+    deleted_at: string | null;
+    created_at: string;
+    updated_at: string;
   };
 }
 
@@ -78,7 +88,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
 
       try {
         await axios.post(
-          `${VITE_API_URL}/avatar/${user?.user.id}/update-profile`,
+          `${VITE_API_URL}/avatar/${user?.user?.id}/update-profile`,
           formData,
           {
             headers: {
@@ -111,20 +121,20 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
   );
 
   const getInitials = useCallback(() => {
-    if (!user || !user.stagiaire.prenom) return "U";
+    if (!user || !user.stagiaire?.prenom) return "U";
     const firstNameInitial =
       user.stagiaire?.prenom?.charAt(0).toUpperCase() || "";
-    const lastNameInitial = user?.user?.name.charAt(0).toUpperCase();
+    const lastNameInitial = user?.user?.name?.charAt(0).toUpperCase() || "";
     return `${firstNameInitial}${lastNameInitial}`;
   }, [user]);
 
   const totalPoints = useMemo(
     () =>
-      user?.points ||
       userProgress?.total_points ||
       userProgress?.totalScore ||
+      user?.user?.points ||
       0,
-    [user?.points, userProgress?.total_points, userProgress?.totalScore]
+    [userProgress?.total_points, userProgress?.totalScore, user?.user?.points]
   );
 
   const imageUrl = useMemo(() => {
@@ -230,8 +240,8 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
         >
           <div className="p-4 md:p-6 text-center lg:text-left">
             <h1 className="text-3xl font-bold pt-8 lg:pt-0">
-              {user?.stagiaire?.civilite} {user?.user.name.toUpperCase()}{" "}
-              {user?.stagiaire.prenom}
+              {user?.stagiaire?.civilite} {user?.user?.name?.toUpperCase()}{" "}
+              {user?.stagiaire?.prenom}
             </h1>
 
             <div className="mx-auto lg:mx-0 w-4/5 pt-3 border-b-2 border-brown-shade opacity-25"></div>
@@ -244,10 +254,10 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
               >
                 <path d="M9 12H1v6a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6h-8v2H9v-2zm0-1H0V5c0-1.1.9-2 2-2h4V2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1h4a2 2 0 0 1 2 2v6h-9V9H9v2zm3-8V2H8v1h4z" />
               </svg>
-              {user?.user?.role || user?.role || "stagiaire"}
+              {user?.user?.role || "stagiaire"}
             </p>
 
-            <p className="pt-2 text-gray-600 dark:text-gray-400 text-xs lg:text-sm flex items-center justify-center lg:justify-start">
+            <p className="pt-2 text-gray-600 text-xs lg:text-sm flex items-center justify-center lg:justify-start">
               <svg
                 className="h-4 fill-current text-brown-shade dark:text-brown-shade pr-4"
                 xmlns="http://www.w3.org/2000/svg"
@@ -255,16 +265,10 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
               >
                 <path d="M10 20a10 10 0 1 1 0-20 10 10 0 0 1 0 20zm7.75-8a8.01 8.01 0 0 0 0-4h-3.82a28.81 28.81 0 0 1 0 4h3.82zm-.82 2h-3.22a14.44 14.44 0 0 1-.95 3.51A8.03 8.03 0 0 0 16.93 14zm-8.85-2h3.84a24.61 24.61 0 0 0 0-4H8.08a24.61 24.61 0 0 0 0 4zm.25 2c.41 2.4 1.13 4 1.67 4s1.26-1.6 1.67-4H8.33zm-6.08-2h3.82a28.81 28.81 0 0 1 0-4H2.25a8.01 8.01 0 0 0 0 4zm.82 2a8.03 8.03 0 0 0 4.17 3.51c-.42-.96-.74-2.16-.95-3.51H3.07zm13.86-8a8.03 8.03 0 0 0-4.17-3.51c.42.96.74 2.16.95 3.51h3.22zm-8.6 0h3.34c-.41-2.4-1.13-4-1.67-4S8.74 3.6 8.33 6zM3.07 6h3.22c.2-1.35.53-2.55.95-3.51A8.03 8.03 0 0 0 3.07 6z" />
               </svg>
-              {[
-                user.stagiaire?.adresse,
-                user.stagiaire?.code_postal,
-                user.stagiaire?.ville,
-              ]
-                .filter(Boolean)
-                .join(", ") || "Adresse non renseignée"}
+              {userAddress}
             </p>
 
-            <div className="pt-8 text-sm text-gray-600 dark:text-gray-300">
+            <div className="pt-4 pb-4 lg:pt-2">
               <div className="flex items-center justify-center lg:justify-start gap-2 mb-2">
                 <PhoneIcon className="w-4 h-4 text-brown-shade" />
                 <span>{user?.stagiaire?.telephone || "Non renseigné"}</span>
@@ -278,7 +282,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
                   <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0 0 16 4H4a2 2 0 0 0-1.997 1.884z" />
                   <path d="M18 8.118l-8 4-8-4V14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.118z" />
                 </svg>
-                <span>{user.user.email || user.email || ""}</span>
+                <span>{user?.user?.email || ""}</span>
               </div>
             </div>
           </div>
