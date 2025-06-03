@@ -101,24 +101,24 @@ const ProfilePage = () => {
     <Layout>
       <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
         <div className="">
-          <div className="flex flex-col lg:flex-row gap-3 items-center">
-            {/* ProfileHeader - Affiché en premier sur mobile, à droite sur desktop */}
-            <div className="w-full lg:w-64 order-1 lg:order-2">
-              {user && (
-                <ProfileHeader user={user} userProgress={userProgress} />
-              )}
-            </div>
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-xl shadow-md overflow-hidden mb-4">
+            <div className="flex flex-col items-center lg:flex-row">
+              {/* Partie principale */}
+              <div className="w-full mt-6 p-6 lg:w-2/4 lg:order-2 lg:mt-0">
+                {user && (
+                  <ProfileHeader user={user} userProgress={userProgress} />
+                )}
+              </div>
 
-            {/* UserStats - Affiché en deuxième sur mobile, à gauche sur desktop */}
-            <div className="w-full lg:w-32 order-2 lg:order-1">
-              <UserStats user={user} userProgress={userProgress} />
+              {/* Sidebar stats */}
+              <div className="dark:bg-gray-700 p-6 lg:w-2/4 lg:order-1">
+                <UserStats user={user} userProgress={userProgress} />
+              </div>
             </div>
           </div>
 
           {/* Contenu des anciens onglets maintenant affiché directement */}
           <div className="space-y-4 px-2 sm:px-0">
-            {/* Section Vue d'ensemble - 1 colonne mobile, 2 desktop */}
-            <div className="bg-white dark:bg-gray-800 p-3 sm:p-6 rounded-lg shadow-sm"></div>
             {/* Section Progression */}
             <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
               <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
