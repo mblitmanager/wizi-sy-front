@@ -90,12 +90,12 @@ export default function Catalogue() {
 
   return (
     <Layout>
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+      <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-2 sm:gap-0 mt-[-5%] md:mt-0 sm:mt-0">
           <h1 className="text-3xl sm:text-2xl md:text-3xl text-brown-shade font-bold">
             Catalogue de formations
           </h1>
-            {selectedCategory && (
+          {selectedCategory && (
             <Button
               variant="outline"
               size="sm"
@@ -103,9 +103,8 @@ export default function Catalogue() {
               className="sm:mb-0 hover:bg-orange-100">
               Réinitialiser le filtre
             </Button>
-            )}
+          )}
         </div>
-        
 
         {/* Afficher les catégories si aucune n'est sélectionnée */}
 

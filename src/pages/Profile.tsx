@@ -58,7 +58,7 @@ const ProfilePage = () => {
   if (isLoading) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 md:pb-4 max-w-7xl space-y-5">
+        <div className=" space-y-5">
           {/* En-tête profil */}
           <div className="flex items-center space-x-4 mt-8">
             <div className="w-20 h-20 bg-gray-200 rounded-full animate-pulse" />
@@ -73,8 +73,7 @@ const ProfilePage = () => {
             {Array.from({ length: 3 }).map((_, idx) => (
               <div
                 key={idx}
-                className="p-4 bg-white rounded-2xl shadow space-y-2 animate-pulse"
-              >
+                className="p-4 bg-white rounded-2xl shadow space-y-2 animate-pulse">
                 <div className="h-4 w-1/2 bg-gray-200 rounded" />
                 <div className="h-6 w-full bg-gray-100 rounded" />
               </div>
@@ -99,16 +98,24 @@ const ProfilePage = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 md:pb-4 max-w-7xl">
+      <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
         <div className="">
-          {user && <ProfileHeader user={user} userProgress={userProgress} />}
+          <div className="flex">
+            <div className="w-64 flex-1 ...">
+              {" "}
+              <UserStats user={user} userProgress={userProgress} />
+            </div>
+            <div className="w-64 flex-1 ...">
+              {user && (
+                <ProfileHeader user={user} userProgress={userProgress} />
+              )}
+            </div>
+          </div>
 
           {/* Contenu des anciens onglets maintenant affiché directement */}
           <div className="space-y-4 px-2 sm:px-0">
             {/* Section Vue d'ensemble - 1 colonne mobile, 2 desktop */}
-            <div className="bg-white dark:bg-gray-800 p-3 sm:p-6 rounded-lg shadow-sm">
-              <UserStats user={user} userProgress={userProgress} />
-            </div>
+            <div className="bg-white dark:bg-gray-800 p-3 sm:p-6 rounded-lg shadow-sm"></div>
             {/* Section Progression */}
             <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
               <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">

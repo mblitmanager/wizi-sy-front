@@ -68,7 +68,7 @@ export default function Contact() {
   if (isLoading) {
     return (
       <Layout>
-        <div className="max-w-6xl mx-auto px-4 py-10">
+        <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
           <h1 className="text-3xl font-bold mb-8 text-gray-800">
             Mes Contacts
           </h1>
@@ -101,7 +101,7 @@ export default function Contact() {
   if (error) {
     return (
       <Layout>
-        <div className="max-w-6xl mx-auto px-4 py-10">
+        <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
           <h1 className="text-3xl font-bold mb-8 text-gray-800">
             Mes Contacts
           </h1>
@@ -115,7 +115,7 @@ export default function Contact() {
 
   return (
     <Layout>
-      <div className="max-w-6xl mx-auto px-4 py-10">
+      <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
         <h1 className="text-3xl font-bold mb-8 text-gray-800">Mes Contacts</h1>
 
         {contacts.length === 0 ? (

@@ -74,7 +74,7 @@ export default function DashboardPage() {
           </AlertDescription>
         </Alert>
       )}
-      <div className="max-w-7xl mx-auto px-4 py-4">
+      <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-8">
             Tableau de bord

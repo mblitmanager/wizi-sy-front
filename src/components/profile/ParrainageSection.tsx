@@ -128,8 +128,11 @@ const ParrainageSection = () => {
                 Programme de parrainage
               </h1>
               <p className="text-sm text-gray-700">
-                Gagnez <span className="font-bold text-green-600">50€</span> par
-                filleul
+                Gagnez{" "}
+                <span className="text-white text-2xl font-extrabold drop-shadow-lg">
+                  50€
+                </span>{" "}
+                par filleul
               </p>
             </div>
           </div>
@@ -142,17 +145,20 @@ const ParrainageSection = () => {
           <p className="hidden md:block text-lg text-gray-700 mb-4">
             Parlez de nos formations à votre entourage (famille, amis, collègues
             et connaissances) et gagnez{" "}
-            <span className="font-bold text-green-600">50 €</span> par filleul !
+            <span className="text-brown-shade text-2xl font-extrabold drop-shadow-lg">
+              50€
+            </span>{" "}
+            par filleul !
           </p>
 
           {/* Bouton principal plus compact sur mobile */}
-          <Button className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-400 text-white hover:from-blue-700 hover:to-blue-500 mb-4">
+          {/* <Button className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-400 text-white hover:from-blue-700 hover:to-blue-500 mb-4">
             <Gift className="h-5 w-5 mr-2" />
             <span className="text-sm md:text-base">
-              {/* Je parraine et je gagne  */}
+              Je parraine et je gagne 
               50€
             </span>
-          </Button>
+          </Button> */}
 
           {/* Cartes en colonne unique sur mobile */}
           <div className="space-y-4">

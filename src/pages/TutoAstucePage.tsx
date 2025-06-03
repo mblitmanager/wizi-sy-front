@@ -102,7 +102,8 @@ export default function TutoAstucePage() {
       const newExpanded = { ...prev };
       Object.keys(groupedMediasByType).forEach((type) => {
         Object.keys(groupedMediasByType[type]).forEach((category) => {
-          newExpanded[`${type}-${category}`] = newExpanded[`${type}-${category}`] ?? true;
+          newExpanded[`${type}-${category}`] =
+            newExpanded[`${type}-${category}`] ?? true;
         });
       });
       return newExpanded;
@@ -129,13 +130,15 @@ export default function TutoAstucePage() {
       {/* Player en plein écran */}
       <div className="flex-1 bg-white rounded-lg shadow-md mb-4 overflow-hidden">
         <div className="aspect-video w-full">
-          <MediaPlayer key={selectedMedia?.id || "empty"} media={selectedMedia} />
+          <MediaPlayer
+            key={selectedMedia?.id || "empty"}
+            media={selectedMedia}
+          />
         </div>
       </div>
 
       {/* Contrôles et liste */}
       <div className="bg-white rounded-lg shadow-md flex flex-col mb-8 max-h-[60vh] overflow-y-auto">
-        
         {isLoading ? (
           <div className="space-y-2">
             {[...Array(3)].map((_, i) => (
@@ -150,30 +153,30 @@ export default function TutoAstucePage() {
           <div className="overflow-y-auto flex-1">
             {Object.entries(groupedMediasByType).map(([type, categories]) => (
               <div key={type} className="mb-4">
-                <div className="flex items-center gap-2 mb-2 px-2 py-1 bg-gray-100 rounded-lg">
+                {/* Activation de l'accordéon sur le type */}
+                <div
+                  className="flex items-center gap-2 mx-3 mb-2 px-2 py-1 bg-gray-100 rounded-lg cursor-pointer"
+                  onClick={() =>
+                    setExpandedSections((prev) => ({
+                      ...prev,
+                      [type]: !prev[type],
+                    }))
+                  }>
                   {mediaTypeIcons[type]}
                   <span className="font-medium text-sm">
                     {mediaTypeLabels[type]}
                   </span>
+                  <ChevronDown
+                    className={`w-4 h-4 ml-auto transition-transform ${
+                      expandedSections[type] ? "rotate-180" : ""
+                    }`}
+                  />
                 </div>
 
-                {Object.entries(categories).map(([category, items]) => (
-                  <div key={category} className="mb-2 ml-4">
-                    <div
-                      className="flex justify-between items-center p-2 bg-gray-50 rounded-lg text-sm"
-                      onClick={() => toggleSection(`${type}-${category}`)}
-                    >
-                      <span className="font-medium">{category}</span>
-                      <ChevronDown
-                        className={`w-4 h-4 transition-transform ${
-                          expandedSections[`${type}-${category}`]
-                            ? "rotate-180"
-                            : ""
-                        }`}
-                      />
-                    </div>
-
-                    {expandedSections[`${type}-${category}`] && (
+                {/* Affichage des catégories si le type est ouvert */}
+                {expandedSections[type] &&
+                  Object.entries(categories).map(([category, items]) => (
+                    <div key={category} className="mb-2 mx-3">
                       <div className="mt-1 space-y-1">
                         {items.map((media) => (
                           <div
@@ -183,8 +186,7 @@ export default function TutoAstucePage() {
                               selectedMedia?.id === media.id
                                 ? "bg-orange-50 text-brown-600 border-l-2 border-orange-500"
                                 : "hover:bg-gray-50"
-                            }`}
-                          >
+                            }`}>
                             <span
                               className={`w-2 h-2 rounded-full ${
                                 selectedMedia?.id === media.id
@@ -201,9 +203,8 @@ export default function TutoAstucePage() {
                           </div>
                         ))}
                       </div>
-                    )}
-                  </div>
-                ))}
+                    </div>
+                  ))}
               </div>
             ))}
           </div>
@@ -229,28 +230,28 @@ export default function TutoAstucePage() {
 
             {Object.entries(groupedMediasByType).map(([type, categories]) => (
               <div key={type} className="mb-6">
-                <div className="flex items-center gap-2 mb-3 p-2 bg-gray-100 rounded-lg">
+                {/* Activation de l'accordéon sur le type */}
+                <div
+                  className="flex items-center gap-2 mb-3 p-2 bg-gray-100 rounded-lg cursor-pointer"
+                  onClick={() =>
+                    setExpandedSections((prev) => ({
+                      ...prev,
+                      [type]: !prev[type],
+                    }))
+                  }>
                   {mediaTypeIcons[type]}
                   <span className="font-medium">{mediaTypeLabels[type]}</span>
+                  <ChevronDown
+                    className={`w-4 h-4 ml-auto transition-transform ${
+                      expandedSections[type] ? "rotate-180" : ""
+                    }`}
+                  />
                 </div>
 
-                {Object.entries(categories).map(([category, items]) => (
-                  <div key={category} className="mb-4 ml-4">
-                    <div
-                      className="flex justify-between items-center cursor-pointer p-2 hover:bg-gray-100 rounded"
-                      onClick={() => toggleSection(`${type}-${category}`)}
-                    >
-                      <h3 className="font-semibold text-sm">{category}</h3>
-                      <ChevronDown
-                        className={`w-4 h-4 transition-transform ${
-                          expandedSections[`${type}-${category}`]
-                            ? "rotate-180"
-                            : ""
-                        }`}
-                      />
-                    </div>
-
-                    {expandedSections[`${type}-${category}`] && (
+                {/* Affichage des catégories si le type est ouvert */}
+                {expandedSections[type] &&
+                  Object.entries(categories).map(([category, items]) => (
+                    <div key={category} className="mb-4">
                       <ul className="mt-2 space-y-1 pl-2 border-l-2 border-gray-200">
                         {items.map((media) => (
                           <li
@@ -260,8 +261,7 @@ export default function TutoAstucePage() {
                               selectedMedia?.id === media.id
                                 ? "bg-blue-50 text-blue-600 border-l-2 border-blue-500"
                                 : "hover:bg-gray-50"
-                            }`}
-                          >
+                            }`}>
                             <span
                               className={`w-2 h-2 rounded-full ${
                                 selectedMedia?.id === media.id
@@ -269,7 +269,7 @@ export default function TutoAstucePage() {
                                   : "bg-gray-300"
                               }`}
                             />
-                            <span className="truncate flex-1">
+                            <span className="truncate flex-1 text-xs">
                               {media.titre}
                             </span>
                             <span className="text-xs text-gray-500">
@@ -278,9 +278,8 @@ export default function TutoAstucePage() {
                           </li>
                         ))}
                       </ul>
-                    )}
-                  </div>
-                ))}
+                    </div>
+                  ))}
               </div>
             ))}
           </div>
@@ -311,10 +310,11 @@ export default function TutoAstucePage() {
               <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
                 <select
                   value={selectedFormationId ?? ""}
-                  onChange={(e) => setSelectedFormationId(e.target.value || null)}
+                  onChange={(e) =>
+                    setSelectedFormationId(e.target.value || null)
+                  }
                   className="w-full sm:w-auto px-3 py-1 text-sm bg-white border border-gray-300 rounded-lg shadow-sm"
-                  aria-label="Sélectionner une formation"
-                >
+                  aria-label="Sélectionner une formation">
                   {formationsWithTutos.map((formation) => (
                     <option key={formation.id} value={formation.id}>
                       {formation.titre}
@@ -323,11 +323,13 @@ export default function TutoAstucePage() {
                 </select>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto lg:ml-auto lg:justify-end">
-                <MediaTabs active={activeCategory} onChange={setActiveCategory} />
+                <MediaTabs
+                  active={activeCategory}
+                  onChange={setActiveCategory}
+                />
                 <button
                   onClick={() => refetch()}
-                  className="w-full sm:w-auto px-3 py-1 bg-yellow-400 text-white rounded-lg shadow text-sm lg:ml-2"
-                >
+                  className="w-full sm:w-auto px-3 py-1 bg-yellow-400 text-white rounded-lg shadow text-sm lg:ml-2">
                   {isFetching ? "..." : "Rafraîchir"}
                 </button>
               </div>
