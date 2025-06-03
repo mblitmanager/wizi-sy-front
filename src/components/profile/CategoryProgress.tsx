@@ -98,7 +98,7 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userPro
   const [performanceStats, setPerformanceStats] = useState<PerformanceStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const VITE_API_URL = import.meta.env.VITE_API_URL;
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -106,10 +106,10 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userPro
         setError(null);
         const cacheBuster = `?_t=${Date.now()}`;
         const [stats, progress, trends, performance] = await Promise.all([
-          fetch(`/api/quiz/stats/categories${cacheBuster}`).then(res => res.json()),
-          fetch(`/api/quiz/stats/progress${cacheBuster}`).then(res => res.json()),
-          fetch(`/api/quiz/stats/trends${cacheBuster}`).then(res => res.json()),
-          fetch(`/api/quiz/stats/performance${cacheBuster}`).then(res => res.json()),
+          fetch(`${VITE_API_URL}/quiz/stats/categories`).then(res => res.json()),
+          fetch(`${VITE_API_URL}/quiz/stats/progress`).then(res => res.json()),
+          fetch(`${VITE_API_URL}/quiz/stats/trends`).then(res => res.json()),
+          fetch(`${VITE_API_URL}/quiz/stats/performance`).then(res => res.json()),
         ]);
         setCategoryStats(stats);
         setProgressStats(progress);

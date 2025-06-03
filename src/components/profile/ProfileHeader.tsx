@@ -49,7 +49,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
         toast.error("Fichier trop volumineux. Taille maximale : 5MB.");
         return;
       }
-      console.log(user);
+      
 
       const formData = new FormData();
       formData.append("image", file);
@@ -85,9 +85,8 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
   };
 
   const getInitials = () => {
-    if (!user || !user.stagiaire.prenom) return "U";
-    const firstNameInitial =
-      user.stagiaire?.prenom?.charAt(0).toUpperCase() || "";
+    if (!user || !user.stagiaire || !user.stagiaire.prenom || !user.user || !user.user.name) return "U";
+    const firstNameInitial = user.stagiaire.prenom.charAt(0).toUpperCase();
     const lastNameInitial = user.user.name.charAt(0).toUpperCase();
     return `${firstNameInitial}${lastNameInitial}`;
   };
@@ -140,23 +139,22 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
 
           <div className="text-center space-y-1 w-full max-w-[90vw]">
             <h2 className="text-base sm:text-lg font-bold font-montserrat text-gray-800 dark:text-white break-words px-2">
-              {user?.stagiaire?.civilite} {user.user.name.toUpperCase()}{" "}
-              {user?.stagiaire.prenom}
+              {user?.stagiaire?.civilite} {user?.user?.name?.toUpperCase() || ""} {user?.stagiaire?.prenom}
             </h2>
 
             <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 font-medium break-words px-2">
-              {user.user.email}
+              {user?.user?.email || ""}
             </div>
 
             <div className="my-1 sm:my-2">
               <span
                 className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                  user?.user.role === "admin"
+                  user?.user?.role === "admin"
                     ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200"
                     : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                 }`}
               >
-                {user?.user.role === "admin" ? "Admin" : "Stagiaire"}
+                {user?.user?.role === "admin" ? "Admin" : "Stagiaire"}
               </span>
             </div>
 

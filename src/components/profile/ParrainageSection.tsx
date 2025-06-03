@@ -74,7 +74,7 @@ const ParrainageSection = () => {
 
     fetchStats();
   }, [user?.user?.id]);
-  console.log("stats:", stats);
+  
   // Dans ParrainageSection.tsx
   const generateLink = async () => {
     try {
