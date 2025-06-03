@@ -58,7 +58,7 @@ const FormationCard = ({ formation }: { formation: any }) => {
       {/* Content container - plus compact */}
       <div className="flex flex-col flex-grow space-y-2">
         {/* Title - plus petit */}
-        <h3 className="text-base font-semibold text-gray-800 line-clamp-2 leading-snug">
+        <h3 className="text-base font-semibold text-orange-400 line-clamp-2 leading-snug">
           {formation.titre}
         </h3>
 
@@ -79,7 +79,7 @@ const FormationCard = ({ formation }: { formation: any }) => {
 
           {/* Certification badge - plus petit */}
           {formation.certification && (
-            <span className="text-xs font-medium px-2 py-1 rounded-full bg-blue-50 text-blue-600">
+            <span className="text-l font-medium px-2 py-1 rounded-full bg-orange-50 text-orange-500">
               {formation.certification}
             </span>
           )}

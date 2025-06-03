@@ -15,9 +15,9 @@ import { useSwipeable } from "react-swipeable";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 
 export function QuizPlay() {
-  console.log("QuizPlay component mounted");
+  
   const { quizId } = useParams<{ quizId: string }>();
-  console.log("quizId from useParams:", quizId);
+  
 
   const {
     quiz,
@@ -47,7 +47,7 @@ export function QuizPlay() {
     openResultsDialog,
     closeResultsDialog: closeResults,
   } = useQuizPlay(quizId || "");
-  console.log("quiz data from useQuizPlay:", { quiz, isLoading, error });
+  
 
   const [showHint, setShowHint] = React.useState(false);
   const [showSwipeHint, setShowSwipeHint] = React.useState(true);
@@ -55,10 +55,10 @@ export function QuizPlay() {
 
   // Masquer l'indication de glissement après 5 secondes
   React.useEffect(() => {
-    console.log("Tutorial visibility effect:", { showSwipeHint, activeStep });
+    
     if (showSwipeHint) {
       const timer = setTimeout(() => {
-        console.log("Hiding tutorial after timeout");
+        
         setShowSwipeHint(false);
       }, 5000);
       return () => clearTimeout(timer);
@@ -67,7 +67,7 @@ export function QuizPlay() {
 
   // Animation du tutoriel
   React.useEffect(() => {
-    console.log("Tutorial animation effect:", { showSwipeHint, activeStep, tutorialStep });
+    
     if (showSwipeHint && activeStep === 0) {
       const interval = setInterval(() => {
         setTutorialStep((prev) => (prev + 1) % 3);

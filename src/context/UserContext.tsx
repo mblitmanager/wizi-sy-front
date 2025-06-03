@@ -46,7 +46,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     if (!storedToken) return;
 
     try {
-      const response = await fetch("https://wizi-learn.com/api/me", {
+      const response = await fetch(`${VITE_API_URL}/me`, {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
@@ -198,7 +198,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       try {
         const response = await fetch(
-          `https://wizi-learn.com/api/avatar/${user.id}/update-profile`,
+          `${VITE_API_URL}/avatar/${user.id}/update-profile`,
           {
             method: "POST",
             headers: {

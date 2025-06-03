@@ -96,7 +96,7 @@ export function QuizGame({ questions }: QuizGameProps) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
       // Last question handled - could redirect to results page
-      console.log("Quiz Terminé!");
+      
     }
   };
 

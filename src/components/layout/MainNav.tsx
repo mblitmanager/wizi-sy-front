@@ -125,9 +125,9 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
             className=" bg-gradient-to-br w-full rounded-2xl text-white sm:p-2 flex items-center mx-auto gap-2 z-50 cursor-pointer hover:shadow-xl transition-all"
           >
             <Gift className="w-10 h-10 flex-shrink-0" />
-            <span className="font-semibold text-xs">
+            <span className="font-semibold text-brown-shade text-xs">
               Je parraine et je gagne{" "}
-              <span className="text-white text-2xl font-extrabold drop-shadow-lg">
+              <span className="text-2xl text-white font-extrabold drop-shadow-lg">
                 50€
               </span>{" "}
             </span>

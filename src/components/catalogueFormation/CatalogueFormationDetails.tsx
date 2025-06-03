@@ -157,7 +157,7 @@ export default function CatalogueFormationDetails() {
     );
   }
 
-  console.log(details);
+  
 
   return (
     <Layout>

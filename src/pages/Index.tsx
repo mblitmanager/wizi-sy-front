@@ -182,7 +182,7 @@ export function Index() {
             <h1 className="text-2xl md:text-2xl text-orange-400 font-bold mb-4 md:mb-8 text-center mt-4 py-12">
               Découvrez nos formations
             </h1>
-            <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 px-2 py-6 md:py-12 bg-white rounded-xl shadow-md mt-[-5%]">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 px-2 py-6 md:py-12 bg-white rounded-xl mt-[-5%]">
               {/* Colonne illustration */}
               <div className="hidden md:flex md:w-1/3 justify-center mb-4 md:mb-0">
                 <img
@@ -192,7 +192,7 @@ export function Index() {
                 />
               </div>
               {/* Colonne catalogue */}
-              <div className="w-full flex flex-col items-center">
+              <div className="w-full flex flex-col items-center border-nonte">
                 <div className="w-full">
                   <AdCatalogueBlock formations={catalogueData.slice(0, 4)} />
                 </div>
@@ -213,7 +213,8 @@ export function Index() {
             <ChallengeCard key={challenge.id} challenge={challenge} />
           ))}
         </div> */}
-        <div className="bg-white p-3 md:p-4 rounded-lg shadow-sm mt-4">
+        <hr/>
+        <div className="bg-white p-3 md:p-4 rounded-lg mt-4">
           {/* Section des contacts */}
           <ContactsSection
             commerciaux={commerciaux}
@@ -223,7 +224,7 @@ export function Index() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
           <ProgressCard user={user} />
-          <AgendaCard events={agendaEvents} />
+          {/* <AgendaCard events={agendaEvents} /> */}
           {/* <RankingCard rankings={rankings} currentUserId={user.id} /> */}
         </div>
       </div>

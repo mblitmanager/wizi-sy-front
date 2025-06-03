@@ -16,6 +16,7 @@ import { Line, Doughnut } from 'react-chartjs-2';
 import { motion, AnimatePresence } from "framer-motion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import axios from "axios";
 
 ChartJS.register(
   CategoryScale,
@@ -91,6 +92,23 @@ interface PerformanceStats {
   }>;
 }
 
+const VITE_API_URL = import.meta.env.VITE_API_URL;
+const api = axios.create({
+  baseURL: VITE_API_URL,
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userProgress }) => {
   const [categoryStats, setCategoryStats] = useState<CategoryStats[]>([]);
   const [progressStats, setProgressStats] = useState<ProgressStats | null>(null);
@@ -98,25 +116,24 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userPro
   const [performanceStats, setPerformanceStats] = useState<PerformanceStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
-        const cacheBuster = `?_t=${Date.now()}`;
-        const [stats, progress, trends, performance] = await Promise.all([
-          fetch(`/api/quiz/stats/categories${cacheBuster}`).then(res => res.json()),
-          fetch(`/api/quiz/stats/progress${cacheBuster}`).then(res => res.json()),
-          fetch(`/api/quiz/stats/trends${cacheBuster}`).then(res => res.json()),
-          fetch(`/api/quiz/stats/performance${cacheBuster}`).then(res => res.json()),
+        const [statsRes, progressRes, trendsRes, performanceRes] = await Promise.all([
+          api.get("/quiz/stats/categories"),
+          api.get("/quiz/stats/progress"),
+          api.get("/quiz/stats/trends"),
+          api.get("/quiz/stats/performance"),
         ]);
-        setCategoryStats(stats);
-        setProgressStats(progress);
-        setQuizTrends(trends);
-        setPerformanceStats(performance);
+        setCategoryStats(statsRes.data);
+        setProgressStats(progressRes.data);
+        setQuizTrends(trendsRes.data);
+        setPerformanceStats(performanceRes.data);
       } catch (err) {
-        setError('Une erreur est survenue lors du chargement des statistiques. Veuillez réessayer plus tard.');
+        const errorMsg = err instanceof Error ? err.message : 'Une erreur est survenue lors du chargement des statistiques. Veuillez réessayer plus tard.';
+        setError(errorMsg);
         console.error('Error fetching stats:', err);
       } finally {
         setLoading(false);
@@ -158,7 +175,7 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userPro
       {
         label: 'Score moyen',
         data: quizTrends?.overall_trend.map(trend => trend.average_score) || [],
-        borderColor: 'rgb(75, 192, 192)',
+        borderColor: 'rgb(196, 121, 9)',
         tension: 0.1,
         fill: false,
       },
@@ -203,7 +220,7 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userPro
           'rgba(255, 99, 132, 0.8)',
           'rgba(54, 162, 235, 0.8)',
           'rgba(255, 206, 86, 0.8)',
-          'rgba(75, 192, 192, 0.8)',
+          // 'rgba(75, 192, 192, 0.8)',
           'rgba(153, 102, 255, 0.8)',
         ],
         borderWidth: 1,
