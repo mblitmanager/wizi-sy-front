@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import NotificationsPage from "@/pages/NotificationsPage";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,29 +10,7 @@ import NotificationListener from "@/components/notifications/NotificationListene
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { UserProvider } from "@/context/UserContext";
-
-// Pages
-import { Index } from "@/pages/Index";
-import Login from "@/pages/Login";
-import Register from "@/pages/Register";
-import NotFound from "@/pages/NotFound";
-import Catalogue from "@/pages/Catalogue";
-import CategoryFormations from "@/pages/CategoryFormations";
-import Formation from "@/pages/Formation";
-import Quizzes from "@/pages/Quizzes";
-import Quiz from "@/pages/Quiz";
-import Profile from "@/pages/Profile";
-import Settings from "@/pages/Settings";
-import Classement from "@/pages/Classement";
-import TutoAstucePage from "@/pages/TutoAstucePage";
-
-// Components
-import { QuizDetail } from "@/components/quiz/QuizDetail";
-import { QuizResults } from "@/components/quiz/QuizResults";
-import Contact from "./pages/Contact";
-import Parainage from "./pages/Parainage";
-import ParrainageInscriptionPage from "./pages/ParrainageInscriptionPage";
-import CatalogueFormationDetails from "./components/catalogueFormation/CatalogueFormationDetails";
+import { router } from "./react-router-config";
 
 // Create a React Query client
 const queryClient = new QueryClient({
@@ -54,151 +32,7 @@ const App = () => {
               <Toaster />
               <Sonner />
               <NotificationListener />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route
-                    path="/parrainage/:token"
-                    element={<ParrainageInscriptionPage />}
-                  />
-                  {/* 🔒 Routes protégées */}
-                  <Route
-                    path="/catalogue"
-                    element={
-                      <ProtectedRoute>
-                        <Catalogue />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/catalogue/:categoryId"
-                    element={
-                      <ProtectedRoute>
-                        <CategoryFormations />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/formations"
-                    element={
-                      <ProtectedRoute>
-                        <Formation />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/quizzes"
-                    element={
-                      <ProtectedRoute>
-                        <Quizzes />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/quiz"
-                    element={
-                      <ProtectedRoute>
-                        <Navigate to="/quizzes" replace />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/quiz/:quizId"
-                    element={
-                      <ProtectedRoute>
-                        <QuizDetail />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/quiz/:quizId/start"
-                    element={
-                      <ProtectedRoute>
-                        <Quiz />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/quiz/:quizId/results"
-                    element={
-                      <ProtectedRoute>
-                        <QuizResults />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/profile"
-                    element={
-                      <ProtectedRoute>
-                        <Profile />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/settings"
-                    element={
-                      <ProtectedRoute>
-                        <Settings />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/classement"
-                    element={
-                      <ProtectedRoute>
-                        <Classement />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/tuto-astuce"
-                    element={
-                      <ProtectedRoute>
-                        <TutoAstucePage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/contacts"
-                    element={
-                      <ProtectedRoute>
-                        <Contact />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  <Route
-                    path="/parrainage"
-                    element={
-                      <ProtectedRoute>
-                        <Parainage />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  <Route
-                    path="/catalogue-formation/:id"
-                    element={
-                      <ProtectedRoute>
-                        <CatalogueFormationDetails />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/notifications"
-                    element={
-                      <ProtectedRoute>
-                        <NotificationsPage />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  {/* 🚫 Route introuvable */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
+              <RouterProvider router={router} />
             </TooltipProvider>
           </UserProvider>
         </QueryClientProvider>
