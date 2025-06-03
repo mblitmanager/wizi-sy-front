@@ -5,12 +5,39 @@ import { UserProgress } from "@/types/quiz";
 import { toast } from "sonner";
 import { CameraIcon, PhoneIcon } from "lucide-react";
 
+// Ajout du type User pour correspondre à l'usage dans ProfileHeader
+export interface User {
+  id: string | number;
+  name: string;
+  email: string;
+  points?: number;
+  level?: number;
+  avatar?: string | null;
+  role?: string;
+  stagiaire: {
+    prenom?: string;
+    civilite?: string;
+    telephone?: string;
+    adresse?: string;
+    code_postal?: string;
+    ville?: string;
+  };
+  user?: {
+    id: string | number;
+    name: string;
+    email: string;
+    role?: string;
+    image?: string | null;
+    updated_at?: string;
+  };
+}
+
 interface UserStatsProps {
   user: User | null;
   userProgress?: UserProgress | null;
 }
 
-const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
+const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
   const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
   const VITE_API_URL = import.meta.env.VITE_API_URL;
   const { logout, refetchUser } = useUser();
@@ -18,7 +45,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
   const [loading, setLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(true);
-
+  console.log("User",user)
   const handleImageClick = useCallback(() => {
     fileInputRef.current?.click();
   }, []);
@@ -80,7 +107,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
         }
       }
     },
-    [VITE_API_URL, user?.user?.id, refetchUser]
+    [VITE_API_URL, user, refetchUser]
   );
 
   const getInitials = useCallback(() => {
