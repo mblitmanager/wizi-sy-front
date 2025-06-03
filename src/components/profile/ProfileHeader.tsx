@@ -6,13 +6,14 @@ import { toast } from "sonner";
 import { CameraIcon, PhoneIcon } from "lucide-react";
 
 interface UserStatsProps {
+  user: User | null;
   userProgress?: UserProgress | null;
 }
 
 const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
   const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
   const VITE_API_URL = import.meta.env.VITE_API_URL;
-  const { user, logout, refetchUser } = useUser();
+  const { logout, refetchUser } = useUser();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [loading, setLoading] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -167,7 +168,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
               >
                 <path d="M9 12H1v6a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6h-8v2H9v-2zm0-1H0V5c0-1.1.9-2 2-2h4V2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1h4a2 2 0 0 1 2 2v6h-9V9H9v2zm3-8V2H8v1h4z" />
               </svg>
-              {user?.user.role === "admin" ? "Administrateur" : "Stagiaire"}
+              {user?.user?.role || user?.role || "stagiaire"}
             </p>
 
             <p className="pt-2 text-gray-600 dark:text-gray-400 text-xs lg:text-sm flex items-center justify-center lg:justify-start">
@@ -201,7 +202,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
                   <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0 0 16 4H4a2 2 0 0 0-1.997 1.884z" />
                   <path d="M18 8.118l-8 4-8-4V14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.118z" />
                 </svg>
-                <span>{user.user.email}</span>
+                <span>{user.user.email || user.email || ""}</span>
               </div>
             </div>
           </div>

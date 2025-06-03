@@ -8,6 +8,7 @@ export default function NotificationListener() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    if (import.meta.env.MODE !== "production") return;
     // Configurez Pusher avec vos variables d'environnement
     const pusher = new Pusher(import.meta.env.VITE_PUSHER_KEY, {
       cluster: import.meta.env.VITE_PUSHER_CLUSTER,
@@ -15,9 +16,8 @@ export default function NotificationListener() {
     });
     const channel = pusher.subscribe('notification');
     channel.bind('test.notification', (data) => {
-      console.log('[PUSHER] Notification reçue', data);
       // Rafraîchir les notifications (query react-query)
-      queryClient.invalidateQueries(['notifications']);
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
       // Afficher un toast
       toast(
         <div className="flex items-center gap-2">
