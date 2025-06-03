@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import axios from "axios";
 import { useUser } from "../../context/UserContext";
 import { UserProgress } from "@/types/quiz";
@@ -15,19 +15,8 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
   const { user, logout, refetchUser } = useUser();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [loading, setLoading] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-
-  // Pré-charger l'image
-  useEffect(() => {
-    if (user?.user?.image) {
-      const img = new Image();
-      img.src = `${VITE_API_URL_MEDIA}/${
-        user.user.image
-      }?${new Date().getTime()}`;
-      img.onload = () => setImageLoaded(true);
-      img.onerror = () => setImageLoaded(false);
-    }
-  }, [user?.user?.image, VITE_API_URL_MEDIA]);
+  const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(true);
 
   const handleImageClick = useCallback(() => {
     fileInputRef.current?.click();
@@ -57,6 +46,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
       formData.append("image", file);
 
       setLoading(true);
+      setImageError(false);
 
       try {
         await axios.post(
@@ -73,6 +63,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
         toast.success("Image mise à jour avec succès");
         await refetchUser();
       } catch (error) {
+        setImageError(true);
         if (axios.isAxiosError(error)) {
           toast.error(
             error.response?.data?.message ||
@@ -84,7 +75,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
       } finally {
         setLoading(false);
         if (fileInputRef.current) {
-          fileInputRef.current.value = ""; // Reset pour permettre la sélection du même fichier
+          fileInputRef.current.value = "";
         }
       }
     },
@@ -99,15 +90,68 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
     return `${firstNameInitial}${lastNameInitial}`;
   }, [user]);
 
-  const totalPoints =
-    user?.points || userProgress?.total_points || userProgress?.totalScore || 0;
+  const totalPoints = useMemo(
+    () =>
+      user?.points ||
+      userProgress?.total_points ||
+      userProgress?.totalScore ||
+      0,
+    [user?.points, userProgress?.total_points, userProgress?.totalScore]
+  );
 
-  // URL d'image avec cache-buster
-  const imageUrl = user?.user?.image
-    ? `${VITE_API_URL_MEDIA}/${user.user.image}?${new Date(
-        user?.user?.updated_at
-      ).getTime()}`
-    : null;
+  const imageUrl = useMemo(() => {
+    if (!user?.user?.image) return null;
+    return `${VITE_API_URL_MEDIA}/${user.user.image}?${new Date(
+      user?.user?.updated_at
+    ).getTime()}`;
+  }, [user?.user?.image, user?.user?.updated_at, VITE_API_URL_MEDIA]);
+
+  const userAddress = useMemo(
+    () =>
+      [
+        user?.stagiaire?.adresse,
+        user?.stagiaire?.code_postal,
+        user?.stagiaire?.ville,
+      ]
+        .filter(Boolean)
+        .join(", ") || "Adresse non renseignée",
+    [
+      user?.stagiaire?.adresse,
+      user?.stagiaire?.code_postal,
+      user?.stagiaire?.ville,
+    ]
+  );
+
+  const renderImage = (className: string) => {
+    if (loading) {
+      return (
+        <div
+          className={`${className} bg-gray-200 dark:bg-gray-700 flex items-center justify-center`}
+        >
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brown-shade"></div>
+        </div>
+      );
+    }
+
+    if (imageUrl && !imageError) {
+      return (
+        <img
+          src={imageUrl}
+          alt={user?.user?.name || "User"}
+          className={`${className} object-cover`}
+          loading="lazy"
+          onError={() => setImageError(true)}
+        />
+      );
+    }
+    return (
+      <div
+        className={`${className} bg-brown-shade text-white flex items-center justify-center text-4xl font-bold font-montserrat`}
+      >
+        {getInitials()}
+      </div>
+    );
+  };
 
   return (
     <div className="mt-4">
@@ -124,6 +168,11 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
               alt={user?.user?.name || "User"}
               className="w-full h-full object-cover rounded-full"
               loading="eager"
+              onLoad={() => setImageLoaded(true)}
+              onError={() => {
+                setImageLoaded(false);
+                setImageError(true);
+              }}
             />
           ) : (
             <div className="bg-brown-shade text-white w-full h-full rounded-full flex items-center justify-center text-4xl font-bold font-montserrat">
@@ -220,6 +269,11 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
                 alt={user?.user?.name || "User"}
                 className="w-full h-full object-cover rounded-lg"
                 loading="eager"
+                onLoad={() => setImageLoaded(true)}
+                onError={() => {
+                  setImageLoaded(false);
+                  setImageError(true);
+                }}
               />
             ) : (
               <div className="w-full h-full bg-brown-shade text-white flex items-center justify-center text-6xl font-bold font-montserrat">
