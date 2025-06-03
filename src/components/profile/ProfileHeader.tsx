@@ -96,6 +96,10 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
     const firstNameInitial =
       user.stagiaire?.prenom?.charAt(0).toUpperCase() || "";
     const lastNameInitial = user?.user?.name.charAt(0).toUpperCase();
+  const getInitials = () => {
+    if (!user || !user.stagiaire || !user.stagiaire.prenom || !user.user || !user.user.name) return "U";
+    const firstNameInitial = user.stagiaire.prenom.charAt(0).toUpperCase();
+    const lastNameInitial = user.user.name.charAt(0).toUpperCase();
     return `${firstNameInitial}${lastNameInitial}`;
   }, [user]);
 
