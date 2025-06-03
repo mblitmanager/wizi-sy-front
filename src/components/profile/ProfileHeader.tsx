@@ -80,7 +80,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
         }
       }
     },
-    [VITE_API_URL, user?.user.id, refetchUser]
+    [VITE_API_URL, user?.user?.id, refetchUser]
   );
 
   const getInitials = useCallback(() => {
