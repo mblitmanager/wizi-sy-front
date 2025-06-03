@@ -73,7 +73,8 @@ const ProfilePage = () => {
             {Array.from({ length: 3 }).map((_, idx) => (
               <div
                 key={idx}
-                className="p-4 bg-white rounded-2xl shadow space-y-2 animate-pulse">
+                className="p-4 bg-white rounded-2xl shadow space-y-2 animate-pulse"
+              >
                 <div className="h-4 w-1/2 bg-gray-200 rounded" />
                 <div className="h-6 w-full bg-gray-100 rounded" />
               </div>
@@ -100,15 +101,17 @@ const ProfilePage = () => {
     <Layout>
       <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
         <div className="">
-          <div className="flex">
-            <div className="w-64 flex-1 ...">
-              {" "}
-              <UserStats user={user} userProgress={userProgress} />
-            </div>
-            <div className="w-64 flex-1 ...">
+          <div className="flex flex-col lg:flex-row gap-3 items-center">
+            {/* ProfileHeader - Affiché en premier sur mobile, à droite sur desktop */}
+            <div className="w-full lg:w-64 order-1 lg:order-2">
               {user && (
                 <ProfileHeader user={user} userProgress={userProgress} />
               )}
+            </div>
+
+            {/* UserStats - Affiché en deuxième sur mobile, à gauche sur desktop */}
+            <div className="w-full lg:w-32 order-2 lg:order-1">
+              <UserStats user={user} userProgress={userProgress} />
             </div>
           </div>
 
