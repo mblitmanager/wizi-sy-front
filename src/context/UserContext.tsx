@@ -119,7 +119,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Login failed");
+        throw new Error(errorData.message || "Vérifiez vos identifiants!");
       }
 
       const data = await response.json();
@@ -128,10 +128,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("token", data.token);
       setUser(data.user); // Set only the user object
       setToken(data.token);
-      toast.success("Connexion réussie");
+      toast.success("Connexion réussie" , {
+        style: { background: '#fb923c', color: '#fff' },
+        className: 'bg-orange-400 text-white',
+      });
     } catch (error) {
-      toast.error(error.message || "Erreur lors de la connexion");
-      console.error("Login error:", error);
+      toast.error(error.message || "Erreur lors de la connexion", {
+        style: { background: '#fb923c', color: '#fff' },
+        className: 'bg-orange-400 text-white',
+      });
+      console.error("Erreur lors de la connexion:", error);
     } finally {
       setIsLoading(false);
     }
@@ -158,10 +164,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem("token");
       setUser(null);
       setToken(null);
-      toast.success("Déconnexion réussie");
+      toast.success("Déconnexion réussie", {
+        style: { background: '#fb923c', color: '#fff' },
+        className: 'bg-orange-400 text-white',
+      });
     } catch (error) {
       console.error("Logout error:", error);
-      toast.error(error.message || "Erreur lors de la déconnexion");
+      toast.error(error.message || "Erreur lors de la déconnexion",{
+        style: { background: '#fb923c', color: '#fff' },
+        className: 'bg-orange-400 text-white',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -181,13 +193,19 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       if (!validTypes.includes(file.type)) {
         toast.error(
-          "Type de fichier invalide. Veuillez choisir un JPEG, PNG ou GIF."
+          "Type de fichier invalide. Veuillez choisir un JPEG, PNG ou GIF.", {
+        style: { background: '#fb923c', color: '#fff' },
+        className: 'bg-orange-400 text-white',
+      }
         );
         return;
       }
 
       if (file.size > maxSize) {
-        toast.error("Fichier trop volumineux. Taille maximale : 5MB.");
+        toast.error("Fichier trop volumineux. Taille maximale : 5MB.", {
+        style: { background: '#fb923c', color: '#fff' },
+        className: 'bg-orange-400 text-white',
+      });
         return;
       }
 
@@ -214,11 +232,17 @@ export function UserProvider({ children }: { children: ReactNode }) {
         } else {
           const errorData = await response.json();
           toast.error(
-            errorData.message || "Erreur lors de la mise à jour de l'image"
+            errorData.message || "Erreur lors de la mise à jour de l'image",{
+        style: { background: '#fb923c', color: '#fff' },
+        className: 'bg-orange-400 text-white',
+      }
           );
         }
       } catch (error) {
-        toast.error("Erreur inattendue");
+        toast.error(error.message || "Erreur inattendue",{
+        style: { background: '#fb923c', color: '#fff' },
+        className: 'bg-orange-400 text-white',
+      });
         console.error("Image upload error:", error);
       } finally {
         setIsLoading(false);
