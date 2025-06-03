@@ -43,7 +43,8 @@ const FormationCard = ({ formation }: { formation: any }) => {
 
   return (
     <div
-      className={`group p-4 border-t-4 rounded-lg border-t ${categoryColor} shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full overflow-hidden hover:translate-y-[-2px]`}>
+      className={`group p-4 border-t-4 rounded-lg border-t ${categoryColor} shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full overflow-hidden hover:translate-y-[-2px]`}
+    >
       {/* Image container - plus compact */}
       <div className="relative rounded-md overflow-hidden mb-3 h-36 bg-gray-100 flex items-center justify-center">
         <img
@@ -73,7 +74,8 @@ const FormationCard = ({ formation }: { formation: any }) => {
                 : formation.formation.categorie === "Internet"
                 ? "bg-[#FFC533]/20 text-[#FFC533]"
                 : "bg-[#9392BE]/20 text-[#9392BE]"
-            }`}>
+            }`}
+          >
             {formation.formation.categorie}
           </span>
 
@@ -98,7 +100,9 @@ const FormationCard = ({ formation }: { formation: any }) => {
               <span>{formation.duree}h</span>
             </div>
 
-            <span className="font-bold text-gray-800">{formation.tarif} €</span>
+            <span className="text-xl text-blue-900 font-extrabold drop-shadow-lg">
+              {formation.tarif} €
+            </span>
           </div>
         </div>
       </div>
@@ -107,7 +111,8 @@ const FormationCard = ({ formation }: { formation: any }) => {
       <CardFooter className="p-0 pt-3 mt-2">
         <Button
           className="w-full h-8 text-xs flex items-center justify-center gap-1 bg-[#8B5C2A]  hover:bg-[#FFC533] text-white transition-colors duration-200"
-          onClick={() => navigate(`/catalogue-formation/${formation.id}`)}>
+          onClick={() => navigate(`/catalogue-formation/${formation.id}`)}
+        >
           {VOIR_LES_DETAILS}
           <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />
         </Button>
