@@ -145,7 +145,7 @@ export function Index() {
         </Alert>
       )}
       {/* <div className=""> */}
-      <div className="mx-auto px-4 py-4">
+      <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-3xl sm:text-2xl md:text-3xl text-brown-shade font-bold">
             Tableau de bord

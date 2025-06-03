@@ -114,7 +114,7 @@ export function Classement() {
 
   return (
     <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
-        {/* Statistiques */}
+      {/* Statistiques */}
       <div className="w-full mt-[10%] md:mt-0">
         <ProfileStats
           profile={profile}
@@ -158,10 +158,7 @@ export function Classement() {
         </TabsContent>
       </Tabs>
       {/* </div> */}
-       {/* Header */}
-      
-
-   
+      {/* Header */}
     </div>
   );
 }

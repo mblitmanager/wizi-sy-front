@@ -186,7 +186,8 @@ export function QuizSummary() {
           const mapped: Record<string, string> = {};
           Object.entries(q.selectedAnswers).forEach(([leftId, rightVal]) => {
             const leftText = answersById[leftId] || leftId;
-            const rightText = answersById[rightVal as string] || (rightVal as string);
+            const rightText =
+              answersById[rightVal as string] || (rightVal as string);
             mapped[leftText] = rightText;
           });
           formattedUserAnswers[q.id] = mapped;
@@ -210,7 +211,7 @@ export function QuizSummary() {
   };
 
   return (
-    <div className="mx-auto px-4 max-w-7xl">
+    <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
       {/* <NotificationBanner /> */}
 
       {/* Header avec titre et bouton de retour */}
@@ -368,17 +369,19 @@ export function QuizSummary() {
 
         {/* Liste des questions/réponses */}
 
-        {playedQuestions.map((question: Question & { isPlayed: boolean }, index: number) => (
-          <div
-            key={question.id}
-            className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-            <QuizAnswerCard
-              question={question}
-              userAnswer={formattedUserAnswers[question.id]}
-              isPlayed={question.isPlayed}
-            />
-          </div>
-        ))}
+        {playedQuestions.map(
+          (question: Question & { isPlayed: boolean }, index: number) => (
+            <div
+              key={question.id}
+              className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+              <QuizAnswerCard
+                question={question}
+                userAnswer={formattedUserAnswers[question.id]}
+                isPlayed={question.isPlayed}
+              />
+            </div>
+          )
+        )}
 
         {/* Pied de page avec actions */}
         <div className="p-3 bg-gray-50 dark:bg-gray-700/30 border-t border-gray-100 dark:border-gray-700">

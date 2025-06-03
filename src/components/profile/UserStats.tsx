@@ -30,8 +30,7 @@ const UserStats: React.FC<UserStatsProps> = ({ user, userProgress }) => {
         <BarChart2 className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-indigo-600 dark:text-indigo-400" />
         Mes Statistiques
       </h2>
-
-      <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full max-w-md mx-auto">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full mx-auto">
         {/* Carte Points */}
         <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/30 p-2 rounded-lg shadow-sm border border-amber-100 dark:border-amber-800/50 hover:shadow-md transition-shadow duration-300">
           <div className="flex flex-col items-center">

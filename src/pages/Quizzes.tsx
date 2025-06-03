@@ -18,7 +18,7 @@ export default function Quizzes() {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 md:pb-4 max-w-7xl">
+      <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
         {!isOnline && (
           <Alert variant="destructive" className="mb-4">
             <WifiOff className="h-4 w-4" />
@@ -30,9 +30,7 @@ export default function Quizzes() {
           </Alert>
         )}
 
-        <h1 className="text-2xl font-bold mb-8">
-          
-        </h1>
+        <h1 className="text-2xl font-bold mb-8"></h1>
 
         {categoriesLoading ? (
           <div className="flex items-center justify-center min-h-[50vh]">
@@ -46,7 +44,7 @@ export default function Quizzes() {
             </TabsList> */}
             {/* <div className="mt-2 h-[calc(100vh-25rem)] overflow-y-auto p-4"> */}
             {/* <TabsContent value="mes-quizzes"> */}
-              <StagiaireQuizList />
+            <StagiaireQuizList />
             {/* </TabsContent> */}
             {/* <TabsContent value="tous-quizzes">
               <QuizList />
