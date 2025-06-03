@@ -82,9 +82,8 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
   };
 
   const getInitials = () => {
-    if (!user || !user.stagiaire.prenom) return "U";
-    const firstNameInitial =
-      user.stagiaire?.prenom?.charAt(0).toUpperCase() || "";
+    if (!user || !user.stagiaire || !user.stagiaire.prenom || !user.user || !user.user.name) return "U";
+    const firstNameInitial = user.stagiaire.prenom.charAt(0).toUpperCase();
     const lastNameInitial = user.user.name.charAt(0).toUpperCase();
     return `${firstNameInitial}${lastNameInitial}`;
   };
@@ -219,6 +218,57 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ userProgress }) => {
               className="absolute bottom-4 right-4 bg-white dark:bg-gray-800 p-2 rounded-full shadow-sm hover:scale-110 transition duration-300 border border-gray-200 dark:border-gray-600 cursor-pointer">
               <CameraIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             </div>
+          </div>
+
+          <div className="text-center space-y-1 w-full max-w-[90vw]">
+            <h2 className="text-base sm:text-lg font-bold font-montserrat text-gray-800 dark:text-white break-words px-2">
+              {user?.stagiaire?.civilite} {user?.user?.name?.toUpperCase() || ""} {user?.stagiaire?.prenom}
+            </h2>
+
+            <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 font-medium break-words px-2">
+              {user?.user?.email || ""}
+            </div>
+
+            <div className="my-1 sm:my-2">
+              <span
+                className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                  user?.user?.role === "admin"
+                    ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200"
+                    : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                }`}
+              >
+                {user?.user?.role === "admin" ? "Admin" : "Stagiaire"}
+              </span>
+            </div>
+
+            <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1 mt-1 sm:mt-2 px-2">
+              <div className="flex items-center justify-center gap-1 break-words">
+                <PhoneIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0" />
+                <span>{user?.stagiaire?.telephone || "Non renseigné"}</span>
+              </div>
+              <div className="flex items-center justify-center gap-1 break-words">
+                <MapPinIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0" />
+                <span>
+                  {[
+                    user.stagiaire?.adresse,
+                    user.stagiaire?.code_postal,
+                    user.stagiaire?.ville,
+                  ]
+                    .filter(Boolean)
+                    .join(", ") || "Adresse non renseignée"}
+                </span>
+              </div>
+            </div>
+
+            {/* <div className="flex justify-center gap-2 mt-2 sm:mt-3 flex-wrap">
+              <span className="text-xs px-2 py-0.5 sm:py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 rounded-full">
+                Niveau {userProgress?.level || 1}
+              </span>
+              <span className="text-xs px-2 py-0.5 sm:py-1 bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 rounded-full flex items-center gap-1">
+                <StarIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3" />{" "}
+                {totalPoints || 0} points
+              </span>
+            </div> */}
           </div>
         </div>
 

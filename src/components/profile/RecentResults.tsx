@@ -64,8 +64,7 @@ export const RecentResults: React.FC<RecentResultsProps> = ({
           result.completedAt || result.completed_at
             ? format(new Date(result.completedAt || result.completed_at), "dd/MM/yyyy HH:mm", { locale: fr })
             : "Date inconnue";
-        console.log("result:", result);
-        console.log("displayResults:", displayResults);
+        
         return (
           <Card key={resultId} className="w-full p-2.5 md:p-3 border border-gray-100">
             <div className="flex justify-between items-start md:items-center">
