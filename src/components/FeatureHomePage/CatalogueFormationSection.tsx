@@ -19,7 +19,7 @@ import {
 } from "@/types/stagiaire";
 import mp3 from "../../assets/mp3.png";
 import mp4 from "../../assets/mp4.png";
-import { VOIR_LES_DETAILS } from "@/utils/langue-type";
+import { VOIR_LES_DETAILS } from "@/utils/constants";
 
 interface CatalogueFormationSectionProps {
   CATALOGUE_FORMATION: string;

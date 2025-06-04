@@ -6,19 +6,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import {
-  ArrowRight,
-  BookOpen,
-  Loader2,
-  Funnel,
-  LucideTrainFrontTunnel,
-  ChevronLeft,
-} from "lucide-react";
 
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { ArrowRight, BookOpen, Loader2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import {
   useCategories,
   useFormations,
@@ -49,6 +39,10 @@ export default function Catalogue() {
     error: categoriesError,
   } = useCategories();
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory]);
+
   const filteredFormations = useMemo(() => {
     if (!formationsResponse || !selectedCategory) return [];
 
@@ -57,6 +51,7 @@ export default function Catalogue() {
       : Object.values(formationsResponse);
 
     return data.filter(
+      // @ts-expect-error formation type may not have 'formation.categorie' property due to API response shape
       (formation) => formation.formation.categorie === selectedCategory
     );
   }, [formationsResponse, selectedCategory]);
@@ -83,11 +78,6 @@ export default function Catalogue() {
     setCurrentPage(page);
   }
 
-  function handleBackToCategories(): void {
-    setSelectedCategory(null);
-    setCurrentPage(1);
-  }
-
   return (
     <Layout>
       <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
@@ -105,9 +95,6 @@ export default function Catalogue() {
             </Button>
           )}
         </div>
-
-        {/* Afficher les catégories si aucune n'est sélectionnée */}
-
         <>
           {categoriesLoading ? (
             <div className="flex items-center justify-center min-h-[30vh] sm:min-h-[50vh]">
@@ -214,7 +201,9 @@ export default function Catalogue() {
                   ))
                 : paginatedFormations.map((formation) => (
                     <FormationCard
+                      // @ts-expect-error formation type may not have 'formation.categorie' property due to API response shape
                       key={`formation-${formation.id}`}
+                      // @ts-expect-error formation type may not have 'formation.categorie' property due to API response shape
                       formation={formation}
                     />
                   ))}

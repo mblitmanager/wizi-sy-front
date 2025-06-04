@@ -1,67 +1,15 @@
 import axios from "axios";
-import axiosInstance from "../axios";
+import { Category, FormationCardData } from "@/types/Formation";
 
 const VITE_API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com";
 
-export interface Formation {
-  id: number;
-  titre: string;
-  description: string;
-  prerequis: string;
-  image_url: string;
-  tarif: string;
-  certification: string;
-  statut: number;
-  duree: string;
-  formation_id: number;
-  created_at: string;
-  updated_at: string;
-  formation: {
-    id: number;
-    titre: string;
-    slug: string | null;
-    description: string;
-    categorie: string;
-    icon: string | null;
-    image: string | null;
-    statut: number;
-    duree: string;
-    created_at: string;
-    updated_at: string;
-  };
-}
-
-export interface CatalogueResponse {
-  current_page: number;
-  data: Formation[];
-  first_page_url: string;
-  from: number;
-  last_page: number;
-  last_page_url: string;
-  links: Array<{
-    url: string | null;
-    label: string;
-    active: boolean;
-  }>;
-  next_page_url: string | null;
-  path: string;
-  per_page: number;
-  prev_page_url: string | null;
-  to: number;
-  total: number;
-}
-
-export interface Category {
-  id: number;
-  name: string;
-  description: string;
-  count: number;
-}
-
-// Fonctions séparées pour plus de clarté
-async function fetchFormations(): Promise<CatalogueResponse> {
+/**
+ * Fetch an array of FormationCardData from the backend.
+ * @returns An array of FormationCardData
+ * @throws {Error} If the request fails
+ */
+async function fetchFormations(): Promise<FormationCardData[]> {
   try {
-    // Utilisation d'axios sans header Authorization pour endpoint public
     const response = await axios.get(`${VITE_API_URL}/formationParrainage`);
     return response.data;
   } catch (error) {
@@ -70,12 +18,17 @@ async function fetchFormations(): Promise<CatalogueResponse> {
   }
 }
 
-function processCategories(formations: any): Category[] {
+/**
+ * Process an array of FormationCardData and return an array of Category.
+ * For each category, count the number of formations that belong to it.
+ * @param formations The array of FormationCardData
+ * @returns An array of Category
+ */
+function processCategories(formations: FormationCardData[]): Category[] {
   const categoriesMap = new Map<string, Category>();
 
   formations.forEach((formation) => {
     const catName = formation.formation.categorie;
-    console.log(catName);
     const existing = categoriesMap.get(catName);
 
     if (existing) {
@@ -98,7 +51,6 @@ function processCategories(formations: any): Category[] {
 
 const catalogueService = {
   getFormations: fetchFormations,
-
   async getCategories(): Promise<Category[]> {
     try {
       const formationsData = await fetchFormations();
@@ -109,6 +61,14 @@ const catalogueService = {
     }
   },
 
+  /**
+   * Constructs a full URL for an image path.
+   *
+   * @param path - The image path, which may be relative or an absolute URL.
+   * @returns The full URL to the image. If the path is an absolute URL, it is returned as-is.
+   *          If the path is empty or undefined, an empty string is returned.
+   *          Otherwise, the path is appended to the base API URL.
+   */
   getFullImageUrl(path: string): string {
     if (!path) return "";
     if (path.startsWith("http")) return path;
