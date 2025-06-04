@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/services/api";
+import { notificationAPI } from "@/services/api";
 
 interface NotificationData {
   quiz_id?: string;
@@ -13,55 +13,58 @@ interface NotificationData {
   badge_id?: string;
   badge_name?: string;
   action?: string;
+  media_id?: number;
+  media_title?: string;
 }
 
 interface Notification {
   id: number;
   user_id: number;
-  type: string;
+  type: 'quiz' | 'formation' | 'badge' | 'media';
+  title: string;
   message: string;
-  data: NotificationData;
-  read: boolean;
+  is_read: boolean;
   created_at: string;
   updated_at: string;
-}
-
-interface ApiResponse {
-  data: Notification[];
 }
 
 export function useNotifications() {
   const queryClient = useQueryClient();
 
-  const { data: notificationsData } = useQuery<ApiResponse>({
+  const { data: notificationsData } = useQuery<Notification[]>({
     queryKey: ["notifications"],
     queryFn: async () => {
       try {
-        const response = await api.get<ApiResponse>("/notifications");
+        console.log("Fetching notifications...");
+        const response = await notificationAPI.getNotifications();
+        
         return response.data;
       } catch (error) {
         console.error("Erreur lors de la récupération des notifications:", error);
-        return { data: [] };
+        return [];
       }
     },
+    refetchInterval: 12000, // Polling toutes les 5 secondes
   });
 
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ["notifications", "unread-count"],
     queryFn: async () => {
       try {
-        const response = await api.get("/notifications/unread-count");
+        const response = await notificationAPI.getUnreadCount();
+        console.log("Fetching unread count...");
         return response.data.count || 0;
       } catch (error) {
         console.error("Erreur lors de la récupération du nombre de notifications non lues:", error);
         return 0;
       }
     },
+    refetchInterval: 12000, // Polling toutes les 5 secondes
   });
 
   const markAsReadMutation = useMutation({
     mutationFn: async (id: number) => {
-      await api.post(`/notifications/${id}/read`);
+      await notificationAPI.markAsRead(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
@@ -71,7 +74,7 @@ export function useNotifications() {
 
   const markAllAsReadMutation = useMutation({
     mutationFn: async () => {
-      await api.post("/notifications/mark-all-read");
+      await notificationAPI.markAllAsRead();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
@@ -81,7 +84,7 @@ export function useNotifications() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      await api.delete(`/notifications/${id}`);
+      await notificationAPI.deleteNotification(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
@@ -90,7 +93,7 @@ export function useNotifications() {
   });
 
   // S'assurer que notifications est toujours un tableau
-  const notifications = notificationsData?.data || [];
+  const notifications = notificationsData || [];
 
   return {
     notifications,

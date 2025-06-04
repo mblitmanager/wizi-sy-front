@@ -9,10 +9,9 @@ export default defineConfig(({ mode }) => ({
     host: true,
     port: 8080,
     hmr: {
-      protocol: 'ws',
+      protocol: 'http',
       host: 'localhost',
-      port: 8080,
-      clientPort: 8080
+      port: 8080
     },
     watch: {
       usePolling: true

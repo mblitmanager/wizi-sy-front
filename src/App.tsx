@@ -5,7 +5,6 @@ import NotificationsPage from "@/pages/NotificationsPage";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import NotificationListener from "@/components/notifications/NotificationListener";
 
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -31,7 +30,6 @@ const App = () => {
             <TooltipProvider>
               <Toaster />
               <Sonner />
-              <NotificationListener />
               <RouterProvider router={router} />
             </TooltipProvider>
           </UserProvider>
