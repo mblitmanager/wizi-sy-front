@@ -34,7 +34,16 @@ const ContactSection = () => {
     queryFn: async () => {
       const data = await contactService.getContacts();
 
-      const formateurs = data.formateurs.map((f: any) => ({
+      type RawContact = {
+        id: string;
+        user: {
+          name: string;
+          email: string;
+        };
+        telephone?: string;
+      };
+
+      const formateurs = data.formateurs.map((f: RawContact) => ({
         id: f.id,
         type: "Formateur",
         name: f.user.name,
@@ -42,7 +51,7 @@ const ContactSection = () => {
         phone: f.telephone ?? "",
       }));
 
-      const commerciaux = data.commerciaux.map((c: any) => ({
+      const commerciaux = data.commerciaux.map((c: RawContact) => ({
         id: c.id,
         type: "Commercial",
         name: c.user.name,
@@ -50,7 +59,7 @@ const ContactSection = () => {
         phone: c.telephone ?? "",
       }));
 
-      const poleRelation = data.pole_relation.map((p: any) => ({
+      const poleRelation = data.pole_relation.map((p: RawContact) => ({
         id: p.id,
         type: "Pôle Relation Client",
         name: p.user.name,
