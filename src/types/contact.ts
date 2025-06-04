@@ -5,8 +5,9 @@ export interface Contact {
   nom?: string;
   prenom?: string;
   email: string;
-  telephone?: string;
+  phone?: string;
   role: string;
+  type: string;
   poste?: string;
   image_url?: string;
 }

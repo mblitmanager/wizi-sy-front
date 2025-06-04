@@ -56,4 +56,5 @@ export const INFO_OFFLINE =
 export const QUIZZES = "Quizzes";
 export const LIEN_PARRAINAGE = " Partagez et gagnez";
 export const NOS_FORMATIONS = "Nos formations";
-export const DECOUVRIR_NOUS = "Decouvrir nos formations";
+export const DECOUVRIR_NOS_FORMATIONS = "Decouvrir nos formations";
+export const CONTACTEZ_NOUS = "Contactez-nous";

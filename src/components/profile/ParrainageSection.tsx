@@ -19,7 +19,7 @@ import image from "../../assets/aopia parrainage.png";
 import { useUser } from "@/context/UserContext";
 import LienParrainage from "../parrainage/LienParainage";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
 
 const ParrainageSection = () => {
   const [parrainageLink, setParrainageLink] = useState<string>("");
@@ -74,7 +74,7 @@ const ParrainageSection = () => {
 
     fetchStats();
   }, [user?.user?.id]);
-  
+
   // Dans ParrainageSection.tsx
   const generateLink = async () => {
     try {
