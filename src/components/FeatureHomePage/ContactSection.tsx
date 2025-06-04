@@ -6,6 +6,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { contactService } from "@/services";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
+import { Contact } from "@/types/contact";
+import { CONTACTEZ_NOUS } from "@/utils/constants";
 
 const typeStyles: Record<string, string> = {
   Formateur: "bg-blue-100 text-blue-800",
@@ -13,15 +15,17 @@ const typeStyles: Record<string, string> = {
   "Pôle Relation Client": "bg-yellow-100 text-yellow-800",
 };
 
-type Contact = {
-  id: string;
-  type: string;
-  name: string;
-  email: string;
-  phone: string;
-};
+interface ContactsSectionProps {
+  commerciaux: Contact[];
+  formateurs: Contact[];
+  poleRelation: Contact[];
+}
 
-const ContactSection = () => {
+const ContactSection = ({
+  commerciaux,
+  formateurs,
+  poleRelation,
+}: ContactsSectionProps) => {
   const [showAllContacts, setShowAllContacts] = useState(false);
   const isMobile = useIsMobile();
 
@@ -94,7 +98,8 @@ const ContactSection = () => {
   const renderContactCard = (contact: Contact) => (
     <div
       key={contact.id}
-      className="bg-white shadow-md rounded-2xl p-5 border hover:shadow-lg transition">
+      className="bg-white shadow-md rounded-2xl p-5 border hover:shadow-lg transition"
+    >
       <div className="flex items-center mb-4">
         <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4">
           <User className="text-gray-500" />
@@ -106,7 +111,8 @@ const ContactSection = () => {
           <span
             className={`text-xs px-2 py-1 rounded-full font-medium ${
               typeStyles[contact.type]
-            }`}>
+            }`}
+          >
             {contact.type}
           </span>
         </div>
@@ -148,14 +154,15 @@ const ContactSection = () => {
   };
 
   return (
-    <div className="py-12 mt-4">
-      <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
-        <h1 className="text-2xl md:text-2xl font-bold mb-4 md:mb-8 text-orange-400 text-center">
-          Contactez-nous
+    <div className="py-6 mt-2">
+      <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-6 space-y-6 sm:space-y-6">
+        <h1 className="text-2xl md:text-2xl text-orange-400 font-bold mb-4 md:mb-2 text-center mt-2 py-6 relative">
+          {CONTACTEZ_NOUS}
+          {/* Ligne orange décorative */}
+          <span className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-orange-400 rounded-full"></span>
         </h1>
 
-        <div className="flex justify-between items-center mb-6">
-          <div></div>
+        <div className="flex justify-between items-center mb-3">
           <Link to="/contacts">
             <Button className="text-brown-shade" variant="ghost" size="sm">
               Voir tous <ChevronRight className="h-4 w-4 ml-1" />
@@ -191,7 +198,8 @@ const ContactSection = () => {
             <div className="mt-6 text-center">
               <button
                 onClick={() => setShowAllContacts(true)}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-amber-600 bg-amber-50 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-amber-600 bg-amber-50 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+              >
                 Voir plus de contacts
                 <ChevronDown className="ml-2 h-4 w-4" />
               </button>
