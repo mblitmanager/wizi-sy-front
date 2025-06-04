@@ -157,7 +157,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
   if (!formations || formations.length === 0) return null;
   
   return (
-    <div className="grid md:grid-cols-3 sm:grid-cols-1 gap-3 px-4 py-3">
+    <div className="grid md:grid-cols-3 sm:grid-cols-1 gap-3 px-4 py-3 mt-[-10%]">
       {selected.map((formation, idx) => {
         const ad = ads[idx];
         const isOpen = showDetailsIdx === idx;
@@ -223,12 +223,12 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                               : "#888",
                         }}
                       >
-                        {formatTitle(formation?.titre || "FORMATION")}
+                        {formatTitle(formation?.formation?.titre || "FORMATION")}
                       </span>
                     </>
                   ) : (
                     <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
-                      {formatTitle(formation.formation?.titre) || "SANS TITRE"}
+                      {formatTitle(formation?.titre) || "SANS TITRE"}
                     </span>
                   )}
                 </div>

@@ -179,7 +179,7 @@ export function Index() {
           </div>
         ) : catalogueData && catalogueData.length > 0 ? (
           <>
-            <h1 className="text-2xl md:text-2xl text-orange-400 font-bold mb-4 md:mb-8 text-center mt-4 py-12">
+            <h1 className="text-3xl md:text-2xl text-orange-400 font-bold mb-4 md:mb-8 text-center mt-4 py-12">
               Découvrez nos formations
             </h1>
             <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 px-2 py-6 md:py-12 bg-white rounded-xl mt-[-5%]">

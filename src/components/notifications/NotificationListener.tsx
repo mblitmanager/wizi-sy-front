@@ -8,11 +8,14 @@ export default function NotificationListener() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (import.meta.env.MODE !== "production") return;
+    // if (import.meta.env.MODE !== "production") return;
     // Configurez Pusher avec vos variables d'environnement
     const pusher = new Pusher(import.meta.env.VITE_PUSHER_KEY, {
       cluster: import.meta.env.VITE_PUSHER_CLUSTER,
       forceTLS: true,
+      wsHost: 'ws-mt1.pusher.com',
+  wsPort: 443,
+  enabledTransports: ['ws', 'wss']
     });
     const channel = pusher.subscribe('notification');
     channel.bind('test.notification', (data) => {

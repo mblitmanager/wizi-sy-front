@@ -175,7 +175,7 @@ export function Navbar() {
                     <span>Profil</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
+                {/* <DropdownMenuItem asChild>
                   <Link
                     to="/settings"
                     className="flex items-center w-full hover:bg-gray-100 px-2 py-1 rounded"
@@ -183,7 +183,7 @@ export function Navbar() {
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Paramètres</span>
                   </Link>
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleLogout}
