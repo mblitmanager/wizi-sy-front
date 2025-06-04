@@ -10,7 +10,7 @@ import {
   INTERNET,
   LANGUES,
   RETOUR,
-} from "@/utils/langue-type";
+} from "@/utils/constants";
 import {
   Card,
   CardHeader,
@@ -155,9 +155,9 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
   };
 
   if (!formations || formations.length === 0) return null;
-  
+
   return (
-    <div className="grid md:grid-cols-3 sm:grid-cols-1 gap-3 px-4 py-3 mt-[-10%]">
+    <div className="grid md:grid-cols-3 sm:grid-cols-1 gap-3 px-4 py-3">
       {selected.map((formation, idx) => {
         const ad = ads[idx];
         const isOpen = showDetailsIdx === idx;
@@ -167,13 +167,16 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
             className="flex flex-col justify-between h-full rounded-xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group hover:-translate-y-1"
             style={{
               minHeight: "340px",
-              backgroundImage: formation.image_url ? `url(${formation.image_url})` : undefined,
-              backgroundSize: formation.image_url ? 'cover' : undefined,
-              backgroundPosition: formation.image_url ? 'center' : undefined,
-              backgroundRepeat: 'no-repeat',
-              backgroundColor: formation.image_url ? 'rgba(255,255,255,0.95)' : undefined,
-            }}
-          >
+              backgroundImage: formation.image_url
+                ? `url(${formation.image_url})`
+                : undefined,
+              backgroundSize: formation.image_url ? "cover" : undefined,
+              backgroundPosition: formation.image_url ? "center" : undefined,
+              backgroundRepeat: "no-repeat",
+              backgroundColor: formation.image_url
+                ? "rgba(255,255,255,0.95)"
+                : undefined,
+            }}>
             {formation.image_url && (
               <div
                 className="absolute inset-0 w-full h-full bg-white"
@@ -203,8 +206,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                               : "#888",
                           borderColor: "currentColor",
                           backgroundColor: "transparent",
-                        }}
-                      >
+                        }}>
                         {formation.formation.categorie?.toUpperCase() ||
                           "CATÉGORIE"}
                       </span>
@@ -221,14 +223,13 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                               : formation.formation.categorie === "Création"
                               ? "#9392BE"
                               : "#888",
-                        }}
-                      >
-                        {formatTitle(formation?.formation?.titre || "FORMATION")}
+                        }}>
+                        {formatTitle(formation?.titre || "FORMATION")}
                       </span>
                     </>
                   ) : (
                     <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
-                      {formatTitle(formation?.titre) || "SANS TITRE"}
+                      {formatTitle(formation.formation?.titre) || "SANS TITRE"}
                     </span>
                   )}
                 </div>
@@ -296,8 +297,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                 {formation.formation && (
                   <button
                     onClick={() => setShowDetailsIdx(isOpen ? null : idx)}
-                    className="w-full text-center text-orange-500 text-sm font-medium hover:text-orange-600 transition-colors"
-                  >
+                    className="w-full text-center text-orange-500 text-sm font-medium hover:text-orange-600 transition-colors">
                     {isOpen ? "Voir moins de détails" : "Voir plus de détails"}
                   </button>
                 )}
@@ -306,8 +306,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                 <Button
                   onClick={() => handleInscription(idx)}
                   disabled={inscriptionLoading === idx}
-                  className="w-full bg-[#8B5C2A] hover:bg-[#A56B32] text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-colors"
-                >
+                  className="w-full bg-[#8B5C2A] hover:bg-[#A56B32] text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-colors">
                   {inscriptionLoading === idx
                     ? "Inscription en cours..."
                     : "S'inscrire à la formation"}
@@ -321,11 +320,12 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                         Inscription réussie !
                       </p>
                     )}
-                  {inscriptionErrorIdx === idx && inscriptionLoading === null && (
-                    <p className="text-red-600 text-sm">
-                      Erreur lors de l'inscription. Veuillez réessayer.
-                    </p>
-                  )}
+                  {inscriptionErrorIdx === idx &&
+                    inscriptionLoading === null && (
+                      <p className="text-red-600 text-sm">
+                        Erreur lors de l'inscription. Veuillez réessayer.
+                      </p>
+                    )}
                 </div>
               </div>
             </div>

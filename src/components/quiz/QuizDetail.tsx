@@ -194,8 +194,7 @@ export function QuizDetail() {
                   type="button"
                   className={`w-[85vw] max-w-sm min-w-[85vw] mx-auto ${types[currentTypeIdx].bg} border rounded-xl p-5 flex-shrink-0 flex flex-col items-center shadow-md snap-center transition-all duration-200 active:scale-95`}
                   onClick={handleNextType}
-                  aria-label="Afficher le type suivant"
-                >
+                  aria-label="Afficher le type suivant">
                   {types[currentTypeIdx].icon}
                   <span className="font-semibold text-base mb-1">
                     {types[currentTypeIdx].title}
@@ -264,8 +263,7 @@ export function QuizDetail() {
                       return;
                     }
                     navigate(`/quiz/${quiz.id}/start`);
-                  }}
-                >
+                  }}>
                   <span className="flex items-center gap-1 sm:gap-2 font-semibold text-xs sm:text-base">
                     Lancer le défi{" "}
                     <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -304,7 +302,7 @@ export function QuizDetail() {
                 <div className="relative">
                   <Swiper
                     modules={[Autoplay, Navigation, Pagination]}
-                    spaceBetween={16}
+                    spaceBetween={8}
                     slidesPerView={"auto"}
                     centeredSlides={true}
                     loop={true}
@@ -319,19 +317,47 @@ export function QuizDetail() {
                     pagination={{
                       clickable: true,
                     }}
-                    className="pb-2"
-                  >
+                    className="pb-2">
+                    {/* Styles communs */}
+                    <style>{`
+                      .quiz-card {
+                        width: 280px;
+                        height: 120px;
+                        border-radius: 0.5rem;
+                        padding: 0.75rem;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+                      }
+                      .quiz-icon {
+                        width: 1.5rem;
+                        height: 1.5rem;
+                        margin-bottom: 0.25rem;
+                      }
+                      .quiz-title {
+                        font-weight: 600;
+                        font-size: 0.75rem;
+                        line-height: 1rem;
+                        margin-bottom: 0.25rem;
+                      }
+                      .quiz-description {
+                        font-size: 0.75rem;
+                        line-height: 1rem;
+                        color: #4b5563;
+                        text-align: center;
+                      }
+                    `}</style>
+
                     {/* QCM */}
                     {(quiz.niveau === "débutant" ||
                       quiz.niveau === "intermédiaire" ||
                       quiz.niveau === "avancé") && (
                       <SwiperSlide className="!w-[180px]">
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex flex-col items-center shadow-sm h-full">
-                          <BookOpen className="w-6 h-6 text-blue-500 mb-1" />
-                          <span className="font-semibold text-xs mb-1">
-                            QCM
-                          </span>
-                          <span className="text-xs text-gray-600 text-center">
+                        <div className="quiz-card bg-blue-50 border border-blue-200">
+                          <BookOpen className="quiz-icon text-blue-500" />
+                          <span className="quiz-title">QCM</span>
+                          <span className="quiz-description">
                             Choisissez la ou les bonnes réponses parmi plusieurs
                             propositions.
                           </span>
@@ -343,91 +369,82 @@ export function QuizDetail() {
                     {(quiz.niveau === "débutant" ||
                       quiz.niveau === "intermédiaire" ||
                       quiz.niveau === "avancé") && (
-                      <SwiperSlide className="!w-[200px]">
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex flex-col items-center shadow-sm h-full">
-                          <Award className="w-6 h-6 text-green-500 mb-1" />
-                          <span className="font-semibold text-xs mb-1">
-                            Vrai / Faux
-                          </span>
-                          <span className="text-xs text-gray-600 text-center">
+                      <SwiperSlide className="!w-[180px]">
+                        <div className="quiz-card bg-green-50 border border-green-200">
+                          <Award className="quiz-icon text-green-500" />
+                          <span className="quiz-title">Vrai / Faux</span>
+                          <span className="quiz-description">
                             Indiquez si l'affirmation est vraie ou fausse.
                           </span>
                         </div>
                       </SwiperSlide>
                     )}
 
+                    {/* Question audio */}
                     {(quiz.niveau === "débutant" ||
                       quiz.niveau === "intermédiaire" ||
                       quiz.niveau === "avancé") && (
                       <SwiperSlide className="!w-[180px]">
-                        <div className=" bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex flex-col items-center shadow-sm snap-center">
-                          <span className="w-6 h-6 mb-1 text-yellow-500">
-                            🔊
-                          </span>
-                          <span className="font-semibold text-xs mb-1">
-                            Question audio
-                          </span>
-                          <span className="text-xs text-gray-600 text-center">
+                        <div className="quiz-card bg-yellow-50 border border-yellow-200">
+                          <span className="quiz-icon">🔊</span>
+                          <span className="quiz-title">Question audio</span>
+                          <span className="quiz-description">
                             Écoutez un extrait audio et répondez à la question.
                           </span>
                         </div>
                       </SwiperSlide>
                     )}
+
+                    {/* Réarrangement */}
                     {(quiz.niveau === "intermédiaire" ||
                       quiz.niveau === "avancé") && (
                       <SwiperSlide className="!w-[180px]">
-                        <div className=" bg-purple-50 border border-purple-200 rounded-lg p-3 flex flex-col items-center shadow-sm snap-center">
-                          <span className="w-6 h-6 mb-1 text-purple-500">
-                            🔀
-                          </span>
-                          <span className="font-semibold text-xs mb-1">
-                            Réarrangement
-                          </span>
-                          <span className="text-xs text-gray-600 text-center">
+                        <div className="quiz-card bg-purple-50 border border-purple-200">
+                          <span className="quiz-icon">🔀</span>
+                          <span className="quiz-title">Réarrangement</span>
+                          <span className="quiz-description">
                             Remettez des éléments dans le bon ordre.
                           </span>
                         </div>
                       </SwiperSlide>
                     )}
+
+                    {/* Matching */}
                     {(quiz.niveau === "intermédiaire" ||
                       quiz.niveau === "avancé") && (
                       <SwiperSlide className="!w-[180px]">
-                        <div className="bg-pink-50 border border-pink-200 rounded-lg p-3 flex flex-col items-center shadow-sm snap-center">
-                          <span className="w-6 h-6 mb-1 text-pink-500">🔗</span>
-                          <span className="font-semibold text-xs mb-1">
-                            Matching
-                          </span>
-                          <span className="text-xs text-gray-600 text-center">
+                        <div className="quiz-card bg-pink-50 border border-pink-200">
+                          <span className="quiz-icon">🔗</span>
+                          <span className="quiz-title">Matching</span>
+                          <span className="quiz-description">
                             Associez chaque élément à sa correspondance.
                           </span>
                         </div>
                       </SwiperSlide>
                     )}
 
+                    {/* Remplir le champ vide */}
                     {quiz.niveau === "avancé" && (
                       <SwiperSlide className="!w-[180px]">
-                        <div className=" bg-indigo-50 border border-indigo-200 rounded-lg p-3 flex flex-col items-center shadow-sm snap-center">
-                          <span className="w-6 h-6 mb-1 text-indigo-500">
-                            ✍️
-                          </span>
-                          <span className="font-semibold text-xs mb-1">
+                        <div className="quiz-card bg-indigo-50 border border-indigo-200">
+                          <span className="quiz-icon">✍️</span>
+                          <span className="quiz-title">
                             Remplir le champ vide
                           </span>
-                          <span className="text-xs text-gray-600 text-center">
+                          <span className="quiz-description">
                             Complétez la phrase ou la réponse manquante.
                           </span>
                         </div>
                       </SwiperSlide>
                     )}
 
+                    {/* Autres types */}
                     {quiz.niveau === "avancé" && (
                       <SwiperSlide className="!w-[180px]">
-                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 flex flex-col items-center shadow-sm snap-center">
-                          <span className="w-6 h-6 mb-1 text-gray-500">✨</span>
-                          <span className="font-semibold text-xs mb-1">
-                            Autres types
-                          </span>
-                          <span className="text-xs text-gray-600 text-center">
+                        <div className="quiz-card bg-gray-50 border border-gray-200">
+                          <span className="quiz-icon">✨</span>
+                          <span className="quiz-title">Autres types</span>
+                          <span className="quiz-description">
                             Questions spéciales ou interactives selon le quiz.
                           </span>
                         </div>
@@ -452,8 +469,7 @@ export function QuizDetail() {
                     {quiz.tutos.map((tuto: any, idx: number) => (
                       <div
                         key={idx}
-                        className="min-w-[220px] md:min-w-0 bg-white border border-gray-200 rounded-lg p-3 flex flex-col justify-center shadow-sm snap-center md:snap-none md:col-span-1"
-                      >
+                        className="min-w-[220px] md:min-w-0 bg-white border border-gray-200 rounded-lg p-3 flex flex-col justify-center shadow-sm snap-center md:snap-none md:col-span-1">
                         <span className="font-semibold text-xs text-indigo-700 mb-1 block truncate">
                           {tuto.titre || tuto.title || `Tuto ${idx + 1}`}
                         </span>
@@ -465,8 +481,7 @@ export function QuizDetail() {
                             href={tuto.lien}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-blue-600 underline mt-1 block truncate"
-                          >
+                            className="text-xs text-blue-600 underline mt-1 block truncate">
                             Voir le tutoriel
                           </a>
                         )}
@@ -504,8 +519,7 @@ export function QuizDetail() {
                     return;
                   }
                   navigate(`/quiz/${quiz.id}/start`);
-                }}
-              >
+                }}>
                 <span className="flex items-center gap-1 sm:gap-2 font-semibold text-xs sm:text-base">
                   Lancer le défi{" "}
                   <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />

@@ -28,7 +28,7 @@ export interface CatalogueFormation {
   formation_id: number;
   created_at: string;
   updated_at: string;
-  formation?: Formation; // formation rattachée au catalogue
+  formation?: Formation;
 }
 
 export interface Stagiaire {
@@ -50,6 +50,7 @@ export interface Stagiaire {
 
 export interface CatalogueFormationResponse {
   stagiaire: Stagiaire;
+  data: CatalogueFormation[];
   formations: Formation[];
   catalogues: CatalogueFormation[];
 }
