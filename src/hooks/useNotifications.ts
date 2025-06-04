@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { notificationAPI } from "@/services/api";
+import { useEffect, useRef } from "react";
 
 interface NotificationData {
   quiz_id?: string;
@@ -30,6 +31,7 @@ interface Notification {
 
 export function useNotifications() {
   const queryClient = useQueryClient();
+  const previousNotificationsRef = useRef<Notification[]>([]);
 
   const { data: notificationsData } = useQuery<Notification[]>({
     queryKey: ["notifications"],
@@ -37,14 +39,13 @@ export function useNotifications() {
       try {
         console.log("Fetching notifications...");
         const response = await notificationAPI.getNotifications();
-        
         return response.data;
       } catch (error) {
         console.error("Erreur lors de la récupération des notifications:", error);
         return [];
       }
     },
-    refetchInterval: 12000, // Polling toutes les 5 secondes
+    refetchInterval: 12000,
   });
 
   const { data: unreadCount = 0 } = useQuery({
@@ -59,8 +60,38 @@ export function useNotifications() {
         return 0;
       }
     },
-    refetchInterval: 12000, // Polling toutes les 5 secondes
+    refetchInterval: 12000,
   });
+
+  // Vérifier les nouvelles notifications et afficher une notification push
+  useEffect(() => {
+    if (!notificationsData) return;
+
+    const previousNotifications = previousNotificationsRef.current;
+    const newNotifications = notificationsData.filter(
+      (notification) => !previousNotifications.some((prev) => prev.id === notification.id)
+    );
+
+    if (newNotifications.length > 0) {
+      // Demander la permission si ce n'est pas déjà fait
+      if (Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+
+      // Afficher une notification pour chaque nouvelle notification
+      if (Notification.permission === "granted") {
+        newNotifications.forEach((notification) => {
+          new Notification(notification.title, {
+            body: notification.message,
+            icon: "/favicon.ico", // Assurez-vous d'avoir une icône appropriée
+          });
+        });
+      }
+    }
+
+    // Mettre à jour la référence des notifications précédentes
+    previousNotificationsRef.current = notificationsData;
+  }, [notificationsData]);
 
   const markAsReadMutation = useMutation({
     mutationFn: async (id: number) => {
@@ -92,7 +123,6 @@ export function useNotifications() {
     },
   });
 
-  // S'assurer que notifications est toujours un tableau
   const notifications = notificationsData || [];
 
   return {
