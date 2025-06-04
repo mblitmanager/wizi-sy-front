@@ -7,6 +7,16 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { useUser } from '@/context/UserContext';
 import { toast } from 'sonner';
 
+interface Notification {
+  id: number;
+  type: 'quiz' | 'formation' | 'badge' | 'media';
+  title: string;
+  message: string;
+  read: boolean;
+  created_at: string;
+  data?: Record<string, any>;
+}
+
 // Icône par type de notification
 const getNotificationIcon = (type: string) => {
   switch (type) {
@@ -16,6 +26,8 @@ const getNotificationIcon = (type: string) => {
       return '📚';
     case 'badge':
       return '🏆';
+    case 'media':
+      return '📺';
     default:
       return '🔔';
   }
@@ -31,7 +43,13 @@ const EmptyState = () => (
 );
 
 // Composant Notification individuel
-const NotificationItem = ({ notification, markAsRead, deleteNotification }: any) => (
+interface NotificationItemProps {
+  notification: Notification;
+  markAsRead: (id: number) => void;
+  deleteNotification: (id: number) => void;
+}
+
+const NotificationItem = ({ notification, markAsRead, deleteNotification }: NotificationItemProps) => (
   <Card
     className={`p-3 sm:p-4 border border-gray-100 shadow-none transition-colors flex flex-col gap-3 ${
       notification.read ? 'bg-gray-50' : 'bg-white'
@@ -40,6 +58,7 @@ const NotificationItem = ({ notification, markAsRead, deleteNotification }: any)
     <div className="flex items-start gap-3">
       <span className="text-2xl mt-1">{getNotificationIcon(notification.type)}</span>
       <div className="flex-1">
+        <h4 className="text-sm font-medium text-gray-900 mb-1">{notification.title}</h4>
         <p className="text-sm text-gray-700 mb-1">{notification.message}</p>
         <p className="text-xs text-gray-400">
           {new Date(notification.created_at).toLocaleString('fr-FR', {
@@ -85,7 +104,7 @@ export default function NotificationsPage() {
   } = useNotifications();
 
   // État local pour affichage instantané
-  const [notifications, setNotifications] = useState(notificationsFromHook);
+  const [notifications, setNotifications] = useState<Notification[]>(notificationsFromHook);
 
   // Sync local state uniquement si le contenu a changé (évite boucle infinie)
   useEffect(() => {
@@ -98,19 +117,19 @@ export default function NotificationsPage() {
   }, [notificationsFromHook, notifications]);
 
   // Suppression instantanée
-  const handleDelete = useCallback((id: string) => {
+  const handleDelete = useCallback((id: number) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
     deleteNotification(id);
   }, [deleteNotification]);
 
   // Marquer comme lu lors du scroll (IntersectionObserver)
-  const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const itemRefs = useRef<Record<number, HTMLDivElement | null>>({});
   useEffect(() => {
     const observer = new window.IntersectionObserver(
       entries => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
-            const notifId = entry.target.getAttribute('data-id');
+            const notifId = Number(entry.target.getAttribute('data-id'));
             const notif = notifications.find(n => n.id === notifId);
             if (notif && !notif.read) {
               markAsRead(notif.id);
@@ -135,7 +154,6 @@ export default function NotificationsPage() {
         toast(
           <div className="flex items-center gap-2 bg-orange-400 text-white p-3 rounded">
             <span>{getNotificationIcon(newNotif.type)}</span>
-            {/* <span className="font-medium">Nouvelle notification :</span> */}
             <span className="truncate max-w-xs">{newNotif.message}</span>
           </div>,
           { duration: 5000 }
@@ -143,14 +161,14 @@ export default function NotificationsPage() {
 
         if ('Notification' in window) {
           if (Notification.permission === 'granted') {
-            new Notification('Nouvelle notification', {
+            new Notification(newNotif.title, {
               body: newNotif.message,
               icon: '/favicon.ico'
             });
           } else if (Notification.permission !== 'denied') {
             Notification.requestPermission().then(permission => {
               if (permission === 'granted') {
-                new Notification('Nouvelle notification', {
+                new Notification(newNotif.title, {
                   body: newNotif.message,
                   icon: '/favicon.ico'
                 });
@@ -162,6 +180,9 @@ export default function NotificationsPage() {
     }
     prevNotifCount.current = notifications.length;
   }, [notifications]);
+  console.log(notifications);
+  console.log(notificationsFromHook);
+  console.log(user);
 
   return (
     <Layout>
@@ -173,7 +194,7 @@ export default function NotificationsPage() {
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <Button
                 variant="outline"
-                onClick={markAllAsRead}
+                onClick={() => markAllAsRead()}
                 className="text-sm w-full sm:w-auto"
               >
                 <Check className="h-4 w-4 mr-2" />

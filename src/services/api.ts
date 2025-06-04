@@ -2,7 +2,7 @@ import { CatalogueFormationResponse } from "@/types/stagiaire";
 import axios from "axios";
 
 const VITE_API_URL =
-  import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
+  import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 export const api = axios.create({
   baseURL: VITE_API_URL,
@@ -133,6 +133,11 @@ export const notificationAPI = {
     api.post("/notifications/register-device", { token }),
   unregisterDevice: (token: string) =>
     api.delete("/notifications/unregister-device", { data: { token } }),
+  getNotifications: () => api.get("/notifications"),
+  getUnreadCount: () => api.get("/notifications/unread-count"),
+  markAsRead: (id: number) => api.post(`/notifications/${id}/read`),
+  markAllAsRead: () => api.post("/notifications/mark-all-read"),
+  deleteNotification: (id: number) => api.delete(`/notifications/${id}`),
 };
 
 export const formationApi = {
