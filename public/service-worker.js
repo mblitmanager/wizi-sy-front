@@ -4,7 +4,13 @@ const DYNAMIC_CACHE = 'wizi-learn-dynamic-cache-v1';
 
 // Vérification de la compatibilité
 const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 const isAndroid = /android/i.test(navigator.userAgent);
+
+// Vérification de la disponibilité des notifications
+const isNotificationSupported = 'Notification' in self && 
+                              'serviceWorker' in navigator && 
+                              'PushManager' in self;
 
 // Assets to cache on install
 const ASSETS_TO_CACHE = [
@@ -114,46 +120,54 @@ self.addEventListener('fetch', (event) => {
 // Push notifications handler avec vérification de compatibilité
 self.addEventListener('push', function(event) {
   // Vérifier si les notifications sont supportées
-  if (!self.registration.showNotification) {
-    console.log('Notifications non supportées');
+  if (!isNotificationSupported || isIOS) {
+    console.log('Notifications non supportées sur cette plateforme');
     return;
   }
 
   if (event.data) {
-    const data = event.data.json();
-    const options = {
-      body: data.message,
-      icon: '/favicon.ico',
-      tag: `notification-${data.id}`,
-      requireInteraction: true,
-      data: {
-        id: data.id
-      }
-    };
+    try {
+      const data = event.data.json();
+      const options = {
+        body: data.message,
+        icon: '/favicon.ico',
+        tag: `notification-${data.id}`,
+        requireInteraction: true,
+        data: {
+          id: data.id
+        }
+      };
 
-    event.waitUntil(
-      self.registration.showNotification(data.title, options)
-    );
+      event.waitUntil(
+        self.registration.showNotification(data.title, options)
+      );
+    } catch (error) {
+      console.error('Erreur lors du traitement de la notification:', error);
+    }
   }
 });
 
-// Notification click handler
+// Notification click handler avec gestion des erreurs
 self.addEventListener('notificationclick', function(event) {
-  event.notification.close();
-  
-  // Gestion spéciale pour Android
-  if (isAndroid) {
-    event.waitUntil(
-      clients.matchAll({type: 'window'}).then((clientList) => {
-        if (clientList.length > 0) {
-          return clientList[0].focus();
-        }
-        return clients.openWindow('/notifications');
-      })
-    );
-  } else {
-    event.waitUntil(
-      clients.openWindow('/notifications')
-    );
+  try {
+    event.notification.close();
+    
+    // Gestion spéciale pour Android
+    if (isAndroid) {
+      event.waitUntil(
+        clients.matchAll({type: 'window'}).then((clientList) => {
+          if (clientList.length > 0) {
+            return clientList[0].focus();
+          }
+          return clients.openWindow('/notifications');
+        })
+      );
+    } else {
+      event.waitUntil(
+        clients.openWindow('/notifications')
+      );
+    }
+  } catch (error) {
+    console.error('Erreur lors du clic sur la notification:', error);
   }
 });
