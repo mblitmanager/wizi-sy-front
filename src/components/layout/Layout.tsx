@@ -43,7 +43,7 @@ export function Layout({ children }: LayoutProps) {
       {/* Contenu principal */}
       <div className="flex flex-col flex-1 h-screen">
         {/* Barre du haut (Navbar) */}
-        <header className="h-14 border-b border-gray-200 bg-white shadow-sm px-4 flex items-center flex-shrink-0">
+        <header className="h-14 border-b border-gray-200 bg-white shadow-sm  flex items-center flex-shrink-0">
           <Navbar />
         </header>
         {/* Bannière en haut (uniquement sur desktop) */}
@@ -59,9 +59,9 @@ export function Layout({ children }: LayoutProps) {
                       50€.
                     </span>{" "}
                   </span>
-                    <span className="ml-2 text-xs sm:text-sm text-[#895129] hidden sm:inline font-bold">
+                  <span className="ml-2 text-xs sm:text-sm text-[#895129] hidden sm:inline font-bold">
                     Profitez de notre offre de parrainage dès maintenant !
-                    </span>
+                  </span>
                 </div>
               </div>
               <div className="flex items-center space-x-1 sm:space-x-2">
@@ -97,7 +97,7 @@ export function Layout({ children }: LayoutProps) {
 
         {/* Bannière en bas (uniquement sur mobile) */}
         {showBanner && isMobile && (
-          <div className="fixed top-[54px] left-0 right-0 bg-[#feb823] rounded-2xl text-white z-40">
+          <div className="fixed top-[54px] left-0 right-0 bg-[#feb823] rounded-b-lg text-white z-40">
             <div className="container mx-auto px-3 py-2 flex items-center justify-between">
               <div className="flex items-center overflow-hidden">
                 <Gift className="h-4 w-4 mr-2 flex-shrink-0" />
