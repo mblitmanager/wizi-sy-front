@@ -260,14 +260,14 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({
       },
     },
   };
-
   return (
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="space-y-8">
+        className="space-y-8"
+      >
         {/* En-tête avec statistiques globales */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
@@ -281,7 +281,7 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({
             },
             {
               title: "Score moyen",
-              value: progressStats?.daily_progress[0]?.average_score || 0,
+              value: progressStats?.daily_progress[0]?.average_points || 0,
               suffix: "%",
               delay: 0.1,
             },
@@ -305,7 +305,8 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: stat.delay }}
-              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+            >
               <h3 className="text-lg font-semibold text-gray-700 mb-2">
                 {stat.title}
               </h3>
@@ -322,13 +323,15 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+          >
             <Line data={lineChartData} options={lineChartOptions} />
           </motion.div>
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+          >
             <Doughnut data={doughnutChartData} options={doughnutChartOptions} />
           </motion.div>
         </div>
@@ -339,7 +342,8 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+            >
               <h3 className="text-lg font-semibold text-gray-700 mb-4">
                 Points forts
               </h3>
@@ -350,13 +354,15 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="flex items-center justify-between">
+                    className="flex items-center justify-between"
+                  >
                     <span className="text-gray-600">
                       {strength.category_name}
                     </span>
                     <span
                       className="font-semibold"
-                      style={{ color: categoryColors[strength.category_name] }}>
+                      style={{ color: categoryColors[strength.category_name] }}
+                    >
                       {strength.score}%
                     </span>
                   </motion.div>
@@ -366,7 +372,8 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+            >
               <h3 className="text-lg font-semibold text-gray-700 mb-4">
                 Points à améliorer
               </h3>
@@ -377,13 +384,15 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="flex items-center justify-between">
+                    className="flex items-center justify-between"
+                  >
                     <span className="text-gray-600">
                       {weakness.category_name}
                     </span>
                     <span
                       className="font-semibold"
-                      style={{ color: categoryColors[weakness.category_name] }}>
+                      style={{ color: categoryColors[weakness.category_name] }}
+                    >
                       {weakness.score}%
                     </span>
                   </motion.div>
@@ -397,7 +406,8 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+          className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+        >
           <h3 className="text-lg font-semibold text-gray-700 mb-4">
             Progression par catégorie
           </h3>
@@ -408,12 +418,14 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="space-y-2">
+                className="space-y-2"
+              >
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">{stat.category}</span>
                   <span
                     className="font-semibold"
-                    style={{ color: categoryColors[stat.category] }}>
+                    style={{ color: categoryColors[stat.category] }}
+                  >
                     {stat.completionRate}%
                   </span>
                 </div>
