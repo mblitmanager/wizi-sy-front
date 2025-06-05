@@ -2,6 +2,10 @@
 const CACHE_NAME = 'wizi-learn-cache-v1';
 const DYNAMIC_CACHE = 'wizi-learn-dynamic-cache-v1';
 
+// Vérification de la compatibilité
+const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+const isAndroid = /android/i.test(navigator.userAgent);
+
 // Assets to cache on install
 const ASSETS_TO_CACHE = [
   '/',
@@ -60,8 +64,19 @@ self.addEventListener('fetch', (event) => {
   if (event.request.url.includes('/api/')) {
     return fetch(event.request);
   }
+
+  // Gestion spéciale pour Safari
+  if (isSafari) {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => {
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
   
-  // Cache-first strategy
+  // Cache-first strategy pour les autres navigateurs
   event.respondWith(
     caches.match(event.request)
       .then((cachedResponse) => {
@@ -96,8 +111,14 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Push notifications handler (keeping existing code)
+// Push notifications handler avec vérification de compatibilité
 self.addEventListener('push', function(event) {
+  // Vérifier si les notifications sont supportées
+  if (!self.registration.showNotification) {
+    console.log('Notifications non supportées');
+    return;
+  }
+
   if (event.data) {
     const data = event.data.json();
     const options = {
@@ -116,11 +137,23 @@ self.addEventListener('push', function(event) {
   }
 });
 
-// Notification click handler (keeping existing code)
+// Notification click handler
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
   
-  event.waitUntil(
-    clients.openWindow('/notifications')
-  );
+  // Gestion spéciale pour Android
+  if (isAndroid) {
+    event.waitUntil(
+      clients.matchAll({type: 'window'}).then((clientList) => {
+        if (clientList.length > 0) {
+          return clientList[0].focus();
+        }
+        return clients.openWindow('/notifications');
+      })
+    );
+  } else {
+    event.waitUntil(
+      clients.openWindow('/notifications')
+    );
+  }
 });
