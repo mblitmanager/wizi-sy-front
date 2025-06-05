@@ -58,7 +58,7 @@ export function Navbar() {
     };
     if (user) fetchFilleuls();
   }, [user]);
-  
+
   const getInitials = () => {
     if (!user) return "U";
     const firstNameInitial = user?.stagiaire?.prenom?.[0]?.toUpperCase() || "";
@@ -80,44 +80,40 @@ export function Navbar() {
   };
 
   return (
-    <nav className="px-4 md:px-6 py-2 sticky top-0 z-50 w-full">
-      <div className="flex justify-between items-center w-full">
+    <nav className="px-2 md:px-6 py-2 sticky top-0 z-50 w-full bg-amber-300 md:bg-white">
+      <div className="w-full">
         {/* Bloc gauche - Logo uniquement mobile */}
-        <div className="max-w-sm">
+        {/* <div className="max-w-sm">
           {isMobile && <img src={logo} alt="Logo" className="h-8 w-auto" />}
-        </div>
+        </div> */}
 
         {/* Bloc droite - Notifications + Dropdown */}
         {user && (
-          <div className="flex items-center gap-4">
-            <Link to="/notifications">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative hover:bg-gray-100 transition"
-              >
-                <Bell className="h-5 w-5 text-gray-600" />
-                {unreadCount > 0 && (
-                  <Badge className="absolute -top-1 -right-1 px-1.5 h-5 min-w-5 text-xs bg-amber-500 text-white animate-pulse">
-                    {unreadCount}
-                  </Badge>
-                )}
-              </Button>
-            </Link>
+          <div className="flex justify-between md:justify-end items-center gap-4">
+            <div className="flex items-center gap-3">
+              <Link to="/notifications">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative hover:bg-gray-100 transition"
+                >
+                  <Bell className="h-5 w-5 text-gray-600" />
+                  {unreadCount > 0 && (
+                    <Badge className="absolute -top-1 -right-1 px-1.5 h-5 min-w-5 text-xs bg-amber-500 text-white animate-pulse">
+                      {unreadCount}
+                    </Badge>
+                  )}
+                </Button>
+              </Link>
 
-            {userScore !== null && (
-              <span className="ml-2 text-sm">
-                <Trophy className="inline h-4 w-4 mr-1" />
-                {userScore} pts
-              </span>
-            )}
-            {filleulsCount !== null && (
-              <span className="ml-2 text-sm flex items-center">
-                <Users className="inline h-4 w-4 mr-1" />
-                {filleulsCount}
-                {/* filleul{filleulsCount > 1 ? "s" : ""} */}
-              </span>
-            )}
+              {userScore !== null && (
+                <span className="ml-2 text-sm">
+                  <Trophy className="inline h-4 w-4 mr-1" />
+                  {userScore} pts
+                </span>
+              )}
+            </div>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="relative flex items-center gap-2 p-1 rounded-full hover:shadow-md transition focus:outline-none">
