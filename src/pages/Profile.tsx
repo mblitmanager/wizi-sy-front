@@ -32,14 +32,17 @@ const ProfilePage = () => {
   
   // Mémoïsation des composants enfants pour éviter des rendus inutiles
   const MemoizedProfileHeader = useMemo(() => {
+    if (!user || !userProgress) return null;
     return <ProfileHeader user={user} userProgress={userProgress} />;
   }, [user, userProgress]);
 
   const MemoizedUserStats = useMemo(() => {
+    if (!user || !userProgress) return null;
     return <UserStats user={user} userProgress={userProgress} />;
   }, [user, userProgress]);
 
   const MemoizedCategoryProgress = useMemo(() => {
+    if (!categories || !userProgress) return null;
     return (
       <CategoryProgress categories={categories} userProgress={userProgress} />
     );
@@ -56,6 +59,7 @@ const ProfilePage = () => {
   }, [quizHistory, isLoading]);
 
   const MemoizedFormationCatalogue = useMemo(() => {
+    if (!formations) return null;
     return <FormationCatalogue formations={formations} />;
   }, [formations]);
 
@@ -127,12 +131,12 @@ const ProfilePage = () => {
           <div className="flex flex-col items-center lg:flex-row">
             {/* Partie principale - Utilisation des composants mémoïsés */}
             <div className="w-full mt-6 p-6 lg:w-2/4 lg:order-2 lg:mt-0">
-              {MemoizedProfileHeader}
+              {MemoizedProfileHeader || <div>Chargement du profil...</div>}
             </div>
 
             {/* Sidebar stats */}
             <div className="dark:bg-gray-700 p-6 lg:w-2/4 lg:order-1">
-              {MemoizedUserStats}
+              {MemoizedUserStats || <div>Chargement des statistiques...</div>}
             </div>
           </div>
         </div>
@@ -143,7 +147,9 @@ const ProfilePage = () => {
             <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
               Votre progression
             </h3>
-            <div className="overflow-x-auto">{MemoizedCategoryProgress}</div>
+            <div className="overflow-x-auto">
+              {MemoizedCategoryProgress || <div>Chargement de la progression...</div>}
+            </div>
           </div>
 
           <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
@@ -157,7 +163,7 @@ const ProfilePage = () => {
             <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
               Mes formations
             </h3>
-            {MemoizedFormationCatalogue}
+            {MemoizedFormationCatalogue || <div>Chargement des formations...</div>}
           </div>
         </div>
       </div>
