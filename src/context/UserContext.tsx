@@ -36,7 +36,7 @@ export const UserContext = createContext<UserContextType | undefined>(
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const VITE_API_URL =
-    import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
+    import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -128,14 +128,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("token", data.token);
       setUser(data.user); // Set only the user object
       setToken(data.token);
-      toast.success("Connexion réussie" , {
-        style: { background: '#fb923c', color: '#fff' },
-        className: 'bg-orange-400 text-white',
+      toast.success("Connexion réussie", {
+        style: { background: "#fb923c", color: "#fff" },
+        className: "bg-orange-400 text-white",
       });
     } catch (error) {
       toast.error(error.message || "Erreur lors de la connexion", {
-        style: { background: '#fb923c', color: '#fff' },
-        className: 'bg-orange-400 text-white',
+        style: { background: "#fb923c", color: "#fff" },
+        className: "bg-orange-400 text-white",
       });
       console.error("Erreur lors de la connexion:", error);
     } finally {
@@ -165,14 +165,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
       setUser(null);
       setToken(null);
       toast.success("Déconnexion réussie", {
-        style: { background: '#fb923c', color: '#fff' },
-        className: 'bg-orange-400 text-white',
+        style: { background: "#fb923c", color: "#fff" },
+        className: "bg-orange-400 text-white",
       });
     } catch (error) {
       console.error("Logout error:", error);
-      toast.error(error.message || "Erreur lors de la déconnexion",{
-        style: { background: '#fb923c', color: '#fff' },
-        className: 'bg-orange-400 text-white',
+      toast.error(error.message || "Erreur lors de la déconnexion", {
+        style: { background: "#fb923c", color: "#fff" },
+        className: "bg-orange-400 text-white",
       });
     } finally {
       setIsLoading(false);
@@ -193,19 +193,20 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       if (!validTypes.includes(file.type)) {
         toast.error(
-          "Type de fichier invalide. Veuillez choisir un JPEG, PNG ou GIF.", {
-        style: { background: '#fb923c', color: '#fff' },
-        className: 'bg-orange-400 text-white',
-      }
+          "Type de fichier invalide. Veuillez choisir un JPEG, PNG ou GIF.",
+          {
+            style: { background: "#fb923c", color: "#fff" },
+            className: "bg-orange-400 text-white",
+          }
         );
         return;
       }
 
       if (file.size > maxSize) {
         toast.error("Fichier trop volumineux. Taille maximale : 5MB.", {
-        style: { background: '#fb923c', color: '#fff' },
-        className: 'bg-orange-400 text-white',
-      });
+          style: { background: "#fb923c", color: "#fff" },
+          className: "bg-orange-400 text-white",
+        });
         return;
       }
 
@@ -232,17 +233,18 @@ export function UserProvider({ children }: { children: ReactNode }) {
         } else {
           const errorData = await response.json();
           toast.error(
-            errorData.message || "Erreur lors de la mise à jour de l'image",{
-        style: { background: '#fb923c', color: '#fff' },
-        className: 'bg-orange-400 text-white',
-      }
+            errorData.message || "Erreur lors de la mise à jour de l'image",
+            {
+              style: { background: "#fb923c", color: "#fff" },
+              className: "bg-orange-400 text-white",
+            }
           );
         }
       } catch (error) {
-        toast.error(error.message || "Erreur inattendue",{
-        style: { background: '#fb923c', color: '#fff' },
-        className: 'bg-orange-400 text-white',
-      });
+        toast.error(error.message || "Erreur inattendue", {
+          style: { background: "#fb923c", color: "#fff" },
+          className: "bg-orange-400 text-white",
+        });
         console.error("Image upload error:", error);
       } finally {
         setIsLoading(false);

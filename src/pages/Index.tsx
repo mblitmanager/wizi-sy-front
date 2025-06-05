@@ -17,6 +17,7 @@ import LienParrainage from "@/components/parrainage/LienParainage";
 import { Card, CardContent } from "@mui/material";
 import LandingPage from "./LandingPage";
 import {
+  DECOUVRIR_NOS_FORMATIONS,
   DECOUVRIR_NOUS,
   INFO_OFFLINE,
   LIEN_PARRAINAGE,
@@ -64,6 +65,26 @@ export function Index() {
     },
   });
   const isLoading = isLoadingCatalogue;
+  const { data: commerciaux, isLoading: loadingCommerciaux } = useQuery<
+    Contact[]
+  >({
+    queryKey: ["contacts", "commerciaux"],
+    queryFn: () => fetchContacts("commerciaux"),
+  });
+
+  const { data: formateurs, isLoading: loadingFormateurs } = useQuery<
+    Contact[]
+  >({
+    queryKey: ["contacts", "formateurs"],
+    queryFn: () => fetchContacts("formateurs"),
+  });
+
+  const { data: poleRelation, isLoading: loadingPoleRelation } = useQuery<
+    Contact[]
+  >({
+    queryKey: ["contacts", "pole-relation"],
+    queryFn: () => fetchContacts("pole-relation"),
+  });
   if (!user) {
     return <LandingPage />;
   }
@@ -112,10 +133,12 @@ export function Index() {
           </div>
         ) : catalogueData && catalogueData.length > 0 ? (
           <>
-            <h1 className="text-2xl md:text-2xl text-orange-400 font-bold mb-4 md:mb-8 text-center mt-4 py-12">
-              {DECOUVRIR_NOUS}
+            <h1 className="text-2xl md:text-2xl text-orange-400 font-bold mb-4 md:mb-2 text-center mt-4 py-6 relative">
+              {DECOUVRIR_NOS_FORMATIONS}
+              {/* Ligne orange décorative */}
+              <span className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-orange-400 rounded-full"></span>
             </h1>
-            <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 px-2 py-6 md:py-12 bg-white rounded-xl mt-[-5%]">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 px-2 py-6 md:py-3 bg-white rounded-xl">
               {/* Colonne illustration */}
               <div className="hidden md:flex md:w-1/3 justify-center mb-4 md:mb-0">
                 <img
@@ -138,9 +161,13 @@ export function Index() {
           </div>
         )}
         <hr />
-        <div className="bg-white p-3 md:p-4 rounded-lg mt-4">
+        <div className="bg-white md:p-4 rounded-lg mt-2">
           {/* Section des contacts */}
-          <ContactsSection />
+          <ContactsSection
+            commerciaux={commerciaux}
+            formateurs={formateurs}
+            poleRelation={poleRelation}
+          />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
           <ProgressCard user={user} />
