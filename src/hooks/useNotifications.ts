@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { notificationAPI } from "@/services/api";
 import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface NotificationData {
   quiz_id?: string;
@@ -32,6 +33,7 @@ interface Notification {
 export function useNotifications() {
   const queryClient = useQueryClient();
   const previousNotificationsRef = useRef<Notification[]>([]);
+  const navigate = useNavigate();
 
   const { data: notificationsData } = useQuery<Notification[]>({
     queryKey: ["notifications"],
@@ -80,18 +82,28 @@ export function useNotifications() {
 
       // Afficher une notification pour chaque nouvelle notification
       if (Notification.permission === "granted") {
-        newNotifications.forEach((notification) => {
-          new Notification(notification.title, {
-            body: notification.message,
-            icon: "/favicon.ico", // Assurez-vous d'avoir une icône appropriée
-          });
+        newNotifications.forEach(async (notification) => {
+          try {
+            const registration = await navigator.serviceWorker.ready;
+            await registration.showNotification(notification.title, {
+              body: notification.message,
+              icon: "/favicon.ico",
+              tag: `notification-${notification.id}`,
+              requireInteraction: true,
+              data: {
+                id: notification.id
+              }
+            });
+          } catch (error) {
+            console.error("Erreur lors de l'affichage de la notification:", error);
+          }
         });
       }
     }
 
     // Mettre à jour la référence des notifications précédentes
     previousNotificationsRef.current = notificationsData;
-  }, [notificationsData]);
+  }, [notificationsData, navigate]);
 
   const markAsReadMutation = useMutation({
     mutationFn: async (id: number) => {

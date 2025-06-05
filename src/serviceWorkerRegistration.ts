@@ -1,40 +1,13 @@
-
 // Check if service workers are supported
 export function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      const swUrl = '/service-worker.js';
-      
-      navigator.serviceWorker
-        .register(swUrl)
-        .then((registration) => {
-          console.log('Service Worker registered with scope:', registration.scope);
-          
-          // Check for updates on page refresh
-          registration.update();
-          
-          // Add an update listener
-          registration.onupdatefound = () => {
-            const installingWorker = registration.installing;
-            if (installingWorker) {
-              installingWorker.onstatechange = () => {
-                if (installingWorker.state === 'installed') {
-                  if (navigator.serviceWorker.controller) {
-                    // At this point, the updated content has been fetched,
-                    // but the previous service worker will still serve older
-                    // content until all client tabs are closed.
-                    console.log('New content is available; please refresh.');
-                  } else {
-                    // At this point, everything has been precached.
-                    console.log('Content is cached for offline use.');
-                  }
-                }
-              };
-            }
-          };
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(registration => {
+          console.log('Service Worker enregistré avec succès:', registration);
         })
-        .catch((error) => {
-          console.error('Error during service worker registration:', error);
+        .catch(error => {
+          console.error('Erreur lors de l\'enregistrement du Service Worker:', error);
         });
     });
   }

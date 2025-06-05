@@ -97,52 +97,30 @@ self.addEventListener('fetch', (event) => {
 });
 
 // Push notifications handler (keeping existing code)
-self.addEventListener('push', (event) => {
-  console.log('[Service Worker] Notification push reçue', event);
-
-  let notificationData = {};
+self.addEventListener('push', function(event) {
   if (event.data) {
-    try {
-      notificationData = event.data.json();
-    } catch (e) {
-      console.error('Erreur lors du parsing des données de notification', e);
-    }
+    const data = event.data.json();
+    const options = {
+      body: data.message,
+      icon: '/favicon.ico',
+      tag: `notification-${data.id}`,
+      requireInteraction: true,
+      data: {
+        id: data.id
+      }
+    };
+
+    event.waitUntil(
+      self.registration.showNotification(data.title, options)
+    );
   }
-
-  const title = notificationData.title || 'Notification';
-  const options = {
-    body: notificationData.body || 'Vous avez reçu une notification.',
-    icon: notificationData.icon || '/icons/notification.png',
-    badge: notificationData.badge || '/icons/badge.png',
-    data: notificationData.data || {}
-  };
-
-  event.waitUntil(
-    self.registration.showNotification(title, options)
-  );
 });
 
 // Notification click handler (keeping existing code)
-self.addEventListener('notificationclick', (event) => {
-  console.log('[Service Worker] Notification cliquée', event);
-
+self.addEventListener('notificationclick', function(event) {
   event.notification.close();
-
-  // Gérer les actions en fonction du type de notification
-  const data = event.notification.data || {};
-  let url = '/';
-
-  if (data.type === 'quiz-available' && data.quizId) {
-    url = `/quiz/${data.quizId}`;
-  } else if (data.type === 'formation-update' && data.formationId) {
-    url = `/formation/${data.formationId}`;
-  } else if (data.type === 'quiz-completed') {
-    url = '/quiz';
-  } else if (data.type === 'reward-earned') {
-    url = '/profile';
-  }
-
+  
   event.waitUntil(
-    clients.openWindow(url)
+    clients.openWindow('/notifications')
   );
 });
