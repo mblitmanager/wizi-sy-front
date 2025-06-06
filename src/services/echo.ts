@@ -40,4 +40,9 @@ const echo = new Echo({
     }
 });
 
+echo.private('notifications')
+    .listen('.quiz.notification', (e) => {
+        console.log(e);
+    });
+
 export default echo; 
