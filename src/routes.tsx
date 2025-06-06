@@ -1,4 +1,4 @@
-// src/routes.ts
+// src/routes.tsx
 import { Index } from "@/pages/Index";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
@@ -20,91 +20,90 @@ import ParrainageInscriptionPage from "@/pages/ParrainageInscriptionPage";
 import CatalogueFormationDetails from "@/components/catalogueFormation/CatalogueFormationDetails";
 import NotificationsPage from "@/pages/NotificationsPage";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import React from "react";
 
 export const routes = [
   {
     path: "/",
-    element: React.createElement(Index),
+    element: <Index />,
   },
   {
     path: "/login",
-    element: React.createElement(Login),
+    element: <Login />,
   },
   {
     path: "/register",
-    element: React.createElement(Register),
+    element: <Register />,
   },
   {
     path: "/parrainage/:token",
-    element: React.createElement(ParrainageInscriptionPage),
+    element: <ParrainageInscriptionPage />,
   },
   {
     path: "/catalogue",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(Catalogue)),
+    element: <ProtectedRoute><Catalogue /></ProtectedRoute>,
   },
   {
     path: "/catalogue/:categoryId",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(CategoryFormations)),
+    element: <ProtectedRoute><CategoryFormations /></ProtectedRoute>,
   },
   {
     path: "/formations",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(Formation)),
+    element: <ProtectedRoute><Formation /></ProtectedRoute>,
   },
   {
     path: "/quizzes",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(Quizzes)),
+    element: <ProtectedRoute><Quizzes /></ProtectedRoute>,
   },
   {
     path: "/quiz",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(Quiz)),
+    element: <ProtectedRoute><Quiz /></ProtectedRoute>,
   },
   {
     path: "/quiz/:quizId",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(QuizDetail)),
+    element: <ProtectedRoute><QuizDetail /></ProtectedRoute>,
   },
   {
     path: "/quiz/:quizId/start",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(Quiz)),
+    element: <ProtectedRoute><Quiz /></ProtectedRoute>,
   },
   {
     path: "/quiz/:quizId/results",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(QuizResults)),
+    element: <ProtectedRoute><QuizResults /></ProtectedRoute>,
   },
   {
     path: "/profile",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(Profile)),
+    element: <ProtectedRoute><Profile /></ProtectedRoute>,
   },
   {
     path: "/settings",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(Settings)),
+    element: <ProtectedRoute><Settings /></ProtectedRoute>,
   },
   {
     path: "/classement",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(Classement)),
+    element: <ProtectedRoute><Classement /></ProtectedRoute>,
   },
   {
     path: "/tuto-astuce",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(TutoAstucePage)),
+    element: <ProtectedRoute><TutoAstucePage /></ProtectedRoute>,
   },
   {
     path: "/contacts",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(Contact)),
+    element: <ProtectedRoute><Contact /></ProtectedRoute>,
   },
   {
     path: "/parrainage",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(Parainage)),
+    element: <ProtectedRoute><Parainage /></ProtectedRoute>,
   },
   {
     path: "/catalogue-formation/:id",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(CatalogueFormationDetails)),
+    element: <ProtectedRoute><CatalogueFormationDetails /></ProtectedRoute>,
   },
   {
     path: "/notifications",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(NotificationsPage)),
+    element: <ProtectedRoute><NotificationsPage /></ProtectedRoute>,
   },
   {
     path: "*",
-    element: React.createElement(NotFound),
+    element: <NotFound />,
   },
-];
+]; 
