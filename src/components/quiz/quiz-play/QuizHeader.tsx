@@ -1,9 +1,9 @@
-import React from 'react';
-import { Timer, Trophy, HelpCircle } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { formatTime } from '@/lib/utils';
-import { useIsMobile } from '@/hooks/use-mobile';
+import React from "react";
+import { Timer, Trophy, HelpCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { formatTime } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface QuizHeaderProps {
   title: string;
@@ -28,17 +28,20 @@ export function QuizHeader({
 
   // Get level badge color based on difficulty
   const getLevelBadgeClass = () => {
-    const difficultyLevel = niveau ? niveau.toLowerCase() : '';
+    const difficultyLevel = niveau ? niveau.toLowerCase() : "";
 
-    if (difficultyLevel === 'débutant' || difficultyLevel === 'debutant') {
-      return 'bg-green-500 hover:bg-green-600';
-    } else if (difficultyLevel === 'intermédiaire' || difficultyLevel === 'intermediaire') {
-      return 'bg-yellow-500 hover:bg-yellow-600';
-    } else if (difficultyLevel === 'avancé' || difficultyLevel === 'avance') {
-      return 'bg-red-500 hover:bg-red-600';
+    if (difficultyLevel === "débutant" || difficultyLevel === "debutant") {
+      return "bg-green-500 hover:bg-green-600";
+    } else if (
+      difficultyLevel === "intermédiaire" ||
+      difficultyLevel === "intermediaire"
+    ) {
+      return "bg-yellow-500 hover:bg-yellow-600";
+    } else if (difficultyLevel === "avancé" || difficultyLevel === "avance") {
+      return "bg-red-500 hover:bg-red-600";
     }
 
-    return 'bg-primary hover:bg-primary/90';
+    return "bg-primary hover:bg-primary/90";
   };
 
   return (
@@ -58,7 +61,7 @@ export function QuizHeader({
             variant="ghost"
             size="icon"
             onClick={onToggleHistory}
-            className="h-8 w-8"
+            className="h-8 w-8 md:hidden"
           >
             <Trophy className="h-4 w-4" />
           </Button>
@@ -68,7 +71,7 @@ export function QuizHeader({
             onClick={onToggleStats}
             className="h-8 w-8"
           >
-            <Timer className="h-4 w-4" />
+            <Timer className="h-4 w-4 md:hidden" />
           </Button>
         </div>
       </div>

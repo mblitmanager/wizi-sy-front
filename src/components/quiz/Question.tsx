@@ -116,29 +116,13 @@ export const Question: React.FC<QuestionProps> = ({
 
   return (
     <Card>
-      <CardContent className="pt-6">
-        <div className="mb-3">
-              {question.type !== "remplir le champ vide" && (
-              <h3 className="text-base font-semibold mb-4">{question.text}</h3>
-            )}
-          {/* {question.media_url && (
-            <div className="flex justify-center mb-4">
-              {question.type === 'question audio' ? (
-                <div className="w-full max-w-md">
-                  <audio controls className="w-full">
-                    <source src={question.media_url} type="audio/mpeg" />
-                    Votre navigateur ne supporte pas l'élément audio.
-                  </audio>
-                </div>
-              ) : (
-                <img
-                  src={question.media_url}
-                  alt="Question media"
-                  className="max-w-full h-auto rounded"
-                />
-              )}
-            </div>
-          )} */}
+      <div className="px-2 md:px-6 pt-3">
+        <div className="mb-3 md:mb-4 md:px-6 px-2">
+          {question.type !== "remplir le champ vide" && (
+            <h6 className="text-xs font-semibold mb-3 md:text-sm">
+              {question.text}
+            </h6>
+          )}
         </div>
 
         {renderQuestion()}
@@ -150,7 +134,7 @@ export const Question: React.FC<QuestionProps> = ({
             </div>
           </Alert>
         )}
-      </CardContent>
+      </div>
     </Card>
   );
 };
