@@ -11,6 +11,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { UserProvider } from "@/context/UserContext";
 import { router } from "./react-router-config";
+import FirebaseTestComponent from './components/FirebaseTestComponent';
 
 // Create a React Query client
 const queryClient = new QueryClient({
@@ -33,6 +34,7 @@ const App = () => {
               <Sonner />
               <NotificationListener />
               <RouterProvider router={router} />
+              <FirebaseTestComponent />
             </TooltipProvider>
           </UserProvider>
         </QueryClientProvider>
