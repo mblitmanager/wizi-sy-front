@@ -6,6 +6,18 @@ import { Bell, Check, Trash2 } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useUser } from '@/context/UserContext';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
+
+interface Notification {
+  id: number;
+  title: string;
+  message: string;
+  type: string;
+  is_read: boolean;
+  user_id: number;
+  created_at: string;
+  updated_at: string;
+}
 
 // Icône par type de notification
 const getNotificationIcon = (type: string) => {
@@ -31,48 +43,74 @@ const EmptyState = () => (
 );
 
 // Composant Notification individuel
-const NotificationItem = ({ notification, markAsRead, deleteNotification }: any) => (
-  <Card
-    className={`p-3 sm:p-4 border border-gray-100 shadow-none transition-colors flex flex-col gap-3 ${
-      notification.read ? 'bg-gray-50' : 'bg-white'
-    }`}
-  >
-    <div className="flex items-start gap-3">
-      <span className="text-2xl mt-1">{getNotificationIcon(notification.type)}</span>
-      <div className="flex-1">
-        <p className="text-sm text-gray-700 mb-1">{notification.message}</p>
-        <p className="text-xs text-gray-400">
+const NotificationItem = ({ 
+  notification, 
+  markAsRead, 
+  deleteNotification 
+}: { 
+  notification: Notification; 
+  markAsRead: (id: number) => void; 
+  deleteNotification: (id: number) => void;
+}) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (!notification.is_read) {
+      markAsRead(notification.id);
+    }
+
+    // Redirection en fonction du type de notification
+    switch (notification.type) {
+      case 'quiz':
+        navigate('/quiz');
+        break;
+      case 'formation':
+        navigate('/formations');
+        break;
+      case 'badge':
+        navigate('/badges');
+        break;
+      case 'media':
+        navigate('/medias');
+        break;
+      default:
+        break;
+    }
+  };
+
+  return (
+    <div
+      className={`flex items-start gap-3 p-3 hover:bg-gray-50 transition-colors cursor-pointer ${
+        !notification.is_read ? 'bg-orange-50' : ''
+      }`}
+      onClick={handleClick}
+    >
+      <div className="flex-1 min-w-0">
+        <p className={`text-sm mb-0.5 line-clamp-2 ${!notification.is_read ? 'text-gray-900 font-medium' : 'text-gray-600'}`}>
+          {notification.message}
+        </p>
+        <p className="text-xs text-gray-500">
           {new Date(notification.created_at).toLocaleString('fr-FR', {
             dateStyle: 'short',
             timeStyle: 'short',
           })}
         </p>
       </div>
-    </div>
-    <div className="flex justify-end gap-1">
-      {!notification.read && (
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Marquer comme lu"
-          onClick={() => markAsRead(notification.id)}
-          className="text-gray-400 hover:text-green-600"
-        >
-          <Check className="h-4 w-4" />
-        </Button>
-      )}
       <Button
         variant="ghost"
         size="icon"
         aria-label="Supprimer"
-        onClick={() => deleteNotification(notification.id)}
-        className="text-gray-400 hover:text-red-500"
+        onClick={(e) => {
+          e.stopPropagation();
+          deleteNotification(notification.id);
+        }}
+        className="flex-shrink-0 text-gray-400 hover:text-red-500"
       >
         <Trash2 className="h-4 w-4" />
       </Button>
     </div>
-  </Card>
-);
+  );
+};
 
 // Page principale
 export default function NotificationsPage() {
@@ -85,20 +123,24 @@ export default function NotificationsPage() {
   } = useNotifications();
 
   // État local pour affichage instantané
-  const [notifications, setNotifications] = useState(notificationsFromHook);
+  const [notifications, setNotifications] = useState<Notification[]>(
+    Array.isArray(notificationsFromHook) ? notificationsFromHook : []
+  );
 
   // Sync local state uniquement si le contenu a changé (évite boucle infinie)
   useEffect(() => {
-    if (
-      notificationsFromHook.length !== notifications.length ||
-      notificationsFromHook.some((n, i) => n.id !== notifications[i]?.id)
-    ) {
-      setNotifications(notificationsFromHook);
+    if (Array.isArray(notificationsFromHook)) {
+      if (
+        notificationsFromHook.length !== notifications.length ||
+        notificationsFromHook.some((n, i) => n.id !== notifications[i]?.id)
+      ) {
+        setNotifications(notificationsFromHook);
+      }
     }
   }, [notificationsFromHook, notifications]);
 
   // Suppression instantanée
-  const handleDelete = useCallback((id: string) => {
+  const handleDelete = useCallback((id: number) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
     deleteNotification(id);
   }, [deleteNotification]);
@@ -111,8 +153,8 @@ export default function NotificationsPage() {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             const notifId = entry.target.getAttribute('data-id');
-            const notif = notifications.find(n => n.id === notifId);
-            if (notif && !notif.read) {
+            const notif = notifications.find(n => n.id === Number(notifId));
+            if (notif && !notif.is_read) {
               markAsRead(notif.id);
             }
           }
@@ -130,7 +172,7 @@ export default function NotificationsPage() {
   const prevNotifCount = React.useRef(notifications.length);
   React.useEffect(() => {
     if (notifications.length > prevNotifCount.current) {
-      const newNotif = notifications.find(n => !n.read);
+      const newNotif = notifications.find(n => !n.is_read);
       if (newNotif) {
         toast(
           <div className="flex items-center gap-2 bg-orange-400 text-white p-3 rounded">
@@ -165,24 +207,24 @@ export default function NotificationsPage() {
 
   return (
     <Layout>
-      <div className="mx-auto px-4 sm:px-6 lg:px-8 py-6 mt-[-15%] md:mt-0">
-        {/* Header sticky */}
-        <div className="sticky top-0 z-10 bg-white border-b border-gray-100 py-3 px-4 mb-6">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4">
-            <h1 className="text-2xl font-semibold text-brown-shade">Notifications</h1>
-            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+      <div className="w-full max-w-[95%] sm:max-w-[85%] md:max-w-[75%] lg:max-w-[65%] mx-auto px-2 sm:px-4 py-4 sm:py-6">
+        {/* Header */}
+        <div className="mb-4 sm:mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+            <h1 className="text-lg sm:text-xl font-semibold text-gray-900">Notifications</h1>
+            <div className="flex gap-2">
               <Button
-                variant="outline"
-                onClick={markAllAsRead}
-                className="text-sm w-full sm:w-auto"
+                variant="ghost"
+                onClick={() => markAllAsRead()}
+                className="text-sm text-gray-600 hover:text-gray-900"
               >
                 <Check className="h-4 w-4 mr-2" />
                 Tout marquer comme lu
               </Button>
               <Button
-                variant="outline"
+                variant="ghost"
                 onClick={() => notifications.forEach(n => deleteNotification(n.id))}
-                className="text-sm text-red-600 border-red-200 hover:bg-red-50 w-full sm:w-auto"
+                className="text-sm text-red-600 hover:text-red-700"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Tout supprimer
@@ -195,7 +237,7 @@ export default function NotificationsPage() {
         {notifications.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="flex flex-col gap-2">
+          <div className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
             {notifications.map(notification => (
               <div
                 key={notification.id}

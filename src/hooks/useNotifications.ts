@@ -90,7 +90,7 @@ export function useNotifications() {
   });
 
   // S'assurer que notifications est toujours un tableau
-  const notifications = notificationsData?.data || [];
+  const notifications = notificationsData || [];
 
   return {
     notifications,
