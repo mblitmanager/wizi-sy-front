@@ -15,9 +15,7 @@ import { useSwipeable } from "react-swipeable";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 
 export function QuizPlay() {
-  
   const { quizId } = useParams<{ quizId: string }>();
-  
 
   const {
     quiz,
@@ -47,7 +45,6 @@ export function QuizPlay() {
     openResultsDialog,
     closeResultsDialog: closeResults,
   } = useQuizPlay(quizId || "");
-  
 
   const [showHint, setShowHint] = React.useState(false);
   const [showSwipeHint, setShowSwipeHint] = React.useState(true);
@@ -55,10 +52,8 @@ export function QuizPlay() {
 
   // Masquer l'indication de glissement après 5 secondes
   React.useEffect(() => {
-    
     if (showSwipeHint) {
       const timer = setTimeout(() => {
-        
         setShowSwipeHint(false);
       }, 5000);
       return () => clearTimeout(timer);
@@ -67,7 +62,6 @@ export function QuizPlay() {
 
   // Animation du tutoriel
   React.useEffect(() => {
-    
     if (showSwipeHint && activeStep === 0) {
       const interval = setInterval(() => {
         setTutorialStep((prev) => (prev + 1) % 3);
@@ -93,11 +87,10 @@ export function QuizPlay() {
     trackMouse: true,
     delta: 10,
     swipeDuration: 500,
-    touchEventOptions: { passive: false }
+    touchEventOptions: { passive: false },
   });
 
   if (isLoading) {
-    console.log("Loading state");
     return <LoadingState />;
   }
 
@@ -121,15 +114,6 @@ export function QuizPlay() {
     window.location.reload();
   };
 
-  console.log("Rendering quiz with data:", {
-    currentQuestion,
-    activeStep,
-    totalQuestions,
-    answers,
-    showSwipeHint,
-    tutorialStep
-  });
-
   return (
     <div className="max-w-4xl mx-auto px-2 sm:px-4 sm:py-8 flex flex-col overflow-x-hidden min-h-screen relative">
       <QuizHeader
@@ -147,23 +131,29 @@ export function QuizPlay() {
       <QuizHint hint={currentQuestion?.astuce} visible={showHint} />
 
       {currentQuestion && (
-        <div 
+        <div
           {...handlers}
           className="flex-grow w-full max-w-full overflow-x-hidden touch-pan-y relative"
         >
           {showSwipeHint && activeStep === 0 && (
             <div className="fixed inset-0 flex flex-col items-center justify-center bg-white/90 z-50">
               <div className="text-center mb-8">
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">Bienvenue dans le quiz !</h3>
-                <p className="text-gray-600">Apprenez à naviguer entre les questions</p>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                  Bienvenue dans le quiz !
+                </h3>
+                <p className="text-gray-600">
+                  Apprenez à naviguer entre les questions
+                </p>
               </div>
-              
+
               <div className="relative w-64 h-32 bg-gray-100 rounded-lg shadow-lg mb-8">
-                <div 
+                <div
                   className={`absolute top-1/2 -translate-y-1/2 w-16 h-16 bg-amber-500 rounded-lg shadow-md transition-transform duration-500 ease-in-out ${
-                    tutorialStep === 0 ? 'left-4' : 
-                    tutorialStep === 1 ? 'left-1/2 -translate-x-1/2' : 
-                    'right-4'
+                    tutorialStep === 0
+                      ? "left-4"
+                      : tutorialStep === 1
+                      ? "left-1/2 -translate-x-1/2"
+                      : "right-4"
                   }`}
                 >
                   <div className="absolute inset-0 flex items-center justify-center text-white">
