@@ -29,6 +29,8 @@ export default function QuizAnswerCard({
   const correctResponse = formatCorrectAnswer(question);
   const isCorrect = isAnswerCorrect(question, userAnswer);
 
+  console.log("QuizAnswerCard", isCorrect);
+
   return (
     <div className="p-4 mb-3 rounded-xl shadow-sm bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
       {/* Question Text */}
