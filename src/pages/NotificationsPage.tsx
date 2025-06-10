@@ -1,23 +1,23 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { Layout } from '@/components/layout/Layout';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Bell, Check, Trash2 } from 'lucide-react';
-import { useNotifications } from '@/hooks/useNotifications';
-import { useUser } from '@/context/UserContext';
-import { toast } from 'sonner';
+import React, { useRef, useEffect, useState, useCallback } from "react";
+import { Layout } from "@/components/layout/Layout";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Bell, Check, Trash2 } from "lucide-react";
+import { useNotifications } from "@/hooks/useNotifications";
+import { useUser } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 // Icône par type de notification
 const getNotificationIcon = (type: string) => {
   switch (type) {
-    case 'quiz':
-      return '📝';
-    case 'formation':
-      return '📚';
-    case 'badge':
-      return '🏆';
+    case "quiz":
+      return "📝";
+    case "formation":
+      return "📚";
+    case "badge":
+      return "🏆";
     default:
-      return '🔔';
+      return "🔔";
   }
 };
 
@@ -25,26 +25,35 @@ const getNotificationIcon = (type: string) => {
 const EmptyState = () => (
   <Card className="p-8 text-center bg-white border border-gray-100 shadow-none">
     <Bell className="h-10 w-10 mx-auto mb-3 text-gray-300" />
-    <h3 className="text-base font-medium mb-1 text-gray-700">Aucune notification</h3>
-    <p className="text-gray-400 text-sm">Vous n'avez pas encore de notifications</p>
+    <h3 className="text-base font-medium mb-1 text-gray-700">
+      Aucune notification
+    </h3>
+    <p className="text-gray-400 text-sm">
+      Vous n'avez pas encore de notifications
+    </p>
   </Card>
 );
 
 // Composant Notification individuel
-const NotificationItem = ({ notification, markAsRead, deleteNotification }: any) => (
+const NotificationItem = ({
+  notification,
+  markAsRead,
+  deleteNotification,
+}: any) => (
   <Card
     className={`p-3 sm:p-4 border border-gray-100 shadow-none transition-colors flex flex-col gap-3 ${
-      notification.read ? 'bg-gray-50' : 'bg-white'
-    }`}
-  >
+      notification.read ? "bg-gray-50" : "bg-white"
+    }`}>
     <div className="flex items-start gap-3">
-      <span className="text-2xl mt-1">{getNotificationIcon(notification.type)}</span>
+      <span className="text-2xl mt-1">
+        {getNotificationIcon(notification.type)}
+      </span>
       <div className="flex-1">
         <p className="text-sm text-gray-700 mb-1">{notification.message}</p>
         <p className="text-xs text-gray-400">
-          {new Date(notification.created_at).toLocaleString('fr-FR', {
-            dateStyle: 'short',
-            timeStyle: 'short',
+          {new Date(notification.created_at).toLocaleString("fr-FR", {
+            dateStyle: "short",
+            timeStyle: "short",
           })}
         </p>
       </div>
@@ -56,8 +65,7 @@ const NotificationItem = ({ notification, markAsRead, deleteNotification }: any)
           size="icon"
           aria-label="Marquer comme lu"
           onClick={() => markAsRead(notification.id)}
-          className="text-gray-400 hover:text-green-600"
-        >
+          className="text-gray-400 hover:text-green-600">
           <Check className="h-4 w-4" />
         </Button>
       )}
@@ -66,8 +74,7 @@ const NotificationItem = ({ notification, markAsRead, deleteNotification }: any)
         size="icon"
         aria-label="Supprimer"
         onClick={() => deleteNotification(notification.id)}
-        className="text-gray-400 hover:text-red-500"
-      >
+        className="text-gray-400 hover:text-red-500">
         <Trash2 className="h-4 w-4" />
       </Button>
     </div>
@@ -81,7 +88,7 @@ export default function NotificationsPage() {
     notifications: notificationsFromHook,
     markAsRead,
     markAllAsRead,
-    deleteNotification
+    deleteNotification,
   } = useNotifications();
 
   // État local pour affichage instantané
@@ -98,20 +105,23 @@ export default function NotificationsPage() {
   }, [notificationsFromHook, notifications]);
 
   // Suppression instantanée
-  const handleDelete = useCallback((id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
-    deleteNotification(id);
-  }, [deleteNotification]);
+  const handleDelete = useCallback(
+    (id: string) => {
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+      deleteNotification(id);
+    },
+    [deleteNotification]
+  );
 
   // Marquer comme lu lors du scroll (IntersectionObserver)
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
   useEffect(() => {
     const observer = new window.IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
+      (entries) => {
+        entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const notifId = entry.target.getAttribute('data-id');
-            const notif = notifications.find(n => n.id === notifId);
+            const notifId = entry.target.getAttribute("data-id");
+            const notif = notifications.find((n) => n.id === notifId);
             if (notif && !notif.read) {
               markAsRead(notif.id);
             }
@@ -120,7 +130,7 @@ export default function NotificationsPage() {
       },
       { threshold: 0.5 }
     );
-    Object.values(itemRefs.current).forEach(el => {
+    Object.values(itemRefs.current).forEach((el) => {
       if (el) observer.observe(el);
     });
     return () => observer.disconnect();
@@ -130,7 +140,7 @@ export default function NotificationsPage() {
   const prevNotifCount = React.useRef(notifications.length);
   React.useEffect(() => {
     if (notifications.length > prevNotifCount.current) {
-      const newNotif = notifications.find(n => !n.read);
+      const newNotif = notifications.find((n) => !n.read);
       if (newNotif) {
         toast(
           <div className="flex items-center gap-2 bg-orange-400 text-white p-3 rounded">
@@ -141,18 +151,18 @@ export default function NotificationsPage() {
           { duration: 5000 }
         );
 
-        if ('Notification' in window) {
-          if (Notification.permission === 'granted') {
-            new Notification('Nouvelle notification', {
+        if ("Notification" in window) {
+          if (Notification.permission === "granted") {
+            new Notification("Nouvelle notification", {
               body: newNotif.message,
-              icon: '/favicon.ico'
+              icon: "/favicon.ico",
             });
-          } else if (Notification.permission !== 'denied') {
-            Notification.requestPermission().then(permission => {
-              if (permission === 'granted') {
-                new Notification('Nouvelle notification', {
+          } else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then((permission) => {
+              if (permission === "granted") {
+                new Notification("Nouvelle notification", {
                   body: newNotif.message,
-                  icon: '/favicon.ico'
+                  icon: "/favicon.ico",
                 });
               }
             });
@@ -169,21 +179,23 @@ export default function NotificationsPage() {
         {/* Header sticky */}
         <div className="sticky top-0 z-10 bg-white border-b border-gray-100 py-3 px-4 mb-6">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4">
-            <h1 className="text-2xl font-semibold text-brown-shade">Notifications</h1>
+            <h1 className="text-2xl font-semibold text-brown-shade">
+              Notifications
+            </h1>
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <Button
                 variant="outline"
                 onClick={markAllAsRead}
-                className="text-sm w-full sm:w-auto"
-              >
+                className="text-sm w-full sm:w-auto">
                 <Check className="h-4 w-4 mr-2" />
                 Tout marquer comme lu
               </Button>
               <Button
                 variant="outline"
-                onClick={() => notifications.forEach(n => deleteNotification(n.id))}
-                className="text-sm text-red-600 border-red-200 hover:bg-red-50 w-full sm:w-auto"
-              >
+                onClick={() =>
+                  notifications.forEach((n) => deleteNotification(n.id))
+                }
+                className="text-sm text-red-600 border-red-200 hover:bg-red-50 w-full sm:w-auto">
                 <Trash2 className="h-4 w-4 mr-2" />
                 Tout supprimer
               </Button>
@@ -196,12 +208,11 @@ export default function NotificationsPage() {
           <EmptyState />
         ) : (
           <div className="flex flex-col gap-2">
-            {notifications.map(notification => (
+            {notifications.map((notification) => (
               <div
                 key={notification.id}
                 data-id={notification.id}
-                ref={el => (itemRefs.current[notification.id] = el)}
-              >
+                ref={(el) => (itemRefs.current[notification.id] = el)}>
                 <NotificationItem
                   notification={notification}
                   markAsRead={markAsRead}

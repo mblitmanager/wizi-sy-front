@@ -1,20 +1,25 @@
-
-import { useEffect } from 'react';
-import { useNotifications } from '@/hooks/useNotifications';
-import { useUser } from '@/context/UserContext';
-import { useToast } from '@/hooks/use-toast';
-import useLocalStorage from '@/hooks/useLocalStorage';
+import { useEffect } from "react";
+import { useNotifications } from "@/hooks/useNotifications";
+import { useUser } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 export function NotificationManager() {
   const { isSupported, permission, requestPermission } = useNotifications();
   const { user } = useUser();
   const { toast } = useToast();
-  const [askedForPermission, setAskedForPermission] = useLocalStorage('notification-permission-asked', false);
-  const [lastPrompt, setLastPrompt] = useLocalStorage('last-notification-prompt', 0);
+  const [askedForPermission, setAskedForPermission] = useLocalStorage(
+    "notification-permission-asked",
+    false
+  );
+  const [lastPrompt, setLastPrompt] = useLocalStorage(
+    "last-notification-prompt",
+    0
+  );
 
   // Fonction pour afficher une demande d'autorisation après un délai
   const promptForPermissions = () => {
-    if (!isSupported || permission !== 'default' || askedForPermission) return;
+    if (!isSupported || permission !== "default" || askedForPermission) return;
 
     const now = Date.now();
     // N'afficher qu'une fois par jour au maximum
@@ -24,14 +29,13 @@ export function NotificationManager() {
       title: "Activer les notifications",
       description: "Recevez des alertes pour les nouveaux quiz et formations",
       action: (
-        <button 
+        <button
           className="rounded bg-primary text-white px-3 py-1"
           onClick={() => {
             requestPermission();
             setAskedForPermission(true);
             setLastPrompt(now);
-          }}
-        >
+          }}>
           Activer
         </button>
       ),

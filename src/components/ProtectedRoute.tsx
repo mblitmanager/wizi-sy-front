@@ -1,8 +1,12 @@
 import { Navigate } from "react-router-dom";
-import { useUser } from "@/context/UserContext";
+import { useUser } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 
-export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
+export default function ProtectedRoute({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { token, isLoading } = useUser();
 
   // Si l'authentification est en cours de chargement, afficher un écran de chargement
@@ -21,4 +25,4 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
 
   // Si l'utilisateur est authentifié, afficher le contenu protégé
   return <>{children}</>;
-} 
+}

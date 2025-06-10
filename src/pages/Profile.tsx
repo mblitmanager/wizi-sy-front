@@ -14,7 +14,7 @@ import UserStats from "@/components/profile/UserStats";
 import type { QuizHistory as QuizHistoryType } from "@/types/quiz";
 import { quizSubmissionService } from "@/services/quiz/QuizSubmissionService";
 import ProfileHeader from "@/components/profile/ProfileHeader";
-import { useUser } from "@/context/UserContext";
+import { useUser } from "@/hooks/useAuth";
 
 const ProfilePage = () => {
   const [searchParams] = useSearchParams();
@@ -22,14 +22,14 @@ const ProfilePage = () => {
   const [activeTab] = useState(activeTabFromUrl);
   const { toast } = useToast();
 
-  const {user} = useUser();
+  const { user } = useUser();
   const { results, categories } = useLoadQuizData();
   const { userProgress, rankings } = useLoadRankings();
   const formations = useLoadFormations();
   const [quizHistory, setQuizHistory] = useState<QuizHistoryType[]>([]);
 
   const isLoading = !user || !categories || !userProgress || !formations;
-  
+
   // Mémoïsation des composants enfants pour éviter des rendus inutiles
   const MemoizedProfileHeader = useMemo(() => {
     return <ProfileHeader user={user} userProgress={userProgress} />;
@@ -97,8 +97,7 @@ const ProfilePage = () => {
             {[1, 2, 3].map((key) => (
               <div
                 key={key}
-                className="p-4 bg-white rounded-2xl shadow space-y-2 animate-pulse"
-              >
+                className="p-4 bg-white rounded-2xl shadow space-y-2 animate-pulse">
                 <div className="h-4 w-1/2 bg-gray-200 rounded" />
                 <div className="h-6 w-full bg-gray-100 rounded" />
               </div>
