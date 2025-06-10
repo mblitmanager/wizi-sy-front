@@ -1,4 +1,3 @@
-
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -9,9 +8,9 @@ interface ErrorStateProps {
   description?: string;
 }
 
-export function ErrorState({ 
+export function ErrorState({
   title = "Erreur lors du chargement du quiz",
-  description = "Nous n'avons pas pu charger ce quiz. Il est possible que le quiz n'existe pas ou que vous n'ayez pas accès à celui-ci."
+  description = "Nous n'avons pas pu charger ce quiz. Il est possible que le quiz n'existe pas ou que vous n'ayez pas accès à celui-ci.",
 }: ErrorStateProps) {
   const navigate = useNavigate();
 
@@ -23,10 +22,7 @@ export function ErrorState({
         <AlertDescription>{description}</AlertDescription>
       </Alert>
       <div className="mt-4 flex justify-center">
-        <Button 
-          onClick={() => navigate('/quizzes')}
-          variant="outline"
-        >
+        <Button onClick={() => navigate("/quizzes")} variant="outline">
           Retourner à la liste des quiz
         </Button>
       </div>

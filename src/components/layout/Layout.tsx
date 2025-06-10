@@ -2,7 +2,7 @@ import { ReactNode, useState } from "react";
 import MainNav from "./MainNav";
 import { MobileNav } from "./MobileNav";
 import { Navbar } from "./Navbar";
-import { useUser } from "@/context/UserContext";
+import { useUser } from "@/hooks/useAuth";
 import logo from "../../assets/logo.png";
 import { Gift, X } from "lucide-react";
 import { Button } from "../ui/button";
@@ -69,16 +69,14 @@ export function Layout({ children }: LayoutProps) {
                   size="sm"
                   variant="outline"
                   className="text-black underline hover:bg-white/10 hover:text-white text-xs px-2"
-                  onClick={() => navigate("/parrainage")}
-                >
+                  onClick={() => navigate("/parrainage")}>
                   Découvrir
                 </Link>
                 <Button
                   size="sm"
                   variant="ghost"
                   className="text-white hover:bg-white/10 p-1"
-                  onClick={() => setShowBanner(false)}
-                >
+                  onClick={() => setShowBanner(false)}>
                   <X className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>
@@ -90,8 +88,7 @@ export function Layout({ children }: LayoutProps) {
         <main
           className={`flex-1 overflow-y-auto ${
             isMobile && showBanner ? "pt-20 pb-20" : ""
-          }`}
-        >
+          }`}>
           <div className="">{children}</div>
         </main>
 
@@ -115,16 +112,14 @@ export function Layout({ children }: LayoutProps) {
                   size="sm"
                   variant="outline"
                   className="text-white bg-blue-custom-50 border-white hover:bg-white/10 hover:text-white text-xs px-2"
-                  onClick={() => navigate("/parrainage")}
-                >
+                  onClick={() => navigate("/parrainage")}>
                   Voir
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
                   className="text-white hover:bg-white/10 p-1"
-                  onClick={() => setShowBanner(false)}
-                >
+                  onClick={() => setShowBanner(false)}>
                   <X className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>

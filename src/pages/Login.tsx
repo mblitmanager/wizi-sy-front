@@ -10,11 +10,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Link, Navigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { useUser } from "@/hooks/useAuth";
 import logo from "@/assets/logo.png";
 
 const Login = () => {
-  const { user, login, isLoading } = useAuth();
+  const { user, login, isLoading } = useUser();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);

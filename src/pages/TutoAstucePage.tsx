@@ -4,7 +4,7 @@ import { MediaList, MediaPlayer, MediaTabs } from "@/Media";
 import HeaderSection from "@/components/features/HeaderSection";
 import { Layout } from "@/components/layout/Layout";
 import { Media } from "@/types/media";
-import { useUser } from "@/context/UserContext";
+import { useUser } from "@/hooks/useAuth";
 import { useFormationStagiaire } from "@/use-case/hooks/stagiaire/useFormationStagiaire";
 import {
   ChevronDown,
@@ -66,18 +66,16 @@ export default function TutoAstucePage() {
   }, [medias]);
 
   const groupedMediasByType = useMemo(() => {
-    return medias.reduce((acc, media) => {
-      const type = media.type;
-      if (!acc[type]) {
-        acc[type] = {};
-      }
+    const result: Record<string, Record<string, Media[]>> = {};
 
-      if (!acc[type][media.categorie]) {
-        acc[type][media.categorie] = [];
-      }
-      acc[type][media.categorie].push(media);
-      return acc;
-    }, {} as Record<string, Record<string, Media[]>>);
+    medias.forEach((media) => {
+      if (!result[media.type]) result[media.type] = {};
+      if (!result[media.type][media.categorie])
+        result[media.type][media.categorie] = [];
+      result[media.type][media.categorie].push(media);
+    });
+
+    return result;
   }, [medias]);
 
   const mediaTypeIcons = {
@@ -95,20 +93,33 @@ export default function TutoAstucePage() {
   };
 
   useEffect(() => {
-    const newSelectedMedia = medias.length > 0 ? medias[0] : null;
-    setSelectedMedia(newSelectedMedia);
+    // Ne mettez à jour selectedMedia que si nécessaire
+    if (medias.length > 0) {
+      setSelectedMedia((prev) =>
+        prev && medias.some((m) => m.id === prev.id) ? prev : medias[0]
+      );
+    } else {
+      setSelectedMedia(null);
+    }
 
+    // Mettez à jour expandedSections de manière plus conservative
     setExpandedSections((prev) => {
       const newExpanded = { ...prev };
+      let hasChanged = false;
+
       Object.keys(groupedMediasByType).forEach((type) => {
         Object.keys(groupedMediasByType[type]).forEach((category) => {
-          newExpanded[`${type}-${category}`] =
-            newExpanded[`${type}-${category}`] ?? true;
+          const key = `${type}-${category}`;
+          if (newExpanded[key] === undefined) {
+            newExpanded[key] = true;
+            hasChanged = true;
+          }
         });
       });
-      return newExpanded;
+
+      return hasChanged ? newExpanded : prev;
     });
-  }, [activeCategory, medias, groupedMediasByType]);
+  }, [activeCategory, groupedMediasByType, medias, medias.length]); // Dépendances plus stables
 
   // Sélectionner la première formation par défaut
   useEffect(() => {
