@@ -29,25 +29,16 @@ export default function QuizAnswerCard({
   const correctResponse = formatCorrectAnswer(question);
   const isCorrect = isAnswerCorrect(question, userAnswer);
 
+  console.log("QuizAnswerCard", isCorrect);
+
   return (
     <div className="p-4 mb-3 rounded-xl shadow-sm bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
-      {/* Badge si la question a été jouée */}
-      {/* {isPlayed && (
-        <span className="inline-block mb-2 px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-xs font-semibold">
-          Question jouée
-        </span>
-      )} */}
-
-      {/* Question Text */}
+      ={/* Question Text */}
       <div className="mb-3">
-        {/* <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-          Question
-        </span> */}
         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
           {questionText}
         </h3>
       </div>
-
       {/* Grid for Responses */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {/* Correct Response */}
