@@ -69,7 +69,7 @@ export default function Contact() {
     return (
       <Layout>
         <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
-          <h1 className="text-3xl font-bold mb-8 text-gray-800">
+          <h1 className="text-3xl font-bold mb-8 text-brown-shade">
             Mes Contacts
           </h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -102,7 +102,7 @@ export default function Contact() {
     return (
       <Layout>
         <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
-          <h1 className="text-3xl font-bold mb-8 text-gray-800">
+          <h1 className="text-3xl font-bold mb-8 text-brown-shade">
             Mes Contacts
           </h1>
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
@@ -116,7 +116,9 @@ export default function Contact() {
   return (
     <Layout>
       <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
-        <h1 className="text-3xl font-bold mb-8 text-gray-800">Mes Contacts</h1>
+        <h1 className="text-3xl font-bold mb-8 text-brown-shade">
+          Mes Contacts
+        </h1>
 
         {contacts.length === 0 ? (
           <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded">
