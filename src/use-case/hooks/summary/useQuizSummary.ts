@@ -483,30 +483,35 @@ export function isAnswerCorrect(
     }
 
     case "banque de mots": {
-      // Pour banque de mots
       if (!Array.isArray(userAnswerData)) return false;
 
-      const correctAnswerIds = question.answers
+      // 1. Obtenir les textes des réponses correctes (normalisés)
+      const correctAnswerTexts = question.answers
         ?.filter((a) => a.isCorrect || a.is_correct === 1)
-        .map((a) => a.id);
+        .map((a) => a.text.toLowerCase().trim());
 
-      if (!correctAnswerIds?.length) return false;
+      if (!correctAnswerTexts?.length) return false;
 
-      // Vérifier que tous les mots corrects ont été sélectionnés et aucun incorrect
-      const selectedIds = userAnswerData.map((id) => String(id));
+      // 2. Normaliser les réponses utilisateur
+      const userAnswersNormalized = userAnswerData.map((answer) =>
+        String(answer).toLowerCase().trim()
+      );
+
+      // 3. Vérifier que toutes les réponses correctes sont présentes
+      // et qu'il n'y a pas de réponses incorrectes
       return (
-        correctAnswerIds.every((id) => selectedIds.includes(String(id))) &&
-        selectedIds.every((id) => correctAnswerIds.includes(String(id)))
+        correctAnswerTexts.every((correctText) =>
+          userAnswersNormalized.includes(correctText)
+        ) &&
+        userAnswersNormalized.every((userText) =>
+          correctAnswerTexts.includes(userText)
+        )
       );
     }
 
     case "choix multiples": {
       // Vérification que la réponse est un tableau
       if (!Array.isArray(userAnswerData)) return false;
-
-      console.log("userAnswerData", userAnswerData);
-      console.log("choix multiple", question.correctAnswers);
-
       // Cas où il n'y a pas de bonnes réponses définies
       if (!question.correctAnswers || question.correctAnswers.length === 0) {
         return false;
@@ -528,9 +533,6 @@ export function isAnswerCorrect(
     case "vrai/faux": {
       // Vérification que la réponse est un tableau
       if (!Array.isArray(userAnswerData)) return false;
-      console.log("questionType", question.type);
-      console.log("userAnswerData", userAnswerData);
-      console.log("vrai/faux", question.correctAnswers);
 
       // Cas où il n'y a pas de bonnes réponses définies
       if (!question.correctAnswers || question.correctAnswers.length === 0) {
@@ -550,10 +552,6 @@ export function isAnswerCorrect(
       return allCorrectSelected && noIncorrectSelected;
     }
     default: {
-      console.log("userAnswerData", userAnswerData);
-      console.log("default", question.correctAnswers);
-      console.log("questionType", question.type);
-
       // Pour QCM
       const correctAnswerIds = question.answers
         ?.filter((a) => a.isCorrect || a.is_correct === 1)
