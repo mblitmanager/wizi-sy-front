@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Layout } from "@/components/layout/Layout";
-import { useUser } from "@/context/UserContext";
+import { useUser } from "@/hooks/useAuth";
 import { WifiOff, Megaphone } from "lucide-react";
 import { ProgressCard } from "@/components/dashboard/ProgressCard";
 

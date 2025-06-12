@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Trophy, Medal, Award, User } from "lucide-react";
+import { Trophy, Medal, Award, User, LayoutList } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { LeaderboardEntry } from "@/types/quiz";
 
@@ -68,7 +68,9 @@ export function GlobalRanking({
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-brown-shade">Chargement du classement...</CardTitle>
+          <span className="text-muted-foreground text-center">
+            Chargement du classement...
+          </span>
         </CardHeader>
         <CardContent className="space-y-4">
           {Array(5)
@@ -93,7 +95,8 @@ export function GlobalRanking({
     <div className="bg-gradient-to-br from-white to-gray-50 shadow-sm rounded-lg">
       {/* Header */}
       <div className="border-b p-4">
-        <h2 className="text-base font-semibold text-orange-400">
+        <h2 className="text-2xl font-extrabold text-orange-400 dark:text-yellow-400 flex items-center gap-2 justify-center md:justify-start">
+          <LayoutList size={32} className="mr-1" />
           Classement
         </h2>
       </div>
@@ -155,15 +158,21 @@ export function GlobalRanking({
         {/* Desktop Table */}
         <div className="hidden sm:block">
           <div className="overflow-hidden border rounded shadow-sm">
-            <table className="min-w-full text-sm">
+            <table className="min-w-full bg-white">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="px-3 py-2 text-left text-gray-500">Rang</th>
-                  <th className="px-3 py-2 text-left text-gray-500">
+                  <th className="px-3 py-2 text-xs text-left text-gray-500">
+                    Rang
+                  </th>
+                  <th className="px-3 py-2 text-xs text-left text-gray-500">
                     Stagiaire
                   </th>
-                  <th className="px-3 py-2 text-left text-gray-500">Quiz</th>
-                  <th className="px-3 py-2 text-left text-gray-500">Points</th>
+                  <th className="px-3 py-2 text-xs text-left text-gray-500">
+                    Quiz
+                  </th>
+                  <th className="px-3 py-2 text-xs text-left text-gray-500">
+                    Points
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -173,7 +182,7 @@ export function GlobalRanking({
                     <tr
                       key={entry.id || index}
                       className={`border-b ${
-                        isCurrentUser ? "bg-blue-50" : "bg-white"
+                        isCurrentUser ? "bg-white" : "bg-white"
                       } hover:bg-gray-50`}>
                       <td className="px-3 py-2">{entry.rang || index + 1}</td>
                       <td className="px-3 py-2 flex items-center gap-2">

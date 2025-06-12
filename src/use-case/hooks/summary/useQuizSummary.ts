@@ -21,7 +21,8 @@ export function formatAnswer(
     | undefined
 ): string {
   if (!userAnswer) return "Aucune réponse";
-
+  console.log("Question type", question.type);
+  console.log("userAnswer", userAnswer);
   switch (question.type) {
     case "remplir le champ vide": {
       if (typeof userAnswer === "object" && !Array.isArray(userAnswer)) {
@@ -185,6 +186,7 @@ export function formatCorrectAnswer(question: Question): string {
   switch (question.type) {
     case "remplir le champ vide": {
       const blanks: Record<string, string> = {};
+
       question.answers?.forEach((a) => {
         if (a.bank_group && (a.isCorrect || a.is_correct === 1)) {
           blanks[a.bank_group] = a.text;
@@ -306,31 +308,23 @@ export function isAnswerCorrect(
     | null
     | undefined
 ): boolean {
-  // On ne fait confiance à isCorrect que si c'est explicitement true
-  // if (question.isCorrect === true) {
-  //   return true;
-  // }
-  // Sinon, on vérifie normalement
   const userAnswerData = userAnswer;
   if (!userAnswerData) return false;
 
   switch (question.type) {
     case "remplir le champ vide": {
-      console.log("userAnswerData dans remplir le champ vide");
-      console.log(userAnswerData);
-      // Pour les questions à blancs, vérifier chaque champ
-      if (typeof userAnswerData !== "object" || Array.isArray(userAnswerData))
-        return false;
-
-      const correctBlanks = {};
+      const correctBlanks: Record<string, string> = {};
       question.answers?.forEach((a) => {
         if (a.bank_group && (a.isCorrect || a.is_correct === 1)) {
           correctBlanks[a.bank_group] = a.text;
         }
       });
 
-      // Cas classique avec bank_group
       if (Object.keys(correctBlanks).length > 0) {
+        // Cas avec bank_group
+        if (typeof userAnswerData !== "object" || Array.isArray(userAnswerData))
+          return false;
+
         return Object.entries(userAnswerData).every(([key, value]) => {
           const correctAnswer = correctBlanks[key];
           if (!correctAnswer) return false;
@@ -338,21 +332,21 @@ export function isAnswerCorrect(
             normalizeString(String(value)) === normalizeString(correctAnswer)
           );
         });
-      }
+      } else {
+        // Cas sans bank_group : on compare simplement les textes
+        const correctAnswers = question.answers
+          ?.filter((a) => a.isCorrect || a.is_correct === 1)
+          .map((a) => normalizeString(a.text));
 
-      // Cas sans bank_group, plusieurs champs à remplir
-      const correctAnswers = question.answers?.filter(
-        (a) => a.isCorrect || a.is_correct === 1
-      );
-      const userValues = Object.values(userAnswerData);
-      if (correctAnswers && correctAnswers.length === userValues.length) {
-        return correctAnswers.every(
-          (a, idx) =>
-            normalizeString(String(userValues[idx])) === normalizeString(a.text)
+        const userAnswers = Array.isArray(userAnswerData)
+          ? userAnswerData.map((ans) => normalizeString(String(ans)))
+          : [normalizeString(String(userAnswerData))];
+
+        return (
+          correctAnswers?.length === userAnswers.length &&
+          correctAnswers.every((ca) => userAnswers.includes(ca))
         );
       }
-
-      return false;
     }
 
     case "correspondance": {
@@ -489,30 +483,35 @@ export function isAnswerCorrect(
     }
 
     case "banque de mots": {
-      // Pour banque de mots
       if (!Array.isArray(userAnswerData)) return false;
 
-      const correctAnswerIds = question.answers
+      // 1. Obtenir les textes des réponses correctes (normalisés)
+      const correctAnswerTexts = question.answers
         ?.filter((a) => a.isCorrect || a.is_correct === 1)
-        .map((a) => a.id);
+        .map((a) => a.text.toLowerCase().trim());
 
-      if (!correctAnswerIds?.length) return false;
+      if (!correctAnswerTexts?.length) return false;
 
-      // Vérifier que tous les mots corrects ont été sélectionnés et aucun incorrect
-      const selectedIds = userAnswerData.map((id) => String(id));
+      // 2. Normaliser les réponses utilisateur
+      const userAnswersNormalized = userAnswerData.map((answer) =>
+        String(answer).toLowerCase().trim()
+      );
+
+      // 3. Vérifier que toutes les réponses correctes sont présentes
+      // et qu'il n'y a pas de réponses incorrectes
       return (
-        correctAnswerIds.every((id) => selectedIds.includes(String(id))) &&
-        selectedIds.every((id) => correctAnswerIds.includes(String(id)))
+        correctAnswerTexts.every((correctText) =>
+          userAnswersNormalized.includes(correctText)
+        ) &&
+        userAnswersNormalized.every((userText) =>
+          correctAnswerTexts.includes(userText)
+        )
       );
     }
 
     case "choix multiples": {
       // Vérification que la réponse est un tableau
       if (!Array.isArray(userAnswerData)) return false;
-
-      console.log("userAnswerData", userAnswerData);
-      console.log("choix multiple", question.correctAnswers);
-
       // Cas où il n'y a pas de bonnes réponses définies
       if (!question.correctAnswers || question.correctAnswers.length === 0) {
         return false;
@@ -534,9 +533,6 @@ export function isAnswerCorrect(
     case "vrai/faux": {
       // Vérification que la réponse est un tableau
       if (!Array.isArray(userAnswerData)) return false;
-      console.log("questionType", question.type);
-      console.log("userAnswerData", userAnswerData);
-      console.log("vrai/faux", question.correctAnswers);
 
       // Cas où il n'y a pas de bonnes réponses définies
       if (!question.correctAnswers || question.correctAnswers.length === 0) {
@@ -556,10 +552,6 @@ export function isAnswerCorrect(
       return allCorrectSelected && noIncorrectSelected;
     }
     default: {
-      console.log("userAnswerData", userAnswerData);
-      console.log("default", question.correctAnswers);
-      console.log("questionType", question.type);
-
       // Pour QCM
       const correctAnswerIds = question.answers
         ?.filter((a) => a.isCorrect || a.is_correct === 1)

@@ -7,7 +7,6 @@ export const useLoadFormations = () => {
 
   useEffect(() => {
     formationService.getFormationsByStagiaire().then((res) => {
-      console.log("res", res);
       setFormations(
         (res?.data || []).map((entry) => ({
           id: entry.id?.toString?.() ?? "",

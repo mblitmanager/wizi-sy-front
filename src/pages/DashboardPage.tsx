@@ -7,7 +7,7 @@ import { Card, CardContent } from "@mui/material";
 import { ProgressCard } from "@/components/dashboard/ProgressCard";
 import { AgendaCard } from "@/components/dashboard/AgendaCard";
 import ContactsSection from "@/components/FeatureHomePage/ContactSection";
-import { useUser } from "@/context/UserContext";
+import { useUser } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { Contact } from "@/types/contact";
 import { agendaEvents } from "@/data/mockData";
