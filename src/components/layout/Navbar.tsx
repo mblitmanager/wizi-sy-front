@@ -70,7 +70,8 @@ const UserDropdownMenu = ({ onLogout }: { onLogout: () => void }) => (
     <DropdownMenuSeparator />
     <DropdownMenuItem
       onClick={onLogout}
-      className="dropdown-menu-item text-red-600 hover:bg-red-50">
+      className="dropdown-menu-item text-red-600 hover:bg-red-50"
+    >
       <LogOut className="mr-2 h-4 w-4" />
       <span>Déconnexion</span>
     </DropdownMenuItem>
@@ -83,7 +84,8 @@ const NotificationBadge = ({ count }: { count: number }) => (
     <Button
       variant="ghost"
       size="icon"
-      className="relative hover:bg-gray-100 transition">
+      className="relative hover:bg-gray-100 transition"
+    >
       <Bell className="h-5 w-5 text-gray-600" />
       {count > 0 && (
         <Badge className="absolute -top-1 -right-1 px-1.5 h-5 min-w-5 text-xs bg-amber-500 text-white animate-pulse">

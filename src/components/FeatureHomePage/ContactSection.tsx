@@ -97,7 +97,7 @@ const ContactSection = ({
 
   const renderContactCard = (contact: Contact) => (
     <div
-      key={contact.id}
+      key={`${contact.type}-${contact.id}`}
       className="bg-white shadow-md rounded-2xl p-5 border hover:shadow-lg transition"
     >
       <div className="flex items-center mb-4">
