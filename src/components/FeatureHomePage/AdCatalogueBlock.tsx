@@ -212,7 +212,8 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                         {formation.formation.categorie?.toUpperCase() ||
                           "CATÉGORIE"}
                       </span>
-                      <span
+                    
+                      {/* <span
                         className="text-xs text-white px-3 py-1 rounded-full font-medium"
                         style={{
                           backgroundColor:
@@ -226,8 +227,8 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                               ? "#9392BE"
                               : "#888",
                         }}>
-                        {formatTitle(formation?.titre || "FORMATION")}
-                      </span>
+                        {formatTitle(formation?.formation.titre || "FORMATION")}
+                      </span> */}
                     </>
                   ) : (
                     <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
