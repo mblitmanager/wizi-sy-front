@@ -99,7 +99,7 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
         </div>
 
         {/* Description */}
-        <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
+        <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
           {stripHtml(formation.description || "")}
         </p>
 
@@ -111,8 +111,16 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
               <span>{formation.duree}h</span>
             </div>
 
-            <span className="text-xl text-blue-900 font-extrabold drop-shadow-lg">
-              {formation.tarif} €
+            <span className="text-xl text-orange-500 font-extrabold drop-shadow-lg">
+              {formation.tarif
+                ? `${Number(formation.tarif)
+                    .toLocaleString("fr-FR", {
+                      minimumFractionDigits:
+                        Number(formation.tarif) % 1 === 0 ? 0 : 2,
+                      maximumFractionDigits: 2,
+                    })
+                    .replace(/\u202F/g, "  ")} € HT`
+                : "-"}
             </span>
           </div>
         </div>
