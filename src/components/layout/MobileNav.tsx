@@ -1,7 +1,8 @@
 import {
   Home,
   LayoutList,
-  Trophy,Brain,
+  Trophy,
+  Brain,
   Bell,
   BookOpen,
   Video,
@@ -10,7 +11,7 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { useUser } from "@/context/UserContext";
+import { useUser } from "@/hooks/useAuth";
 
 interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
@@ -81,8 +82,7 @@ export function MobileNav() {
                 "group flex flex-col items-center gap-0.5 p-1 relative transition-all duration-200",
                 (isActive || item.label === "Quiz") &&
                   "z-10 mt-0!p-2 text-yellow-700"
-              )}
-            >
+              )}>
               <span className="relative flex items-center justify-center">
                 <item.icon
                   className={cn(
@@ -95,8 +95,7 @@ export function MobileNav() {
                 {item.badge !== undefined && (
                   <Badge
                     variant="destructive"
-                    className="absolute -top-1.5 -right-1.5 h-4 w-4 p-0 flex items-center justify-center"
-                  >
+                    className="absolute -top-1.5 -right-1.5 h-4 w-4 p-0 flex items-center justify-center">
                     {item.badge}
                   </Badge>
                 )}
@@ -107,8 +106,7 @@ export function MobileNav() {
                   isActive || item.label === "Quiz"
                     ? "text-yellow-700"
                     : "text-muted-foreground group-hover:text-yellow-700"
-                )}
-              >
+                )}>
                 {item.label}
               </span>
             </Link>

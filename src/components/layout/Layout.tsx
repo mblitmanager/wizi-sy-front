@@ -2,7 +2,7 @@ import { ReactNode, useState } from "react";
 import MainNav from "./MainNav";
 import { MobileNav } from "./MobileNav";
 import { Navbar } from "./Navbar";
-import { useUser } from "@/context/UserContext";
+import { useUser } from "@/hooks/useAuth";
 import logo from "../../assets/logo.png";
 import { Gift, X } from "lucide-react";
 import { Button } from "../ui/button";
@@ -43,7 +43,7 @@ export function Layout({ children }: LayoutProps) {
       {/* Contenu principal */}
       <div className="flex flex-col flex-1 h-screen">
         {/* Barre du haut (Navbar) */}
-        <header className="h-14 border-b border-gray-200 bg-white shadow-sm px-4 flex items-center flex-shrink-0">
+        <header className="h-14 border-b border-gray-200 bg-white shadow-sm  flex items-center flex-shrink-0">
           <Navbar />
         </header>
         {/* Bannière en haut (uniquement sur desktop) */}
@@ -59,9 +59,9 @@ export function Layout({ children }: LayoutProps) {
                       50€.
                     </span>{" "}
                   </span>
-                    <span className="ml-2 text-xs sm:text-sm text-[#895129] hidden sm:inline font-bold">
+                  <span className="ml-2 text-xs sm:text-sm text-[#895129] hidden sm:inline font-bold">
                     Profitez de notre offre de parrainage dès maintenant !
-                    </span>
+                  </span>
                 </div>
               </div>
               <div className="flex items-center space-x-1 sm:space-x-2">
@@ -69,16 +69,14 @@ export function Layout({ children }: LayoutProps) {
                   size="sm"
                   variant="outline"
                   className="text-black underline hover:bg-white/10 hover:text-white text-xs px-2"
-                  onClick={() => navigate("/parrainage")}
-                >
+                  onClick={() => navigate("/parrainage")}>
                   Découvrir
                 </Link>
                 <Button
                   size="sm"
                   variant="ghost"
                   className="text-white hover:bg-white/10 p-1"
-                  onClick={() => setShowBanner(false)}
-                >
+                  onClick={() => setShowBanner(false)}>
                   <X className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>
@@ -90,14 +88,13 @@ export function Layout({ children }: LayoutProps) {
         <main
           className={`flex-1 overflow-y-auto ${
             isMobile && showBanner ? "pt-20 pb-20" : ""
-          }`}
-        >
+          }`}>
           <div className="">{children}</div>
         </main>
 
         {/* Bannière en bas (uniquement sur mobile) */}
         {showBanner && isMobile && (
-          <div className="fixed top-[54px] left-0 right-0 bg-[#feb823] rounded-2xl text-white z-40">
+          <div className="fixed top-[54px] left-0 right-0 bg-[#feb823] rounded-b-lg text-white z-40">
             <div className="container mx-auto px-3 py-2 flex items-center justify-between">
               <div className="flex items-center overflow-hidden">
                 <Gift className="h-4 w-4 mr-2 flex-shrink-0" />
@@ -115,16 +112,14 @@ export function Layout({ children }: LayoutProps) {
                   size="sm"
                   variant="outline"
                   className="text-white bg-blue-custom-50 border-white hover:bg-white/10 hover:text-white text-xs px-2"
-                  onClick={() => navigate("/parrainage")}
-                >
+                  onClick={() => navigate("/parrainage")}>
                   Voir
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
                   className="text-white hover:bg-white/10 p-1"
-                  onClick={() => setShowBanner(false)}
-                >
+                  onClick={() => setShowBanner(false)}>
                   <X className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>

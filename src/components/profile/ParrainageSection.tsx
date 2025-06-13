@@ -16,10 +16,10 @@ import { useToast } from "@/components/ui/use-toast";
 import { parrainageService } from "../../services/parrainageService";
 import { ParrainageStats as ParrainageStatsType } from "../../services/parrainageService";
 import image from "../../assets/aopia parrainage.png";
-import { useUser } from "@/context/UserContext";
+import { useUser } from "@/hooks/useAuth";
 import LienParrainage from "../parrainage/LienParainage";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 const ParrainageSection = () => {
   const [parrainageLink, setParrainageLink] = useState<string>("");
@@ -74,7 +74,7 @@ const ParrainageSection = () => {
 
     fetchStats();
   }, [user?.user?.id]);
-  
+
   // Dans ParrainageSection.tsx
   const generateLink = async () => {
     try {

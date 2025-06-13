@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart2, CheckCircle, TrendingUp } from "lucide-react";
+import { BarChart2, CheckCircle, TrendingUp, Trophy } from "lucide-react";
 
 export interface ProfileStatsProps {
   profile: any;
@@ -16,7 +16,7 @@ export function ProfileStats({
     return (
       <Card>
         <CardHeader>
-          <span className="text-muted-foreground">
+          <span className="text-muted-foreground text-center">
             Chargement des statistiques...
           </span>
         </CardHeader>
@@ -56,7 +56,8 @@ export function ProfileStats({
       {/* Titre */}
       <div className="mb-3 text-center md:text-left">
         <h3 className="text-2xl font-extrabold text-orange-400 dark:text-yellow-400 flex items-center gap-2 justify-center md:justify-start">
-          <span role="img" aria-label="Trophée">🏆</span> Mes statistiques
+          <Trophy size={32} className="mr-1" />
+          Mes statistiques
         </h3>
       </div>
 
@@ -65,28 +66,41 @@ export function ProfileStats({
         {[
           {
             label: "Score total",
-            icon: <TrendingUp size={32} className="text-yellow-500 animate-bounce" />, // icône animée
+            icon: (
+              <TrendingUp
+                size={32}
+                className="text-yellow-500 animate-bounce"
+              />
+            ), // icône animée
             value: stats.totalScore || 0,
             bg: "bg-yellow-100 dark:bg-yellow-900",
           },
           {
             label: "Quiz complétés",
-            icon: <CheckCircle size={32} className="text-green-500 animate-pulse" />, // icône animée
+            icon: (
+              <CheckCircle size={32} className="text-green-500 animate-pulse" />
+            ), // icône animée
             value: stats.totalQuizzes || 0,
             bg: "bg-green-100 dark:bg-green-900",
           },
           {
             label: "Score moyen",
-            icon: <BarChart2 size={32} className="text-blue-500 animate-spin-slow" />, // icône animée
-            value: stats.averageScore ? `${Math.round(stats.averageScore)}%` : "0%",
+            icon: (
+              <BarChart2
+                size={32}
+                className="text-blue-500 animate-spin-slow"
+              />
+            ), // icône animée
+            value: stats.averageScore
+              ? `${Math.round(stats.averageScore)}%`
+              : "0%",
             bg: "bg-blue-100 dark:bg-blue-900",
-          }
+          },
         ].map((stat, index) => (
-            <div
+          <div
             key={index}
             className={`flex flex-col items-center gap-1 sm:gap-2 p-3 sm:p-4 rounded-xl shadow-md border-2 border-transparent hover:border-orange-300 transition-all duration-200 ${stat.bg}`}
-            style={{ minHeight: 90 }}
-            >
+            style={{ minHeight: 90 }}>
             <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 mb-0.5 sm:mb-1">
               {stat.icon}
             </div>
@@ -96,7 +110,7 @@ export function ProfileStats({
             <span className="text-lg sm:text-2xl font-extrabold text-gray-800 dark:text-white">
               {stat.value}
             </span>
-            </div>
+          </div>
         ))}
       </div>
       {/* Message motivation */}

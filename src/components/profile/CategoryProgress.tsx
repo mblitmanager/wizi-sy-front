@@ -11,12 +11,13 @@ import {
   Tooltip,
   Legend,
   ArcElement,
-} from 'chart.js';
-import { Line, Doughnut } from 'react-chartjs-2';
+} from "chart.js";
+import { Line, Doughnut } from "react-chartjs-2";
 import { motion, AnimatePresence } from "framer-motion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import axios from "axios";
+import { CATEGORIES } from "@/utils/constants";
 
 ChartJS.register(
   CategoryScale,
@@ -109,32 +110,50 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userProgress }) => {
+const CategoryProgress: React.FC<CategoryProgressProps> = ({
+  categories,
+  userProgress,
+}) => {
   const [categoryStats, setCategoryStats] = useState<CategoryStats[]>([]);
-  const [progressStats, setProgressStats] = useState<ProgressStats | null>(null);
+  const [progressStats, setProgressStats] = useState<ProgressStats | null>(
+    null
+  );
   const [quizTrends, setQuizTrends] = useState<QuizTrends | null>(null);
-  const [performanceStats, setPerformanceStats] = useState<PerformanceStats | null>(null);
+  const [performanceStats, setPerformanceStats] =
+    useState<PerformanceStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const categoryColors = {
+    [CATEGORIES.BUREAUTIQUE]: "#3D9BE9",
+    [CATEGORIES.LANGUES]: "#A55E6E",
+    [CATEGORIES.INTERNET]: "#FFC533",
+    [CATEGORIES.CREATION]: "#9392BE",
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
-        const [statsRes, progressRes, trendsRes, performanceRes] = await Promise.all([
-          api.get("/quiz/stats/categories"),
-          api.get("/quiz/stats/progress"),
-          api.get("/quiz/stats/trends"),
-          api.get("/quiz/stats/performance"),
-        ]);
+        const [statsRes, progressRes, trendsRes, performanceRes] =
+          await Promise.all([
+            api.get("/quiz/stats/categories"),
+            api.get("/quiz/stats/progress"),
+            api.get("/quiz/stats/trends"),
+            api.get("/quiz/stats/performance"),
+          ]);
         setCategoryStats(statsRes.data);
         setProgressStats(progressRes.data);
         setQuizTrends(trendsRes.data);
         setPerformanceStats(performanceRes.data);
       } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : 'Une erreur est survenue lors du chargement des statistiques. Veuillez réessayer plus tard.';
+        const errorMsg =
+          err instanceof Error
+            ? err.message
+            : "Une erreur est survenue lors du chargement des statistiques. Veuillez réessayer plus tard.";
         setError(errorMsg);
-        console.error('Error fetching stats:', err);
+        console.error("Error fetching stats:", err);
       } finally {
         setLoading(false);
       }
@@ -170,12 +189,13 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userPro
   }
 
   const lineChartData = {
-    labels: quizTrends?.overall_trend.map(trend => trend.date) || [],
+    labels: quizTrends?.overall_trend.map((trend) => trend.date) || [],
     datasets: [
       {
-        label: 'Score moyen',
-        data: quizTrends?.overall_trend.map(trend => trend.average_score) || [],
-        borderColor: 'rgb(196, 121, 9)',
+        label: "Score moyen",
+        data:
+          quizTrends?.overall_trend.map((trend) => trend.average_score) || [],
+        borderColor: "rgb(196, 121, 9)",
         tension: 0.1,
         fill: false,
       },
@@ -186,11 +206,11 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userPro
     responsive: true,
     plugins: {
       legend: {
-        position: 'top' as const,
+        position: "top" as const,
       },
       title: {
         display: true,
-        text: 'Progression des scores',
+        text: "Progression des scores",
       },
     },
     scales: {
@@ -199,30 +219,30 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userPro
         max: 100,
         title: {
           display: true,
-          text: 'Score (%)'
-        }
+          text: "Score (%)",
+        },
       },
       x: {
         title: {
           display: true,
-          text: 'Date'
-        }
-      }
+          text: "Date",
+        },
+      },
     },
   };
 
   const doughnutChartData = {
-    labels: categoryStats.map(stat => stat.category),
+    labels: categoryStats.map((stat) => stat.category),
     datasets: [
       {
-        data: categoryStats.map(stat => stat.completedQuizzes),
-        backgroundColor: [
-          'rgba(255, 99, 132, 0.8)',
-          'rgba(54, 162, 235, 0.8)',
-          'rgba(255, 206, 86, 0.8)',
-          // 'rgba(75, 192, 192, 0.8)',
-          'rgba(153, 102, 255, 0.8)',
-        ],
+        data: categoryStats.map((stat) => stat.completedQuizzes),
+        backgroundColor: categoryStats.map((stat) => {
+          // Utiliser directement la clé de catégorie pour obtenir la couleur
+          return (
+            categoryColors[stat.category as keyof typeof categoryColors] ||
+            "#cccccc"
+          );
+        }),
         borderWidth: 1,
       },
     ],
@@ -232,18 +252,17 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userPro
     responsive: true,
     plugins: {
       legend: {
-        position: 'right' as const,
+        position: "right" as const,
       },
       title: {
         display: true,
-        text: 'Répartition des quiz complétés',
+        text: "Répartition des quiz complétés",
       },
     },
   };
-
   return (
     <AnimatePresence>
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -254,26 +273,32 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userPro
           {[
             {
               title: "Quiz complétés",
-              value: categoryStats.reduce((acc, stat) => acc + stat.completedQuizzes, 0),
-              delay: 0
+              value: categoryStats.reduce(
+                (acc, stat) => acc + stat.completedQuizzes,
+                0
+              ),
+              delay: 0,
             },
             {
               title: "Score moyen",
-              value: progressStats?.daily_progress[0]?.average_score || 0,
+              value: progressStats?.daily_progress[0]?.average_points || 0,
               suffix: "%",
-              delay: 0.1
+              delay: 0.1,
             },
             {
               title: "Taux de réussite",
-              value: categoryStats.length > 0
-                ? Math.round(
-                    categoryStats.reduce((acc, stat) => acc + stat.completionRate, 0) /
-                      categoryStats.length
-                  )
-                : 0,
+              value:
+                categoryStats.length > 0
+                  ? Math.round(
+                      categoryStats.reduce(
+                        (acc, stat) => acc + stat.completionRate,
+                        0
+                      ) / categoryStats.length
+                    )
+                  : 0,
               suffix: "%",
-              delay: 0.2
-            }
+              delay: 0.2,
+            },
           ].map((stat, index) => (
             <motion.div
               key={index}
@@ -282,9 +307,12 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userPro
               transition={{ delay: stat.delay }}
               className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
             >
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">{stat.title}</h3>
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                {stat.title}
+              </h3>
               <p className="text-3xl font-bold text-primary">
-                {stat.value}{stat.suffix}
+                {stat.value}
+                {stat.suffix}
               </p>
             </motion.div>
           ))}
@@ -316,7 +344,9 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userPro
               animate={{ opacity: 1, y: 0 }}
               className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
             >
-              <h3 className="text-lg font-semibold text-gray-700 mb-4">Points forts</h3>
+              <h3 className="text-lg font-semibold text-gray-700 mb-4">
+                Points forts
+              </h3>
               <div className="space-y-4">
                 {performanceStats.strengths.map((strength, index) => (
                   <motion.div
@@ -326,8 +356,15 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userPro
                     transition={{ delay: index * 0.1 }}
                     className="flex items-center justify-between"
                   >
-                    <span className="text-gray-600">{strength.category_name}</span>
-                    <span className="text-primary font-semibold">{strength.score}%</span>
+                    <span className="text-gray-600">
+                      {strength.category_name}
+                    </span>
+                    <span
+                      className="font-semibold"
+                      style={{ color: categoryColors[strength.category_name] }}
+                    >
+                      {strength.score}%
+                    </span>
                   </motion.div>
                 ))}
               </div>
@@ -337,7 +374,9 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userPro
               animate={{ opacity: 1, y: 0 }}
               className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
             >
-              <h3 className="text-lg font-semibold text-gray-700 mb-4">Points à améliorer</h3>
+              <h3 className="text-lg font-semibold text-gray-700 mb-4">
+                Points à améliorer
+              </h3>
               <div className="space-y-4">
                 {performanceStats.weaknesses.map((weakness, index) => (
                   <motion.div
@@ -347,8 +386,15 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userPro
                     transition={{ delay: index * 0.1 }}
                     className="flex items-center justify-between"
                   >
-                    <span className="text-gray-600">{weakness.category_name}</span>
-                    <span className="text-red-500 font-semibold">{weakness.score}%</span>
+                    <span className="text-gray-600">
+                      {weakness.category_name}
+                    </span>
+                    <span
+                      className="font-semibold"
+                      style={{ color: categoryColors[weakness.category_name] }}
+                    >
+                      {weakness.score}%
+                    </span>
                   </motion.div>
                 ))}
               </div>
@@ -362,7 +408,9 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userPro
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
         >
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">Progression par catégorie</h3>
+          <h3 className="text-lg font-semibold text-gray-700 mb-4">
+            Progression par catégorie
+          </h3>
           <div className="space-y-6">
             {categoryStats.map((stat, index) => (
               <motion.div
@@ -374,14 +422,20 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({ categories, userPro
               >
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">{stat.category}</span>
-                  <span className="text-primary font-semibold">{stat.completionRate}%</span>
+                  <span
+                    className="font-semibold"
+                    style={{ color: categoryColors[stat.category] }}
+                  >
+                    {stat.completionRate}%
+                  </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${stat.completionRate}%` }}
                     transition={{ duration: 1, delay: index * 0.1 }}
-                    className="bg-primary rounded-full h-2"
+                    className="rounded-full h-2"
+                    style={{ backgroundColor: categoryColors[stat.category] }}
                   />
                 </div>
                 <div className="flex justify-between text-sm text-gray-500">

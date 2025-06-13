@@ -4,274 +4,269 @@ import React, {
   useState,
   ReactNode,
   useEffect,
+  useCallback,
+  useMemo,
 } from "react";
 import { User } from "@/types";
 import { toast } from "sonner";
+import { startTransition } from "react";
 
 interface UserContextType {
   user: User | null;
   token: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   updateUser: (updatedUser: Partial<User>) => void;
   refetchUser: () => Promise<void>;
   handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
 }
 
-const getClientIp = async (): Promise<string> => {
-  try {
-    const response = await fetch("https://api.ipify.org?format=json");
-    const data = await response.json();
-    return data.ip;
-  } catch (error) {
-    console.error("Erreur lors de la récupération de l'IP:", error);
-    return "unknown";
-  }
-};
-
 export const UserContext = createContext<UserContextType | undefined>(
   undefined
 );
 
+// Constants
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+const TOAST_STYLE = {
+  style: { background: "#fb923c", color: "#fff" },
+  className: "bg-orange-400 text-white",
+};
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+const VALID_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif"];
+
+// Helper functions
+const getClientIp = async (): Promise<string> => {
+  try {
+    const response = await fetch("https://api.ipify.org?format=json");
+    if (!response.ok) throw new Error("Failed to fetch IP");
+    const data = await response.json();
+    return data.ip;
+  } catch (error) {
+    console.error("Error fetching client IP:", error);
+    return "unknown";
+  }
+};
+
+const handleApiError = (error: unknown, defaultMessage: string) => {
+  const message = error instanceof Error ? error.message : defaultMessage;
+  toast.error(message, TOAST_STYLE);
+  return message;
+};
+
 export function UserProvider({ children }: { children: ReactNode }) {
-  const VITE_API_URL =
-    import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const refetchUser = async () => {
-    const storedToken = localStorage.getItem("token");
-    if (!storedToken) return;
+  // Enhanced fetch wrapper with abort controller
+  const apiFetch = useCallback(
+    async (endpoint: string, options?: RequestInit) => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
-    try {
-      const response = await fetch(`${VITE_API_URL}/me`, {
-        headers: {
-          Authorization: `Bearer ${storedToken}`,
-        },
-      });
+      try {
+        const response = await fetch(`${API_URL}${endpoint}`, {
+          ...options,
+          signal: controller.signal,
+        });
 
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
-      } else {
-        // Token invalide ou expiré
-        localStorage.removeItem("token");
-        setUser(null);
-        setToken(null);
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || "Request failed");
+        }
+        return await response.json();
+      } finally {
+        clearTimeout(timeoutId);
       }
-    } catch (error) {
-      console.error("Error refetching user:", error);
-    }
-  };
+    },
+    []
+  );
 
-  // Vérifier le token au chargement de l'application
-  useEffect(() => {
-    const checkAuth = async () => {
-      const storedToken = localStorage.getItem("token");
+  // Auth check with transition support
+  const fetchUserData = useCallback(
+    async (authToken: string) => {
+      try {
+        const userData = await apiFetch("/me", {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
 
-      if (storedToken) {
-        try {
-          // Vérifier si le token est valide
-          const response = await fetch(`${VITE_API_URL}/me`, {
-            headers: {
-              Authorization: `Bearer ${storedToken}`,
-            },
-          });
-
-          if (response.ok) {
-            const userData = await response.json();
-            setUser(userData);
-            setToken(storedToken);
-          } else {
-            // Token invalide ou expiré
-            localStorage.removeItem("token");
-            setUser(null);
-            setToken(null);
-          }
-        } catch (error) {
-          console.error("Auth check error:", error);
+        startTransition(() => {
+          setUser(userData);
+          setToken(authToken);
+          setError(null);
+        });
+        return true;
+      } catch (error) {
+        startTransition(() => {
           localStorage.removeItem("token");
           setUser(null);
           setToken(null);
-        }
+          setError(
+            error instanceof Error ? error.message : "Authentication failed"
+          );
+        });
+        return false;
       }
+    },
+    [apiFetch]
+  );
 
-      setIsLoading(false);
+  const refetchUser = useCallback(async () => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      await fetchUserData(storedToken);
+    }
+  }, [fetchUserData]);
+
+  // Initial auth check with cleanup
+  useEffect(() => {
+    let mounted = true;
+    const initializeAuth = async () => {
+      const storedToken = localStorage.getItem("token");
+      if (storedToken && mounted) {
+        await fetchUserData(storedToken);
+      }
+      if (mounted) setIsLoading(false);
     };
 
-    checkAuth();
-  }, []);
+    initializeAuth();
+    return () => {
+      mounted = false;
+    };
+  }, [fetchUserData]);
 
-  const login = async (email: string, password: string) => {
+  const logout = useCallback(async () => {
     setIsLoading(true);
     try {
-      const clientIp = await getClientIp();
-      const response = await fetch(`${VITE_API_URL}/login`, {
+      const currentToken = token || localStorage.getItem("token");
+      if (!currentToken) throw new Error("No token found");
+
+      await apiFetch("/logout", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "X-Client-IP": clientIp,
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Vérifiez vos identifiants!");
-      }
-
-      const data = await response.json();
-
-      // Ensure the data structure matches what your app expects
-      localStorage.setItem("token", data.token);
-      setUser(data.user); // Set only the user object
-      setToken(data.token);
-      toast.success("Connexion réussie" , {
-        style: { background: '#fb923c', color: '#fff' },
-        className: 'bg-orange-400 text-white',
-      });
-    } catch (error) {
-      toast.error(error.message || "Erreur lors de la connexion", {
-        style: { background: '#fb923c', color: '#fff' },
-        className: 'bg-orange-400 text-white',
-      });
-      console.error("Erreur lors de la connexion:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const logout = async () => {
-    setIsLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("No token found");
-
-      const response = await fetch(`${VITE_API_URL}/logout`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${currentToken}`,
           "Content-Type": "application/json",
         },
       });
-
-      if (!response.ok) {
-        throw new Error("Logout failed");
-      }
 
       localStorage.removeItem("token");
       setUser(null);
       setToken(null);
-      toast.success("Déconnexion réussie", {
-        style: { background: '#fb923c', color: '#fff' },
-        className: 'bg-orange-400 text-white',
-      });
+      toast.success("Déconnexion réussie", TOAST_STYLE);
     } catch (error) {
-      console.error("Logout error:", error);
-      toast.error(error.message || "Erreur lors de la déconnexion",{
-        style: { background: '#fb923c', color: '#fff' },
-        className: 'bg-orange-400 text-white',
-      });
+      handleApiError(error, "Erreur lors de la déconnexion");
     } finally {
       setIsLoading(false);
     }
-  };
-  const updateUser = (updatedUser: Partial<User>) => {
-    if (user) {
-      setUser({ ...user, ...updatedUser });
-    }
-  };
+  }, [token, apiFetch]);
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const updateUser = useCallback((updatedUser: Partial<User>) => {
+    setUser((prev) => (prev ? { ...prev, ...updatedUser } : null));
+  }, []);
 
-    if (file && user) {
-      const validTypes = ["image/jpeg", "image/png", "image/gif"];
-      const maxSize = 5 * 1024 * 1024;
+  const handleImageChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file || !user || !token) return;
 
-      if (!validTypes.includes(file.type)) {
+      if (!VALID_IMAGE_TYPES.includes(file.type)) {
         toast.error(
-          "Type de fichier invalide. Veuillez choisir un JPEG, PNG ou GIF.", {
-        style: { background: '#fb923c', color: '#fff' },
-        className: 'bg-orange-400 text-white',
-      }
+          "Type de fichier invalide. Veuillez choisir un JPEG, PNG ou GIF.",
+          TOAST_STYLE
         );
         return;
       }
 
-      if (file.size > maxSize) {
-        toast.error("Fichier trop volumineux. Taille maximale : 5MB.", {
-        style: { background: '#fb923c', color: '#fff' },
-        className: 'bg-orange-400 text-white',
-      });
+      if (file.size > MAX_IMAGE_SIZE) {
+        toast.error(
+          "Fichier trop volumineux. Taille maximale : 5MB.",
+          TOAST_STYLE
+        );
         return;
       }
 
+      setIsLoading(true);
       const formData = new FormData();
       formData.append("image", file);
 
-      setIsLoading(true);
-
       try {
-        const response = await fetch(
-          `${VITE_API_URL}/avatar/${user.id}/update-profile`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            body: formData,
-          }
-        );
+        await apiFetch(`/avatar/${user.id}/update-profile`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        });
 
-        if (response.ok) {
-          toast.success("Image mise à jour avec succès");
-          await refetchUser();
-        } else {
-          const errorData = await response.json();
-          toast.error(
-            errorData.message || "Erreur lors de la mise à jour de l'image",{
-        style: { background: '#fb923c', color: '#fff' },
-        className: 'bg-orange-400 text-white',
-      }
-          );
-        }
+        toast.success("Image mise à jour avec succès", TOAST_STYLE);
+        await refetchUser();
       } catch (error) {
-        toast.error(error.message || "Erreur inattendue",{
-        style: { background: '#fb923c', color: '#fff' },
-        className: 'bg-orange-400 text-white',
-      });
-        console.error("Image upload error:", error);
+        handleApiError(error, "Erreur lors de la mise à jour de l'image");
       } finally {
         setIsLoading(false);
       }
-    }
-  };
+    },
+    [user, token, apiFetch, refetchUser]
+  );
+
+  const login = useCallback(
+    async (email: string, password: string) => {
+      setIsLoading(true);
+      try {
+        const clientIp = await getClientIp();
+        const data = await apiFetch("/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Client-IP": clientIp,
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        startTransition(() => {
+          localStorage.setItem("token", data.token);
+          setUser(data.user);
+          setToken(data.token);
+          setError(null);
+        });
+        toast.success("Connexion réussie", TOAST_STYLE);
+      } catch (error) {
+        const message = handleApiError(error, "Erreur lors de la connexion");
+        startTransition(() => setError(message));
+      } finally {
+        startTransition(() => setIsLoading(false));
+      }
+    },
+    [apiFetch]
+  );
+
+  // Memoized context value
+  const contextValue = useMemo(
+    () => ({
+      user,
+      token,
+      isLoading,
+      error,
+      login,
+      logout,
+      updateUser,
+      refetchUser,
+      handleImageChange,
+    }),
+    [
+      user,
+      token,
+      isLoading,
+      error,
+      login,
+      logout,
+      updateUser,
+      refetchUser,
+      handleImageChange,
+    ]
+  );
 
   return (
-    <UserContext.Provider
-      value={{
-        user,
-        token,
-        isLoading,
-        login,
-        logout,
-        updateUser,
-        refetchUser,
-        handleImageChange,
-      }}
-    >
-      {children}
-    </UserContext.Provider>
+    <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
   );
-}
-
-export function useUser() {
-  const context = useContext(UserContext);
-  if (context === undefined) {
-    throw new Error("useUser must be used within a UserProvider");
-  }
-  return context;
 }

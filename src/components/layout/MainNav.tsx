@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { NavLink, useNavigate, useLocation, Link } from "react-router-dom";
 
-import { useUser } from "@/context/UserContext";
+import { useUser } from "@/hooks/useAuth";
 import useAdvert from "../publiciter/useAdvert";
 import { motion } from "framer-motion";
 
@@ -97,8 +97,7 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
                     return `${baseClasses} ${
                       isActive ? activeClasses : inactiveClasses
                     }`;
-                  }}
-                >
+                  }}>
                   {({ isActive }) => (
                     <>
                       <item.icon
@@ -122,8 +121,7 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -300 }}
             transition={{ duration: 0.5 }}
-            className=" bg-gradient-to-br w-full rounded-2xl text-white sm:p-2 flex items-center mx-auto gap-2 z-50 cursor-pointer hover:shadow-xl transition-all"
-          >
+            className=" bg-gradient-to-br w-full rounded-2xl text-white sm:p-2 flex items-center mx-auto gap-2 z-50 cursor-pointer hover:shadow-xl transition-all">
             <Gift className="w-10 h-10 flex-shrink-0" />
             <span className="font-semibold text-brown-shade text-xs">
               Je parraine et je gagne{" "}

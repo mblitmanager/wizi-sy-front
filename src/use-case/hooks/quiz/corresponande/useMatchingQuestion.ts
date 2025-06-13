@@ -4,6 +4,7 @@ import { Question } from "@/types/quiz";
 interface MatchingOption {
   id: string;
   text: string;
+  bank_group: string;
 }
 
 interface UseMatchingQuestionParams {
@@ -18,43 +19,48 @@ export const useMatchingQuestion = ({
   showFeedback = false,
 }: UseMatchingQuestionParams) => {
   const [matches, setMatches] = useState<Record<string, string>>({});
+
+  // Extraction des éléments left et right basés sur match_pair
+  const { leftItems, rightItems } = useMemo(() => {
+    const left = question.answers?.filter((a) => a.match_pair === "left") || [];
+    const right =
+      question.answers?.filter((a) => a.match_pair === "right") || [];
+    return { leftItems: left, rightItems: right };
+  }, [question.answers]);
+
+  // Options disponibles pour le select (right items)
   const availableOptions: MatchingOption[] = useMemo(() => {
-    return (
-      question.answers
-        ?.filter((answer) => answer.bank_group === "right")
-        .map((answer) => ({
-          id: answer.id,
-          text: answer.text,
-        })) || []
-    );
-  }, [question.answers]);
+    return rightItems.map((item) => ({
+      id: item.id,
+      text: item.text,
+      bank_group: item.bank_group,
+    }));
+  }, [rightItems]);
 
-  const leftItems = useMemo(() => {
-    return (
-      question.answers?.filter((answer) => answer.bank_group === "left") || []
-    );
-  }, [question.answers]);
-
-  // Initialisation des correspondances depuis selectedAnswers
+  // Initialisation des correspondances
   useEffect(() => {
     if (
       question.selectedAnswers &&
-      typeof question.selectedAnswers === "object" &&
-      !Array.isArray(question.selectedAnswers)
+      typeof question.selectedAnswers === "object"
     ) {
       const initialMatches: Record<string, string> = {};
-      Object.entries(question.selectedAnswers).forEach(([key, value]) => {
-        if (key !== "destination" && typeof value === "string") {
-          initialMatches[key] = value;
+
+      Object.entries(question.selectedAnswers).forEach(
+        ([leftId, rightText]) => {
+          if (typeof rightText === "string" && rightText !== "destination") {
+            initialMatches[leftId] = rightText;
+          }
         }
-      });
+      );
+
       setMatches(initialMatches);
     }
   }, [question]);
 
+  // Callback quand les matches changent
   useEffect(() => {
     onAnswer(matches);
-  }, [matches]);
+  }, [matches, onAnswer]);
 
   const updateMatch = (leftId: string, rightText: string) => {
     if (rightText === "_empty") {
@@ -69,15 +75,33 @@ export const useMatchingQuestion = ({
     }
   };
 
+  // Vérifie si la correspondance est correcte
   const isCorrectMatch = (leftId: string): boolean | undefined => {
     if (!showFeedback) return undefined;
-    const leftItem = question.answers?.find((a) => a.id === leftId);
-    return leftItem && matches[leftId] === leftItem.match_pair;
+
+    const leftItem = leftItems.find((item) => item.id === leftId);
+    if (!leftItem) return false;
+
+    const selectedRightText = matches[leftId];
+    if (!selectedRightText) return false;
+
+    const rightItem = rightItems.find(
+      (item) => item.text === selectedRightText
+    );
+
+    // La correspondance est correcte si les bank_group sont identiques
+    return rightItem?.bank_group === leftItem.bank_group;
   };
 
+  // Retourne la bonne correspondance pour le feedback
   const getCorrectMatch = (leftId: string): string => {
-    const leftItem = question.answers?.find((a) => a.id === leftId);
-    return leftItem?.match_pair || "";
+    const leftItem = leftItems.find((item) => item.id === leftId);
+    if (!leftItem) return "";
+
+    const correctRightItem = rightItems.find(
+      (item) => item.bank_group === leftItem.bank_group
+    );
+    return correctRightItem?.text || "";
   };
 
   return {

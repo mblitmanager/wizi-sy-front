@@ -1,56 +1,69 @@
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import {
+  ChevronDown,
+  ChevronUp,
+  FolderOpen,
+  PlayCircle,
+  Download,
+} from "lucide-react";
+import FormationService from "@/services/FormationService";
+import { useUser } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { ChevronDown, ChevronUp, FolderOpen, PlayCircle, Download } from 'lucide-react';
-import FormationService from '@/services/FormationService';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
-
-// Shadcn UI components
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-} from "@/components/ui/table";
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 
 type FormationProps = Record<string, never>;
 
 export const Formation: React.FC<FormationProps> = () => {
   const { formationId } = useParams<{ formationId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user } = useUser();
   const { toast } = useToast();
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (!user) {
-      navigate('/login');
+      navigate("/login");
     }
   }, [user, navigate]);
 
-  const { data: formation, isLoading, error } = useQuery({
-    queryKey: ['formation', formationId],
+  const {
+    data: formation,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["formation", formationId],
     queryFn: () => {
-      if (!formationId) throw new Error('Formation ID is required');
+      if (!formationId) throw new Error("Formation ID is required");
       return FormationService.getFormationById(formationId);
     },
     enabled: !!formationId && !!user,
     meta: {
       onError: (error: any) => {
         toast({
-          title: 'Erreur',
-          description: 'Impossible de charger les détails de la formation.',
-          variant: 'destructive'
+          title: "Erreur",
+          description: "Impossible de charger les détails de la formation.",
+          variant: "destructive",
         });
-        console.error('Error loading formation details:', error);
-      }
-    }
+        console.error("Error loading formation details:", error);
+      },
+    },
   });
 
   if (isLoading) {
@@ -65,11 +78,10 @@ export const Formation: React.FC<FormationProps> = () => {
     return (
       <div className="flex flex-col items-center p-4">
         <h2 className="text-lg font-semibold mb-2">Formation non disponible</h2>
-        <Button 
-          variant="default" 
-          onClick={() => navigate('/formations')}
-          className="flex items-center gap-2"
-        >
+        <Button
+          variant="default"
+          onClick={() => navigate("/formations")}
+          className="flex items-center gap-2">
           <FolderOpen size={18} />
           Retour aux formations
         </Button>
@@ -82,9 +94,9 @@ export const Formation: React.FC<FormationProps> = () => {
   };
 
   const toggleSection = (sectionId: string) => {
-    setOpenSections(prev => ({
+    setOpenSections((prev) => ({
       ...prev,
-      [sectionId]: !prev[sectionId]
+      [sectionId]: !prev[sectionId],
     }));
   };
 
@@ -105,17 +117,16 @@ export const Formation: React.FC<FormationProps> = () => {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground mb-6">{formation.description}</p>
-          
+
           {formation.quizzes && formation.quizzes.length > 0 && (
             <div className="mt-4">
               <h3 className="text-lg font-semibold mb-2">Quizzes</h3>
               <ul className="space-y-1">
                 {formation.quizzes.map((quiz) => (
-                  <li 
+                  <li
                     key={quiz.id}
                     onClick={() => handleQuizStart(quiz.id)}
-                    className="flex items-center gap-2 p-2 rounded-md hover:bg-accent cursor-pointer"
-                  >
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-accent cursor-pointer">
                     <PlayCircle size={18} />
                     <span>{quiz.title}</span>
                   </li>
@@ -136,11 +147,18 @@ export const Formation: React.FC<FormationProps> = () => {
                   <CardTitle className="text-base">{media.titre}</CardTitle>
                 </CardHeader>
                 <CardContent className="pb-2">
-                  <p className="text-sm text-muted-foreground">{media.description}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {media.description}
+                  </p>
                 </CardContent>
                 <CardFooter>
                   <Button variant="outline" size="sm" asChild>
-                    <a href={media.url} target="_blank" rel="noopener noreferrer">Voir le média</a>
+                    <a
+                      href={media.url}
+                      target="_blank"
+                      rel="noopener noreferrer">
+                      Voir le média
+                    </a>
                   </Button>
                 </CardFooter>
               </Card>
@@ -155,8 +173,15 @@ export const Formation: React.FC<FormationProps> = () => {
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold">Téléchargements</h3>
               <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="sm" onClick={() => toggleSection('downloads')}>
-                  {openSections['downloads'] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => toggleSection("downloads")}>
+                  {openSections["downloads"] ? (
+                    <ChevronUp size={16} />
+                  ) : (
+                    <ChevronDown size={16} />
+                  )}
                 </Button>
               </CollapsibleTrigger>
             </div>
@@ -173,8 +198,7 @@ export const Formation: React.FC<FormationProps> = () => {
                             variant="outline"
                             size="sm"
                             asChild
-                            className="flex items-center gap-1"
-                          >
+                            className="flex items-center gap-1">
                             <a href={file.url} download>
                               <Download size={14} />
                               Télécharger

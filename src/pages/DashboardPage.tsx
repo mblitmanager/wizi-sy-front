@@ -7,7 +7,7 @@ import { Card, CardContent } from "@mui/material";
 import { ProgressCard } from "@/components/dashboard/ProgressCard";
 import { AgendaCard } from "@/components/dashboard/AgendaCard";
 import ContactsSection from "@/components/FeatureHomePage/ContactSection";
-import { useUser } from "@/context/UserContext";
+import { useUser } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { Contact } from "@/types/contact";
 import { agendaEvents } from "@/data/mockData";
@@ -15,6 +15,7 @@ import { catalogueFormationApi } from "@/services/api";
 import { useEffect, useState } from "react";
 import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
 import illustration from "../assets/Information tab-bro.png";
+import { DASHBOARD } from "@/utils/constants";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -77,7 +78,7 @@ export default function DashboardPage() {
       <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-8">
-            Tableau de bord
+            {DASHBOARD}
           </h1>
         </div>
         <div className="mt-2 space-y-6 md:space-y-12 mb-3">

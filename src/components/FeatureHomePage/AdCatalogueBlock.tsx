@@ -10,7 +10,7 @@ import {
   INTERNET,
   LANGUES,
   RETOUR,
-} from "@/utils/langue-type";
+} from "@/utils/constants";
 import {
   Card,
   CardHeader,
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BadgeCheckIcon, ClockIcon, EuroIcon } from "lucide-react";
+import { stripHtmlTags } from "@/utils/UtilsFunction";
 
 function stripHtml(html: string): string {
   if (!html) return "";
@@ -155,7 +156,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
   };
 
   if (!formations || formations.length === 0) return null;
-  
+
   return (
     <div className="grid md:grid-cols-3 sm:grid-cols-1 gap-3 px-4 py-3">
       {selected.map((formation, idx) => {
@@ -164,16 +165,19 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
         return (
           <div
             key={formation.id || idx}
-            className="flex flex-col justify-between h-full rounded-xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group hover:-translate-y-1"
+            className="flex flex-col justify-between h-full rounded-xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group hover:-translate-y-1 relative" // Added 'relative' here
             style={{
               minHeight: "340px",
-              backgroundImage: formation.image_url ? `url(${formation.image_url})` : undefined,
-              backgroundSize: formation.image_url ? 'cover' : undefined,
-              backgroundPosition: formation.image_url ? 'center' : undefined,
-              backgroundRepeat: 'no-repeat',
-              backgroundColor: formation.image_url ? 'rgba(255,255,255,0.95)' : undefined,
-            }}
-          >
+              backgroundImage: formation.image_url
+                ? `url(${formation.image_url})`
+                : undefined,
+              backgroundSize: formation.image_url ? "cover" : undefined,
+              backgroundPosition: formation.image_url ? "center" : undefined,
+              backgroundRepeat: "no-repeat",
+              backgroundColor: formation.image_url
+                ? "rgba(255,255,255,0.95)"
+                : undefined,
+            }}>
             {formation.image_url && (
               <div
                 className="absolute inset-0 w-full h-full bg-white"
@@ -181,9 +185,10 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                 aria-hidden="true"
               />
             )}
-            <div className="relative z-10">
-              {/* Header Section */}
-              <div className="p-5 space-y-4">
+
+            <div className="relative z-10 flex flex-col h-full">
+              {/* Header and Content Section - Will grow to take available space */}
+              <div className="flex-grow p-5 space-y-4">
                 {/* Category Badge */}
                 <div className="flex flex-wrap items-center gap-2">
                   {formation.formation ? (
@@ -203,12 +208,12 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                               : "#888",
                           borderColor: "currentColor",
                           backgroundColor: "transparent",
-                        }}
-                      >
+                        }}>
                         {formation.formation.categorie?.toUpperCase() ||
                           "CATÉGORIE"}
                       </span>
-                      <span
+                    
+                      {/* <span
                         className="text-xs text-white px-3 py-1 rounded-full font-medium"
                         style={{
                           backgroundColor:
@@ -221,10 +226,9 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                               : formation.formation.categorie === "Création"
                               ? "#9392BE"
                               : "#888",
-                        }}
-                      >
-                        {formatTitle(formation?.titre || "FORMATION")}
-                      </span>
+                        }}>
+                        {formatTitle(formation?.formation.titre || "FORMATION")}
+                      </span> */}
                     </>
                   ) : (
                     <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
@@ -233,99 +237,97 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                   )}
                 </div>
 
-                {/* Content Section */}
+                {/* Title and Description */}
                 <div className="space-y-4">
                   <h3 className="text-xl font-bold text-gray-900 leading-snug group-hover:text-orange-600 transition-colors">
                     {formatTitle(ad.title.toUpperCase()) || "SANS TITRE"}
                   </h3>
                   <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
-                    {ad.description}
+                    {stripHtmlTags(formation.description) || "SANS DESCRIPTION"}
                   </p>
                 </div>
-              </div>
 
-              {/* Details Section */}
-              {formation.formation && isOpen && (
-                <div className="px-5 pb-3 space-y-4 border-t border-gray-100">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3">
-                    <div className="space-y-2">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <ClockIcon className="w-4 h-4 mr-2" />
-                        <span>
-                          <strong>Durée :</strong>{" "}
-                          {formation.formation.duree || formation.duree} heures
-                        </span>
-                      </div>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <EuroIcon className="w-4 h-4 mr-2" />
-                        <span>
-                          <strong>Tarif :</strong>{" "}
-                          <span className="text-orange-600 font-extrabold drop-shadow-lg">
-                            {formation.tarif
-                              ? `${
-                                  Number.isInteger(Number(formation.tarif))
-                                    ? parseInt(formation.tarif)
-                                    : formation.tarif
-                                } € HT`
-                              : "-"}
-                          </span>
-                        </span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <BadgeCheckIcon className="w-4 h-4 mr-2" />
-                        <span>
-                          <strong>Certification :</strong>{" "}
-                          <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded">
-                            {formation.certification || "-"}
-                          </span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex justify-center pt-2">
-                    <DownloadPdfButton formationId={formation.id} />
-                  </div>
-                </div>
-              )}
-
-              {/* Footer Section */}
-              <div className="p-5 pt-0 space-y-3 border-t border-gray-100">
-                {/* Toggle Details Button */}
+                {/* Toggle Details Button - Placed near the description */}
                 {formation.formation && (
                   <button
                     onClick={() => setShowDetailsIdx(isOpen ? null : idx)}
-                    className="w-full text-center text-orange-500 text-sm font-medium hover:text-orange-600 transition-colors"
-                  >
+                    className="text-orange-500 text-sm font-medium hover:text-orange-600 transition-colors">
                     {isOpen ? "Voir moins de détails" : "Voir plus de détails"}
                   </button>
                 )}
 
-                {/* Registration Button */}
+                {/* Details Section - Will appear when expanded */}
+                {formation.formation && isOpen && (
+                  <div className="space-y-4 pt-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <span>
+                            <strong>Durée :</strong>{" "}
+                            {formation.formation.duree || formation.duree}{" "}
+                            heures
+                          </span>
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <span>
+                            <strong>Tarif :</strong>{" "}
+                            <span className="text-orange-500 font-extrabold drop-shadow-lg">
+                              {formation.tarif
+                                ? `${Number(formation.tarif)
+                                    .toLocaleString("fr-FR", {
+                                      minimumFractionDigits: 0,
+                                      maximumFractionDigits: 2,
+                                    })
+                                    .replace(/\u202F/g, "  ")} € HT`
+                                : "-"}
+                            </span>
+                          </span>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <span>
+                            <strong>Certification :</strong>{" "}
+                            <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded">
+                              {formation.certification || "-"}
+                            </span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex justify-center pt-2">
+                      <DownloadPdfButton formationId={formation.id} />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Fixed Footer Section - Will stay at the bottom */}
+              <div className="p-5 pt-0">
+                {/* Registration Button - Fixed at the bottom */}
                 <Button
                   onClick={() => handleInscription(idx)}
                   disabled={inscriptionLoading === idx}
-                  className="w-full bg-[#8B5C2A] hover:bg-[#A56B32] text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-colors"
-                >
+                  className="w-full bg-brown-shade hover:bg-[#A56B32] text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-colors">
                   {inscriptionLoading === idx
                     ? "Inscription en cours..."
                     : "S'inscrire à la formation"}
                 </Button>
 
                 {/* Status Messages */}
-                <div className="text-center">
+                <div className="text-center mt-2">
                   {inscriptionSuccessIdx === idx &&
                     inscriptionLoading === null && (
                       <p className="text-green-600 text-sm">
                         Inscription réussie !
                       </p>
                     )}
-                  {inscriptionErrorIdx === idx && inscriptionLoading === null && (
-                    <p className="text-red-600 text-sm">
-                      Erreur lors de l'inscription. Veuillez réessayer.
-                    </p>
-                  )}
+                  {inscriptionErrorIdx === idx &&
+                    inscriptionLoading === null && (
+                      <p className="text-red-600 text-sm">
+                        Erreur lors de l'inscription. Veuillez réessayer.
+                      </p>
+                    )}
                 </div>
               </div>
             </div>
