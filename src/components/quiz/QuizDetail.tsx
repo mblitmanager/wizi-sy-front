@@ -61,7 +61,11 @@ export function QuizDetail() {
         <div className="flex items-center justify-center min-h-[50vh]">
           <div className="container mx-auto py-8 px-4">
             <div className="flex items-center justify-center flex-col gap-4">
-              <img src={quiziload} alt="Chargement" className="h-72 w-72" />
+              <img
+                src={quiziload}
+                alt="Chargement"
+                className="h-72 w-72 h-72 w-72 animate-bounce-slow"
+              />
               <span className="text-gray-600">Chargement des quizes...</span>
             </div>
           </div>

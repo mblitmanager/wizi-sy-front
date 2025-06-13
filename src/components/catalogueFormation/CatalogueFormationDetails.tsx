@@ -307,7 +307,14 @@ const FormationMetadata = ({
     <li className="text-gray-500">
       <strong>{FORMATIONMETADATA.tarif} :</strong>{" "}
       <span className="text-xl text-orange-500 font-extrabold drop-shadow-lg">
-        {tarif} {FORMATIONMETADATA.euros}
+        {tarif
+          ? `${Number(tarif)
+              .toLocaleString("fr-FR", {
+                minimumFractionDigits: Number(tarif) % 1 === 0 ? 0 : 2,
+                maximumFractionDigits: 2,
+              })
+              .replace(/\u202F/g, "  ")} ${FORMATIONMETADATA.euros}`
+          : "-"}
       </span>
     </li>
     <li className="text-gray-500">

@@ -177,8 +177,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
               backgroundColor: formation.image_url
                 ? "rgba(255,255,255,0.95)"
                 : undefined,
-            }}
-          >
+            }}>
             {formation.image_url && (
               <div
                 className="absolute inset-0 w-full h-full bg-white"
@@ -209,8 +208,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                               : "#888",
                           borderColor: "currentColor",
                           backgroundColor: "transparent",
-                        }}
-                      >
+                        }}>
                         {formation.formation.categorie?.toUpperCase() ||
                           "CATÉGORIE"}
                       </span>
@@ -227,8 +225,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                               : formation.formation.categorie === "Création"
                               ? "#9392BE"
                               : "#888",
-                        }}
-                      >
+                        }}>
                         {formatTitle(formation?.titre || "FORMATION")}
                       </span>
                     </>
@@ -253,8 +250,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                 {formation.formation && (
                   <button
                     onClick={() => setShowDetailsIdx(isOpen ? null : idx)}
-                    className="text-orange-500 text-sm font-medium hover:text-orange-600 transition-colors"
-                  >
+                    className="text-orange-500 text-sm font-medium hover:text-orange-600 transition-colors">
                     {isOpen ? "Voir moins de détails" : "Voir plus de détails"}
                   </button>
                 )}
@@ -265,7 +261,6 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <div className="flex items-center text-sm text-gray-600">
-                          <ClockIcon className="w-4 h-4 mr-2" />
                           <span>
                             <strong>Durée :</strong>{" "}
                             {formation.formation.duree || formation.duree}{" "}
@@ -273,16 +268,16 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                           </span>
                         </div>
                         <div className="flex items-center text-sm text-gray-600">
-                          <EuroIcon className="w-4 h-4 mr-2" />
                           <span>
                             <strong>Tarif :</strong>{" "}
-                            <span className="text-orange-600 font-extrabold drop-shadow-lg">
+                            <span className="text-orange-500 font-extrabold drop-shadow-lg">
                               {formation.tarif
-                                ? `${
-                                    Number.isInteger(Number(formation.tarif))
-                                      ? parseInt(formation.tarif)
-                                      : formation.tarif
-                                  } € HT`
+                                ? `${Number(formation.tarif)
+                                    .toLocaleString("fr-FR", {
+                                      minimumFractionDigits: 0,
+                                      maximumFractionDigits: 2,
+                                    })
+                                    .replace(/\u202F/g, "  ")} € HT`
                                 : "-"}
                             </span>
                           </span>
@@ -290,7 +285,6 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                       </div>
                       <div className="space-y-2">
                         <div className="flex items-center text-sm text-gray-600">
-                          <BadgeCheckIcon className="w-4 h-4 mr-2" />
                           <span>
                             <strong>Certification :</strong>{" "}
                             <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded">
@@ -313,8 +307,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                 <Button
                   onClick={() => handleInscription(idx)}
                   disabled={inscriptionLoading === idx}
-                  className="w-full bg-[#8B5C2A] hover:bg-[#A56B32] text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-colors"
-                >
+                  className="w-full bg-brown-shade hover:bg-[#A56B32] text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-colors">
                   {inscriptionLoading === idx
                     ? "Inscription en cours..."
                     : "S'inscrire à la formation"}

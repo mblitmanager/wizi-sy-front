@@ -33,6 +33,18 @@ body {
   width: auto !important;
 }
 
+.swiper {
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  overflow: hidden;
+  list-style: none;
+  padding: 0;
+  width: 285px;
+  z-index: 1;
+  display: block;
+}
+
 .swiper-button-next,
 .swiper-button-prev {
   position: absolute;
@@ -42,7 +54,7 @@ body {
   height: 24px;
   background-color: white;
   border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -214,8 +226,6 @@ body {
   .category-creation {
     @apply bg-creation text-white;
   }
-
-  
 
   .quiz-option {
     @apply border-2 rounded-lg p-4 cursor-pointer transition-all hover:shadow-md;
