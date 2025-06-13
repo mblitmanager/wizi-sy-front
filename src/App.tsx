@@ -1,16 +1,14 @@
 import React from "react";
 import { RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import NotificationsPage from "@/pages/NotificationsPage";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import NotificationListener from "@/components/notifications/NotificationListener";
 
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { UserProvider } from "@/context/UserContext";
 import { router } from "./react-router-config";
+import { Toaster } from "react-hot-toast";
 
 // Create a React Query client
 const queryClient = new QueryClient({
@@ -25,18 +23,26 @@ const queryClient = new QueryClient({
 const App = () => {
   return (
     <React.StrictMode>
-      <ErrorBoundary>
-        <QueryClientProvider client={queryClient}>
-          <UserProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <NotificationListener />
-              <RouterProvider router={router} />
-            </TooltipProvider>
-          </UserProvider>
-        </QueryClientProvider>
-      </ErrorBoundary>
+      {/* <ErrorBoundary> */}
+      <QueryClientProvider client={queryClient}>
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            duration: 8000,
+            style: {
+              background: "#363636",
+              color: "#fff",
+            },
+          }}
+        />
+        <UserProvider>
+          <TooltipProvider>
+            <NotificationListener />
+            <RouterProvider router={router} />
+          </TooltipProvider>
+        </UserProvider>
+      </QueryClientProvider>
+      {/* </ErrorBoundary> */}
     </React.StrictMode>
   );
 };

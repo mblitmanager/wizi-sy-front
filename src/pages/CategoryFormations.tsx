@@ -8,7 +8,7 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, ChevronLeft } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+const backendUrl = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
 
 async function fetchFormations(categoryId: string): Promise<Formation[]> {
   try {
