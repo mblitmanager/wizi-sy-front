@@ -27,7 +27,7 @@ export const UserContext = createContext<UserContextType | undefined>(
 );
 
 // Constants
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 const TOAST_STYLE = {
   style: { background: "#fb923c", color: "#fff" },
   className: "bg-orange-400 text-white",
