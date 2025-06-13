@@ -8,6 +8,13 @@ import { registerServiceWorker } from "./serviceWorkerRegistration";
 
 registerServiceWorker();
 
+// Demander la permission de notification dès l'ouverture du site ou PWA
+if ("Notification" in window && navigator.serviceWorker) {
+  window.addEventListener("load", () => {
+    Notification.requestPermission();
+  });
+}
+
 const queryClient = new QueryClient();
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
