@@ -133,7 +133,7 @@ export function QuizDetail() {
           {
             icon: <span className="w-8 h-8 mb-2 text-yellow-500">🔊</span>,
             title: "Audio",
-            desc: "Écoutez et sélectionnez la bone réponse.",
+            desc: "Écoutez l'extrait audio et sélectionnez la bone réponse.",
             bg: "bg-yellow-50 border-yellow-200",
           },
         ]
@@ -393,7 +393,7 @@ export function QuizDetail() {
                           <span className="quiz-icon">🔊</span>
                           <span className="quiz-title">Question audio</span>
                           <span className="quiz-description">
-                            Écoutez un extrait audio et répondez à la question.
+                            Écoutez l'extrait audio et sélectionnez la bone réponse.
                           </span>
                         </div>
                       </SwiperSlide>

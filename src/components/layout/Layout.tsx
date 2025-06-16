@@ -101,7 +101,7 @@ export function Layout({ children }: LayoutProps) {
                 <div className="truncate">
                   <span className="font-bold text-xs sm:text-sm">
                     Parraine et gagne{" "}
-                    <span className="text-2xl text-[#895129] font-extrabold drop-shadow-lg">
+                    <span className="text-2xl text-[#fff] font-extrabold drop-shadow-lg">
                       50€
                     </span>{" "}
                   </span>

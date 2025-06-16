@@ -49,7 +49,7 @@ export const FORMATIONMETADATA = {
 };
 
 export const DASHBOARD = "Tableau de bord";
-export const WELCOME = " Bienvenue sur WiziLearn";
+export const WELCOME = " Bienvenue sur Wizi Learn";
 export const OFFLINE = "Vous êtes hors ligne";
 export const INFO_OFFLINE =
   " Certaines fonctionnalités peuvent être limitées. Les données affichées peuvent ne pas être à jour.";

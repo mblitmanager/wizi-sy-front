@@ -179,7 +179,7 @@ export function Navbar() {
   const initials = getInitials();
 
   return (
-    <nav className="px-2 md:px-6 py-2 sticky top-0 z-50 w-full bg-amber-300 md:bg-white">
+    <nav className="px-2 md:px-6 py-2 sticky top-0 z-50 w-full ">
       <div className="w-full">
         <div className="flex justify-between md:justify-end items-center gap-4">
           <div className="flex items-center gap-3">
