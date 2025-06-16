@@ -119,13 +119,13 @@ export function StagiaireQuizList() {
     let avance2: typeof quizzes = [];
     if (userPoints < 10) {
       // Montrer 1 ou 2 quiz débutant max
-      
+
       result = debutant.slice(0, 2);
     } else if (userPoints < 20) {
-      
+
       // Montrer tous les quiz débutant
       console.log(debutant)
-      result = debutant;
+      result = debutant.slice(0, 4);
     } else if (userPoints < 40) {
       // Débutant + intermédiaire (2 quiz intermédiaire max)
       inter1 = inter.slice(0, 2);
@@ -133,11 +133,11 @@ export function StagiaireQuizList() {
     } else if (userPoints < 50) {
       // Débutant + tous les intermédiaires
       result = [...debutant, ...inter];
-    }else if (userPoints < 80) {
+    } else if (userPoints < 80) {
       // Débutant + tous les intermédiaires
       avance1 = avance.slice(0, 2);
       result = [...debutant, ...inter, ...avance1];
-    } else if (userPoints < 100) { 
+    } else if (userPoints < 100) {
       // Débutant + intermédiaire + avancé
       avance2 = avance.slice(0, 4);
       result = [...debutant, ...inter, ...avance2];
@@ -161,8 +161,8 @@ export function StagiaireQuizList() {
     () =>
       quizzes && participations
         ? quizzes.filter((q) =>
-            participations.some((p) => String(p.quizId || p.id) === String(q.id))
-          )
+          participations.some((p) => String(p.quizId || p.id) === String(q.id))
+        )
         : [],
     [quizzes, participations]
   );
@@ -172,8 +172,8 @@ export function StagiaireQuizList() {
     () =>
       quizzes && participations
         ? filteredQuizzes.filter((q) =>
-            !participations.some((p) => String(p.quizId || p.id) === String(q.id))
-          )
+          !participations.some((p) => String(p.quizId || p.id) === String(q.id))
+        )
         : [],
     [filteredQuizzes, quizzes, participations]
   );
@@ -206,6 +206,152 @@ export function StagiaireQuizList() {
       </div>
     );
   }
+
+  // Composant interactif d'explication de progression
+  function QuizUnlockTutorial() {
+    const steps = [
+      {
+        title: "Débloquez votre progression, un quiz à la fois !",
+        content: (
+          <>
+            <p className="mb-2">Commencez avec <span className="font-medium">2 quiz débutants</span> pour vous échauffer.</p>
+            <p>Jouez, marquez des points et déverrouillez progressivement de nouveaux quiz !</p>
+          </>
+        ),
+      },
+      {
+        title: "Débloquez les niveaux !",
+        content: (
+          <ul className="list-disc pl-5 text-sm text-yellow-900 space-y-1">
+            <li><span className="font-medium">À 10 points :</span> Tous les quiz débutants deviennent accessibles.</li>
+            <li><span className="font-medium">À 20 points :</span> Les quiz intermédiaires s’ouvrent à vous.</li>
+            <li><span className="font-medium">À 40 points :</span> Tous les quiz débutants et intermédiaires sont disponibles.</li>
+            <li><span className="font-medium">À 50 points :</span> Les premiers quiz avancés sont débloqués.</li>
+            <li><span className="font-medium">À 80 points :</span> Accédez à encore plus de quiz avancés.</li>
+            <li><span className="font-medium">À 100 points :</span> Tous les quiz sont à votre portée !</li>
+          </ul>
+        ),
+      },
+      {
+        title: "Astuce !",
+        content: (
+          <>
+            <p className="text-sm text-yellow-900 mb-1">Seul votre meilleur score est conservé. N'hésitez pas à recommencer pour décrocher la note parfaite !</p>
+            <p className="mt-1 text-xs text-yellow-700">Chaque réponse compte. Accumulez des points et explorez tout l’univers des quiz !</p>
+          </>
+        ),
+      },
+    ];
+    const [step, setStep] = React.useState(0);
+    React.useEffect(() => {
+      const timer = setTimeout(() => setStep((s) => (s + 1) % steps.length), 5000);
+      return () => clearTimeout(timer);
+    }, [step, steps.length]);
+    return (
+      <div className="mb-6">
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded shadow-sm transition-all duration-500">
+          <p className="font-semibold text-yellow-800 mb-1">{steps[step].title}</p>
+          <div>{steps[step].content}</div>
+          <div className="flex justify-end gap-2 mt-2">
+            <button
+              className="text-xs px-2 py-1 rounded bg-yellow-200 hover:bg-yellow-300 text-yellow-900"
+              onClick={() => setStep((s) => (s - 1 + steps.length) % steps.length)}
+              aria-label="Étape précédente"
+            >
+              ◀
+            </button>
+            <button
+              className="text-xs px-2 py-1 rounded bg-yellow-200 hover:bg-yellow-300 text-yellow-900"
+              onClick={() => setStep((s) => (s + 1) % steps.length)}
+              aria-label="Étape suivante"
+            >
+              ▶
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function QuizUnlockTutorialPopup() {
+    const steps = [
+      {
+        title: "Débloquez votre progression, un quiz à la fois !",
+        content: (
+          <>
+            <p className="mb-2">Commencez avec <span className="font-medium">2 quiz débutants</span> pour vous échauffer.</p>
+            <p>Jouez, marquez des points et déverrouillez progressivement de nouveaux quiz !</p>
+          </>
+        ),
+      },
+      {
+        title: "Débloquez les niveaux !",
+        content: (
+          <ul className="list-disc pl-5 text-sm text-yellow-900 space-y-1">
+            <li><span className="font-medium">À 10 points :</span> Tous les quiz débutants deviennent accessibles.</li>
+            <li><span className="font-medium">À 20 points :</span> Les quiz intermédiaires s’ouvrent à vous.</li>
+            <li><span className="font-medium">À 40 points :</span> Tous les quiz débutants et intermédiaires sont disponibles.</li>
+            <li><span className="font-medium">À 50 points :</span> Les premiers quiz avancés sont débloqués.</li>
+            <li><span className="font-medium">À 80 points :</span> Accédez à encore plus de quiz avancés.</li>
+            <li><span className="font-medium">À 100 points :</span> Tous les quiz sont à votre portée !</li>
+          </ul>
+        ),
+      },
+      {
+        title: "Astuce !",
+        content: (
+          <>
+            <p className="text-sm text-yellow-900 mb-1">Seul votre meilleur score est conservé. N'hésitez pas à recommencer pour décrocher la note parfaite !</p>
+            <p className="mt-1 text-xs text-yellow-700">Chaque réponse compte. Accumulez des points et explorez tout l’univers des quiz !</p>
+          </>
+        ),
+      },
+    ];
+    const [step, setStep] = React.useState(0);
+    const [visible, setVisible] = React.useState(true);
+    React.useEffect(() => {
+      if (!visible) return;
+      const stepTimer = setTimeout(() => setStep((s) => (s + 1) % steps.length), 2500);
+      const hideTimer = setTimeout(() => setVisible(false), 8000);
+      return () => {
+        clearTimeout(stepTimer);
+        clearTimeout(hideTimer);
+      };
+    }, [step, visible, steps.length]);
+    if (!visible) return null;
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 animate-fade-in">
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded shadow-xl max-w-md w-full relative">
+          <button
+            className="absolute top-2 right-2 text-yellow-700 hover:text-yellow-900 text-lg"
+            onClick={() => setVisible(false)}
+            aria-label="Fermer le tutoriel"
+          >
+            ×
+          </button>
+          <p className="font-semibold text-yellow-800 mb-1 text-lg">{steps[step].title}</p>
+          <div>{steps[step].content}</div>
+          <div className="flex justify-end gap-2 mt-2">
+            <button
+              className="text-xs px-2 py-1 rounded bg-yellow-200 hover:bg-yellow-300 text-yellow-900"
+              onClick={() => setStep((s) => (s - 1 + steps.length) % steps.length)}
+              aria-label="Étape précédente"
+            >
+              ◀
+            </button>
+            <button
+              className="text-xs px-2 py-1 rounded bg-yellow-200 hover:bg-yellow-300 text-yellow-900"
+              onClick={() => setStep((s) => (s + 1) % steps.length)}
+              aria-label="Étape suivante"
+            >
+              ▶
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4 mt-[-10%] md:mt-0">
@@ -259,6 +405,9 @@ export function StagiaireQuizList() {
       <hr className="mb-4" />
       {/* <div className="mt-2 h-[calc(100vh-25rem)] overflow-y-auto p-4"> */}
       <div className="space-y-6">
+        {/* Explication sur la disponibilité des quiz */}
+        
+
         {/* Section des quiz non joués */}
         <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6">
           {notPlayedQuizzes.length === 0 ? (
@@ -290,8 +439,10 @@ export function StagiaireQuizList() {
             />
           )}
         </div>
+        <QuizUnlockTutorial />
       </div>
       {/* </div> */}
+      <QuizUnlockTutorialPopup />
     </div>
   );
 }
