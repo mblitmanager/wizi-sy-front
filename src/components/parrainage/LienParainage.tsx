@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Copy, Link as LinkIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.testeninterne.com/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://wizi-learn.com/api";
 
 export default function LienParrainage() {
   const [parrainageLink, setParrainageLink] = useState<string>("");

@@ -3,8 +3,12 @@ import Pusher from 'pusher-js';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 
+interface NotificationListenerProps {
+  onPushNotification?: (notif: { id: string; message: string; type?: string; created_at?: string; data?: any }) => void;
+}
+
 // Ce composant écoute les notifications Pusher globalement
-export default function NotificationListener() {
+export default function NotificationListener({ onPushNotification }: NotificationListenerProps) {
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -14,7 +18,6 @@ export default function NotificationListener() {
       forceTLS: true,
     });
 
-    // Liste des channels à écouter
     const allowedChannels = [
       'production',
       'message',
@@ -24,8 +27,31 @@ export default function NotificationListener() {
       'notifications',
     ];
 
-    // Fonction utilitaire pour afficher un toast et une notification navigateur
-    const showNotification = (title, message) => {
+    // Helper to normalize notification
+    const normalizeNotif = (data: any, type = 'system') => ({
+      id: data.id ? String(data.id) : `${Date.now()}-${Math.random()}`,
+      message: data.message || data.body || 'Nouvelle notification',
+      type: data.type || type,
+      created_at: data.created_at || new Date().toISOString(),
+      data,
+      read: false,
+    });
+
+    // Helper to check if notification already exists in sessionStorage
+    function isNotifAlreadyDisplayed(id: string) {
+      try {
+        const data = sessionStorage.getItem('notifications');
+        if (data) {
+          const notifs = JSON.parse(data);
+          return notifs.some((n: any) => n.id === id);
+        }
+      } catch {}
+      return false;
+    }
+
+    const showNotification = (title, message, data = {}, type = 'system') => {
+      // Deduplication: only display if not already present
+      if (data.id && isNotifAlreadyDisplayed(data.id)) return;
       toast(
         <div className="flex items-center gap-2">
           <span>🔔</span>
@@ -34,6 +60,9 @@ export default function NotificationListener() {
         </div>,
         { duration: 5000 }
       );
+      if (onPushNotification) {
+        onPushNotification(normalizeNotif(data, type));
+      }
       if ("Notification" in window && Notification.permission === "granted") {
         new Notification(title, {
           body: message,
@@ -42,34 +71,38 @@ export default function NotificationListener() {
       }
     };
 
-    // Fonction de callback générique
     const handleEvent = (eventName, data, channelName = '') => {
+      const ignoredEvents = [
+        'pusher:connection_established',
+        'pusher_internal:subscription_succeeded',
+        'pusher:subscription_succeeded',
+        'pusher:member_added',
+        'pusher:member_removed',
+        'connection',
+        'subscribed',
+        'connected',
+        'disconnected',
+      ];
+      if (ignoredEvents.includes(eventName.toLowerCase())) return;
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
       const message = data?.message || JSON.stringify(data);
-      const title = channelName
-        ? `Event Pusher : ${eventName} (${channelName})`
-        : `Event Pusher : ${eventName}`;
-      showNotification(title, message);
+      showNotification(eventName, message, data, eventName.split('.')[0] || 'system');
     };
 
-    // Souscription et binding pour chaque channel autorisé
     const subscriptions = allowedChannels.map(channelName => {
       const ch = pusher.subscribe(channelName);
       ch.bind_global((eventName, data) => handleEvent(eventName, data, channelName));
-      console.log(`Subscribed to channel: ${channelName}`);
-      console.log(ch);
       return ch;
     });
 
-    // Pour compatibilité, on garde les events spécifiques sur 'notification'
     const notificationChannel = pusher.subscribe('notification');
     notificationChannel.bind('test.notification', (data) => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      showNotification('Nouvelle notification', data.message);
+      showNotification('Nouvelle notification', data.message, data, 'quiz');
     });
     notificationChannel.bind('iny', (data) => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      showNotification('Nouvelle notification', data.message || JSON.stringify(data));
+      showNotification('Nouvelle notification', data.message || JSON.stringify(data), data, 'system');
     });
 
     return () => {
@@ -81,7 +114,7 @@ export default function NotificationListener() {
       notificationChannel.unsubscribe();
       pusher.disconnect();
     };
-  }, [queryClient]);
+  }, [queryClient, onPushNotification]);
 
   return null;
 }
