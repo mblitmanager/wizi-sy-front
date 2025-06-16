@@ -37,7 +37,21 @@ export default function NotificationListener({ onPushNotification }: Notificatio
       read: false,
     });
 
+    // Helper to check if notification already exists in sessionStorage
+    function isNotifAlreadyDisplayed(id: string) {
+      try {
+        const data = sessionStorage.getItem('notifications');
+        if (data) {
+          const notifs = JSON.parse(data);
+          return notifs.some((n: any) => n.id === id);
+        }
+      } catch {}
+      return false;
+    }
+
     const showNotification = (title, message, data = {}, type = 'system') => {
+      // Deduplication: only display if not already present
+      if (data.id && isNotifAlreadyDisplayed(data.id)) return;
       toast(
         <div className="flex items-center gap-2">
           <span>🔔</span>
