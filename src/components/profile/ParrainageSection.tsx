@@ -19,7 +19,7 @@ import image from "../../assets/aopia parrainage.png";
 import { useUser } from "@/hooks/useAuth";
 import LienParrainage from "../parrainage/LienParainage";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.testeninterne.com/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://wizi-learn.com/api";
 
 const ParrainageSection = () => {
   const [parrainageLink, setParrainageLink] = useState<string>("");

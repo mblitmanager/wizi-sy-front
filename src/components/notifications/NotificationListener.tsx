@@ -44,12 +44,26 @@ export default function NotificationListener() {
 
     // Fonction de callback générique
     const handleEvent = (eventName, data, channelName = '') => {
+      // Ne pas afficher de notification pour les events de connexion ou de souscription
+      const ignoredEvents = [
+        'pusher:connection_established',
+        'pusher_internal:subscription_succeeded',
+        'pusher:subscription_succeeded',
+        'pusher:member_added',
+        'pusher:member_removed',
+        'connection',
+        'subscribed',
+        'connected',
+        'disconnected',
+      ];
+      if (ignoredEvents.includes(eventName.toLowerCase())) return;
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
       const message = data?.message || JSON.stringify(data);
       const title = channelName
         ? `Event Pusher : ${eventName} (${channelName})`
         : `Event Pusher : ${eventName}`;
-      showNotification(title, message);
+      // showNotification(title, message);
+      showNotification(eventName, message);
     };
 
     // Souscription et binding pour chaque channel autorisé
