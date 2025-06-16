@@ -108,28 +108,6 @@ interface AdCatalogueBlockProps {
 }
 const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
   const navigate = useNavigate();
-  const [stagiaireCatalogues, setStagiaireCatalogues] = useState<CatalogueFormation[]>([]);
-  React.useEffect(() => {
-    // if (!stagiaireId) return;
-    axios.get(`${VITE_API_URL}/catalogueFormations/stagiaire/`)
-      .then(res => {
-        console.log("API response data:", res.data);
-        setStagiaireCatalogues(res.data.catalogues || []);
-      })
-      .catch((err) => {
-        console.log("API error:", err);
-        setStagiaireCatalogues([]);
-      });
-  }, []);
-  console.log("Stagiaire Catalogues:", stagiaireCatalogues);
-  console.log(formations)
-  // Exclure les catalogues du stagiaire
-  const filteredFormations = useMemo(() => {
-    if (!stagiaireCatalogues.length) return formations;
-    const ids = new Set(stagiaireCatalogues.map(f => f.id));
-    return formations.filter(f => !ids.has(f.id));
-  }, [formations, stagiaireCatalogues]);
-
   const [inscriptionLoading, setInscriptionLoading] = useState<number | null>(
     null
   );
@@ -155,7 +133,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
         return "#E0E0E0";
     }
   }, []);
-  const selected = useMemo(() => getRandomItems(filteredFormations, 3), [filteredFormations]);
+  const selected = useMemo(() => getRandomItems(formations, 3), [formations]);
   const ads = useMemo(() => selected.map(getAdContent), [selected]);
 
   const handleInscription = async (idx: number) => {

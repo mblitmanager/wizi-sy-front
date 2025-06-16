@@ -5,6 +5,7 @@ import { WifiOff, Megaphone } from "lucide-react";
 import { ProgressCard } from "@/components/dashboard/ProgressCard";
 
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 
 import { Contact } from "@/types/contact";
 import ContactsSection from "@/components/FeatureHomePage/ContactSection";
@@ -65,6 +66,26 @@ export function Index() {
     },
   });
   const isLoading = isLoadingCatalogue;
+
+  // --- Stagiaire catalogues logic moved from AdCatalogueBlock ---
+  const [stagiaireCatalogues, setStagiaireCatalogues] = useState<CatalogueFormation[]>([]);
+  useEffect(() => {
+    axios.get(`${API_URL}/catalogueFormations/stagiaire`)
+      .then(res => {
+        setStagiaireCatalogues(res.data.catalogues || []);
+      })
+      .catch(() => {
+        setStagiaireCatalogues([]);
+      });
+  }, []);
+
+  const filteredFormations = useMemo(() => {
+    if (!stagiaireCatalogues.length) return catalogueData;
+    const ids = new Set(stagiaireCatalogues.map(f => f.id));
+    return catalogueData.filter(f => !ids.has(f.id));
+  }, [catalogueData, stagiaireCatalogues]);
+  // --- End moved logic ---
+
   const { data: commerciaux, isLoading: loadingCommerciaux } = useQuery<
     Contact[]
   >({
@@ -131,7 +152,7 @@ export function Index() {
           <div className="flex justify-center items-center py-16">
             <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-yellow-400 border-solid"></div>
           </div>
-        ) : catalogueData && catalogueData.length > 0 ? (
+        ) : filteredFormations && filteredFormations.length > 0 ? (
           <>
             <h1 className="text-2xl md:text-2xl text-orange-400 font-bold mb-4 md:mb-2 text-center mt-4 py-6 relative">
               {DECOUVRIR_NOS_FORMATIONS}
@@ -150,7 +171,7 @@ export function Index() {
               {/* Colonne catalogue */}
               <div className="w-full flex flex-col items-center border-nonte">
                 <div className="w-full">
-                  <AdCatalogueBlock formations={catalogueData.slice(0, 4)} />
+                  <AdCatalogueBlock formations={filteredFormations.slice(0, 4)} />
                 </div>
               </div>
             </div>
