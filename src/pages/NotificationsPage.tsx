@@ -6,6 +6,7 @@ import { Bell, Check, Trash2 } from "lucide-react";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useUser } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import NotificationListener from "@/components/notifications/NotificationListener";
 
 // Icône par type de notification
 const getNotificationIcon = (type: string) => {
@@ -94,16 +95,6 @@ export default function NotificationsPage() {
   // État local pour affichage instantané
   const [notifications, setNotifications] = useState(notificationsFromHook);
 
-  // Sync local state uniquement si le contenu a changé (évite boucle infinie)
-  useEffect(() => {
-    if (
-      notificationsFromHook.length !== notifications.length ||
-      notificationsFromHook.some((n, i) => n.id !== notifications[i]?.id)
-    ) {
-      setNotifications(notificationsFromHook);
-    }
-  }, [notificationsFromHook, notifications]);
-
   // Suppression instantanée
   const handleDelete = useCallback(
     (id: string) => {
@@ -173,8 +164,26 @@ export default function NotificationsPage() {
     prevNotifCount.current = notifications.length;
   }, [notifications]);
 
+  // Handler to add Pusher notifications to local state
+  const handlePushNotification = (notif: any) => {
+    console.log('[PUSHER] Notification reçue:', notif);
+    setNotifications((prev) => [notif, ...prev]);
+  };
+
+  // Merge notifications from hook and local (Pusher) notifications, deduplicated by id
+  const mergedNotifications = React.useMemo(() => {
+    const map = new Map();
+    [...notificationsFromHook, ...notifications].forEach((n) => {
+      map.set(n.id, { ...n });
+    });
+    // Sort by created_at descending
+    return Array.from(map.values()).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }, [notificationsFromHook, notifications]);
+
   return (
     <Layout>
+      {/* Listen for Pusher notifications and add to state */}
+      <NotificationListener onPushNotification={handlePushNotification} />
       <div className="mx-auto px-4 sm:px-6 lg:px-8 py-6 mt-[-15%] md:mt-0">
         {/* Header sticky */}
         <div className="sticky top-0 z-10 bg-white border-b border-gray-100 py-3 px-4 mb-6">
@@ -193,7 +202,7 @@ export default function NotificationsPage() {
               <Button
                 variant="outline"
                 onClick={() =>
-                  notifications.forEach((n) => deleteNotification(n.id))
+                  mergedNotifications.forEach((n) => deleteNotification(n.id))
                 }
                 className="text-sm text-red-600 border-red-200 hover:bg-red-50 w-full sm:w-auto">
                 <Trash2 className="h-4 w-4 mr-2" />
@@ -204,11 +213,11 @@ export default function NotificationsPage() {
         </div>
 
         {/* Contenu notifications */}
-        {notifications.length === 0 ? (
+        {mergedNotifications.length === 0 ? (
           <EmptyState />
         ) : (
           <div className="flex flex-col gap-2">
-            {notifications.map((notification) => (
+            {mergedNotifications.map((notification) => (
               <div
                 key={notification.id}
                 data-id={notification.id}
