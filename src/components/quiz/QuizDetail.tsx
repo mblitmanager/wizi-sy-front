@@ -121,19 +121,19 @@ export function QuizDetail() {
           {
             icon: <BookOpen className="w-8 h-8 text-blue-500 mb-2" />,
             title: "QCM",
-            desc: "Choisissez la ou les bonnes réponses.",
+            desc: "Choisissez la ou les bonnes réponses parmi plusieurs propositions.",
             bg: "bg-blue-50 border-blue-200",
           },
           {
             icon: <Award className="w-8 h-8 text-green-500 mb-2" />,
             title: "Vrai / Faux",
-            desc: "Vrai ou faux ?",
+            desc: "Indiquez si l'affirmation est vraie ou fausse.",
             bg: "bg-green-50 border-green-200",
           },
           {
             icon: <span className="w-8 h-8 mb-2 text-yellow-500">🔊</span>,
             title: "Audio",
-            desc: "Écoutez et répondez.",
+            desc: "Écoutez et sélectionnez la bone réponse.",
             bg: "bg-yellow-50 border-yellow-200",
           },
         ]
