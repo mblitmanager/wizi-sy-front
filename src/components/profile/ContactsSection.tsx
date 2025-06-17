@@ -24,7 +24,7 @@ const SkeletonCard = () => (
 
 const ContactsSection = () => {
   const VITE_API_URL =
-    import.meta.env.VITE_API_URL || "http://wizi-learn.com/api";
+    import.meta.env.VITE_API_URL || "https://wizi-learn.testeninterne.com/api";
   const [commerciaux, setCommerciaux] = useState<Contact[]>([]);
   const [formateurs, setFormateurs] = useState<Contact[]>([]);
   const [poleRelation, setPoleRelation] = useState<Contact[]>([]);

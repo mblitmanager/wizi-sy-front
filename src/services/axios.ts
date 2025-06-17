@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://wizi-learn.com/api";
+const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.testeninterne.com/api";
 
 const axiosInstance = axios.create({
   baseURL: API_URL,

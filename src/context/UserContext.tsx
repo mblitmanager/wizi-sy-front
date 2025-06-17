@@ -27,7 +27,7 @@ export const UserContext = createContext<UserContextType | undefined>(
 );
 
 // Constants
-const API_URL = import.meta.env.VITE_API_URL || "http://wizi-learn.com/api";
+const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.testeninterne.com/api";
 const TOAST_STYLE = {
   style: { background: "#fb923c", color: "#fff" },
   className: "bg-orange-400 text-white",
