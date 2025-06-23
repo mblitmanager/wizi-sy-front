@@ -2,8 +2,15 @@ import { useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
+// Define the Firebase config object
 const firebaseConfig = {
-  // Ajoutez ici votre configuration Firebase
+  apiKey: "AIzaSyAAAaZVClNlMXgTktyjUg8lhLG5zSue4YY",
+  authDomain: "wizi-learn.firebaseapp.com",
+  projectId: "wizi-learn",
+  storageBucket: "wizi-learn.firebasestorage.app",
+  messagingSenderId: "69521612278",
+  appId: "1:69521612278:web:c1019585e1a905857c7bd7",
+  measurementId: "G-K9Z9J0CQM7"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -13,7 +20,8 @@ export function useFcmToken(userToken) {
   useEffect(() => {
     async function registerFcmToken() {
       try {
-        const fcmToken = await getToken(messaging, { vapidKey: 'VOTRE_VAPID_KEY' });
+        const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
+        const fcmToken = await getToken(messaging, { vapidKey });
         if (fcmToken) {
           await fetch('/fcm-token', {
             method: 'POST',
@@ -40,3 +48,5 @@ export function useOnMessage() {
     });
   }, []);
 }
+
+export { messaging, getToken, onMessage };

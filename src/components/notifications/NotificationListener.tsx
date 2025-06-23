@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
-import Pusher from 'pusher-js';
+import { messaging, onMessage, getToken } from '@/firebase-fcm';
 import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query';
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 interface NotificationListenerProps {
   onPushNotification?: (notif: { id: string; message: string; type?: string; created_at?: string; data?: any }) => void;
@@ -9,112 +10,61 @@ interface NotificationListenerProps {
 
 // Ce composant écoute les notifications Pusher globalement
 export default function NotificationListener({ onPushNotification }: NotificationListenerProps) {
-  const queryClient = useQueryClient();
-
   useEffect(() => {
-    Pusher.logToConsole = true;
-    const pusher = new Pusher(import.meta.env.VITE_PUSHER_KEY, {
-      cluster: import.meta.env.VITE_PUSHER_CLUSTER,
-      forceTLS: true,
-    });
-
-    const allowedChannels = [
-      'production',
-      'message',
-      'notification',
-      'wizi-learn-production',
-      'wizi-learn-development',
-      'notifications',
-    ];
-
-    // Helper to normalize notification
-    const normalizeNotif = (data: any, type = 'system') => ({
-      id: data.id ? String(data.id) : `${Date.now()}-${Math.random()}`,
-      message: data.message || data.body || 'Nouvelle notification',
-      type: data.type || type,
-      created_at: data.created_at || new Date().toISOString(),
-      data,
-      read: false,
-    });
-
-    // Helper to check if notification already exists in sessionStorage
-    function isNotifAlreadyDisplayed(id: string) {
-      try {
-        const data = sessionStorage.getItem('notifications');
-        if (data) {
-          const notifs = JSON.parse(data);
-          return notifs.some((n: any) => n.id === id);
+    // Demander le token FCM (à stocker côté backend si besoin)
+    const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
+    getToken(messaging, { vapidKey })
+      .then(async (currentToken) => {
+        if (currentToken) {
+          // Envoyer ce token à votre backend
+          try {
+            await fetch(`${API_URL}/fcm-token`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                // Ajoutez ici l'Authorization si besoin
+              },
+              body: JSON.stringify({ token: currentToken })
+            });
+            console.log("FCM Token envoyé au backend:", currentToken);
+          } catch (err) {
+            console.error('Erreur lors de l\'envoi du token FCM au backend', err);
+          }
         }
-      } catch {}
-      return false;
-    }
+      })
+      .catch((err) => {
+        console.error("Erreur lors de la récupération du token FCM", err);
+      });
 
-    const showNotification = (title, message, data = {}, type = 'system') => {
-      // Deduplication: only display if not already present
-      if (data.id && isNotifAlreadyDisplayed(data.id)) return;
+    // Écoute des notifications en premier plan
+    const unsubscribe = onMessage(messaging, (payload) => {
+      const { title, body } = payload.notification || {};
+      const notif = {
+        id: payload.data?.id || Date.now().toString(),
+        message: body || '',
+        type: payload.data?.type || 'system',
+        created_at: payload.data?.created_at || new Date().toISOString(),
+        data: payload.data || {},
+        read: false,
+      };
       toast(
         <div className="flex items-center gap-2">
           <span>🔔</span>
           <span className="font-medium">{title}</span>
-          <span className="truncate max-w-xs">{message}</span>
+          <span className="truncate max-w-xs">{body}</span>
         </div>,
         { duration: 5000 }
       );
       if (onPushNotification) {
-        onPushNotification(normalizeNotif(data, type));
+        onPushNotification(notif);
       }
-      if ("Notification" in window && Notification.permission === "granted") {
-        new Notification(title, {
-          body: message,
-          icon: "/favicon.ico"
-        });
-      }
-    };
-
-    const handleEvent = (eventName, data, channelName = '') => {
-      const ignoredEvents = [
-        'pusher:connection_established',
-        'pusher_internal:subscription_succeeded',
-        'pusher:subscription_succeeded',
-        'pusher:member_added',
-        'pusher:member_removed',
-        'connection',
-        'subscribed',
-        'connected',
-        'disconnected',
-      ];
-      if (ignoredEvents.includes(eventName.toLowerCase())) return;
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      const message = data?.message || JSON.stringify(data);
-      showNotification(eventName, message, data, eventName.split('.')[0] || 'system');
-    };
-
-    const subscriptions = allowedChannels.map(channelName => {
-      const ch = pusher.subscribe(channelName);
-      ch.bind_global((eventName, data) => handleEvent(eventName, data, channelName));
-      return ch;
-    });
-
-    const notificationChannel = pusher.subscribe('notification');
-    notificationChannel.bind('test.notification', (data) => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      showNotification('Nouvelle notification', data.message, data, 'quiz');
-    });
-    notificationChannel.bind('iny', (data) => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      showNotification('Nouvelle notification', data.message || JSON.stringify(data), data, 'system');
     });
 
     return () => {
-      subscriptions.forEach(ch => {
-        ch.unbind_global();
-        ch.unsubscribe();
-      });
-      notificationChannel.unbind_all();
-      notificationChannel.unsubscribe();
-      pusher.disconnect();
+      // Pas de désabonnement nécessaire pour onMessage
     };
-  }, [queryClient, onPushNotification]);
+  }, [onPushNotification]);
 
   return null;
 }
