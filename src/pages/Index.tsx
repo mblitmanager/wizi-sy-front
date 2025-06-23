@@ -26,6 +26,11 @@ import {
   WELCOME,
 } from "@/utils/constants";
 import { CatalogueFormation } from "@/types/stagiaire";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -109,6 +114,24 @@ export function Index() {
   if (!user) {
     return <LandingPage />;
   }
+
+  useEffect(() => {
+    // Heure de Paris
+    const nowParis = dayjs().tz("Europe/Paris");
+    const hour = nowParis.hour();
+    const minute = nowParis.minute();
+
+    // Entre 9h00 et 9h10 (évite les doublons si plusieurs refresh)
+    if (hour === 9 && minute < 10) {
+      fetch("/api/notify-daily-formation", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`, // Remplace par ton token JWT
+          "Content-Type": "application/json"
+        }
+      });
+    }
+  }, []);
 
   return (
     <Layout>
