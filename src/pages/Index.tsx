@@ -111,9 +111,7 @@ export function Index() {
     queryKey: ["contacts", "pole-relation"],
     queryFn: () => fetchContacts("pole-relation"),
   });
-  if (!user) {
-    return <LandingPage />;
-  }
+ 
 
   useEffect(() => {
     // Heure de Paris
@@ -123,16 +121,18 @@ export function Index() {
 
     // Entre 9h00 et 9h10 (évite les doublons si plusieurs refresh)
     if (hour === 9 && minute < 10) {
-      fetch("/api/notify-daily-formation", {
+      fetch(`${API_URL}/api/notify-daily-formation`, {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${token}`, // Remplace par ton token JWT
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "application/json"
         }
       });
     }
   }, []);
-
+ if (!user ||!localStorage.getItem("token")) {
+    return <LandingPage />;
+  }
   return (
     <Layout>
       {!isOnline && (
