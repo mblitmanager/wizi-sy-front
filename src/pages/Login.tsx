@@ -28,11 +28,13 @@ const Login = () => {
     } catch (err) {
       // Vous pouvez personnaliser le message d'erreur ici
       setError("Échec de la connexion. Veuillez vérifier vos identifiants.");
+      setError(err?.message || JSON.stringify(err) || "Échec de la connexion. Veuillez vérifier vos identifiants.");
+      console.error("Erreur de connexion :", err);
     }
   };
 
   // Redirect if already logged in
-  if (user) {
+  if (user || localStorage.getItem("token")) {
     return <Navigate to="/" />;
   }
 
