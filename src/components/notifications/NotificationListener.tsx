@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { messaging, onMessage, getToken } from '@/firebase-fcm';
 import { toast } from 'sonner';
 
-const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
+const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.testeninterne.com/api";
 
 interface NotificationListenerProps {
   onPushNotification?: (notif: { id: string; message: string; type?: string; created_at?: string; data?: any }) => void;
