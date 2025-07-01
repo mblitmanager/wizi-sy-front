@@ -551,6 +551,45 @@ export function isAnswerCorrect(
 
       return allCorrectSelected && noIncorrectSelected;
     }
+
+    case "carte flash": {
+      // Pour les flashcards
+      const correctAnswer = question.answers?.find(
+        (a) => a.isCorrect || a.is_correct === 1
+      );
+
+      if (!correctAnswer) return false;
+
+      // Extraire la réponse si elle est dans un objet selectedAnswers
+      let userAnswer = userAnswerData;
+      if (
+        userAnswerData &&
+        typeof userAnswerData === "object" &&
+        "selectedAnswers" in userAnswerData
+      ) {
+        userAnswer = userAnswerData.selectedAnswers;
+      }
+      if (Array.isArray(userAnswer)) {
+        userAnswer = userAnswer[0];
+      }
+
+      // Si la réponse est directement dans correctAnswers
+      if (question.correctAnswers && question.correctAnswers.length > 0) {
+        const normalizedUserAnswer = normalizeString(String(userAnswer));
+        const normalizedCorrectAnswers = question.correctAnswers.map((ca) =>
+          normalizeString(String(ca))
+        );
+
+        return normalizedCorrectAnswers.includes(normalizedUserAnswer);
+      }
+
+      // Vérification par texte ou ID
+      return (
+        normalizeString(correctAnswer.text) ===
+          normalizeString(String(userAnswer)) ||
+        String(correctAnswer.id) === String(userAnswer)
+      );
+    }
     default: {
       // Pour QCM
       const correctAnswerIds = question.answers
