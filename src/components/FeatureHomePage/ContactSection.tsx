@@ -15,6 +15,14 @@ const typeStyles: Record<string, string> = {
   "Pôle Relation Client": "bg-yellow-100 text-yellow-800",
 };
 
+interface FormationStagiaire {
+  id: number;
+  titre: string;
+  dateDebut?: string;
+  dateFin?: string;
+  formateur?: string;
+}
+
 interface ContactsSectionProps {
   commerciaux: Contact[];
   formateurs: Contact[];
@@ -47,12 +55,19 @@ const ContactSection = ({
         telephone?: string;
       };
 
-      const formateurs = data.formateurs.map((f: RawContact) => ({
+      const formateurs = data.formateurs.map((f: any) => ({
         id: f.id,
         type: "Formateur",
         name: f.user.name,
         email: f.user.email,
         phone: f.telephone ?? "",
+        formations: f.formations?.map((formation: any) => ({
+          id: formation.id,
+          titre: formation.titre,
+          dateDebut: formation.pivot?.date_debut,
+          dateFin: formation.pivot?.date_fin,
+          formateur: f.user.name,
+        })) ?? [],
       }));
 
       const commerciaux = data.commerciaux.map((c: RawContact) => ({
@@ -131,6 +146,18 @@ const ContactSection = ({
             {contact.phone || "Non renseigné"}
           </a>
         </div>
+        {contact.formations && contact.formations.length > 0 && (
+          <div className="mt-2">
+            <strong>Formations :</strong>
+            <ul className="list-disc ml-5">
+              {contact.formations.map((formation) => (
+                <li key={formation.id}>
+                  {formation.titre} {formation.dateDebut ? `(Début: ${formation.dateDebut})` : ''} {formation.dateFin ? `(Fin: ${formation.dateFin})` : ''}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -138,14 +165,8 @@ const ContactSection = ({
   const groupedContacts = (type: string) =>
     contacts.filter((c) => c.type === type);
 
+  // Afficher un seul contact de chaque type (Formateur, Commercial, Pôle Relation Client)
   const getVisibleContacts = () => {
-    if (showAllContacts || !isMobile) {
-      return [
-        ...groupedContacts("Commercial").slice(0, 3),
-        ...groupedContacts("Formateur").slice(0, 3),
-        ...groupedContacts("Pôle Relation Client").slice(0, 3),
-      ];
-    }
     return [
       groupedContacts("Commercial")[0],
       groupedContacts("Formateur")[0],
