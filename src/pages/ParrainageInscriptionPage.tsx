@@ -6,7 +6,7 @@ import { useFormations } from "@/use-case/hooks/catalogue/useCatalogue";
 
 // ParrainageInscriptionPage.tsx
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
 
 const ParrainageInscriptionPage = () => {
   const { token } = useParams();
@@ -381,8 +381,8 @@ const ParrainageInscriptionPage = () => {
                         value={formData.telephone}
                         onChange={handleChange}
                         className={`block w-full px-4 py-3 rounded-md border shadow-sm focus:ring-yellow-500 focus:border-yellow-500 ${errors.telephone
-                            ? "border-red-300"
-                            : "border-gray-300"
+                          ? "border-red-300"
+                          : "border-gray-300"
                           }`}
                       />
                       {errors.telephone && (
@@ -419,9 +419,9 @@ const ParrainageInscriptionPage = () => {
                               <div
                                 key={formation.id}
                                 className={`block p-4 hover:bg-amber-50 cursor-pointer transition-colors ${formData.catalogue_formation_id ===
-                                    formation.id
-                                    ? "bg-amber-50"
-                                    : ""
+                                  formation.id
+                                  ? "bg-amber-50"
+                                  : ""
                                   }`}
                               >
                                 <label className="flex items-center space-x-3 cursor-pointer">
