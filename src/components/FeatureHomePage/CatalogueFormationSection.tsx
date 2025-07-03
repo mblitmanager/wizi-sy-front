@@ -39,14 +39,18 @@ export default function CatalogueFormationSection({
   return (
     <div className="mb-8 p-4 bg-card rounded-lg shadow-sm">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold brown-shade">
+        <h2 className="text-2xl md:text-2xl text-orange-400 font-bold">
           {CATALOGUE_FORMATION}
         </h2>
         <Link to="/formations">
-          <Button variant="ghost" className="text-blue-400" size="sm">
-            Voir tous <ChevronRight className="h-4 w-4 ml-1" />
+          <Button variant="ghost" className="text-orange-600 font-bold" size="sm">
+            Voir tous
           </Button>
         </Link>
+      </div>
+      {/* Ligne orange décorative */}
+      <div className="relative mb-2">
+        <span className="absolute left-1/2 transform -translate-x-1/2 w-16 h-1 bg-orange-400 rounded-full"></span>
       </div>
 
       {isLoading ? (

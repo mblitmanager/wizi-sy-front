@@ -19,7 +19,7 @@ import image from "../../assets/aopia parrainage.png";
 import { useUser } from "@/hooks/useAuth";
 import LienParrainage from "../parrainage/LienParainage";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.testeninterne.com/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 const ParrainageSection = () => {
   const [parrainageLink, setParrainageLink] = useState<string>("");
@@ -49,7 +49,7 @@ const ParrainageSection = () => {
           const errorData = await response.json().catch(() => ({}));
           throw new Error(
             errorData.message ||
-              "Erreur lors de la récupération des statistiques"
+            "Erreur lors de la récupération des statistiques"
           );
         }
 

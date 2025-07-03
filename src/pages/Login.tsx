@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Link, Navigate } from "react-router-dom";
 import { useUser } from "@/hooks/useAuth";
 import logo from "@/assets/logo.png";
+import { messaging, getToken } from "@/firebase-fcm";
 
 const Login = () => {
   const { user, login, isLoading } = useUser();
@@ -19,12 +20,32 @@ const Login = () => {
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null); // Réinitialiser les erreurs
 
     try {
       await login(email, password);
+      // Après connexion réussie, envoyer le token FCM
+      const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
+      const currentToken = await getToken(messaging, { vapidKey });
+      if (currentToken) {
+        try {
+          await fetch(`${API_URL}/fcm-token`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            body: JSON.stringify({ token: currentToken })
+          });
+          console.log("FCM Token envoyé au backend:", currentToken);
+        } catch (err) {
+          console.error("Erreur lors de l'envoi du token FCM au backend", err);
+        }
+      }
     } catch (err) {
       // Vous pouvez personnaliser le message d'erreur ici
       setError("Échec de la connexion. Veuillez vérifier vos identifiants.");

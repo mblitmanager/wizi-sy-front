@@ -1,42 +1,14 @@
 import { useEffect } from 'react';
-import { messaging, onMessage, getToken } from '@/firebase-fcm';
+import { messaging, onMessage } from '@/firebase-fcm';
 import { toast } from 'sonner';
 
-const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.testeninterne.com/api";
-
 interface NotificationListenerProps {
-  onPushNotification?: (notif: { id: string; message: string; type?: string; created_at?: string; data?: any }) => void;
+  onPushNotification?: (notif: { id: string; message: string; type?: string; created_at?: string; data?: Record<string, unknown> }) => void;
 }
 
 // Ce composant écoute les notifications Pusher globalement
 export default function NotificationListener({ onPushNotification }: NotificationListenerProps) {
   useEffect(() => {
-    // Demander le token FCM (à stocker côté backend si besoin)
-    const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
-    getToken(messaging, { vapidKey })
-      .then(async (currentToken) => {
-        if (currentToken) {
-          // Envoyer ce token à votre backend
-          try {
-            await fetch(`${API_URL}/fcm-token`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-                // Ajoutez ici l'Authorization si besoin
-              },
-              body: JSON.stringify({ token: currentToken })
-            });
-            console.log("FCM Token envoyé au backend:", currentToken);
-          } catch (err) {
-            console.error('Erreur lors de l\'envoi du token FCM au backend', err);
-          }
-        }
-      })
-      .catch((err) => {
-        console.error("Erreur lors de la récupération du token FCM", err);
-      });
-
     // Écoute des notifications en premier plan
     const unsubscribe = onMessage(messaging, (payload) => {
       const { title, body } = payload.notification || {};

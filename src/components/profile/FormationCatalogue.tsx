@@ -69,9 +69,16 @@ const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
                     <div className={`p-2 rounded-lg ${categoryColor} mr-3`}>
                       <BookAIcon className="w-5 h-5" />
                     </div>
-                    <h3 className="text-lg font-bold text-gray-800 dark:text-white line-clamp-2">
-                      {formatTitle(formation?.titre || "Sans titre")}
-                    </h3>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-800 dark:text-white line-clamp-2">
+                        {formatTitle(formation?.titre || "Sans titre")}
+                      </h3>
+                      {formation.formateur && (
+                        <div className="text-xs text-gray-500 mt-1">
+                          Formateur : <span className="font-semibold">{formation.formateur}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div className="flex-grow">

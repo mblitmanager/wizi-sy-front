@@ -45,48 +45,13 @@ const ContactSection = ({
     queryKey: ["contacts"],
     queryFn: async () => {
       const data = await contactService.getContacts();
-
-      type RawContact = {
-        id: string;
-        user: {
-          name: string;
-          email: string;
-        };
-        telephone?: string;
-      };
-
-      const formateurs = data.formateurs.map((f: any) => ({
-        id: f.id,
-        type: "Formateur",
-        name: f.user.name,
-        email: f.user.email,
-        phone: f.telephone ?? "",
-        formations: f.formations?.map((formation: any) => ({
-          id: formation.id,
-          titre: formation.titre,
-          dateDebut: formation.pivot?.date_debut,
-          dateFin: formation.pivot?.date_fin,
-          formateur: f.user.name,
-        })) ?? [],
-      }));
-
-      const commerciaux = data.commerciaux.map((c: RawContact) => ({
-        id: c.id,
-        type: "Commercial",
-        name: c.user.name,
-        email: c.user.email,
-        phone: c.telephone ?? "",
-      }));
-
-      const poleRelation = data.pole_relation.map((p: RawContact) => ({
-        id: p.id,
-        type: "Pôle Relation Client",
-        name: p.user.name,
-        email: p.user.email,
-        phone: p.telephone ?? "",
-      }));
-
-      return [...formateurs, ...commerciaux, ...poleRelation];
+      // Fusionne tous les contacts dans un seul tableau pour l'affichage
+      const allContacts = [
+        ...(data.formateurs || []),
+        ...(data.commerciaux || []),
+        ...(data.pole_relation || [])
+      ];
+      return allContacts;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes de cache
     retry: 2, // 2 tentatives en cas d'erreur
@@ -143,19 +108,45 @@ const ContactSection = ({
         <div className="flex items-center gap-2">
           <Phone className="w-4 h-4" />
           <a href={`tel:${contact.phone}`} className="hover:underline">
-            {contact.phone || "Non renseigné"}
+            {contact.telephone || "Non renseigné"}
           </a>
         </div>
-        {contact.formations && contact.formations.length > 0 && (
-          <div className="mt-2">
-            <strong>Formations :</strong>
-            <ul className="list-disc ml-5">
+        {contact.formation && contact.formation.length > 0 && (
+          <div className="mt-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="inline-block bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">
+                {contact.formations.length > 1 ? "Formations" : "Formation"}
+              </span>
+              <span className="text-xs text-gray-400">
+                ({contact.formations.length})
+              </span>
+            </div>
+            <div className="space-y-2">
               {contact.formations.map((formation) => (
-                <li key={formation.id}>
-                  {formation.titre} {formation.dateDebut ? `(Début: ${formation.dateDebut})` : ''} {formation.dateFin ? `(Fin: ${formation.dateFin})` : ''}
-                </li>
+                <div
+                  key={formation.id}
+                  className="flex items-center bg-gray-50 rounded-lg px-3 py-2 shadow-sm hover:bg-blue-50 transition"
+                >
+                  <div className="flex-1">
+                    <span className="font-medium text-gray-800">{formation.titre}</span>
+                    <div className="text-xs text-gray-500">
+                      {formation.dateDebut && (
+                        <span className="mr-2">
+                          <span className="font-semibold">Début:</span>{" "}
+                          {new Date(formation.dateDebut).toLocaleDateString("fr-FR")}
+                        </span>
+                      )}
+                      {formation.dateFin && (
+                        <span>
+                          <span className="font-semibold">Fin:</span>{" "}
+                          {new Date(formation.dateFin).toLocaleDateString("fr-FR")}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         )}
       </div>
@@ -177,18 +168,19 @@ const ContactSection = ({
   return (
     <div className="py-6 mt-2">
       <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-6 space-y-6 sm:space-y-6">
-        <h1 className="text-2xl md:text-2xl text-orange-400 font-bold mb-4 md:mb-2 text-center mt-2 py-6 relative">
-          {CONTACTEZ_NOUS}
-          {/* Ligne orange décorative */}
-          <span className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-orange-400 rounded-full"></span>
-        </h1>
-
-        <div className="flex justify-between items-center mb-3">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl md:text-2xl text-orange-400 font-bold">
+            {CONTACTEZ_NOUS}
+          </h1>
           <Link to="/contacts">
-            <Button className="text-brown-shade" variant="ghost" size="sm">
-              Voir tous <ChevronRight className="h-4 w-4 ml-1" />
+            <Button variant="ghost" className="text-orange-600 font-bold" size="sm">
+              Voir tous 
             </Button>
           </Link>
+        </div>
+        {/* Ligne orange décorative */}
+        <div className="relative mb-2">
+          <span className="absolute left-1/2 transform -translate-x-1/2 w-16 h-1 bg-orange-400 rounded-full"></span>
         </div>
 
         {isLoading ? (

@@ -63,37 +63,14 @@ export default function Contact() {
       try {
         setIsLoading(true);
         const data = await contactService.getContacts();
-
-        const formateurs = data.formateurs.map((f: RawFormateur) => ({
-          id: f.id,
-          type: "Formateur",
-          name: f.user.name,
-          email: f.user.email,
-          telephone: f.telephone ?? "",
-          formations: f.formations?.map((formation) => ({
-            id: formation.id,
-            titre: formation.titre,
-            dateDebut: formation.pivot?.date_debut,
-            dateFin: formation.pivot?.date_fin,
-            formateur: f.user.name,
-          })) ?? [],
-        }));
-        const commerciaux = data.commerciaux.map((c: RawContact) => ({
-          id: c.id,
-          type: "Commercial",
-          name: c.user.name,
-          email: c.user.email,
-          telephone: c.telephone ?? "",
-        }));
-        const poleRelation = data.pole_relation.map((p: RawContact) => ({
-          id: p.id,
-          type: "Pôle Relation Client",
-          name: p.user.name,
-          email: p.user.email,
-          telephone: p.telephone ?? "",
-        }));
-
-        setContacts([...formateurs, ...commerciaux, ...poleRelation]);
+                // Fusionne tous les contacts dans un seul tableau pour l'affichage
+        const allContacts = [
+          ...(data.formateurs || []),
+          ...(data.commerciaux || []),
+          ...(data.pole_relation || [])
+        ];
+        console.log(allContacts);
+        setContacts(allContacts);
       } catch (error) {
         console.error("Erreur lors de la récupération des contacts :", error);
         setError("Impossible de charger les contacts");
@@ -179,9 +156,8 @@ export default function Contact() {
                       {contact.name}
                     </h2>
                     <span
-                      className={`text-xs px-2 py-1 rounded-full font-medium ${
-                        typeStyles[contact.type]
-                      }`}>
+                      className={`text-xs px-2 py-1 rounded-full font-medium ${typeStyles[contact.type]
+                        }`}>
                       {contact.type}
                     </span>
                   </div>
@@ -204,24 +180,46 @@ export default function Contact() {
                       {contact.telephone || "Non renseigné"}
                     </a>
                   </div>
-                  {contact.formations && contact.formations.length > 0 && (
-                    <div className="mt-2">
-                      <strong>Formations :</strong>
-                      <ul className="list-disc ml-5">
-                        {contact.formations.map((formation) => (
-                          <li key={formation.id}>
-                            {formation.titre}{" "}
-                            {formation.dateDebut
-                              ? `(Début: ${formation.dateDebut})`
-                              : ""}{" "}
-                            {formation.dateFin
-                              ? `(Fin: ${formation.dateFin})`
-                              : ""}
-                          </li>
-                        ))}
-                      </ul>
+                    {contact.formations && contact.formations.length > 0 && (
+                    <div className="mt-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="inline-block bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">
+                        {contact.formations.length > 1 ? "Formations" : "Formation"}
+                        </span>
+                      <span className="text-xs text-gray-400">
+                        ({contact.formations.length})
+                      </span>
+                      </div>
+                      <div className="space-y-2">
+                      {contact.formations.map((formation) => (
+                        <div
+                        key={formation.id}
+                        className="flex items-center bg-gray-50 rounded-lg px-3 py-2 shadow-sm hover:bg-blue-50 transition"
+                        >
+                        <div className="flex-1">
+                          <span className="font-medium text-gray-800">{formation.titre}</span>
+                          <div className="text-xs text-gray-500">
+                          {formation.dateDebut && (
+                            <span className="mr-2">
+                              <span className="font-semibold">Début:</span>{" "}
+                              {new Date(formation.dateDebut).toLocaleDateString("fr-FR")}
+                            </span>
+                          )}
+                          {formation.dateFin && (
+                            <span>
+                              <span className="font-semibold">Fin:</span>{" "}
+                              {new Date(formation.dateFin).toLocaleDateString("fr-FR")}
+                            </span>
+                          )}
+                          </div>
+                        </div>
+                        </div>
+                      ))}
+                      </div>
                     </div>
-                  )}
+                    )}
+                     
+
                 </div>
               </div>
             ))}
