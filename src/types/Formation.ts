@@ -1,3 +1,11 @@
+export interface FormationFormateur {
+  id: number;
+  nom: string | null;
+  prenom: string | null;
+  email: string | null;
+  image: string | null;
+}
+
 export interface Formation {
   id: number;
   titre: string;
@@ -10,6 +18,7 @@ export interface Formation {
   icon: string | null;
   created_at: string;
   updated_at: string;
+  formateur?: FormationFormateur | null;
 }
 
 export interface FormationCardData {

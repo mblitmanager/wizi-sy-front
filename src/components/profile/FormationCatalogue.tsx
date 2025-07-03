@@ -74,8 +74,25 @@ const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
                         {formatTitle(formation?.titre || "Sans titre")}
                       </h3>
                       {formation.formateur && (
-                        <div className="text-xs text-gray-500 mt-1">
-                          Formateur : <span className="font-semibold">{formation.formateur}</span>
+                        <div className="text-xs text-gray-500 mt-1 flex items-center gap-2">
+                          <span>Formateur :</span>
+                          {formation.formateur.image && (
+                            <img
+                              src={formation.formateur.image}
+                              alt={formation.formateur.nom || "Formateur"}
+                              className="w-6 h-6 rounded-full object-cover border border-gray-300"
+                            />
+                          )}
+                          <a
+                            href="/contacts"
+                            className="font-semibold hover:underline text-blue-600 dark:text-blue-400"
+                            title="Voir le profil du formateur dans les contacts"
+                          >
+                            {formation.formateur.prenom} {formation.formateur.nom}
+                          </a>
+                          {formation.formateur.email && (
+                            <span className="ml-2 text-gray-400">({formation.formateur.email})</span>
+                          )}
                         </div>
                       )}
                     </div>
