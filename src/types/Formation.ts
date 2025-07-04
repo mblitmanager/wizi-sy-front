@@ -6,7 +6,38 @@ export interface FormationFormateur {
   image: string | null;
 }
 
-export interface Formation {
+
+export interface FormationPivot {
+  stagiaire_id: number;
+  catalogue_formation_id: number;
+  date_debut: string | null;
+  date_inscription: string | null;
+  date_fin: string | null;
+  formateur_id: number | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface FormationCatalogue {
+  id: number;
+  titre: string;
+  description: string;
+  prerequis: string;
+  image_url: string | null;
+  cursus_pdf: string | null;
+  tarif: string;
+  certification: string;
+  statut: number;
+  duree: string;
+  formation_id: number;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+  formation?: FormationBase;
+  pivot?: FormationPivot;
+}
+
+export interface FormationBase {
   id: number;
   titre: string;
   slug: string | null;
@@ -18,7 +49,13 @@ export interface Formation {
   icon: string | null;
   created_at: string;
   updated_at: string;
-  formateur?: FormationFormateur | null;
+}
+
+export interface Formation {
+  pivot: FormationPivot;
+  catalogue: FormationCatalogue;
+  formation: FormationBase;
+  formateur: FormationFormateur | null;
 }
 
 export interface FormationCardData {

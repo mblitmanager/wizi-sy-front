@@ -30,55 +30,55 @@ const ProfilePage = () => {
 
   const isLoading = !user || !categories || !userProgress || !formations;
 
-  // Mémoïsation des composants enfants pour éviter des rendus inutiles
-  const MemoizedProfileHeader = useMemo(() => {
-    return <ProfileHeader user={user} userProgress={userProgress} />;
-  }, [user, userProgress]);
+  // // Mémoïsation des composants enfants pour éviter des rendus inutiles
+  // const MemoizedProfileHeader = useMemo(() => {
+  //   return <ProfileHeader user={user} userProgress={userProgress} />;
+  // }, [user, userProgress]);
 
-  const MemoizedUserStats = useMemo(() => {
-    return <UserStats user={user} userProgress={userProgress} />;
-  }, [user, userProgress]);
+  // const MemoizedUserStats = useMemo(() => {
+  //   return <UserStats user={user} userProgress={userProgress} />;
+  // }, [user, userProgress]);
 
-  const MemoizedCategoryProgress = useMemo(() => {
-    return (
-      <CategoryProgress categories={categories} userProgress={userProgress} />
-    );
-  }, [categories, userProgress]);
+  // const MemoizedCategoryProgress = useMemo(() => {
+  //   return (
+  //     <CategoryProgress categories={categories} userProgress={userProgress} />
+  //   );
+  // }, [categories, userProgress]);
 
-  const MemoizedRecentResults = useMemo(() => {
-    return (
-      <RecentResults
-        results={quizHistory}
-        isLoading={isLoading}
-        showAll={false}
-      />
-    );
-  }, [quizHistory, isLoading]);
+  // const MemoizedRecentResults = useMemo(() => {
+  //   return (
+  //     <RecentResults
+  //       results={quizHistory}
+  //       isLoading={isLoading}
+  //       showAll={false}
+  //     />
+  //   );
+  // }, [quizHistory, isLoading]);
 
   const MemoizedFormationCatalogue = useMemo(() => {
     return <FormationCatalogue formations={formations} />;
   }, [formations]);
 
   // Chargement asynchrone de l'historique des quiz
-  useEffect(() => {
-    if (!user) return; // Ne pas charger si l'utilisateur n'est pas disponible
+  // useEffect(() => {
+  //   if (!user) return; // Ne pas charger si l'utilisateur n'est pas disponible
 
-    const fetchQuizHistory = async () => {
-      try {
-        const history = await quizSubmissionService.getQuizHistory();
-        setQuizHistory(history);
-      } catch (error) {
-        console.error("Error fetching quiz history:", error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger l'historique des quiz",
-          variant: "destructive",
-        });
-      }
-    };
+  //   const fetchQuizHistory = async () => {
+  //     try {
+  //       const history = await quizSubmissionService.getQuizHistory();
+  //       setQuizHistory(history);
+  //     } catch (error) {
+  //       console.error("Error fetching quiz history:", error);
+  //       toast({
+  //         title: "Erreur",
+  //         description: "Impossible de charger l'historique des quiz",
+  //         variant: "destructive",
+  //       });
+  //     }
+  //   };
 
-    fetchQuizHistory();
-  }, [user, toast]);
+  //   fetchQuizHistory();
+  // }, [user, toast]);
 
   if (isLoading) {
     return (
@@ -126,12 +126,12 @@ const ProfilePage = () => {
           <div className="flex flex-col items-center lg:flex-row">
             {/* Partie principale - Utilisation des composants mémoïsés */}
             <div className="w-full mt-6 p-6 lg:w-2/4 lg:order-2 lg:mt-0">
-              {MemoizedProfileHeader}
+              {/* {MemoizedProfileHeader} */}
             </div>
 
             {/* Sidebar stats */}
             <div className="dark:bg-gray-700 p-6 lg:w-2/4 lg:order-1">
-              {MemoizedUserStats}
+              {/* {MemoizedUserStats} */}
             </div>
           </div>
         </div>
@@ -142,14 +142,14 @@ const ProfilePage = () => {
             <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
               Votre progression
             </h3>
-            <div className="overflow-x-auto">{MemoizedCategoryProgress}</div>
+            {/* <div className="overflow-x-auto">{MemoizedCategoryProgress}</div> */}
           </div>
 
           <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
             <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
               Résultats récents
             </h3>
-            <div className="overflow-x-auto">{MemoizedRecentResults}</div>
+            {/* <div className="overflow-x-auto">{MemoizedRecentResults}</div> */}
           </div>
 
           <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
