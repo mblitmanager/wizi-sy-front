@@ -46,11 +46,37 @@ const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {formations && formations.length > 0 ? (
           formations.map((formation) => {
+            // On privilégie les infos de formation, puis de catalogue
+            const titre =
+              formation.formation?.titre ||
+              formation.catalogue?.titre ||
+              formation.titre ||
+              "Sans titre";
+            const categorie =
+              formation.formation?.categorie ||
+              formation.catalogue?.categorie ||
+              formation.categorie ||
+              "default";
+            const description =
+              formation.formation?.description ||
+              formation.catalogue?.description ||
+              formation.description ||
+              "";
+            const image =
+              formation.formation?.image ||
+              formation.catalogue?.image_url ||
+              formation.image ||
+              null;
+            const duree =
+              formation.formation?.duree ||
+              formation.catalogue?.duree ||
+              formation.duree ||
+              "";
+            const formateur = formation.formateur || null;
+
             const categoryColor =
-              CATEGORY_COLORS[formation?.categorie || "default"];
-            const desc = stripHtmlTags(
-              formation?.description || "Pas de description"
-            );
+              CATEGORY_COLORS[categorie] || CATEGORY_COLORS["default"];
+            const desc = stripHtmlTags(description || "Pas de description");
             const isExpanded = expanded === formation.id;
             const shouldShowMore = desc.length > 50;
 
@@ -59,27 +85,35 @@ const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
                 className="relative group cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
                 key={formation?.id || Math.random().toString()}
               >
+                {/* Ombre colorée */}
                 <span
                   className={`absolute top-0 left-0 w-full h-full mt-1.5 ml-1.5 ${categoryColor} rounded-lg dark:bg-gray-700 transition-all duration-300 group-hover:mt-1 group-hover:ml-1`}
                 ></span>
-                <div
-                  className={`relative p-6 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg h-full flex flex-col`}
-                >
+
+                {/* Carte principale */}
+                <div className="relative p-6 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg h-full flex flex-col">
+                  {/* En-tête */}
                   <div className="flex items-start mb-4">
                     <div className={`p-2 rounded-lg ${categoryColor} mr-3`}>
                       <BookAIcon className="w-5 h-5" />
                     </div>
                     <div>
                       <h3 className="text-lg font-bold text-gray-800 dark:text-white line-clamp-2">
-                        {formatTitle(formation?.titre || "Sans titre")}
+                        {formatTitle(titre).toUpperCase()}
                       </h3>
-                      {formation.formateur && (
+                    
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div className="flex-grow">
+                      {formateur && (
                         <div className="text-xs text-gray-500 mt-1 flex items-center gap-2">
                           <span>Formateur :</span>
-                          {formation.formateur.image && (
+                          {formateur.image && (
                             <img
-                              src={formation.formateur.image}
-                              alt={formation.formateur.nom || "Formateur"}
+                              src={formateur.image}
+                              alt={formateur.nom || "Formateur"}
                               className="w-6 h-6 rounded-full object-cover border border-gray-300"
                             />
                           )}
@@ -88,22 +122,19 @@ const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
                             className="font-semibold hover:underline text-blue-600 dark:text-blue-400"
                             title="Voir le profil du formateur dans les contacts"
                           >
-                            {formation.formateur.prenom} {formation.formateur.nom}
+                            {formateur.prenom} {formateur.nom?.toUpperCase()}
                           </a>
-                          {formation.formateur.email && (
-                            <span className="ml-2 text-gray-400">({formation.formateur.email})</span>
+                          {formateur.email && (
+                            <span className="ml-2 text-gray-400">({formateur.email})</span>
                           )}
                         </div>
                       )}
-                    </div>
-                  </div>
-
-                  <div className="flex-grow">
                     <p className="text-gray-600 dark:text-gray-300 mb-4">
                       {isExpanded ? desc : truncateText(desc, 50)}
                     </p>
                   </div>
 
+                  {/* Bouton "Lire la suite" */}
                   {shouldShowMore && (
                     <button
                       className="mt-auto w-full py-2 px-4 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"

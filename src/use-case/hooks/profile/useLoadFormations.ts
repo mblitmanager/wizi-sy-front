@@ -9,12 +9,12 @@ export const useLoadFormations = () => {
     formationService.getFormationsByStagiaire().then((res) => {
       setFormations(
         (res?.data || []).map((entry) => ({
-          id: entry.id?.toString?.() ?? "",
-          titre: entry.catalogue_formation?.[0]?.titre || entry.titre || "Unknown",
-          categorie: entry.categorie,
-          description: entry.catalogue_formation?.[0]?.description || entry.description || "",
-          image: entry.catalogue_formation?.[0]?.image_url || entry.image || null,
-          duree: entry.catalogue_formation?.[0]?.duree || entry.duree || "",
+          id: entry.formation?.id?.toString?.() ?? "",
+          titre: entry.formation?.titre || entry.titre || "Unknown",
+          categorie: entry.formation?.categorie,
+          description: entry.formation?.description || entry.description || "",
+          image: entry.formation?.image_url || entry.image || null,
+          duree: entry.formation?.duree || entry.duree || "",
           formateur: entry.formateur || null,
         }))
       );
