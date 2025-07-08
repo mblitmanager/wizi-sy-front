@@ -21,6 +21,8 @@ import CatalogueFormationDetails from "@/components/catalogueFormation/Catalogue
 import NotificationsPage from "@/pages/NotificationsPage";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import React from "react";
+import ForgotPassword from "./components/auth/ForrgotPassword";
+import ResetPassword from "./components/auth/ResetPassword";
 
 export const routes = [
   {
@@ -32,6 +34,14 @@ export const routes = [
     element: React.createElement(Login),
   },
   {
+    path: "/forgot-password",
+    element: React.createElement(ForgotPassword),
+  },
+  {
+    path: "/reset-password",
+    element: React.createElement(ResetPassword),
+  },
+  {
     path: "/register",
     element: React.createElement(Register),
   },
@@ -41,67 +51,131 @@ export const routes = [
   },
   {
     path: "/catalogue",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(Catalogue)),
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      React.createElement(Catalogue)
+    ),
   },
   {
     path: "/catalogue/:categoryId",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(CategoryFormations)),
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      React.createElement(CategoryFormations)
+    ),
   },
   {
     path: "/formations",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(Formation)),
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      React.createElement(Formation)
+    ),
   },
   {
     path: "/quizzes",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(Quizzes)),
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      React.createElement(Quizzes)
+    ),
   },
   {
     path: "/quiz",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(Quiz)),
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      React.createElement(Quiz)
+    ),
   },
   {
     path: "/quiz/:quizId",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(QuizDetail)),
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      React.createElement(QuizDetail)
+    ),
   },
   {
     path: "/quiz/:quizId/start",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(Quiz)),
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      React.createElement(Quiz)
+    ),
   },
   {
     path: "/quiz/:quizId/results",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(QuizResults)),
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      React.createElement(QuizResults)
+    ),
   },
   {
     path: "/profile",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(Profile)),
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      React.createElement(Profile)
+    ),
   },
   {
     path: "/settings",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(Settings)),
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      React.createElement(Settings)
+    ),
   },
   {
     path: "/classement",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(Classement)),
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      React.createElement(Classement)
+    ),
   },
   {
     path: "/tuto-astuce",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(TutoAstucePage)),
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      React.createElement(TutoAstucePage)
+    ),
   },
   {
     path: "/contacts",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(Contact)),
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      React.createElement(Contact)
+    ),
   },
   {
     path: "/parrainage",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(Parainage)),
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      React.createElement(Parainage)
+    ),
   },
   {
     path: "/catalogue-formation/:id",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(CatalogueFormationDetails)),
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      React.createElement(CatalogueFormationDetails)
+    ),
   },
   {
     path: "/notifications",
-    element: React.createElement(ProtectedRoute, undefined, React.createElement(NotificationsPage)),
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      React.createElement(NotificationsPage)
+    ),
   },
   {
     path: "*",

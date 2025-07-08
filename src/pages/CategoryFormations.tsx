@@ -48,8 +48,7 @@ export default function CategoryFormations() {
       <div className="container py-4 sm:py-8">
         <Link
           to="/catalogue"
-          className="inline-flex items-center text-amber-600 hover:text-amber-700 mb-4 sm:mb-6"
-        >
+          className="inline-flex items-center text-amber-600 hover:text-amber-700 mb-4 sm:mb-6">
           <ChevronLeft className="h-4 w-4 mr-1" />
           <span className="text-sm sm:text-base">Retour au catalogue</span>
         </Link>

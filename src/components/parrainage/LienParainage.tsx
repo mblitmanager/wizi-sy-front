@@ -71,8 +71,7 @@ export default function LienParrainage() {
       <Button
         onClick={generateLink}
         disabled={isLoading}
-        className="w-full border-2 border-yellow-shade bg-transparent hover:bg-yellow-shade-1 text-black"
-      >
+        className="w-full border-2 border-yellow-shade bg-transparent hover:bg-yellow-shade-1 text-black">
         <LinkIcon className="h-4 w-4 mr-2" />
         {isLoading ? "Génération..." : "Générer mon lien de parrainage"}
       </Button>
@@ -90,8 +89,7 @@ export default function LienParrainage() {
             variant="outline"
             size="sm"
             onClick={copyToClipboard}
-            aria-label="Copier le lien"
-          >
+            aria-label="Copier le lien">
             <Copy className="h-4 w-4" />
           </Button>
         </div>
