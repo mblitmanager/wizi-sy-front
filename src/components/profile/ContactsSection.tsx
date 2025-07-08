@@ -24,7 +24,7 @@ const SkeletonCard = () => (
 
 const ContactsSection = () => {
   const VITE_API_URL =
-    import.meta.env.VITE_API_URL || "https://wizi-learn.testeninterne.com/api";
+    import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
   const [commerciaux, setCommerciaux] = useState<Contact[]>([]);
   const [formateurs, setFormateurs] = useState<Contact[]>([]);
   const [poleRelation, setPoleRelation] = useState<Contact[]>([]);
@@ -103,8 +103,7 @@ const ContactsSection = () => {
           <button
             className="w-full flex items-center text-gold-700 border border-gold py-2 px-6 gap-2 rounded inline-flex items-center justify-center hover:bg-gold hover:text-white transition-colors duration-200"
             color="success"
-            onClick={() => toggleShowAll(type)}
-          >
+            onClick={() => toggleShowAll(type)}>
             {showAll[type] ? "Voir moins" : "Voir plus"}
             {showAll[type] ? (
               <Phone className="w-4 h-4" />

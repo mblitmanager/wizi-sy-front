@@ -1,15 +1,23 @@
-import { useEffect } from 'react';
-import { messaging, onMessage, getToken } from '@/firebase-fcm';
-import { toast } from 'sonner';
+import { useEffect } from "react";
+import { messaging, onMessage, getToken } from "@/firebase-fcm";
+import { toast } from "sonner";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.testeninterne.com/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
 
 interface NotificationListenerProps {
-  onPushNotification?: (notif: { id: string; message: string; type?: string; created_at?: string; data?: any }) => void;
+  onPushNotification?: (notif: {
+    id: string;
+    message: string;
+    type?: string;
+    created_at?: string;
+    data?: any;
+  }) => void;
 }
 
 // Ce composant écoute les notifications Pusher globalement
-export default function NotificationListener({ onPushNotification }: NotificationListenerProps) {
+export default function NotificationListener({
+  onPushNotification,
+}: NotificationListenerProps) {
   useEffect(() => {
     // Demander le token FCM (à stocker côté backend si besoin)
     const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
@@ -19,17 +27,20 @@ export default function NotificationListener({ onPushNotification }: Notificatio
           // Envoyer ce token à votre backend
           try {
             await fetch(`${API_URL}/fcm-token`, {
-              method: 'POST',
+              method: "POST",
               headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
                 // Ajoutez ici l'Authorization si besoin
               },
-              body: JSON.stringify({ token: currentToken })
+              body: JSON.stringify({ token: currentToken }),
             });
             console.log("FCM Token envoyé au backend:", currentToken);
           } catch (err) {
-            console.error('Erreur lors de l\'envoi du token FCM au backend', err);
+            console.error(
+              "Erreur lors de l'envoi du token FCM au backend",
+              err
+            );
           }
         }
       })
@@ -42,8 +53,8 @@ export default function NotificationListener({ onPushNotification }: Notificatio
       const { title, body } = payload.notification || {};
       const notif = {
         id: payload.data?.id || Date.now().toString(),
-        message: body || '',
-        type: payload.data?.type || 'system',
+        message: body || "",
+        type: payload.data?.type || "system",
         created_at: payload.data?.created_at || new Date().toISOString(),
         data: payload.data || {},
         read: false,
