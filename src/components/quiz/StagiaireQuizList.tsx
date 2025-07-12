@@ -308,7 +308,13 @@ export function StagiaireQuizList() {
       },
     ];
     const [step, setStep] = React.useState(0);
-    const [visible, setVisible] = React.useState(true);
+    // Vérifier si le tuto a déjà été affiché (localStorage)
+    const [visible, setVisible] = React.useState(() => {
+      if (typeof window !== "undefined") {
+        return !localStorage.getItem("quizTutorialShown");
+      }
+      return true;
+    });
     React.useEffect(() => {
       if (!visible) return;
       const stepTimer = setTimeout(() => setStep((s) => (s + 1) % steps.length), 2500);
@@ -318,13 +324,20 @@ export function StagiaireQuizList() {
         clearTimeout(hideTimer);
       };
     }, [step, visible, steps.length]);
+    // Lors de la fermeture, enregistrer en localStorage
+    const handleClose = () => {
+      setVisible(false);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("quizTutorialShown", "true");
+      }
+    };
     if (!visible) return null;
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 animate-fade-in">
         <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded shadow-xl max-w-md w-full relative">
           <button
             className="absolute top-2 right-2 text-yellow-700 hover:text-yellow-900 text-lg"
-            onClick={() => setVisible(false)}
+            onClick={handleClose}
             aria-label="Fermer le tutoriel"
           >
             ×

@@ -43,6 +43,13 @@ export default function Catalogue() {
     setCurrentPage(1);
   }, [selectedCategory]);
 
+  // Sélectionner la première catégorie par défaut
+  useEffect(() => {
+    if (categories && categories.length > 0 && !selectedCategory) {
+      setSelectedCategory(categories[0].name);
+    }
+  }, [categories, selectedCategory]);
+
   const filteredFormations = useMemo(() => {
     if (!formationsResponse || !selectedCategory) return [];
 

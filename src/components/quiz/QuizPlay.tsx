@@ -30,13 +30,24 @@ export function QuizPlay() {
 
   // États locaux
   const [showHint, setShowHint] = React.useState(false);
-  const [showSwipeHint, setShowSwipeHint] = React.useState(true);
+  // Afficher le hint swipe une seule fois par utilisateur
+  const [showSwipeHint, setShowSwipeHint] = React.useState(() => {
+    if (typeof window !== "undefined") {
+      return !localStorage.getItem("quizSwipeHintShown");
+    }
+    return true;
+  });
   const [tutorialStep, setTutorialStep] = React.useState(0);
 
   // Effets
   React.useEffect(() => {
     if (showSwipeHint) {
-      const timer = setTimeout(() => setShowSwipeHint(false), 5000);
+      const timer = setTimeout(() => {
+        setShowSwipeHint(false);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("quizSwipeHintShown", "true");
+        }
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, [showSwipeHint]);

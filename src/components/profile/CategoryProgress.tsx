@@ -319,7 +319,7 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({
         </div>
 
         {/* Graphiques */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -334,10 +334,10 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({
           >
             <Doughnut data={doughnutChartData} options={doughnutChartOptions} />
           </motion.div>
-        </div>
+        </div> */}
 
         {/* Forces et faiblesses */}
-        {performanceStats && (
+        {/* {performanceStats && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -400,7 +400,7 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({
               </div>
             </motion.div>
           </div>
-        )}
+        )} */}
 
         {/* Progression détaillée par catégorie */}
         <motion.div
@@ -412,38 +412,40 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({
             Progression par catégorie
           </h3>
           <div className="space-y-6">
-            {categoryStats.map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="space-y-2"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">{stat.category}</span>
-                  <span
-                    className="font-semibold"
-                    style={{ color: categoryColors[stat.category] }}
-                  >
-                    {stat.completionRate}%
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${stat.completionRate}%` }}
-                    transition={{ duration: 1, delay: index * 0.1 }}
-                    className="rounded-full h-2"
-                    style={{ backgroundColor: categoryColors[stat.category] }}
-                  />
-                </div>
-                <div className="flex justify-between text-sm text-gray-500">
-                  <span>{stat.completedQuizzes} quiz complétés</span>
-                  <span>{stat.totalQuizzes} quiz au total</span>
-                </div>
-              </motion.div>
-            ))}
+            {categoryStats
+              .filter((stat) => stat.completionRate > 0)
+              .map((stat, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="space-y-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">{stat.category}</span>
+                    <span
+                      className="font-semibold"
+                      style={{ color: categoryColors[stat.category] }}
+                    >
+                      {stat.completionRate}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${stat.completionRate}%` }}
+                      transition={{ duration: 1, delay: index * 0.1 }}
+                      className="rounded-full h-2"
+                      style={{ backgroundColor: categoryColors[stat.category] }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-sm text-gray-500">
+                    <span>{stat.completedQuizzes} quiz complétés</span>
+                    <span>{stat.totalQuizzes} quiz au total</span>
+                  </div>
+                </motion.div>
+              ))}
           </div>
         </motion.div>
       </motion.div>

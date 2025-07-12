@@ -113,13 +113,7 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
 
             <span className="text-xl text-orange-500 font-extrabold drop-shadow-lg">
               {formation.tarif
-                ? `${Number(formation.tarif)
-                    .toLocaleString("fr-FR", {
-                      minimumFractionDigits:
-                        Number(formation.tarif) % 1 === 0 ? 0 : 2,
-                      maximumFractionDigits: 2,
-                    })
-                    .replace(/\u202F/g, "  ")} € HT`
+                ? `${Math.round(Number(formation.tarif)).toLocaleString("fr-FR")} € HT`
                 : "-"}
             </span>
           </div>
