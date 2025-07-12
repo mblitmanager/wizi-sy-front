@@ -21,10 +21,40 @@ import CatalogueFormationDetails from "@/components/catalogueFormation/Catalogue
 import NotificationsPage from "@/pages/NotificationsPage";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import React from "react";
+import FAQPage from "@/pages/FAQPage";
+import CGVPage from "@/pages/CGVPage";
+import ManuelPage from "@/pages/ManuelPage";
+import RemerciementsPage from "@/pages/RemerciementsPage";
+import PolitiqueConfidentialitePage from "@/pages/PolitiqueConfidentialitePage";
+import ContactSupportPage from "@/pages/ContactSupportPage";
 import ForgotPassword from "./components/auth/ForrgotPassword";
 import ResetPassword from "./components/auth/ResetPassword";
 
 export const routes = [
+  {
+    path: "/remerciements",
+    element: React.createElement(RemerciementsPage),
+  },
+  {
+    path: "/politique-confidentialite",
+    element: React.createElement(PolitiqueConfidentialitePage),
+  },
+  {
+    path: "/contact-support",
+    element: React.createElement(ContactSupportPage),
+  },
+  {
+    path: "/faq",
+    element: React.createElement(FAQPage),
+  },
+  {
+    path: "/cgv",
+    element: React.createElement(CGVPage),
+  },
+  {
+    path: "/manuel",
+    element: React.createElement(ManuelPage),
+  },
   {
     path: "/",
     element: React.createElement(Index),
