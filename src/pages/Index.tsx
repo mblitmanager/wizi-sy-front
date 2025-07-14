@@ -172,7 +172,7 @@ export function Index() {
           <Card className="border-green-100">
             <CardContent className="p-3 md:p-6 flex flex-col items-center">
               <div className="flex items-center mb-2 md:mb-3">
-                <img src="logo192.png" alt="App Icon" className="h-8 w-8 mr-2" />
+                <img src="https://wizi-learn.com/public/logo192.png" alt="App Icon" className="h-8 w-8 mr-2" />
                 <h3 className="text-sm md:text-lg font-medium text-green-700">
                   Télécharger l'application mobile
                 </h3>
@@ -181,7 +181,7 @@ export function Index() {
                 Profitez de toutes les fonctionnalités sur votre smartphone !
               </p>
               <a
-                href="application/wizi-learn.apk"
+                href="https://wizi-learn.com/public/application/wizi-learn.apk"
                 download
                 className="bg-orange-600 hover:bg-brown-shade text-white font-bold py-2 px-4 rounded shadow"
               >
