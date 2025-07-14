@@ -162,8 +162,11 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
   if (!formations || formations.length === 0) return null;
 
   return (
-    <div>
-      <div className="flex justify-end mb-2">
+    <div className="mb-8">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg md:text-2xl font-bold text-orange-400">
+          Formations à découvrir
+        </h2>
         <button
           className="text-orange-600 font-semibold hover:underline text-sm px-3 py-1 rounded transition-colors"
           onClick={() => navigate("/catalogue")}
@@ -171,14 +174,14 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
           Voir tous
         </button>
       </div>
-      <div className="grid md:grid-cols-3 sm:grid-cols-1 gap-3 px-4 py-3">
+      <div className="grid md:grid-cols-3 sm:grid-cols-1 gap-6 px-2 py-3">
         {selected.map((formation, idx) => {
           const ad = ads[idx];
           const isOpen = showDetailsIdx === idx;
           return (
             <div
               key={formation.id || idx}
-              className="flex flex-col justify-between h-full rounded-xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group hover:-translate-y-1 relative" // Added 'relative' here
+              className="flex flex-col justify-between h-full rounded-xl bg-white border border-gray-100 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group hover:-translate-y-1 relative"
               style={{
                 minHeight: "340px",
                 backgroundImage: formation.image_url
@@ -198,78 +201,48 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                   aria-hidden="true"
                 />
               )}
-
               <div className="relative z-10 flex flex-col h-full">
-                {/* Header and Content Section - Will grow to take available space */}
                 <div className="flex-grow p-5 space-y-4">
-                  {/* Category Badge */}
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
                     {formation.formation ? (
-                      <>
-                        <span
-                          className="text-xs font-medium px-3 py-1 rounded-full border"
-                          style={{
-                            color:
-                              formation.formation.categorie === "Bureautique"
-                                ? "#3D9BE9"
-                                : formation.formation.categorie === "Langues"
-                                ? "#A55E6E"
-                                : formation.formation.categorie === "Internet"
-                                ? "#FFC533"
-                                : formation.formation.categorie === "Création"
-                                ? "#9392BE"
-                                : "#888",
-                            borderColor: "currentColor",
-                            backgroundColor: "transparent",
-                          }}>
-                          {formation.formation.categorie?.toUpperCase() ||
-                            "CATÉGORIE"}
-                        </span>
-                      
-                        {/* <span
-                          className="text-xs text-white px-3 py-1 rounded-full font-medium"
-                          style={{
-                            backgroundColor:
-                              formation.formation.categorie === "Bureautique"
-                                ? "#3D9BE9"
-                                : formation.formation.categorie === "Langues"
-                                ? "#A55E6E"
-                                : formation.formation.categorie === "Internet"
-                                ? "#FFC533"
-                                : formation.formation.categorie === "Création"
-                                ? "#9392BE"
-                                : "#888",
-                          }}>
-                          {formatTitle(formation?.formation.titre || "FORMATION")}
-                        </span> */}
-                      </>
+                      <span
+                        className="text-xs font-medium px-3 py-1 rounded-full border"
+                        style={{
+                          color:
+                            formation.formation.categorie === "Bureautique"
+                              ? "#3D9BE9"
+                              : formation.formation.categorie === "Langues"
+                              ? "#A55E6E"
+                              : formation.formation.categorie === "Internet"
+                              ? "#FFC533"
+                              : formation.formation.categorie === "Création"
+                              ? "#9392BE"
+                              : "#888",
+                          borderColor: "currentColor",
+                          backgroundColor: "transparent",
+                        }}>
+                        {formation.formation.categorie?.toUpperCase() ||
+                          "CATÉGORIE"}
+                      </span>
                     ) : (
                       <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
                         {formatTitle(formation.formation?.titre) || "SANS TITRE"}
                       </span>
                     )}
                   </div>
-
-                  {/* Title and Description */}
-                  <div className="space-y-4">
-                    <h3 className="text-xl font-bold text-gray-900 leading-snug group-hover:text-orange-600 transition-colors">
-                      {formatTitle(ad.title.toUpperCase()) || "SANS TITRE"}
-                    </h3>
-                    <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
-                      {stripHtmlTags(formation.description) || "SANS DESCRIPTION"}
-                    </p>
-                  </div>
-
-                  {/* Toggle Details Button - Placed near the description */}
+                  <h3 className="text-lg font-semibold text-brown-shade mb-2 group-hover:text-orange-600 transition-colors">
+                    {formatTitle(ad.title.toUpperCase()) || "SANS TITRE"}
+                  </h3>
+                  <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-2">
+                    {stripHtmlTags(formation.description) || "SANS DESCRIPTION"}
+                  </p>
                   {formation.formation && (
                     <button
                       onClick={() => setShowDetailsIdx(isOpen ? null : idx)}
-                      className="text-orange-500 text-sm font-medium hover:text-orange-600 transition-colors">
+                      className="text-orange-500 text-sm font-medium hover:text-orange-600 transition-colors mb-2">
                       {isOpen ? "Voir moins de détails" : "Voir plus de détails"}
                     </button>
                   )}
-
-                  {/* Details Section - Will appear when expanded */}
                   {formation.formation && isOpen && (
                     <div className="space-y-4 pt-3">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -314,10 +287,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                     </div>
                   )}
                 </div>
-
-                {/* Fixed Footer Section - Will stay at the bottom */}
                 <div className="p-5 pt-0">
-                  {/* Registration Button - Fixed at the bottom */}
                   <Button
                     onClick={() => handleInscription(idx)}
                     disabled={inscriptionLoading === idx}
@@ -326,8 +296,6 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                       ? "Inscription en cours..."
                       : "S'inscrire à la formation"}
                   </Button>
-
-                  {/* Status Messages */}
                   <div className="text-center mt-2">
                     {inscriptionSuccessIdx === idx &&
                       inscriptionLoading === null && (

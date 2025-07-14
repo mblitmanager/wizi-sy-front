@@ -203,7 +203,7 @@ const ContactSection = ({
           </div>
         )}
 
-        {isMobile &&
+        {/* {isMobile &&
           !showAllContacts &&
           !isLoading &&
           contacts &&
@@ -217,7 +217,7 @@ const ContactSection = ({
                 <ChevronDown className="ml-2 h-4 w-4" />
               </button>
             </div>
-          )}
+          )} */}
       </div>
     </div>
   );

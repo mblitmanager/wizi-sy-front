@@ -109,6 +109,7 @@ export function QuizCard({ quiz, categories }: QuizCardProps) {
 
       <CardHeader className="p-3 pb-1 sm:p-4 sm:pb-2">
         <div className="flex items-center gap-1 mb-1">
+          {categoryName !== "Non catégorisé" && (
           <Badge
             variant="outline"
             className="text-[0.65rem] px-1.5 py-0.5 sm:text-xs sm:px-2 flex items-center gap-1 font-medium"
@@ -121,10 +122,12 @@ export function QuizCard({ quiz, categories }: QuizCardProps) {
               className="w-1.5 h-1.5 rounded-full"
               style={{ backgroundColor: categoryColor }}
             />
-            <span className="truncate max-w-[80px] sm:max-w-none">
+            
+              <span className="truncate max-w-[80px] sm:max-w-none">
               {categoryName}
-            </span>
-          </Badge>
+              </span>
+            
+          </Badge>)}
         </div>
         <CardTitle className="text-sm sm:text-base font-semibold line-clamp-2 leading-tight">
           {quiz.titre}
@@ -150,7 +153,7 @@ export function QuizCard({ quiz, categories }: QuizCardProps) {
             <Award className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" />
             {quiz.niveau?.toLowerCase() === "débutant" && quiz.questions?.length > 5
               ? "10 pts"
-              : quiz.niveau?.toLowerCase() === "intermédiaire" && quiz.questions?.length > 10
+              : (quiz.niveau?.toLowerCase() === "intermédiaire" ||quiz.niveau?.toLowerCase() === "avancé" ) && quiz.questions?.length > 10
               ? "20 pts"
               : `${quiz.questions?.length * 2} pts`}
           </Badge>

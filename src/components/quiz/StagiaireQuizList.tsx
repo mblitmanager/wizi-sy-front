@@ -83,7 +83,7 @@ export function StagiaireQuizList() {
           title: "Niveau avancé débloqué !",
           description: "Vous pouvez maintenant jouer aux quiz avancés.",
           variant: "default",
-          className: "bg-gradient-to-r from-orange-700 to-yellow-700 text-white border-0"
+          className: "bg-orange-600 text-white border-0"
         });
         setNotifiedLevel(2);
       } else if (userPoints >= 20 && userPoints < 50 && notifiedLevel !== 1) {
@@ -91,7 +91,7 @@ export function StagiaireQuizList() {
           title: "Niveau intermédiaire débloqué !",
           description: "Vous pouvez maintenant jouer aux quiz intermédiaires.",
           variant: "default",
-          className: "bg-gradient-to-r from-orange-700 to-yellow-700 text-white border-0"
+          className: "bg-orange-600 text-white border-0"
         });
         setNotifiedLevel(1);
       } else if (userPoints >= 10 && userPoints < 20 && notifiedLevel !== 0) {
@@ -99,7 +99,7 @@ export function StagiaireQuizList() {
           title: "Nouveaux quiz disponibles !",
           description: "Vous avez débloqué de nouveaux quiz débutant.",
           variant: "default",
-          className: "bg-gradient-to-r from-orange-700 to-yellow-700 text-white border-0"
+          className: "bg-orange-600 text-white border-0"
         });
         setNotifiedLevel(0);
       }
@@ -223,11 +223,11 @@ export function StagiaireQuizList() {
         title: "Débloquez les niveaux !",
         content: (
           <ul className="list-disc pl-5 text-sm text-yellow-900 space-y-1">
-            <li><span className="font-medium">À 10 points :</span> Tous les quiz débutants deviennent accessibles.</li>
+            {/* <li><span className="font-medium">À 10 points :</span> Tous les quiz débutants deviennent accessibles.</li> */}
             <li><span className="font-medium">À 20 points :</span> Les quiz intermédiaires s’ouvrent à vous.</li>
-            <li><span className="font-medium">À 40 points :</span> Tous les quiz débutants et intermédiaires sont disponibles.</li>
+            {/* <li><span className="font-medium">À 40 points :</span> Tous les quiz débutants et intermédiaires sont disponibles.</li> */}
             <li><span className="font-medium">À 50 points :</span> Les premiers quiz avancés sont débloqués.</li>
-            <li><span className="font-medium">À 80 points :</span> Accédez à encore plus de quiz avancés.</li>
+            {/* <li><span className="font-medium">À 80 points :</span> Accédez à encore plus de quiz avancés.</li> */}
             <li><span className="font-medium">À 100 points :</span> Tous les quiz sont à votre portée !</li>
           </ul>
         ),
@@ -288,11 +288,11 @@ export function StagiaireQuizList() {
         title: "Débloquez les niveaux !",
         content: (
           <ul className="list-disc pl-5 text-sm text-yellow-900 space-y-1">
-            <li><span className="font-medium">À 10 points :</span> Tous les quiz débutants deviennent accessibles.</li>
+            {/* <li><span className="font-medium">À 10 points :</span> Tous les quiz débutants deviennent accessibles.</li> */}
             <li><span className="font-medium">À 20 points :</span> Les quiz intermédiaires s’ouvrent à vous.</li>
-            <li><span className="font-medium">À 40 points :</span> Tous les quiz débutants et intermédiaires sont disponibles.</li>
+            {/* <li><span className="font-medium">À 40 points :</span> Tous les quiz débutants et intermédiaires sont disponibles.</li> */}
             <li><span className="font-medium">À 50 points :</span> Les premiers quiz avancés sont débloqués.</li>
-            <li><span className="font-medium">À 80 points :</span> Accédez à encore plus de quiz avancés.</li>
+            {/* <li><span className="font-medium">À 80 points :</span> Accédez à encore plus de quiz avancés.</li> */}
             <li><span className="font-medium">À 100 points :</span> Tous les quiz sont à votre portée !</li>
           </ul>
         ),

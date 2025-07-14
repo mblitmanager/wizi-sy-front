@@ -8,7 +8,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { UserProvider } from "@/context/UserContext";
 import { router } from "./react-router-config";
-import { Toaster } from "react-hot-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 // Create a React Query client
 const queryClient = new QueryClient({
@@ -25,16 +25,7 @@ const App = () => {
     <React.StrictMode>
       {/* <ErrorBoundary> */}
       <QueryClientProvider client={queryClient}>
-        <Toaster
-          position="bottom-right"
-          toastOptions={{
-            duration: 8000,
-            style: {
-              background: "#363636",
-              color: "#fff",
-            },
-          }}
-        />
+        <Toaster />
         <UserProvider>
           <TooltipProvider>
             <NotificationListener />
