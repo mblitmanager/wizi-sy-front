@@ -262,7 +262,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                                   ? `${Number(formation.tarif)
                                       .toLocaleString("fr-FR", {
                                         minimumFractionDigits: 0,
-                                        maximumFractionDigits: 2,
+                                        maximumFractionDigits: 0,
                                       })
                                       .replace(/\u202F/g, "  ")} € HT`
                                   : "-"}
