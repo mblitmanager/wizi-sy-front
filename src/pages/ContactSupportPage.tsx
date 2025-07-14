@@ -1,4 +1,5 @@
 import { useState } from "react";
+// import logo from "../../assets/logo.png";
 import { Layout } from "@/components/layout/Layout";
 
 const ContactSupportPage = () => {
@@ -28,7 +29,10 @@ const ContactSupportPage = () => {
   return (
     <Layout>
       <div className="container mx-auto py-8 px-4 max-w-2xl">
-        <h1 className="text-3xl font-bold mb-6 text-brown-shade">Comment peut-on t'aider ?</h1>
+        <div className="flex flex-col items-center mb-6">
+          <img src="/assets/logo.png" alt="Logo" className="h-16 mb-2" />
+          <h1 className="text-3xl font-bold text-brown-shade">Comment peut-on t'aider ?</h1>
+        </div>
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6">
           <div className="mb-4">
             <label className="block font-medium mb-1" htmlFor="objet">Objet</label>
@@ -60,6 +64,7 @@ const ContactSupportPage = () => {
           </div>
           <button type="submit" className="bg-amber-600 text-white px-6 py-2 rounded font-semibold hover:bg-amber-700 transition">Envoyer</button>
         </form>
+        <footer className="mt-12 text-center text-xs text-gray-500">© {new Date().getFullYear()} Wizi Learn. Tous droits réservés.</footer>
       </div>
     </Layout>
   );

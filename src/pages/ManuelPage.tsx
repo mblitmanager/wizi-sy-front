@@ -1,5 +1,6 @@
 import { Layout } from "@/components/layout/Layout";
 import { useState } from "react";
+import logo from "../assets/logo.png";
 
 const sections = [
 	{
@@ -134,10 +135,13 @@ const sections = [
 const ManuelPage = () => {
 	const [activeSection, setActiveSection] = useState(sections[0].key);
 
-	return (
-		<Layout>
-			<div className="container mx-auto py-8 px-4 bg-yellow-100">
-				<h1 className="text-3xl font-bold mb-6 text-brown-shade">Manuel d'utilisation</h1>
+  return (
+	<Layout>
+	  <div className="container mx-auto py-8 px-4">
+		<div className="flex flex-col items-center mb-6">
+		  <img src="/assets/logo.png" alt="Wizi Learn Logo" className="h-16 mb-2" />
+		  <h1 className="text-3xl font-bold text-brown-shade">Manuel d'utilisation</h1>
+		</div>
 				{/* Menu interactif */}
 				<nav className="mb-8 flex flex-wrap gap-4 justify-center">
 					{sections.map((section) => (
@@ -153,8 +157,9 @@ const ManuelPage = () => {
 				<div className="bg-white rounded shadow p-6 min-h-[200px]">
 					{sections.find((s) => s.key === activeSection)?.content}
 				</div>
-			</div>
-		</Layout>
+		<footer className="mt-12 text-center text-xs text-gray-500">© {new Date().getFullYear()} Wizi Learn. Tous droits réservés.</footer>
+	  </div>
+	</Layout>
 	);
 };
 

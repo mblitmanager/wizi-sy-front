@@ -1,9 +1,13 @@
 import { Layout } from "@/components/layout/Layout";
+import logo from "../../assets/logo.png";
 
 const CGVPage = () => (
   <Layout>
     <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-6 text-brown-shade">Conditions Générales de Vente (CGV)</h1>
+      <div className="flex flex-col items-center mb-6">
+        <img src="/assets/logo.png" alt="Logo" className="h-16 mb-2" />
+        <h1 className="text-3xl font-bold text-brown-shade">Conditions Générales de Vente (CGV)</h1>
+      </div>
       <div className="space-y-6">
         <section>
           <h2 className="text-xl font-semibold mb-2">1 – GENERALITES</h2>
@@ -127,7 +131,7 @@ const CGVPage = () => (
           Le terme « Prestataire » désigne Wizi Learn, SARL au capital de 1000€, dont le siège social est situé au 8, rue Evariste Galois, 86130 Jaunay-Marigny, immatriculée à l’INSEE sous le numéro Siren 883 622 151, représentée par toute personne habilitée. Téléphone : 09 72 51 29 04.</p>
         </section>
       </div>
-      
+      <footer className="mt-12 text-center text-xs text-gray-500">© {new Date().getFullYear()} Wizi Learn. Tous droits réservés.</footer>
     </div>
   </Layout>
 );
