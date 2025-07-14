@@ -168,6 +168,28 @@ export function Index() {
               <LienParrainage />
             </CardContent>
           </Card>
+          {/* Bloc téléchargement application mobile */}
+          <Card className="border-green-100">
+            <CardContent className="p-3 md:p-6 flex flex-col items-center">
+              <div className="flex items-center mb-2 md:mb-3">
+                <img src="/apk_wizi_learn/icons/app-icon.png" alt="App Icon" className="h-8 w-8 mr-2" />
+                <h3 className="text-sm md:text-lg font-medium text-green-700">
+                  Télécharger l'application mobile
+                </h3>
+              </div>
+              <p className="text-xs md:text-base text-gray-700 mb-2 md:mb-3 text-center">
+                Profitez de toutes les fonctionnalités sur votre smartphone !
+              </p>
+              <a
+                href="/apk_wizi_learn/wizi-learn.apk"
+                download
+                className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow"
+              >
+                Télécharger pour Android
+              </a>
+              {/* Ajoutez ici le lien App Store si disponible */}
+            </CardContent>
+          </Card>
         </div>
 
         {isLoading ? (
