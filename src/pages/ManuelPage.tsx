@@ -136,7 +136,7 @@ const ManuelPage = () => {
 
 	return (
 		<Layout>
-			<div className="container mx-auto py-8 px-4">
+			<div className="container mx-auto py-8 px-4 bg-yellow-100">
 				<h1 className="text-3xl font-bold mb-6 text-brown-shade">Manuel d'utilisation</h1>
 				{/* Menu interactif */}
 				<nav className="mb-8 flex flex-wrap gap-4 justify-center">
