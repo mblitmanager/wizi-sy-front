@@ -49,6 +49,8 @@ const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
 export function Index() {
   const { user } = useUser();
   const isOnline = useOnlineStatus();
+  // State pour afficher le hint installation
+  const [showInstallHint, setShowInstallHint] = useState(false);
 
   const { data: catalogueData = [], isLoading: isLoadingCatalogue } = useQuery({
     queryKey: ["catalogueFormations"],
@@ -187,7 +189,43 @@ export function Index() {
               >
                 Télécharger pour Android
               </a>
-              {/* Ajoutez ici le lien App Store si disponible */}
+              {/* Bouton pour afficher le hint installation */}
+              <button
+                type="button"
+                className="mt-3 text-yellow-900 font-medium text-sm cursor-pointer hover:text-yellow-700 focus:outline-none bg-transparent border-none p-0"
+                style={{ background: "none", border: "none", textDecoration: "none" }}
+                onClick={() => setShowInstallHint(true)}
+              >
+                💡 Astuce : Comment installer l'application ?
+              </button>
+              {/* Modal d'explication installation */}
+              {showInstallHint && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 animate-fade-in">
+                  <div className="bg-white border-l-4 border-yellow-400 rounded shadow-xl max-w-md w-full p-6 relative">
+                    <button
+                      className="absolute top-2 right-2 text-yellow-700 hover:text-yellow-900 text-lg"
+                      onClick={() => setShowInstallHint(false)}
+                      aria-label="Fermer"
+                    >
+                      ×
+                    </button>
+                    <h3 className="text-lg font-bold text-yellow-800 mb-2">Comment installer l'application Android ?</h3>
+                    <div className="text-sm text-yellow-900">
+                      <strong>Astuce :</strong> Pour installer l'application, il se peut que votre téléphone affiche un message "Installation bloquée" ou "Source inconnue".<br />
+                      <span className="font-medium">Voici comment faire :</span>
+                      <ul className="list-disc pl-5 mt-1 mb-2">
+                        <li>Ouvrez le fichier téléchargé (APK).</li>
+                        <li>Si un avertissement apparaît, cliquez sur <span className="font-semibold">Paramètres</span> ou <span className="font-semibold">Autoriser</span>.</li>
+                        <li>Activez l'option <span className="font-semibold">Autoriser l'installation depuis cette source</span>.</li>
+                        <li>Revenez à l'installation et validez.</li>
+                      </ul>
+                      <span className="text-xs text-yellow-700">L'application est sûre et ne collecte aucune donnée personnelle en dehors de votre usage sur Wizi Learn.</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+  {/* // State pour afficher le hint installation
+  const [showInstallHint, setShowInstallHint] = useState(false); */}
             </CardContent>
           </Card>
         </div>
