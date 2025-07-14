@@ -25,7 +25,7 @@ export function StagiaireQuizGrid({
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6 mb-8">
+    <div>
       <h2 className="text-lg md:text-2xl font-bold text-orange-400 mb-6">
         Quiz à découvrir
       </h2>

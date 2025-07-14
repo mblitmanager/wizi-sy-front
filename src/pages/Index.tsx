@@ -53,7 +53,9 @@ export function Index() {
   const isOnline = useOnlineStatus();
   const [showInstallHint, setShowInstallHint] = useState(false);
   const [showApkBlock, setShowApkBlock] = useState(true);
-  const [hidePresentationBlock, setHidePresentationBlock] = useState(false);
+  const [hidePresentationBlock, setHidePresentationBlock] = useState(() => {
+    return localStorage.getItem("hidePresentationBlock") === "true";
+  });
 
   // === Catalogues formations ===
   const { data: catalogueData = [], isLoading: isLoadingCatalogue } = useQuery({
@@ -188,14 +190,18 @@ export function Index() {
             {/* Bouton X pour fermer */}
             <button
               className="absolute top-3 right-3 text-yellow-700 hover:text-yellow-900 text-xl bg-transparent border-none p-0 z-10"
-              onClick={e => { e.stopPropagation(); setHidePresentationBlock(true); }}
+              onClick={e => {
+                e.stopPropagation();
+                setHidePresentationBlock(true);
+                localStorage.setItem("hidePresentationBlock", "true");
+              }}
               aria-label="Fermer"
             >
               ×
             </button>
             <div className="flex items-center gap-3 mb-2">
               <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-yellow-100 text-yellow-700 group-hover:bg-yellow-200 transition-colors">
-          <Megaphone size={28} />
+                <Megaphone size={28} />
               </span>
               <h2 className="text-lg md:text-2xl font-bold text-brown-shade">Bienvenue sur Wizi Learn</h2>
             </div>

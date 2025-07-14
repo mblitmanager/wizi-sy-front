@@ -133,7 +133,18 @@ export function QuizCard({ quiz, categories }: QuizCardProps) {
           {quiz.titre}
         </CardTitle>
         <CardDescription className="text-xs sm:text-xs line-clamp-2 mt-1 leading-snug">
-          {stripHtmlTags(quiz.description)}
+          {(() => {
+            const desc = stripHtmlTags(quiz.description);
+            if (desc && desc.trim().length > 0) return desc;
+            const options = [
+              "Ce quiz vous permet de tester vos connaissances et de progresser dans la thématique proposée.",
+              "Répondez aux questions pour améliorer vos compétences et découvrir de nouveaux savoirs.",
+              "Un quiz conçu pour vous challenger et enrichir votre apprentissage.",
+              "Testez-vous et suivez votre évolution grâce à ce quiz interactif.",
+              "Participez à ce quiz pour explorer et approfondir vos connaissances sur le sujet."
+            ];
+            return options[Math.floor(Math.random() * options.length)];
+          })()}
         </CardDescription>
       </CardHeader>
 

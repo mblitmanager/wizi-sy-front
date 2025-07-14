@@ -95,7 +95,7 @@ export function FillBlank({
               onChange={(e) => handleChange(blankId, e.target.value)}
               disabled={showFeedback}
               className={cn(
-                "w-32",
+                "w-32 text-xs md:text-sm",
                 showFeedback && isCorrect && "bg-green-50 border-green-200",
                 showFeedback &&
                   !isCorrect &&

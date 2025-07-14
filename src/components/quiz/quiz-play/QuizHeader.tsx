@@ -46,7 +46,29 @@ export function QuizHeader({
 
   return (
     <div className="flex flex-col gap-4 mb-6">
-      <div className="flex items-center justify-between">
+      {/* Mobile: only show title and points, hide badges and most buttons */}
+      <div className="flex items-center justify-between md:hidden">
+        <h1 className="text-base font-semibold">{title}</h1> 
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggleHint}
+            className="h-8 w-8"
+          >
+            <HelpCircle className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+      {/* <div className="flex items-center gap-2 md:hidden">
+        <Badge variant="outline" className="flex items-center gap-1">
+          <Trophy className="h-3 w-3" />
+          {points} pts
+        </Badge>
+      </div> */}
+
+      {/* Desktop: full header */}
+      <div className="hidden md:flex items-center justify-between">
         <h1 className="text-xl font-semibold">{title}</h1>
         <div className="flex items-center gap-2">
           <Button
@@ -61,7 +83,7 @@ export function QuizHeader({
             variant="ghost"
             size="icon"
             onClick={onToggleHistory}
-            className="h-8 w-8 md:hidden"
+            className="h-8 w-8"
           >
             <Trophy className="h-4 w-4" />
           </Button>
@@ -71,11 +93,11 @@ export function QuizHeader({
             onClick={onToggleStats}
             className="h-8 w-8"
           >
-            <Timer className="h-4 w-4 md:hidden" />
+            <Timer className="h-4 w-4" />
           </Button>
         </div>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="hidden md:flex items-center gap-4">
         {timeLeft !== null && (
           <Badge variant="outline" className="flex items-center gap-1">
             <Timer className="h-3 w-3" />

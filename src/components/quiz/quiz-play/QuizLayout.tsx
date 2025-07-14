@@ -29,7 +29,15 @@ export const QuizLayout = ({
   closeResults,
   calculateScore,
 }) => (
-  <div className="max-w-4xl mx-auto px-2 sm:px-4 sm:py-8 flex flex-col overflow-x-hidden min-h-screen relative">
+  <div
+    className="max-w-4xl mx-auto px-2 sm:px-4 sm:py-8 flex flex-col overflow-x-hidden min-h-screen relative"
+    style={{
+      marginTop:
+        typeof window !== "undefined" && window.innerWidth < 640
+          ? (window.innerWidth < 400 ? "-15%" : "-10%")
+          : undefined,
+    }}
+  >
     <QuizHeader
       title={quiz.titre}
       timeLeft={timeLeft}

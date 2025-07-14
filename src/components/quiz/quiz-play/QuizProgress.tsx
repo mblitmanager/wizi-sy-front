@@ -12,7 +12,7 @@ export function QuizProgress({ currentStep, totalSteps }: QuizProgressProps) {
   
   return (
     <div className="mb-6">
-      <div className="flex justify-between text-sm mb-2">
+      <div className="flex justify-between text-xs mb-2">
         <span>Question {currentStep + 1} sur {totalSteps}</span>
         <span>{Math.round(progressPercentage)}%</span>
       </div>

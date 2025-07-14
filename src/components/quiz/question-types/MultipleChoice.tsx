@@ -73,21 +73,21 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
   return (
     <Card className="border-0 shadow-none">
       <CardContent className="pt-4 px-2 md:px-6">
-        <div className="space-y-3">
+        <div className="space-y-1" style={{ marginTop: '-5%' }}>
           {question.reponses?.map((answer) => {
             const isSelected = selectedAnswers.includes(answer.id);
             const isCorrect = isCorrectAnswer(answer.id);
             const showCorrectIndicator = showFeedback && (isSelected || isCorrect);
 
             return (
-              <div 
-                key={answer.id} 
+              <div
+                key={answer.id}
                 className={cn(
-                  "flex items-center space-x-2 rounded-lg border p-4 hover:bg-accent transition-colors",
+                  "flex items-center space-x-2 rounded-lg p-4 hover:bg-accent transition-colors",
                   isSelected && !showFeedback && "bg-accent",
-                  showFeedback && isSelected && isCorrect && "bg-green-50 border-green-200",
-                  showFeedback && isSelected && !isCorrect && "bg-red-50 border-red-200",
-                  showFeedback && !isSelected && isCorrect && "bg-green-50 border-green-200"
+                  showFeedback && isSelected && isCorrect && "bg-green-50",
+                  showFeedback && isSelected && !isCorrect && "bg-red-50",
+                  showFeedback && !isSelected && isCorrect && "bg-green-50"
                 )}
               >
                 <Checkbox
@@ -96,9 +96,9 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
                   onCheckedChange={() => handleAnswerSelect(answer.id)}
                   disabled={showFeedback}
                 />
-                <Label 
+                <Label
                   htmlFor={`answer-${answer.id}`}
-                  className="flex-grow cursor-pointer text-base"
+                  className="flex-grow cursor-pointer text-xs md:text-sm"
                 >
                   {answer.text}
                 </Label>

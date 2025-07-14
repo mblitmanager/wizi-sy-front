@@ -80,14 +80,14 @@ export const TrueFalse: React.FC<TrueFalseProps> = ({
             const showCorrectIndicator = showFeedback && (isSelected || isCorrect);
 
             return (
-              <div 
-                key={answer.id} 
+              <div
+                key={answer.id}
                 className={cn(
-                  "flex items-center space-x-2 rounded-lg border p-4 hover:bg-accent transition-colors",
+                  "flex items-center space-x-2 rounded-lg p-4 hover:bg-accent transition-colors",
                   isSelected && !showFeedback && "bg-accent",
-                  showFeedback && isSelected && isCorrect && "bg-green-50 border-green-200",
-                  showFeedback && isSelected && !isCorrect && "bg-red-50 border-red-200",
-                  showFeedback && !isSelected && isCorrect && "bg-green-50 border-green-200"
+                  showFeedback && isSelected && isCorrect && "bg-green-50",
+                  showFeedback && isSelected && !isCorrect && "bg-red-50",
+                  showFeedback && !isSelected && isCorrect && "bg-green-50"
                 )}
               >
                 <Checkbox
@@ -98,7 +98,7 @@ export const TrueFalse: React.FC<TrueFalseProps> = ({
                 />
                 <Label 
                   htmlFor={`answer-${answer.id}`}
-                  className="flex-grow cursor-pointer text-base"
+                  className="flex-grow cursor-pointer text-xs md:text-sm"
                 >
                   {answer.text}
                 </Label>

@@ -42,7 +42,7 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
     <Card className="border-0 shadow-none">
       <CardContent className="pt-4 px-2 md:px-6">
         <div className="space-y-3">
-          <div className="p-2 sm:p-2 w-full bg-white border rounded-xl shadow-sm flex justify-center">
+          <div className="p-2 sm:p-2 w-full bg-white rounded-xl shadow-none flex justify-center">
             <div className="flex items-center gap-3 sm:gap-4 w-full max-w-full sm:w-80">
               <Music className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-400" />
               <audio
@@ -75,7 +75,7 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
             {question.answers?.map((answer) => (
               <div
                 key={answer.id}
-                className="flex items-center gap-2 p-2 border rounded-lg hover:bg-accent transition"
+                className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent transition border-0"
               >
                 <RadioGroupItem value={answer.id} />
                 <Label className="flex-1 text-xs md:text-sm">

@@ -75,36 +75,43 @@ export function StagiaireQuizList() {
 
   // Notification si l'utilisateur peut jouer un quiz de niveau supérieur
   const [notifiedLevel, setNotifiedLevel] = useState<number | null>(null);
-  // Utiliser useEffect (et pas useMemo) pour la notification
+  const [lastUserPoints, setLastUserPoints] = useState<number | null>(null);
   React.useEffect(() => {
-    if (quizzes) {
-      if (userPoints >= 50 && notifiedLevel !== 2) {
-        toast({
-          title: "Niveau avancé débloqué !",
-          description: "Vous pouvez maintenant jouer aux quiz avancés.",
-          variant: "default",
-          className: "bg-orange-600 text-white border-0"
-        });
-        setNotifiedLevel(2);
-      } else if (userPoints >= 20 && userPoints < 50 && notifiedLevel !== 1) {
-        toast({
-          title: "Niveau intermédiaire débloqué !",
-          description: "Vous pouvez maintenant jouer aux quiz intermédiaires.",
-          variant: "default",
-          className: "bg-orange-600 text-white border-0"
-        });
-        setNotifiedLevel(1);
-      } else if (userPoints >= 10 && userPoints < 20 && notifiedLevel !== 0) {
-        toast({
-          title: "Nouveaux quiz disponibles !",
-          description: "Vous avez débloqué de nouveaux quiz débutant.",
-          variant: "default",
-          className: "bg-orange-600 text-white border-0"
-        });
-        setNotifiedLevel(0);
-      }
+    if (lastUserPoints === null) {
+      setLastUserPoints(userPoints);
+      return;
     }
-  }, [userPoints, quizzes, notifiedLevel, toast]);
+    if (userPoints !== lastUserPoints) {
+      if (quizzes) {
+        if (userPoints >= 50 && notifiedLevel !== 2) {
+          toast({
+            title: "Niveau avancé débloqué !",
+            description: "Vous pouvez maintenant jouer aux quiz avancés.",
+            variant: "default",
+            className: "bg-orange-600 text-white border-0"
+          });
+          setNotifiedLevel(2);
+        } else if (userPoints >= 20 && userPoints < 50 && notifiedLevel !== 1) {
+          toast({
+            title: "Niveau intermédiaire débloqué !",
+            description: "Vous pouvez maintenant jouer aux quiz intermédiaires.",
+            variant: "default",
+            className: "bg-orange-600 text-white border-0"
+          });
+          setNotifiedLevel(1);
+        } else if (userPoints >= 10 && userPoints < 20 && notifiedLevel !== 0) {
+          toast({
+            title: "Nouveaux quiz disponibles !",
+            description: "Vous avez débloqué de nouveaux quiz débutant.",
+            variant: "default",
+            className: "bg-orange-600 text-white border-0"
+          });
+          setNotifiedLevel(0);
+        }
+      }
+      setLastUserPoints(userPoints);
+    }
+  }, [userPoints, quizzes, notifiedLevel, toast, lastUserPoints]);
 
   // Filtrage avancé selon les points utilisateur (pour les quiz à jouer)
   const filteredQuizzes = useMemo(() => {
