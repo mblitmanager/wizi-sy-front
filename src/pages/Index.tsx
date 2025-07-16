@@ -6,7 +6,7 @@ import { ProgressCard } from "@/components/dashboard/ProgressCard";
 
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import axios from "axios"; // déjà importé ailleurs
 import { toast } from "@/hooks/use-toast";
 
 import { Contact } from "@/types/contact";
