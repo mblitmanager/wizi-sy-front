@@ -160,8 +160,8 @@ export default function TutoAstucePage() {
   const MobileView = () => (
     <div className="lg:hidden flex flex-col h-auto">
       {/* Player en plein écran */}
-      <div className="flex-1 bg-white rounded-lg shadow-md mb-4 overflow-hidden">
-        <div className="aspect-video w-full">
+      <div className="flex-1 bg-white rounded-lg shadow-md mb-4 overflow-hidden flex justify-center">
+        <div className="aspect-video w-full max-w-[90%]">
           <MediaPlayer
             key={selectedMedia?.id || "empty"}
             media={selectedMedia}
