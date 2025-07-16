@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import BadgesDisplay from "./BadgesDisplay";
 import axios from "axios";
 import { useUser } from "@/hooks/useAuth";
 import { UserProgress } from "@/types/quiz";
@@ -59,7 +60,52 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
         },
       })
       .then((res) => {
-        setAchievements(res.data);
+        const badges = res.data || [];
+        // Ajout de badges de test si non présents
+        const testBadges = [
+          {
+            id: 'connexion_serie',
+            name: 'Série de connexions',
+            description: 'Connectez-vous plusieurs jours d\'affilée',
+            icon: '🔥',
+            type: 'connexion_serie',
+          },
+          {
+            id: 'first_login',
+            name: 'Première connexion',
+            description: 'Connectez-vous pour la première fois',
+            icon: '🎉',
+            type: 'connexion_serie',
+          },
+          {
+            id: 'first_quiz',
+            name: 'Premier quiz',
+            description: 'Terminez votre premier quiz',
+            icon: '🏆',
+            type: 'quiz',
+          },
+          {
+            id: 'first_video',
+            name: 'Première vidéo',
+            description: 'Regardez votre première vidéo',
+            icon: '🎬',
+            type: 'video',
+          },
+          {
+            id: 'first_parrainage',
+            name: 'Premier parrainage',
+            description: 'Parrainez un utilisateur pour la première fois',
+            icon: '🤝',
+            type: 'parrainage',
+          },
+        ];
+        // Ajoute les badges de test s'ils ne sont pas déjà présents (par id ou type)
+        testBadges.forEach((testBadge) => {
+          if (!badges.some((b) => b.id === testBadge.id || b.type === testBadge.type)) {
+            badges.push(testBadge);
+          }
+        });
+        setAchievements(badges);
       })
       .catch(() => {
         toast.error("Erreur lors du chargement des succès");
@@ -228,27 +274,9 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
           </div>
         </div>
 
-        {/* Succès */}
-        <div className="flex flex-wrap gap-2 mt-4 justify-center w-full">
-          {achievementsLoading ? (
-            <span className="text-gray-500">Chargement des succès...</span>
-          ) : achievements && achievements.length > 0 ? (
-            achievements.map((achievement: any) => (
-              <div
-                key={achievement.id}
-                className="flex flex-col items-center bg-yellow-100 border border-yellow-400 rounded-lg px-2 py-1 shadow text-yellow-800 min-w-[80px]"
-                title={achievement.description}
-              >
-                <span className="font-bold text-lg">🏆</span>
-                <span className="text-xs font-semibold">{achievement.name}</span>
-                {achievement.tier && (
-                  <span className="text-[10px] text-yellow-600">Palier: {achievement.tier}</span>
-                )}
-              </div>
-            ))
-          ) : (
-            <span className="text-gray-400">Aucun succès débloqué</span>
-          )}
+        {/* Badges dynamiques */}
+        <div className="w-full mt-4">
+          <BadgesDisplay badges={achievements} loading={achievementsLoading} />
         </div>
       </div>
     </div>
