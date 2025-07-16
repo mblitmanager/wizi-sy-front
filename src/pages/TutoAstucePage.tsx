@@ -114,7 +114,7 @@ export default function TutoAstucePage() {
       hasCheckedAchievement.current = true;
       axios.post(
         `/api/stagiaire/achievements/check`,
-        {},
+        { code: "first_video" },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -318,8 +318,8 @@ export default function TutoAstucePage() {
 
           {/* Player */}
           <div className="flex-1 bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
-            <div className="w-full max-w-4xl mx-auto p-4">
-              <div className="aspect-video w-full">
+            <div className="w-full max-w-4xl mx-auto p-4 flex justify-center">
+              <div className="aspect-video w-full max-w-[80%]">
                 <MediaPlayer
                   key={selectedMedia?.id || "empty"}
                   media={selectedMedia}
