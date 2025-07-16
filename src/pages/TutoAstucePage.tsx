@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
+import axios from "axios";
 import { useMediaByFormation } from "@/use-case/hooks/media/useMediaByFormation";
 import { MediaList, MediaPlayer, MediaTabs } from "@/Media";
 import HeaderSection from "@/components/features/HeaderSection";
@@ -35,6 +36,7 @@ export default function TutoAstucePage() {
     "tutoriel"
   );
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
+  const hasCheckedAchievement = useRef(false);
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
   >({});
@@ -100,6 +102,25 @@ export default function TutoAstucePage() {
       );
     } else {
       setSelectedMedia(null);
+    }
+
+    // Déclencher le badge "Première vidéo" si c'est la première lecture
+    if (
+      medias.length > 0 &&
+      !hasCheckedAchievement.current &&
+      medias[0].type === "video" &&
+      localStorage.getItem("token")
+    ) {
+      hasCheckedAchievement.current = true;
+      axios.post(
+        `/api/stagiaire/achievements/check`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
     }
 
     // Mettez à jour expandedSections de manière plus conservative

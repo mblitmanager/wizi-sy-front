@@ -1,4 +1,6 @@
 import { Layout } from "@/components/layout/Layout";
+import axios from "axios";
+import { useUser } from "@/hooks/useAuth";
 import { QuizList } from "@/components/quiz/QuizList";
 import { StagiaireQuizList } from "@/components/quiz/StagiaireQuizList";
 import { useQuery } from "@tanstack/react-query";
@@ -10,6 +12,23 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 export default function Quizzes() {
   const isOnline = useOnlineStatus();
+  const { user } = useUser();
+
+  // À appeler à la fin d'un quiz réussi : triggerQuizBadge();
+  const triggerQuizBadge = async () => {
+    if (user && localStorage.getItem("token")) {
+      await axios.post(
+        "/api/stagiaire/achievements/check",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+    }
+  };
+
   const { data: categories, isLoading: categoriesLoading } = useQuery({
     queryKey: ["quiz-categories"],
     queryFn: () => categoryService.getCategories(),
@@ -19,6 +38,7 @@ export default function Quizzes() {
   return (
     <Layout>
       <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
+        {/* À appeler dans le callback de succès de la soumission d'un quiz : triggerQuizBadge() */}
         {!isOnline && (
           <Alert variant="destructive" className="mb-4">
             <WifiOff className="h-4 w-4" />
@@ -38,18 +58,7 @@ export default function Quizzes() {
           </div>
         ) : (
           <Tabs defaultValue="mes-quizzes" className="space-y-6 ">
-            {/* <TabsList className="grid w-full grid-cols-2 bg-slate-200">
-              <TabsTrigger value="mes-quizzes">Mes Quiz</TabsTrigger>
-              <TabsTrigger value="tous-quizzes">Tous les Quiz</TabsTrigger>
-            </TabsList> */}
-            {/* <div className="mt-2 h-[calc(100vh-25rem)] overflow-y-auto p-4"> */}
-            {/* <TabsContent value="mes-quizzes"> */}
-            <StagiaireQuizList />
-            {/* </TabsContent> */}
-            {/* <TabsContent value="tous-quizzes">
-              <QuizList />
-            </TabsContent> */}
-            {/* </div> */}
+            <StagiaireQuizList onQuizSuccess={triggerQuizBadge} />
           </Tabs>
         )}
       </div>

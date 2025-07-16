@@ -1,4 +1,4 @@
-import axios from "axios";
+// import axios from "axios"; // supprimé car déjà importé ailleurs
 import { Layout } from "@/components/layout/Layout";
 import { useUser } from "@/hooks/useAuth";
 import { WifiOff, Megaphone } from "lucide-react";
@@ -6,6 +6,8 @@ import { ProgressCard } from "@/components/dashboard/ProgressCard";
 
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
+import axios from "axios";
+import { toast } from "@/hooks/use-toast";
 
 import { Contact } from "@/types/contact";
 import ContactsSection from "@/components/FeatureHomePage/ContactSection";
@@ -159,7 +161,7 @@ export function Index() {
     const minute = nowParis.minute();
 
     if (hour === 9 && minute < 10) {
-      fetch(`${API_URL}/api/notify-daily-formation`, {
+      fetch(`${API_URL}/notify-daily-formation`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -170,6 +172,37 @@ export function Index() {
   }, []);
 
   // === Redirection si non connecté ===
+  useEffect(() => {
+    // Déclenche le badge première connexion/série de connexions
+    if (user && localStorage.getItem("token")) {
+      axios
+        .post(
+          `${API_URL}/stagiaire/achievements/check`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        )
+        .then((res) => {
+          // On attend un tableau d'achievements débloqués dans res.data.new_achievements
+          const unlocked = res.data?.new_achievements || [];
+          if (Array.isArray(unlocked) && unlocked.length > 0) {
+            unlocked.forEach((ach) => {
+              toast({
+                title: `🎉 Succès débloqué`,
+                description: `${ach.name || ach.titre || ach.title || "Achievement"} !`,
+                duration: 4000,
+                variant: "success"
+              });
+            });
+          }
+        })
+        .catch(() => {});
+    }
+  }, [user]);
+
   if (!user || !localStorage.getItem("token")) {
     return <LandingPage />;
   }
