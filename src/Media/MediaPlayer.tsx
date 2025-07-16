@@ -38,9 +38,15 @@ export default function MediaPlayer({
     }
 
     switch (media.type) {
-      case "video":
+      case "video": {
+        // Détection d'un lien YouTube Shorts
+        const isShort =
+          typeof media.url === "string" &&
+          (/youtube\.com\/shorts\//.test(media.url) || /youtu\.be\/.{11,}/.test(media.url) && media.url.includes("shorts"));
         return (
-          <div className="relative aspect-video bg-black rounded-t-lg overflow-hidden w-full max-w-full max-w-[100vw] mx-auto">
+          <div
+            className={`relative bg-black rounded-t-lg overflow-hidden w-full max-w-full max-w-[100vw] mx-auto ${isShort ? "aspect-[9/16]" : "aspect-video"}`}
+          >
             <VideoPlayer
               key={media.url}
               url={media.url}
@@ -48,6 +54,7 @@ export default function MediaPlayer({
             />
           </div>
         );
+      }
 
       case "audio":
         return (
