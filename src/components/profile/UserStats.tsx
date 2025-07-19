@@ -7,9 +7,10 @@ import { Trophy, Award, Flame, Star, BarChart2 } from "lucide-react";
 interface UserStatsProps {
   user: User | null;
   userProgress?: UserProgress | null;
+  achievements?: any[];
 }
 
-const UserStats: React.FC<UserStatsProps> = ({ user, userProgress }) => {
+const UserStats: React.FC<UserStatsProps> = ({ user, userProgress, achievements = [] }) => {
   const totalPoints =
     user?.points ||
     userProgress?.total_points ||
@@ -18,9 +19,11 @@ const UserStats: React.FC<UserStatsProps> = ({ user, userProgress }) => {
     userProgress?.totalScore ||
     0;
 
-  // Since badges and streak may not exist in the updated UserProgress, we'll provide fallbacks
-  const badgesCount = 0;
-  // Default to 0 since badges are not in our updated UserProgress
+  // Calculate level based on totalPoints (20 points per level)
+  const level = Math.max(1, Math.floor(totalPoints / 20) + 1);
+
+  // Nombre de badges débloqués (succès)
+  const badgesCount = achievements.length;
   const streak =
     userProgress?.current_streak || userProgress?.currentStreak || 0;
 
@@ -53,7 +56,7 @@ const UserStats: React.FC<UserStatsProps> = ({ user, userProgress }) => {
               <Award className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="text-lg sm:text-xl font-bold font-nunito text-blue-800 dark:text-blue-200">
-              {userProgress?.level || 1}
+              {level}
             </div>
             <div className="text-xs sm:text-sm font-medium text-blue-600 dark:text-blue-400">
               Niveau

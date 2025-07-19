@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
+import axios from "axios";
 import { useMediaByFormation } from "@/use-case/hooks/media/useMediaByFormation";
 import { MediaList, MediaPlayer, MediaTabs } from "@/Media";
 import HeaderSection from "@/components/features/HeaderSection";
@@ -35,6 +36,7 @@ export default function TutoAstucePage() {
     "tutoriel"
   );
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
+  const hasCheckedAchievement = useRef(false);
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
   >({});
@@ -102,6 +104,25 @@ export default function TutoAstucePage() {
       setSelectedMedia(null);
     }
 
+    // Déclencher le badge "Première vidéo" si c'est la première lecture
+    if (
+      medias.length > 0 &&
+      !hasCheckedAchievement.current &&
+      medias[0].type === "video" &&
+      localStorage.getItem("token")
+    ) {
+      hasCheckedAchievement.current = true;
+      axios.post(
+        `/api/stagiaire/achievements/check`,
+        { code: "first_video" },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+    }
+
     // Mettez à jour expandedSections de manière plus conservative
     setExpandedSections((prev) => {
       const newExpanded = { ...prev };
@@ -139,8 +160,8 @@ export default function TutoAstucePage() {
   const MobileView = () => (
     <div className="lg:hidden flex flex-col h-auto">
       {/* Player en plein écran */}
-      <div className="flex-1 bg-white rounded-lg shadow-md mb-4 overflow-hidden">
-        <div className="aspect-video w-full">
+      <div className="flex-1 bg-white rounded-lg shadow-md mb-4 overflow-hidden flex justify-center">
+        <div className="aspect-video w-full max-w-[90%]">
           <MediaPlayer
             key={selectedMedia?.id || "empty"}
             media={selectedMedia}
@@ -297,8 +318,8 @@ export default function TutoAstucePage() {
 
           {/* Player */}
           <div className="flex-1 bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
-            <div className="w-full max-w-4xl mx-auto p-4">
-              <div className="aspect-video w-full">
+            <div className="w-full max-w-4xl mx-auto p-4 flex justify-center">
+              <div className="aspect-video w-full max-w-[80%]">
                 <MediaPlayer
                   key={selectedMedia?.id || "empty"}
                   media={selectedMedia}
