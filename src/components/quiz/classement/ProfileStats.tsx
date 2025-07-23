@@ -55,7 +55,7 @@ export function ProfileStats({
     <div className="container mx-auto mb-4 p-3 sm:p-4 bg-gradient-to-br from-yellow-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 rounded-2xl shadow-lg border dark:border-gray-800">
       {/* Titre */}
       <div className="mb-3 text-center md:text-left">
-        <h3 className="text-2xl font-extrabold text-orange-400 dark:text-yellow-400 flex items-center gap-2 justify-center md:justify-start">
+        <h3 className="text-2xl font-extrabold text-brown-shade dark:text-yellow-400 flex items-center gap-2 justify-center md:justify-start">
           <Trophy size={32} className="mr-1" />
           Mes statistiques
         </h3>

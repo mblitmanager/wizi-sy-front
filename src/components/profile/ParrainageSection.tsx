@@ -49,7 +49,7 @@ const ParrainageSection = () => {
           const errorData = await response.json().catch(() => ({}));
           throw new Error(
             errorData.message ||
-            "Erreur lors de la récupération des statistiques"
+              "Erreur lors de la récupération des statistiques"
           );
         }
 
@@ -163,11 +163,11 @@ const ParrainageSection = () => {
           {/* Cartes en colonne unique sur mobile */}
           <div className="space-y-4">
             {/* Carte de génération de lien */}
-            <Card className="border-blue-100">
+            <Card className="border-gray-100">
               <Card className="border-blue-100">
                 <CardContent className="p-4 md:p-6">
                   <div className="flex items-center mb-3">
-                    <Megaphone className="h-5 w-5 text-blue-500 mr-2" />
+                    <Megaphone className="h-5 w-5 text-amber-500 mr-2" />
                     <h3 className="text-base md:text-lg font-medium">
                       Partagez et gagnez
                     </h3>
@@ -188,15 +188,15 @@ const ParrainageSection = () => {
               <div className="text-red-500 text-sm py-4">{statsError}</div>
             ) : (
               stats && (
-                <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100">
+                <Card className="bg-amber-100">
                   <CardContent className="p-4 md:p-6">
                     <h3 className="text-base md:text-lg font-medium mb-3 flex items-center">
-                      <BarChart2 className="h-4 w-4 md:h-5 md:w-5 mr-2 text-blue-600" />
+                      <BarChart2 className="h-4 w-4 md:h-5 md:w-5 mr-2 text-amber-600" />
                       <span>Vos stats</span>
                     </h3>
                     <div className="grid grid-cols-3 gap-2 md:gap-4">
-                      <div className="bg-white p-2 md:p-4 rounded-lg shadow-sm border border-blue-100">
-                        <h4 className="text-xs md:text-sm font-semibold text-blue-700 flex items-center">
+                      <div className="bg-white p-2 md:p-4 rounded-lg shadow-sm border border-gray-100">
+                        <h4 className="text-xs md:text-sm font-semibold text-gray-700 flex items-center">
                           <UserPlus className="h-3 w-3 md:h-4 md:w-4 mr-1" />
                           <span className="truncate">Filleuls</span>
                         </h4>
@@ -205,7 +205,7 @@ const ParrainageSection = () => {
                         </p>
                       </div>
                       <div className="bg-white p-2 md:p-4 rounded-lg shadow-sm border border-green-100">
-                        <h4 className="text-xs md:text-sm font-semibold text-green-700 flex items-center">
+                        <h4 className="text-xs md:text-sm font-semibold text-gray-700 flex items-center">
                           <Star className="h-3 w-3 md:h-4 md:w-4 mr-1" />
                           <span className="truncate">Points</span>
                         </h4>
@@ -214,7 +214,7 @@ const ParrainageSection = () => {
                         </p>
                       </div>
                       <div className="bg-white p-2 md:p-4 rounded-lg shadow-sm border border-purple-100">
-                        <h4 className="text-xs md:text-sm font-semibold text-purple-700 flex items-center">
+                        <h4 className="text-xs md:text-sm font-semibold text-gray-700 flex items-center">
                           <Award className="h-3 w-3 md:h-4 md:w-4 mr-1" />
                           <span className="truncate">Gains</span>
                         </h4>
@@ -229,8 +229,8 @@ const ParrainageSection = () => {
             )}
 
             {/* Guide compact */}
-            <div className="bg-blue-50 p-3 md:p-4 rounded-lg border border-blue-200">
-              <h3 className="font-medium text-blue-800 text-sm md:text-base mb-1 md:mb-2">
+            <div className="bg-amber-100 p-3 md:p-4 rounded-lg border border-gray-200">
+              <h3 className="font-medium text-red-800 text-sm md:text-base mb-1 md:mb-2">
                 Comment ça marche ?
               </h3>
               <ul className="text-xs md:text-sm text-gray-700 space-y-1 pl-4">

@@ -46,6 +46,9 @@ export interface Stagiaire {
   created_at: string;
   updated_at: string;
   formations: Formation[];
+
+  // Nouvelle propriété optionnelle pour gérer le pivot avec media
+  is_watched: boolean;
 }
 
 export interface CatalogueFormationResponse {

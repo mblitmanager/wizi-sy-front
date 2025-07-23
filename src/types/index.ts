@@ -75,6 +75,8 @@ export interface Formation {
   completedQuizzes?: number;
   duree?: string;
   startDate?: string;
+  dateDebut?: string;
+  dateFin?: string;
 }
 
 export interface Quiz {

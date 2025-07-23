@@ -35,7 +35,7 @@ export function Layout({ children }: LayoutProps) {
         <div className="flex items-center justify-center border-b">
           <img src={logo} alt="" className="object-contain h-14 w-40" />
         </div>
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto ">
           <MainNav />
         </div>
       </aside>
@@ -43,9 +43,10 @@ export function Layout({ children }: LayoutProps) {
       {/* Contenu principal */}
       <div className="flex flex-col flex-1 h-screen">
         {/* Barre du haut (Navbar) */}
-        <header className="h-14 border-b border-gray-200 bg-white shadow-sm  flex items-center flex-shrink-0">
+        <header className="h-14 border-b border-gray-200 bg-white shadow-sm flex items-center flex-shrink-0">
           <Navbar />
         </header>
+
         {/* Bannière en haut (uniquement sur desktop) */}
         {showBanner && !isMobile && (
           <div className="w-full bg-[#feb823] rounded-b-lg text-white">
@@ -84,12 +85,16 @@ export function Layout({ children }: LayoutProps) {
           </div>
         )}
 
-        {/* Contenu principal */}
+        {/* Contenu principal avec marges et bordures */}
         <main
           className={`flex-1 overflow-y-auto ${
             isMobile && showBanner ? "pt-20 pb-20" : ""
           }`}>
-          <div className="">{children}</div>
+          <div className="container mx-auto p-4 md:p-6 bg-slate-100">
+            <div className="bg-white rounded-lg  shadow-sm p-4 md:p-6">
+              {children}
+            </div>
+          </div>
         </main>
 
         {/* Bannière en bas (uniquement sur mobile) */}

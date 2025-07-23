@@ -1,3 +1,5 @@
+import { Formation } from ".";
+
 export interface Contact {
   id: number;
   name: string;
@@ -5,11 +7,13 @@ export interface Contact {
   nom?: string;
   prenom?: string;
   email: string;
-  phone?: string;
+  telephone?: string;
   role: string;
   type: string;
   poste?: string;
   image_url?: string;
+  formation?: Formation[];
+  formations?: Formation[];
 }
 
 export interface ContactResponse {

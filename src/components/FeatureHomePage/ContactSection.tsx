@@ -8,6 +8,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
 import { Contact } from "@/types/contact";
 import { CONTACTEZ_NOUS } from "@/utils/constants";
+import { Card, CardContent } from "@mui/material";
+import { ArrowRight } from "lucide-react";
 
 const typeStyles: Record<string, string> = {
   Formateur: "bg-blue-100 text-blue-800",
@@ -49,7 +51,7 @@ const ContactSection = ({
       const allContacts = [
         ...(data.formateurs || []),
         ...(data.commerciaux || []),
-        ...(data.pole_relation || [])
+        ...(data.pole_relation || []),
       ];
       return allContacts;
     },
@@ -78,8 +80,7 @@ const ContactSection = ({
   const renderContactCard = (contact: Contact) => (
     <div
       key={`${contact.type}-${contact.id}`}
-      className="bg-white shadow-md rounded-2xl p-5 border hover:shadow-lg transition"
-    >
+      className="bg-white shadow-md rounded-2xl p-5 border hover:shadow-lg transition">
       <div className="flex items-center mb-4">
         <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4">
           <User className="text-gray-500" />
@@ -91,8 +92,7 @@ const ContactSection = ({
           <span
             className={`text-xs px-2 py-1 rounded-full font-medium ${
               typeStyles[contact.type]
-            }`}
-          >
+            }`}>
             {contact.type}
           </span>
         </div>
@@ -107,7 +107,7 @@ const ContactSection = ({
         </div>
         <div className="flex items-center gap-2">
           <Phone className="w-4 h-4" />
-          <a href={`tel:${contact.phone}`} className="hover:underline">
+          <a href={`tel:${contact.telephone}`} className="hover:underline">
             {contact.telephone || "Non renseigné"}
           </a>
         </div>
@@ -125,21 +125,26 @@ const ContactSection = ({
               {contact.formations.map((formation) => (
                 <div
                   key={formation.id}
-                  className="flex items-center bg-gray-50 rounded-lg px-3 py-2 shadow-sm hover:bg-blue-50 transition"
-                >
+                  className="flex items-center bg-gray-50 rounded-lg px-3 py-2 shadow-sm hover:bg-blue-50 transition">
                   <div className="flex-1">
-                    <span className="font-medium text-gray-800">{formation.titre}</span>
+                    <span className="font-medium text-gray-800">
+                      {formation.titre}
+                    </span>
                     <div className="text-xs text-gray-500">
                       {formation.dateDebut && (
                         <span className="mr-2">
                           <span className="font-semibold">Début:</span>{" "}
-                          {new Date(formation.dateDebut).toLocaleDateString("fr-FR")}
+                          {new Date(formation.dateDebut).toLocaleDateString(
+                            "fr-FR"
+                          )}
                         </span>
                       )}
                       {formation.dateFin && (
                         <span>
                           <span className="font-semibold">Fin:</span>{" "}
-                          {new Date(formation.dateFin).toLocaleDateString("fr-FR")}
+                          {new Date(formation.dateFin).toLocaleDateString(
+                            "fr-FR"
+                          )}
                         </span>
                       )}
                     </div>
@@ -167,20 +172,20 @@ const ContactSection = ({
 
   return (
     <div className="py-6 mt-2">
-      <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-6 space-y-6 sm:space-y-6">
+      <div className="">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl md:text-2xl text-orange-400 font-bold">
             {CONTACTEZ_NOUS}
           </h1>
           <Link to="/contacts">
-            <Button variant="ghost" className="text-orange-600 font-bold" size="sm">
-              Voir tous 
+            <Button
+              variant="ghost"
+              size="sm"
+              className="group text-orange-600 font-bold flex items-center gap-1 transition-all duration-200 bg-gray-100 hover:bg-gray-100">
+              Voir tous
+              <ArrowRight className="w-4 h-4 transform transition-transform duration-200 group-hover:translate-x-1" />
             </Button>
           </Link>
-        </div>
-        {/* Ligne orange décorative */}
-        <div className="relative mb-2">
-          <span className="absolute left-1/2 transform -translate-x-1/2 w-16 h-1 bg-orange-400 rounded-full"></span>
         </div>
 
         {isLoading ? (
@@ -202,22 +207,6 @@ const ContactSection = ({
             {getVisibleContacts().map(renderContactCard)}
           </div>
         )}
-
-        {/* {isMobile &&
-          !showAllContacts &&
-          !isLoading &&
-          contacts &&
-          contacts.length > 3 && (
-            <div className="mt-6 text-center">
-              <button
-                onClick={() => setShowAllContacts(true)}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-amber-600 bg-amber-50 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
-              >
-                Voir plus de contacts
-                <ChevronDown className="ml-2 h-4 w-4" />
-              </button>
-            </div>
-          )} */}
       </div>
     </div>
   );
