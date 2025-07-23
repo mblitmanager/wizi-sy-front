@@ -19,9 +19,9 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BadgeCheckIcon, ClockIcon, EuroIcon } from "lucide-react";
+import { ArrowRight, BadgeCheckIcon, ClockIcon, EuroIcon } from "lucide-react";
 import { stripHtmlTags } from "@/utils/UtilsFunction";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 const VITE_API_URL = import.meta.env.VITE_API_URL;
 function stripHtml(html: string): string {
@@ -167,12 +167,15 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
         <h2 className="text-lg md:text-2xl font-bold text-orange-400">
           Formations à découvrir
         </h2>
-        <button
-          className="text-orange-600 font-semibold hover:underline text-sm px-3 py-1 rounded transition-colors"
-          onClick={() => navigate("/catalogue")}
-        >
-          Voir tous
-        </button>
+        <Link to="/catalogue">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="group text-orange-600 font-bold flex items-center gap-1 transition-all duration-200 bg-gray-100 hover:bg-gray-100">
+            Voir tous
+            <ArrowRight className="w-4 h-4 transform transition-transform duration-200 group-hover:translate-x-1" />
+          </Button>
+        </Link>
       </div>
       <div className="grid md:grid-cols-3 sm:grid-cols-1 gap-6 px-2 py-3">
         {selected.map((formation, idx) => {
@@ -226,7 +229,8 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                       </span>
                     ) : (
                       <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
-                        {formatTitle(formation.formation?.titre) || "SANS TITRE"}
+                        {formatTitle(formation.formation?.titre) ||
+                          "SANS TITRE"}
                       </span>
                     )}
                   </div>
@@ -240,7 +244,9 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                     <button
                       onClick={() => setShowDetailsIdx(isOpen ? null : idx)}
                       className="text-orange-500 text-sm font-medium hover:text-orange-600 transition-colors mb-2">
-                      {isOpen ? "Voir moins de détails" : "Voir plus de détails"}
+                      {isOpen
+                        ? "Voir moins de détails"
+                        : "Voir plus de détails"}
                     </button>
                   )}
                   {formation.formation && isOpen && (

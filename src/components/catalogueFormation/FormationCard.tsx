@@ -64,7 +64,7 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
 
   return (
     <div
-      className={`group p-4 border-t-4 rounded-lg border-t ${categoryColor} shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full overflow-hidden hover:translate-y-[-2px]`}>
+      className={`group p-4 border-t-4 rounded-lg  ${categoryColor} shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full overflow-hidden hover:translate-y-[-2px]`}>
       {/* Image container */}
       <div className="relative rounded-md overflow-hidden mb-3 h-36 bg-gray-100 flex items-center justify-center">
         <img
@@ -79,7 +79,7 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
       {/* Content container */}
       <div className="flex flex-col flex-grow space-y-2">
         {/* Title */}
-        <h3 className="text-base font-semibold text-orange-400 line-clamp-2 leading-snug">
+        <h3 className="text-base font-semibold text-orange- line-clamp-2 leading-snug">
           {formation.titre}
         </h3>
 
@@ -113,7 +113,9 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
 
             <span className="text-xl text-orange-500 font-extrabold drop-shadow-lg">
               {formation.tarif
-                ? `${Math.round(Number(formation.tarif)).toLocaleString("fr-FR")} € HT`
+                ? `${Math.round(Number(formation.tarif)).toLocaleString(
+                    "fr-FR"
+                  )} € HT`
                 : "-"}
             </span>
           </div>

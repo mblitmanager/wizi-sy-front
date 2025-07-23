@@ -1,9 +1,13 @@
 import { useEffect, useRef } from "react";
 import Plyr from "plyr";
 import "plyr/dist/plyr.css";
+import { mediaService } from "@/services/MediaService";
 
 interface Props {
   url: string;
+  mediaId: string;
+  stagiaireId: number;
+  watchedThreshold?: number;
 }
 
 const VITE_API_URL = import.meta.env.VITE_API_URL;
@@ -16,14 +20,21 @@ const getEmbedUrl = (url: string): string | null => {
   try {
     const urlObj = new URL(url);
 
-    // YouTube
     if (
       urlObj.hostname.includes("youtube.com") ||
       urlObj.hostname.includes("youtu.be")
     ) {
+      // Handle YouTube Shorts
+      if (urlObj.pathname.startsWith("/shorts/")) {
+        const videoId = urlObj.pathname.split("/")[2];
+        return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+      }
+
+      // Handle standard YouTube URLs
       const videoId = urlObj.hostname.includes("youtu.be")
         ? urlObj.pathname.slice(1)
         : new URLSearchParams(urlObj.search).get("v");
+
       return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
     }
 
@@ -49,19 +60,43 @@ const getEmbedUrl = (url: string): string | null => {
       return videoId ? `https://player.vimeo.com/video/${videoId}` : null;
     }
 
-    // Autre URL externe
+    // Fallback
     return url;
   } catch {
     return null;
   }
 };
 
-export default function VideoPlayer({ url }: Props) {
+export default function VideoPlayer({
+  url,
+  mediaId,
+  stagiaireId,
+  watchedThreshold = 80,
+}: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<Plyr | null>(null);
+  const hasMarkedAsWatched = useRef(false); // Pour éviter les appels multiples
 
   const isExternal = isExternalUrl(url);
   const embedUrl = isExternal ? getEmbedUrl(url) : null;
+
+  const markAsWatched = async () => {
+    if (hasMarkedAsWatched.current) return;
+
+    try {
+      await mediaService.markAsWatched(mediaId, stagiaireId);
+      hasMarkedAsWatched.current = true;
+      window.dispatchEvent(
+        new CustomEvent("media-watched", { detail: { mediaId } })
+      );
+      console.log("Vidéo marquée comme regardée");
+    } catch (error) {
+      console.error(
+        "Erreur lors du marquage de la vidéo comme regardée:",
+        error
+      );
+    }
+  };
 
   useEffect(() => {
     if (!isExternal && videoRef.current) {
@@ -100,14 +135,41 @@ export default function VideoPlayer({ url }: Props) {
       video.src = `${VITE_API_URL}/media/stream/${url}`;
       video.load();
 
+      // Écouter les événements de lecture
+      const player = playerRef.current;
+
+      const handleTimeUpdate = () => {
+        if (!video.duration) return;
+
+        const percentWatched = (video.currentTime / video.duration) * 100;
+        if (percentWatched >= watchedThreshold && !hasMarkedAsWatched.current) {
+          markAsWatched();
+        }
+      };
+
+      player.on("timeupdate", handleTimeUpdate);
+
       return () => {
         // Nettoyage
+        player.off("timeupdate", handleTimeUpdate);
         if (playerRef.current) {
           playerRef.current.destroy();
         }
       };
     }
-  }, [url, isExternal]);
+  }, [url, isExternal, mediaId, stagiaireId, watchedThreshold]);
+
+  // Pour les vidéos externes (YouTube, etc.), nous ne pouvons pas suivre précisément la progression
+  // donc nous marquons comme vu dès la lecture
+  useEffect(() => {
+    if (isExternal && embedUrl && !hasMarkedAsWatched.current) {
+      const timer = setTimeout(() => {
+        markAsWatched();
+      }, 5000); // Marquer comme vu après 5 secondes pour les vidéos externes
+
+      return () => clearTimeout(timer);
+    }
+  }, [isExternal, embedUrl]);
 
   // ▶️ Si c'est une vidéo externe (YouTube, Vimeo, etc.)
   if (isExternal && embedUrl) {
