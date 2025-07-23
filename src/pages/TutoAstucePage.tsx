@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
+import axios from "axios";
 import { useMediaByFormation } from "@/use-case/hooks/media/useMediaByFormation";
 import { MediaPlayer, MediaTabs } from "@/Media";
 import { Layout } from "@/components/layout/Layout";
@@ -160,6 +161,7 @@ export default function TutoAstucePage() {
     "tutoriel"
   );
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
+  const hasCheckedAchievement = useRef(false);
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
   >({});

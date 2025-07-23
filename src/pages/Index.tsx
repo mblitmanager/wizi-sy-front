@@ -1,4 +1,4 @@
-import axios from "axios";
+// import axios from "axios"; // supprimé car déjà importé ailleurs
 import { Layout } from "@/components/layout/Layout";
 import { useUser } from "@/hooks/useAuth";
 import { WifiOff, Megaphone } from "lucide-react";
@@ -6,6 +6,8 @@ import { ProgressCard } from "@/components/dashboard/ProgressCard";
 
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
+import axios from "axios"; // déjà importé ailleurs
+import { toast } from "@/hooks/use-toast";
 
 import { Contact } from "@/types/contact";
 import ContactsSection from "@/components/FeatureHomePage/ContactSection";
@@ -141,16 +143,66 @@ export function Index() {
     enabled: !!localStorage.getItem("token"),
   });
 
-  // Sélectionner 2 ou 3 quiz aléatoires non joués
-  const randomQuizzes = useMemo(() => {
+  // Filtrage des quiz à découvrir selon le nombre de points utilisateur
+  // Récupérer les points utilisateur depuis le classement global
+  const [userPoints, setUserPoints] = useState(0);
+  useEffect(() => {
+    // Récupérer les points depuis l'API ou le classement global
+    // Si vous avez un hook useClassementPoints, utilisez-le ici
+    // Sinon, adapter selon votre logique métier
+    // Exemple :
+    axios.get(`${API_URL}/classement/points`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then(res => setUserPoints(res.data?.points || 0))
+      .catch(() => setUserPoints(0));
+  }, []);
+
+  // Filtrage avancé selon les points utilisateur (pour les quiz à jouer)
+  const filteredQuizzes = useMemo(() => {
     if (!quizzes.length) return [];
+    // 1. Séparer les quiz par niveau
+    const debutant = quizzes.filter((q) => q.niveau?.toLowerCase() === "débutant");
+    const inter = quizzes.filter((q) => q.niveau?.toLowerCase() === "intermédiaire");
+    const avance = quizzes.filter((q) => q.niveau?.toLowerCase() === "avancé");
+    let result = [];
+    let inter1 = [];
+    let avance1 = [];
+    let avance2 = [];
+    // if (userPoints < 10) {
+    //   // Montrer 1 ou 2 quiz débutant max
+    //   result = debutant.slice(0, 2);
+    // } else 
+      if (userPoints < 20) {
+      // Montrer tous les quiz débutant
+      result = debutant.slice(0, 3);
+    } else if (userPoints < 40) {
+      // Débutant + intermédiaire (2 quiz intermédiaire max)
+      inter1 = inter.slice(0, 2);
+      result = [...debutant, ...inter1];
+    } else if (userPoints < 50) {
+      // Débutant + tous les intermédiaires
+      result = [...debutant, ...inter];
+    } else if (userPoints < 80) {
+      // Débutant + tous les intermédiaires + 2 quiz avancé
+      avance1 = avance.slice(0, 2);
+      result = [...debutant, ...inter, ...avance1];
+    } else if (userPoints < 100) {
+      // Débutant + intermédiaire + 4 quiz avancé
+      avance2 = avance.slice(0, 4);
+      result = [...debutant, ...inter, ...avance2];
+    } else {
+      // Tous les quiz
+      result = [...debutant, ...inter, ...avance];
+    }
     // Filtrer les quiz non joués
-    const notPlayed = quizzes.filter(q =>
+    const notPlayed = result.filter(q =>
       !participations.some(p => String(p.quizId || p.id) === String(q.id))
     );
-    const shuffled = [...notPlayed].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, 3);
-  }, [quizzes, participations]);
+    return notPlayed;
+  }, [quizzes, participations, userPoints]);
 
   // === Notification automatique à 9h ===
   useEffect(() => {
@@ -159,7 +211,7 @@ export function Index() {
     const minute = nowParis.minute();
 
     if (hour === 9 && minute < 10) {
-      fetch(`${API_URL}/api/notify-daily-formation`, {
+      fetch(`${API_URL}/notify-daily-formation`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -170,6 +222,38 @@ export function Index() {
   }, []);
 
   // === Redirection si non connecté ===
+  useEffect(() => {
+    // Déclenche le badge première connexion/série de connexions
+    if (user && localStorage.getItem("token")) {
+      axios
+        .post(
+          `${API_URL}/stagiaire/achievements/check`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        )
+        .then((res) => {
+          // On attend un tableau d'achievements débloqués dans res.data.new_achievements
+          const unlocked = res.data?.new_achievements || [];
+          if (Array.isArray(unlocked) && unlocked.length > 0) {
+            unlocked.forEach((ach) => {
+              toast({
+                title: `🎉 Succès débloqué`,
+                description: `${ach.name || ach.titre || ach.title || "Achievement"} !`,
+                duration: 4000,
+                variant: "success",
+                className: "bg-orange-600 text-white"
+              });
+            });
+          }
+        })
+        .catch(() => {});
+    }
+  }, [user]);
+
   if (!user || !localStorage.getItem("token")) {
     return <LandingPage />;
   }
@@ -279,7 +363,7 @@ export function Index() {
           </div>
         )}
 
-        {randomQuizzes.length > 0 && (
+        {filteredQuizzes.length > 0 && (
           <Card className="border-yellow-100">
             <CardContent className="p-3 md:p-6">
               {/* <div className="flex items-center mb-2 md:mb-3">
@@ -287,7 +371,7 @@ export function Index() {
                   Quiz à découvrir
                 </h3>
               </div> */}
-              <StagiaireQuizGrid quizzes={randomQuizzes} categories={[]} />
+              <StagiaireQuizGrid quizzes={filteredQuizzes} categories={[]} />
             </CardContent>
           </Card>
         )}
@@ -330,7 +414,35 @@ export function Index() {
             <p className="text-gray-700 text-s mb-3">Accédez à Wizi Learn partout grâce à notre application Android. Cliquez sur le bouton ci-dessous pour télécharger le fichier APK et suivez les instructions d'installation.</p>
             <button
               className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-orange-500 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-yellow-600 transition-colors"
-              onClick={e => { e.stopPropagation(); window.open('https://www.wizi-learn.com/application/wizi-learn.apk', '_blank'); }}
+              onClick={e => {
+                e.stopPropagation();
+                window.open('https://www.wizi-learn.com/application/wizi-learn.apk', '_blank');
+                // Déclencher l'achievement côté backend
+                if (user && localStorage.getItem("token")) {
+                  axios.post(
+                    `${API_URL}/stagiaire/achievements/check`,
+                    { code: "android_download" },
+                    {
+                      headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                      },
+                    }
+                  ).then((res) => {
+                    const unlocked = res.data?.new_achievements || [];
+                    if (Array.isArray(unlocked) && unlocked.length > 0) {
+                      unlocked.forEach((ach) => {
+                        toast({
+                          title: `🎉 Succès débloqué`,
+                          description: `${ach.name || ach.titre || ach.title || "Achievement"} !`,
+                          duration: 4000,
+                          variant: "success",
+                          className: "bg-orange-600 text-white"
+                        });
+                      });
+                    }
+                  }).catch(() => {});
+                }
+              }}
             >
               Télécharger
             </button>

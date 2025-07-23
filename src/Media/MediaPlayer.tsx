@@ -21,7 +21,7 @@ export default function MediaPlayer({
 }: Props & { className?: string }) {
   if (!media) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6 w-full flex items-center justify-center">
+      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 w-full max-w-full max-w-[100vw] flex items-center justify-center">
         <div className="text-center text-gray-500">
           <p>Sélectionnez un média dans la playlist</p>
         </div>
@@ -39,9 +39,18 @@ export default function MediaPlayer({
     }
 
     switch (media.type) {
-      case "video":
+      case "video": {
+        // Détection d'un lien YouTube Shorts
+        const isShort =
+          typeof media.url === "string" &&
+          (/youtube\.com\/shorts\//.test(media.url) ||
+            (/youtu\.be\/.{11,}/.test(media.url) &&
+              media.url.includes("shorts")));
         return (
-          <div className="relative w-full aspect-video bg-black rounded-t-lg overflow-hidden">
+          <div
+            className={`relative bg-black rounded-t-lg overflow-hidden w-full max-w-full max-w-[100vw] mx-auto ${
+              isShort ? "aspect-[9/16]" : "aspect-video"
+            }`}>
             <VideoPlayer
               key={media.id} // Utilisez l'ID plutôt que l'URL pour la clé
               url={media.url}
@@ -49,6 +58,7 @@ export default function MediaPlayer({
             />
           </div>
         );
+      }
 
       case "audio":
         return (
@@ -100,7 +110,7 @@ export default function MediaPlayer({
       className={`bg-white rounded-lg shadow-md overflow-hidden w-full ${className}`}>
       {renderMediaContent()}
 
-      <div className="p-3 lg:p-4 border-t w-full">
+      <div className="p-2 sm:p-3 lg:p-4 border-t w-full max-w-full max-w-[100vw]">
         <div className="flex justify-between items-center w-full">
           <div className="min-w-0">
             <h3 className="text-sm lg:text-lg font-bold text-gray-800 truncate">
