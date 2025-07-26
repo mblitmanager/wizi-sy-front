@@ -38,7 +38,7 @@ jobs:
         chmod 600 private_key
 
         echo "➤ Cleaning old index assets on server..."
-        ssh -i private_key -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST "rm -f ~/www/public/assets/index-*.css ~/www/public/assets/index-*.js ~/www/public/assets/vendor-*.js"
+        echo "ssh -i private_key -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST "rm -f ~/www/public/assets/index-*.css ~/www/public/assets/index-*.js ~/www/public/assets/vendor-*.js""
         echo "✓ Old assets cleaned"
 
         echo "➤ Deploying new assets..."
