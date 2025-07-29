@@ -16,6 +16,7 @@ import {
   PhoneOutgoingIcon,
   ChevronDown,
 } from "lucide-react";
+import { stripHtmlTags } from "@/utils/UtilsFunction";
 
 // Composants réutilisables
 const MediaSkeleton = ({ count = 5 }: { count?: number }) => (
@@ -133,7 +134,9 @@ const MediaPlayerSection = ({ media }: { media: Media | null }) => (
 
         <div className="mt-4">
           <h2 className="text-xl font-bold">{media.titre}</h2>
-          <p className="text-gray-600 mt-2">{media.description}</p>
+          <p className="text-gray-600 mt-2">
+            {stripHtmlTags(media.description)}
+          </p>
 
           {media.stagiaires?.[0]?.is_watched && (
             <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-full">
