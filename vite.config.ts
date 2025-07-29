@@ -5,7 +5,6 @@ import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => {
   if (mode === "development") {
-    // Config de base pour dev/local
     return {
       plugins: [react()],
       resolve: {
@@ -16,13 +15,11 @@ export default defineConfig(({ mode }) => {
     };
   }
 
-  // Config personnalisée pour production
   return {
     server: {
       host: true,
       port: 8000,
       strictPort: true,
-
       watch: {
         usePolling: true,
         interval: 1000,
@@ -31,8 +28,12 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: "dist",
       sourcemap: false,
+      manifest: true,
       rollupOptions: {
         output: {
+          entryFileNames: `assets/index.js`,        // Pas de hash
+          chunkFileNames: `assets/chunk-[name].js`, // Stable
+          assetFileNames: `assets/[name].[ext]`,    // Pas de hash
           manualChunks: {
             vendor: ["react", "react-dom"],
           },

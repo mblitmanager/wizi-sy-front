@@ -36,7 +36,15 @@ jobs:
       run: |
         echo "$SSH_PRIVATE_KEY" > private_key
         chmod 600 private_key
+
+        echo "➤ Cleaning old index assets on server..."
+        echo "ssh -i private_key -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST "rm -f ~/www/public/assets/index-*.css ~/www/public/assets/index-*.js ~/www/public/assets/vendor-*.js""
+        echo "✓ Old assets cleaned"
+
+        echo "➤ Deploying new assets..."
         rsync -avz --exclude='index.html' -e "ssh -i private_key -o StrictHostKeyChecking=no" ./dist/ $REMOTE_USER@$REMOTE_HOST:./www/public/
+        echo "✓ Assets deployed"
+
         rm -f private_key
 
     - name: Deploy Blade template via SSH (stagiaire.blade.php)
@@ -61,12 +69,14 @@ jobs:
         script: |
           set -e
           cd ~/www
+
           echo "➤ Optimizing Laravel..."
           php artisan optimize:clear
           php artisan config:cache
           php artisan route:cache
           php artisan view:cache
           echo "✓ Application optimized"
+
           php artisan queue:restart
           echo "✓ Queue restarted"
 
@@ -74,6 +84,7 @@ jobs:
           chmod -R 755 storage
           chmod -R 755 bootstrap/cache
           echo "✓ Permissions set"
+
           php artisan optimize:clear
 
     - name: Clean temporary files
