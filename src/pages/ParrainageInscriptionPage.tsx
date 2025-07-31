@@ -6,7 +6,7 @@ import { useFormations } from "@/use-case/hooks/catalogue/useCatalogue";
 
 // ParrainageInscriptionPage.tsx
 
-const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
 
 const ParrainageInscriptionPage = () => {
   const { token } = useParams();
@@ -24,6 +24,7 @@ const ParrainageInscriptionPage = () => {
     catalogue_formation_id: "",
     statut: "1",
     parrain_id: "",
+    lien_parrainage: token,
   });
 
   const { data: formationsResponse } = useFormations();
@@ -41,6 +42,7 @@ const ParrainageInscriptionPage = () => {
           setFormData((prev) => ({
             ...prev,
             parrain_id: data.parrain.user.id,
+            lien_parrainage: token,
           }));
         } else {
           throw new Error(data.message || "Lien invalide");
@@ -78,6 +80,9 @@ const ParrainageInscriptionPage = () => {
         body: JSON.stringify({
           ...formData,
           date_inscription: new Date().toISOString().split("T")[0],
+          motif: "Soumission d'une demande d'inscription par parrainage",
+          date_demande: new Date().toISOString(),
+          lien_parrainage: token,
         }),
       });
 
@@ -99,6 +104,7 @@ const ParrainageInscriptionPage = () => {
         catalogue_formation_id: "",
         statut: "1",
         parrain_id: formData.parrain_id,
+        lien_parrainage: token,
       });
 
       setErrors({});
@@ -178,8 +184,7 @@ const ParrainageInscriptionPage = () => {
                       <svg
                         className="h-5 w-5 text-green-400"
                         fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
+                        viewBox="0 0 20 20">
                         <path
                           fillRule="evenodd"
                           d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -201,8 +206,7 @@ const ParrainageInscriptionPage = () => {
                         <button
                           type="button"
                           onClick={() => setIsSuccess(false)}
-                          className="text-sm font-medium text-green-800 hover:text-green-700 focus:outline-none"
-                        >
+                          className="text-sm font-medium text-green-800 hover:text-green-700 focus:outline-none">
                           Fermer
                         </button>
                       </div>
@@ -220,8 +224,7 @@ const ParrainageInscriptionPage = () => {
                         className="h-6 w-6 text-indigo-600"
                         fill="none"
                         stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
+                        viewBox="0 0 24 24">
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -249,14 +252,33 @@ const ParrainageInscriptionPage = () => {
                   name="parrain_id"
                   value={formData.parrain_id}
                 />
+                <input
+                  type="hidden"
+                  name="parrain_id"
+                  value={formData.parrain_id}
+                />
+                <input
+                  type="hidden"
+                  name="lien_parrainage"
+                  value={formData.lien_parrainage}
+                />
 
+                <input
+                  type="hidden"
+                  name="motif"
+                  value="Soumission d'une demande d'inscription par parrainage"
+                />
+                <input
+                  type="hidden"
+                  name="date_demande"
+                  value={new Date().toISOString()}
+                />
                 <div className="grid grid-cols-1 gap-6">
                   {/* Civilité */}
                   <div>
                     <label
                       htmlFor="civilite"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
+                      className="block text-sm font-medium text-gray-700 mb-2">
                       Civilité
                     </label>
                     <div className="flex space-x-4">
@@ -266,8 +288,7 @@ const ParrainageInscriptionPage = () => {
                       ].map((option) => (
                         <label
                           key={option.value}
-                          className="inline-flex items-center"
-                        >
+                          className="inline-flex items-center">
                           <input
                             type="radio"
                             name="civilite"
@@ -295,8 +316,7 @@ const ParrainageInscriptionPage = () => {
                     <div>
                       <label
                         htmlFor="prenom"
-                        className="block text-sm font-medium text-gray-700 mb-2"
-                      >
+                        className="block text-sm font-medium text-gray-700 mb-2">
                         Prénom
                       </label>
                       <input
@@ -305,8 +325,9 @@ const ParrainageInscriptionPage = () => {
                         name="prenom"
                         value={formData.prenom}
                         onChange={handleChange}
-                        className={`block w-full px-4 py-3 rounded-md border shadow-sm focus:ring-yellow-500 focus:border-yellow-500 ${errors.prenom ? "border-red-300" : "border-gray-300"
-                          }`}
+                        className={`block w-full px-4 py-3 rounded-md border shadow-sm focus:ring-yellow-500 focus:border-yellow-500 ${
+                          errors.prenom ? "border-red-300" : "border-gray-300"
+                        }`}
                       />
                       {errors.prenom && (
                         <p className="mt-2 text-sm text-red-600">
@@ -319,8 +340,7 @@ const ParrainageInscriptionPage = () => {
                     <div>
                       <label
                         htmlFor="nom"
-                        className="block text-sm font-medium text-gray-700 mb-2"
-                      >
+                        className="block text-sm font-medium text-gray-700 mb-2">
                         Nom
                       </label>
                       <input
@@ -329,8 +349,9 @@ const ParrainageInscriptionPage = () => {
                         name="nom"
                         value={formData.nom}
                         onChange={handleChange}
-                        className={`block w-full px-4 py-3 rounded-md border shadow-sm focus:ring-yellow-500 focus:border-yellow-500 ${errors.nom ? "border-red-300" : "border-gray-300"
-                          }`}
+                        className={`block w-full px-4 py-3 rounded-md border shadow-sm focus:ring-yellow-500 focus:border-yellow-500 ${
+                          errors.nom ? "border-red-300" : "border-gray-300"
+                        }`}
                       />
                       {errors.nom && (
                         <p className="mt-2 text-sm text-red-600">
@@ -346,8 +367,7 @@ const ParrainageInscriptionPage = () => {
                     <div>
                       <label
                         htmlFor="email"
-                        className="block text-sm font-medium text-gray-700 mb-2"
-                      >
+                        className="block text-sm font-medium text-gray-700 mb-2">
                         Email
                       </label>
                       <input
@@ -356,8 +376,9 @@ const ParrainageInscriptionPage = () => {
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        className={`block w-full px-4 py-3 rounded-md border shadow-sm focus:ring-yellow-500 focus:border-yellow-500 ${errors.email ? "border-red-300" : "border-gray-300"
-                          }`}
+                        className={`block w-full px-4 py-3 rounded-md border shadow-sm focus:ring-yellow-500 focus:border-yellow-500 ${
+                          errors.email ? "border-red-300" : "border-gray-300"
+                        }`}
                       />
                       {errors.email && (
                         <p className="mt-2 text-sm text-red-600">
@@ -370,8 +391,7 @@ const ParrainageInscriptionPage = () => {
                     <div>
                       <label
                         htmlFor="telephone"
-                        className="block text-sm font-medium text-gray-700 mb-2"
-                      >
+                        className="block text-sm font-medium text-gray-700 mb-2">
                         Téléphone
                       </label>
                       <input
@@ -380,10 +400,11 @@ const ParrainageInscriptionPage = () => {
                         name="telephone"
                         value={formData.telephone}
                         onChange={handleChange}
-                        className={`block w-full px-4 py-3 rounded-md border shadow-sm focus:ring-yellow-500 focus:border-yellow-500 ${errors.telephone
-                          ? "border-red-300"
-                          : "border-gray-300"
-                          }`}
+                        className={`block w-full px-4 py-3 rounded-md border shadow-sm focus:ring-yellow-500 focus:border-yellow-500 ${
+                          errors.telephone
+                            ? "border-red-300"
+                            : "border-gray-300"
+                        }`}
                       />
                       {errors.telephone && (
                         <p className="mt-2 text-sm text-red-600">
@@ -418,12 +439,12 @@ const ParrainageInscriptionPage = () => {
                             {filteredFormations.map((formation: any) => (
                               <div
                                 key={formation.id}
-                                className={`block p-4 hover:bg-amber-50 cursor-pointer transition-colors ${formData.catalogue_formation_id ===
+                                className={`block p-4 hover:bg-amber-50 cursor-pointer transition-colors ${
+                                  formData.catalogue_formation_id ===
                                   formation.id
-                                  ? "bg-amber-50"
-                                  : ""
-                                  }`}
-                              >
+                                    ? "bg-amber-50"
+                                    : ""
+                                }`}>
                                 <label className="flex items-center space-x-3 cursor-pointer">
                                   <input
                                     type="radio"
@@ -470,30 +491,27 @@ const ParrainageInscriptionPage = () => {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition ${submitting ? "opacity-75 cursor-not-allowed" : ""
-                      }`}
-                  >
+                    className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition ${
+                      submitting ? "opacity-75 cursor-not-allowed" : ""
+                    }`}>
                     {submitting ? (
                       <>
                         <svg
                           className="animate-spin -ml-1 mr-3 h-4 w-4 text-white"
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
-                          viewBox="0 0 24 24"
-                        >
+                          viewBox="0 0 24 24">
                           <circle
                             className="opacity-25"
                             cx="12"
                             cy="12"
                             r="10"
                             stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
+                            strokeWidth="4"></circle>
                           <path
                             className="opacity-75"
                             fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
                         En cours...
                       </>
