@@ -3,26 +3,11 @@ import { Button } from "@/components/ui/button";
 import { CatalogueFormation } from "@/types/stagiaire";
 import DownloadPdfButton from "@/components/FeatureHomePage/DownloadPdfButton";
 import { inscrireAFormation } from "@/services/inscriptionApi";
-import {
-  BUREAUTIQUE,
-  CATALOGUE_FORMATION_DETAILS,
-  CREATION,
-  INTERNET,
-  LANGUES,
-  RETOUR,
-} from "@/utils/constants";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ArrowRight, BadgeCheckIcon, ClockIcon, EuroIcon } from "lucide-react";
+import { BUREAUTIQUE, CREATION, INTERNET, LANGUES } from "@/utils/constants";
+
+import { ArrowRight } from "lucide-react";
 import { stripHtmlTags } from "@/utils/UtilsFunction";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 const VITE_API_URL = import.meta.env.VITE_API_URL;
 function stripHtml(html: string): string {
   if (!html) return "";
