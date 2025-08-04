@@ -70,6 +70,7 @@ export function Classement() {
     const fetchQuizHistory = async () => {
       try {
         const history = await quizSubmissionService.getQuizHistory();
+        console.log(history);
         setQuizHistory(history);
       } catch (error) {
         console.error("Error fetching quiz history:", error);
@@ -127,19 +128,16 @@ export function Classement() {
       {/* Tabs */}
       <Tabs
         defaultValue={tabParam === "history" ? "history" : "ranking"}
-        className="mt-6"
-      >
+        className="mt-6">
         <TabsList className="grid grid-cols-2 gap-2 rounded-lg bg-gray-100 shadow-sm">
           <TabsTrigger
             value="ranking"
-            className="text-xs text-brown-shade sm:text-sm md:text-base font-medium py-2 px-3 lg:px-4 focus:outline-none focus:ring-2 focus:ring-orange-500"
-          >
+            className="text-xs text-brown-shade sm:text-sm md:text-base font-medium py-2 px-3 lg:px-4 focus:outline-none focus:ring-2 focus:ring-orange-500">
             Classement global
           </TabsTrigger>
           <TabsTrigger
             value="history"
-            className="text-xs text-brown-shade sm:text-sm md:text-base font-medium py-2 px-3 lg:px-4 focus:outline-none focus:ring-2 focus:ring-orange-500"
-          >
+            className="text-xs text-brown-shade sm:text-sm md:text-base font-medium py-2 px-3 lg:px-4 focus:outline-none focus:ring-2 focus:ring-orange-500">
             Mon historique
           </TabsTrigger>
         </TabsList>
@@ -155,7 +153,7 @@ export function Classement() {
         </TabsContent>
 
         <TabsContent value="history" className="mt-4">
-          <div className="bg-white p-3 sm:p-4 lg:p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="p-2 sm:p-3 lg:p-4 rounded-lg shadow-sm">
             <QuizHistory history={quizHistory} loading={loading.history} />
           </div>
         </TabsContent>
