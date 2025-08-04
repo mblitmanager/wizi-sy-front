@@ -64,44 +64,48 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
         // Ajout de badges de test si non présents
         const testBadges = [
           {
-            id: 'connexion_serie',
-            name: 'Série de connexions',
-            description: 'Connectez-vous plusieurs jours d\'affilée',
-            icon: '🔥',
-            type: 'connexion_serie',
+            id: "connexion_serie",
+            name: "Série de connexions",
+            description: "Connectez-vous plusieurs jours d'affilée",
+            icon: "🔥",
+            type: "connexion_serie",
           },
           {
-            id: 'first_login',
-            name: 'Première connexion',
-            description: 'Connectez-vous pour la première fois',
-            icon: '🎉',
-            type: 'connexion_serie',
+            id: "first_login",
+            name: "Première connexion",
+            description: "Connectez-vous pour la première fois",
+            icon: "🎉",
+            type: "connexion_serie",
           },
           {
-            id: 'first_quiz',
-            name: 'Premier quiz',
-            description: 'Terminez votre premier quiz',
-            icon: '🏆',
-            type: 'quiz',
+            id: "first_quiz",
+            name: "Premier quiz",
+            description: "Terminez votre premier quiz",
+            icon: "🏆",
+            type: "quiz",
           },
           {
-            id: 'first_video',
-            name: 'Première vidéo',
-            description: 'Regardez votre première vidéo',
-            icon: '🎬',
-            type: 'video',
+            id: "first_video",
+            name: "Première vidéo",
+            description: "Regardez votre première vidéo",
+            icon: "🎬",
+            type: "video",
           },
           {
-            id: 'first_parrainage',
-            name: 'Premier parrainage',
-            description: 'Parrainez un utilisateur pour la première fois',
-            icon: '🤝',
-            type: 'parrainage',
+            id: "first_parrainage",
+            name: "Premier parrainage",
+            description: "Parrainez un utilisateur pour la première fois",
+            icon: "🤝",
+            type: "parrainage",
           },
         ];
         // Ajoute les badges de test s'ils ne sont pas déjà présents (par id ou type)
         testBadges.forEach((testBadge) => {
-          if (!badges.some((b) => b.id === testBadge.id || b.type === testBadge.type)) {
+          if (
+            !badges.some(
+              (b) => b.id === testBadge.id || b.type === testBadge.type
+            )
+          ) {
             badges.push(testBadge);
           }
         });
@@ -126,7 +130,9 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
       const maxSize = 5 * 1024 * 1024;
 
       if (!validTypes.includes(file.type)) {
-        toast.error("Type de fichier invalide. Veuillez choisir un JPEG, PNG ou GIF.");
+        toast.error(
+          "Type de fichier invalide. Veuillez choisir un JPEG, PNG ou GIF."
+        );
         return;
       }
 
@@ -205,7 +211,8 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
   const renderImage = (className: string) => {
     if (loading) {
       return (
-        <div className={`${className} bg-gray-200 dark:bg-gray-700 flex items-center justify-center`}>
+        <div
+          className={`${className} bg-gray-200 dark:bg-gray-700 flex items-center justify-center`}>
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brown-shade"></div>
         </div>
       );
@@ -224,59 +231,94 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
     }
 
     return (
-      <div className={`${className} bg-brown-shade text-white flex items-center justify-center text-4xl font-bold font-montserrat`}>
+      <div
+        className={`${className} bg-brown-shade text-white flex items-center justify-center text-4xl font-bold font-montserrat`}>
         {getInitials()}
       </div>
     );
   };
 
   return (
-    <div className="mt-4">
-      <div className="max-w-4xl flex flex-col lg:flex-row items-center h-auto mx-auto lg:my-0 gap-4">
-        
-        {/* Image profil - Mobile */}
-        <div className="lg:hidden rounded-full shadow-xl mx-auto -mt-16 h-48 w-48 bg-cover bg-center relative group mb-4">
-          {renderImage("w-full h-full rounded-full")}
-          <input
-            type="file"
-            ref={fileInputRef}
-            className="hidden"
-            accept="image/*"
-            onChange={handleImageChange}
-          />
-          <button
-            type="button"
-            className="absolute bottom-2 right-2 bg-brown-shade text-white rounded-full p-2 shadow-lg hover:bg-brown-dark"
-            onClick={handleImageClick}
-          >
-            <CameraIcon size={24} />
-          </button>
-        </div>
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
+      <div className="p-6 md:p-4">
+        <div className="flex flex-col md:flex-row gap-8 items-start">
+          {/* Section Photo de profil */}
+          <div className="flex flex-col items-center w-full md:w-auto">
+            {/* Photo mobile + desktop combinée */}
+            <div className="relative group">
+              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden shadow-lg">
+                {renderImage("w-full h-full")}
+              </div>
+              <button
+                onClick={handleImageClick}
+                className="absolute bottom-2 right-2 bg-white dark:bg-gray-700 p-2 rounded-full shadow-md hover:scale-110 transition-transform"
+                aria-label="Changer la photo de profil">
+                <CameraIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              </button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+            </div>
 
-        {/* Image profil - Desktop */}
-        <div className="hidden lg:flex w-full lg:w-[200px] h-[250px] relative">
-          <div className="w-full h-full rounded-none lg:rounded-lg shadow-2xl relative group overflow-hidden">
-            {renderImage("w-full h-full rounded-lg")}
-            <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
-              className="hidden"
-              onChange={handleImageChange}
-            />
-            <button
-              onClick={handleImageClick}
-              className="absolute bottom-4 right-4 bg-white dark:bg-gray-800 p-2 rounded-full shadow-sm hover:scale-110 transition duration-300 border border-gray-200 dark:border-gray-600"
-              aria-label="Changer la photo de profil"
-            >
-              <CameraIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-            </button>
+            {/* Informations utilisateur compactes */}
+            <div className="mt-4 text-center md:hidden">
+              <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+                {user?.stagiaire?.prenom || "Utilisateur"}
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300">
+                {user?.email || "Email non disponible"}
+              </p>
+              <div className="mt-2 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full inline-block">
+                {totalPoints} points
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* Badges dynamiques */}
-        <div className="w-full mt-4">
-          <BadgesDisplay badges={achievements} loading={achievementsLoading} />
+          {/* Section Principale - Informations + Badges */}
+          <div className="flex-1 w-full">
+            {/* Informations utilisateur détaillées (desktop) */}
+            <div className="hidden md:block mb-6">
+              <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+                {user?.stagiaire?.prenom || "Utilisateur"}{" "}
+                {user?.user?.name ? `(${user.user.name})` : ""}
+              </h1>
+              <div className="flex flex-wrap gap-4 mt-2">
+                <div className="text-gray-600 dark:text-gray-300">
+                  <span className="font-medium">Email:</span> {user?.email}
+                </div>
+                <div className="text-gray-600 dark:text-gray-300">
+                  <span className="font-medium">Points:</span> {totalPoints}
+                </div>
+                {user?.stagiaire?.telephone && (
+                  <div className="text-gray-600 dark:text-gray-300">
+                    <span className="font-medium">Tél:</span>{" "}
+                    {user.stagiaire.telephone}
+                  </div>
+                )}
+              </div>
+              {userAddress && (
+                <div className="mt-2 text-gray-600 dark:text-gray-300">
+                  <span className="font-medium">Adresse:</span> {userAddress}
+                </div>
+              )}
+            </div>
+
+            {/* Badges avec titre réduit et disposition compacte */}
+            <div className="mt-4 md:mt-0">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">
+                Mes badges
+              </h3>
+              <BadgesDisplay
+                badges={achievements}
+                loading={achievementsLoading}
+                className="compact-view"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

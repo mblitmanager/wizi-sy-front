@@ -3,7 +3,7 @@ const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
 export interface ParrainageStats {
   total_filleuls: number;
   total_points: number;
-  total_rewards: number;
+  gains: number;
 }
 
 export interface ParrainageLink {

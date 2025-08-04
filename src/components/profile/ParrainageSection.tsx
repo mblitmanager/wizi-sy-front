@@ -11,6 +11,8 @@ import {
   Award,
   Megaphone,
   Gift,
+  Share2,
+  ChevronRight,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { parrainageService } from "../../services/parrainageService";
@@ -29,10 +31,10 @@ const ParrainageSection = () => {
   const [statsError, setStatsError] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useUser();
+
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        // Vérification plus robuste de l'ID utilisateur
         const userId = user?.user?.id;
         if (!userId) {
           console.log("Aucun ID utilisateur trouvé");
@@ -54,11 +56,12 @@ const ParrainageSection = () => {
         }
 
         const data = await response.json();
+        console.log("Statistiques récupérées :", data);
 
         setStats({
           total_filleuls: data.nombre_filleuls,
           total_points: parseInt(data.total_points),
-          total_rewards: 0, // À adapter selon votre logique
+          gains: parseFloat(data.gains),
         });
       } catch (err) {
         console.error("Error in fetchStats:", err);
@@ -75,7 +78,6 @@ const ParrainageSection = () => {
     fetchStats();
   }, [user?.user?.id]);
 
-  // Dans ParrainageSection.tsx
   const generateLink = async () => {
     try {
       setIsLoading(true);
@@ -113,113 +115,161 @@ const ParrainageSection = () => {
   };
 
   return (
-    <section className="mb-6">
-      <div className="flex flex-col md:flex-row gap-6 mb-8">
-        <div className="flex-2 order-2 md:order-2 md:w-full">
-          {/* En-tête compact pour mobile */}
-          <div className="md:hidden flex items-center gap-4 mb-4">
-            <img
-              src={image}
-              alt="Parrainage"
-              className="w-20 h-20 object-contain"
-            />
-            <div>
-              <h1 className="text-2xl text-brown-shade font-bold">
-                Programme de parrainage
-              </h1>
-              <p className="text-sm text-gray-700">
-                Gagnez{" "}
-                <span className="text-white text-2xl font-extrabold drop-shadow-lg">
-                  50€
-                </span>{" "}
-                par filleul
-              </p>
+    <section className="mb-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="flex flex-col lg:flex-row gap-8 mb-8">
+        {/* Left Column - Content */}
+        <div className="flex-1 order-2 lg:order-1">
+          {/* Header Section */}
+          <div className="mb-8">
+            <div className="flex items-center gap-4 mb-4 lg:hidden">
+              <img
+                src={image}
+                alt="Parrainage"
+                className="w-16 h-16 object-contain rounded-lg"
+              />
+              <div>
+                <h1 className="text-2xl font-bold text-gray-800">
+                  Programme de parrainage
+                </h1>
+                <p className="text-sm text-gray-600">
+                  Gagnez{" "}
+                  <span className="text-blue-600 font-bold">
+                    50€ par filleul
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <h1 className="hidden lg:block text-3xl font-bold text-gray-800 mb-3">
+              Programme de parrainage
+            </h1>
+            <p className="hidden lg:block text-lg text-gray-600 mb-6">
+              Parrainez vos amis et gagnez{" "}
+              <span className="text-blue-600 font-bold">50€</span> pour chaque
+              inscription valide. Partagez votre lien unique et suivez vos gains
+              en temps réel.
+            </p>
+
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-6 border border-blue-100">
+              <div className="flex items-start gap-4">
+                <div className="bg-blue-100 p-3 rounded-full">
+                  <Gift className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                    Gagnez jusqu'à 500€ par mois
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    Plus vous parrainez, plus vous gagnez. Vos gains sont
+                    directement versés sur votre compte chaque mois.
+                  </p>
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Commencer à parrainer
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Version desktop */}
-          <h1 className="hidden md:block text-3xl text-brown-shade font-bold mb-4">
-            Programme de parrainage
-          </h1>
-
-          <p className="hidden md:block text-lg text-gray-700 mb-4">
-            Parlez de nos formations à votre entourage (famille, amis, collègues
-            et connaissances) et gagnez{" "}
-            <span className="text-brown-shade text-2xl font-extrabold drop-shadow-lg">
-              50€
-            </span>{" "}
-            par filleul !
-          </p>
-
-          {/* Bouton principal plus compact sur mobile */}
-          {/* <Button className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-400 text-white hover:from-blue-700 hover:to-blue-500 mb-4">
-            <Gift className="h-5 w-5 mr-2" />
-            <span className="text-sm md:text-base">
-              Je parraine et je gagne 
-              50€
-            </span>
-          </Button> */}
-
-          {/* Cartes en colonne unique sur mobile */}
-          <div className="space-y-4">
-            {/* Carte de génération de lien */}
-            <Card className="border-gray-100">
-              <Card className="border-blue-100">
-                <CardContent className="p-4 md:p-6">
-                  <div className="flex items-center mb-3">
-                    <Megaphone className="h-5 w-5 text-amber-500 mr-2" />
-                    <h3 className="text-base md:text-lg font-medium">
-                      Partagez et gagnez
-                    </h3>
+          {/* Link Generation Card */}
+          <div className="mb-8">
+            <Card className="border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-indigo-100 p-2 rounded-lg">
+                    <Megaphone className="h-5 w-5 text-indigo-600" />
                   </div>
-                  <p className="text-sm md:text-base text-gray-700 mb-3">
-                    {/* Gagnez  */}
-                    <span className="font-bold">50€</span> par ami inscrit
-                  </p>
-                  <LienParrainage />
-                </CardContent>
-              </Card>
+                  <h3 className="text-xl font-semibold text-gray-800">
+                    Votre lien de parrainage
+                  </h3>
+                </div>
+                <p className="text-gray-600 mb-6">
+                  Partagez ce lien unique avec vos amis et commencez à gagner.
+                  Chaque inscription valide vous rapporte{" "}
+                  <span className="font-bold text-blue-600">50€</span>.
+                </p>
+                <LienParrainage />
+              </CardContent>
             </Card>
+          </div>
 
-            {/* Statistiques - version compacte mobile */}
+          {/* Stats Section */}
+          <div className="mb-8">
             {statsLoading ? (
-              <div className="text-center py-4">Chargement...</div>
+              <div className="flex justify-center items-center h-40">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
             ) : statsError ? (
-              <div className="text-red-500 text-sm py-4">{statsError}</div>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-600">
+                {statsError}
+              </div>
             ) : (
               stats && (
-                <Card className="bg-amber-100">
-                  <CardContent className="p-4 md:p-6">
-                    <h3 className="text-base md:text-lg font-medium mb-3 flex items-center">
-                      <BarChart2 className="h-4 w-4 md:h-5 md:w-5 mr-2 text-amber-600" />
-                      <span>Vos stats</span>
-                    </h3>
-                    <div className="grid grid-cols-3 gap-2 md:gap-4">
-                      <div className="bg-white p-2 md:p-4 rounded-lg shadow-sm border border-gray-100">
-                        <h4 className="text-xs md:text-sm font-semibold text-gray-700 flex items-center">
-                          <UserPlus className="h-3 w-3 md:h-4 md:w-4 mr-1" />
-                          <span className="truncate">Filleuls</span>
-                        </h4>
-                        <p className="text-xl md:text-2xl font-bold text-blue-800">
+                <Card className="border border-gray-200 rounded-xl shadow-sm">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="bg-amber-100 p-2 rounded-lg">
+                        <BarChart2 className="h-5 w-5 text-amber-600" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-800">
+                        Vos statistiques
+                      </h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="bg-white border border-gray-100 rounded-lg p-4 shadow-xs hover:shadow-sm transition-shadow">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="bg-blue-100 p-2 rounded-full">
+                            <UserPlus className="h-4 w-4 text-blue-600" />
+                          </div>
+                          <h4 className="text-sm font-medium text-gray-500">
+                            Filleuls
+                          </h4>
+                        </div>
+                        <p className="text-3xl font-bold text-gray-800">
                           {stats.total_filleuls}
                         </p>
-                      </div>
-                      <div className="bg-white p-2 md:p-4 rounded-lg shadow-sm border border-green-100">
-                        <h4 className="text-xs md:text-sm font-semibold text-gray-700 flex items-center">
-                          <Star className="h-3 w-3 md:h-4 md:w-4 mr-1" />
-                          <span className="truncate">Points</span>
-                        </h4>
-                        <p className="text-xl md:text-2xl font-bold text-green-800">
-                          {stats.total_points || 0}
+                        <p className="text-xs text-gray-500 mt-1">
+                          +0 cette semaine
                         </p>
                       </div>
-                      <div className="bg-white p-2 md:p-4 rounded-lg shadow-sm border border-purple-100">
-                        <h4 className="text-xs md:text-sm font-semibold text-gray-700 flex items-center">
-                          <Award className="h-3 w-3 md:h-4 md:w-4 mr-1" />
-                          <span className="truncate">Gains</span>
-                        </h4>
-                        <p className="text-xl md:text-2xl font-bold text-purple-800">
-                          {stats.total_rewards || 0}
+
+                      <div className="bg-white border border-gray-100 rounded-lg p-4 shadow-xs hover:shadow-sm transition-shadow">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="bg-green-100 p-2 rounded-full">
+                            <Star className="h-4 w-4 text-green-600" />
+                          </div>
+                          <h4 className="text-sm font-medium text-gray-500">
+                            Points
+                          </h4>
+                        </div>
+                        <p className="text-3xl font-bold text-gray-800">
+                          {stats.total_points || 0}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">Cumulés</p>
+                      </div>
+
+                      <div className="bg-white border border-gray-100 rounded-lg p-4 shadow-xs hover:shadow-sm transition-shadow">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="bg-purple-100 p-2 rounded-full">
+                            <Award className="h-4 w-4 text-purple-600" />
+                          </div>
+                          <h4 className="text-sm font-medium text-gray-500">
+                            Gains
+                          </h4>
+                        </div>
+                        <p className="text-3xl font-bold text-gray-800">
+                          {stats.gains && stats.gains > 0
+                            ? `${
+                                stats.gains % 1 === 0
+                                  ? stats.gains.toFixed(0)
+                                  : stats.gains.toFixed(2)
+                              } €`
+                            : "0 €"}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Par chaque isncription
                         </p>
                       </div>
                     </div>
@@ -227,29 +277,130 @@ const ParrainageSection = () => {
                 </Card>
               )
             )}
-
-            {/* Guide compact */}
-            <div className="bg-amber-100 p-3 md:p-4 rounded-lg border border-gray-200">
-              <h3 className="font-medium text-red-800 text-sm md:text-base mb-1 md:mb-2">
-                Comment ça marche ?
-              </h3>
-              <ul className="text-xs md:text-sm text-gray-700 space-y-1 pl-4">
-                <li className="list-disc">Générez votre lien unique</li>
-                <li className="list-disc">Partagez avec vos proches</li>
-                <li className="list-disc">50€ par inscription valide</li>
-                <li className="list-disc">Suivez vos gains</li>
-              </ul>
-            </div>
           </div>
+
+          {/* How It Works Section */}
+          <Card className="border border-gray-200 rounded-xl shadow-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-green-100 p-2 rounded-lg">
+                  <ChevronRight className="h-5 w-5 text-green-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-800">
+                  Comment ça marche ?
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex items-start gap-4">
+                  <div className="bg-blue-50 p-3 rounded-full flex-shrink-0">
+                    <span className="text-blue-600 font-bold">1</span>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-1">
+                      Générez votre lien
+                    </h4>
+                    <p className="text-gray-600 text-sm">
+                      Créez votre lien de parrainage unique en un clic.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="bg-blue-50 p-3 rounded-full flex-shrink-0">
+                    <span className="text-blue-600 font-bold">2</span>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-1">
+                      Partagez avec vos proches
+                    </h4>
+                    <p className="text-gray-600 text-sm">
+                      Envoyez votre lien par email, réseaux sociaux ou
+                      messagerie.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="bg-blue-50 p-3 rounded-full flex-shrink-0">
+                    <span className="text-blue-600 font-bold">3</span>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-1">
+                      Vos amis s'inscrivent
+                    </h4>
+                    <p className="text-gray-600 text-sm">
+                      Ils utilisent votre lien pour créer leur compte.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="bg-blue-50 p-3 rounded-full flex-shrink-0">
+                    <span className="text-blue-600 font-bold">4</span>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-1">
+                      Vous gagnez 50€
+                    </h4>
+                    <p className="text-gray-600 text-sm">
+                      Pour chaque inscription valide, vous recevez 50€.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Image seulement sur desktop */}
-        <div className="hidden md:flex flex-1 justify-start order-1 md:order-1">
-          {/* <img
-            src={image}
-            alt="Programme de parrainage AOPIA"
-            className="max-w-xs md:max-w-sm"
-          /> */}
+        {/* Right Column - Image (Desktop only) */}
+        <div className="hidden lg:block flex-1 order-1 lg:order-2">
+          <div className="sticky top-6">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 border border-gray-200 shadow-sm">
+              <img
+                src={image}
+                alt="Programme de parrainage"
+                className="w-full h-auto object-contain rounded-lg"
+              />
+              <div className="mt-6">
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">
+                  Pourquoi parrainer ?
+                </h3>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-3">
+                    <div className="bg-blue-100 p-1 rounded-full mt-1">
+                      <ChevronRight className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <span className="text-gray-600">
+                      Revenus complémentaires faciles
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="bg-blue-100 p-1 rounded-full mt-1">
+                      <ChevronRight className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <span className="text-gray-600">Sans limite de gains</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="bg-blue-100 p-1 rounded-full mt-1">
+                      <ChevronRight className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <span className="text-gray-600">
+                      Paiements mensuels sécurisés
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="bg-blue-100 p-1 rounded-full mt-1">
+                      <ChevronRight className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <span className="text-gray-600">
+                      Tableau de bord de suivi
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>

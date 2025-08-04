@@ -22,7 +22,6 @@ const ProfilePage = () => {
   const activeTabFromUrl = searchParams.get("tab") || "overview";
   const [activeTab] = useState(activeTabFromUrl);
   const { toast } = useToast();
-   
 
   const { user } = useUser();
   const { results, categories } = useLoadQuizData();
@@ -32,7 +31,7 @@ const ProfilePage = () => {
 
   const isLoading = !user || !categories || !userProgress || !formations;
 
-   // Mémoïsation des composants enfants pour éviter des rendus inutiles
+  // Mémoïsation des composants enfants pour éviter des rendus inutiles
   const MemoizedProfileHeader = useMemo(() => {
     return <ProfileHeader user={user} userProgress={userProgress} />;
   }, [user, userProgress]);
@@ -138,8 +137,6 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        
-
         {/* Contenu principal avec composants mémoïsés */}
         <div className="space-y-4 px-2 sm:px-0">
           <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
@@ -165,19 +162,44 @@ const ProfilePage = () => {
         </div>
       </div>
       {/* Section liens vers FAQ, CGV et Manuel */}
-        <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm mb-4">
-          <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">Ressources utiles</h3>
-          <div className="flex flex-wrap gap-4">
-            <Link to="/faq" className="px-4 py-2 bg-amber-100 text-amber-800 rounded-lg font-medium hover:bg-amber-200 transition">FAQ</Link>
-            <Link to="/cgv" className="px-4 py-2 bg-amber-100 text-amber-800 rounded-lg font-medium hover:bg-amber-200 transition">CGV</Link>
-            <Link to="/contact-support" className="px-4 py-2 bg-amber-100 text-amber-800 rounded-lg font-medium hover:bg-amber-200 transition">Contact & Remarques</Link>
-            <Link to="/manuel" className="px-4 py-2 bg-amber-100 text-amber-800 rounded-lg font-medium hover:bg-amber-200 transition">Manuel d'utilisation</Link>
-            <Link to="/remerciements" className="px-4 py-2 bg-amber-100 text-amber-800 rounded-lg font-medium hover:bg-amber-200 transition">Remerciements</Link>
-                 
-          <Link to="/politique-confidentialite" className="px-4 py-2 bg-amber-100 text-amber-800 rounded-lg font-medium hover:bg-amber-200 transition">Politique de Confidentialité</Link>
-        
-          </div>
+      <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm mb-4">
+        <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
+          Ressources utiles
+        </h3>
+        <div className="flex flex-wrap gap-4">
+          <Link
+            to="/faq"
+            className="px-4 py-2 bg-amber-100 text-amber-800 rounded-lg font-medium hover:bg-amber-200 transition">
+            FAQ
+          </Link>
+          <Link
+            to="/cgv"
+            className="px-4 py-2 bg-amber-100 text-amber-800 rounded-lg font-medium hover:bg-amber-200 transition">
+            CGV
+          </Link>
+          <Link
+            to="/contact-support"
+            className="px-4 py-2 bg-amber-100 text-amber-800 rounded-lg font-medium hover:bg-amber-200 transition">
+            Contact & Remarques
+          </Link>
+          <Link
+            to="/manuel"
+            className="px-4 py-2 bg-amber-100 text-amber-800 rounded-lg font-medium hover:bg-amber-200 transition">
+            Manuel d'utilisation
+          </Link>
+          <Link
+            to="/remerciements"
+            className="px-4 py-2 bg-amber-100 text-amber-800 rounded-lg font-medium hover:bg-amber-200 transition">
+            Remerciements
+          </Link>
+
+          <Link
+            to="/politique-confidentialite"
+            className="px-4 py-2 bg-amber-100 text-amber-800 rounded-lg font-medium hover:bg-amber-200 transition">
+            Politique de Confidentialité
+          </Link>
         </div>
+      </div>
     </Layout>
   );
 };
