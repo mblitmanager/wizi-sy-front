@@ -166,7 +166,7 @@ const ContactSection = ({
     return [
       groupedContacts("Commercial")[0],
       groupedContacts("Formateur")[0],
-      groupedContacts("Pôle Relation Client")[0],
+      groupedContacts("pole_relation_client")[0],
     ].filter(Boolean);
   };
 
