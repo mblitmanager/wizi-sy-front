@@ -6,81 +6,123 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Award } from "lucide-react";
+import { BookOpen, Award, Clock } from "lucide-react";
 import type { Quiz, Category } from "@/types/quiz";
 import React from "react";
 import { stripHtmlTags } from "@/utils/UtilsFunction";
+import bureatique from "../../assets/icons/bureautique.png";
+import internet from "../../assets/icons/internet.png";
+import creation from "../../assets/icons/creation.png";
+import langues from "../../assets/icons/langues.png";
 
-// Helpers pour la coloration
-const getLevelColor = (level: string) => {
-  switch (level.toLowerCase()) {
-    case "débutant":
-      return "secondary";
-    case "intermédiaire":
-      return "default";
-    case "avancé":
-    case "super quiz":
-      return "destructive";
-    default:
-      return "outline";
-  }
+// Configuration complète des catégories
+const CATEGORY_CONFIG = {
+  bureautique: {
+    icon: bureatique,
+    color: "#3B82F6", // Bleu vif
+    bgColor: "bg-blue-50",
+    borderColor: "border-blue-200",
+    textColor: "text-blue-800",
+    badgeColor: "bg-blue-100",
+  },
+  internet: {
+    icon: internet,
+    color: "#F59E0B", // Orange vif
+    bgColor: "bg-orange-50",
+    borderColor: "border-orange-200",
+    textColor: "text-orange-800",
+    badgeColor: "bg-orange-100",
+  },
+  création: {
+    icon: creation,
+    color: "#8B5CF6", // Violet
+    bgColor: "bg-purple-50",
+    borderColor: "border-purple-200",
+    textColor: "text-purple-800",
+    badgeColor: "bg-purple-100",
+  },
+  langues: {
+    icon: langues,
+    color: "#EC4899", // Rose
+    bgColor: "bg-pink-50",
+    borderColor: "border-pink-200",
+    textColor: "text-pink-800",
+    badgeColor: "bg-pink-100",
+  },
+  anglais: {
+    icon: null,
+    color: "#10B981", // Vert émeraude
+    bgColor: "bg-emerald-50",
+    borderColor: "border-emerald-200",
+    textColor: "text-emerald-800",
+    badgeColor: "bg-emerald-100",
+  },
+  français: {
+    icon: null,
+    color: "#EF4444", // Rouge
+    bgColor: "bg-red-50",
+    borderColor: "border-red-200",
+    textColor: "text-red-800",
+    badgeColor: "bg-red-100",
+  },
+  default: {
+    icon: null,
+    color: "#64748B", // Gris bleuté
+    bgColor: "bg-slate-50",
+    borderColor: "border-slate-200",
+    textColor: "text-slate-800",
+    badgeColor: "bg-slate-100",
+  },
 };
 
-const getLevelBackgroundColor = (level: string) => {
-  switch (level.toLowerCase()) {
-    case "débutant":
-      return "bg-green-100 text-green-800";
-    case "intermédiaire":
-      return "bg-blue-100 text-blue-800";
-    case "avancé":
-    case "super quiz":
-      return "bg-yellow-100 text-yellow-800";
-    default:
-      return "";
+const getCategoryConfig = (categoryName: string) => {
+  const lowerName = categoryName.toLowerCase();
+
+  // Trouver la configuration correspondante
+  for (const [key, config] of Object.entries(CATEGORY_CONFIG)) {
+    if (lowerName.includes(key)) {
+      return {
+        ...config,
+        name: categoryName,
+      };
+    }
   }
+
+  return {
+    ...CATEGORY_CONFIG.default,
+    name: categoryName,
+  };
 };
 
-const getCategoryColor = (quiz: Quiz, categories: Category[] | undefined) => {
-  if (!categories) return "#3B82F6";
-  // Priorité au categorieId
-  if (quiz.categorieId) {
-    const categoryById = categories.find((c) => c.id === quiz.categorieId);
-    if (categoryById?.color) return categoryById.color;
+// Helpers pour la coloration des niveaux
+const getLevelConfig = (level: string) => {
+  switch (level?.toLowerCase()) {
+    case "débutant":
+      return {
+        color: "#10B981",
+        bgClass: "bg-green-100",
+        textClass: "text-green-800",
+      };
+    case "intermédiaire":
+      return {
+        color: "#3B82F6",
+        bgClass: "bg-blue-100",
+        textClass: "text-blue-800",
+      };
+    case "avancé":
+    case "super quiz":
+      return {
+        color: "#F59E0B",
+        bgClass: "bg-yellow-100",
+        textClass: "text-yellow-800",
+      };
+    default:
+      return {
+        color: "#64748B",
+        bgClass: "bg-gray-100",
+        textClass: "text-gray-800",
+      };
   }
-
-  // Fallback sur la catégorie par nom
-  const categoryByName = categories.find(
-    (c) => c.name.toLowerCase() === quiz.categorie?.toLowerCase()
-  );
-  if (categoryByName?.color) return categoryByName.color;
-
-  // Couleurs par défaut basées sur le contenu
-  const searchText = (
-    (quiz.titre || "") +
-    " " +
-    (quiz.categorie || "")
-  ).toLowerCase();
-
-  if (searchText.includes("excel") || searchText.includes("bureautique")) {
-    return "#3B82F6"; // Bleu
-  }
-  if (searchText.includes("anglais")) {
-    return "#10B981"; // Vert
-  }
-  if (searchText.includes("français")) {
-    return "#EF4444"; // Rouge
-  }
-  if (searchText.includes("langues")) {
-    return "#EC4899"; // Rose
-  }
-  if (searchText.includes("internet")) {
-    return "#F59E0B"; // Orange
-  }
-  if (searchText.includes("création")) {
-    return "#8B5CF6"; // Violet
-  }
-
-  return "#3B82F6";
 };
 
 interface QuizCardProps {
@@ -89,87 +131,93 @@ interface QuizCardProps {
 }
 
 export function QuizCard({ quiz, categories }: QuizCardProps) {
-  // Utiliser prioritairement categorieId pour trouver la catégorie
-  const category =
-    categories?.find((c) => c.id === quiz.categorieId) ||
-    categories?.find(
-      (c) => c.name.toLowerCase() === quiz.categorie?.toLowerCase()
-    );
-
-  const categoryName = category?.name || quiz.categorie || "Non catégorisé";
-  const categoryColor = getCategoryColor(quiz, categories);
+  const categoryName =
+    quiz.formation?.categorie || quiz.categorie || "Non catégorisé";
+  const categoryConfig = getCategoryConfig(categoryName);
+  const levelConfig = getLevelConfig(quiz.niveau);
+  const estimatedTime = quiz.questions?.length
+    ? Math.ceil(quiz.questions.length * 0.5)
+    : 5;
 
   return (
-    <Card className="w-full h-full hover:shadow-md transition-shadow shadow-lg relative border-1">
-      {/* Ligne colorée en haut */}
+    <Card
+      className={`w-full h-full overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1 ${categoryConfig.borderColor} ${categoryConfig.bgColor}`}
+    >
+      {/* Bande de couleur de catégorie en haut */}
       <div
-        className="absolute top-0 left-0 right-0 h-1 rounded-t-lg"
-        style={{ backgroundColor: categoryColor }}
+        className="h-2 w-full"
+        style={{ backgroundColor: categoryConfig.color }}
       />
 
-      <CardHeader className="p-3 pb-1 sm:p-4 sm:pb-2">
-        <div className="flex items-center gap-1 mb-1">
-          {categoryName !== "Non catégorisé" && (
-          <Badge
-            variant="outline"
-            className="text-[0.65rem] px-1.5 py-0.5 sm:text-xs sm:px-2 flex items-center gap-1 font-medium"
-            style={{
-              borderColor: categoryColor,
-              color: categoryColor,
-              backgroundColor: `${categoryColor}10`,
-            }}>
+      <div className="p-4">
+        {/* Header avec icône et titre */}
+        <CardHeader className="p-0 mb-3 flex flex-row items-start gap-3">
+          {categoryConfig.icon && (
             <div
-              className="w-1.5 h-1.5 rounded-full"
-              style={{ backgroundColor: categoryColor }}
-            />
-            
-              <span className="truncate max-w-[80px] sm:max-w-none">
-              {categoryName}
-              </span>
-            
-          </Badge>)}
-        </div>
-        <CardTitle className="text-sm sm:text-base font-semibold line-clamp-2 leading-tight">
-          {quiz.titre}
-        </CardTitle>
-        <CardDescription className="text-xs sm:text-xs line-clamp-2 mt-1 leading-snug">
-          {(() => {
-            const desc = stripHtmlTags(quiz.description);
-            if (desc && desc.trim().length > 0) return desc;
-            const options = [
-              "Ce quiz vous permet de tester vos connaissances et de progresser dans la thématique proposée.",
-              "Répondez aux questions pour améliorer vos compétences et découvrir de nouveaux savoirs.",
-              "Un quiz conçu pour vous challenger et enrichir votre apprentissage.",
-              "Testez-vous et suivez votre évolution grâce à ce quiz interactif.",
-              "Participez à ce quiz pour explorer et approfondir vos connaissances sur le sujet."
-            ];
-            return options[Math.floor(Math.random() * options.length)];
-          })()}
-        </CardDescription>
-      </CardHeader>
+              className="p-2 rounded-lg flex-shrink-0"
+              style={{ backgroundColor: `${categoryConfig.color}20` }}
+            >
+              <img
+                src={categoryConfig.icon}
+                alt={categoryName}
+                className="w-6 h-6 object-contain"
+              />
+            </div>
+          )}
 
-      <CardContent className="p-3 pt-0 sm:p-4 sm:pt-0">
-        <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-          <Badge
-            variant={getLevelColor(quiz.niveau)}
-            className={`text-[0.65rem] px-1.5 py-0.5 sm:text-xs sm:px-2 ${getLevelBackgroundColor(
-              quiz.niveau
-            )}`}>
-            <BookOpen className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" />
-            {quiz.niveau}
-          </Badge>
-          <Badge
-            variant="outline"
-            className="text-[0.65rem] px-1.5 py-0.5 sm:text-xs sm:px-2">
-            <Award className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" />
-            {quiz.niveau?.toLowerCase() === "débutant" && quiz.questions?.length > 5
-              ? "10 pts"
-              : (quiz.niveau?.toLowerCase() === "intermédiaire" ||quiz.niveau?.toLowerCase() === "avancé" ) && quiz.questions?.length > 10
-              ? "20 pts"
-              : `${quiz.questions?.length * 2} pts`}
-          </Badge>
-        </div>
-      </CardContent>
+          <div className="flex-1">
+            <CardTitle
+              className={`text-lg font-bold line-clamp-2 ${categoryConfig.textColor}`}
+            >
+              {quiz.titre}
+            </CardTitle>
+            <Badge
+              className={`mt-2 text-xs font-medium ${categoryConfig.badgeColor} ${categoryConfig.textColor}`}
+            >
+              {categoryName}
+            </Badge>
+          </div>
+        </CardHeader>
+
+        {/* Description */}
+        <CardDescription className="text-sm text-gray-600 line-clamp-2 mb-4">
+          {stripHtmlTags(quiz.description) ||
+            "Testez vos connaissances avec ce quiz interactif."}
+        </CardDescription>
+
+        {/* Footer avec métadonnées */}
+        <CardContent className="p-0">
+          <div className="flex flex-wrap gap-2">
+            {/* Niveau */}
+            <Badge
+              className={`text-xs ${levelConfig.bgClass} ${levelConfig.textClass} flex items-center gap-1`}
+            >
+              <BookOpen className="w-3 h-3" />
+              {quiz.niveau || "Niveau"}
+            </Badge>
+
+            {/* Points */}
+            <Badge
+              variant="outline"
+              className="text-xs flex items-center gap-1"
+            >
+              <Award className="w-3 h-3" />
+              {quiz.questions?.length
+                ? `${quiz.questions.length * 2} pts`
+                : "0 pt"}
+            </Badge>
+
+            {/* Temps estimé */}
+            <Badge
+              variant="outline"
+              className="text-xs flex items-center gap-1"
+            >
+              <Clock className="w-3 h-3" />
+              {estimatedTime} min
+            </Badge>
+          </div>
+        </CardContent>
+      </div>
     </Card>
   );
 }

@@ -64,7 +64,8 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
 
   return (
     <div
-      className={`group p-4 border-t-4 rounded-lg  ${categoryColor} shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full overflow-hidden hover:translate-y-[-2px]`}>
+      className={`group p-4 border-t-4 rounded-lg  ${categoryColor} shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full overflow-hidden hover:translate-y-[-2px]`}
+    >
       {/* Image container */}
       <div className="relative rounded-md overflow-hidden mb-3 h-36 bg-gray-100 flex items-center justify-center">
         <img
@@ -86,7 +87,8 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
         {/* Category badge */}
         <div className="flex justify-between items-start">
           <span
-            className={`text-xs font-medium px-2 py-1 rounded-full ${categoryBadgeStyle}`}>
+            className={`text-xs font-medium px-2 py-1 rounded-full ${categoryBadgeStyle}`}
+          >
             {formation.formation.categorie}
           </span>
 
@@ -125,8 +127,9 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
       {/* Button */}
       <CardFooter className="p-0 pt-3 mt-2">
         <Button
-          className="w-full h-8 text-xs flex items-center justify-center gap-1 bg-[#8B5C2A] hover:bg-[#FFC533] text-white transition-colors duration-200"
-          onClick={() => navigate(`/catalogue-formation/${formation.id}`)}>
+          className="w-full h-8 text-xs flex items-center justify-center gap-1 bg-black hover:bg-[#8B5C2A] text-white transition-colors duration-200"
+          onClick={() => navigate(`/catalogue-formation/${formation.id}`)}
+        >
           {VOIR_LES_DETAILS}
           <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />
         </Button>

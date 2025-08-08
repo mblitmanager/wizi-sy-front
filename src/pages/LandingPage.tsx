@@ -63,7 +63,8 @@ export default function LandingPage() {
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}>
+                transition={{ duration: 0.5 }}
+              >
                 <img
                   src={logo}
                   alt="Wizi Learn Logo"
@@ -83,15 +84,18 @@ export default function LandingPage() {
                 className="lg:w-1/2 space-y-6 md:space-y-8 order-2 lg:order-1"
                 initial="hidden"
                 animate="visible"
-                variants={staggerContainer}>
+                variants={staggerContainer}
+              >
                 <motion.h1
                   className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-amber-600"
-                  variants={slideUp}>
+                  variants={slideUp}
+                >
                   Apprenez de façon interactive et ludique
                 </motion.h1>
                 <motion.p
                   className="text-lg md:text-xl text-gray-700 leading-relaxed"
-                  variants={slideUp}>
+                  variants={slideUp}
+                >
                   Bienvenue sur Wizi Learn, la plateforme de quiz éducatifs pour
                   nos stagiaires. Testez vos connaissances, suivez votre
                   progression et développez vos compétences professionnelles.
@@ -100,10 +104,12 @@ export default function LandingPage() {
                   <Button
                     size="lg"
                     asChild
-                    className="w-full md:w-auto bg-[#8B5C2A] hover:bg-[#A76C36] text-white font-semibold rounded-lg px-6 py-3 transition-all duration-200 hover:shadow-lg">
+                    className="w-full md:w-auto bg-black hover:bg-[#8B5C2A] text-white font-semibold rounded-lg px-6 py-3 transition-all duration-200 hover:shadow-lg"
+                  >
                     <Link
                       to="/login"
-                      className="flex items-center justify-center gap-2">
+                      className="flex items-center justify-center gap-2"
+                    >
                       Commencer maintenant
                       <ArrowRight className="h-5 w-5" />
                     </Link>
@@ -112,10 +118,12 @@ export default function LandingPage() {
                     size="lg"
                     variant="outline"
                     asChild
-                    className="w-full md:w-auto border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 rounded-lg px-6 py-3 transition-all duration-200">
+                    className="w-full md:w-auto border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 rounded-lg px-6 py-3 transition-all duration-200"
+                  >
                     <Link
                       to="/login"
-                      className="flex items-center justify-center">
+                      className="flex items-center justify-center"
+                    >
                       Connexion
                     </Link>
                   </Button>
@@ -125,13 +133,15 @@ export default function LandingPage() {
                 className="lg:w-1/2 relative order-1 lg:order-2"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6 }}>
+                transition={{ duration: 0.6 }}
+              >
                 <div className="absolute -top-6 -left-6 w-48 md:w-64 h-48 md:h-64 bg-indigo-200 rounded-full blur-3xl opacity-30"></div>
                 <div className="absolute -bottom-10 -right-10 w-56 md:w-72 h-56 md:h-72 bg-purple-200 rounded-full blur-3xl opacity-30"></div>
                 <motion.div
                   className="relative"
                   whileHover={{ y: -8, scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 300 }}>
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
                   <div className="relative bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-gray-100">
                     <div className="grid grid-cols-2 gap-4 md:gap-5">
                       {[
@@ -174,13 +184,16 @@ export default function LandingPage() {
                             y: -5,
                             scale: 1.05,
                             transition: { duration: 0.2 },
-                          }}>
+                          }}
+                        >
                           <div
                             className={`bg-${
                               item.bgColor.split("-")[1]
-                            }/10 p-4 rounded-xl flex items-center gap-3 transition-all duration-200 hover:shadow-md`}>
+                            }/10 p-4 rounded-xl flex items-center gap-3 transition-all duration-200 hover:shadow-md`}
+                          >
                             <div
-                              className={`${item.bgColor} ${item.textColor} p-2 rounded-lg`}>
+                              className={`${item.bgColor} ${item.textColor} p-2 rounded-lg`}
+                            >
                               {item.icon}
                             </div>
                             <span className="font-medium text-base">
@@ -204,15 +217,18 @@ export default function LandingPage() {
               className="text-center mb-16"
               initial="hidden"
               animate="visible"
-              variants={fadeIn}>
+              variants={fadeIn}
+            >
               <motion.h2
                 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-amber-600"
-                variants={slideUp}>
+                variants={slideUp}
+              >
                 Nos catégories de formations
               </motion.h2>
               <motion.p
                 className="text-gray-600 max-w-3xl mx-auto text-lg"
-                variants={slideUp}>
+                variants={slideUp}
+              >
                 Découvrez notre large éventail de formations pour développer vos
                 compétences professionnelles.
               </motion.p>
@@ -221,13 +237,15 @@ export default function LandingPage() {
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
               initial="hidden"
               animate="visible"
-              variants={staggerContainer}>
+              variants={staggerContainer}
+            >
               {categories.map((category) => (
                 <motion.div
                   key={category.id}
                   variants={slideUp}
                   whileHover={{ y: -8, scale: 1.03 }}
-                  transition={{ type: "spring", stiffness: 300 }}>
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
                   <CategoryCard category={category} />
                 </motion.div>
               ))}
@@ -242,15 +260,18 @@ export default function LandingPage() {
               className="text-center mb-16"
               initial="hidden"
               animate="visible"
-              variants={fadeIn}>
+              variants={fadeIn}
+            >
               <motion.h2
                 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-amber-600"
-                variants={slideUp}>
+                variants={slideUp}
+              >
                 Comment ça marche
               </motion.h2>
               <motion.p
                 className="text-gray-600 max-w-3xl mx-auto text-lg"
-                variants={slideUp}>
+                variants={slideUp}
+              >
                 Une approche simple et efficace pour améliorer vos compétences
                 grâce à notre plateforme de quiz.
               </motion.p>
@@ -259,7 +280,8 @@ export default function LandingPage() {
               className="grid grid-cols-1 md:grid-cols-3 gap-10"
               initial="hidden"
               animate="visible"
-              variants={staggerContainer}>
+              variants={staggerContainer}
+            >
               {[
                 {
                   step: "1",
@@ -290,13 +312,16 @@ export default function LandingPage() {
                   key={index}
                   className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300"
                   variants={slideUp}
-                  whileHover={{ y: -8, scale: 1.02 }}>
+                  whileHover={{ y: -8, scale: 1.02 }}
+                >
                   <div
-                    className={`w-14 h-14 bg-${item.color}-100 rounded-xl flex items-center justify-center mb-6`}>
+                    className={`w-14 h-14 bg-${item.color}-100 rounded-xl flex items-center justify-center mb-6`}
+                  >
                     <div className={`text-${item.color}-600`}>{item.icon}</div>
                   </div>
                   <div
-                    className={`text-${item.color}-600 font-bold text-lg mb-2`}>
+                    className={`text-${item.color}-600 font-bold text-lg mb-2`}
+                  >
                     Étape {item.step}
                   </div>
                   <h3 className="text-xl font-semibold mb-3 text-gray-800">

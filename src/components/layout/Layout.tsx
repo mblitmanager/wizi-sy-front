@@ -8,6 +8,7 @@ import { Gift, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useMediaQuery } from "@mui/system";
+import back from "../../assets/test.jpg";
 
 interface LayoutProps {
   children: ReactNode;
@@ -70,26 +71,27 @@ export function Layout({ children }: LayoutProps) {
                   size="sm"
                   variant="outline"
                   className="text-black underline hover:bg-white/10 hover:text-white text-xs px-2"
-                  onClick={() => navigate("/parrainage")}>
+                  onClick={() => navigate("/parrainage")}
+                >
                   Découvrir
                 </Link>
                 <Button
                   size="sm"
                   variant="ghost"
                   className="text-white hover:bg-white/10 p-1"
-                  onClick={() => setShowBanner(false)}>
+                  onClick={() => setShowBanner(false)}
+                >
                   <X className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>
             </div>
           </div>
         )}
-
-        {/* Contenu principal avec marges et bordures */}
         <main
           className={`flex-1 overflow-y-auto bg-slate-100 ${
             isMobile && showBanner ? "pt-20 pb-20" : ""
-          }`}>
+          }`}
+        >
           <div className="container mx-auto p-4 md:p-6 bg-slate-100">
             <div className="bg-white rounded-lg  shadow-sm p-4 md:p-6">
               {children}
@@ -117,14 +119,16 @@ export function Layout({ children }: LayoutProps) {
                   size="sm"
                   variant="outline"
                   className="text-white bg-blue-custom-50 border-white hover:bg-white/10 hover:text-white text-xs px-2"
-                  onClick={() => navigate("/parrainage")}>
+                  onClick={() => navigate("/parrainage")}
+                >
                   Voir
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
                   className="text-white hover:bg-white/10 p-1"
-                  onClick={() => setShowBanner(false)}>
+                  onClick={() => setShowBanner(false)}
+                >
                   <X className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>

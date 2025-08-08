@@ -156,7 +156,8 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
           <Button
             variant="ghost"
             size="sm"
-            className="group text-orange-600 font-bold flex items-center gap-1 transition-all duration-200 bg-gray-100 hover:bg-gray-100">
+            className="group text-orange-600 font-bold flex items-center gap-1 transition-all duration-200 bg-gray-100 hover:bg-gray-100"
+          >
             Voir tous
             <ArrowRight className="w-4 h-4 transform transition-transform duration-200 group-hover:translate-x-1" />
           </Button>
@@ -181,7 +182,8 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                 backgroundColor: formation.image_url
                   ? "rgba(255,255,255,0.95)"
                   : undefined,
-              }}>
+              }}
+            >
               {formation.image_url && (
                 <div
                   className="absolute inset-0 w-full h-full bg-white"
@@ -208,7 +210,8 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                               : "#888",
                           borderColor: "currentColor",
                           backgroundColor: "transparent",
-                        }}>
+                        }}
+                      >
                         {formation.formation.categorie?.toUpperCase() ||
                           "CATÉGORIE"}
                       </span>
@@ -228,7 +231,8 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                   {formation.formation && (
                     <button
                       onClick={() => setShowDetailsIdx(isOpen ? null : idx)}
-                      className="text-orange-500 text-sm font-medium hover:text-orange-600 transition-colors mb-2">
+                      className="text-orange-500 text-sm font-medium hover:text-orange-600 transition-colors mb-2"
+                    >
                       {isOpen
                         ? "Voir moins de détails"
                         : "Voir plus de détails"}
@@ -282,7 +286,8 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                   <Button
                     onClick={() => handleInscription(idx)}
                     disabled={inscriptionLoading === idx}
-                    className="w-full bg-brown-shade hover:bg-[#A56B32] text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-colors">
+                    className="w-full bg-black hover:bg-[#A56B32] text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-colors"
+                  >
                     {inscriptionLoading === idx
                       ? "Inscription en cours..."
                       : "S'inscrire à la formation"}

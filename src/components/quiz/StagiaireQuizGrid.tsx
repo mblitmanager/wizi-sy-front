@@ -3,7 +3,10 @@ import type { Quiz, Category } from "@/types/quiz";
 import { Link } from "react-router-dom";
 import React from "react";
 import { QuizCard } from "./QuizCard";
-
+import bureatique from "../../assets/icons/bureautique.png";
+import internet from "../../assets/icons/internet.png";
+import creation from "../../assets/icons/creation.png";
+import langues from "../../assets/icons/langues.png";
 interface StagiaireQuizGridProps {
   quizzes: Quiz[];
   categories: Category[] | undefined;
@@ -26,9 +29,6 @@ export function StagiaireQuizGrid({
 
   return (
     <div>
-      <h2 className="text-lg md:text-2xl font-bold text-orange-400 mb-6">
-        Quiz à découvrir
-      </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {quizzes.map((quiz) => (
           <Link key={quiz.id} to={`/quiz/${quiz.id}`}>

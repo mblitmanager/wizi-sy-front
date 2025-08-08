@@ -34,12 +34,12 @@ const Login = () => {
       if (currentToken) {
         try {
           await fetch(`${API_URL}/fcm-token`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-            body: JSON.stringify({ token: currentToken })
+            body: JSON.stringify({ token: currentToken }),
           });
           console.log("FCM Token envoyé au backend:", currentToken);
         } catch (err) {
@@ -49,7 +49,11 @@ const Login = () => {
     } catch (err) {
       // Vous pouvez personnaliser le message d'erreur ici
       setError("Échec de la connexion. Veuillez vérifier vos identifiants.");
-      setError(err?.message || JSON.stringify(err) || "Échec de la connexion. Veuillez vérifier vos identifiants.");
+      setError(
+        err?.message ||
+          JSON.stringify(err) ||
+          "Échec de la connexion. Veuillez vérifier vos identifiants."
+      );
       console.error("Erreur de connexion :", err);
     }
   };
@@ -85,7 +89,8 @@ const Login = () => {
               <div className="space-y-2">
                 <label
                   htmlFor="email"
-                  className="text-sm font-medium text-[#A55E6E]">
+                  className="text-sm font-medium text-[#A55E6E]"
+                >
                   Email
                 </label>
                 <Input
@@ -103,12 +108,14 @@ const Login = () => {
                 <div className="flex items-center justify-between">
                   <label
                     htmlFor="password"
-                    className="text-sm font-medium text-[#A55E6E]">
+                    className="text-sm font-medium text-[#A55E6E]"
+                  >
                     Mot de passe
                   </label>
                   <Link
                     to="/forgot-password"
-                    className="text-sm text-[#A55E6E] hover:underline">
+                    className="text-sm text-[#A55E6E] hover:underline"
+                  >
                     Mot de passe oublié ?
                   </Link>
                 </div>
@@ -125,8 +132,9 @@ const Login = () => {
               </div>
               <Button
                 type="submit"
-                className="w-full bg-[#8B5C2A]  hover:bg-[#FFC533] text-white font-semibold shadow-md transition"
-                disabled={isLoading}>
+                className="w-full bg-black  hover:bg-[#8B5C2A] text-white font-semibold shadow-md transition"
+                disabled={isLoading}
+              >
                 {isLoading ? "Connexion en cours..." : "Se connecter"}
               </Button>
             </form>

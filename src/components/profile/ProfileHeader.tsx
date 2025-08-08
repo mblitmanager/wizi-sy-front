@@ -212,7 +212,8 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
     if (loading) {
       return (
         <div
-          className={`${className} bg-gray-200 dark:bg-gray-700 flex items-center justify-center`}>
+          className={`${className} bg-gray-200 dark:bg-gray-700 flex items-center justify-center`}
+        >
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brown-shade"></div>
         </div>
       );
@@ -232,7 +233,8 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
 
     return (
       <div
-        className={`${className} bg-brown-shade text-white flex items-center justify-center text-4xl font-bold font-montserrat`}>
+        className={`${className} bg-black text-white flex items-center justify-center text-4xl font-bold font-montserrat`}
+      >
         {getInitials()}
       </div>
     );
@@ -252,7 +254,8 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
               <button
                 onClick={handleImageClick}
                 className="absolute bottom-2 right-2 bg-white dark:bg-gray-700 p-2 rounded-full shadow-md hover:scale-110 transition-transform"
-                aria-label="Changer la photo de profil">
+                aria-label="Changer la photo de profil"
+              >
                 <CameraIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               </button>
               <input

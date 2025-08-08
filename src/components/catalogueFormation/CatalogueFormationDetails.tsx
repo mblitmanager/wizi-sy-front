@@ -122,7 +122,8 @@ export default function CatalogueFormationDetails() {
       return (
         <video
           controls
-          className="h-full w-full object-cover md:col-span-1 rounded-lg">
+          className="h-full w-full object-cover md:col-span-1 rounded-lg"
+        >
           <source
             src={`${import.meta.env.VITE_API_URL_IMG}/${url}`}
             type="video/mp4"
@@ -274,7 +275,8 @@ const FormationDetailsContent = ({
         style={{
           backgroundColor: getCategoryColor(category),
           color: "#fff",
-        }}>
+        }}
+      >
         {getCategoryBadgeText(category)}
       </Badge>
     </div>
@@ -338,7 +340,8 @@ const InscriptionSection = ({
     <Button
       onClick={onInscription}
       disabled={loading}
-      className="w-full md:w-auto bg-brown-shade">
+      className="w-full md:w-auto bg-black"
+    >
       {loading ? "Inscription en cours..." : "S'inscrire à la formation"}
     </Button>
     {success && <div className="text-green-600 mt-2 text-sm">{success}</div>}

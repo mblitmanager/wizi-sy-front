@@ -92,7 +92,8 @@ const ResetPassword = () => {
             <div className="space-y-2">
               <label
                 htmlFor="email"
-                className="text-sm font-medium text-[#A55E6E]">
+                className="text-sm font-medium text-[#A55E6E]"
+              >
                 Email
               </label>
               <Input
@@ -107,7 +108,8 @@ const ResetPassword = () => {
             <div className="space-y-2">
               <label
                 htmlFor="password"
-                className="text-sm font-medium text-[#A55E6E]">
+                className="text-sm font-medium text-[#A55E6E]"
+              >
                 Nouveau mot de passe
               </label>
               <Input
@@ -126,7 +128,8 @@ const ResetPassword = () => {
             <div className="space-y-2">
               <label
                 htmlFor="passwordConfirmation"
-                className="text-sm font-medium text-[#A55E6E]">
+                className="text-sm font-medium text-[#A55E6E]"
+              >
                 Confirmer le mot de passe
               </label>
               <Input
@@ -144,7 +147,8 @@ const ResetPassword = () => {
 
             <Button
               type="submit"
-              className="w-full bg-[#8B5C2A] hover:bg-[#FFC533] text-white font-semibold shadow-md transition">
+              className="w-full bg-black hover:bg-[#8B5C2A] text-white font-semibold shadow-md transition"
+            >
               Réinitialiser le mot de passe
             </Button>
           </form>
@@ -152,7 +156,8 @@ const ResetPassword = () => {
           <div className="mt-4 text-center text-sm">
             <Link
               to="/login"
-              className="text-[#A55E6E] hover:underline font-medium">
+              className="text-[#A55E6E] hover:underline font-medium"
+            >
               Retour à la connexion
             </Link>
           </div>
