@@ -130,7 +130,7 @@ export function Flashcard({ question, onAnswer, showFeedback = false }: Flashcar
               <button
                 key={answer.text}
                 onClick={() => handleAnswer(answer)}
-                className="px-4 py-2 border rounded-lg hover:bg-gray-50 transition-all duration-300 hover:scale-105"
+                className="px-4 py-2 border rounded-lg hover:bg-gray-50 transition-all duration-300 hover:scale-105 text-xs md:text-sm"
               >
                 {answer.text}
               </button>

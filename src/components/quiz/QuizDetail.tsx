@@ -18,6 +18,14 @@ import quizimg from "../../assets/quiz_2.png";
 import { stripHtmlTags } from "@/utils/UtilsFunction";
 import quiziload from "../../assets/loading_img.png";
 import HeaderSection from "../features/HeaderSection";
+import { useEffect } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Navigation, Pagination } from "swiper/modules";
+
+// Importez le CSS de Swiper
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 export function QuizDetail() {
   const { quizId } = useParams<{ quizId: string }>();
@@ -53,7 +61,11 @@ export function QuizDetail() {
         <div className="flex items-center justify-center min-h-[50vh]">
           <div className="container mx-auto py-8 px-4">
             <div className="flex items-center justify-center flex-col gap-4">
-              <img src={quiziload} alt="Chargement" className="h-72 w-72" />
+              <img
+                src={quiziload}
+                alt="Chargement"
+                className="h-72 w-72 h-72 w-72 animate-bounce-slow"
+              />
               <span className="text-gray-600">Chargement des quizes...</span>
             </div>
           </div>
@@ -102,24 +114,26 @@ export function QuizDetail() {
 
   // Définir les types selon le niveau (déplacé hors du rendu)
   const types = [
-    ...(quiz.niveau === "débutant" || quiz.niveau === "intermédiaire" || quiz.niveau === "avancé"
+    ...(quiz.niveau === "débutant" ||
+    quiz.niveau === "intermédiaire" ||
+    quiz.niveau === "avancé"
       ? [
           {
-            icon: <BookOpen className="w-8 h-8 text-blue-500 mb-2" />, 
+            icon: <BookOpen className="w-8 h-8 text-blue-500 mb-2" />,
             title: "QCM",
-            desc: "Choisissez la ou les bonnes réponses.",
+            desc: "Choisissez la ou les bonnes réponses parmi plusieurs propositions.",
             bg: "bg-blue-50 border-blue-200",
           },
           {
-            icon: <Award className="w-8 h-8 text-green-500 mb-2" />, 
+            icon: <Award className="w-8 h-8 text-green-500 mb-2" />,
             title: "Vrai / Faux",
-            desc: "Vrai ou faux ?",
+            desc: "Indiquez si l'affirmation est vraie ou fausse.",
             bg: "bg-green-50 border-green-200",
           },
           {
             icon: <span className="w-8 h-8 mb-2 text-yellow-500">🔊</span>,
             title: "Audio",
-            desc: "Écoutez et répondez.",
+            desc: "Écoutez l'extrait audio et sélectionnez la bone réponse.",
             bg: "bg-yellow-50 border-yellow-200",
           },
         ]
@@ -159,14 +173,15 @@ export function QuizDetail() {
   ];
 
   // Gestion du clic pour passer au suivant (déplacé hors du rendu)
-  const handleNextType = () => setCurrentTypeIdx((prev) => (prev + 1) % types.length);
+  const handleNextType = () =>
+    setCurrentTypeIdx((prev) => (prev + 1) % types.length);
 
   return (
     <Layout>
       <div className="flex justify-center items-center min-h-screen px-2 sm:px-4 py-4 sm:py-0 mt-0 md:mt-[-5%]">
         <div className="rounded-3xl shadow-2xl overflow-hidden max-w-5xl w-full flex flex-col md:flex-row bg-white/90">
           {/* Illustration - Taille réduite pour mobile */}
-          <div className="w-full md:w-1/2 relative flex flex-col items-center justify-center p-2 sm:p-4">
+          <div className="w-full md:w-1/2 relative flex flex-col items-center justify-center p-2 sm:p-4 mb-6">
             {/* Animation visible uniquement sur md+ */}
             <div className="hidden md:flex flex-col items-center justify-center">
               <img
@@ -177,20 +192,24 @@ export function QuizDetail() {
             </div>
             {/* Carrousel des types de questions (mobile only, remplace l'image) */}
             {/* Carrousel mobile : un seul élément affiché à la fois, clic pour passer au suivant */}
-            <div className="flex md:hidden w-full">
+            <div className="flex md:hidden w-full mb-6">
               {types.length > 0 && (
                 <button
                   type="button"
                   className={`w-[85vw] max-w-sm min-w-[85vw] mx-auto ${types[currentTypeIdx].bg} border rounded-xl p-5 flex-shrink-0 flex flex-col items-center shadow-md snap-center transition-all duration-200 active:scale-95`}
                   onClick={handleNextType}
-                  aria-label="Afficher le type suivant"
-                >
+                  aria-label="Afficher le type suivant">
                   {types[currentTypeIdx].icon}
-                  <span className="font-semibold text-base mb-1">{types[currentTypeIdx].title}</span>
-                  <span className="text-sm text-gray-600 text-center">{types[currentTypeIdx].desc}</span>
+                  <span className="font-semibold text-base mb-1">
+                    {types[currentTypeIdx].title}
+                  </span>
+                  <span className="text-sm text-gray-600 text-center">
+                    {types[currentTypeIdx].desc}
+                  </span>
                   {types.length > 1 && (
                     <span className="mt-3 text-xs text-gray-400">
-                      {currentTypeIdx + 1} / {types.length} &nbsp;•&nbsp; Tapotez pour voir le suivant
+                      {currentTypeIdx + 1} / {types.length} &nbsp;•&nbsp;
+                      Tapotez pour voir le suivant
                     </span>
                   )}
                 </button>
@@ -227,9 +246,8 @@ export function QuizDetail() {
                       ? "20 pts à gagner"
                       : `${(quiz.questions?.length || 0) * 2} pts à gagner`
                     : (quiz.questions?.length || 0) > 5
-                      ? "10 pts à gagner"
-                      : `${(quiz.questions?.length || 0) * 2} pts à gagner`
-                  }
+                    ? "10 pts à gagner"
+                    : `${(quiz.questions?.length || 0) * 2} pts à gagner`}
                 </Badge>
               </div>
 
@@ -262,110 +280,212 @@ export function QuizDetail() {
                   Nombre de questions :
                 </p>
                 <p className="text-xs sm:text-sm text-gray-600">
-                  {quiz.niveau === "débutant" && (quiz.questions?.length || 0) > 5
+                  {quiz.niveau === "débutant" &&
+                  (quiz.questions?.length || 0) > 5
                     ? "5 questions"
-                    : `${quiz.questions?.length || 0} question${(quiz.questions?.length || 0) > 1 ? "s" : ""}`
-                  }
-                  {(quiz.niveau !== "débutant" && (quiz.questions?.length || 0) > 10)
+                    : `${quiz.questions?.length || 0} question${
+                        (quiz.questions?.length || 0) > 1 ? "s" : ""
+                      }`}
+                  {quiz.niveau !== "débutant" &&
+                  (quiz.questions?.length || 0) > 10
                     ? "10 questions"
                     : ""}
                 </p>
                 <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                  ⏱️ Temps imparti : {quiz.niveau === "débutant" ? "2 min 30 s" : "5 min"} ({quiz.niveau === "débutant" ? "150" : "300"} sec)
+                  ⏱️ Temps imparti :{" "}
+                  {quiz.niveau === "débutant" ? "2 min 30 s" : "5 min"} (
+                  {quiz.niveau === "débutant" ? "150" : "300"} sec)
                 </p>
               </div>
 
-                {/* Carrousel des types de questions - Desktop only */}
-                <div className="mb-2 sm:mb-4 hidden md:block">
+              {/* Carrousel des types de questions - Desktop only */}
+              <div className="mb-2 sm:mb-4 hidden md:block">
                 <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-2">
                   Types de questions dans ce quiz :
                 </p>
-                <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar snap-x snap-mandatory">
-                  {/* QCM */}
-                  {(quiz.niveau === "débutant" || quiz.niveau === "intermédiaire" || quiz.niveau === "avancé") && (
-                  <div className="min-w-[180px] bg-blue-50 border border-blue-200 rounded-lg p-3 flex flex-col items-center shadow-sm snap-center">
-                    <BookOpen className="w-6 h-6 text-blue-500 mb-1" />
-                    <span className="font-semibold text-xs mb-1">QCM</span>
-                    <span className="text-xs text-gray-600 text-center">Choisissez la ou les bonnes réponses parmi plusieurs propositions.</span>
-                  </div>
-                  )}
-                  {/* Vrai/Faux */}
-                  {(quiz.niveau === "débutant" || quiz.niveau === "intermédiaire" || quiz.niveau === "avancé") && (
-                  <div className="min-w-[180px] bg-green-50 border border-green-200 rounded-lg p-3 flex flex-col items-center shadow-sm snap-center">
-                    <Award className="w-6 h-6 text-green-500 mb-1" />
-                    <span className="font-semibold text-xs mb-1">Vrai / Faux</span>
-                    <span className="text-xs text-gray-600 text-center">Indiquez si l'affirmation est vraie ou fausse.</span>
-                  </div>
-                  )}
-                  {/* Audio */}
-                  {(quiz.niveau === "débutant" || quiz.niveau === "intermédiaire" || quiz.niveau === "avancé") && (
-                  <div className="min-w-[180px] bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex flex-col items-center shadow-sm snap-center">
-                    <span className="w-6 h-6 mb-1 text-yellow-500">🔊</span>
-                    <span className="font-semibold text-xs mb-1">Question audio</span>
-                    <span className="text-xs text-gray-600 text-center">Écoutez un extrait audio et répondez à la question.</span>
-                  </div>
-                  )}
-                  {/* Réarrangement */}
-                  {(quiz.niveau === "intermédiaire" || quiz.niveau === "avancé") && (
-                  <div className="min-w-[180px] bg-purple-50 border border-purple-200 rounded-lg p-3 flex flex-col items-center shadow-sm snap-center">
-                    <span className="w-6 h-6 mb-1 text-purple-500">🔀</span>
-                    <span className="font-semibold text-xs mb-1">Réarrangement</span>
-                    <span className="text-xs text-gray-600 text-center">Remettez des éléments dans le bon ordre.</span>
-                  </div>
-                  )}
-                  {/* Matching */}
-                  {(quiz.niveau === "intermédiaire" || quiz.niveau === "avancé") && (
-                  <div className="min-w-[180px] bg-pink-50 border border-pink-200 rounded-lg p-3 flex flex-col items-center shadow-sm snap-center">
-                    <span className="w-6 h-6 mb-1 text-pink-500">🔗</span>
-                    <span className="font-semibold text-xs mb-1">Matching</span>
-                    <span className="text-xs text-gray-600 text-center">Associez chaque élément à sa correspondance.</span>
-                  </div>
-                  )}
-                  {/* Remplir le champ vide */}
-                  {quiz.niveau === "avancé" && (
-                  <div className="min-w-[180px] bg-indigo-50 border border-indigo-200 rounded-lg p-3 flex flex-col items-center shadow-sm snap-center">
-                    <span className="w-6 h-6 mb-1 text-indigo-500">✍️</span>
-                    <span className="font-semibold text-xs mb-1">Remplir le champ vide</span>
-                    <span className="text-xs text-gray-600 text-center">Complétez la phrase ou la réponse manquante.</span>
-                  </div>
-                  )}
-                  {/* Autres types avancés */}
-                  {quiz.niveau === "avancé" && (
-                  <div className="min-w-[180px] bg-gray-50 border border-gray-200 rounded-lg p-3 flex flex-col items-center shadow-sm snap-center">
-                    <span className="w-6 h-6 mb-1 text-gray-500">✨</span>
-                    <span className="font-semibold text-xs mb-1">Autres types</span>
-                    <span className="text-xs text-gray-600 text-center">Questions spéciales ou interactives selon le quiz.</span>
-                  </div>
-                  )}
+                <div className="relative">
+                  <Swiper
+                    modules={[Autoplay, Navigation, Pagination]}
+                    spaceBetween={8}
+                    slidesPerView={"auto"}
+                    centeredSlides={true}
+                    loop={true}
+                    autoplay={{
+                      delay: 3000,
+                      disableOnInteraction: false,
+                    }}
+                    navigation={{
+                      nextEl: ".swiper-button-next",
+                      prevEl: ".swiper-button-prev",
+                    }}
+                    pagination={{
+                      clickable: true,
+                    }}
+                    className="pb-2">
+                    {/* Styles communs */}
+                    <style>{`
+                      .quiz-card {
+                        width: 280px;
+                        height: 120px;
+                        border-radius: 0.5rem;
+                        padding: 0.75rem;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+                      }
+                      .quiz-icon {
+                        width: 1.5rem;
+                        height: 1.5rem;
+                        margin-bottom: 0.25rem;
+                      }
+                      .quiz-title {
+                        font-weight: 600;
+                        font-size: 0.75rem;
+                        line-height: 1rem;
+                        margin-bottom: 0.25rem;
+                      }
+                      .quiz-description {
+                        font-size: 0.75rem;
+                        line-height: 1rem;
+                        color: #4b5563;
+                        text-align: center;
+                      }
+                    `}</style>
+
+                    {/* QCM */}
+                    {(quiz.niveau === "débutant" ||
+                      quiz.niveau === "intermédiaire" ||
+                      quiz.niveau === "avancé") && (
+                      <SwiperSlide className="!w-[180px]">
+                        <div className="quiz-card bg-blue-50 border border-blue-200">
+                          <BookOpen className="quiz-icon text-blue-500" />
+                          <span className="quiz-title">QCM</span>
+                          <span className="quiz-description">
+                            Choisissez la ou les bonnes réponses parmi plusieurs
+                            propositions.
+                          </span>
+                        </div>
+                      </SwiperSlide>
+                    )}
+
+                    {/* Vrai/Faux */}
+                    {(quiz.niveau === "débutant" ||
+                      quiz.niveau === "intermédiaire" ||
+                      quiz.niveau === "avancé") && (
+                      <SwiperSlide className="!w-[180px]">
+                        <div className="quiz-card bg-green-50 border border-green-200">
+                          <Award className="quiz-icon text-green-500" />
+                          <span className="quiz-title">Vrai / Faux</span>
+                          <span className="quiz-description">
+                            Indiquez si l'affirmation est vraie ou fausse.
+                          </span>
+                        </div>
+                      </SwiperSlide>
+                    )}
+
+                    {/* Question audio */}
+                    {(quiz.niveau === "débutant" ||
+                      quiz.niveau === "intermédiaire" ||
+                      quiz.niveau === "avancé") && (
+                      <SwiperSlide className="!w-[180px]">
+                        <div className="quiz-card bg-yellow-50 border border-yellow-200">
+                          <span className="quiz-icon">🔊</span>
+                          <span className="quiz-title">Question audio</span>
+                          <span className="quiz-description">
+                            Écoutez l'extrait audio et sélectionnez la bone réponse.
+                          </span>
+                        </div>
+                      </SwiperSlide>
+                    )}
+
+                    {/* Réarrangement */}
+                    {(quiz.niveau === "intermédiaire" ||
+                      quiz.niveau === "avancé") && (
+                      <SwiperSlide className="!w-[180px]">
+                        <div className="quiz-card bg-purple-50 border border-purple-200">
+                          <span className="quiz-icon">🔀</span>
+                          <span className="quiz-title">Réarrangement</span>
+                          <span className="quiz-description">
+                            Remettez des éléments dans le bon ordre.
+                          </span>
+                        </div>
+                      </SwiperSlide>
+                    )}
+
+                    {/* Matching */}
+                    {(quiz.niveau === "intermédiaire" ||
+                      quiz.niveau === "avancé") && (
+                      <SwiperSlide className="!w-[180px]">
+                        <div className="quiz-card bg-pink-50 border border-pink-200">
+                          <span className="quiz-icon">🔗</span>
+                          <span className="quiz-title">Matching</span>
+                          <span className="quiz-description">
+                            Associez chaque élément à sa correspondance.
+                          </span>
+                        </div>
+                      </SwiperSlide>
+                    )}
+
+                    {/* Remplir le champ vide */}
+                    {quiz.niveau === "avancé" && (
+                      <SwiperSlide className="!w-[180px]">
+                        <div className="quiz-card bg-indigo-50 border border-indigo-200">
+                          <span className="quiz-icon">✍️</span>
+                          <span className="quiz-title">
+                            Remplir le champ vide
+                          </span>
+                          <span className="quiz-description">
+                            Complétez la phrase ou la réponse manquante.
+                          </span>
+                        </div>
+                      </SwiperSlide>
+                    )}
+
+                    {/* Autres types */}
+                    {quiz.niveau === "avancé" && (
+                      <SwiperSlide className="!w-[180px]">
+                        <div className="quiz-card bg-gray-50 border border-gray-200">
+                          <span className="quiz-icon">✨</span>
+                          <span className="quiz-title">Autres types</span>
+                          <span className="quiz-description">
+                            Questions spéciales ou interactives selon le quiz.
+                          </span>
+                        </div>
+                      </SwiperSlide>
+                    )}
+                  </Swiper>
+
+                  {/* Contrôles de navigation */}
+                  <div className="swiper-button-prev !text-gray-600 !left-0"></div>
+                  <div className="swiper-button-next !text-gray-600 !right-0"></div>
                 </div>
-                </div>
+              </div>
 
               {/* Section Tutoriels */}
               {quiz.tutos && quiz.tutos.length > 0 && (
                 <div className="mb-2 sm:mb-4">
                   <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-2">
-                    Tutoriels :
+                    Tutoriels :{" "}
                   </p>
                   {/* Mobile: scrollable, 1 ligne à la fois. Desktop: grid */}
                   <div className="flex md:grid md:grid-cols-2 gap-2 overflow-x-auto hide-scrollbar snap-x snap-mandatory">
                     {quiz.tutos.map((tuto: any, idx: number) => (
                       <div
                         key={idx}
-                        className="min-w-[220px] md:min-w-0 bg-white border border-gray-200 rounded-lg p-3 flex flex-col justify-center shadow-sm snap-center md:snap-none md:col-span-1"
-                      >
+                        className="min-w-[220px] md:min-w-0 bg-white border border-gray-200 rounded-lg p-3 flex flex-col justify-center shadow-sm snap-center md:snap-none md:col-span-1">
                         <span className="font-semibold text-xs text-indigo-700 mb-1 block truncate">
                           {tuto.titre || tuto.title || `Tuto ${idx + 1}`}
                         </span>
                         <span className="text-xs text-gray-600 block truncate">
-                          {tuto.description || tuto.desc || ''}
+                          {tuto.description || tuto.desc || ""}
                         </span>
                         {tuto.lien && (
                           <a
                             href={tuto.lien}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-blue-600 underline mt-1 block truncate"
-                          >
+                            className="text-xs text-blue-600 underline mt-1 block truncate">
                             Voir le tutoriel
                           </a>
                         )}
@@ -380,7 +500,9 @@ export function QuizDetail() {
                   💡 Comment jouer&nbsp;:
                 </p>
                 <p className="text-xs sm:text-sm text-gray-500">
-                  Répondez à chaque question dans le temps imparti. Plus vous répondez vite et juste, plus vous marquez de points. Bonne chance&nbsp;!
+                  Répondez à chaque question dans le temps imparti. Plus vous
+                  répondez vite et juste, plus vous marquez de points. Bonne
+                  chance&nbsp;!
                 </p>
               </div>
             </div>
@@ -394,14 +516,14 @@ export function QuizDetail() {
                   if (!quiz.id) {
                     toast({
                       title: "Erreur",
-                      description: "Impossible de démarrer le quiz. ID manquant.",
+                      description:
+                        "Impossible de démarrer le quiz. ID manquant.",
                       variant: "destructive",
                     });
                     return;
                   }
                   navigate(`/quiz/${quiz.id}/start`);
-                }}
-              >
+                }}>
                 <span className="flex items-center gap-1 sm:gap-2 font-semibold text-xs sm:text-base">
                   Lancer le défi{" "}
                   <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />

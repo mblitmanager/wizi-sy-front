@@ -14,8 +14,8 @@ import {
   CATALOGUE_FORMATION,
   EN_COURS,
   VOIR_LES_DETAILS,
-} from "@/utils/langue-type";
-const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_IMG;
+} from "@/utils/constants";
+const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_MEDIA;
 
 export default function CatalogueFormation({
   catalogueData,
@@ -32,7 +32,7 @@ export default function CatalogueFormation({
         {catalogueData.stagiaire.formations.map((formation: Formation) => {
           return Array.isArray(formation.catalogue_formation)
             ? formation.catalogue_formation.map((catalogue) => {
-                const progress = Math.floor(Math.random() * 100); // Remplacer par une vraie donnée
+                const progress = Math.floor(Math.random() * 100);
                 const isInProgress = progress > 0;
                 const image = catalogue.image_url
                   ? `${VITE_API_URL_IMG}/${catalogue.image_url}`

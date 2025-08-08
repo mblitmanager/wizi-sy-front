@@ -77,7 +77,7 @@ const FormationsPage = () => {
     <div className="container mx-auto px-4 py-8  bg-white ">
       {/* En-tête */}
       <div className="mb-10">
-        <h1 className="text-3xl md:text-4xl font-bold mb-2 text-gray-800">
+        <h1 className="text-3xl sm:text-2xl md:text-3xl text-brown-shade font-bold">
           Découvrez Nos Formations
         </h1>
         <p className="text-gray-600 max-w-2xl">

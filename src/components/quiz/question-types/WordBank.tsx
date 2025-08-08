@@ -68,7 +68,7 @@ export const WordBank: React.FC<WordBankProps> = ({
                 key={word.id}
                 variant={isSelected ? "default" : "outline"}
                 className={cn(
-                  "transition-all flex items-center gap-2",
+                  "transition-all flex items-center gap-2 text-xs md:text-sm",
                   showFeedback && correctStatus === true && "bg-green-100 text-green-800 hover:bg-green-100 border-green-300",
                   showFeedback && correctStatus === false && isSelected && "bg-red-100 text-red-800 hover:bg-red-100 border-red-300",
                   !showFeedback && isSelected && "bg-primary text-primary-foreground"

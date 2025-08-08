@@ -4,9 +4,10 @@ import { Lightbulb, BookOpen } from "lucide-react";
 interface Props {
   active: "tutoriel" | "astuce";
   onChange: (category: "tutoriel" | "astuce") => void;
+  className?: string;
 }
 
-export default function MediaTabs({ active, onChange }: Props) {
+export default function MediaTabs({ active, onChange, className }: Props) {
   const tabs = [
     { key: "tutoriel", label: "Tutoriels", icon: BookOpen },
     { key: "astuce", label: "Astuces", icon: Lightbulb },
@@ -14,7 +15,7 @@ export default function MediaTabs({ active, onChange }: Props) {
 
   return (
     <div className="w-full overflow-x-auto">
-      <div className="inline-flex items-center gap-1 rounded-full bg-gray-100 p-1 shadow-inner mx-auto min-w-max sm:min-w-0">
+      <div className="inline-flex items-center gap-1 rounded-full bg-gray-100 p-1 shadow-inner mx-auto min-w-max sm:min-w-0 ">
         {tabs.map(({ key, label, icon: Icon }) => {
           const isActive = active === key;
           return (

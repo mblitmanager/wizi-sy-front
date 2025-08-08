@@ -2,12 +2,13 @@ import { ReactNode, useState } from "react";
 import MainNav from "./MainNav";
 import { MobileNav } from "./MobileNav";
 import { Navbar } from "./Navbar";
-import { useUser } from "@/context/UserContext";
+import { useUser } from "@/hooks/useAuth";
 import logo from "../../assets/logo.png";
 import { Gift, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useMediaQuery } from "@mui/system";
+import back from "../../assets/test.jpg";
 
 interface LayoutProps {
   children: ReactNode;
@@ -43,21 +44,24 @@ export function Layout({ children }: LayoutProps) {
       {/* Contenu principal */}
       <div className="flex flex-col flex-1 h-screen">
         {/* Barre du haut (Navbar) */}
-        <header className="h-14 border-b border-gray-200 bg-white shadow-sm px-4 flex items-center flex-shrink-0">
+        <header className="h-14 border-b border-gray-200 bg-white shadow-sm flex items-center flex-shrink-0">
           <Navbar />
         </header>
+
         {/* Bannière en haut (uniquement sur desktop) */}
         {showBanner && !isMobile && (
-          <div className="w-full bg-gradient-to-r from-yellow-shade-2 via-yellow-shade to-yellow-shade-2 rounded-b-lg text-white">
+          <div className="w-full bg-[#feb823] rounded-b-lg text-white">
             <div className="container mx-auto px-3 py-2 flex items-center justify-between">
               <div className="flex items-center overflow-hidden">
                 <Gift className="h-6 w-6 mr-2 flex-shrink-0" />
                 <div className="truncate">
                   <span className="font-bold text-xs sm:text-sm">
                     Je parraine et je gagne{" "}
-                    <span className="text-black text-2xl">50€</span>
+                    <span className="text-white text-2xl font-extrabold drop-shadow-lg">
+                      50€.
+                    </span>{" "}
                   </span>
-                  <span className="ml-2 text-xs sm:text-sm hidden sm:inline">
+                  <span className="ml-2 text-xs sm:text-sm text-[#895129] hidden sm:inline font-bold">
                     Profitez de notre offre de parrainage dès maintenant !
                   </span>
                 </div>
@@ -83,26 +87,30 @@ export function Layout({ children }: LayoutProps) {
             </div>
           </div>
         )}
-
-        {/* Contenu principal */}
         <main
-          className={`flex-1 overflow-y-auto ${
+          className={`flex-1 overflow-y-auto bg-slate-100 ${
             isMobile && showBanner ? "pt-20 pb-20" : ""
           }`}
         >
-          <div className="p-3">{children}</div>
+          <div className="container mx-auto p-4 md:p-6 bg-slate-100">
+            <div className="bg-white rounded-lg  shadow-sm p-4 md:p-6">
+              {children}
+            </div>
+          </div>
         </main>
 
         {/* Bannière en bas (uniquement sur mobile) */}
         {showBanner && isMobile && (
-          <div className="fixed top-[54px] left-0 right-0 bg-gradient-to-r from-yellow-shade-2 via-yellow-shade to-yellow-shade-2 rounded-2xl text-white z-40">
+          <div className="fixed top-[54px] left-0 right-0 bg-[#feb823] rounded-b-lg text-white z-40">
             <div className="container mx-auto px-3 py-2 flex items-center justify-between">
               <div className="flex items-center overflow-hidden">
                 <Gift className="h-4 w-4 mr-2 flex-shrink-0" />
                 <div className="truncate">
                   <span className="font-bold text-xs sm:text-sm">
                     Parraine et gagne{" "}
-                    <span className="text-yellow-300">50€</span>
+                    <span className="text-2xl text-[#fff] font-extrabold drop-shadow-lg">
+                      50€
+                    </span>{" "}
                   </span>
                 </div>
               </div>

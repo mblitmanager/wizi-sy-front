@@ -8,7 +8,45 @@ const typeStyles: Record<string, string> = {
   Formateur: "bg-blue-100 text-blue-800",
   Commercial: "bg-green-100 text-green-800",
   "Pôle Relation Client": "bg-yellow-100 text-yellow-800",
+  Conseiller: "bg-purple-100 text-purple-800",
+  "Consultant 1er accueil": "bg-pink-100 text-pink-800",
+  Interlocuteur: "bg-orange-100 text-orange-800",
+  // Autre: "bg-gray-100 text-gray-800",
 };
+
+interface FormationStagiaire {
+  id: number;
+  titre: string;
+  dateDebut?: string;
+  dateFin?: string;
+  formateur?: string;
+}
+
+interface RawFormateur {
+  id: number;
+  user: {
+    name: string;
+    email: string;
+  };
+  telephone?: string;
+  formations?: Array<{
+    id: number;
+    titre: string;
+    pivot?: {
+      date_debut?: string;
+      date_fin?: string;
+    };
+  }>;
+}
+
+interface RawContact {
+  id: number;
+  user: {
+    name: string;
+    email: string;
+  };
+  telephone?: string;
+}
 
 interface Contact {
   id: number;
@@ -16,6 +54,8 @@ interface Contact {
   name: string;
   email: string;
   telephone?: string;
+  formations?: FormationStagiaire[];
+  role?: string; // Added role to the interface
 }
 
 export default function Contact() {
@@ -28,32 +68,14 @@ export default function Contact() {
       try {
         setIsLoading(true);
         const data = await contactService.getContacts();
-
-        const formateurs = data.formateurs.map((f: any) => ({
-          id: f.id,
-          type: "Formateur",
-          name: f.user.name,
-          email: f.user.email,
-          telephone: f.telephone ?? "",
-        }));
-
-        const commerciaux = data.commerciaux.map((c: any) => ({
-          id: c.id,
-          type: "Commercial",
-          name: c.user.name,
-          email: c.user.email,
-          telephone: c.telephone ?? "",
-        }));
-
-        const poleRelation = data.pole_relation.map((p: any) => ({
-          id: p.id,
-          type: "Pôle Relation Client",
-          name: p.user.name,
-          email: p.user.email,
-          telephone: p.telephone ?? "",
-        }));
-
-        setContacts([...formateurs, ...commerciaux, ...poleRelation]);
+        // Fusionne tous les contacts dans un seul tableau pour l'affichage
+        const allContacts = [
+          ...(data.formateurs || []),
+          ...(data.commerciaux || []),
+          ...(data.pole_relation || [])
+        ];
+        console.log(allContacts);
+        setContacts(allContacts);
       } catch (error) {
         console.error("Erreur lors de la récupération des contacts :", error);
         setError("Impossible de charger les contacts");
@@ -68,8 +90,8 @@ export default function Contact() {
   if (isLoading) {
     return (
       <Layout>
-        <div className="max-w-6xl mx-auto px-4 py-10">
-          <h1 className="text-3xl font-bold mb-8 text-gray-800">
+        <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
+          <h1 className="text-3xl font-bold mb-8 text-brown-shade">
             Mes Contacts
           </h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -101,8 +123,8 @@ export default function Contact() {
   if (error) {
     return (
       <Layout>
-        <div className="max-w-6xl mx-auto px-4 py-10">
-          <h1 className="text-3xl font-bold mb-8 text-gray-800">
+        <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
+          <h1 className="text-3xl font-bold mb-8 text-brown-shade">
             Mes Contacts
           </h1>
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
@@ -115,8 +137,10 @@ export default function Contact() {
 
   return (
     <Layout>
-      <div className="max-w-6xl mx-auto px-4 py-10">
-        <h1 className="text-3xl font-bold mb-8 text-gray-800">Mes Contacts</h1>
+      <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
+        <h1 className="text-3xl font-bold mb-8 text-brown-shade">
+          Mes Contacts
+        </h1>
 
         {contacts.length === 0 ? (
           <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded">
@@ -137,11 +161,15 @@ export default function Contact() {
                       {contact.name}
                     </h2>
                     <span
-                      className={`text-xs px-2 py-1 rounded-full font-medium ${
-                        typeStyles[contact.type]
-                      }`}>
+                      className={`text-xs px-2 py-1 rounded-full font-medium ${typeStyles[contact.type] || "bg-gray-100 text-gray-800"}`}
+                    >
                       {contact.type}
                     </span>
+                    {contact.role && (
+                      <span className="ml-2 text-xs px-2 py-1 rounded-full font-medium bg-gray-200 text-gray-700 border border-gray-300">
+                        {contact.role}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -162,6 +190,46 @@ export default function Contact() {
                       {contact.telephone || "Non renseigné"}
                     </a>
                   </div>
+                  {contact.formations && contact.formations.length > 0 && (
+                    <div className="mt-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="inline-block bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">
+                          {contact.formations.length > 1 ? "Formations" : "Formation"}
+                        </span>
+                        <span className="text-xs text-gray-400">
+                          ({contact.formations.length})
+                        </span>
+                      </div>
+                      <div className="space-y-2">
+                        {contact.formations.map((formation) => (
+                          <div
+                            key={formation.id}
+                            className="flex items-center bg-gray-50 rounded-lg px-3 py-2 shadow-sm hover:bg-blue-50 transition"
+                          >
+                            <div className="flex-1">
+                              <span className="font-medium text-gray-800">{formation.titre}</span>
+                              <div className="text-xs text-gray-500">
+                                {formation.dateDebut && (
+                                  <span className="mr-2">
+                                    <span className="font-semibold">Début:</span>{" "}
+                                    {new Date(formation.dateDebut).toLocaleDateString("fr-FR")}
+                                  </span>
+                                )}
+                                {formation.dateFin && (
+                                  <span>
+                                    <span className="font-semibold">Fin:</span>{" "}
+                                    {new Date(formation.dateFin).toLocaleDateString("fr-FR")}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+
                 </div>
               </div>
             ))}

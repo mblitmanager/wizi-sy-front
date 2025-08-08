@@ -74,6 +74,7 @@ const SortableItem = ({ id, text, isCorrect, disabled }: any) => {
                 ? "success.main"
                 : "error.main"
               : "text.primary",
+          fontSize: { xs: '0.75rem', md: '0.875rem' },
         }}
       />
       {isCorrect !== undefined && (

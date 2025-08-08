@@ -2,7 +2,7 @@
   "short_name": "Wizi Learn",
   "name": "Wizi Learn Platform",
   "description": "Plateforme d'apprentissage interactive et ludique",
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
@@ -13,12 +13,10 @@
       "type": "image/x-icon"
     },
     {
-      "src": "logo192.png",
-      "type": "image/png",
+     "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "logo512.png",
       "type": "image/png",
       "sizes": "512x512"
     }

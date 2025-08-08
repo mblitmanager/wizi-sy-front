@@ -14,13 +14,14 @@ interface Props {
   className?: string;
 }
 
+// ATO ILAY MIASA
 export default function MediaPlayer({
   media,
   className = "",
 }: Props & { className?: string }) {
   if (!media) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6 w-full flex items-center justify-center">
+      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 w-full max-w-full max-w-[100vw] flex items-center justify-center">
         <div className="text-center text-gray-500">
           <p>Sélectionnez un média dans la playlist</p>
         </div>
@@ -38,16 +39,26 @@ export default function MediaPlayer({
     }
 
     switch (media.type) {
-      case "video":
+      case "video": {
+        // Détection d'un lien YouTube Shorts
+        const isShort =
+          typeof media.url === "string" &&
+          (/youtube\.com\/shorts\//.test(media.url) ||
+            (/youtu\.be\/.{11,}/.test(media.url) &&
+              media.url.includes("shorts")));
         return (
-          <div className="relative w-full aspect-video bg-black rounded-t-lg overflow-hidden">
+          <div
+            className={`relative bg-black rounded-t-lg overflow-hidden w-full max-w-full max-w-[100vw] mx-auto ${
+              isShort ? "aspect-[9/16]" : "aspect-video"
+            }`}>
             <VideoPlayer
-              key={media.url}
+              key={media.id} // Utilisez l'ID plutôt que l'URL pour la clé
               url={media.url}
-              className="w-full h-full"
+              mediaId={media.id} // Passez l'ID du média
             />
           </div>
         );
+      }
 
       case "audio":
         return (
@@ -56,8 +67,7 @@ export default function MediaPlayer({
             <audio
               key={media.url}
               controls
-              className="w-full rounded-md min-w-0"
-            >
+              className="w-full rounded-md min-w-0">
               <source src={`${VITE_API_URL}/media/stream/${media.url}`} />
               Votre navigateur ne supporte pas la lecture audio.
             </audio>
@@ -97,11 +107,10 @@ export default function MediaPlayer({
 
   return (
     <div
-      className={`bg-white rounded-lg shadow-md overflow-hidden w-full ${className}`}
-    >
+      className={`bg-white rounded-lg shadow-md overflow-hidden w-full ${className}`}>
       {renderMediaContent()}
 
-      <div className="p-3 lg:p-4 border-t w-full">
+      <div className="p-2 sm:p-3 lg:p-4 border-t w-full max-w-full max-w-[100vw]">
         <div className="flex justify-between items-center w-full">
           <div className="min-w-0">
             <h3 className="text-sm lg:text-lg font-bold text-gray-800 truncate">

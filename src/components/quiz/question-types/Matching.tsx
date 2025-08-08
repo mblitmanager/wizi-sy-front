@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Check, X, ArrowRight } from "lucide-react";
 import { Question } from "@/types/quiz";
@@ -38,34 +38,48 @@ export const Matching: React.FC<MatchingProps> = ({
         <div className="space-y-4">
           {leftItems.map((leftItem) => {
             const isCorrect = isCorrectMatch(leftItem.id);
+            const selectedValue = matches[leftItem.id] || "_empty";
+
             return (
               <div
                 key={leftItem.id}
                 className={cn(
                   "p-4 border rounded-lg flex flex-col md:flex-row md:items-center gap-2",
-                  showFeedback && isCorrect === true
-                    ? "bg-green-50 border-green-200"
-                    : "",
-                  showFeedback && isCorrect === false
-                    ? "bg-red-50 border-red-200"
-                    : ""
-                )}>
-                <div className="font-medium flex-1">{leftItem.text}</div>
+                  showFeedback &&
+                    isCorrect === true &&
+                    "bg-green-50 border-green-200",
+                  showFeedback &&
+                    isCorrect === false &&
+                    "bg-red-50 border-red-200"
+                )}
+              >
+                <div className="font-medium flex-1 text-xs md:text-base">
+                  {leftItem.text}
+                </div>
 
                 <ArrowRight className="hidden md:block h-5 w-5 text-gray-400" />
 
-                <div className="flex-1">
+                <div className="flex-1 text-xs">
                   <Select
-                    value={matches[leftItem.id] || "_empty"}
+                    value={selectedValue}
                     onValueChange={(value) => updateMatch(leftItem.id, value)}
-                    disabled={showFeedback}>
+                    disabled={showFeedback}
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Sélectionnez une correspondance" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="_empty">Sélectionnez...</SelectItem>
                       {availableOptions.map((option) => (
-                        <SelectItem key={option.id} value={option.text}>
+                        <SelectItem
+                          key={option.id}
+                          value={option.text}
+                          className={cn(
+                            showFeedback &&
+                              option.bank_group === leftItem.bank_group &&
+                              "bg-green-50"
+                          )}
+                        >
                           {option.text}
                         </SelectItem>
                       ))}

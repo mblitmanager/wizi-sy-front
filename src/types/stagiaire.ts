@@ -28,6 +28,7 @@ export interface CatalogueFormation {
   formation_id: number;
   created_at: string;
   updated_at: string;
+  formation?: Formation;
 }
 
 export interface Stagiaire {
@@ -45,10 +46,14 @@ export interface Stagiaire {
   created_at: string;
   updated_at: string;
   formations: Formation[];
+
+  // Nouvelle propriété optionnelle pour gérer le pivot avec media
+  is_watched: boolean;
 }
 
 export interface CatalogueFormationResponse {
   stagiaire: Stagiaire;
+  data: CatalogueFormation[];
   formations: Formation[];
   catalogues: CatalogueFormation[];
 }

@@ -6,13 +6,10 @@ import {
   User,
   Trophy,
   Gift,
-  X,
 } from "lucide-react";
 import { NavLink, useNavigate, useLocation, Link } from "react-router-dom";
-
-import { useUser } from "@/context/UserContext";
-import useAdvert from "../publiciter/useAdvert";
-import { motion } from "framer-motion";
+import { useUser } from "@/hooks/useAuth";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface MainNavProps {
   showBottomNav?: boolean;
@@ -20,56 +17,57 @@ interface MainNavProps {
 
 export default function MainNav({ showBottomNav = false }: MainNavProps) {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { user, logout } = useUser();
-  const pathname = location.pathname;
+  const { logout } = useUser();
 
-  const { isVisible, message } = useAdvert("Je parraine et je gagne 50 € !");
-
-  // Main navigation items
-  const items = [
+  // Main navigation items with additional metadata for animations
+  const navItems = [
     {
       title: "Accueil",
       href: "/",
       icon: Home,
+      color: "text-amber-500",
     },
     {
       title: "Quiz",
       href: "/quizzes",
       icon: Brain,
+      color: "text-amber-500",
     },
     {
       title: "Classement",
       href: "/classement",
       icon: Trophy,
+      color: "text-amber-500",
     },
     {
       title: "Parrainage",
       href: "/parrainage",
       icon: Gift,
+      color: "text-amber-500",
     },
     {
       title: "Tutoriels",
       href: "/tuto-astuce",
       icon: Video,
+      color: "text-amber-500",
     },
     {
       title: "Formations",
       href: "/catalogue",
       icon: GraduationCap,
+      color: "text-amber-500",
     },
     {
       title: "Profil",
       href: "/profile",
       icon: User,
+      color: "text-amber-500",
     },
   ];
 
   const handleLogout = async () => {
     try {
-      // 1. Nettoyage immédiat
       localStorage.removeItem("token");
-      // 2. Déconnexion globale (si votre hook gère un état)
       if (logout) logout();
       navigate("/login", { replace: true });
     } catch (error) {
@@ -78,58 +76,135 @@ export default function MainNav({ showBottomNav = false }: MainNavProps) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white border-r">
-      <div className="space-y-4 py-4">
-        <div className="px-3 py-2">
-          <ul className="space-y-1 p-3">
-            {items.map((item) => (
-              <li key={item.href} className="py-1">
-                <NavLink
-                  to={item.href}
-                  className={({ isActive }) => {
-                    const baseClasses =
-                      "flex items-center gap-3 px-4 py-2 text-sm font-medium rounded-full transition-all";
-                    const activeClasses =
-                      "bg-yellow-shade hover:bg-yellow-shade-1  text-white shadow-md";
-                    const inactiveClasses =
-                      "text-gray-500 hover:bg-yellow-shade-1";
-
-                    return `${baseClasses} ${
-                      isActive ? activeClasses : inactiveClasses
-                    }`;
-                  }}>
-                  {({ isActive }) => (
-                    <>
+    <div className="flex flex-col h-full bg-white/90 backdrop-blur-sm border-r border-gray-100">
+      {/* Navigation Items */}
+      <div className="flex-1 space-y-1 px-3 py-2">
+        <motion.ul
+          className="space-y-2"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            visible: {
+              transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.2,
+              },
+            },
+          }}>
+          {navItems.map((item, index) => (
+            <motion.li
+              key={item.href}
+              variants={{
+                hidden: { opacity: 0, x: -20 },
+                visible: {
+                  opacity: 1,
+                  x: 0,
+                  transition: {
+                    type: "spring",
+                    stiffness: 100,
+                    damping: 10,
+                  },
+                },
+              }}>
+              <NavLink
+                to={item.href}
+                className={({ isActive }) =>
+                  `group flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 ${
+                    isActive
+                      ? "bg-gradient-to-r from-yellow-400 to-yellow-500 text-white shadow-lg"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  }`
+                }>
+                {({ isActive }) => (
+                  <>
+                    <motion.span
+                      animate={{
+                        scale: isActive ? 1.1 : 1,
+                        rotate: isActive ? [0, 5, -5, 0] : 0,
+                      }}
+                      transition={{ duration: 0.3 }}
+                      className={`p-2 rounded-lg ${
+                        isActive ? "bg-white/20" : "bg-gray-100"
+                      }`}>
                       <item.icon
-                        className={`w-6 h-6 ${
-                          isActive ? "text-white" : "text-gray-500 "
+                        className={`w-5 h-5 ${
+                          isActive ? "text-white" : item.color
                         }`}
                       />
+                    </motion.span>
+                    <motion.span
+                      animate={{
+                        x: isActive ? 5 : 0,
+                      }}
+                      transition={{ type: "spring", stiffness: 300 }}>
                       {item.title}
-                    </>
-                  )}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-        </div>
+                    </motion.span>
+                    {isActive && (
+                      <motion.span
+                        layoutId="navActiveIndicator"
+                        className="absolute right-4 w-2 h-2 bg-white rounded-full"
+                        initial={false}
+                        transition={{
+                          type: "spring",
+                          stiffness: 500,
+                          damping: 30,
+                        }}
+                      />
+                    )}
+                  </>
+                )}
+              </NavLink>
+            </motion.li>
+          ))}
+        </motion.ul>
       </div>
-      <div className="mt-auto px-3 py-4 border-t">
-        <Link to="/parrainage" className="w-full">
-          <motion.div
-            initial={{ opacity: 0, x: -300 }} // Commence à gauche de l'écran (en dehors de l'écran)
-            animate={{ opacity: 1, x: 0 }} // Anime vers la position originale
-            exit={{ opacity: 0, x: -300 }} // Quitte vers la gauche
-            transition={{ duration: 0.5 }}
-            className=" w-[calc(100%-2rem)] bg-gradient-to-br from-yellow-shade-2 via-yellow-shade to-yellow-shade-2 rounded-2xl text-white p-1 mb-2 sm:p-4  flex items-center mx-auto  gap-3 z-50 cursor-pointer hover:shadow-xl transition-all">
-            <Gift className="w-8 h-8 " />
-            <span className="font-semibold text-xs">
-              Je parraine et je gagne{" "}
-              <span className="text-black text-2xl">50€</span>
-            </span>
-          </motion.div>
-        </Link>
-      </div>
+
+      {/* Promo Banner */}
+      <AnimatePresence>
+        <motion.div
+          className="px-3 pb-6 pt-2"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}>
+          <Link to="/parrainage" className="block w-full">
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="relative bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-xl p-3 flex items-center gap-3 overflow-hidden shadow-md hover:shadow-lg transition-all duration-300">
+              <div className="absolute inset-0 bg-noise opacity-10" />
+              <motion.div
+                animate={{
+                  rotate: [0, 5, -5, 0],
+                }}
+                transition={{
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                  duration: 2,
+                }}
+                className="bg-white/20 p-2 rounded-lg flex-shrink-0">
+                <Gift className="w-6 h-6 text-white" />
+              </motion.div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-white truncate">
+                  Je parraine et je gagne
+                </p>
+                <p className="text-lg font-bold text-white">50€</p>
+              </div>
+              <motion.div
+                animate={{
+                  x: [0, 5, 0],
+                }}
+                transition={{
+                  repeat: Infinity,
+                  duration: 2,
+                }}
+                className="text-white">
+                →
+              </motion.div>
+            </motion.div>
+          </Link>
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }

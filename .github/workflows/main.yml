@@ -36,7 +36,15 @@ jobs:
       run: |
         echo "$SSH_PRIVATE_KEY" > private_key
         chmod 600 private_key
+
+        echo "➤ Cleaning old index assets on server..."
+        echo "ssh -i private_key -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST "rm -f ~/www/public/assets/index-*.css ~/www/public/assets/index-*.js ~/www/public/assets/vendor-*.js""
+        echo "✓ Old assets cleaned"
+
+        echo "➤ Deploying new assets..."
         rsync -avz --exclude='index.html' -e "ssh -i private_key -o StrictHostKeyChecking=no" ./dist/ $REMOTE_USER@$REMOTE_HOST:./www/public/
+        echo "✓ Assets deployed"
+
         rm -f private_key
 
     - name: Deploy Blade template via SSH (stagiaire.blade.php)
@@ -49,6 +57,35 @@ jobs:
         chmod 600 private_key
         rsync -avz -e "ssh -i private_key -o StrictHostKeyChecking=no" ./temp_views/stagiaire.blade.php $REMOTE_USER@$REMOTE_HOST:./www/resources/views/
         rm -f private_key
+
+    - name: Execute deployment via SSH
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        timeout: 30s
+        script_stop: true
+        script: |
+          set -e
+          cd ~/www
+
+          echo "➤ Optimizing Laravel..."
+          php artisan optimize:clear
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          echo "✓ Application optimized"
+
+          php artisan queue:restart
+          echo "✓ Queue restarted"
+
+          echo "➤ Fixing permissions..."
+          chmod -R 755 storage
+          chmod -R 755 bootstrap/cache
+          echo "✓ Permissions set"
+
+          php artisan optimize:clear
 
     - name: Clean temporary files
       run: rm -rf temp_views

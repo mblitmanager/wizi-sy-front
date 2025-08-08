@@ -70,6 +70,7 @@ export function Classement() {
     const fetchQuizHistory = async () => {
       try {
         const history = await quizSubmissionService.getQuizHistory();
+        console.log(history);
         setQuizHistory(history);
       } catch (error) {
         console.error("Error fetching quiz history:", error);
@@ -114,7 +115,14 @@ export function Classement() {
 
   return (
     <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
-     
+      {/* Statistiques */}
+      <div className="w-full mt-[10%] md:mt-0">
+        <ProfileStats
+          profile={profile}
+          stats={stats}
+          loading={loading.profile || loading.ranking}
+        />
+      </div>
       <hr className="mn-2" />
       {/* <div className="mt-2 h-[calc(100vh-30rem)] overflow-y-auto p-4"> */}
       {/* Tabs */}
@@ -124,12 +132,12 @@ export function Classement() {
         <TabsList className="grid grid-cols-2 gap-2 rounded-lg bg-gray-100 shadow-sm">
           <TabsTrigger
             value="ranking"
-            className="text-xs sm:text-sm md:text-base font-medium py-2 px-3 lg:px-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            className="text-xs text-brown-shade sm:text-sm md:text-base font-medium py-2 px-3 lg:px-4 focus:outline-none focus:ring-2 focus:ring-orange-500">
             Classement global
           </TabsTrigger>
           <TabsTrigger
             value="history"
-            className="text-xs sm:text-sm md:text-base font-medium py-2 px-3 lg:px-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            className="text-xs text-brown-shade sm:text-sm md:text-base font-medium py-2 px-3 lg:px-4 focus:outline-none focus:ring-2 focus:ring-orange-500">
             Mon historique
           </TabsTrigger>
         </TabsList>
@@ -145,23 +153,13 @@ export function Classement() {
         </TabsContent>
 
         <TabsContent value="history" className="mt-4">
-          <div className="bg-white p-3 sm:p-4 lg:p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="p-2 sm:p-3 lg:p-4 rounded-lg shadow-sm">
             <QuizHistory history={quizHistory} loading={loading.history} />
           </div>
         </TabsContent>
       </Tabs>
       {/* </div> */}
-       {/* Header */}
-      <h1 className="text-2xl font-bold mb-8">Mes statistiques</h1>
-
-      {/* Statistiques */}
-      <div className="w-full">
-        <ProfileStats
-          profile={profile}
-          stats={stats}
-          loading={loading.profile || loading.ranking}
-        />
-      </div>
+      {/* Header */}
     </div>
   );
 }

@@ -1,4 +1,6 @@
-export type MediaType = 'video' | 'image' | 'audio' | 'document';
+import { Stagiaire } from "./stagiaire";
+
+export type MediaType = "video" | "image" | "audio" | "document";
 
 export interface Media {
   id: string;
@@ -12,6 +14,7 @@ export interface Media {
   created_at: string;
   updated_at: string;
   formation_id?: string;
+  stagiaires?: { is_watched: boolean }[];
 }
 
 export interface MediaCategory {
@@ -20,4 +23,4 @@ export interface MediaCategory {
   description: string;
   created_at: string;
   updated_at: string;
-} 
+}

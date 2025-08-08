@@ -1,48 +1,42 @@
 import { useEffect } from 'react';
-import Pusher from 'pusher-js';
+import { messaging, onMessage } from '@/firebase-fcm';
 import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query';
+
+interface NotificationListenerProps {
+  onPushNotification?: (notif: { id: string; message: string; type?: string; created_at?: string; data?: Record<string, unknown> }) => void;
+}
 
 // Ce composant écoute les notifications Pusher globalement
-export default function NotificationListener() {
-  const queryClient = useQueryClient();
-
+export default function NotificationListener({ onPushNotification }: NotificationListenerProps) {
   useEffect(() => {
-    // Configurez Pusher avec vos variables d'environnement
-    const pusher = new Pusher(import.meta.env.VITE_PUSHER_KEY, {
-      cluster: import.meta.env.VITE_PUSHER_CLUSTER,
-      forceTLS: true,
-    });
-    const channel = pusher.subscribe('notification');
-    channel.bind('test.notification', (data) => {
-      console.log('[PUSHER] Notification reçue', data);
-      // Rafraîchir les notifications (query react-query)
-      queryClient.invalidateQueries(['notifications']);
-      // Afficher un toast
+    // Écoute des notifications en premier plan
+    const unsubscribe = onMessage(messaging, (payload) => {
+      const { title, body } = payload.notification || {};
+      const notif = {
+        id: payload.data?.id || Date.now().toString(),
+        message: body || '',
+        type: payload.data?.type || 'system',
+        created_at: payload.data?.created_at || new Date().toISOString(),
+        data: payload.data || {},
+        read: false,
+      };
       toast(
         <div className="flex items-center gap-2">
           <span>🔔</span>
-          <span className="font-medium">Nouvelle notification :</span>
-          <span className="truncate max-w-xs">{data.message}</span>
+          <span className="font-medium">{title}</span>
+          <span className="truncate max-w-xs">{body}</span>
         </div>,
         { duration: 5000 }
       );
-      // Notification navigateur
-      if ("Notification" in window) {
-        if (Notification.permission === "granted") {
-          new Notification("Nouvelle notification", {
-            body: data.message,
-            icon: "/favicon.ico"
-          });
-        }
+      if (onPushNotification) {
+        onPushNotification(notif);
       }
     });
+
     return () => {
-      channel.unbind_all();
-      channel.unsubscribe();
-      pusher.disconnect();
+      // Pas de désabonnement nécessaire pour onMessage
     };
-  }, [queryClient]);
+  }, [onPushNotification]);
 
   return null;
 }

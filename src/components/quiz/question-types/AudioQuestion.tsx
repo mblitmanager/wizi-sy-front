@@ -41,14 +41,15 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
   return (
     <Card className="border-0 shadow-none">
       <CardContent className="pt-4 px-2 md:px-6">
-        <div className="space-y-6">
-          <div className="p-4 sm:p-6 w-full bg-white border rounded-xl shadow-sm flex justify-center">
+        <div className="space-y-3">
+          <div className="p-2 sm:p-2 w-full bg-white rounded-xl shadow-none flex justify-center">
             <div className="flex items-center gap-3 sm:gap-4 w-full max-w-full sm:w-80">
               <Music className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-400" />
               <audio
                 key={question.audioUrl}
                 controls
-                className="flex-1 min-w-[150px] max-w-full min-h-[40px] rounded-md shadow-inner bg-gray-100">
+                className="flex-1 min-w-[150px] max-w-full min-h-[40px] rounded-md shadow-inner bg-gray-100"
+              >
                 <source
                   src={`${VITE_API_URL}/media/stream/${question.audioUrl}`}
                 />
@@ -69,13 +70,17 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
           <RadioGroup
             value={selectedAnswer || ""}
             onValueChange={handleAnswer}
-            className="space-y-3">
+            className="space-y-3"
+          >
             {question.answers?.map((answer) => (
               <div
                 key={answer.id}
-                className="flex items-center gap-2 p-4 border rounded-lg hover:bg-accent transition">
+                className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent transition border-0"
+              >
                 <RadioGroupItem value={answer.id} />
-                <Label className="flex-1">{answer.text}</Label>
+                <Label className="flex-1 text-xs md:text-sm">
+                  {answer.text}
+                </Label>
                 {showFeedback && isCorrectAnswer(answer.id) !== undefined && (
                   <span>
                     {isCorrectAnswer(answer.id) ? (
