@@ -31,6 +31,8 @@ interface ContactsSectionProps {
   poleRelation: Contact[];
 }
 
+const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_MEDIA;
+
 const ContactSection = ({
   commerciaux,
   formateurs,
@@ -82,9 +84,17 @@ const ContactSection = ({
       key={`${contact.type}-${contact.id}`}
       className="bg-white shadow-md rounded-2xl p-5 border hover:shadow-lg transition">
       <div className="flex items-center mb-4">
-        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4">
-          <User className="text-gray-500" />
-        </div>
+        {contact.image ? (
+          <img
+            src={`${VITE_API_URL_IMG}/${contact.image}`}
+            alt={contact.name}
+            className="w-12 h-12 rounded-full object-cover mr-4"
+          />
+        ) : (
+          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4">
+            <User className="text-gray-500" />
+          </div>
+        )}
         <div>
           <h2 className="text-lg font-semibold text-gray-800">
             {contact.name}
@@ -98,6 +108,7 @@ const ContactSection = ({
         </div>
       </div>
 
+      {/* Le reste du code reste inchangé */}
       <div className="text-sm text-gray-600 space-y-1 mt-2">
         <div className="flex items-center gap-2">
           <Mail className="w-4 h-4" />
@@ -111,7 +122,7 @@ const ContactSection = ({
             {contact.telephone || "Non renseigné"}
           </a>
         </div>
-        {contact.formation && contact.formation.length > 0 && (
+        {contact.formations && contact.formations.length > 0 && (
           <div className="mt-4">
             <div className="flex items-center gap-2 mb-2">
               <span className="inline-block bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">
