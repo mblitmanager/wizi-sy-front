@@ -10,6 +10,7 @@ export interface Contact {
   telephone?: string;
   role: string;
   type: string;
+  image?: string;
   poste?: string;
   image_url?: string;
   formation?: Formation[];

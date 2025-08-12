@@ -13,6 +13,7 @@ const typeStyles: Record<string, string> = {
   Interlocuteur: "bg-orange-100 text-orange-800",
   // Autre: "bg-gray-100 text-gray-800",
 };
+const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_MEDIA;
 
 interface FormationStagiaire {
   id: number;
@@ -55,7 +56,8 @@ interface Contact {
   email: string;
   telephone?: string;
   formations?: FormationStagiaire[];
-  role?: string; // Added role to the interface
+  role?: string;
+  image?: string;
 }
 
 export default function Contact() {
@@ -72,7 +74,7 @@ export default function Contact() {
         const allContacts = [
           ...(data.formateurs || []),
           ...(data.commerciaux || []),
-          ...(data.pole_relation || [])
+          ...(data.pole_relation || []),
         ];
         console.log(allContacts);
         setContacts(allContacts);
@@ -153,16 +155,25 @@ export default function Contact() {
                 key={contact.id}
                 className="bg-white shadow-md rounded-2xl p-5 border hover:shadow-lg transition">
                 <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4">
-                    <User className="text-gray-500" />
-                  </div>
+                  {contact.image ? (
+                    <img
+                      src={`${VITE_API_URL_IMG}/${contact.image}`}
+                      alt={contact.name}
+                      className="w-12 h-12 rounded-full object-cover mr-4"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4">
+                      <User className="text-gray-500" />
+                    </div>
+                  )}
                   <div>
                     <h2 className="text-lg font-semibold text-gray-800">
                       {contact.name}
                     </h2>
                     <span
-                      className={`text-xs px-2 py-1 rounded-full font-medium ${typeStyles[contact.type] || "bg-gray-100 text-gray-800"}`}
-                    >
+                      className={`text-xs px-2 py-1 rounded-full font-medium ${
+                        typeStyles[contact.type] || "bg-gray-100 text-gray-800"
+                      }`}>
                       {contact.type}
                     </span>
                     {contact.role && (
@@ -194,7 +205,9 @@ export default function Contact() {
                     <div className="mt-4">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="inline-block bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">
-                          {contact.formations.length > 1 ? "Formations" : "Formation"}
+                          {contact.formations.length > 1
+                            ? "Formations"
+                            : "Formation"}
                         </span>
                         <span className="text-xs text-gray-400">
                           ({contact.formations.length})
@@ -204,21 +217,28 @@ export default function Contact() {
                         {contact.formations.map((formation) => (
                           <div
                             key={formation.id}
-                            className="flex items-center bg-gray-50 rounded-lg px-3 py-2 shadow-sm hover:bg-blue-50 transition"
-                          >
+                            className="flex items-center bg-gray-50 rounded-lg px-3 py-2 shadow-sm hover:bg-blue-50 transition">
                             <div className="flex-1">
-                              <span className="font-medium text-gray-800">{formation.titre}</span>
+                              <span className="font-medium text-gray-800">
+                                {formation.titre}
+                              </span>
                               <div className="text-xs text-gray-500">
                                 {formation.dateDebut && (
                                   <span className="mr-2">
-                                    <span className="font-semibold">Début:</span>{" "}
-                                    {new Date(formation.dateDebut).toLocaleDateString("fr-FR")}
+                                    <span className="font-semibold">
+                                      Début:
+                                    </span>{" "}
+                                    {new Date(
+                                      formation.dateDebut
+                                    ).toLocaleDateString("fr-FR")}
                                   </span>
                                 )}
                                 {formation.dateFin && (
                                   <span>
                                     <span className="font-semibold">Fin:</span>{" "}
-                                    {new Date(formation.dateFin).toLocaleDateString("fr-FR")}
+                                    {new Date(
+                                      formation.dateFin
+                                    ).toLocaleDateString("fr-FR")}
                                   </span>
                                 )}
                               </div>
@@ -228,8 +248,6 @@ export default function Contact() {
                       </div>
                     </div>
                   )}
-
-
                 </div>
               </div>
             ))}
