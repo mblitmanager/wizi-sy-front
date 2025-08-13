@@ -3,6 +3,8 @@ import type { Quiz, Category } from "@/types/quiz";
 import { Link } from "react-router-dom";
 import React from "react";
 import { QuizCard } from "./QuizCard";
+import { useQuery } from "@tanstack/react-query";
+import { quizHistoryService } from "@/services/quiz/submission/QuizHistoryService";
 import bureatique from "../../assets/icons/bureautique.png";
 import internet from "../../assets/icons/internet.png";
 import creation from "../../assets/icons/creation.png";
@@ -16,6 +18,12 @@ export function StagiaireQuizGrid({
   quizzes,
   categories,
 }: StagiaireQuizGridProps) {
+  const { data: history } = useQuery({
+    queryKey: ["quiz-history"],
+    queryFn: () => quizHistoryService.getQuizHistory(),
+    enabled: !!localStorage.getItem("token"),
+    staleTime: 5 * 60 * 1000,
+  });
   if (!quizzes || !quizzes.length) {
     return (
       <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6 mb-8 text-center">
@@ -32,7 +40,7 @@ export function StagiaireQuizGrid({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {quizzes.map((quiz) => (
           <Link key={quiz.id} to={`/quiz/${quiz.id}`}>
-            <QuizCard quiz={quiz} categories={categories} />
+            <QuizCard quiz={quiz} categories={categories} history={history} />
           </Link>
         ))}
       </div>

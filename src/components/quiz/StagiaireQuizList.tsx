@@ -9,6 +9,7 @@ import { useState, useMemo } from "react";
 import { StagiaireQuizGrid } from "./StagiaireQuizGrid";
 import { useClassementPoints } from "@/hooks/useClassementPoints";
 import { useToast } from "@/hooks/use-toast";
+import { quizHistoryService } from "@/services/quiz/submission/QuizHistoryService";
 
 export function StagiaireQuizList() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -55,6 +56,13 @@ export function StagiaireQuizList() {
     queryKey: ["stagiaire-participations"],
     queryFn: () => stagiaireQuizService.getStagiaireQuizJoue(),
     enabled: !!localStorage.getItem("token"),
+  });
+
+  const { data: quizHistory } = useQuery({
+    queryKey: ["quiz-history"],
+    queryFn: () => quizHistoryService.getQuizHistory(),
+    enabled: !!localStorage.getItem("token"),
+    staleTime: 5 * 60 * 1000,
   });
 
   const isLoading = quizzesLoading || categoriesLoading;
@@ -151,27 +159,31 @@ export function StagiaireQuizList() {
     });
   }, [quizzes, selectedCategory, selectedLevel, userPoints]);
 
-  const playedQuizzes = useMemo(
-    () =>
-      quizzes && participations
-        ? quizzes.filter((q) =>
-            participations.some(
-              (p) => String(p.quizId || p.id) === String(q.id)
-            )
-          )
-        : [],
-    [quizzes, participations]
-  );
+  const playedQuizzes = useMemo(() => {
+    if (!quizzes || !quizHistory) return [] as typeof quizzes;
+    const byId = new Map<string, typeof quizHistory[0]>();
+    quizHistory.forEach((h) => byId.set(String(h.quiz.id), h));
+    const list = quizzes.filter((q) => byId.has(String(q.id)));
+    // tri antéchronologique par completedAt
+    list.sort((a, b) => {
+      const ha = byId.get(String(a.id));
+      const hb = byId.get(String(b.id));
+      const da = ha?.completedAt ? Date.parse(ha.completedAt) : 0;
+      const db = hb?.completedAt ? Date.parse(hb.completedAt) : 0;
+      return db - da;
+    });
+    return list;
+  }, [quizzes, quizHistory]);
 
   const notPlayedQuizzes = useMemo(
     () =>
       quizzes && participations
         ? filteredQuizzes.filter(
-            (q) =>
-              !participations.some(
-                (p) => String(p.quizId || p.id) === String(q.id)
-              )
-          )
+          (q) =>
+            !participations.some(
+              (p) => String(p.quizId || p.id) === String(q.id)
+            )
+        )
         : [],
     [filteredQuizzes, quizzes, participations]
   );
@@ -409,11 +421,10 @@ export function StagiaireQuizList() {
                       <button
                         key={page}
                         onClick={() => setNotPlayedCurrentPage(page)}
-                        className={`w-8 h-8 rounded-md ${
-                          notPlayedCurrentPage === page
-                            ? "bg-orange-500 text-white"
-                            : "border border-gray-300"
-                        }`}
+                        className={`w-8 h-8 rounded-md ${notPlayedCurrentPage === page
+                          ? "bg-orange-500 text-white"
+                          : "border border-gray-300"
+                          }`}
                       >
                         {page}
                       </button>
@@ -471,11 +482,10 @@ export function StagiaireQuizList() {
                       <button
                         key={page}
                         onClick={() => setPlayedCurrentPage(page)}
-                        className={`w-8 h-8 rounded-md ${
-                          playedCurrentPage === page
-                            ? "bg-orange-500 text-white"
-                            : "border border-gray-300"
-                        }`}
+                        className={`w-8 h-8 rounded-md ${playedCurrentPage === page
+                          ? "bg-orange-500 text-white"
+                          : "border border-gray-300"
+                          }`}
                       >
                         {page}
                       </button>

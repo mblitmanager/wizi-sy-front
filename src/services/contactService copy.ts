@@ -25,4 +25,8 @@ export const contactService = {
     });
     return response.data;
   },
+  getPartner: async () => {
+    const response = await api.get("/stagiaire/partner");
+    return response.data;
+  },
 };

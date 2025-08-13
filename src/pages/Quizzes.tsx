@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { categoryService } from "@/services/quiz/CategoryService";
 import { Loader2, WifiOff } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import StagiaireQuizAdventure from "@/components/quiz/StagiaireQuizAdventure";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
@@ -57,8 +58,17 @@ export default function Quizzes() {
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : (
-          <Tabs defaultValue="mes-quizzes" className="space-y-6 ">
-            <StagiaireQuizList onQuizSuccess={triggerQuizBadge} />
+          <Tabs defaultValue="adventure" className="space-y-6 ">
+            <TabsList>
+              <TabsTrigger value="adventure">Aventure</TabsTrigger>
+              <TabsTrigger value="mes-quizzes">Mes quiz</TabsTrigger>
+            </TabsList>
+            <TabsContent value="adventure">
+              <StagiaireQuizAdventure />
+            </TabsContent>
+            <TabsContent value="mes-quizzes">
+              <StagiaireQuizList onQuizSuccess={triggerQuizBadge} />
+            </TabsContent>
           </Tabs>
         )}
       </div>
