@@ -123,7 +123,7 @@ export const StagiaireQuizAdventure: React.FC = () => {
                 const played = playedIds.has(String(quiz.id));
                 const playable = computed.playableById.get(String(quiz.id)) === true;
                 const nodeColor = played ? "bg-amber-400" : playable ? "bg-blue-500" : "bg-gray-300";
-                const h = quizHistory?.find((x) => String(x.quiz?.id) === String(quiz.id));
+                const h = quizHistory?.find((x) => String(x.quizId) === String(quiz.id));
 
                 return (
                     <div key={quiz.id} className="flex items-start gap-3">
@@ -182,7 +182,7 @@ function QuizStepCard({ quiz, playable, played, history }: { quiz: Quiz; playabl
                 </div>
                 <div className="flex-1">
                     <div className="font-semibold text-gray-800 line-clamp-2">{quiz.titre}</div>
-                    <div className="text-xs text-gray-500 mt-0.5">{quiz.formation?.titre}</div>
+                    <div className="text-xs text-gray-500 mt-0.5">{quiz.categorie}</div>
                     <div className="text-xs text-gray-500">{quiz.niveau}</div>
                     {history && (
                         <div className="mt-2 text-xs text-gray-700 flex items-center gap-3">

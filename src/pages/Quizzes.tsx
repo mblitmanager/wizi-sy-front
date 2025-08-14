@@ -67,7 +67,7 @@ export default function Quizzes() {
               <StagiaireQuizAdventure />
             </TabsContent>
             <TabsContent value="mes-quizzes">
-              <StagiaireQuizList onQuizSuccess={triggerQuizBadge} />
+              <StagiaireQuizList />
             </TabsContent>
           </Tabs>
         )}
