@@ -4,10 +4,12 @@ import { UserProgress } from "@/types/quiz";
 import { Card, CardContent } from "@/components/ui/card";
 import { Trophy, Award, Flame, Star, BarChart2 } from "lucide-react";
 
+interface MinimalAchievement { id: string | number; name?: string }
+
 interface UserStatsProps {
   user: User | null;
   userProgress?: UserProgress | null;
-  achievements?: any[];
+  achievements?: MinimalAchievement[];
 }
 
 const UserStats: React.FC<UserStatsProps> = ({
@@ -70,8 +72,7 @@ const UserStats: React.FC<UserStatsProps> = ({
                         style={{ width: `${progressToNextLevel}%` }}></div>
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                      {20 - (totalPoints % 20)} points pour le niveau{" "}
-                      {level + 1}
+                      {20 - (totalPoints % 20)} points pour le niveau {level + 1}
                     </p>
                   </div>
                 </div>
@@ -97,9 +98,8 @@ const UserStats: React.FC<UserStatsProps> = ({
                     <div className="mt-3">
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         {badgesCount > 0
-                          ? `Vous avez débloqué ${badgesCount} badge${
-                              badgesCount > 1 ? "s" : ""
-                            }`
+                          ? `Vous avez débloqué ${badgesCount} badge${badgesCount > 1 ? "s" : ""
+                          }`
                           : "Aucun badge obtenu pour le moment"}
                       </p>
                     </div>

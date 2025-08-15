@@ -161,8 +161,12 @@ export function StagiaireQuizList() {
 
   const playedQuizzes = useMemo(() => {
     if (!quizzes || !quizHistory) return [] as typeof quizzes;
-    const byId = new Map<string, typeof quizHistory[0]>();
-    quizHistory.forEach((h) => byId.set(String(h.quiz.id), h));
+    type HistoryMinimal = { quiz?: { id?: string | number }; quizId?: string | number; completedAt?: string };
+    const byId = new Map<string, { completedAt?: string }>();
+    (quizHistory as HistoryMinimal[]).forEach((h) => {
+      const id = h.quiz?.id ?? h.quizId;
+      if (id !== undefined) byId.set(String(id), { completedAt: h.completedAt });
+    });
     const list = quizzes.filter((q) => byId.has(String(q.id)));
     // tri antéchronologique par completedAt
     list.sort((a, b) => {

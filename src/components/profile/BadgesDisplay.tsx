@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Medal,
   Trophy,
@@ -106,10 +106,14 @@ const BadgesDisplay: React.FC<BadgesDisplayProps> = ({
   loading,
   className,
 }) => {
-  const isCompact = className.includes("compact-view");
+  const isCompact = !!className && className.includes("compact-view");
+  const [expanded, setExpanded] = useState(false);
+
+  const visibleBadges = expanded ? badges : badges.slice(0, 3);
+  const canToggle = badges.length > 3;
 
   return (
-    <div className={`${className}`}>
+    <div className={`${className || ""}`}>
       {loading ? (
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
           {[...Array(5)].map((_, i) => (
@@ -128,23 +132,20 @@ const BadgesDisplay: React.FC<BadgesDisplayProps> = ({
           )}
 
           <div
-            className={`grid ${
-              isCompact
-                ? "grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2"
-                : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
-            }`}>
-            {badges.slice(0, isCompact ? 6 : badges.length).map((badge) => (
+            className={`grid ${isCompact
+              ? "grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2"
+              : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
+              }`}>
+            {visibleBadges.map((badge) => (
               <div
                 key={badge.id}
-                className={`group relative bg-white dark:bg-gray-700 rounded-lg ${
-                  isCompact ? "p-2" : "p-3"
-                } shadow-xs hover:shadow-sm transition-all duration-200 border border-gray-100 dark:border-gray-600`}>
+                className={`group relative bg-white dark:bg-gray-700 rounded-lg ${isCompact ? "p-2" : "p-3"
+                  } shadow-xs hover:shadow-sm transition-all duration-200 border border-gray-100 dark:border-gray-600`}>
                 <div className="flex flex-col items-center">
                   <BadgeIcon type={badge.type} level={badge.level} />
                   <h4
-                    className={`font-medium ${
-                      isCompact ? "text-xs text-center line-clamp-1" : "text-sm"
-                    } text-gray-800 dark:text-white mt-1`}>
+                    className={`font-medium ${isCompact ? "text-xs text-center line-clamp-1" : "text-sm"
+                      } text-gray-800 dark:text-white mt-1`}>
                     {badge.name}
                   </h4>
                 </div>
@@ -152,17 +153,20 @@ const BadgesDisplay: React.FC<BadgesDisplayProps> = ({
             ))}
           </div>
 
-          {isCompact && badges.length > 6 && (
-            <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-              +{badges.length - 6} autres badges...
+          {canToggle && (
+            <div className="mt-2">
+              <button
+                onClick={() => setExpanded((v) => !v)}
+                className="text-blue-600 dark:text-blue-400 text-sm underline">
+                {expanded ? "Voir moins" : "Voir plus"}
+              </button>
             </div>
           )}
         </>
       ) : (
         <div
-          className={`text-center py-4 ${
-            isCompact ? "px-2" : "px-4"
-          } bg-gray-50 dark:bg-gray-700/50 rounded-lg`}>
+          className={`text-center py-4 ${isCompact ? "px-2" : "px-4"
+            } bg-gray-50 dark:bg-gray-700/50 rounded-lg`}>
           <p className="text-gray-500 dark:text-gray-400 text-sm">
             {isCompact ? "Aucun badge" : "Aucun badge obtenu pour le moment"}
           </p>

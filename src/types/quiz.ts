@@ -173,8 +173,12 @@ export interface LeaderboardEntry {
   id: number;
   name: string;
   score: number;
-  position: number;
+  position?: number;
   image?: string;
+  avatar?: string;
+  quizCount?: number;
+  averageScore?: number;
+  rang?: number;
 }
 
 // Extend the existing QuizResult type with missing properties

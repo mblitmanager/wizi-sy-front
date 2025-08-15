@@ -43,15 +43,15 @@ export function GlobalRanking({
   };
 
   const filteredRanking = useMemo(() => {
-    return ranking.filter((entry: any) =>
+    return ranking.filter((entry: LeaderboardEntry) =>
       entry.name?.toLowerCase().includes(search.toLowerCase())
     );
   }, [ranking, search]);
 
   const sortedRanking = useMemo(() => {
     return [...filteredRanking].sort((a: any, b: any) => {
-      let aValue = a[sortKey];
-      let bValue = b[sortKey];
+      let aValue = (a as any)[sortKey];
+      let bValue = (b as any)[sortKey];
 
       if (sortKey === "name") {
         aValue = aValue?.toLowerCase() || "";
@@ -119,6 +119,15 @@ export function GlobalRanking({
     );
   }
 
+  // Podium top 3
+  const podium = sortedRanking.slice(0, 3);
+  const podiumOrder = [1, 0, 2];
+  const podiumColors = [
+    "#C0C0C0", // argent
+    "#FFD700", // or
+    "#CD7F32", // bronze
+  ];
+
   return (
     <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
       {/* Header */}
@@ -143,8 +152,70 @@ export function GlobalRanking({
         </div>
       </div>
 
+      {/* Podium */}
+      {podium.length > 0 && (
+        <div className="px-4 pt-4">
+          <div className="rounded-xl border" style={{ borderColor: "rgba(0,0,0,0.06)" }}>
+            <div className="p-4">
+              <div className="text-center text-blue-600 font-bold mb-2">🏆 PODIUM 🏆</div>
+              <div className="flex items-end justify-center gap-4">
+                {podiumOrder.map((pos, i) => {
+                  const entry = podium[pos];
+                  if (!entry) return <div key={i} className="flex-1" />;
+                  const color = podiumColors[i];
+                  const isCurrentUser = entry.id?.toString() === currentUserId;
+                  const base = 70;
+                  const heights = [base, base + 40, base - 15];
+                  const sizes = [48, 72, 40];
+                  return (
+                    <div key={i} className="flex-1 flex flex-col items-center justify-end">
+                      <div
+                        className="mb-2 px-2 py-1 rounded-md border"
+                        style={{
+                          borderColor: color,
+                          backgroundColor: `${color}33`,
+                          color,
+                          fontWeight: 700,
+                        }}
+                      >
+                        {pos + 1}
+                        {pos === 0 ? "er" : "e"}
+                      </div>
+                      <div
+                        className="rounded-2xl border shadow-sm flex items-center justify-center"
+                        style={{
+                          height: heights[i],
+                          width: sizes[i],
+                          borderColor: color,
+                          background: `linear-gradient(135deg, ${color}4D, ${color}1A)`,
+                        }}
+                      >
+                        <Avatar className="h-full w-full">
+                          <AvatarImage src={(entry.avatar as any) || (entry.image as any)} />
+                          <AvatarFallback>{entry.name?.charAt(0) || "U"}</AvatarFallback>
+                        </Avatar>
+                      </div>
+                      <div className="mt-2 text-center">
+                        <div
+                          className={`text-sm font-bold ${isCurrentUser ? "text-blue-600" : "text-gray-800"}`}
+                        >
+                          {entry.name}
+                        </div>
+                        <div className="mt-1 inline-block text-xs px-2 py-0.5 rounded-md" style={{ backgroundColor: "rgba(59,130,246,0.1)", color: "#2563eb" }}>
+                          {entry.score} pts
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Stats Summary */}
-      <div className="p-4 border-b bg-gray-50">
+      {/* <div className="p-4 border-b bg-gray-50">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="bg-white p-3 rounded-lg shadow-xs border">
             <div className="text-sm text-gray-500">Participants</div>
@@ -158,16 +229,8 @@ export function GlobalRanking({
             <div className="text-sm text-gray-500">Total Quiz</div>
             <div className="text-2xl font-bold">{totalQuizzes}</div>
           </div>
-          {/* <div className="bg-white p-3 rounded-lg shadow-xs border">
-            <div className="text-sm text-gray-500">Moyenne</div>
-            <div className="text-2xl font-bold">
-              {sortedRanking.length > 0
-                ? Math.round(totalPoints / sortedRanking.length)
-                : 0}
-            </div>
-          </div> */}
         </div>
-      </div>
+      </div> */}
 
       {/* Content */}
       <div className="p-2 sm:p-4">
@@ -195,19 +258,17 @@ export function GlobalRanking({
               return (
                 <div
                   key={entry.id || index}
-                  className={`p-4 rounded-lg border shadow-xs ${
-                    isCurrentUser
-                      ? "border-blue-300 bg-blue-50"
-                      : "border-gray-200 bg-white"
-                  }`}>
+                  className={`p-4 rounded-lg border shadow-xs ${isCurrentUser
+                    ? "border-blue-300 bg-blue-50"
+                    : "border-gray-200 bg-white"
+                    }`}>
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <div
-                        className={`flex items-center justify-center h-10 w-10 rounded-full ${
-                          index < 3
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-gray-100 text-gray-800"
-                        } font-bold`}>
+                        className={`flex items-center justify-center h-10 w-10 rounded-full ${index < 3
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-gray-100 text-gray-800"
+                          } font-bold`}>
                         {entry.rang || index + 1}
                       </div>
                       <div>
@@ -305,38 +366,37 @@ export function GlobalRanking({
                 <tbody className="bg-white divide-y divide-gray-200">
                   {sortedRanking.map((entry, index) => {
                     const isCurrentUser =
-                      entry.id?.toString() === currentUserId;
+                      (entry as any).id?.toString() === currentUserId;
                     const percentage = Math.round(
-                      ((entry.score || 0) / maxScore) * 100
+                      (((entry as any).score || 0) / maxScore) * 100
                     );
 
                     return (
                       <tr
-                        key={entry.id || index}
+                        key={(entry as any).id || index}
                         className={
                           isCurrentUser ? "bg-blue-50" : "hover:bg-gray-50"
                         }>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div
-                            className={`flex items-center justify-center h-8 w-8 rounded-full ${
-                              index < 3
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-gray-100 text-gray-800"
-                            } font-bold`}>
-                            {entry.rang || index + 1}
+                            className={`flex items-center justify-center h-8 w-8 rounded-full ${index < 3
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-gray-100 text-gray-800"
+                              } font-bold`}>
+                            {(entry as any).rang || index + 1}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-3">
                             <Avatar className="h-8 w-8">
-                              <AvatarImage src={entry.avatar} />
+                              <AvatarImage src={(entry as any).avatar || (entry as any).image} />
                               <AvatarFallback>
-                                {entry.name?.charAt(0) || "U"}
+                                {(entry as any).name?.charAt(0) || "U"}
                               </AvatarFallback>
                             </Avatar>
                             <div className="flex items-center gap-2">
                               <span className="font-medium">
-                                {entry.name || "Inconnu"}
+                                {(entry as any).name || "Inconnu"}
                               </span>
                               {isCurrentUser && (
                                 <Badge
@@ -349,10 +409,10 @@ export function GlobalRanking({
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                          {entry.quizCount}
+                          {(entry as any).quizCount}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap font-bold text-blue-600">
-                          {entry.score}
+                          {(entry as any).score}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-3">

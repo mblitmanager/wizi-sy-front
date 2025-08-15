@@ -11,11 +11,17 @@ import { useLoadFormations } from "@/use-case/hooks/profile/useLoadFormations";
 import { RecentResults } from "@/components/profile/RecentResults";
 import CategoryProgress from "@/components/profile/CategoryProgress";
 import UserStats from "@/components/profile/UserStats";
-import type { QuizHistory as QuizHistoryType } from "@/types/quiz";
+import type { QuizHistory as QuizHistoryType, QuizResult } from "@/types/quiz";
 import { quizSubmissionService } from "@/services/quiz/QuizSubmissionService";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import { useUser } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
+import ContactSection from "@/components/FeatureHomePage/ContactSection";
+import type { Contact } from "@/types/contact";
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+
+const API_URL = import.meta.env.VITE_API_URL as string;
 
 type Achievement = {
   id: number;
@@ -41,6 +47,26 @@ const ProfilePage = () => {
   const formations = useLoadFormations();
   const [quizHistory, setQuizHistory] = useState<QuizHistoryType[]>([]);
 
+  // Contacts (comme HomePage)
+  const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
+    const response = await axios.get<Contact[]>(`${API_URL}/stagiaire/contacts/${endpoint}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+    return response.data;
+  };
+  const { data: commerciaux } = useQuery<Contact[]>({
+    queryKey: ["contacts", "commerciaux"],
+    queryFn: () => fetchContacts("commerciaux"),
+  });
+  const { data: formateurs } = useQuery<Contact[]>({
+    queryKey: ["contacts", "formateurs"],
+    queryFn: () => fetchContacts("formateurs"),
+  });
+  const { data: poleRelation } = useQuery<Contact[]>({
+    queryKey: ["contacts", "pole-relation"],
+    queryFn: () => fetchContacts("pole-relation"),
+  });
+
   // Achievements state
   const [allAchievements, setAllAchievements] = useState<Achievement[]>([]);
   const [userAchievements, setUserAchievements] = useState<Achievement[]>([]);
@@ -51,12 +77,12 @@ const ProfilePage = () => {
 
   // Mémoïsation des composants enfants pour éviter des rendus inutiles
   const MemoizedProfileHeader = useMemo(() => {
-    return <ProfileHeader user={user} userProgress={userProgress} />;
-  }, [user, userProgress]);
+    return <ProfileHeader user={user} userProgress={userProgress} achievements={userAchievements} achievementsLoading={achvLoading} />;
+  }, [user, userProgress, userAchievements, achvLoading]);
 
   const MemoizedUserStats = useMemo(() => {
-    return <UserStats user={user} userProgress={userProgress} />;
-  }, [user, userProgress]);
+    return <UserStats user={user} userProgress={userProgress} achievements={userAchievements} />;
+  }, [user, userProgress, userAchievements]);
 
   const MemoizedCategoryProgress = useMemo(() => {
     return (
@@ -64,15 +90,37 @@ const ProfilePage = () => {
     );
   }, [categories, userProgress]);
 
+  // Adapter l’historique vers QuizResult pour RecentResults
+  const recentResultsData: QuizResult[] = useMemo(() => {
+    return (quizHistory || []).slice(0, 10).map((h) => {
+      let quizTitle = "Quiz";
+      const q: unknown = (h as unknown as { quiz?: { titre?: string; title?: string } }).quiz;
+      if (q && typeof q === "object") {
+        const maybe = q as { titre?: string; title?: string };
+        quizTitle = maybe.titre || maybe.title || "Quiz";
+      }
+      return {
+        id: h.id,
+        score: h.score,
+        totalPoints: h.score,
+        quizTitle,
+        correctAnswers: h.correctAnswers,
+        totalQuestions: h.totalQuestions,
+        timeSpent: h.timeSpent,
+        questions: [],
+      };
+    });
+  }, [quizHistory]);
+
   const MemoizedRecentResults = useMemo(() => {
     return (
       <RecentResults
-        results={quizHistory}
+        results={recentResultsData}
         isLoading={isLoading}
         showAll={false}
       />
     );
-  }, [quizHistory, isLoading]);
+  }, [recentResultsData, isLoading]);
 
   const MemoizedFormationCatalogue = useMemo(() => {
     return <FormationCatalogue formations={formations} />;
@@ -109,18 +157,29 @@ const ProfilePage = () => {
         const headers: Record<string, string> = token
           ? { Authorization: `Bearer ${token}` }
           : {};
-        // Tous les badges (admin list)
-        const allResp = await fetch(`/api/admin/achievements`, { headers });
-        const allJson = await allResp.json();
-        const all: Achievement[] = allJson?.achievements || allJson || [];
-        // Badges utilisateur
-        const userResp = await fetch(`/api/stagiaire/achievements`, { headers });
-        const userJson = await userResp.json();
-        const mine: Achievement[] = userJson?.achievements || userJson || [];
-        setAllAchievements(all);
+
+        // Badges utilisateur (principal)
+        const userResp = await axios.get(`${API_URL}/stagiaire/achievements`, {
+          headers,
+        });
+        const mine: Achievement[] = userResp.data?.achievements || userResp.data || [];
         setUserAchievements(mine);
+
+        // Tous les badges (facultatif, peut échouer selon droits)
+        try {
+          const allResp = await axios.get(`${API_URL}/admin/achievements`, {
+            headers,
+          });
+          const all: Achievement[] = allResp.data?.achievements || allResp.data || [];
+          setAllAchievements(all);
+        } catch (e) {
+          // On ignore silencieusement si l’endpoint admin n’est pas accessible
+          setAllAchievements([]);
+        }
       } catch (e) {
         console.error("Error loading achievements", e);
+        setAllAchievements([]);
+        setUserAchievements([]);
         toast({
           title: "Erreur",
           description: "Impossible de charger les badges",
@@ -131,7 +190,52 @@ const ProfilePage = () => {
       }
     };
     fetchAchievements();
-  }, [user, toast]);
+  }, [user, toast, API_URL]);
+
+  // Re-synchronisation manuelle des achievements
+  const handleResyncAchievements = async () => {
+    if (!user) return;
+    setAchvLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const headers: Record<string, string> = token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+
+      const res = await axios.post(
+        `${API_URL}/stagiaire/achievements/check`,
+        {},
+        { headers }
+      );
+      const newCount = Array.isArray(res.data?.new_achievements)
+        ? res.data.new_achievements.length
+        : 0;
+
+      // Recharge la liste utilisateur
+      const userResp = await axios.get(`${API_URL}/stagiaire/achievements`, {
+        headers,
+      });
+      const mine: Achievement[] = userResp.data?.achievements || userResp.data || [];
+      setUserAchievements(mine);
+
+      toast({
+        title: "Synchronisation terminée",
+        description:
+          newCount > 0
+            ? `${newCount} nouveau(x) badge(s) débloqué(s)`
+            : "Aucun nouveau badge",
+      });
+    } catch (e) {
+      console.error("Resync achievements error", e);
+      toast({
+        title: "Erreur",
+        description: "La synchronisation a échoué",
+        variant: "destructive",
+      });
+    } finally {
+      setAchvLoading(false);
+    }
+  };
 
   const unlockedIds = useMemo(() => new Set(userAchievements.map(a => a.id)), [userAchievements]);
   const availableTypes = useMemo(() => {
@@ -174,13 +278,22 @@ const ProfilePage = () => {
     <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-lg sm:text-xl font-semibold font-montserrat dark:text-white">Mes badges</h3>
-        <div className="text-sm text-gray-600 dark:text-gray-300">
-          {userAchievements.length} débloqués
+        <div className="flex items-center gap-2">
+          {/* <button
+            onClick={handleResyncAchievements}
+            disabled={achvLoading}
+            className="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50"
+          >
+            {achvLoading ? "Synchronisation…" : "Re-synchroniser"}
+          </button> */}
+          <div className="text-sm text-gray-600 dark:text-gray-300">
+            {userAchievements.length} débloqués
+          </div>
         </div>
       </div>
 
       {/* Filtres */}
-      {availableTypes.length > 0 && (
+      {/* {availableTypes.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
           <button
             className={`px-3 py-1 rounded-full text-sm border ${selectedType === null ? "bg-gray-900 text-white" : "bg-gray-100"}`}
@@ -198,7 +311,7 @@ const ProfilePage = () => {
             </button>
           ))}
         </div>
-      )}
+      )} */}
 
       {achvLoading ? (
         <div className="py-6 text-center text-sm text-gray-500">Chargement des badges...</div>
@@ -268,24 +381,32 @@ const ProfilePage = () => {
           </div>
         </div>
 
+        {/* Section contacts (comme HomePage) */}
+        <ContactSection
+          commerciaux={commerciaux}
+          formateurs={formateurs}
+          poleRelation={poleRelation}
+          showFormations={false}
+        />
+
         {/* Contenu principal avec composants mémoïsés */}
         <div className="space-y-4 px-2 sm:px-0">
-          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
+          {/* <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
             <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
               Votre progression
             </h3>
             <div className="overflow-x-auto">{MemoizedCategoryProgress}</div>
-          </div>
+          </div> */}
 
           {/* Badges */}
           <AchievementsSection />
 
-          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
+          {/* <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
             <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
               Résultats récents
             </h3>
             <div className="overflow-x-auto">{MemoizedRecentResults}</div>
-          </div>
+          </div> */}
 
           <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
             <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">

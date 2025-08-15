@@ -41,16 +41,14 @@ const MediaItem = ({
   <div
     onClick={onClick}
     className={`p-3 rounded-lg cursor-pointer transition-colors flex items-center gap-3 border
-      ${
-        isSelected
-          ? "bg-blue-50 border-blue-200"
-          : "border-transparent hover:bg-gray-50"
+      ${isSelected
+        ? "bg-blue-50 border-blue-200"
+        : "border-transparent hover:bg-gray-50"
       }
     `}>
     <div
-      className={`p-2 rounded-full ${
-        isSelected ? "bg-blue-100" : "bg-gray-100"
-      }`}>
+      className={`p-2 rounded-full ${isSelected ? "bg-blue-100" : "bg-gray-100"
+        }`}>
       <PlayCircle
         className={`w-5 h-5 ${isSelected ? "text-blue-600" : "text-gray-500"}`}
       />
@@ -58,9 +56,8 @@ const MediaItem = ({
 
     <div className="flex-1 min-w-0">
       <h3
-        className={`text-sm font-medium truncate ${
-          isWatched ? "text-green-600" : "text-gray-800"
-        }`}>
+        className={`text-sm font-medium truncate ${isWatched ? "text-green-600" : "text-gray-800"
+          }`}>
         {media.titre}
       </h3>
       <div className="flex items-center gap-2 text-xs text-gray-500">
@@ -99,9 +96,8 @@ const MediaListSection = ({
       {icon}
       <span className="font-medium text-sm">{label}</span>
       <ChevronDown
-        className={`w-4 h-4 ml-auto transition-transform ${
-          isExpanded ? "rotate-180" : ""
-        }`}
+        className={`w-4 h-4 ml-auto transition-transform ${isExpanded ? "rotate-180" : ""
+          }`}
       />
     </div>
 
@@ -316,7 +312,7 @@ export default function TutoAstucePage() {
               <select
                 value={selectedFormationId ?? ""}
                 onChange={(e) => setSelectedFormationId(e.target.value || null)}
-                className="w-full sm:w-auto px-3 py-1 text-sm bg-white border border-gray-300 rounded-lg shadow-sm"
+                className="w-full sm:w-auto px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg shadow-sm"
                 aria-label="Sélectionner une formation">
                 {formationsWithTutos.map((formation) => (
                   <option key={formation.id} value={formation.id}>
@@ -325,7 +321,7 @@ export default function TutoAstucePage() {
                 ))}
               </select>
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 w-full lg:w-auto">
                 <MediaTabs
                   active={activeCategory}
                   onChange={setActiveCategory}
@@ -333,7 +329,7 @@ export default function TutoAstucePage() {
                 />
                 <button
                   onClick={() => refetch()}
-                  className="w-full sm:w-auto px-3 py-1 bg-yellow-400 text-white rounded-lg shadow text-sm lg:ml-2">
+                  className="w-full sm:w-auto px-3 py-1.5 bg-yellow-400 text-white rounded-lg shadow text-sm lg:ml-2">
                   {isFetching ? "..." : "Rafraîchir"}
                 </button>
               </div>
@@ -359,21 +355,19 @@ export default function TutoAstucePage() {
                 </div>
               ) : (
                 <div className="space-y-2 overflow-y-auto max-h-[60vh]">
-                  {Object.entries(groupedMediasByType).map(
-                    ([type, categories]) => (
-                      <MediaListSection
-                        key={type}
-                        type={type}
-                        icon={mediaTypeConfig[type].icon}
-                        label={mediaTypeConfig[type].label}
-                        categories={categories}
-                        isExpanded={expandedSections[type]}
-                        onToggle={() => toggleSection(type)}
-                        selectedMedia={selectedMedia}
-                        onSelectMedia={setSelectedMedia}
-                      />
-                    )
-                  )}
+                  {Object.entries(groupedMediasByType).map(([type, categories]) => (
+                    <MediaListSection
+                      key={type}
+                      type={type}
+                      icon={mediaTypeConfig[type].icon}
+                      label={mediaTypeConfig[type].label}
+                      categories={categories}
+                      isExpanded={expandedSections[type]}
+                      onToggle={() => toggleSection(type)}
+                      selectedMedia={selectedMedia}
+                      onSelectMedia={setSelectedMedia}
+                    />
+                  ))}
                 </div>
               )}
             </div>
