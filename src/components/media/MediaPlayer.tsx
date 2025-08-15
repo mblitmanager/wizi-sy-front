@@ -105,7 +105,7 @@ export default function MediaPlayer({ media }: Props) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.3 }}
-          className="w-full aspect-video sm:aspect-video bg-gray-100 rounded-md flex items-center justify-center px-0 sm:px-3">
+          className="w-full aspect-video bg-gray-100 rounded-none sm:rounded-md flex items-center justify-center px-0">
           {renderMediaContent()}
         </motion.div>
       </AnimatePresence>

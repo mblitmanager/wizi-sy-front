@@ -121,14 +121,16 @@ const MediaListSection = ({
 );
 
 const MediaPlayerSection = ({ media }: { media: Media | null }) => (
-  <div className="bg-white rounded-xl shadow-sm p-4 lg:col-span-2">
+  <div className="bg-white rounded-xl shadow-sm p-0 sm:p-4 lg:col-span-2">
     {media ? (
       <>
-        <div className="aspect-video bg-black rounded-lg overflow-hidden">
-          <MediaPlayer key={media.id} media={media} />
+        <div className="-mx-4 sm:mx-0">
+          <div className="aspect-video bg-black rounded-none sm:rounded-lg overflow-hidden">
+            <MediaPlayer key={media.id} media={media} />
+          </div>
         </div>
 
-        <div className="mt-4">
+        <div className="mt-4 px-4 sm:px-0">
           <h2 className="text-xl font-bold">{media.titre}</h2>
           <p className="text-gray-600 mt-2">
             {stripHtmlTags(media.description)}
