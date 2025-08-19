@@ -1,32 +1,4 @@
-import { useEffect, useMemo, useState, useRef } from "react";
-import axios from "axios";
-import { useMediaByFormation } from "@/use-case/hooks/media/useMediaByFormation";
-import { MediaPlayer, MediaTabs } from "@/Media";
-import { Layout } from "@/components/layout/Layout";
-import { Media } from "@/types/media";
-import { useUser } from "@/hooks/useAuth";
-import { useFormationStagiaire } from "@/use-case/hooks/stagiaire/useFormationStagiaire";
-import {
-  CheckCircle,
-  PlayCircle,
-  Clock,
-  FilmIcon,
-  FileIcon,
-  Music2Icon,
-  PhoneOutgoingIcon,
-  ChevronDown,
-} from "lucide-react";
-import { stripHtmlTags } from "@/utils/UtilsFunction";
-
-// Composants réutilisables
-const MediaSkeleton = ({ count = 5 }: { count?: number }) => (
-  <div className="space-y-3">
-    {[...Array(count)].map((_, i) => (
-      <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse" />
-    ))}
-  </div>
-);
-
+// Composant MediaItem pour afficher un média dans la liste
 const MediaItem = ({
   media,
   isSelected,
@@ -40,46 +12,27 @@ const MediaItem = ({
 }) => (
   <div
     onClick={onClick}
-    className={`p-3 rounded-lg cursor-pointer transition-colors flex items-center gap-3 border
-      ${isSelected
-        ? "bg-blue-50 border-blue-200"
-        : "border-transparent hover:bg-gray-50"
-      }
-    `}>
-    <div
-      className={`p-2 rounded-full ${isSelected ? "bg-blue-100" : "bg-gray-100"
-        }`}>
-      <PlayCircle
-        className={`w-5 h-5 ${isSelected ? "text-blue-600" : "text-gray-500"}`}
-      />
+    className={`p-3 cursor-pointer transition-colors flex items-center gap-3 border-0 ${isSelected ? "bg-blue-50" : "hover:bg-gray-50"}`}
+  >
+    <div className={`p-2 ${isSelected ? "bg-blue-100" : "bg-gray-100"}`}> 
+      <PlayCircle className={`w-5 h-5 ${isSelected ? "text-blue-600" : "text-gray-500"}`} />
     </div>
-
     <div className="flex-1 min-w-0">
-      <h3
-        className={`text-sm font-medium truncate ${isWatched ? "text-green-600" : "text-gray-800"
-          }`}>
-        {media.titre}
-      </h3>
-      <div className="flex items-center gap-2 text-xs text-gray-500">
-        <Clock className="w-3 h-3" />
-        <span>{media.duree} min</span>
-      </div>
+      <h3 className={`text-sm font-medium truncate ${isWatched ? "text-green-600" : "text-gray-800"}`}>{media.titre}</h3>
     </div>
-
     {isWatched && <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />}
   </div>
 );
+// Skeleton de chargement pour la liste des médias
+const MediaSkeleton = ({ count = 5 }: { count?: number }) => (
+  <div className="space-y-3">
+    {[...Array(count)].map((_, i) => (
+      <div key={i} className="h-16 bg-gray-100 animate-pulse" />
+    ))}
+  </div>
+);
 
-const MediaListSection = ({
-  type,
-  icon,
-  label,
-  categories,
-  isExpanded,
-  onToggle,
-  selectedMedia,
-  onSelectMedia,
-}: {
+interface MediaListSectionProps {
   type: string;
   icon: React.ReactNode;
   label: string;
@@ -88,37 +41,99 @@ const MediaListSection = ({
   onToggle: () => void;
   selectedMedia: Media | null;
   onSelectMedia: (media: Media) => void;
-}) => (
-  <div className="mb-4">
-    <div
-      className="flex items-center gap-2 p-2 bg-gray-100 rounded-lg cursor-pointer"
-      onClick={onToggle}>
-      {icon}
-      <span className="font-medium text-sm">{label}</span>
-      <ChevronDown
-        className={`w-4 h-4 ml-auto transition-transform ${isExpanded ? "rotate-180" : ""
-          }`}
-      />
-    </div>
+}
 
-    {isExpanded &&
-      Object.entries(categories).map(([category, items]) => (
-        <div key={category} className="mt-2 ml-3">
-          <div className="space-y-1">
-            {items.map((media) => (
-              <MediaItem
-                key={media.id}
-                media={media}
-                isSelected={selectedMedia?.id === media.id}
-                isWatched={media.stagiaires?.[0]?.is_watched}
-                onClick={() => onSelectMedia(media)}
-              />
-            ))}
-          </div>
+const MediaListSection: React.FC<MediaListSectionProps> = ({
+  type,
+  icon,
+  label,
+  categories,
+  isExpanded,
+  onToggle,
+  selectedMedia,
+  onSelectMedia,
+}) => {
+  return (
+    <div className="mb-4">
+      <div className="flex items-center justify-between p-2 bg-gray-100 rounded-lg">
+        <div className="flex items-center gap-2">
+          {icon}
+          <span className="font-medium text-base">{label}</span>
         </div>
-      ))}
-  </div>
-);
+        <button
+          type="button"
+          className="p-2 rounded-full hover:bg-gray-200 transition"
+          onClick={onToggle}
+          aria-label={isExpanded ? `Réduire ${label}` : `Déplier ${label}`}
+        >
+          <ChevronDown className={`w-5 h-5 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+        </button>
+      </div>
+
+      {/* Playlist always shown when expanded, description only when collapsed */}
+      {isExpanded ? (
+        <div className="mt-2">
+          {Object.entries(categories).map(([category, items]) => (
+            <div key={category} className="mb-2">
+              <div className="font-semibold text-sm text-gray-600 mb-1 ml-3">{category}</div>
+              <div className="space-y-1 ml-3">
+                {items.map((media) => (
+                  <MediaItem
+                    key={media.id}
+                    media={media}
+                    isSelected={selectedMedia?.id === media.id}
+                    isWatched={media.stagiaires?.[0]?.is_watched}
+                    onClick={() => onSelectMedia(media)}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-4 px-2">
+          {selectedMedia ? (
+            <>
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="text-lg font-bold">{selectedMedia.titre}</h3>
+                {selectedMedia.stagiaires?.[0]?.is_watched && (
+                  <span title="Déjà vu">
+                    <CheckCircle className="w-5 h-5 text-green-500" />
+                  </span>
+                )}
+              </div>
+              <p className="text-gray-600 text-sm">{selectedMedia.description ? stripHtmlTags(selectedMedia.description) : "Aucune description disponible."}</p>
+            </>
+          ) : (
+            <span className="text-gray-400 text-sm">Aucun média sélectionné</span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+import { useEffect, useMemo, useState, useRef } from "react";
+import { stripHtmlTags } from "@/utils/UtilsFunction";
+import {
+  FilmIcon,
+  PhoneOutgoingIcon,
+  Music2Icon,
+  FileIcon,
+  ChevronDown,
+  CheckCircle,
+  PlayCircle,
+  Clock,
+  RefreshCw,
+} from "lucide-react";
+import axios from "axios";
+import { useMediaByFormation } from "@/use-case/hooks/media/useMediaByFormation";
+import { MediaPlayer, MediaTabs } from "@/Media";
+import { Layout } from "@/components/layout/Layout";
+import { Media } from "@/types/media";
+import { useUser } from "@/hooks/useAuth";
+import { useFormationStagiaire } from "@/use-case/hooks/stagiaire/useFormationStagiaire";
+// ...existing code...
+
 
 const MediaPlayerSection = ({ media }: { media: Media | null }) => (
   <div className="bg-white rounded-xl shadow-sm p-0 sm:p-4 lg:col-span-2">
@@ -130,19 +145,20 @@ const MediaPlayerSection = ({ media }: { media: Media | null }) => (
           </div>
         </div>
 
-        <div className="mt-4 px-4 sm:px-0">
-          <h2 className="text-xl font-bold">{media.titre}</h2>
+        {/* <div className="mt-4 px-4 sm:px-0">
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-bold">{media.titre}</h2>
+            {media.stagiaires?.[0]?.is_watched && (
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-50 text-green-700 rounded-full">
+                <CheckCircle className="w-5 h-5" />
+                <span className="text-sm font-medium">Déjà regardé</span>
+              </div>
+            )}
+          </div>
           <p className="text-gray-600 mt-2">
             {stripHtmlTags(media.description)}
           </p>
-
-          {media.stagiaires?.[0]?.is_watched && (
-            <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-full">
-              <CheckCircle className="w-5 h-5" />
-              <span>Déjà regardé</span>
-            </div>
-          )}
-        </div>
+        </div> */}
       </>
     ) : (
       <div className="flex items-center justify-center h-64 text-gray-500">
@@ -184,7 +200,7 @@ export default function TutoAstucePage() {
   } = useMediaByFormation(selectedFormationId);
 
   // Données dérivées
-  const formationsWithTutos = formations.data ?? [];
+  const formationsWithTutos = useMemo(() => formations.data ?? [], [formations]);
   const tutoriels = localMediasData?.tutoriels ?? mediasData?.tutoriels ?? [];
   const astuces = localMediasData?.astuces ?? mediasData?.astuces ?? [];
   const medias = activeCategory === "tutoriel" ? tutoriels : astuces;
@@ -259,7 +275,7 @@ export default function TutoAstucePage() {
     if (!selectedFormationId && formationsWithTutos.length > 0) {
       setSelectedFormationId(formationsWithTutos[0].id.toString());
     }
-  }, [formationsWithTutos]);
+  }, [formationsWithTutos, selectedFormationId]);
 
   useEffect(() => {
     const handleMediaWatched = (e: CustomEvent) => {
@@ -302,52 +318,57 @@ export default function TutoAstucePage() {
   // Rendu
   return (
     <Layout>
-      <div className="mx-auto px-4 py-6 max-w-7xl">
-        <div className="flex flex-col gap-6">
+  <div className="mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-7xl w-full overflow-hidden" style={{maxWidth: '90vw'}}>
+        <div className="flex flex-col gap-4 sm:gap-6">
           {/* En-tête */}
-          <div className="bg-white rounded-xl shadow-sm p-4">
-            <h1 className="hidden md:block text-3xl text-brown-shade font-bold mb-4">
-              Médias de formation
+          <div className="p-3 sm:p-4">
+            <h1 className="block text-xl sm:text-3xl text-brown-shade font-bold mb-2 sm:mb-4 text-center sm:text-left">
+              Tutoriels et astuces
             </h1>
 
-            <div className="flex flex-col gap-2 w-full lg:flex-row lg:items-center lg:gap-4 lg:justify-between">
-              <select
-                value={selectedFormationId ?? ""}
-                onChange={(e) => setSelectedFormationId(e.target.value || null)}
-                className="w-full sm:w-auto px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg shadow-sm"
-                aria-label="Sélectionner une formation">
-                {formationsWithTutos.map((formation) => (
-                  <option key={formation.id} value={formation.id}>
-                    {formation.titre}
-                  </option>
-                ))}
-              </select>
-
-              <div className="flex gap-2 w-full lg:w-auto">
-                <MediaTabs
-                  active={activeCategory}
-                  onChange={setActiveCategory}
-                  className="flex-1"
-                />
+            <div className="flex flex-col gap-2 w-full sm:flex-row sm:items-center sm:gap-4 sm:justify-between">
+              
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <MediaTabs
+                active={activeCategory}
+                onChange={setActiveCategory}
+                className="flex-1"
+              />
+                <select
+                  value={selectedFormationId ?? ""}
+                  onChange={(e) => setSelectedFormationId(e.target.value || null)}
+                  className="w-full sm:w-auto px-3 py-2 text-sm"
+                  aria-label="Sélectionner une formation"
+                >
+                  {formationsWithTutos.map((formation) => (
+                    <option key={formation.id} value={formation.id}>
+                      {formation.titre}
+                    </option>
+                  ))}
+                </select>
                 <button
                   onClick={() => refetch()}
-                  className="w-full sm:w-auto px-3 py-1.5 bg-yellow-400 text-white rounded-lg shadow text-sm lg:ml-2">
-                  {isFetching ? "..." : "Rafraîchir"}
+                  className="px-2 py-2 bg-yellow-400 text-white flex items-center justify-center text-sm rounded-full"
+                  title="Rafraîchir"
+                >
+                  <RefreshCw className={`w-5 h-5 ${isFetching ? 'animate-spin' : ''}`} />
                 </button>
+               
               </div>
+             
             </div>
           </div>
 
           {/* Contenu principal */}
-          <div className="flex flex-col-reverse lg:grid lg:grid-cols-3 gap-6">
+          <div className="flex flex-col-reverse sm:flex-col lg:grid lg:grid-cols-3 gap-4 sm:gap-6 w-full max-w-full" style={{maxWidth: '90vw'}}>
             {/* Liste des médias */}
-            <div className="bg-white rounded-xl shadow-sm p-4 lg:col-span-1 overflow-hidden">
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <div className="p-3 sm:p-4 lg:col-span-1 overflow-auto w-full lg:max-w-[350px]">
+              {/* <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2">
                 <PlayCircle className="w-5 h-5 text-blue-600" />
                 <span>
                   {activeCategory === "tutoriel" ? "Tutoriels" : "Astuces"}
                 </span>
-              </h2>
+              </h2> */}
 
               {isLoading ? (
                 <MediaSkeleton count={5} />
@@ -356,7 +377,14 @@ export default function TutoAstucePage() {
                   Aucun média disponible
                 </div>
               ) : (
-                <div className="space-y-2 overflow-y-auto max-h-[60vh]">
+                <div
+                  className="space-y-2 overflow-y-auto"
+                  style={{
+                    maxHeight: 'calc(100vh - 320px)', // Ajuste dynamiquement selon la taille de l'écran
+                    minHeight: '200px',
+                    paddingRight: '4px',
+                  }}
+                >
                   {Object.entries(groupedMediasByType).map(([type, categories]) => (
                     <MediaListSection
                       key={type}
@@ -375,7 +403,7 @@ export default function TutoAstucePage() {
             </div>
 
             {/* Lecteur de média */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 w-full">
               <MediaPlayerSection media={selectedMedia} />
             </div>
           </div>
