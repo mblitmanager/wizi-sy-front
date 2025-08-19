@@ -294,13 +294,13 @@ export function GlobalRanking({
                     </div>
                   </div>
 
-                  <div className="mt-3">
+                  {/* <div className="mt-3">
                     <div className="flex justify-between text-sm mb-1">
                       <span>Progression</span>
                       <span>{percentage}%</span>
                     </div>
                     <Progress value={percentage} className="h-2" />
-                  </div>
+                  </div> */}
                 </div>
               );
             })
@@ -358,9 +358,9 @@ export function GlobalRanking({
                         <SortIcon column="score" />
                       </div>
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Progression
-                    </th>
+                    </th> */}
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -414,14 +414,14 @@ export function GlobalRanking({
                         <td className="px-6 py-4 whitespace-nowrap font-bold text-blue-600">
                           {(entry as any).score}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        {/* <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-3">
                             <Progress value={percentage} className="h-2 w-32" />
                             <span className="text-sm text-gray-500">
                               {percentage}%
                             </span>
                           </div>
-                        </td>
+                        </td> */}
                       </tr>
                     );
                   })}

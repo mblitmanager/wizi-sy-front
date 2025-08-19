@@ -251,7 +251,7 @@ export function Classement() {
             </div>
 
             {/* Catégories */}
-            <div className="mt-6">
+            {/* <div className="mt-6">
               <h3 className="text-base sm:text-lg font-semibold text-gray-800">Par catégorie</h3>
               <div className="mt-3 space-y-3">
                 {(categoryStats || []).map((cat, idx: number) => {
@@ -293,21 +293,21 @@ export function Classement() {
                   );
                 })}
               </div>
-            </div>
+            </div> */}
 
             {/* Progression par niveau */}
             <div className="mt-6">
               <h3 className="text-base sm:text-lg font-semibold text-gray-800">Progression par niveau</h3>
               <div className="mt-3 space-y-3">
                 {([
-                  { label: "Débutant", key: "debutant", color: "bg-green-500" },
-                  { label: "Intermédiaire", key: "intermediaire", color: "bg-orange-500" },
-                  { label: "Avancé", key: "avance", color: "bg-red-500" },
+                  { label: "Débutant", key: "débutant", color: "bg-green-500" },
+                  { label: "Intermédiaire", key: "intermédiaire", color: "bg-orange-500" },
+                  { label: "Avancé", key: "avancé", color: "bg-red-500" },
                 ] as const).map((lvl) => {
                   const data = (levelProgress[lvl.key] ?? { completed: 0, averageScore: 0 }) as LevelData;
-                  const completed = data.completed || 0;
-                  const avg = data.averageScore || 0;
-                  const percentage = totalQuizzes === 0 ? 0 : (completed / totalQuizzes) * 100;
+                  const completed = typeof data.completed === "number" && data.completed >= 0 ? data.completed : 0;
+                  const avg = typeof data.averageScore === "number" && data.averageScore !== null && data.averageScore >= 0 ? data.averageScore : 0.0;
+                  const percentage = totalQuizzes > 0 ? (completed / totalQuizzes) * 100 : 0.0;
                   return (
                     <button
                       key={lvl.key}
@@ -317,7 +317,7 @@ export function Classement() {
                           <div className="space-y-2">
                             <SheetRow label="Niveau" value={lvl.label} />
                             <SheetRow label="Quiz complétés" value={String(completed)} />
-                            <SheetRow label="Score moyen" value={`${Number(avg).toFixed(1)}%`} />
+                            <SheetRow label="Score moyen" value={`${avg.toFixed(1)}%`} />
                           </div>
                         )
                       }
@@ -336,7 +336,7 @@ export function Classement() {
                         </div>
                         <div className="mt-1 flex items-center justify-between text-xs text-gray-500">
                           <span>{completed} quiz complétés</span>
-                          <span>moyenne: {Number(avg).toFixed(1)}%</span>
+                          <span>Moyenne: {avg.toFixed(1)}%</span>
                         </div>
                       </div>
                     </button>
