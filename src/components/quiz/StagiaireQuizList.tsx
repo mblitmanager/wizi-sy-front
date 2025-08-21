@@ -356,17 +356,17 @@ export function StagiaireQuizList({ selectedFormationId }: { selectedFormationId
 
   return (
     <div className="">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4 mt-[-10%] md:mt-0">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
         <h2 className="text-3xl sm:text-2xl md:text-3xl text-brown-shade font-bold">
-          Mes Quiz
+          Quiz
         </h2>
         {/* Affichage formation sélectionnée */}
-        {selectedFormationId && (
+        {/* {selectedFormationId && (
           <div className="mb-2 text-sm text-gray-600">Formation sélectionnée : {selectedFormationId}</div>
-        )}
+        )} */}
 
         <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-3 sm:gap-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1.5 sm:gap-2">
+          {/* <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1.5 sm:gap-2">
             <select
               className="w-full sm:w-auto border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring focus:ring-blue-200 bg-white"
               value={selectedCategory}
@@ -383,7 +383,7 @@ export function StagiaireQuizList({ selectedFormationId }: { selectedFormationId
                 </option>
               ))}
             </select>
-          </div>
+          </div> */}
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1.5 sm:gap-2">
             <div className="flex items-center gap-2 w-full sm:w-auto">

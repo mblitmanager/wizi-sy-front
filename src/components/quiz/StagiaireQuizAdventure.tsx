@@ -19,19 +19,20 @@ export const StagiaireQuizAdventure: React.FC<{ selectedFormationId?: string | n
         queryFn: () => stagiaireQuizService.getStagiaireQuizzes(),
         staleTime: 5 * 60 * 1000,
     });
-
+    // console.log("Quizzes loaded:", quizzes);
     const { data: participations } = useQuery<Participation[]>({
         queryKey: ["stagiaire-participations-adventure"],
         queryFn: () => stagiaireQuizService.getStagiaireQuizJoue(),
         staleTime: 5 * 60 * 1000,
     });
-
+    // console.log("Quizzes participations:", quizzes);
     const { data: quizHistory } = useQuery<QuizHistory[]>({
         queryKey: ["quiz-history-adventure"],
         queryFn: () => quizHistoryService.getQuizHistory(),
         staleTime: 5 * 60 * 1000,
         enabled: !!localStorage.getItem("token"),
     });
+    console.log("Quiz History:", quizHistory);
 
     const playedIds = useMemo(() => {
         if (!participations) return new Set<string>();
@@ -131,6 +132,7 @@ export const StagiaireQuizAdventure: React.FC<{ selectedFormationId?: string | n
 
     if (!computed.list.length) {
         return (
+            
             <>
                 {selectedFormationId && (
                     <div className="mb-2 text-sm text-gray-600">Formation sélectionnée : {selectedFormationId}</div>
@@ -142,9 +144,12 @@ export const StagiaireQuizAdventure: React.FC<{ selectedFormationId?: string | n
 
     return (
         <div className="space-y-6">
-            {selectedFormationId && (
+            <h2 className="text-3xl sm:text-2xl md:text-3xl text-brown-shade font-bold">
+          Quiz
+        </h2>
+            {/* {selectedFormationId && (
                 <div className="mb-2 text-sm text-gray-600">Formation sélectionnée : {selectedFormationId}</div>
-            )}
+            )} */}
             {/* Bandeau stats simple */}
             {/* <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-50 border border-amber-200">
                 <div className="text-sm font-semibold text-amber-800">Points: {userPoints}</div>
@@ -220,6 +225,7 @@ function QuizStepCard({ quiz, playable, played, history }: { quiz: Quiz; playabl
                     <Lock className="w-4 h-4" />
                 </div>
             )}
+            
             <div className="flex items-start gap-3">
                 <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white">
                     <span className="text-sm">QZ</span>

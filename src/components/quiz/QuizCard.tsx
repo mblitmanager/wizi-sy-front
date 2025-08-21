@@ -208,8 +208,9 @@ export function QuizCard({ quiz, categories, history }: QuizCardProps) {
             >
               <Award className="w-3 h-3" />
               {quiz.questions?.length
-                ? `${quiz.questions.length * 2} pts`
+                ? `${Math.min(quiz.questions.length * 2, 10)} pts`
                 : "0 pt"}
+
             </Badge>
 
             {/* Temps estimé */}
@@ -218,7 +219,7 @@ export function QuizCard({ quiz, categories, history }: QuizCardProps) {
               className="text-xs flex items-center gap-1"
             >
               <Clock className="w-3 h-3" />
-              {estimatedTime} min
+              3 min
             </Badge>
           </div>
           {h && (

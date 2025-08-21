@@ -4,7 +4,17 @@ import { useUser } from "@/hooks/useAuth";
 import { StagiaireQuizList } from "@/components/quiz/StagiaireQuizList";
 import { useQuery } from "@tanstack/react-query";
 import { categoryService } from "@/services/quiz/CategoryService";
-import { Loader2, WifiOff } from "lucide-react";
+import {
+  Loader2, WifiOff, List,
+  ListOrdered,
+  ListChecks,
+  Table,
+  Rows,
+  Columns,
+  LayoutGrid,
+  Grid3X3,
+  Grid
+} from "lucide-react";
 import StagiaireQuizAdventure from "@/components/quiz/StagiaireQuizAdventure";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -82,36 +92,55 @@ export default function Quizzes() {
   return (
     <Layout>
       <div className="flex flex-row flex-wrap items-center gap-2 mb-4 w-full">
-        <div className="flex flex-row items-center gap-2 flex-wrap w-full sm:w-auto">
-          <div className="flex items-center gap-2">
-            <span className={`font-medium text-base ${activeToggle === 'adventure' ? 'text-blue-600' : 'text-gray-500'}`}>Aventure</span>
-            <button
-              type="button"
-              aria-label="Basculer la vue quiz"
-              className={`relative w-12 h-6 bg-gray-200 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${activeToggle === 'mes-quizzes' ? 'bg-blue-600' : ''}`}
-              onClick={() => setActiveToggle(activeToggle === 'adventure' ? 'mes-quizzes' : 'adventure')}
-            >
-              <span
-                className={`absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${activeToggle === 'mes-quizzes' ? 'translate-x-6' : ''}`}
-              />
-            </button>
-            <span className={`font-medium text-base ${activeToggle === 'mes-quizzes' ? 'text-blue-600' : 'text-gray-500'}`}>Mes quiz</span>
-          </div>
-          <div className="flex items-center gap-2 min-w-[100px]">
-            <label htmlFor="formation-select" className="font-medium text-base text-gray-700">Formation</label>
+        <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+          {/* Sélecteur Formation */}
+          <div className="flex items-center min-w-[120px]">
             <select
               id="formation-select"
               value={selectedFormationId ?? ''}
               onChange={e => setSelectedFormationId(e.target.value || null)}
-              className="border rounded px-2 py-1 min-w-[80px] text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border rounded-lg px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
               aria-label="Sélectionner une formation"
             >
               {formationsWithTutos.map((formation) => (
-                <option key={formation.id} value={formation.id}>{formation.label ?? formation.titre}</option>
+                <option key={formation.id} value={formation.id}>
+                  {formation.label ?? formation.titre}
+                </option>
               ))}
             </select>
           </div>
+
+          {/* Toggle Vue Quiz */}
+          <div className="flex items-center gap-3">
+            <List
+              className={`h-7 w-7 transition-colors ${activeToggle === 'adventure' ? 'text-black' : 'text-gray-400'
+                }`}
+            />
+
+            <button
+              type="button"
+              aria-label="Basculer la vue quiz"
+              className={`relative w-14 h-7 rounded-full transition-colors duration-300 
+        ${activeToggle === 'mes-quizzes' ? 'bg-yellow-400' : 'bg-gray-300'}
+      `}
+              onClick={() =>
+                setActiveToggle(activeToggle === 'adventure' ? 'mes-quizzes' : 'adventure')
+              }
+            >
+              <span
+                className={`absolute left-1 top-1 w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300
+          ${activeToggle === 'mes-quizzes' ? 'translate-x-7' : ''}
+        `}
+              />
+            </button>
+
+            <Grid3X3
+              className={`h-7 w-7 transition-colors ${activeToggle === 'mes-quizzes' ? 'text-black' : 'text-gray-400'
+                }`}
+            />
+          </div>
         </div>
+
       </div>
       {categoriesLoading ? (
         <div className="flex items-center justify-center min-h-[50vh]">
