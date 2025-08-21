@@ -102,8 +102,9 @@ const ContactSection = ({
             {contact.name}
           </h2>
           <span
-            className={`text-xs px-2 py-1 rounded-full font-medium ${typeStyles[contact.type]
-              }`}>
+            className={`text-xs px-2 py-1 rounded-full font-medium ${
+              typeStyles[contact.type]
+            }`}>
             {contact.type}
           </span>
         </div>
@@ -123,49 +124,51 @@ const ContactSection = ({
             {contact.telephone || "Non renseigné"}
           </a>
         </div>
-        {showFormations && contact.formations && contact.formations.length > 0 && (
-          <div className="mt-4">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="inline-block bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">
-                {contact.formations.length > 1 ? "Formations" : "Formation"}
-              </span>
-              <span className="text-xs text-gray-400">
-                ({contact.formations.length})
-              </span>
-            </div>
-            <div className="space-y-2">
-              {contact.formations.map((formation) => (
-                <div
-                  key={formation.id}
-                  className="flex items-center bg-gray-50 rounded-lg px-3 py-2 shadow-sm hover:bg-blue-50 transition">
-                  <div className="flex-1">
-                    <span className="font-medium text-gray-800">
-                      {formation.titre}
-                    </span>
-                    <div className="text-xs text-gray-500">
-                      {formation.dateDebut && (
-                        <span className="mr-2">
-                          <span className="font-semibold">Début:</span>{" "}
-                          {new Date(formation.dateDebut).toLocaleDateString(
-                            "fr-FR"
-                          )}
-                        </span>
-                      )}
-                      {formation.dateFin && (
-                        <span>
-                          <span className="font-semibold">Fin:</span>{" "}
-                          {new Date(formation.dateFin).toLocaleDateString(
-                            "fr-FR"
-                          )}
-                        </span>
-                      )}
+        {showFormations &&
+          contact.formations &&
+          contact.formations.length > 0 && (
+            <div className="mt-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="inline-block bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">
+                  {contact.formations.length > 1 ? "Formations" : "Formation"}
+                </span>
+                <span className="text-xs text-gray-400">
+                  ({contact.formations.length})
+                </span>
+              </div>
+              <div className="space-y-2">
+                {contact.formations.map((formation) => (
+                  <div
+                    key={formation.id}
+                    className="flex items-center bg-gray-50 rounded-lg px-3 py-2 shadow-sm hover:bg-blue-50 transition">
+                    <div className="flex-1">
+                      <span className="font-medium text-gray-800">
+                        {formation.titre}
+                      </span>
+                      <div className="text-xs text-gray-500">
+                        {formation.dateDebut && (
+                          <span className="mr-2">
+                            <span className="font-semibold">Début:</span>{" "}
+                            {new Date(formation.dateDebut).toLocaleDateString(
+                              "fr-FR"
+                            )}
+                          </span>
+                        )}
+                        {formation.dateFin && (
+                          <span>
+                            <span className="font-semibold">Fin:</span>{" "}
+                            {new Date(formation.dateFin).toLocaleDateString(
+                              "fr-FR"
+                            )}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
       </div>
     </div>
   );
@@ -190,13 +193,13 @@ const ContactSection = ({
             {CONTACTEZ_NOUS}
           </h1>
           <Link to="/contacts">
-            <Button
+            <a
               variant="ghost"
               size="sm"
-              className="group text-orange-600 font-bold flex items-center gap-1 transition-all duration-200 bg-gray-100 hover:bg-gray-100">
+              className="group flex items-center gap-1 text-orange-600 hover:text-orange-700 font-semibold transition-colors">
               Voir tous
               <ArrowRight className="w-4 h-4 transform transition-transform duration-200 group-hover:translate-x-1" />
-            </Button>
+            </a>
           </Link>
         </div>
 

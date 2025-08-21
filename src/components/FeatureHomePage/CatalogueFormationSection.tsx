@@ -43,9 +43,12 @@ export default function CatalogueFormationSection({
           {CATALOGUE_FORMATION}
         </h2>
         <Link to="/formations">
-          <Button variant="ghost" className="text-orange-600 font-bold" size="sm">
+          <a
+            variant="ghost"
+            className="group flex items-center gap-1 text-orange-600 hover:text-orange-700 font-semibold transition-colors"
+            size="sm">
             Voir tous
-          </Button>
+          </a>
         </Link>
       </div>
       {/* Ligne orange décorative */}

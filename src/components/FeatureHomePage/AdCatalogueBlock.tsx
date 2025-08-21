@@ -240,7 +240,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                   disabled={inscriptionLoading === idx}
                   className={`
                     w-full relative overflow-hidden
-                    bg-gradient-to-r from-orange-500 to-amber-600
+                    bg-black
                     text-white font-bold py-3 px-6 rounded-lg
                     shadow-md hover:shadow-lg transition-all
                     hover:brightness-110
