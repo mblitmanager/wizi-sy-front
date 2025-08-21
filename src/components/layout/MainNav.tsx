@@ -13,9 +13,13 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface MainNavProps {
   showBottomNav?: boolean;
+  onItemClick?: () => void;
 }
 
-export default function MainNav({ showBottomNav = false }: MainNavProps) {
+export default function MainNav({
+  showBottomNav = false,
+  onItemClick,
+}: MainNavProps) {
   const navigate = useNavigate();
   const { logout } = useUser();
 
