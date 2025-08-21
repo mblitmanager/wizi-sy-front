@@ -22,6 +22,8 @@ export interface User {
     adresse?: string;
     code_postal?: string;
     ville?: string;
+    date_debut_formation?: string;
+    date_inscription?: string;
   };
   user?: {
     id: string | number;
@@ -30,17 +32,23 @@ export interface User {
     role?: string;
     image?: string | null;
     updated_at?: string;
+    adresse?: string | null;
   };
 }
+
+interface AchievementMinimal { id: string | number; name?: string; type?: string; level?: string }
 
 interface UserStatsProps {
   user: User | null;
   userProgress?: UserProgress | null;
+  achievements?: AchievementMinimal[];
+  achievementsLoading?: boolean;
 }
 
-const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
-  const [achievements, setAchievements] = useState([]);
-  const [achievementsLoading, setAchievementsLoading] = useState(false);
+const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress, achievements, achievementsLoading }) => {
+  const [localAchievements, setLocalAchievements] = useState<AchievementMinimal[]>([]);
+  const [localAchievementsLoading, setLocalAchievementsLoading] = useState(false);
+  const [showMoreMobile, setShowMoreMobile] = useState(false);
 
   const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
   const VITE_API_URL = import.meta.env.VITE_API_URL;
@@ -50,9 +58,11 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(true);
 
+  // Charger localement si aucune prop achievements fournie
   useEffect(() => {
+    if (achievements !== undefined) return; // props prioritaires
     if (!user?.user?.id) return;
-    setAchievementsLoading(true);
+    setLocalAchievementsLoading(true);
     axios
       .get(`${VITE_API_URL}/achievements/${user.user.id}`, {
         headers: {
@@ -60,62 +70,30 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
         },
       })
       .then((res) => {
-        const badges = res.data || [];
+        const badges = (res.data || []) as AchievementMinimal[];
         // Ajout de badges de test si non présents
-        const testBadges = [
-          {
-            id: "connexion_serie",
-            name: "Série de connexions",
-            description: "Connectez-vous plusieurs jours d'affilée",
-            icon: "🔥",
-            type: "connexion_serie",
-          },
-          {
-            id: "first_login",
-            name: "Première connexion",
-            description: "Connectez-vous pour la première fois",
-            icon: "🎉",
-            type: "connexion_serie",
-          },
-          {
-            id: "first_quiz",
-            name: "Premier quiz",
-            description: "Terminez votre premier quiz",
-            icon: "🏆",
-            type: "quiz",
-          },
-          {
-            id: "first_video",
-            name: "Première vidéo",
-            description: "Regardez votre première vidéo",
-            icon: "🎬",
-            type: "video",
-          },
-          {
-            id: "first_parrainage",
-            name: "Premier parrainage",
-            description: "Parrainez un utilisateur pour la première fois",
-            icon: "🤝",
-            type: "parrainage",
-          },
+        const testBadges: AchievementMinimal[] = [
+          { id: "connexion_serie", name: "Série de connexions", type: "connexion_serie" },
+          { id: "first_login", name: "Première connexion", type: "connexion_serie" },
+          { id: "first_quiz", name: "Premier quiz", type: "quiz" },
+          { id: "first_video", name: "Première vidéo", type: "video" },
+          { id: "first_parrainage", name: "Premier parrainage", type: "parrainage" },
         ];
-        // Ajoute les badges de test s'ils ne sont pas déjà présents (par id ou type)
         testBadges.forEach((testBadge) => {
-          if (
-            !badges.some(
-              (b) => b.id === testBadge.id || b.type === testBadge.type
-            )
-          ) {
+          if (!badges.some((b) => b.id === testBadge.id || b.type === testBadge.type)) {
             badges.push(testBadge);
           }
         });
-        setAchievements(badges);
+        setLocalAchievements(badges);
       })
       .catch(() => {
         toast.error("Erreur lors du chargement des succès");
       })
-      .finally(() => setAchievementsLoading(false));
-  }, [user?.user?.id, VITE_API_URL]);
+      .finally(() => setLocalAchievementsLoading(false));
+  }, [user?.user?.id, VITE_API_URL, achievements]);
+
+  const effectiveAchievements = achievements !== undefined ? achievements : localAchievements;
+  const effectiveLoading = achievementsLoading !== undefined ? achievementsLoading : localAchievementsLoading;
 
   const handleImageClick = useCallback(() => {
     fileInputRef.current?.click();
@@ -149,7 +127,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
 
       try {
         await axios.post(
-          `${VITE_API_URL}/avatar/${user?.user.id}/update-profile`,
+          `${VITE_API_URL}/avatar/${user?.user?.id}/update-profile`,
           formData,
           {
             headers: {
@@ -197,16 +175,13 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
   }, [user?.user?.image, user?.user?.updated_at, VITE_API_URL_MEDIA]);
 
   const userAddress = useMemo(() => {
-    return (
-      [
-        user?.stagiaire?.adresse,
-        user?.stagiaire?.code_postal,
-        user?.stagiaire?.ville,
-      ]
-        .filter(Boolean)
-        .join(", ") || "Adresse non renseignée"
-    );
-  }, [user?.stagiaire]);
+    // Priorité à l’adresse stagiaire puis user
+    const addr = user?.stagiaire?.adresse || user?.user?.adresse || "";
+    const ville = user?.stagiaire?.ville || "";
+    const cp = user?.stagiaire?.code_postal || "";
+    const parts = [addr, cp, ville].filter(Boolean);
+    return parts.length ? parts.join(", ") : "Adresse non renseignée";
+  }, [user?.stagiaire, user?.user?.adresse]);
 
   const renderImage = (className: string) => {
     if (loading) {
@@ -240,6 +215,22 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
     );
   };
 
+  const formatDate = (value?: string) => {
+    if (!value) return "Non renseignée";
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return "Non renseignée";
+    return new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" }).format(d);
+  };
+
+  const InfoRow = ({ label, value }: { label: string; value: string | number | null | undefined }) => (
+    <div className="flex flex-col">
+      <span className="text-xs text-gray-500 dark:text-gray-400">{label}</span>
+      <span className="text-sm font-medium text-gray-800 dark:text-white break-words">
+        {value || "-"}
+      </span>
+    </div>
+  );
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
       <div className="p-6 md:p-4">
@@ -268,15 +259,22 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
             </div>
 
             {/* Informations utilisateur compactes */}
-            <div className="mt-4 text-center md:hidden">
+            <div className="mt-4 text-center md:hidden w-full">
               <h2 className="text-xl font-bold text-gray-800 dark:text-white">
-                {user?.stagiaire?.prenom || "Utilisateur"}
+                {user?.user?.name || user?.stagiaire?.prenom || "Utilisateur"}
               </h2>
               <p className="text-gray-600 dark:text-gray-300">
-                {user?.email || "Email non disponible"}
+                {user?.user?.email || user?.email || "Email non disponible"}
               </p>
               <div className="mt-2 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full inline-block">
                 {totalPoints} points
+              </div>
+              <div className="mt-2">
+                <button
+                  onClick={() => setShowMoreMobile((v) => !v)}
+                  className="text-blue-600 dark:text-blue-400 text-sm underline">
+                  {showMoreMobile ? "Voir moins" : "Voir plus"}
+                </button>
               </div>
             </div>
           </div>
@@ -286,41 +284,37 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress }) => {
             {/* Informations utilisateur détaillées (desktop) */}
             <div className="hidden md:block mb-6">
               <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-                {user?.stagiaire?.prenom || "Utilisateur"}{" "}
-                {user?.user?.name ? `(${user.user.name})` : ""}
+                {user?.user?.name || user?.stagiaire?.prenom || "Utilisateur"}
+                {user?.stagiaire?.prenom && user?.user?.name
+                  ? ` (${user.stagiaire.prenom})`
+                  : ""}
               </h1>
-              <div className="flex flex-wrap gap-4 mt-2">
-                <div className="text-gray-600 dark:text-gray-300">
-                  <span className="font-medium">Email:</span> {user?.email}
-                </div>
-                <div className="text-gray-600 dark:text-gray-300">
-                  <span className="font-medium">Points:</span> {totalPoints}
-                </div>
-                {user?.stagiaire?.telephone && (
-                  <div className="text-gray-600 dark:text-gray-300">
-                    <span className="font-medium">Tél:</span>{" "}
-                    {user.stagiaire.telephone}
-                  </div>
-                )}
-              </div>
-              {userAddress && (
-                <div className="mt-2 text-gray-600 dark:text-gray-300">
-                  <span className="font-medium">Adresse:</span> {userAddress}
-                </div>
-              )}
             </div>
 
-            {/* Badges avec titre réduit et disposition compacte */}
-            <div className="mt-4 md:mt-0">
+            {/* Bloc d'informations détaillées du stagiaire */}
+            <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4 ${showMoreMobile ? "mt-3" : "hidden"} md:grid`}>
+              <InfoRow label="Nom" value={user?.user?.name} />
+              <InfoRow label="Prénom" value={user?.stagiaire?.prenom} />
+              <InfoRow label="Email" value={user?.user?.email || user?.email} />
+              <InfoRow label="Téléphone" value={user?.stagiaire?.telephone} />
+              <InfoRow label="Ville" value={user?.stagiaire?.ville} />
+              <InfoRow label="Code postal" value={user?.stagiaire?.code_postal} />
+              <InfoRow label="Adresse" value={userAddress} />
+              <InfoRow label="Date de lancement" value={formatDate(user?.stagiaire?.date_debut_formation)} />
+              <InfoRow label="Date de vente" value={formatDate(user?.stagiaire?.date_inscription)} />
+            </div>
+
+            {/* Badges avec titre réduit et disposition compacte (peut être réactivé si besoin) */}
+            {/* <div className="mt-4 md:mt-0">
               <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">
                 Mes badges
               </h3>
               <BadgesDisplay
-                badges={achievements}
-                loading={achievementsLoading}
+                badges={effectiveAchievements as any}
+                loading={effectiveLoading}
                 className="compact-view"
               />
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

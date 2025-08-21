@@ -20,4 +20,8 @@ export const contactService = {
     const response = await apiClient.get("/stagiaire/contacts");
     return response.data;
   },
+  getPartner: async () => {
+    const response = await apiClient.get("/stagiaire/partner");
+    return response.data;
+  },
 };

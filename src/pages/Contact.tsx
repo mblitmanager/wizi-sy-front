@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Mail, Phone, User } from "lucide-react";
-import { contactService } from "@/services/contactService copy";
+import { contactService } from "@/services/ContactService";
+import apiClient from "@/lib/api-client";
 
 // Données mock
 const typeStyles: Record<string, string> = {
@@ -60,9 +61,31 @@ interface Contact {
   image?: string;
 }
 
+interface PartnerContact {
+  prenom?: string;
+  nom?: string;
+  fonction?: string;
+  email?: string;
+  tel?: string;
+}
+
+interface PartnerDto {
+  identifiant: string;
+  type: string;
+  adresse: string;
+  ville: string;
+  departement: string;
+  code_postal: string;
+  logo?: string;
+  actif?: boolean;
+  contacts?: PartnerContact[];
+}
+
 export default function Contact() {
   const [contacts, setContacts] = useState<Contact[]>([]);
+  const [partner, setPartner] = useState<PartnerDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingPartner, setIsLoadingPartner] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -87,6 +110,18 @@ export default function Contact() {
     };
 
     fetchContacts();
+    const fetchPartner = async () => {
+      try {
+        setIsLoadingPartner(true);
+        const data = await contactService.getPartner();
+        setPartner(data);
+      } catch (e) {
+        // silencieux si pas de partenaire
+      } finally {
+        setIsLoadingPartner(false);
+      }
+    };
+    fetchPartner();
   }, []);
 
   if (isLoading) {
@@ -144,6 +179,78 @@ export default function Contact() {
           Mes Contacts
         </h1>
 
+        {/* Partner header */}
+        {isLoadingPartner && (
+          <div className="mb-4">
+            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-full bg-amber-400 animate-pulse" style={{ width: "50%" }} />
+            </div>
+          </div>
+        )}
+        {partner && (
+          <div className="bg-white shadow-md rounded-2xl p-5 border mb-4">
+            <div className="flex gap-4 items-start">
+              <div className="w-18 h-18">
+                {partner.logo ? (
+                  <img
+                    src={`${VITE_API_URL_IMG}/${partner.logo}`}
+                    alt="Logo partenaire"
+                    className="w-18 h-18 object-contain rounded"
+                  />
+                ) : (
+                  <div className="w-18 h-18 rounded bg-gray-100 flex items-center justify-center">
+                    <User className="text-gray-500" />
+                  </div>
+                )}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-gray-800">{partner.identifiant}</h2>
+                  <span className="text-xs px-2 py-1 rounded-full font-medium bg-amber-100 text-amber-800 border border-amber-200">
+                    {partner.type}
+                  </span>
+                </div>
+                <div className="text-sm text-gray-600 mt-1">
+                  {partner.adresse}, {partner.ville} ({partner.departement}) {partner.code_postal}
+                </div>
+                {typeof partner.actif === 'boolean' && (
+                  <div className="text-xs mt-1">
+                    <span className={`px-2 py-0.5 rounded ${partner.actif ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                      {partner.actif ? 'Actif' : 'Inactif'}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {partner.contacts && partner.contacts.length > 0 && (
+              <div className="mt-4">
+                <h3 className="text-md font-semibold mb-2">Contacts du partenaire</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {partner.contacts.map((c, idx) => (
+                    <div key={idx} className="border rounded-lg p-3 bg-gray-50">
+                      <div className="font-medium">{[c.prenom, c.nom].filter(Boolean).join(' ') || 'Contact partenaire'}</div>
+                      {c.fonction && <div className="text-xs text-gray-500">{c.fonction}</div>}
+                      {c.email && (
+                        <div className="text-sm mt-1 flex items-center gap-2">
+                          <Mail className="w-4 h-4" />
+                          <a href={`mailto:${c.email}`} className="hover:underline">{c.email}</a>
+                        </div>
+                      )}
+                      {c.tel && (
+                        <div className="text-sm mt-1 flex items-center gap-2">
+                          <Phone className="w-4 h-4" />
+                          <a href={`tel:${c.tel}`} className="hover:underline">{c.tel}</a>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {contacts.length === 0 ? (
           <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded">
             Aucun contact disponible
@@ -171,9 +278,8 @@ export default function Contact() {
                       {contact.name}
                     </h2>
                     <span
-                      className={`text-xs px-2 py-1 rounded-full font-medium ${
-                        typeStyles[contact.type] || "bg-gray-100 text-gray-800"
-                      }`}>
+                      className={`text-xs px-2 py-1 rounded-full font-medium ${typeStyles[contact.type] || "bg-gray-100 text-gray-800"
+                        }`}>
                       {contact.type}
                     </span>
                     {contact.role && (

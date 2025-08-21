@@ -285,6 +285,7 @@ const HomePage: React.FC = () => {
         commerciaux={commerciaux}
         formateurs={formateurs}
         poleRelation={poleRelation}
+        showFormations={false}
       />
 
       {/* Section des formations */}

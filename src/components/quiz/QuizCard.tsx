@@ -128,9 +128,10 @@ const getLevelConfig = (level: string) => {
 interface QuizCardProps {
   quiz: Quiz;
   categories: Category[] | undefined;
+  history?: any[];
 }
 
-export function QuizCard({ quiz, categories }: QuizCardProps) {
+export function QuizCard({ quiz, categories, history }: QuizCardProps) {
   const categoryName =
     quiz.formation?.categorie || quiz.categorie || "Non catégorisé";
   const categoryConfig = getCategoryConfig(categoryName);
@@ -138,6 +139,10 @@ export function QuizCard({ quiz, categories }: QuizCardProps) {
   const estimatedTime = quiz.questions?.length
     ? Math.ceil(quiz.questions.length * 0.5)
     : 5;
+  const h = history?.find?.((x) => String(x.quiz?.id) === String(quiz.id));
+  const totalQuestions = h?.totalQuestions || quiz.questions?.length || 0;
+  const correct = h?.correctAnswers || 0;
+  const percent = totalQuestions ? Math.round((correct / totalQuestions) * 100) : 0;
 
   return (
     <Card
@@ -216,6 +221,16 @@ export function QuizCard({ quiz, categories }: QuizCardProps) {
               {estimatedTime} min
             </Badge>
           </div>
+          {h && (
+            <div className="mt-3 text-xs text-gray-700 flex items-center gap-2">
+              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-50 text-blue-700 text-[10px] font-bold">
+                {percent}%
+              </span>
+              <span>
+                {correct}/{totalQuestions} bonnes réponses
+              </span>
+            </div>
+          )}
         </CardContent>
       </div>
     </Card>

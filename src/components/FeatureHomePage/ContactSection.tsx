@@ -29,6 +29,7 @@ interface ContactsSectionProps {
   commerciaux: Contact[];
   formateurs: Contact[];
   poleRelation: Contact[];
+  showFormations?: boolean;
 }
 
 const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_MEDIA;
@@ -37,6 +38,7 @@ const ContactSection = ({
   commerciaux,
   formateurs,
   poleRelation,
+  showFormations = true,
 }: ContactsSectionProps) => {
   const [showAllContacts, setShowAllContacts] = useState(false);
   const isMobile = useIsMobile();
@@ -100,9 +102,8 @@ const ContactSection = ({
             {contact.name}
           </h2>
           <span
-            className={`text-xs px-2 py-1 rounded-full font-medium ${
-              typeStyles[contact.type]
-            }`}>
+            className={`text-xs px-2 py-1 rounded-full font-medium ${typeStyles[contact.type]
+              }`}>
             {contact.type}
           </span>
         </div>
@@ -122,7 +123,7 @@ const ContactSection = ({
             {contact.telephone || "Non renseigné"}
           </a>
         </div>
-        {contact.formations && contact.formations.length > 0 && (
+        {showFormations && contact.formations && contact.formations.length > 0 && (
           <div className="mt-4">
             <div className="flex items-center gap-2 mb-2">
               <span className="inline-block bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">

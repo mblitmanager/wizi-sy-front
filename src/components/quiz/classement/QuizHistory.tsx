@@ -52,11 +52,24 @@ const SCORE_COLORS = {
 
 interface QuizHistoryProps {
   history: QuizHistoryType[];
+  loading?: boolean;
 }
 
-export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
+type HistoryWithIds = { quiz?: { id?: string | number }; quizId?: string | number };
+
+export const QuizHistory: React.FC<QuizHistoryProps> = ({ history, loading }) => {
   const [page, setPage] = useState(1);
+  const [showAllItems, setShowAllItems] = useState(false);
   const itemsPerPage = 5;
+
+  const distinctCount = useMemo(() => {
+    const set = new Set<string | number>();
+    (history as Array<HistoryWithIds>).forEach((h) => {
+      const id = h.quiz?.id ?? h.quizId;
+      if (id !== undefined) set.add(id);
+    });
+    return set.size;
+  }, [history]);
 
   const { paginatedHistory, totalPages } = useMemo(() => {
     const startIndex = (page - 1) * itemsPerPage;
@@ -65,6 +78,8 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
       totalPages: Math.ceil(history.length / itemsPerPage),
     };
   }, [page, history]);
+
+  const displayedItems = showAllItems ? history : paginatedHistory;
 
   const getCategoryStyle = (category: string) => {
     return CATEGORY_STYLES[category] || CATEGORY_STYLES.default;
@@ -75,8 +90,8 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
     return percentage >= 75
       ? SCORE_COLORS.high
       : percentage >= 50
-      ? SCORE_COLORS.medium
-      : SCORE_COLORS.low;
+        ? SCORE_COLORS.medium
+        : SCORE_COLORS.low;
   };
 
   const formatTime = (seconds: number) => {
@@ -84,6 +99,14 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
     const secs = seconds % 60;
     return `${mins}m ${secs.toString().padStart(2, "0")}s`;
   };
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border p-6 text-center text-gray-500">
+        Chargement de l'historique...
+      </div>
+    );
+  }
 
   if (!history || history.length === 0) {
     return (
@@ -104,20 +127,44 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
       <div className="p-4 sm:p-6 border-b">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Historique des Quiz
-          </h2>
-          <div className="text-sm text-gray-500">
-            {history.length} quiz complétés
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex flex-col">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Historique des Quiz
+            </h2>
+            <span className="text-xs text-gray-500">
+              {distinctCount} quiz uniques complétés
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            {!showAllItems && (
+              <div className="px-3 py-1 rounded-lg bg-gray-100 text-gray-800 text-sm font-semibold">
+                Page {page}/{totalPages}
+              </div>
+            )}
+            <button
+              onClick={() => {
+                setShowAllItems((v) => !v);
+                if (!showAllItems) setPage(1);
+              }}
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm ${showAllItems
+                ? "border-blue-200 bg-blue-50 text-blue-600"
+                : "border-gray-200 bg-gray-100 text-gray-700"
+                }`}
+            >
+              {/* <span className="material-icons text-base">
+                {showAllItems ? "view_list" : "view_module"}
+              </span> */}
+              {showAllItems ? "Vue paginée" : "Voir tout"}
+            </button>
           </div>
         </div>
       </div>
 
-      <div className="p-2 sm:p-4">
+      <div className={`p-2 sm:p-4 ${showAllItems ? 'max-h-[60vh] sm:max-h-[70vh] overflow-y-auto pr-1' : ''}`}>
         {/* Mobile View */}
         <div className="sm:hidden space-y-3">
-          {paginatedHistory.map((quiz) => (
+          {displayedItems.map((quiz: QuizHistoryType) => (
             <QuizHistoryCard
               key={quiz.id}
               quiz={quiz}
@@ -129,23 +176,22 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history }) => {
         </div>
 
         {/* Desktop View */}
-        <div className="hidden sm:block">
-          <QuizHistoryTable
-            history={paginatedHistory}
-            getCategoryStyle={getCategoryStyle}
-            getScoreColor={getScoreColor}
-            formatTime={formatTime}
-          />
+        <div className="hidden sm:block overflow-x-auto">
+          <div className="min-w-[720px]">
+            <QuizHistoryTable
+              history={displayedItems}
+              getCategoryStyle={getCategoryStyle}
+              getScoreColor={getScoreColor}
+              formatTime={formatTime}
+            />
+          </div>
         </div>
 
         {/* Pagination */}
-        {totalPages > 1 && (
+        {!showAllItems && totalPages > 1 && (
           <div className="mt-4 flex items-center justify-between">
             <div className="text-sm text-gray-500">
-              Affichage de{" "}
-              {Math.min((page - 1) * itemsPerPage + 1, history.length)} à{" "}
-              {Math.min(page * itemsPerPage, history.length)} sur{" "}
-              {history.length} résultats
+              Affichage de {Math.min((page - 1) * itemsPerPage + 1, history.length)} à {Math.min(page * itemsPerPage, history.length)} sur {history.length} résultats
             </div>
             <div className="flex space-x-2">
               <button

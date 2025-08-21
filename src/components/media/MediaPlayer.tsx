@@ -20,6 +20,14 @@ export default function MediaPlayer({ media }: Props) {
     return <SkeletonCard />;
   }
 
+  let computedDuration = media.duree ?? undefined;
+
+  const formatMinutes = (seconds?: number) => {
+    if (typeof seconds !== "number") return null;
+    const minutes = Math.max(1, Math.round(seconds / 60));
+    return `${minutes} min`;
+  };
+
   const renderMediaContent = () => {
     if (!media.url) {
       return (
@@ -31,7 +39,15 @@ export default function MediaPlayer({ media }: Props) {
 
     switch (media.type) {
       case "video":
-        return <VideoPlayer url={media.url} />;
+        return (
+          <VideoPlayer
+            url={media.url}
+            onDuration={(s) => {
+              // mutation locale pour affichage en bas
+              computedDuration = s;
+            }}
+          />
+        );
 
       case "audio":
         return (
@@ -81,7 +97,7 @@ export default function MediaPlayer({ media }: Props) {
   };
 
   return (
-    <div>
+    <div className="w-full">
       <AnimatePresence mode="wait">
         <motion.div
           key={media.id}
@@ -89,7 +105,7 @@ export default function MediaPlayer({ media }: Props) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.3 }}
-          className="aspect-video sm:aspect-video bg-gray-100 rounded-md flex items-center justify-center px-3">
+          className="w-full aspect-video bg-gray-100 rounded-none sm:rounded-md flex items-center justify-center px-0">
           {renderMediaContent()}
         </motion.div>
       </AnimatePresence>
@@ -106,7 +122,9 @@ export default function MediaPlayer({ media }: Props) {
           <span className="bg-yellow-100 text-yellow-600 px-2 py-0.5 rounded-full font-medium">
             {media.categorie}
           </span>
-          <span>{media.duree} min</span>
+          <span>
+            {formatMinutes(computedDuration) || (typeof media.duree === "number" ? `${media.duree} min` : "")}
+          </span>
         </div>
       </div>
     </div>
