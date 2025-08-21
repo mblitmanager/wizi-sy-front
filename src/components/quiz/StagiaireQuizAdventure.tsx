@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { stagiaireQuizService } from "@/services/quiz/StagiaireQuizService";
 import { quizHistoryService } from "@/services/quiz/submission/QuizHistoryService";
@@ -10,8 +10,9 @@ import { useClassementPoints } from "@/hooks/useClassementPoints";
 
 type Participation = { id?: string | number; quizId?: string | number };
 
-export const StagiaireQuizAdventure: React.FC = () => {
+export const StagiaireQuizAdventure: React.FC<{ selectedFormationId?: string | null }> = ({ selectedFormationId }) => {
     const { points: userPoints } = useClassementPoints();
+    const [showAllForFormation, setShowAllForFormation] = useState(false);
 
     const { data: quizzes, isLoading } = useQuery<Quiz[]>({
         queryKey: ["stagiaire-quizzes-adventure"],
@@ -53,49 +54,72 @@ export const StagiaireQuizAdventure: React.FC = () => {
             return "débutant";
         };
 
-        const isAllowedByPoints = (level?: string) => {
-            const lvl = normalizeLevel(level);
-            if (userPoints < 10) return lvl === "débutant";
-            if (userPoints < 20) return lvl === "débutant";
-            if (userPoints < 40) return lvl === "débutant" || lvl === "intermédiaire"; // partiel géré par séquence
-            if (userPoints < 60) return lvl === "débutant" || lvl === "intermédiaire";
-            if (userPoints < 80) return true; // accès avancé partiel géré par séquence
-            if (userPoints < 100) return true;
-            return true;
+        const filterByPoints = (all: Quiz[]) => {
+            const debutant = all.filter((q) => normalizeLevel(q.niveau) === "débutant");
+            const inter = all.filter((q) => normalizeLevel(q.niveau) === "intermédiaire");
+            const avance = all.filter((q) => normalizeLevel(q.niveau) === "avancé");
+            if (userPoints < 10) return debutant.slice(0, 2);
+            if (userPoints < 20) return debutant.slice(0, 4);
+            if (userPoints < 40) return [...debutant, ...inter.slice(0, 2)];
+            if (userPoints < 60) return [...debutant, ...inter];
+            if (userPoints < 80) return [...debutant, ...inter, ...avance.slice(0, 2)];
+            if (userPoints < 100) return [...debutant, ...inter, ...avance.slice(0, 4)];
+            return [...debutant, ...inter, ...avance];
         };
 
-        // Déterminer jouabilité séquentielle parmi les QUIZ autorisés par points
-        const allowed: Quiz[] = quizzes.filter((q) => isAllowedByPoints(q.niveau));
+        let filtered = filterByPoints(quizzes);
+        if (selectedFormationId) {
+            filtered = filtered.filter((q) => String((q as any).formationId) === String(selectedFormationId));
+        }
 
-        // Jouabilité séquentielle calculée sur l'ordre d'origine
+        const byIdCompletedAt = new Map<string, number>();
+        (quizHistory || []).forEach((h) => {
+            const id = String((h as any).quizId ?? h.quiz?.id);
+            const ts = h.completedAt ? Date.parse(h.completedAt as any) : 0;
+            if (id) byIdCompletedAt.set(id, ts);
+        });
+
+        const playedList = filtered
+            .filter((q) => playedIds.has(String(q.id)))
+            .sort((a, b) => {
+                const da = byIdCompletedAt.get(String(a.id)) || 0;
+                const db = byIdCompletedAt.get(String(b.id)) || 0;
+                return db - da;
+            });
+        const unplayedList = filtered.filter((q) => !playedIds.has(String(q.id)));
+        const displayListFull = [...playedList, ...unplayedList];
+
         const playableById = new Map<string, boolean>();
-        for (let k = 0; k < allowed.length; k++) {
-            const prevId = k === 0 ? undefined : String(allowed[k - 1].id);
-            const prevPlayed = k === 0 ? true : playedIds.has(prevId!);
-            const q = allowed[k];
+        for (let i = 0; i < displayListFull.length; i++) {
+            const q = displayListFull[i];
+            const prevPlayed = i === 0 ? true : playedIds.has(String(displayListFull[i - 1].id));
             const hasQuestions = Array.isArray(q.questions) ? q.questions.length > 0 : true;
-            playableById.set(String(q.id), prevPlayed && hasQuestions);
+            playableById.set(String(q.id), (prevPlayed || playedIds.has(String(q.id))) && hasQuestions);
         }
 
-        // Avatar: dernier joué ou prochain autorisé
-        let lastPlayedIdx = 0;
-        for (let k = 0; k < allowed.length; k++) {
-            if (playedIds.has(String(allowed[k].id))) lastPlayedIdx = k;
-        }
-        let avatarId: string | undefined = allowed.length ? String(allowed[lastPlayedIdx].id) : undefined;
-        if (lastPlayedIdx < allowed.length - 1 && !playedIds.has(String(allowed[lastPlayedIdx + 1].id))) {
-            avatarId = String(allowed[lastPlayedIdx + 1].id);
+        // Avatar: dernier joué ou prochain débloqué
+        let avatarId: string | undefined = undefined;
+        if (displayListFull.length) {
+            let lastPlayedIdx = -1;
+            for (let k = 0; k < displayListFull.length; k++) {
+                if (playedIds.has(String(displayListFull[k].id))) lastPlayedIdx = k;
+            }
+            if (lastPlayedIdx >= 0) {
+                avatarId = String(displayListFull[lastPlayedIdx].id);
+                if (lastPlayedIdx < displayListFull.length - 1 && !playedIds.has(String(displayListFull[lastPlayedIdx + 1].id))) {
+                    avatarId = String(displayListFull[lastPlayedIdx + 1].id);
+                }
+            } else {
+                avatarId = String(displayListFull[0].id);
+            }
         }
 
-        // Réordonner l'affichage: joués en premier, triés par date desc si historique disponible
-        // Ici, on ne dispose pas des dates directement; le parent fournit l'historique ailleurs.
-        // On garde l'ordre d'origine pour les non joués.
-        const playedList = quizzes.filter((q) => playedIds.has(String(q.id)));
-        const unplayedList = quizzes.filter((q) => !playedIds.has(String(q.id)));
-        const displayList = [...playedList, ...unplayedList];
+        const displayList = !selectedFormationId || showAllForFormation || displayListFull.length <= 10
+            ? displayListFull
+            : displayListFull.slice(0, 10);
 
-        return { list: displayList, playableById, avatarId };
-    }, [quizzes, userPoints, playedIds]);
+        return { list: displayList, playableById, avatarId, canShowMore: !!selectedFormationId && displayListFull.length > 10 } as any;
+    }, [quizzes, userPoints, playedIds, selectedFormationId, quizHistory, showAllForFormation]);
 
     if (isLoading) {
         return (
@@ -106,11 +130,21 @@ export const StagiaireQuizAdventure: React.FC = () => {
     }
 
     if (!computed.list.length) {
-        return <div className="text-center text-gray-500">Aucun quiz disponible</div>;
+        return (
+            <>
+                {selectedFormationId && (
+                    <div className="mb-2 text-sm text-gray-600">Formation sélectionnée : {selectedFormationId}</div>
+                )}
+                <div className="text-center text-gray-500">Aucun quiz disponible</div>
+            </>
+        );
     }
 
     return (
         <div className="space-y-6">
+            {selectedFormationId && (
+                <div className="mb-2 text-sm text-gray-600">Formation sélectionnée : {selectedFormationId}</div>
+            )}
             {/* Bandeau stats simple */}
             {/* <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-50 border border-amber-200">
                 <div className="text-sm font-semibold text-amber-800">Points: {userPoints}</div>
@@ -158,6 +192,16 @@ export const StagiaireQuizAdventure: React.FC = () => {
                     </div>
                 );
             })}
+            {computed.canShowMore && !showAllForFormation && (
+                <div className="flex justify-end">
+                    <button
+                        className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                        onClick={() => setShowAllForFormation(true)}
+                    >
+                        Voir plus
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
