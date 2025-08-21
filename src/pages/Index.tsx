@@ -284,8 +284,7 @@ export function Index() {
             className="group relative bg-gradient-to-br from-yellow-50 via-white to-orange-50 rounded-xl shadow-lg border border-yellow-200 p-6 pb-16 mb-6 transition-transform duration-300 hover:scale-105 cursor-pointer"
             tabIndex={0}
             role="button"
-            aria-label="Découvrir la plateforme Wizi Learn"
-          >
+            aria-label="Découvrir la plateforme Wizi Learn">
             {/* Bouton X pour fermer */}
             <button
               className="absolute top-3 right-3 text-yellow-700 hover:text-yellow-900 text-xl bg-transparent border-none p-0 z-10"
@@ -294,8 +293,7 @@ export function Index() {
                 setHidePresentationBlock(true);
                 localStorage.setItem("hidePresentationBlock", "true");
               }}
-              aria-label="Fermer"
-            >
+              aria-label="Fermer">
               ×
             </button>
             <div className="flex items-center gap-3 mb-2">
@@ -315,8 +313,7 @@ export function Index() {
               onClick={(e) => {
                 e.stopPropagation();
                 window.open("/manuel", "_blank");
-              }}
-            >
+              }}>
               Découvrir la plateforme
             </button>
           </div>
@@ -327,8 +324,7 @@ export function Index() {
               <button
                 className="absolute top-2 right-2 text-yellow-700 hover:text-yellow-900 text-lg"
                 onClick={() => setShowInstallHint(false)}
-                aria-label="Fermer"
-              >
+                aria-label="Fermer">
                 ×
               </button>
               <h3 className="text-lg font-bold text-yellow-800 mb-2">
@@ -375,13 +371,13 @@ export function Index() {
               <span className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-orange-400 rounded-full"></span>
             </h1>
             <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 px-2 py-6 md:py-3 bg-white rounded-xl">
-              <div className="hidden md:flex md:w-1/3 justify-center mb-4 md:mb-0">
+              {/* <div className="hidden md:flex md:w-1/3 justify-center mb-4 md:mb-0">
                 <img
                   src={illustration}
                   alt="Catalogue Illustration"
                   className="max-w-xs w-full h-auto object-contain"
                 />
-              </div>
+              </div> */}
               <div className="w-full flex flex-col items-center">
                 <AdCatalogueBlock formations={filteredFormations.slice(0, 4)} />
               </div>
@@ -437,8 +433,7 @@ export function Index() {
                 e.stopPropagation();
                 setShowApkBlock(false);
               }}
-              aria-label="Fermer"
-            >
+              aria-label="Fermer">
               ×
             </button>
             <div className="flex items-center gap-3 mb-2">
@@ -449,8 +444,7 @@ export function Index() {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-7 h-7"
-                >
+                  className="w-7 h-7">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -510,8 +504,7 @@ export function Index() {
                     })
                     .catch(() => {});
                 }
-              }}
-            >
+              }}>
               Télécharger
             </button>
             <button
@@ -519,8 +512,7 @@ export function Index() {
               onClick={(e) => {
                 e.stopPropagation();
                 setShowInstallHint(true);
-              }}
-            >
+              }}>
               💡 Astuce : Comment installer l'application ?
             </button>
           </div>

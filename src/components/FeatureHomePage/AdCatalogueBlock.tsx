@@ -5,7 +5,7 @@ import DownloadPdfButton from "@/components/FeatureHomePage/DownloadPdfButton";
 import { inscrireAFormation } from "@/services/inscriptionApi";
 import { BUREAUTIQUE, CREATION, INTERNET, LANGUES } from "@/utils/constants";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Clock, Loader2, User } from "lucide-react";
 import { stripHtmlTags } from "@/utils/UtilsFunction";
 import { Link, useNavigate } from "react-router-dom";
 const VITE_API_URL = import.meta.env.VITE_API_URL;
@@ -147,166 +147,133 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
   if (!formations || formations.length === 0) return null;
 
   return (
-    <div className="mb-8">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg md:text-2xl font-bold text-orange-400">
-          Formations à découvrir
-        </h2>
-        <Link to="/catalogue">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="group text-orange-600 font-bold flex items-center gap-1 transition-all duration-200 bg-gray-100 hover:bg-gray-100"
-          >
-            Voir tous
-            <ArrowRight className="w-4 h-4 transform transition-transform duration-200 group-hover:translate-x-1" />
-          </Button>
+    <div className="mb-12 px-4 sm:px-6 lg:px-8">
+      {/* Header avec gradient accrocheur */}
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-600">
+            Boostez vos compétences dès aujourd'hui !
+          </h2>
+          <p className="text-gray-600 mt-2">
+            Des formations certifiantes adaptées à vos besoins.
+          </p>
+        </div>
+        <Link
+          to="/catalogue"
+          className="group flex items-center gap-1 text-orange-600 hover:text-orange-700 font-semibold transition-colors">
+          Explorer le catalogue
+          <ArrowRight className="w-4 h-4 transform transition-transform group-hover:translate-x-1" />
         </Link>
       </div>
-      <div className="grid md:grid-cols-3 sm:grid-cols-1 gap-6 px-2 py-3">
+
+      {/* Grid des formations - Design "Card Hover" */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {selected.map((formation, idx) => {
-          const ad = ads[idx];
           const isOpen = showDetailsIdx === idx;
           return (
             <div
               key={formation.id || idx}
-              className="flex flex-col justify-between h-full rounded-xl bg-white border border-gray-100 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group hover:-translate-y-1 relative"
-              style={{
-                minHeight: "340px",
-                backgroundImage: formation.image_url
-                  ? `url(${formation.image_url})`
-                  : undefined,
-                backgroundSize: formation.image_url ? "cover" : undefined,
-                backgroundPosition: formation.image_url ? "center" : undefined,
-                backgroundRepeat: "no-repeat",
-                backgroundColor: formation.image_url
-                  ? "rgba(255,255,255,0.95)"
-                  : undefined,
-              }}
-            >
-              {formation.image_url && (
-                <div
-                  className="absolute inset-0 w-full h-full bg-white"
-                  style={{ opacity: 0.95, zIndex: 1 }}
-                  aria-hidden="true"
-                />
+              className="relative bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 group hover:-translate-y-2">
+              {/* Badge "Populaire" ou "Certifié" */}
+              {formation.certification && (
+                <div className="absolute top-4 right-4 bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full z-10">
+                  CERTIFIÉ
+                </div>
               )}
-              <div className="relative z-10 flex flex-col h-full">
-                <div className="flex-grow p-5 space-y-4">
-                  <div className="flex flex-wrap items-center gap-2 mb-2">
-                    {formation.formation ? (
-                      <span
-                        className="text-xs font-medium px-3 py-1 rounded-full border"
-                        style={{
-                          color:
-                            formation.formation.categorie === "Bureautique"
-                              ? "#3D9BE9"
-                              : formation.formation.categorie === "Langues"
-                              ? "#A55E6E"
-                              : formation.formation.categorie === "Internet"
-                              ? "#FFC533"
-                              : formation.formation.categorie === "Création"
-                              ? "#9392BE"
-                              : "#888",
-                          borderColor: "currentColor",
-                          backgroundColor: "transparent",
-                        }}
-                      >
-                        {formation.formation.categorie?.toUpperCase() ||
-                          "CATÉGORIE"}
+
+              {/* Image de fond avec overlay */}
+              {formation.image_url && (
+                <div className="h-40 overflow-hidden">
+                  <img
+                    src={formation.image_url}
+                    alt={formation.formation?.titre}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                </div>
+              )}
+
+              {/* Contenu de la carte */}
+              <div className="p-6">
+                {/* Catégorie + Titre */}
+                <div className="flex items-center gap-2 mb-3">
+                  <span
+                    className="text-xs font-bold px-2.5 py-1 rounded-full"
+                    style={{
+                      backgroundColor:
+                        getCategoryColor(formation.formation?.categorie) + "20",
+                      color: getCategoryColor(formation.formation?.categorie),
+                    }}>
+                    {formation.formation?.categorie?.toUpperCase() ||
+                      "FORMATION"}
+                  </span>
+                </div>
+
+                <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 min-h-[3rem]">
+                  {formatTitle(formation.formation?.titre || "Sans titre")}
+                </h3>
+
+                {/* Description avec effet "Lire plus" */}
+                <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                  {stripHtmlTags(formation.description) ||
+                    "Description non disponible"}
+                </p>
+
+                {/* Infos clés (Durée, Prix) */}
+                <div className="flex justify-between items-center mb-4">
+                  <span className="flex items-center text-sm text-gray-500">
+                    <Clock className="w-4 h-4 mr-1" />
+                    {formation.formation?.duree || formation.duree} heures
+                  </span>
+                  <span className="text-lg font-extrabold text-orange-600">
+                    {formation.tarif
+                      ? `${Number(formation.tarif).toLocaleString(
+                          "fr-FR"
+                        )} € HT`
+                      : "Gratuit"}
+                  </span>
+                </div>
+
+                {/* Bouton principal - Effet "Shine" au hover */}
+                <button
+                  onClick={() => handleInscription(idx)}
+                  disabled={inscriptionLoading === idx}
+                  className={`
+                    w-full relative overflow-hidden
+                    bg-gradient-to-r from-orange-500 to-amber-600
+                    text-white font-bold py-3 px-6 rounded-lg
+                    shadow-md hover:shadow-lg transition-all
+                    hover:brightness-110
+                    ${inscriptionLoading === idx ? "opacity-80" : ""}
+                  `}>
+                  <span className="relative z-10">
+                    {inscriptionLoading === idx ? (
+                      <span className="flex justify-center">
+                        <Loader2 className="animate-spin mr-2 h-5 w-5" />
+                        Traitement...
                       </span>
                     ) : (
-                      <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
-                        {formatTitle(formation.formation?.titre) ||
-                          "SANS TITRE"}
-                      </span>
+                      "S'inscrire maintenant"
                     )}
-                  </div>
-                  <h3 className="text-lg font-semibold text-brown-shade mb-2 group-hover:text-orange-600 transition-colors">
-                    {formatTitle(ad.title.toUpperCase()) || "SANS TITRE"}
-                  </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-2">
-                    {stripHtmlTags(formation.description) || "SANS DESCRIPTION"}
-                  </p>
-                  {formation.formation && (
-                    <button
-                      onClick={() => setShowDetailsIdx(isOpen ? null : idx)}
-                      className="text-orange-500 text-sm font-medium hover:text-orange-600 transition-colors mb-2"
-                    >
-                      {isOpen
-                        ? "Voir moins de détails"
-                        : "Voir plus de détails"}
-                    </button>
-                  )}
-                  {formation.formation && isOpen && (
-                    <div className="space-y-4 pt-3">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <div className="flex items-center text-sm text-gray-600">
-                            <span>
-                              <strong>Durée :</strong>{" "}
-                              {formation.formation.duree || formation.duree}{" "}
-                              heures
-                            </span>
-                          </div>
-                          <div className="flex items-center text-sm text-gray-600">
-                            <span>
-                              <strong>Tarif :</strong>{" "}
-                              <span className="text-orange-500 font-extrabold drop-shadow-lg">
-                                {formation.tarif
-                                  ? `${Number(formation.tarif)
-                                      .toLocaleString("fr-FR", {
-                                        minimumFractionDigits: 0,
-                                        maximumFractionDigits: 0,
-                                      })
-                                      .replace(/\u202F/g, "  ")} € HT`
-                                  : "-"}
-                              </span>
-                            </span>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <div className="flex items-center text-sm text-gray-600">
-                            <span>
-                              <strong>Certification :</strong>{" "}
-                              <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded">
-                                {formation.certification || "-"}
-                              </span>
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex justify-center pt-2">
-                        <DownloadPdfButton formationId={formation.id} />
-                      </div>
+                  </span>
+                  {/* Effet shine au survol */}
+                  <span className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-0 transition-transform duration-700" />
+                </button>
+
+                {/* Témoignage factice (optionnel) */}
+                {/* <div className="mt-4 flex items-center">
+                  <div className="flex-shrink-0">
+                    <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                      <User className="h-4 w-4 text-gray-500" />
                     </div>
-                  )}
-                </div>
-                <div className="p-5 pt-0">
-                  <Button
-                    onClick={() => handleInscription(idx)}
-                    disabled={inscriptionLoading === idx}
-                    className="w-full bg-black hover:bg-[#A56B32] text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-colors"
-                  >
-                    {inscriptionLoading === idx
-                      ? "Inscription en cours..."
-                      : "S'inscrire à la formation"}
-                  </Button>
-                  <div className="text-center mt-2">
-                    {inscriptionSuccessIdx === idx &&
-                      inscriptionLoading === null && (
-                        <p className="text-green-600 text-sm">
-                          Inscription réussie !
-                        </p>
-                      )}
-                    {inscriptionErrorIdx === idx &&
-                      inscriptionLoading === null && (
-                        <p className="text-red-600 text-sm">
-                          Erreur lors de l'inscription. Veuillez réessayer.
-                        </p>
-                      )}
                   </div>
-                </div>
+                  <div className="ml-3">
+                    <p className="text-xs text-gray-500 italic">
+                      "Formation très pratique, j'ai doublé mon salaire après
+                      cette certification !"
+                    </p>
+                  </div>
+                </div> */}
               </div>
             </div>
           );
