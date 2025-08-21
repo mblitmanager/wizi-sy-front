@@ -2,6 +2,7 @@ export interface Formation {
   id: number;
   titre: string;
   description: string;
+  certification: string;
   categorie?: string;
   categoryId?: string;
   image: string;
@@ -25,6 +26,7 @@ export interface CatalogueFormation {
   statut: string;
   image_url: string;
   cursus_pdf?: string;
+  certification: string;
   formation_id: number;
   created_at: string;
   updated_at: string;
