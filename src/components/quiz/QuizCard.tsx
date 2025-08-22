@@ -175,6 +175,12 @@ export function QuizCard({ quiz, categories, history }: QuizCardProps) {
               className={`text-lg font-bold line-clamp-2 ${categoryConfig.textColor}`}
             >
               {quiz.titre}
+              {/* Niveau badge coloration */}
+              {quiz.niveau && (
+                <span className={`ml-2 px-2 py-1 rounded ${levelConfig.bgClass} ${levelConfig.textClass} text-xs align-middle`}>
+                  {quiz.niveau}
+                </span>
+              )}
             </CardTitle>
             <Badge
               className={`mt-2 text-xs font-medium ${categoryConfig.badgeColor} ${categoryConfig.textColor}`}

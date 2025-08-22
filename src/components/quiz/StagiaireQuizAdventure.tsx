@@ -1,5 +1,31 @@
 import React, { useMemo, useState } from "react";
 // Logique de configuration des catégories (copiée de QuizCard)
+// Helpers pour la coloration des niveaux
+function getLevelConfig(level: string | undefined) {
+    switch (level?.toLowerCase()) {
+        case "débutant":
+            return {
+                bgClass: "bg-green-100",
+                textClass: "text-green-800",
+            };
+        case "intermédiaire":
+            return {
+                bgClass: "bg-blue-100",
+                textClass: "text-blue-800",
+            };
+        case "avancé":
+        case "super quiz":
+            return {
+                bgClass: "bg-yellow-100",
+                textClass: "text-yellow-800",
+            };
+        default:
+            return {
+                bgClass: "bg-gray-100",
+                textClass: "text-gray-800",
+            };
+    }
+}
 const CATEGORY_CONFIG = {
     bureautique: {
         color: "bg-blue-500",
@@ -223,15 +249,15 @@ export const StagiaireQuizAdventure: React.FC<{ selectedFormationId?: string | n
                                     <img src="/assets/logo.png" alt="avatar" className="w-8 h-8 object-contain absolute -top-8 left-1/2 -translate-x-1/2" />
                                 )}
                             </div>
-                            
-                            {index < computed.list.length  && <div className="w-0.5 h-6 bg-gray-300" />}
+
+                            {index < computed.list.length && <div className="w-0.5 h-6 bg-gray-300" />}
                         </div>
-                                {/* Effet gauche/droite sur mobile: responsive width et alternance alignement */}
-                                <div className={`w-full flex ${isLeft ? 'justify-start' : 'justify-end'}`}>
-                                    <div className="w-full max-w-xs sm:max-w-sm md:max-w-xl">
-                                        <QuizStepCard quiz={quiz} playable={playable} played={played} history={h} quizHistory={quizHistory ?? []} categoryConfig={categoryConfig} />
-                                    </div>
-                                </div>
+                        {/* Effet gauche/droite sur mobile: responsive width et alternance alignement */}
+                        <div className={`w-full flex ${isLeft ? 'justify-start' : 'justify-end'}`}>
+                            <div className="w-full max-w-xs sm:max-w-sm md:max-w-xl">
+                                <QuizStepCard quiz={quiz} playable={playable} played={played} history={h} quizHistory={quizHistory ?? []} categoryConfig={categoryConfig} />
+                            </div>
+                        </div>
                     </div>
                 );
             })}
@@ -252,8 +278,9 @@ interface QuizStepCardProps {
 function QuizStepCard({ quiz, playable, played, history, quizHistory, categoryConfig }: QuizStepCardProps) {
     const total = history?.totalQuestions || quiz.questions?.length || 0;
     const correct = history?.correctAnswers || 0;
-    const percent = 5 ? Math.round((correct / 5) * 100) : 0;
+    const percent = Math.min(100, 5 ? Math.round((correct / 5) * 100) : 0);
 
+    const levelConfig = getLevelConfig(quiz.niveau);
     return (
         <div className={`p-6 sm:p-4 md:p-6 border rounded-md shadow-md hover:shadow-lg transition-shadow duration-300 ${categoryConfig.bgColor} ${categoryConfig.borderColor} space-y-2`}>
             {/* Titre */}
@@ -261,20 +288,24 @@ function QuizStepCard({ quiz, playable, played, history, quizHistory, categoryCo
                 {quiz.titre}
             </h3>
 
-            {/* Catégorie et niveau */}
-            <div className={`text-xs sm:text-sm md:text-base ${categoryConfig.textColor} truncate`}>
-                {quiz.categorie} - {quiz.niveau}
-            </div>
             {/* Description */}
             <div
-  className="text-sm text-gray-600 line-clamp-2"
-  dangerouslySetInnerHTML={{ __html: quiz.description || "" }}
-/>
-
+                className="text-sm text-gray-600 line-clamp-2"
+                dangerouslySetInnerHTML={{ __html: quiz.description || "" }}
+            />
+            {/* Catégorie et niveau */}
+            <div className={`text-xs sm:text-sm md:text-base ${categoryConfig.textColor} truncate flex items-center gap-2`}>
+                {quiz.categorie}
+                {quiz.niveau && (
+                    <span className={`px-2 py-1 rounded ${levelConfig.bgClass} ${levelConfig.textClass} text-xs`}>
+                        {quiz.niveau}
+                    </span>
+                )}
+            </div>
 
             {/* Badges */}
             {/* Barre de progression */}
-            {played && (
+            {/* {played && (
                 <div className="hidden sm:block w-full mt-1">
                     <div className="w-full bg-gray-200 rounded-full h-3 sm:h-4 dark:bg-gray-700">
                         <div
@@ -285,7 +316,7 @@ function QuizStepCard({ quiz, playable, played, history, quizHistory, categoryCo
                         </div>
                     </div>
                 </div>
-            )}
+            )} */}
 
             {/* Quiz verrouillé */}
             {!playable && !played && (
@@ -347,7 +378,7 @@ function QuizHistoryModal({ quizId, quizHistory, noBorder }: { quizId: number; q
                                     <p className="text-sm">Temps passé : {h.timeSpent} sec - Score :{h.score * 10}%</p>
                                     <p className="text-xs text-gray-500">{new Date(h.completedAt).toLocaleString()}</p>
                                 </div>
-                                <div className="text-sm font-medium">{h.correctAnswers}/5 questions</div>
+                                <div className="text-sm font-medium">{h.correctAnswers}/{Math.min(h.totalQuestions || 5, 5)} questions</div>
 
                             </div>
                         ))
