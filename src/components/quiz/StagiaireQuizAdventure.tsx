@@ -209,6 +209,18 @@ export const StagiaireQuizAdventure: React.FC<{ selectedFormationId?: string | n
         return { list: displayList, playableById, avatarId, canShowMore: !!selectedFormationId && displayListFull.length > 10 } as any;
     }, [quizzes, userPoints, playedIds, selectedFormationId, quizHistory, showAllForFormation]);
 
+    // Refs for each quiz card (always called)
+    const quizRefs = useMemo(() => computed.list.map(() => React.createRef<HTMLDivElement>()), [computed.list]);
+
+    React.useEffect(() => {
+        // Find first unplayed quiz and scroll to it
+        if (!computed.list.length) return;
+        const firstUnplayedIdx = computed.list.findIndex(q => !playedIds.has(String(q.id)));
+        if (firstUnplayedIdx !== -1 && quizRefs[firstUnplayedIdx]?.current) {
+            quizRefs[firstUnplayedIdx].current.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+    }, [computed.list, playedIds, quizRefs]);
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[30vh]">
@@ -239,7 +251,7 @@ export const StagiaireQuizAdventure: React.FC<{ selectedFormationId?: string | n
                 const isLeft = index % 2 === 0;
 
                 return (
-                    <div key={quiz.id} className="flex flex-col items-center w-full">
+                    <div ref={quizRefs[index]} key={quiz.id} className="flex flex-col items-center w-full">
                         {/* Timeline fil central au-dessus de la carte */}
                         <div className="flex flex-col items-center w-full mb-2">
                             {/* Fil montant si pas le premier */}
@@ -262,23 +274,11 @@ export const StagiaireQuizAdventure: React.FC<{ selectedFormationId?: string | n
                 );
             })}
         </div>
-
     );
-};
-
-interface QuizStepCardProps {
-    quiz: Quiz;
-    playable: boolean;
-    played: boolean;
-    history?: QuizHistory;
-    quizHistory: QuizHistory[];
-    categoryConfig: typeof CATEGORY_CONFIG.default;
 }
 
 function QuizStepCard({ quiz, playable, played, history, quizHistory, categoryConfig }: QuizStepCardProps) {
     const total = history?.totalQuestions || quiz.questions?.length || 0;
-    const correct = history?.correctAnswers || 0;
-    const percent = Math.min(100, 5 ? Math.round((correct / 5) * 100) : 0);
 
     const levelConfig = getLevelConfig(quiz.niveau);
     return (
@@ -390,6 +390,4 @@ function QuizHistoryModal({ quizId, quizHistory, noBorder }: { quizId: number; q
         </Dialog>
     );
 }
-
-
 export default StagiaireQuizAdventure;
