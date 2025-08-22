@@ -204,41 +204,32 @@ export const StagiaireQuizAdventure: React.FC<{ selectedFormationId?: string | n
 
     return (
         <div className="relative flex flex-col items-center space-y-8">
-            {/* Timeline fil central */}
+            {/* Timeline fil central pour chaque carte, tous écrans */}
             {computed.list.map((quiz, index) => {
-                const isLeft = index % 2 === 0;
                 const played = playedIds.has(String(quiz.id));
                 const playable = computed.playableById.get(String(quiz.id)) === true;
                 const categoryConfig = getCategoryConfig(quiz.categorie);
                 const h = quizHistory?.find((x) => String(x.quizId ?? x.quiz?.id) === String(quiz.id));
+                const isLeft = index % 2 === 0;
 
                 return (
-                    <div key={quiz.id} className="flex flex-col md:flex-row w-full items-center">
-                        {/* Carte gauche */}
-                        <div className={`hidden md:flex flex-1 ${isLeft ? '' : 'justify-end'}`}>
-                            {isLeft && <QuizStepCard quiz={quiz} playable={playable} played={played} history={h} quizHistory={quizHistory ?? []} categoryConfig={categoryConfig} />}
-                        </div>
-
-                        {/* Timeline central */}
-                        <div className="flex flex-col items-center w-12 relative">
-                            <div className="absolute top-0 bottom-0 left-1/2 w-0.5 bg-gray-300 transform -translate-x-1/2" />
-                            <div className={`relative w-6 h-6 rounded-full border-2 border-white ${categoryConfig.color} z-10`}>
+                    <div key={quiz.id} className="flex flex-col items-center w-full">
+                        {/* Timeline fil central au-dessus de la carte */}
+                        <div className="flex flex-col items-center w-full mb-2">
+                            {/* Fil montant si pas le premier */}
+                            {index > 0 && <div className="w-0.5 h-6 bg-gray-300" />}
+                            <div className={`relative w-8 h-8 rounded-full border-2 border-white ${categoryConfig.color} z-10 flex items-center justify-center`}>
                                 {computed.avatarId && String(quiz.id) === computed.avatarId && (
-                                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-8 h-8">
-                                        <img src="/assets/logo.png" alt="avatar" className="w-8 h-8 object-contain" />
-                                    </div>
+                                    <img src="/assets/logo.png" alt="avatar" className="w-8 h-8 object-contain absolute -top-8 left-1/2 -translate-x-1/2" />
                                 )}
                             </div>
+                            {/* Fil descendant si pas le dernier */}
+                            {index < computed.list.length - 1 && <div className="w-0.5 h-6 bg-gray-300" />}
                         </div>
-
-                        {/* Carte droite */}
-                        <div className={`hidden md:flex flex-1 ${!isLeft ? '' : 'justify-start'}`}>
-                            {!isLeft && <QuizStepCard quiz={quiz} playable={playable} played={played} history={h} quizHistory={quizHistory ?? []} categoryConfig={categoryConfig} />}
-                        </div>
-
-                        {/* Mobile full width */}
-                        <div className="md:hidden w-full">
-                            <QuizStepCard quiz={quiz} playable={playable} played={played} history={h} quizHistory={quizHistory ?? []} categoryConfig={categoryConfig} />
+                        <div className={`w-full flex ${isLeft ? 'justify-start' : 'justify-end'}`}>
+                            <div className="max-w-xl w-full">
+                                <QuizStepCard quiz={quiz} playable={playable} played={played} history={h} quizHistory={quizHistory ?? []} categoryConfig={categoryConfig} />
+                            </div>
                         </div>
                     </div>
                 );
@@ -260,7 +251,7 @@ interface QuizStepCardProps {
 function QuizStepCard({ quiz, playable, played, history, quizHistory, categoryConfig }: QuizStepCardProps) {
     const total = history?.totalQuestions || quiz.questions?.length || 0;
     const correct = history?.correctAnswers || 0;
-    const percent = total ? Math.round((correct / total) * 100) : 0;
+    const percent = 5 ? Math.round((correct / 5) * 100) : 0;
 
     return (
         <div className={`p-6 sm:p-4 md:p-6 border rounded-md shadow-md hover:shadow-lg transition-shadow duration-300 ${categoryConfig.bgColor} ${categoryConfig.borderColor} space-y-2`}>
@@ -348,7 +339,7 @@ function QuizHistoryModal({ quizId, quizHistory, noBorder }: { quizId: number; q
                                     <p className="text-sm">Temps passé : {h.timeSpent} sec - Score :{h.score * 10}%</p>
                                     <p className="text-xs text-gray-500">{new Date(h.completedAt).toLocaleString()}</p>
                                 </div>
-                                <div className="text-sm font-medium">{h.correctAnswers}/{h.totalQuestions} questions</div>
+                                <div className="text-sm font-medium">{h.correctAnswers}/5 questions</div>
 
                             </div>
                         ))
