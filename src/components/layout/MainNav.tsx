@@ -115,7 +115,7 @@ export default function MainNav({
                 className={({ isActive }) =>
                   `group flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 ${
                     isActive
-                      ? "bg-gradient-to-r from-yellow-400 to-yellow-500 text-white shadow-lg"
+                      ? "bg-gradient-to-r from-[#f27905] to-yellow-500 text-white shadow-lg"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`
                 }>

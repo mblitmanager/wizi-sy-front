@@ -189,17 +189,14 @@ const ContactSection = ({
     <div className="py-6 mt-2">
       <div className="">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl md:text-2xl text-orange-400 font-bold">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-600">
             {CONTACTEZ_NOUS}
           </h1>
-          <Link to="/contacts">
-            <a
-              variant="ghost"
-              size="sm"
-              className="group flex items-center gap-1 text-orange-600 hover:text-orange-700 font-semibold transition-colors">
-              Voir tous
-              <ArrowRight className="w-4 h-4 transform transition-transform duration-200 group-hover:translate-x-1" />
-            </a>
+          <Link
+            to="/contacts"
+            className="group flex items-center gap-1 text-orange-600 hover:text-orange-700 font-semibold transition-colors">
+            Voir tous
+            <ArrowRight className="w-4 h-4 transform transition-transform duration-200 group-hover:translate-x-1" />
           </Link>
         </div>
 

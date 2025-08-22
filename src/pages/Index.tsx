@@ -392,7 +392,7 @@ export function Index() {
           <Card className="border-yellow-100">
             <CardContent className="p-3 md:p-6">
               <div className="flex items-center mb-2 md:mb-3">
-                <h2 className="text-lg md:text-2xl font-bold text-orange-400 mb-2">
+                <h2 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-600">
                   Quiz à découvrir
                 </h2>
               </div>

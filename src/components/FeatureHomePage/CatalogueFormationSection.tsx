@@ -42,13 +42,10 @@ export default function CatalogueFormationSection({
         <h2 className="text-2xl md:text-2xl text-orange-400 font-bold">
           {CATALOGUE_FORMATION}
         </h2>
-        <Link to="/formations">
-          <a
-            variant="ghost"
-            className="group flex items-center gap-1 text-orange-600 hover:text-orange-700 font-semibold transition-colors"
-            size="sm">
-            Voir tous
-          </a>
+        <Link
+          to="/formations"
+          className="group flex items-center gap-1 text-orange-600 hover:text-orange-700 font-semibold transition-colors">
+          Voir touss
         </Link>
       </div>
       {/* Ligne orange décorative */}
