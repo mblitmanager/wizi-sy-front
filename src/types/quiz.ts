@@ -1,3 +1,5 @@
+import { Formation } from ".";
+
 export interface Category {
   id: string;
   name: string;
@@ -26,6 +28,7 @@ export interface Quiz {
   categorie: string;
   categorieId: string;
   questions?: Question[];
+  formations?: Formation[];
   duree?: number;
   /**
    * Liste des tutoriels associés au quiz (optionnel)

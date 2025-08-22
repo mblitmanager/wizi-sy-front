@@ -11,7 +11,7 @@ import { useClassementPoints } from "@/hooks/useClassementPoints";
 import { useToast } from "@/hooks/use-toast";
 import { quizHistoryService } from "@/services/quiz/submission/QuizHistoryService";
 
-export function StagiaireQuizList() {
+export function StagiaireQuizList({ selectedFormationId }: { selectedFormationId?: string | null }) {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedLevel, setSelectedLevel] = useState<string>("all");
   const { toast } = useToast();
@@ -120,15 +120,41 @@ export function StagiaireQuizList() {
     }
   }, [userPoints, quizzes, notifiedLevel, toast, lastUserPoints]);
 
+  // Déterminer une formation par défaut via l'historique si aucune n'est fournie
+  const effectiveFormationId = useMemo(() => {
+    if (selectedFormationId) return selectedFormationId;
+    if (!quizHistory || !quizzes || quizzes.length === 0) return null;
+    type HistoryMinimal = { quiz?: { id?: string | number; formationId?: string | number; formation?: { id?: string | number } }; quizId?: string | number; completedAt?: string };
+    const sorted = [...(quizHistory as HistoryMinimal[])].sort((a, b) => {
+      const da = a.completedAt ? Date.parse(a.completedAt) : 0;
+      const db = b.completedAt ? Date.parse(b.completedAt) : 0;
+      return db - da;
+    });
+    for (const h of sorted) {
+      const qId = h.quiz?.id ?? h.quizId;
+      if (!qId) continue;
+      const q = quizzes.find((x) => String(x.id) === String(qId));
+      const fid = (q as any)?.formationId ?? h.quiz?.formationId ?? h.quiz?.formation?.id;
+      if (fid !== undefined && fid !== null) return String(fid);
+    }
+    const first = (quizzes[0] as any)?.formationId;
+    return first ? String(first) : null;
+  }, [selectedFormationId, quizHistory, quizzes]);
+
   const filteredQuizzes = useMemo(() => {
     if (!quizzes) return [];
-    const debutant = quizzes.filter(
+    // Filtre par formation
+    let filtered = quizzes;
+    if (effectiveFormationId) {
+      filtered = filtered.filter(q => String((q as any).formationId) === String(effectiveFormationId));
+    }
+    const debutant = filtered.filter(
       (q) => q.niveau?.toLowerCase() === "débutant"
     );
-    const inter = quizzes.filter(
+    const inter = filtered.filter(
       (q) => q.niveau?.toLowerCase() === "intermédiaire"
     );
-    const avance = quizzes.filter((q) => q.niveau?.toLowerCase() === "avancé");
+    const avance = filtered.filter((q) => q.niveau?.toLowerCase() === "avancé");
     let result: typeof quizzes = [];
 
     if (userPoints < 10) {
@@ -137,7 +163,7 @@ export function StagiaireQuizList() {
       result = debutant.slice(0, 4);
     } else if (userPoints < 40) {
       result = [...debutant, ...inter.slice(0, 2)];
-    } else if (userPoints < 50) {
+    } else if (userPoints < 60) {
       result = [...debutant, ...inter];
     } else if (userPoints < 80) {
       result = [...debutant, ...inter, ...avance.slice(0, 2)];
@@ -157,17 +183,21 @@ export function StagiaireQuizList() {
         (quiz.niveau && quiz.niveau === selectedLevel);
       return categoryMatch && levelMatch;
     });
-  }, [quizzes, selectedCategory, selectedLevel, userPoints]);
+  }, [quizzes, selectedCategory, selectedLevel, userPoints, effectiveFormationId]);
 
   const playedQuizzes = useMemo(() => {
     if (!quizzes || !quizHistory) return [] as typeof quizzes;
-    type HistoryMinimal = { quiz?: { id?: string | number }; quizId?: string | number; completedAt?: string };
+    type HistoryMinimal = { quiz?: { id?: string | number; formationId?: string | number }; quizId?: string | number; completedAt?: string };
     const byId = new Map<string, { completedAt?: string }>();
     (quizHistory as HistoryMinimal[]).forEach((h) => {
       const id = h.quiz?.id ?? h.quizId;
       if (id !== undefined) byId.set(String(id), { completedAt: h.completedAt });
     });
-    const list = quizzes.filter((q) => byId.has(String(q.id)));
+    let list = quizzes.filter((q) => byId.has(String(q.id)));
+    // Filtrer selon la formation sélectionnée
+    if (effectiveFormationId) {
+      list = list.filter(q => String((q as any).formationId) === String(effectiveFormationId));
+    }
     // tri antéchronologique par completedAt
     list.sort((a, b) => {
       const ha = byId.get(String(a.id));
@@ -177,7 +207,7 @@ export function StagiaireQuizList() {
       return db - da;
     });
     return list;
-  }, [quizzes, quizHistory]);
+  }, [quizzes, quizHistory, effectiveFormationId]);
 
   const notPlayedQuizzes = useMemo(
     () =>
@@ -235,7 +265,7 @@ export function StagiaireQuizList() {
   if (!quizzes?.length) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-500">Aucun quiz disponible pour vous</p>
+        <p className="text-gray-500">Aucun quiz disponible</p>
       </div>
     );
   }
@@ -330,13 +360,17 @@ export function StagiaireQuizList() {
 
   return (
     <div className="">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4 mt-[-10%] md:mt-0">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
         <h2 className="text-3xl sm:text-2xl md:text-3xl text-brown-shade font-bold">
-          Mes Quiz
+          Quiz
         </h2>
+        {/* Affichage formation sélectionnée */}
+        {/* {selectedFormationId && (
+          <div className="mb-2 text-sm text-gray-600">Formation sélectionnée : {selectedFormationId}</div>
+        )} */}
 
         <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-3 sm:gap-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1.5 sm:gap-2">
+          {/* <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1.5 sm:gap-2">
             <select
               className="w-full sm:w-auto border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring focus:ring-blue-200 bg-white"
               value={selectedCategory}
@@ -353,7 +387,7 @@ export function StagiaireQuizList() {
                 </option>
               ))}
             </select>
-          </div>
+          </div> */}
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1.5 sm:gap-2">
             <div className="flex items-center gap-2 w-full sm:w-auto">

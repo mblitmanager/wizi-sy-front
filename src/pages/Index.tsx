@@ -135,16 +135,18 @@ export function Index() {
   });
 
   // Récupérer les participations pour filtrer les quiz déjà joués
-  const { data: participations = [] } = useQuery({
-    queryKey: ["stagiaire-participations-home"],
+  // Récupérer l'historique pour filtrer les quiz déjà joués
+  const { data: history = [] } = useQuery({
+    queryKey: ["stagiaire-history-home"],
     queryFn: async () => {
       try {
-        const res = await axios.get(`${API_URL}/stagiaire/quiz-joue`, {
+        const res = await axios.get(`${API_URL}/quiz/history`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
-        return res.data?.data || [];
+  // console.log("res:", res.data);
+  return res.data || [];
       } catch {
         return [];
       }
@@ -173,14 +175,21 @@ export function Index() {
   // Filtrage avancé selon les points utilisateur (pour les quiz à jouer)
   const filteredQuizzes = useMemo(() => {
     if (!quizzes.length) return [];
+      // Filtrer les quiz non joués et débloqués
+      const notPlayedAndUnlocked = quizzes.filter(
+        (q) =>
+          !history.some((h) => String(h.quiz?.id) === String(q.id))
+      );
     // 1. Séparer les quiz par niveau
-    const debutant = quizzes.filter(
+    const debutant = notPlayedAndUnlocked.filter(
       (q) => q.niveau?.toLowerCase() === "débutant"
     );
-    const inter = quizzes.filter(
+    const inter = notPlayedAndUnlocked.filter(
       (q) => q.niveau?.toLowerCase() === "intermédiaire"
     );
-    const avance = quizzes.filter((q) => q.niveau?.toLowerCase() === "avancé");
+
+
+    const avance = notPlayedAndUnlocked.filter((q) => q.niveau?.toLowerCase() === "avancé");
     let result = [];
     let inter1 = [];
     let avance1 = [];
@@ -211,13 +220,9 @@ export function Index() {
       // Tous les quiz
       result = [...debutant, ...inter, ...avance];
     }
-    // Filtrer les quiz non joués
-    const notPlayed = result.filter(
-      (q) =>
-        !participations.some((p) => String(p.quizId || p.id) === String(q.id))
-    );
-    return notPlayed;
-  }, [quizzes, participations, userPoints]);
+    
+      return result;
+  }, [quizzes, history, userPoints]);
 
   // === Notification automatique à 9h ===
   useEffect(() => {

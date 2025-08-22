@@ -7,12 +7,15 @@ class StagiaireQuizService {
   async getStagiaireQuizzes(): Promise<Quiz[]> {
     try {
       const response = await apiClient.get('/stagiaire/quizzes');
+      console.log('API Response:', response.data.data);
       const quizzes = response.data.data || [];
-      
-      
-      return Promise.all(
+
+
+      const mappedQuizzes = await Promise.all(
         quizzes.map(quiz => quizManagementService['formatStagiaireQuiz'](quiz))
       );
+      console.log('Mapped Quizzes:', mappedQuizzes);
+      return mappedQuizzes;
     } catch (error) {
       console.error('Error fetching stagiaire quizzes:', error);
       return [];
@@ -21,6 +24,7 @@ class StagiaireQuizService {
   async getStagiaireQuizJoue(): Promise<any[]> {
     try {
       const response = await apiClient.get('/quiz/history');
+      console.log('API Response (getStagiaireQuizJoue):', response.data);
       const participations = response.data;
       
       // Filtrer les quiz uniques par leur ID
@@ -33,7 +37,9 @@ class StagiaireQuizService {
         }
       }
       
-      return Array.from(uniqueQuizzesMap.values());
+      const mappedData = Array.from(uniqueQuizzesMap.values());
+      console.log('Mapped Data (getStagiaireQuizJoue):', mappedData);
+      return mappedData;
     } catch (error) {
       console.error('Erreur lors de la récuperation des Quiz:', error);
       return [];
