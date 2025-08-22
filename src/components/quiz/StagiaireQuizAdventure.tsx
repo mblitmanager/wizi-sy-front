@@ -223,14 +223,15 @@ export const StagiaireQuizAdventure: React.FC<{ selectedFormationId?: string | n
                                     <img src="/assets/logo.png" alt="avatar" className="w-8 h-8 object-contain absolute -top-8 left-1/2 -translate-x-1/2" />
                                 )}
                             </div>
-                            {/* Fil descendant si pas le dernier */}
-                            {index < computed.list.length - 1 && <div className="w-0.5 h-6 bg-gray-300" />}
+                            
+                            {index < computed.list.length  && <div className="w-0.5 h-6 bg-gray-300" />}
                         </div>
-                        <div className={`w-full flex ${isLeft ? 'justify-start' : 'justify-end'}`}>
-                            <div className="max-w-xl w-full">
-                                <QuizStepCard quiz={quiz} playable={playable} played={played} history={h} quizHistory={quizHistory ?? []} categoryConfig={categoryConfig} />
-                            </div>
-                        </div>
+                                {/* Effet gauche/droite sur mobile: responsive width et alternance alignement */}
+                                <div className={`w-full flex ${isLeft ? 'justify-start' : 'justify-end'}`}>
+                                    <div className="w-full max-w-xs sm:max-w-sm md:max-w-xl">
+                                        <QuizStepCard quiz={quiz} playable={playable} played={played} history={h} quizHistory={quizHistory ?? []} categoryConfig={categoryConfig} />
+                                    </div>
+                                </div>
                     </div>
                 );
             })}
@@ -256,7 +257,7 @@ function QuizStepCard({ quiz, playable, played, history, quizHistory, categoryCo
     return (
         <div className={`p-6 sm:p-4 md:p-6 border rounded-md shadow-md hover:shadow-lg transition-shadow duration-300 ${categoryConfig.bgColor} ${categoryConfig.borderColor} space-y-2`}>
             {/* Titre */}
-            <h3 className={`font-semibold text-base sm:text-lg md:text-xl ${categoryConfig.textColor} truncate`}>
+            <h3 className={`font-semibold text-base sm:text-lg md:text-xl ${categoryConfig.textColor} break-words whitespace-pre-line`}>
                 {quiz.titre}
             </h3>
 
@@ -264,7 +265,14 @@ function QuizStepCard({ quiz, playable, played, history, quizHistory, categoryCo
             <div className={`text-xs sm:text-sm md:text-base ${categoryConfig.textColor} truncate`}>
                 {quiz.categorie} - {quiz.niveau}
             </div>
+            {/* Description */}
+            <div
+  className="text-sm text-gray-600 line-clamp-2"
+  dangerouslySetInnerHTML={{ __html: quiz.description || "" }}
+/>
 
+
+            {/* Badges */}
             {/* Barre de progression */}
             {played && (
                 <div className="hidden sm:block w-full mt-1">
