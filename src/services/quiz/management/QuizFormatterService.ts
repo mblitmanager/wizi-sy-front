@@ -1,6 +1,7 @@
 
 import type { Quiz, Question } from '@/types/quiz';
 import { categoryService } from '../CategoryService';
+import { formations } from '@/data/mockData';
 
 export class QuizFormatterService {
   async formatQuiz(quiz: any, categories?: any[]) {
@@ -45,6 +46,8 @@ export class QuizFormatterService {
       categorie: quiz.formation.categorie || quiz.category || '',
       categorieId: quiz.formation.categorieId || quiz.category_id || quiz.categoryId || '',
       niveau: quiz.niveau || quiz.level || '',
+      formations: quiz.formation || formations || [],
+      formationId: quiz.formationId || quiz.formation_id || quiz.formationId || '',
       questions: this.formatQuestions(quiz.questions || []),
       points: quiz.points || 0
     };
