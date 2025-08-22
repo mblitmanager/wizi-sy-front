@@ -203,65 +203,48 @@ export const StagiaireQuizAdventure: React.FC<{ selectedFormationId?: string | n
     }
 
     return (
-        <div className="space-y-6">
-            <h2 className="text-3xl sm:text-2xl md:text-3xl text-brown-shade font-bold">Quiz</h2>
-
+        <div className="relative flex flex-col items-center space-y-8">
+            {/* Timeline fil central */}
             {computed.list.map((quiz, index) => {
                 const isLeft = index % 2 === 0;
                 const played = playedIds.has(String(quiz.id));
                 const playable = computed.playableById.get(String(quiz.id)) === true;
-                // Utilisation de la configuration de catégorie
                 const categoryConfig = getCategoryConfig(quiz.categorie);
-
-                const h = quizHistory?.find(
-                    (x) => String(x.quizId ?? x.quiz?.id) === String(quiz.id)
-                );
+                const h = quizHistory?.find((x) => String(x.quizId ?? x.quiz?.id) === String(quiz.id));
 
                 return (
-                    <div key={quiz.id} className="flex items-start gap-3">
-                        {!isLeft ? (
-                            <div className="flex-1" />
-                        ) : (
-                            <div className="flex-1">
-                                <QuizStepCard quiz={quiz} playable={playable} played={played} history={h} quizHistory={quizHistory ?? []} categoryConfig={categoryConfig} />
-                            </div>
-                        )}
+                    <div key={quiz.id} className="flex flex-col md:flex-row w-full items-center">
+                        {/* Carte gauche */}
+                        <div className={`hidden md:flex flex-1 ${isLeft ? '' : 'justify-end'}`}>
+                            {isLeft && <QuizStepCard quiz={quiz} playable={playable} played={played} history={h} quizHistory={quizHistory ?? []} categoryConfig={categoryConfig} />}
+                        </div>
 
-                        {/* Timeline */}
-                        <div className="w-14 flex flex-col items-center">
-                            <div className="h-4 w-0.5 bg-gray-200" />
-                            <div className={`relative w-6 h-6 rounded-full border-2 border-white ${categoryConfig.color}`}>
+                        {/* Timeline central */}
+                        <div className="flex flex-col items-center w-12 relative">
+                            <div className="absolute top-0 bottom-0 left-1/2 w-0.5 bg-gray-300 transform -translate-x-1/2" />
+                            <div className={`relative w-6 h-6 rounded-full border-2 border-white ${categoryConfig.color} z-10`}>
                                 {computed.avatarId && String(quiz.id) === computed.avatarId && (
-                                    <div className="absolute -top-7 left-1/2 -translate-x-1/2 w-8 h-8">
+                                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-8 h-8">
                                         <img src="/assets/logo.png" alt="avatar" className="w-8 h-8 object-contain" />
                                     </div>
                                 )}
                             </div>
-                            <div className="h-10 w-0.5 bg-gray-200" />
                         </div>
 
-                        {isLeft ? (
-                            <div className="flex-1" />
-                        ) : (
-                            <div className="flex-1">
-                                <QuizStepCard quiz={quiz} playable={playable} played={played} history={h} quizHistory={quizHistory ?? []} categoryConfig={categoryConfig} />
-                            </div>
-                        )}
+                        {/* Carte droite */}
+                        <div className={`hidden md:flex flex-1 ${!isLeft ? '' : 'justify-start'}`}>
+                            {!isLeft && <QuizStepCard quiz={quiz} playable={playable} played={played} history={h} quizHistory={quizHistory ?? []} categoryConfig={categoryConfig} />}
+                        </div>
+
+                        {/* Mobile full width */}
+                        <div className="md:hidden w-full">
+                            <QuizStepCard quiz={quiz} playable={playable} played={played} history={h} quizHistory={quizHistory ?? []} categoryConfig={categoryConfig} />
+                        </div>
                     </div>
                 );
             })}
-
-            {computed.canShowMore && !showAllForFormation && (
-                <div className="flex justify-end">
-                    <button
-                        className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
-                        onClick={() => setShowAllForFormation(true)}
-                    >
-                        Voir plus
-                    </button>
-                </div>
-            )}
         </div>
+
     );
 };
 
@@ -280,13 +263,20 @@ function QuizStepCard({ quiz, playable, played, history, quizHistory, categoryCo
     const percent = total ? Math.round((correct / total) * 100) : 0;
 
     return (
-        <div className={`p-10 sm:p-4 border rounded-md shadow-sm ${categoryConfig.bgColor} ${categoryConfig.borderColor} space-y-2`}> 
-            <h3 className={`font-semibold text-base sm:text-lg ${categoryConfig.textColor}`}>{quiz.titre}</h3>
-            <div className={`text-xs sm:text-sm ${categoryConfig.textColor}`}>{quiz.categorie} - {quiz.niveau}</div>
-            {/* <div className={`text-sm text-black`}></div> */}
-            {/* Hide progress bar on mobile */}
+        <div className={`p-6 sm:p-4 md:p-6 border rounded-md shadow-md hover:shadow-lg transition-shadow duration-300 ${categoryConfig.bgColor} ${categoryConfig.borderColor} space-y-2`}>
+            {/* Titre */}
+            <h3 className={`font-semibold text-base sm:text-lg md:text-xl ${categoryConfig.textColor} truncate`}>
+                {quiz.titre}
+            </h3>
+
+            {/* Catégorie et niveau */}
+            <div className={`text-xs sm:text-sm md:text-base ${categoryConfig.textColor} truncate`}>
+                {quiz.categorie} - {quiz.niveau}
+            </div>
+
+            {/* Barre de progression */}
             {played && (
-                <div className="text-xs sm:text-sm hidden sm:block">
+                <div className="hidden sm:block w-full mt-1">
                     <div className="w-full bg-gray-200 rounded-full h-3 sm:h-4 dark:bg-gray-700">
                         <div
                             className={`h-3 sm:h-4 rounded-full text-xs text-white text-center ${categoryConfig.color}`}
@@ -297,30 +287,36 @@ function QuizStepCard({ quiz, playable, played, history, quizHistory, categoryCo
                     </div>
                 </div>
             )}
+
+            {/* Quiz verrouillé */}
             {!playable && !played && (
-                <div className={`text-xs sm:text-sm ${categoryConfig.textColor} flex items-center gap-1`}>
-                    <Lock size={14} />
-                    Quiz verrouillé
-                    <br/>
-                    <div className="text-xs sm:text-sm text-gray-400">Terminez les quiz précédents pour débloquer celui-ci.</div>
+                <div className={`text-xs sm:text-sm ${categoryConfig.textColor} flex flex-col sm:flex-row gap-1`}>
+                    <div className="flex items-center gap-1">
+                        <Lock size={14} />
+                        Quiz verrouillé
+                    </div>
+                    <div className="text-gray-400 text-xs sm:text-sm">
+                        Terminez les quiz précédents pour débloquer celui-ci.
+                    </div>
                 </div>
             )}
+
+            {/* Boutons Commencer / Rejouer */}
             {(playable || played) && (
                 <div className="mt-2 flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center">
-                    <a href={`/quiz/${quiz.id}`} className={`text-xs sm:text-sm text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-md inline-block ${categoryConfig.color} hover:brightness-90`}>
+                    <a
+                        href={`/quiz/${quiz.id}`}
+                        className={`text-xs sm:text-sm md:text-base text-white px-3 py-2 rounded-md inline-block ${categoryConfig.color} hover:brightness-90 text-center sm:text-left w-full sm:w-auto`}
+                    >
                         {played ? 'Rejouer' : 'Commencer'}
                     </a>
                     {played && (
-                        <div className="mt-2 sm:mt-0">
-                            {/* Remove border from QuizHistoryModal container */}
+                        <div className="mt-2 sm:mt-0 w-full sm:w-auto">
                             <QuizHistoryModal quizId={quiz.id} quizHistory={quizHistory} noBorder />
                         </div>
                     )}
                 </div>
             )}
-            {/* {!played && !playable && (
-                
-            )} */}
         </div>
     );
 }
@@ -349,11 +345,11 @@ function QuizHistoryModal({ quizId, quizHistory, noBorder }: { quizId: number; q
                         last3.map((h, idx) => (
                             <div key={idx} className={`p-2 rounded-md shadow-sm flex justify-between ${noBorder ? '' : 'border'}`}>
                                 <div>
-                                    <p className="text-sm">Temps passé : {h.timeSpent} sec - Score :{h.score*10}%</p>
+                                    <p className="text-sm">Temps passé : {h.timeSpent} sec - Score :{h.score * 10}%</p>
                                     <p className="text-xs text-gray-500">{new Date(h.completedAt).toLocaleString()}</p>
                                 </div>
                                 <div className="text-sm font-medium">{h.correctAnswers}/{h.totalQuestions} questions</div>
- 
+
                             </div>
                         ))
                     ) : (
