@@ -8,9 +8,8 @@ import { Layout } from "../layout/Layout";
 import { Badge } from "../ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import quizimg from "../../assets/quiz_2.png";
-import { stripHtmlTags } from "@/utils/UtilsFunction";
 import quiziload from "../../assets/loading_img.png";
+import { stripHtmlTags } from "@/utils/UtilsFunction";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
 
@@ -99,7 +98,7 @@ export function QuizDetail() {
     );
   }
 
-  // Génération des types de questions dynamiques
+  // Types de questions selon le niveau
   const types = [
     ...(["débutant", "intermédiaire", "avancé"].includes(quiz.niveau)
       ? [
@@ -107,19 +106,19 @@ export function QuizDetail() {
           icon: <BookOpen className="w-6 h-6 text-blue-500 mb-1" />,
           title: "QCM",
           desc: "Choisissez la ou les bonnes réponses.",
-          bg: "bg-blue-50 border-blue-200",
+          bg: "bg-blue-50",
         },
         {
           icon: <Award className="w-6 h-6 text-green-500 mb-1" />,
           title: "Vrai / Faux",
           desc: "Indiquez si l'affirmation est vraie ou fausse.",
-          bg: "bg-green-50 border-green-200",
+          bg: "bg-green-50",
         },
         {
           icon: <span className="text-yellow-500 text-xl">🔊</span>,
           title: "Audio",
           desc: "Écoutez l'extrait audio et répondez.",
-          bg: "bg-yellow-50 border-yellow-200",
+          bg: "bg-yellow-50",
         },
       ]
       : []),
@@ -129,13 +128,13 @@ export function QuizDetail() {
           icon: <span className="text-purple-500 text-xl">🔀</span>,
           title: "Réarrangement",
           desc: "Remettez les éléments dans le bon ordre.",
-          bg: "bg-purple-50 border-purple-200",
+          bg: "bg-purple-50",
         },
         {
           icon: <span className="text-pink-500 text-xl">🔗</span>,
           title: "Matching",
           desc: "Associez chaque élément à sa correspondance.",
-          bg: "bg-pink-50 border-pink-200",
+          bg: "bg-pink-50",
         },
       ]
       : []),
@@ -145,13 +144,13 @@ export function QuizDetail() {
           icon: <span className="text-indigo-500 text-xl">✍️</span>,
           title: "Champ vide",
           desc: "Complétez la phrase.",
-          bg: "bg-indigo-50 border-indigo-200",
+          bg: "bg-indigo-50",
         },
         {
           icon: <span className="text-gray-500 text-xl">✨</span>,
           title: "Autres",
           desc: "Questions spéciales.",
-          bg: "bg-gray-50 border-gray-200",
+          bg: "bg-gray-50",
         },
       ]
       : []),
@@ -162,159 +161,137 @@ export function QuizDetail() {
 
   return (
     <Layout>
-      <div className="flex  items-center  px-2 sm:px-4 py-6">
-        <div className="rounded-2xl shadow-xl max-w-6xl w-full flex flex-col md:flex-row bg-white overflow-hidden">
-          {/* Section gauche - Infos quiz */}
-          <div className="w-full md:w-1/2 p-6 flex flex-col justify-between bg-gradient-to-tr from-white via-blue-50 to-indigo-100">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-indigo-700 mb-2 flex items-center gap-2">
-                <BookOpen className="w-6 h-6 text-indigo-500" />
-                {quiz.titre}
-              </h2>
-              <p className="text-gray-600 mb-3 text-sm sm:text-base">
-                {stripHtmlTags(quiz.description)}
-              </p>
+      {/* <div className="flex items-center px-2 sm:px-4 py-6"> */}
+      <div className="w-[100%] rounded-2xl shadow-lg max-w-6xl w-full flex flex-col md:flex-row bg-white">
+        {/* Section gauche */}
+        <div className="w-full md:w-1/2 p-6 flex flex-col justify-between bg-gradient-to-tr from-white via-blue-50 to-indigo-100">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold text-indigo-700 mb-2 flex items-center gap-2">
+              <BookOpen className="w-6 h-6 text-indigo-500" />
+              {quiz.titre}
+            </h2>
+            <p className="text-gray-600 mb-3 text-sm sm:text-base">
+              {stripHtmlTags(quiz.description)}
+            </p>
 
-              <div className="flex gap-2 flex-wrap mb-4">
-                <Badge className="bg-blue-100 text-blue-600 text-xs sm:text-sm">
-                  Niveau : {quiz.niveau}
-                </Badge>
-                <Badge className="bg-green-100 text-green-600 text-xs sm:text-sm">
-                  10 pts à gagner
-                </Badge>
-              </div>
+            <div className="flex gap-2 flex-wrap mb-4">
+              <Badge className="bg-blue-100 text-blue-600 text-xs sm:text-sm">
+                Niveau : {quiz.niveau}
+              </Badge>
+              <Badge className="bg-green-100 text-green-600 text-xs sm:text-sm">
+                10 pts à gagner
+              </Badge>
+            </div>
 
-              <p className="text-sm font-semibold text-gray-700">
-                Nombre de questions : 5
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                ⏱ Temps imparti :{" "}
-                {quiz.niveau === "débutant" ? "3 min (180 sec)" : "5 min (300 sec)"}
-              </p>
+            <p className="text-sm font-semibold text-gray-700">
+              Nombre de questions : 5
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              ⏱ Temps imparti :{" "}
+              {quiz.niveau === "débutant" ? "3 min (180 sec)" : "5 min (300 sec)"}
+            </p>
 
-              {/* Section tutoriels */}
-              {quiz.tutos && quiz.tutos.length > 0 && (
-                <div className="mt-4">
-                  <p className="text-sm font-semibold text-gray-700 mb-2">
-                    Tutoriels :
-                  </p>
-                  <div className="flex md:grid md:grid-cols-2 gap-2 overflow-x-auto hide-scrollbar">
-                    {quiz.tutos.map((tuto: any, idx: number) => (
-                      <div
-                        key={idx}
-                        className="bg-white border rounded-lg p-2 shadow-sm flex flex-col justify-center"
-                      >
-                        <span className="font-semibold text-xs text-indigo-700 truncate">
-                          {tuto.titre || `Tuto ${idx + 1}`}
-                        </span>
-                        <span className="text-xs text-gray-600 truncate">
-                          {tuto.description || ""}
-                        </span>
-                        {tuto.lien && (
-                          <a
-                            href={tuto.lien}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs text-blue-600 underline mt-1 truncate"
-                          >
-                            Voir le tutoriel
-                          </a>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* <div className="bg-white p-3 rounded-lg shadow-sm border mt-4">
-                <p className="text-sm text-gray-700 font-medium">💡 Comment jouer :</p>
-                <p className="text-xs text-gray-500">
-                  Répondez dans le temps imparti. Plus vous répondez vite et juste,
-                  plus vous marquez de points. Bonne chance !
+            {/* Tutoriels */}
+            {quiz.tutos && quiz.tutos.length > 0 && (
+              <div className="mt-4">
+                <p className="text-sm font-semibold text-gray-700 mb-2">
+                  Tutoriels :
                 </p>
-              </div> */}
-            </div>
-
-            {/* Bouton desktop */}
-            <div className="mt-6  text-right">
-              <Button
-                className="bg-[#1a237e] text-white px-6 py-3 rounded-lg shadow hover:bg-[#283593] transition"
-                onClick={() => navigate(`/quiz/${quiz.id}/start`)}
-              >
-                <span className="flex items-center gap-2">
-                  Lancer le défi <ArrowRight className="w-4 h-4" />
-                </span>
-              </Button>
-            </div>
+                <div className="flex md:grid md:grid-cols-2 gap-2 overflow-x-auto hide-scrollbar">
+                  {quiz.tutos.map((tuto: any, idx: number) => (
+                    <div
+                      key={idx}
+                      className="bg-gray-50 rounded-lg p-2 flex flex-col"
+                    >
+                      <span className="font-semibold text-xs text-indigo-700 truncate">
+                        {tuto.titre || `Tuto ${idx + 1}`}
+                      </span>
+                      <span className="text-xs text-gray-600 truncate">
+                        {tuto.description || ""}
+                      </span>
+                      {tuto.lien && (
+                        <a
+                          href={tuto.lien}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-blue-600 underline mt-1 truncate"
+                        >
+                          Voir le tutoriel
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Section droite - Animation & carrousel */}
-          <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-4">
-            {/* Image animation desktop */}
-            {/* <div className="hidden md:flex flex-col items-center mb-6">
-              <img
-                src={quizimg}
-                alt={`Illustration quiz ${quiz.titre}`}
-                className="w-56 h-56 object-contain animate-bounce-slow"
-              />
-              <p className="text-gray-600 mt-2 text-sm text-center">
-                🌟 Testez vos connaissances et débloquez des récompenses !
-              </p>
-              <p className="text-xs text-gray-500">Chaque quiz est une aventure</p>
-            </div> */}
+          <div className="mt-6 text-right">
+            <Button
+              className="bg-[#1a237e] text-white px-6 py-3 rounded-lg hover:bg-[#283593] transition"
+              onClick={() => navigate(`/quiz/${quiz.id}/start`)}
+            >
+              <span className="flex items-center gap-2">
+                Lancer le défi <ArrowRight className="w-4 h-4" />
+              </span>
+            </Button>
+          </div>
+        </div>
 
-            {/* Carrousel mobile (tap pour avancer) */}
-            <div className="block md:hidden w-full mb-4">
-              {types.length > 0 && (
-                <button
-                  type="button"
-                  className={`w-[85vw] max-w-sm mx-auto ${types[currentTypeIdx].bg} border rounded-xl p-5 flex flex-col items-center shadow-md active:scale-95 transition`}
-                  onClick={handleNextType}
-                >
-                  {types[currentTypeIdx].icon}
-                  <span className="font-semibold text-base">{types[currentTypeIdx].title}</span>
-                  <span className="text-xs text-gray-600 text-center">
-                    {types[currentTypeIdx].desc}
-                  </span>
-                  {types.length > 1 && (
-                    <span className="mt-2 text-xs text-gray-400">
-                      {currentTypeIdx + 1} / {types.length} • Tapotez pour voir le suivant
-                    </span>
-                  )}
-                </button>
-              )}
-            </div>
-
-            {/* Carrousel desktop */}
-            <div className="hidden md:block w-full">
-              <Swiper
-                modules={[Autoplay, Navigation, Pagination]}
-                spaceBetween={12}
-                slidesPerView={"auto"}
-                centeredSlides
-                loop
-                autoplay={{ delay: 3000, disableOnInteraction: false }}
-                pagination={{ clickable: true }}
-                className="pb-6"
+        {/* Section droite */}
+        <div className="w-[80%] md:w-1/2 flex flex-col items-center justify-center p-4">
+          {/* Mobile */}
+          <div className="block md:hidden w-full mb-4">
+            {types.length > 0 && (
+              <button
+                type="button"
+                className={`w-[130%] max-w-sm mx-auto ${types[currentTypeIdx].bg} rounded-xl p-5 flex flex-col items-center active:scale-95 transition`}
+                onClick={handleNextType}
               >
-                {types.map((type, idx) => (
-                  <SwiperSlide key={idx} className="!w-[200px]">
-                    <div
-                      className={`p-4 rounded-lg shadow-sm border flex flex-col items-center justify-center h-[120px] ${type.bg}`}
-                    >
-                      {type.icon}
-                      <span className="font-semibold text-sm">{type.title}</span>
-                      <span className="text-xs text-gray-600 text-center">
-                        {type.desc}
-                      </span>
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </div>
+                {types[currentTypeIdx].icon}
+                <span className="font-semibold text-base">{types[currentTypeIdx].title}</span>
+                <span className="text-xs text-gray-600 text-center">
+                  {types[currentTypeIdx].desc}
+                </span>
+                {types.length > 1 && (
+                  <span className="mt-2 text-xs text-gray-400">
+                    {currentTypeIdx + 1} / {types.length} • Tapotez pour voir le suivant
+                  </span>
+                )}
+              </button>
+            )}
+          </div>
+
+          {/* Desktop */}
+          <div className="hidden md:block w-full">
+            <Swiper
+              modules={[Autoplay, Navigation, Pagination]}
+              spaceBetween={12}
+              slidesPerView={"auto"}
+              centeredSlides
+              loop
+              autoplay={{ delay: 3000, disableOnInteraction: false }}
+              pagination={{ clickable: true }}
+              className="pb-6"
+            >
+              {types.map((type, idx) => (
+                <SwiperSlide key={idx} className="!w-[200px]">
+                  <div
+                    className={`p-4 rounded-lg flex flex-col items-center justify-center h-[120px] ${type.bg}`}
+                  >
+                    {type.icon}
+                    <span className="font-semibold text-sm">{type.title}</span>
+                    <span className="text-xs text-gray-600 text-center">
+                      {type.desc}
+                    </span>
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         </div>
       </div>
+      {/* </div> */}
     </Layout>
   );
 }
