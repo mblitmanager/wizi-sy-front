@@ -88,15 +88,15 @@ export function Layout({ children }: LayoutProps) {
         {/* Bannière en haut (uniquement sur desktop) */}
         {showBanner && !isMobile && (
           <div className="w-full bg-[#feb823] rounded-b-lg text-white relative z-30">
-            <div className="container mx-auto px-3 py-2 flex items-center justify-between">
+            {/* <div className="container mx-auto px-3 py-2 flex items-center justify-between">
               <div className="flex items-center overflow-hidden">
                 <Gift className="h-6 w-6 mr-2 flex-shrink-0" />
                 <div className="truncate">
                   <span className="font-bold text-xs sm:text-sm">
                     Je parraine et je gagne{" "}
-                    <span className="text-white text-2xl font-extrabold drop-shadow-lg">
-                      50€.
-                    </span>{" "}
+                    <span className=" text-xl sm:text-4xl font-black mt-1 drop-shadow-lg text-red-600">
+                      50€
+                    </span>
                   </span>
                   <span className="ml-2 text-xs sm:text-sm text-[#895129] hidden sm:inline font-bold">
                     Profitez de notre offre de parrainage dès maintenant !
@@ -105,12 +105,42 @@ export function Layout({ children }: LayoutProps) {
               </div>
               <div className="flex items-center space-x-1 sm:space-x-2">
                 <Link
-                  size="sm"
-                  variant="outline"
-                  className="text-black underline hover:bg-white/10 hover:text-white text-xs px-2"
-                  onClick={() => navigate("/parrainage")}>
+                  to="/parrainage"
+                  className="text-black underline hover:bg-white/10 hover:text-white text-xs px-2">
                   Découvrir
                 </Link>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-white hover:bg-white/10 p-1"
+                  onClick={() => setShowBanner(false)}>
+                  <X className="h-3 w-3 sm:h-4 sm:w-4" />
+                </Button>
+              </div>
+            </div> */}
+            <div className="container mx-auto px-4 py-2 flex items-center justify-between  rounded-md shadow-md">
+              <div className="flex items-center overflow-hidden">
+                <Gift className="h-6 w-6 mr-2 flex-shrink-0" />
+
+                <div className="truncate">
+                  <span className="block font-semibold text-sm sm:text-md text-white">
+                    Je parraine et je gagne
+                    <span className="ml-1 text-2xl sm:text-2xl font-extrabold drop-shadow-md text-red-600">
+                      50 €
+                    </span>
+                  </span>
+                  <span className="block text-xs sm:text-sm text-[#5c371d] font-semibold mt-1">
+                    Profitez de notre offre de parrainage dès maintenant !
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <a
+                  className="text-black underline hover:text-red-700 text-xs sm:text-sm px-2 font-semibold"
+                  href="/parrainage">
+                  Découvrir
+                </a>
                 <Button
                   size="sm"
                   variant="ghost"
@@ -136,7 +166,7 @@ export function Layout({ children }: LayoutProps) {
         {/* Bannière en bas (uniquement sur mobile) */}
         {showBanner && isMobile && (
           <div className="fixed top-[54px] left-0 right-0 bg-[#feb823] rounded-b-lg text-white z-40">
-            <div className="container mx-auto px-3 py-2 flex items-center justify-between">
+            {/* <div className="container mx-auto px-3 py-2 flex items-center justify-between">
               <div className="flex items-center overflow-hidden">
                 <Gift className="h-4 w-4 mr-2 flex-shrink-0" />
                 <div className="truncate">
@@ -156,6 +186,38 @@ export function Layout({ children }: LayoutProps) {
                   onClick={() => navigate("/parrainage")}>
                   Voir
                 </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-white hover:bg-white/10 p-1"
+                  onClick={() => setShowBanner(false)}>
+                  <X className="h-3 w-3 sm:h-4 sm:w-4" />
+                </Button>
+              </div>
+            </div> */}
+            <div className="container mx-auto px-4 py-2 flex items-center justify-between  rounded-md shadow-md">
+              <div className="flex items-center overflow-hidden">
+                <Gift className="h-6 w-6 mr-2 flex-shrink-0" />
+
+                <div className="truncate">
+                  <span className="block font-semibold text-sm sm:text-md text-white">
+                    Je parraine et je gagne
+                    <span className="ml-1 text-2xl sm:text-2xl font-extrabold drop-shadow-md text-red-600">
+                      50 €
+                    </span>
+                  </span>
+                  <span className="block text-xs sm:text-sm text-[#5c371d] font-semibold mt-1">
+                    Profitez de notre offre de parrainage dès maintenant !
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <a
+                  className="text-black underline hover:text-red-700 text-xs sm:text-sm px-2 font-semibold"
+                  href="/parrainage">
+                  Découvrir
+                </a>
                 <Button
                   size="sm"
                   variant="ghost"

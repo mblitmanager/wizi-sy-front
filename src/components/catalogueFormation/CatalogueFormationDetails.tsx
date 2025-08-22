@@ -122,8 +122,7 @@ export default function CatalogueFormationDetails() {
       return (
         <video
           controls
-          className="h-full w-full object-cover md:col-span-1 rounded-lg"
-        >
+          className="h-full w-full object-cover md:col-span-1 rounded-lg">
           <source
             src={`${import.meta.env.VITE_API_URL_IMG}/${url}`}
             type="video/mp4"
@@ -213,10 +212,14 @@ const FormationInfoSection = ({
   title: string;
   description: string;
 }) => (
-  <div className="mt-8 mb-8">
-    <h2 className="text-2xl font-semibold mb-4 text-brown-shade">{title}</h2>
-    <div className="p-3 border-b-2 border-yellow-shade">
-      <p className="text-gray-800 dark:text-gray-500 mb-2">
+  <div className="mt-12 mb-12 text-center">
+    <h2 className="relative inline-block text-3xl md:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 drop-shadow-md">
+      <span className="relative z-10 text-[#F33F18]">{title}</span>
+      {/* petite barre décorative en dessous */}
+      <span className="absolute left-1/2 -bottom-2 h-1 w-16 -translate-x-1/2 rounded-full bg-gradient-to-r from-orange-400 to-yellow-400"></span>
+    </h2>
+    <div className="mt-6 p-5 rounded-2xl bg-gradient-to-br from-yellow-50 to-white dark:from-gray-900 dark:to-gray-800 shadow-md">
+      <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
         {stripHtmlTags(description)}
       </p>
     </div>
@@ -275,8 +278,7 @@ const FormationDetailsContent = ({
         style={{
           backgroundColor: getCategoryColor(category),
           color: "#fff",
-        }}
-      >
+        }}>
         {getCategoryBadgeText(category)}
       </Badge>
     </div>
@@ -340,8 +342,7 @@ const InscriptionSection = ({
     <Button
       onClick={onInscription}
       disabled={loading}
-      className="w-full md:w-auto bg-black"
-    >
+      className="w-full md:w-auto bg-black">
       {loading ? "Inscription en cours..." : "S'inscrire à la formation"}
     </Button>
     {success && <div className="text-green-600 mt-2 text-sm">{success}</div>}
