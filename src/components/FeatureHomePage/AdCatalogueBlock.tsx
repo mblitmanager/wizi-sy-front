@@ -145,7 +145,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
   };
 
   if (!formations || formations.length === 0) return null;
-
+  console.log(formations);
   return (
     <div className="mb-12 px-4 sm:px-6 lg:px-8">
       {/* Header avec gradient accrocheur */}
@@ -177,7 +177,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
               {/* Badge "Populaire" ou "Certifié" */}
               {formation.certification && (
                 <div className="absolute top-4 right-4 bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full z-10">
-                  CERTIFIÉ
+                  {formation.certification}
                 </div>
               )}
 
@@ -210,7 +210,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                 </div>
 
                 <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 min-h-[3rem]">
-                  {formatTitle(formation.formation?.titre || "Sans titre")}
+                  {formatTitle(formation?.titre || "Sans titre")}
                 </h3>
 
                 {/* Description avec effet "Lire plus" */}

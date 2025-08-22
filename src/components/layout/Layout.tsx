@@ -118,7 +118,7 @@ export function Layout({ children }: LayoutProps) {
                 </Button>
               </div>
             </div> */}
-            <div className="container mx-auto px-4 py-2 flex items-center justify-between  rounded-md shadow-md">
+            <div className="container mx-auto px-4 py-2 flex items-center justify-between  rounded-md shadow-md rounded-b-lg">
               <div className="flex items-center overflow-hidden">
                 <Gift className="h-6 w-6 mr-2 flex-shrink-0" />
 
