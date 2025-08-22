@@ -91,7 +91,7 @@ export default function Quizzes() {
   // Rendu principal
   return (
     <Layout>
-      <div className="flex flex-row flex-wrap items-center gap-2 mb-4 w-full">
+      <div className="sticky top-0 z-20 bg-white flex flex-row flex-wrap items-center gap-2 mb-4 w-full border-b border-gray-200">
         <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
           {/* Sélecteur Formation */}
           <div className="flex items-center min-w-[120px]">
@@ -111,7 +111,7 @@ export default function Quizzes() {
           </div>
 
           {/* Toggle Vue Quiz */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 top-1 right-4 absolute">
             <List
               className={`h-7 w-7 transition-colors ${activeToggle === 'adventure' ? 'text-black' : 'text-gray-400'
                 }`}
