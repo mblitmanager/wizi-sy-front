@@ -241,13 +241,7 @@ export function QuizDetail() {
                 </Badge>
                 <Badge className="bg-green-100 text-green-600 text-xs sm:text-sm py-1 px-2">
                   <Award className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                  {quiz.niveau !== "débutant"
-                    ? (quiz.questions?.length || 0) > 10
-                      ? "20 pts à gagner"
-                      : `${(quiz.questions?.length || 0) * 2} pts à gagner`
-                    : (quiz.questions?.length || 0) > 5
-                    ? "10 pts à gagner"
-                    : `${(quiz.questions?.length || 0) * 2} pts à gagner`}
+                  10 pts à gagner
                 </Badge>
               </div>
 
@@ -280,21 +274,10 @@ export function QuizDetail() {
                   Nombre de questions :
                 </p>
                 <p className="text-xs sm:text-sm text-gray-600">
-                  {quiz.niveau === "débutant" &&
-                  (quiz.questions?.length || 0) > 5
-                    ? "5 questions"
-                    : `${quiz.questions?.length || 0} question${
-                        (quiz.questions?.length || 0) > 1 ? "s" : ""
-                      }`}
-                  {quiz.niveau !== "débutant" &&
-                  (quiz.questions?.length || 0) > 10
-                    ? "10 questions"
-                    : ""}
+                  5 questions
                 </p>
                 <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                  ⏱️ Temps imparti :{" "}
-                  {quiz.niveau === "débutant" ? "2 min 30 s" : "5 min"} (
-                  {quiz.niveau === "débutant" ? "150" : "300"} sec)
+                  ⏱️ Temps imparti : {quiz.niveau === "débutant" ? "3 min" : "5 min"} ({quiz.niveau === "débutant" ? "180" : "300"} sec)
                 </p>
               </div>
 

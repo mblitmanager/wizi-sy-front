@@ -280,15 +280,16 @@ function QuizStepCard({ quiz, playable, played, history, quizHistory, categoryCo
     const percent = total ? Math.round((correct / total) * 100) : 0;
 
     return (
-        <div className={`p-4 border rounded-md shadow-sm ${categoryConfig.bgColor} ${categoryConfig.borderColor} space-y-2`}> 
-            <h3 className={`font-semibold ${categoryConfig.textColor}`}>{quiz.titre}</h3>
-            <div className={`text-sm ${categoryConfig.textColor}`}>{quiz.categorie}</div>
+        <div className={`p-10 sm:p-4 border rounded-md shadow-sm ${categoryConfig.bgColor} ${categoryConfig.borderColor} space-y-2`}> 
+            <h3 className={`font-semibold text-base sm:text-lg ${categoryConfig.textColor}`}>{quiz.titre}</h3>
+            <div className={`text-xs sm:text-sm ${categoryConfig.textColor}`}>{quiz.categorie} - {quiz.niveau}</div>
+            {/* <div className={`text-sm text-black`}></div> */}
             {/* Hide progress bar on mobile */}
             {played && (
-                <div className="text-sm hidden sm:block">
-                    <div className="w-full bg-gray-200 rounded-full h-4 dark:bg-gray-700">
+                <div className="text-xs sm:text-sm hidden sm:block">
+                    <div className="w-full bg-gray-200 rounded-full h-3 sm:h-4 dark:bg-gray-700">
                         <div
-                            className={`h-4 rounded-full text-xs text-white text-center ${categoryConfig.color}`}
+                            className={`h-3 sm:h-4 rounded-full text-xs text-white text-center ${categoryConfig.color}`}
                             style={{ width: `${percent}%` }}
                         >
                             {percent}%
@@ -297,20 +298,23 @@ function QuizStepCard({ quiz, playable, played, history, quizHistory, categoryCo
                 </div>
             )}
             {!playable && !played && (
-                <div className={`text-sm ${categoryConfig.textColor} flex items-center gap-1`}>
+                <div className={`text-xs sm:text-sm ${categoryConfig.textColor} flex items-center gap-1`}>
                     <Lock size={14} />
                     Quiz verrouillé
                     <br/>
-                    <div className="text-sm text-gray-400">Terminez les quiz précédents pour débloquer celui-ci.</div>
+                    <div className="text-xs sm:text-sm text-gray-400">Terminez les quiz précédents pour débloquer celui-ci.</div>
                 </div>
             )}
             {(playable || played) && (
-                <div className="mt-2">
-                    <a href={`/quiz/${quiz.id}`} className={`text-sm text-white px-3 py-1.5 rounded-md inline-block ${categoryConfig.color} hover:brightness-90`}>
+                <div className="mt-2 flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center">
+                    <a href={`/quiz/${quiz.id}`} className={`text-xs sm:text-sm text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-md inline-block ${categoryConfig.color} hover:brightness-90`}>
                         {played ? 'Rejouer' : 'Commencer'}
                     </a>
                     {played && (
-                        <QuizHistoryModal quizId={quiz.id} quizHistory={quizHistory} />
+                        <div className="mt-2 sm:mt-0">
+                            {/* Remove border from QuizHistoryModal container */}
+                            <QuizHistoryModal quizId={quiz.id} quizHistory={quizHistory} noBorder />
+                        </div>
                     )}
                 </div>
             )}
@@ -321,7 +325,7 @@ function QuizStepCard({ quiz, playable, played, history, quizHistory, categoryCo
     );
 }
 
-function QuizHistoryModal({ quizId, quizHistory }: { quizId: number; quizHistory: QuizHistory[] }) {
+function QuizHistoryModal({ quizId, quizHistory, noBorder }: { quizId: number; quizHistory: QuizHistory[]; noBorder?: boolean }) {
     const [open, setOpen] = useState(false);
 
     const last3 = quizHistory
@@ -343,7 +347,7 @@ function QuizHistoryModal({ quizId, quizHistory }: { quizId: number; quizHistory
                 <div className="space-y-2">
                     {last3 && last3.length > 0 ? (
                         last3.map((h, idx) => (
-                            <div key={idx} className="p-2 border rounded-md shadow-sm flex justify-between">
+                            <div key={idx} className={`p-2 rounded-md shadow-sm flex justify-between ${noBorder ? '' : 'border'}`}>
                                 <div>
                                     <p className="text-sm">Temps passé : {h.timeSpent} sec - Score :{h.score*10}%</p>
                                     <p className="text-xs text-gray-500">{new Date(h.completedAt).toLocaleString()}</p>
