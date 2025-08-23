@@ -23,9 +23,9 @@ export const useQuizPlay = (quizId: string) => {
     let questionCount = 5; // default for beginner
 
     if (quiz.niveau && quiz.niveau.toLowerCase() === "intermédiaire") {
-      questionCount = 10;
+      questionCount = 5;
     } else if (quiz.niveau && quiz.niveau.toLowerCase() === "avancé") {
-      questionCount = 10;
+      questionCount = 5;
     }
 
     // Shuffle the questions array to get random questions
