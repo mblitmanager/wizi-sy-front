@@ -51,6 +51,8 @@ const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
 };
 
 export function Index() {
+  // Detect iOS device
+  const isIOS = typeof window !== "undefined" && /iPad|iPhone|iPod/.test(window.navigator.userAgent);
   const { user } = useUser();
   const isOnline = useOnlineStatus();
   const [showInstallHint, setShowInstallHint] = useState(false);
@@ -422,105 +424,159 @@ export function Index() {
             poleRelation={poleRelation}
           />
         </div>
-        {/* Bloc téléchargement application Android */}
+        {/* Bloc téléchargement application Android ou instruction PWA pour iOS */}
         {showApkBlock && (
-          <div
-            className="group relative bg-gradient-to-br from-brown-50 via-white to-yellow-50 rounded-xl shadow-lg border border-brown-200 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105 cursor-pointer"
-            tabIndex={0}
-            role="button"
-            aria-label="Télécharger l'application Android Wizi Learn"
-            // onClick={() => window.open('https://www.wizi-learn.com/application/wizi-learn.apk', '_blank')}
-          >
-            {/* Bouton X pour fermer */}
-            <button
-              className="absolute top-3 right-3 text-green-700 hover:text-green-900 text-xl bg-transparent border-none p-0 z-10"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowApkBlock(false);
-              }}
-              aria-label="Fermer">
-              ×
-            </button>
-            <div className="flex items-center gap-3 mb-2">
-              <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-yellow-100 text-brown-shade group-hover:bg-brown-yellow-100 transition-colors">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-7 h-7">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 16v-8m0 8l-4-4m4 4l4-4m-8 8h8a2 2 0 002-2V6a2 2 0 00-2-2H8a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </span>
-              <h2 className="text-l md:text-2xl font-bold text-brown-shade">
-                Télécharger l'application Android
-              </h2>
+          isIOS ? (
+            <div className="group relative bg-gradient-to-br from-brown-50 via-white to-yellow-50 rounded-xl shadow-lg border border-brown-200 p-6 pb-12 mb-6">
+              <button
+                className="absolute top-3 right-3 text-green-700 hover:text-green-900 text-xl bg-transparent border-none p-0 z-10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowApkBlock(false);
+                }}
+                aria-label="Fermer">
+                ×
+              </button>
+              <div className="flex flex-col items-center gap-3 mb-4">
+                <img src="/assets/ios-pwa-illustration.png" alt="Installer Wizi Learn sur iOS" className="w-32 h-32 object-contain mb-2" />
+                <h2 className="text-l md:text-2xl font-bold text-brown-shade flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 text-blue-500">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L12 12m0 0l-5.25-5.25M12 12V3" />
+                  </svg>
+                  Installer Wizi Learn sur iOS
+                </h2>
+              </div>
+              <div className="bg-white rounded-lg p-4 shadow mb-3">
+                <ol className="list-decimal pl-5 mt-2 mb-2 text-gray-700">
+                  <li className="flex items-center gap-2 mb-2">
+                    <img src="/assets/safari-icon.png" alt="Safari" className="w-6 h-6 inline-block" />
+                    Ouvrez <b>Safari</b> et rendez-vous sur <b>wizi-learn.com</b>
+                  </li>
+                  <li className="flex items-center gap-2 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-blue-500 inline-block">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Touchez le bouton <b>Partager</b> <span className="inline-block align-middle">🔗</span> en bas de l'écran
+                  </li>
+                  <li className="flex items-center gap-2 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-green-500 inline-block">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    Sélectionnez <b>"Sur l'écran d'accueil"</b>
+                  </li>
+                  <li className="flex items-center gap-2 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-amber-500 inline-block">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Validez pour ajouter l'application à votre écran d'accueil
+                  </li>
+                </ol>
+                <span className="text-xs text-yellow-700 block mt-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 inline-block mr-1 text-green-500">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  Vous pourrez accéder à Wizi Learn comme une application native !
+                </span>
+              </div>
             </div>
-            <p className="text-gray-700 text-s mb-3">
-              Accédez à Wizi Learn partout grâce à notre application Android.
-              Cliquez sur le bouton ci-dessous pour télécharger le fichier APK
-              et suivez les instructions d'installation.
-            </p>
-            <button
-              className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-orange-500 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-yellow-600 transition-colors"
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open(
-                  "https://www.wizi-learn.com/application/wizi-learn.apk",
-                  "_blank"
-                );
-                // Déclencher l'achievement côté backend
-                if (user && localStorage.getItem("token")) {
-                  axios
-                    .post(
-                      `${API_URL}/stagiaire/achievements/check`,
-                      { code: "android_download" },
-                      {
-                        headers: {
-                          Authorization: `Bearer ${localStorage.getItem(
-                            "token"
-                          )}`,
-                        },
-                      }
-                    )
-                    .then((res) => {
-                      const unlocked = res.data?.new_achievements || [];
-                      if (Array.isArray(unlocked) && unlocked.length > 0) {
-                        unlocked.forEach((ach) => {
-                          toast({
-                            title: `🎉 Succès débloqué`,
-                            description: `${
-                              ach.name ||
-                              ach.titre ||
-                              ach.title ||
-                              "Achievement"
-                            } !`,
-                            duration: 4000,
-                            variant: "success",
-                            className: "bg-orange-600 text-white",
+          ) : (
+            <div
+              className="group relative bg-gradient-to-br from-brown-50 via-white to-yellow-50 rounded-xl shadow-lg border border-brown-200 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105 cursor-pointer"
+              tabIndex={0}
+              role="button"
+              aria-label="Télécharger l'application Android Wizi Learn"
+            >
+              {/* Bouton X pour fermer */}
+              <button
+                className="absolute top-3 right-3 text-green-700 hover:text-green-900 text-xl bg-transparent border-none p-0 z-10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowApkBlock(false);
+                }}
+                aria-label="Fermer">
+                ×
+              </button>
+              <div className="flex items-center gap-3 mb-2">
+                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-yellow-100 text-brown-shade group-hover:bg-brown-yellow-100 transition-colors">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-7 h-7">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 16v-8m0 8l-4-4m4 4l4-4m-8 8h8a2 2 0 002-2V6a2 2 0 00-2-2H8a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                </span>
+                <h2 className="text-l md:text-2xl font-bold text-brown-shade">
+                  Télécharger l'application Android
+                </h2>
+              </div>
+              <p className="text-gray-700 text-s mb-3">
+                Accédez à Wizi Learn partout grâce à notre application Android.
+                Cliquez sur le bouton ci-dessous pour télécharger le fichier APK
+                et suivez les instructions d'installation.
+              </p>
+              <button
+                className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-orange-500 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-yellow-600 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(
+                    "https://www.wizi-learn.com/application/wizi-learn.apk",
+                    "_blank"
+                  );
+                  // Déclencher l'achievement côté backend
+                  if (user && localStorage.getItem("token")) {
+                    axios
+                      .post(
+                        `${API_URL}/stagiaire/achievements/check`,
+                        { code: "android_download" },
+                        {
+                          headers: {
+                            Authorization: `Bearer ${localStorage.getItem(
+                              "token"
+                            )}`,
+                          },
+                        }
+                      )
+                      .then((res) => {
+                        const unlocked = res.data?.new_achievements || [];
+                        if (Array.isArray(unlocked) && unlocked.length > 0) {
+                          unlocked.forEach((ach) => {
+                            toast({
+                              title: `🎉 Succès débloqué`,
+                              description: `${
+                                ach.name ||
+                                ach.titre ||
+                                ach.title ||
+                                "Achievement"
+                              } !`,
+                              duration: 4000,
+                              variant: "success",
+                              className: "bg-orange-600 text-white",
+                            });
                           });
-                        });
-                      }
-                    })
-                    .catch(() => {});
-                }
-              }}>
-              Télécharger
-            </button>
-            <button
-              className="mt-6 text-yellow-900 font-medium text-sm cursor-pointer hover:text-yellow-700 bg-transparent border-none p-0"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowInstallHint(true);
-              }}>
-              💡 Astuce : Comment installer l'application ?
-            </button>
-          </div>
+                        }
+                      })
+                      .catch(() => {});
+                  }
+                }}>
+                Télécharger
+              </button>
+              <button
+                className="mt-6 text-yellow-900 font-medium text-sm cursor-pointer hover:text-yellow-700 bg-transparent border-none p-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowInstallHint(true);
+                }}>
+                💡 Astuce : Comment installer l'application ?
+              </button>
+            </div>
+          )
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
           <ProgressCard user={user} />
