@@ -133,7 +133,7 @@ const ParrainageSection = () => {
                 </h1>
                 <p className="text-sm text-gray-600">
                   Gagnez{" "}
-                  <span className="text-blue-600 font-bold">
+                  <span className="text-orange-600 font-bold">
                     50€ par filleul
                   </span>
                 </p>
@@ -145,15 +145,15 @@ const ParrainageSection = () => {
             </h1>
             <p className="hidden lg:block text-lg text-gray-600 mb-6">
               Parrainez vos amis et gagnez{" "}
-              <span className="text-blue-600 font-bold">50€</span> pour chaque
+              <span className="text-orange-600 font-bold">50€</span> pour chaque
               inscription valide. Partagez votre lien unique et suivez vos gains
               en temps réel.
             </p>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-6 border border-blue-100">
+            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6 mb-6 border border-yellow-100">
               <div className="flex items-start gap-4">
                 <div className="bg-blue-100 p-3 rounded-full">
-                  <Gift className="h-6 w-6 text-blue-600" />
+                  <Gift className="h-6 w-6 text-orange-600" />
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">
@@ -163,7 +163,7 @@ const ParrainageSection = () => {
                     Plus vous parrainez, plus vous gagnez. Vos gains sont
                     directement versés sur votre compte chaque mois.
                   </p>
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Button className="bg-orange-600 hover:bg-orange-700 text-white">
                     <Share2 className="h-4 w-4 mr-2" />
                     Commencer à parrainer
                   </Button>
@@ -178,7 +178,7 @@ const ParrainageSection = () => {
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="bg-indigo-100 p-2 rounded-lg">
-                    <Megaphone className="h-5 w-5 text-indigo-600" />
+                    <Megaphone className="h-5 w-5 text-orange-600" />
                   </div>
                   <h3 className="text-xl font-semibold text-gray-800">
                     Votre lien de parrainage
@@ -187,7 +187,7 @@ const ParrainageSection = () => {
                 <p className="text-gray-600 mb-6">
                   Partagez ce lien unique avec vos amis et commencez à gagner.
                   Chaque inscription valide vous rapporte{" "}
-                  <span className="font-bold text-blue-600">50€</span>.
+                  <span className="font-bold text-orange-600">50€</span>.
                 </p>
                 <LienParrainage />
               </CardContent>
@@ -221,7 +221,7 @@ const ParrainageSection = () => {
                       <div className="bg-white border border-gray-100 rounded-lg p-4 shadow-xs hover:shadow-sm transition-shadow">
                         <div className="flex items-center gap-3 mb-3">
                           <div className="bg-blue-100 p-2 rounded-full">
-                            <UserPlus className="h-4 w-4 text-blue-600" />
+                            <UserPlus className="h-4 w-4 text-orange-600" />
                           </div>
                           <h4 className="text-sm font-medium text-gray-500">
                             Filleuls
@@ -294,7 +294,7 @@ const ParrainageSection = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex items-start gap-4">
                   <div className="bg-blue-50 p-3 rounded-full flex-shrink-0">
-                    <span className="text-blue-600 font-bold">1</span>
+                    <span className="text-orange-600 font-bold">1</span>
                   </div>
                   <div>
                     <h4 className="font-medium text-gray-800 mb-1">
@@ -308,7 +308,7 @@ const ParrainageSection = () => {
 
                 <div className="flex items-start gap-4">
                   <div className="bg-blue-50 p-3 rounded-full flex-shrink-0">
-                    <span className="text-blue-600 font-bold">2</span>
+                    <span className="text-orange-600 font-bold">2</span>
                   </div>
                   <div>
                     <h4 className="font-medium text-gray-800 mb-1">
@@ -323,7 +323,7 @@ const ParrainageSection = () => {
 
                 <div className="flex items-start gap-4">
                   <div className="bg-blue-50 p-3 rounded-full flex-shrink-0">
-                    <span className="text-blue-600 font-bold">3</span>
+                    <span className="text-orange-600 font-bold">3</span>
                   </div>
                   <div>
                     <h4 className="font-medium text-gray-800 mb-1">
@@ -337,7 +337,7 @@ const ParrainageSection = () => {
 
                 <div className="flex items-start gap-4">
                   <div className="bg-blue-50 p-3 rounded-full flex-shrink-0">
-                    <span className="text-blue-600 font-bold">4</span>
+                    <span className="text-orange-600 font-bold">4</span>
                   </div>
                   <div>
                     <h4 className="font-medium text-gray-800 mb-1">
@@ -356,7 +356,7 @@ const ParrainageSection = () => {
         {/* Right Column - Image (Desktop only) */}
         <div className="hidden lg:block flex-1 order-1 lg:order-2">
           <div className="sticky top-6">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 border border-gray-200 shadow-sm">
+            <div className="bg-gradient-to-br from-yellow-50 to-yellow-50 rounded-2xl p-8 border border-yellow-200 shadow-sm">
               <img
                 src={image}
                 alt="Programme de parrainage"
@@ -369,7 +369,7 @@ const ParrainageSection = () => {
                 <ul className="space-y-3">
                   <li className="flex items-start gap-3">
                     <div className="bg-blue-100 p-1 rounded-full mt-1">
-                      <ChevronRight className="h-4 w-4 text-blue-600" />
+                      <ChevronRight className="h-4 w-4 text-orange-600" />
                     </div>
                     <span className="text-gray-600">
                       Revenus complémentaires faciles
@@ -377,13 +377,13 @@ const ParrainageSection = () => {
                   </li>
                   <li className="flex items-start gap-3">
                     <div className="bg-blue-100 p-1 rounded-full mt-1">
-                      <ChevronRight className="h-4 w-4 text-blue-600" />
+                      <ChevronRight className="h-4 w-4 text-orange-600" />
                     </div>
                     <span className="text-gray-600">Sans limite de gains</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <div className="bg-blue-100 p-1 rounded-full mt-1">
-                      <ChevronRight className="h-4 w-4 text-blue-600" />
+                      <ChevronRight className="h-4 w-4 text-orange-600" />
                     </div>
                     <span className="text-gray-600">
                       Paiements mensuels sécurisés
@@ -391,7 +391,7 @@ const ParrainageSection = () => {
                   </li>
                   <li className="flex items-start gap-3">
                     <div className="bg-blue-100 p-1 rounded-full mt-1">
-                      <ChevronRight className="h-4 w-4 text-blue-600" />
+                      <ChevronRight className="h-4 w-4 text-orange-600" />
                     </div>
                     <span className="text-gray-600">
                       Tableau de bord de suivi
