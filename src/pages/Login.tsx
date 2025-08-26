@@ -41,7 +41,6 @@ const Login = () => {
             },
             body: JSON.stringify({ token: currentToken }),
           });
-          console.log("FCM Token envoyé au backend:", currentToken);
         } catch (err) {
           console.error("Erreur lors de l'envoi du token FCM au backend", err);
         }
@@ -89,8 +88,7 @@ const Login = () => {
               <div className="space-y-2">
                 <label
                   htmlFor="email"
-                  className="text-sm font-medium text-[#A55E6E]"
-                >
+                  className="text-sm font-medium text-[#A55E6E]">
                   Email
                 </label>
                 <Input
@@ -108,14 +106,12 @@ const Login = () => {
                 <div className="flex items-center justify-between">
                   <label
                     htmlFor="password"
-                    className="text-sm font-medium text-[#A55E6E]"
-                  >
+                    className="text-sm font-medium text-[#A55E6E]">
                     Mot de passe
                   </label>
                   <Link
                     to="/forgot-password"
-                    className="text-sm text-[#A55E6E] hover:underline"
-                  >
+                    className="text-sm text-[#A55E6E] hover:underline">
                     Mot de passe oublié ?
                   </Link>
                 </div>
@@ -133,8 +129,7 @@ const Login = () => {
               <Button
                 type="submit"
                 className="w-full bg-black  hover:bg-[#8B5C2A] text-white font-semibold shadow-md transition"
-                disabled={isLoading}
-              >
+                disabled={isLoading}>
                 {isLoading ? "Connexion en cours..." : "Se connecter"}
               </Button>
             </form>

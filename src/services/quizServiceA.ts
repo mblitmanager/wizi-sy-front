@@ -35,11 +35,9 @@ export const quizService = {
       const response = await api.get<ApiResponse<Quiz>>(`/quiz/${quizId}`);
 
       if (response?.data?.data) {
-        console.log("Quiz data received:", response.data.data);
         return response.data.data;
       }
 
-      console.log("No quiz data in response");
       return null;
     } catch (error) {
       console.error("Error fetching quiz:", error);
@@ -55,24 +53,18 @@ export const quizService = {
 
   getQuestions: async (quizId: string): Promise<Question[]> => {
     try {
-      console.log(`Fetching questions for quiz ID: ${quizId}`);
       const response = await api.get<ApiResponse<Question[]>>(
         `/quiz/${quizId}/questions`
       );
 
       if (response?.data?.data) {
-        console.log(`Received ${response.data.data.length} questions`);
         return response.data.data;
       }
 
-      console.log("No questions data in response");
       return [];
     } catch (error) {
-      console.error("Error fetching questions:", error);
-
       if (error.response) {
-        console.error("Response data:", error.response.data);
-        console.error("Response status:", error.response.status);
+        return [];
       }
 
       return [];

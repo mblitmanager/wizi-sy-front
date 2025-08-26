@@ -17,8 +17,7 @@ export const formationService = {
     const categories = new Set(
       formations.map((formation) => formation.categorie)
     );
-    console.log(response.data.data);
-    console.log("response.data.data");
+
     return Array.from(categories);
   },
 

@@ -11,6 +11,13 @@ import { CONTACTEZ_NOUS } from "@/utils/constants";
 import { Card, CardContent } from "@mui/material";
 import { ArrowRight } from "lucide-react";
 
+// Mapping des noms d'affichage
+const typeDisplayNames: Record<string, string> = {
+  Formateur: "Formateur",
+  Commercial: "Commercial",
+  pole_relation_client: "Pôle Relation Client",
+};
+
 const typeStyles: Record<string, string> = {
   Formateur: "bg-blue-100 text-blue-800",
   Commercial: "bg-green-100 text-green-800",
@@ -105,7 +112,7 @@ const ContactSection = ({
             className={`text-xs px-2 py-1 rounded-full font-medium ${
               typeStyles[contact.type]
             }`}>
-            {contact.type}
+            {typeDisplayNames[contact.type] || contact.type}
           </span>
         </div>
       </div>

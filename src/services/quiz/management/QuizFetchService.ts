@@ -39,10 +39,6 @@ export class QuizFetchService {
           );
         }
       } catch (err) {
-        console.log(
-          "Impossible de récupérer les questions détaillées, utilisation des questions du quiz:",
-          err
-        );
         questions = response.data.questions || [];
       }
 

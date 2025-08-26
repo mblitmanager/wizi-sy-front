@@ -89,7 +89,6 @@ export default function VideoPlayer({
       window.dispatchEvent(
         new CustomEvent("media-watched", { detail: { mediaId } })
       );
-      console.log("Vidéo marquée comme regardée");
     } catch (error) {
       console.error(
         "Erreur lors du marquage de la vidéo comme regardée:",

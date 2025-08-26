@@ -1,7 +1,6 @@
-// import axios from "axios"; // supprimé car déjà importé ailleurs
 import { Layout } from "@/components/layout/Layout";
 import { useUser } from "@/hooks/useAuth";
-import { WifiOff, Megaphone } from "lucide-react";
+import { Megaphone } from "lucide-react";
 import { ProgressCard } from "@/components/dashboard/ProgressCard";
 
 import { useQuery } from "@tanstack/react-query";
@@ -11,22 +10,12 @@ import { toast } from "@/hooks/use-toast";
 
 import { Contact } from "@/types/contact";
 import ContactsSection from "@/components/FeatureHomePage/ContactSection";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
 import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
 import { catalogueFormationApi } from "@/services/api";
-import illustration from "../assets/Information tab-bro.png";
-import LienParrainage from "@/components/parrainage/LienParainage";
 import { Card, CardContent } from "@mui/material";
 import LandingPage from "./LandingPage";
-import {
-  DECOUVRIR_NOS_FORMATIONS,
-  DECOUVRIR_NOUS,
-  INFO_OFFLINE,
-  LIEN_PARRAINAGE,
-  OFFLINE,
-  WELCOME,
-} from "@/utils/constants";
+import { DECOUVRIR_NOS_FORMATIONS } from "@/utils/constants";
 import { CatalogueFormation } from "@/types/stagiaire";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -52,7 +41,9 @@ const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
 
 export function Index() {
   // Detect iOS device
-  const isIOS = typeof window !== "undefined" && /iPad|iPhone|iPod/.test(window.navigator.userAgent);
+  const isIOS =
+    typeof window !== "undefined" &&
+    /iPad|iPhone|iPod/.test(window.navigator.userAgent);
   const { user } = useUser();
   const isOnline = useOnlineStatus();
   const [showInstallHint, setShowInstallHint] = useState(false);
@@ -67,12 +58,15 @@ export function Index() {
     queryFn: async () => {
       const response = await catalogueFormationApi.getAllCatalogueFormation();
       if (response && typeof response === "object") {
-        // @ts-expect-error
-        if (Array.isArray(response.data?.member)) {
-          return response.data.member;
-        } else if (Array.isArray(response.member)) {
-          return response.member;
-        } else if (Array.isArray(response?.data)) {
+        if (
+          response.data &&
+          typeof response.data === "object" &&
+          Array.isArray((response.data as any).member)
+        ) {
+          return (response.data as any).member;
+        } else if (Array.isArray((response as any).member)) {
+          return (response as any).member;
+        } else if (Array.isArray(response.data)) {
           return response.data;
         }
       }
@@ -147,8 +141,7 @@ export function Index() {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
-  // console.log("res:", res.data);
-  return res.data || [];
+        return res.data || [];
       } catch {
         return [];
       }
@@ -177,11 +170,10 @@ export function Index() {
   // Filtrage avancé selon les points utilisateur (pour les quiz à jouer)
   const filteredQuizzes = useMemo(() => {
     if (!quizzes.length) return [];
-      // Filtrer les quiz non joués et débloqués
-      const notPlayedAndUnlocked = quizzes.filter(
-        (q) =>
-          !history.some((h) => String(h.quiz?.id) === String(q.id))
-      );
+    // Filtrer les quiz non joués et débloqués
+    const notPlayedAndUnlocked = quizzes.filter(
+      (q) => !history.some((h) => String(h.quiz?.id) === String(q.id))
+    );
     // 1. Séparer les quiz par niveau
     const debutant = notPlayedAndUnlocked.filter(
       (q) => q.niveau?.toLowerCase() === "débutant"
@@ -190,8 +182,9 @@ export function Index() {
       (q) => q.niveau?.toLowerCase() === "intermédiaire"
     );
 
-
-    const avance = notPlayedAndUnlocked.filter((q) => q.niveau?.toLowerCase() === "avancé");
+    const avance = notPlayedAndUnlocked.filter(
+      (q) => q.niveau?.toLowerCase() === "avancé"
+    );
     let result = [];
     let inter1 = [];
     let avance1 = [];
@@ -222,8 +215,8 @@ export function Index() {
       // Tous les quiz
       result = [...debutant, ...inter, ...avance];
     }
-    
-      return result;
+
+    return result;
   }, [quizzes, history, userPoints]);
 
   // === Notification automatique à 9h ===
@@ -268,7 +261,7 @@ export function Index() {
                   ach.name || ach.titre || ach.title || "Achievement"
                 } !`,
                 duration: 4000,
-                variant: "success",
+                variant: "default",
                 className: "bg-orange-600 text-white",
               });
             });
@@ -425,8 +418,8 @@ export function Index() {
           />
         </div>
         {/* Bloc téléchargement application Android ou instruction PWA pour iOS */}
-        {showApkBlock && (
-          isIOS ? (
+        {showApkBlock &&
+          (isIOS ? (
             <div className="group relative bg-gradient-to-br from-brown-50 via-white to-yellow-50 rounded-xl shadow-lg border border-brown-200 p-6 pb-12 mb-6">
               <button
                 className="absolute top-3 right-3 text-green-700 hover:text-green-900 text-xl bg-transparent border-none p-0 z-10"
@@ -438,10 +431,24 @@ export function Index() {
                 ×
               </button>
               <div className="flex flex-col items-center gap-3 mb-4">
-                <img src="/assets/ios-pwa-illustration.png" alt="Installer Wizi Learn sur iOS" className="w-32 h-32 object-contain mb-2" />
+                <img
+                  src="/assets/ios-pwa-illustration.png"
+                  alt="Installer Wizi Learn sur iOS"
+                  className="w-32 h-32 object-contain mb-2"
+                />
                 <h2 className="text-l md:text-2xl font-bold text-brown-shade flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 text-blue-500">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L12 12m0 0l-5.25-5.25M12 12V3" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-7 h-7 text-blue-500">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M17.25 6.75L12 12m0 0l-5.25-5.25M12 12V3"
+                    />
                   </svg>
                   Installer Wizi Learn sur iOS
                 </h2>
@@ -449,33 +456,81 @@ export function Index() {
               <div className="bg-white rounded-lg p-4 shadow mb-3">
                 <ol className="list-decimal pl-5 mt-2 mb-2 text-gray-700">
                   <li className="flex items-center gap-2 mb-2">
-                    <img src="/assets/safari-icon.png" alt="Safari" className="w-6 h-6 inline-block" />
-                    Ouvrez <b>Safari</b> et rendez-vous sur <b>wizi-learn.com</b>
+                    <img
+                      src="/assets/safari-icon.png"
+                      alt="Safari"
+                      className="w-6 h-6 inline-block"
+                    />
+                    Ouvrez <b>Safari</b> et rendez-vous sur{" "}
+                    <b>wizi-learn.com</b>
                   </li>
                   <li className="flex items-center gap-2 mb-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-blue-500 inline-block">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                      className="w-6 h-6 text-blue-500 inline-block">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 4v16m8-8H4"
+                      />
                     </svg>
-                    Touchez le bouton <b>Partager</b> <span className="inline-block align-middle">🔗</span> en bas de l'écran
+                    Touchez le bouton <b>Partager</b>{" "}
+                    <span className="inline-block align-middle">🔗</span> en bas
+                    de l'écran
                   </li>
                   <li className="flex items-center gap-2 mb-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-green-500 inline-block">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                      className="w-6 h-6 text-green-500 inline-block">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M4 6h16M4 12h16M4 18h16"
+                      />
                     </svg>
                     Sélectionnez <b>"Sur l'écran d'accueil"</b>
                   </li>
                   <li className="flex items-center gap-2 mb-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-amber-500 inline-block">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                      className="w-6 h-6 text-amber-500 inline-block">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                     Validez pour ajouter l'application à votre écran d'accueil
                   </li>
                 </ol>
                 <span className="text-xs text-yellow-700 block mt-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 inline-block mr-1 text-green-500">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-5 h-5 inline-block mr-1 text-green-500">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
-                  Vous pourrez accéder à Wizi Learn comme une application native !
+                  Vous pourrez accéder à Wizi Learn comme une application native
+                  !
                 </span>
               </div>
             </div>
@@ -484,8 +539,7 @@ export function Index() {
               className="group relative bg-gradient-to-br from-brown-50 via-white to-yellow-50 rounded-xl shadow-lg border border-brown-200 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105 cursor-pointer"
               tabIndex={0}
               role="button"
-              aria-label="Télécharger l'application Android Wizi Learn"
-            >
+              aria-label="Télécharger l'application Android Wizi Learn">
               {/* Bouton X pour fermer */}
               <button
                 className="absolute top-3 right-3 text-green-700 hover:text-green-900 text-xl bg-transparent border-none p-0 z-10"
@@ -556,7 +610,7 @@ export function Index() {
                                 "Achievement"
                               } !`,
                               duration: 4000,
-                              variant: "success",
+                              variant: "default",
                               className: "bg-orange-600 text-white",
                             });
                           });
@@ -576,8 +630,7 @@ export function Index() {
                 💡 Astuce : Comment installer l'application ?
               </button>
             </div>
-          )
-        )}
+          ))}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
           <ProgressCard user={user} />
         </div>

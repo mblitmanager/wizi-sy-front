@@ -62,18 +62,13 @@ const ParrainageInscriptionPage = () => {
   useEffect(() => {
     const fetchParrainData = async () => {
       try {
-        console.log("Token from URL:", token);
-
         if (!token) {
           throw new Error("Token de parrainage manquant");
         }
 
-        console.log("Fetching parrain data...");
         const response = await fetch(`${API_URL}/parrainage/get-data/${token}`);
 
-        console.log("Response status:", response.status);
         const data = await response.json();
-        console.log("API response data:", data);
 
         if (!response.ok) {
           throw new Error(
@@ -83,8 +78,6 @@ const ParrainageInscriptionPage = () => {
         }
 
         if (data.success && data.parrain) {
-          console.log("Parrain data received:", data.parrain);
-
           // Transformez la structure pour correspondre à votre interface
           const formattedParrainData = {
             user: {

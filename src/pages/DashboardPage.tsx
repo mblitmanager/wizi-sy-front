@@ -49,20 +49,28 @@ export default function DashboardPage() {
     catalogueFormationApi.getAllCatalogueFormation().then((response) => {
       let formations = [];
       if (response && typeof response === "object") {
-        if (Array.isArray(response.data?.data)) {
-          formations = response.data.data;
-        } else if (Array.isArray(response.data?.member)) {
-          formations = response.data.member;
-        } else if (Array.isArray(response.member)) {
-          formations = response.member;
-        } else if (Array.isArray(response?.data)) {
-          formations = response.data;
+        if ("data" in response && Array.isArray((response as any).data?.data)) {
+          formations = (response as any).data.data;
+        } else if (
+          "data" in response &&
+          typeof (response as any).data === "object" &&
+          Array.isArray((response as any).data.member)
+        ) {
+          formations = (response as any).data.member;
+        } else if (Array.isArray((response as any).member)) {
+          formations = (response as any).member;
+        } else if (
+          "data" in response &&
+          Array.isArray((response as any).data)
+        ) {
+          formations = (response as any).data;
+        } else if (Array.isArray(response)) {
+          formations = response;
         }
       }
       setCatalogueData(formations);
     });
   }, []);
-  console.log("Catalogue Data:", catalogueData);
   return (
     <Layout>
       {!isOnline && (

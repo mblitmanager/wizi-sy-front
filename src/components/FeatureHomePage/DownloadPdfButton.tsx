@@ -27,7 +27,6 @@ const DownloadPdfButton: React.FC<DownloadPdfButtonProps> = ({
       });
       // Récupérer l'URL du PDF depuis la réponse (tableau, premier élément)
       const pdfUrl = lien.data[0];
-      console.log("Lien de téléchargement:", pdfUrl);
       // Solution sans CORS : déclencher le téléchargement via un lien
       const link = document.createElement("a");
       link.href = pdfUrl;

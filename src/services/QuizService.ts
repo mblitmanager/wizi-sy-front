@@ -138,16 +138,12 @@ class QuizService {
 
   async getQuizQuestions(quizId: string): Promise<QuestionType[]> {
     try {
-      console.log("Fetching questions for quiz:", quizId);
-      console.log("Using base URL:", this.baseUrl);
       const response = await axios.get(
         `${this.baseUrl}/quiz/${quizId}/questions`,
         {
           headers: this.getAuthHeader(),
         }
       );
-      console.log("API Response:", response);
-      console.log("Response data:", response.data);
 
       const questions = Array.isArray(response.data)
         ? response.data
@@ -157,7 +153,6 @@ class QuizService {
         ? response.data.questions
         : [];
 
-      console.log("Formatted questions:", questions);
       return questions;
     } catch (error) {
       console.error(`Error fetching questions for quiz ${quizId}:`, error);
@@ -379,7 +374,6 @@ class QuizService {
     quizId: string
   ): Promise<ApiResponse<Progression>> {
     try {
-      console.log("Fetching current participation for quiz:", quizId);
       const response = await axios.get<ApiResponse<Progression>>(
         `${this.baseUrl}/quiz/${quizId}/current-participation`,
         {
