@@ -94,6 +94,7 @@ import { quizHistoryService } from "@/services/quiz/submission/QuizHistoryServic
 import type { Quiz, QuizHistory } from "@/types/quiz";
 import { Loader2, Lock, ChartSpline } from "lucide-react";
 import { useClassementPoints } from "@/hooks/useClassementPoints";
+import { buildAvailableQuizzes } from "./quizUtils";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -135,47 +136,24 @@ export const StagiaireQuizAdventure: React.FC<{ selectedFormationId?: string | n
     const computed = useMemo(() => {
         if (!quizzes) return { list: [] as Quiz[], playableById: new Map<string, boolean>(), avatarId: undefined as undefined | string };
 
-        const normalizeLevel = (lvl?: string) => {
-            if (!lvl) return "débutant";
-            const l = lvl.toLowerCase();
-            if (l.includes("inter") || l.includes("moyen")) return "intermédiaire";
-            if (l.includes("avancé") || l.includes("expert")) return "avancé";
-            return "débutant";
-        };
-
-        const filterByPoints = (all: Quiz[]) => {
-            const debutant = all.filter((q) => normalizeLevel(q.niveau) === "débutant");
-            const inter = all.filter((q) => normalizeLevel(q.niveau) === "intermédiaire");
-            const avance = all.filter((q) => normalizeLevel(q.niveau) === "avancé");
-            if (userPoints < 10) return debutant.slice(0, 2);
-            if (userPoints < 20) return debutant.slice(0, 4);
-            if (userPoints < 40) return [...debutant, ...inter.slice(0, 2)];
-            if (userPoints < 60) return [...debutant, ...inter];
-            if (userPoints < 80) return [...debutant, ...inter, ...avance.slice(0, 2)];
-            if (userPoints < 100) return [...debutant, ...inter, ...avance.slice(0, 4)];
-            return [...debutant, ...inter, ...avance];
-        };
-
-        let filtered = filterByPoints(quizzes);
-        if (selectedFormationId) {
-            filtered = filtered.filter((q) => String((q as any).formationId) === String(selectedFormationId));
-        }
+        // Use shared selection logic
+        const base = buildAvailableQuizzes(quizzes, userPoints, selectedFormationId);
 
         const byIdCompletedAt = new Map<string, number>();
-        (quizHistory || []).forEach((h) => {
-            const id = String((h as any).quizId ?? h.quiz?.id);
-            const ts = h.completedAt ? Date.parse(h.completedAt as any) : 0;
+        (quizHistory || []).forEach((h: QuizHistory) => {
+            const id = String(h.quizId ?? h.quiz?.id ?? "");
+            const ts = h.completedAt ? Date.parse(String(h.completedAt)) : 0;
             if (id) byIdCompletedAt.set(id, ts);
         });
 
-        const playedList = filtered
+        const playedList = base
             .filter((q) => playedIds.has(String(q.id)))
             .sort((a, b) => {
                 const da = byIdCompletedAt.get(String(a.id)) || 0;
                 const db = byIdCompletedAt.get(String(b.id)) || 0;
                 return db - da;
             });
-        const unplayedList = filtered.filter((q) => !playedIds.has(String(q.id)));
+        const unplayedList = base.filter((q) => !playedIds.has(String(q.id)));
         const displayListFull = [...playedList, ...unplayedList];
 
         const playableById = new Map<string, boolean>();
@@ -206,7 +184,7 @@ export const StagiaireQuizAdventure: React.FC<{ selectedFormationId?: string | n
             ? displayListFull
             : displayListFull.slice(0, 10);
 
-        return { list: displayList, playableById, avatarId, canShowMore: !!selectedFormationId && displayListFull.length > 10 } as any;
+        return { list: displayList, playableById, avatarId, canShowMore: !!selectedFormationId && displayListFull.length > 10 };
     }, [quizzes, userPoints, playedIds, selectedFormationId, quizHistory, showAllForFormation]);
 
     // Refs for each quiz card (always called)
@@ -276,6 +254,21 @@ export const StagiaireQuizAdventure: React.FC<{ selectedFormationId?: string | n
         </div>
     );
 }
+
+type QuizHistoryItemMinimal = {
+    totalQuestions?: number;
+    correctAnswers?: number;
+    completedAt?: string;
+};
+
+type QuizStepCardProps = {
+    quiz: Quiz;
+    playable: boolean;
+    played: boolean;
+    history?: QuizHistoryItemMinimal;
+    quizHistory: QuizHistory[];
+    categoryConfig: Record<string, string>;
+};
 
 function QuizStepCard({ quiz, playable, played, history, quizHistory, categoryConfig }: QuizStepCardProps) {
     const total = history?.totalQuestions || quiz.questions?.length || 0;

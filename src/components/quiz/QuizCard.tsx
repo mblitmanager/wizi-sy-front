@@ -140,6 +140,7 @@ export function QuizCard({ quiz, categories, history }: QuizCardProps) {
     ? Math.ceil(quiz.questions.length * 0.5)
     : 5;
   const h = history?.find?.((x) => String(x.quiz?.id) === String(quiz.id));
+  const timeSpent = h?.timeSpent || 0;
   const totalQuestions = h?.totalQuestions || quiz.questions?.length || 0;
   const correct = h?.correctAnswers || 0;
   const percent = totalQuestions ? Math.round((correct / totalQuestions) * 100) : 0;
@@ -213,9 +214,9 @@ export function QuizCard({ quiz, categories, history }: QuizCardProps) {
               className="text-xs flex items-center gap-1"
             >
               <Award className="w-3 h-3" />
-              {quiz.questions?.length
+              {correct > 0 ? `${correct} pts` :(quiz.questions?.length
                 ? `${Math.min(quiz.questions.length * 2, 10)} pts`
-                : "0 pt"}
+                : "0 pt")}
 
             </Badge>
 
@@ -225,16 +226,17 @@ export function QuizCard({ quiz, categories, history }: QuizCardProps) {
               className="text-xs flex items-center gap-1"
             >
               <Clock className="w-3 h-3" />
-              3 min
+                {timeSpent ? `${Math.floor(timeSpent / 60)} min ${(timeSpent % 60).toString().padStart(2, "0")} sec` : "03 min"}
+              
             </Badge>
           </div>
           {h && (
             <div className="mt-3 text-xs text-gray-700 flex items-center gap-2">
               <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-50 text-blue-700 text-[10px] font-bold">
-                {percent}%
+                {correct/5*100}%
               </span>
               <span>
-                {correct}/{totalQuestions} bonnes réponses
+                {correct}/5 bonnes réponses
               </span>
             </div>
           )}

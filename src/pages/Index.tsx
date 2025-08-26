@@ -51,6 +51,15 @@ export function Index() {
   const [hidePresentationBlock, setHidePresentationBlock] = useState(() => {
     return localStorage.getItem("hidePresentationBlock") === "true";
   });
+  // Série de connexions (login streak)
+  const [loginStreak, setLoginStreak] = useState<number>(() => {
+    try {
+      const fromUser = user?.stagiaire?.login_streak;
+      return typeof fromUser === "number" ? fromUser : 0;
+    } catch (e) {
+      return 0;
+    }
+  });
 
   // === Catalogues formations ===
   const { data: catalogueData = [], isLoading: isLoadingCatalogue } = useQuery({
@@ -83,6 +92,59 @@ export function Index() {
       .then((res) => setStagiaireCatalogues(res.data.catalogues || []))
       .catch(() => setStagiaireCatalogues([]));
   }, []);
+
+  // Ensure we have the latest login streak: prefer user.stagiaire but fallback to a lightweight profile call
+  useEffect(() => {
+    try {
+      if (user?.stagiaire?.login_streak !== undefined) {
+        setLoginStreak(Number(user.stagiaire.login_streak || 0));
+        return;
+      }
+    } catch (e) {
+      /* ignore errors reading user object */
+    }
+
+    if (!localStorage.getItem("token")) return;
+    axios
+      .get(`${API_URL}/stagiaire/profile`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      .then((res) => {
+        const val = res?.data?.stagiaire?.login_streak ?? res?.data?.login_streak;
+        if (typeof val === "number") setLoginStreak(val);
+      })
+      .catch(() => {
+        // ignore
+      });
+  }, [user]);
+
+  // Streak modal: show large blocking modal once per day when user has a login streak
+  const [showStreakModal, setShowStreakModal] = useState<boolean>(false);
+  useEffect(() => {
+    try {
+      if (!user || !localStorage.getItem("token")) return;
+      const today = dayjs().tz("Europe/Paris").format("YYYY-MM-DD");
+      const lastShown = localStorage.getItem("lastStreakModalDate");
+      // If already shown today, don't show again
+      if (lastShown === today) return;
+      // Only show if user has a positive streak
+      if (typeof loginStreak === "number" && loginStreak > 0) {
+        setShowStreakModal(true);
+      }
+    } catch (e) {
+      // ignore localStorage/dayjs errors
+    }
+  }, [user, loginStreak]);
+
+  const closeStreakModal = () => {
+    try {
+      const today = dayjs().tz("Europe/Paris").format("YYYY-MM-DD");
+      localStorage.setItem("lastStreakModalDate", today);
+    } catch (e) {
+      // ignore localStorage errors
+    }
+    setShowStreakModal(false);
+  };
 
   const filteredFormations = useMemo(() => {
     if (!stagiaireCatalogues.length) return catalogueData;
@@ -238,36 +300,49 @@ export function Index() {
 
   // === Redirection si non connecté ===
   useEffect(() => {
-    // Déclenche le badge première connexion/série de connexions
+    // Déclenche le badge première connexion/série de connexions (une fois par jour)
     if (user && localStorage.getItem("token")) {
-      axios
-        .post(
-          `${API_URL}/stagiaire/achievements/check`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        )
-        .then((res) => {
-          // On attend un tableau d'achievements débloqués dans res.data.new_achievements
-          const unlocked = res.data?.new_achievements || [];
-          if (Array.isArray(unlocked) && unlocked.length > 0) {
-            unlocked.forEach((ach) => {
-              toast({
-                title: `🎉 Succès débloqué`,
-                description: `${
-                  ach.name || ach.titre || ach.title || "Achievement"
-                } !`,
-                duration: 4000,
-                variant: "default",
-                className: "bg-orange-600 text-white",
+      try {
+        const lastCheck = localStorage.getItem("lastAchievementsCheckDate");
+        const today = dayjs().tz("Europe/Paris").format("YYYY-MM-DD");
+        // Ne rien faire si on a déjà vérifié aujourd'hui
+        if (lastCheck === today) return;
+
+        axios
+          .post(
+            `${API_URL}/stagiaire/achievements/check`,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          )
+          .then((res) => {
+            // On attend un tableau d'achievements débloqués dans res.data.new_achievements
+            const unlocked = res.data?.new_achievements || [];
+            if (Array.isArray(unlocked) && unlocked.length > 0) {
+              unlocked.forEach((ach) => {
+                toast({
+                  title: `🎉 Succès débloqué`,
+                  description: `${
+                    ach.name || ach.titre || ach.title || "Achievement"
+                  } !`,
+                  duration: 4000,
+                  variant: "success",
+                  className: "bg-orange-600 text-white",
+                });
               });
-            });
-          }
-        })
-        .catch(() => {});
+            }
+            // Mémoriser la vérification réussie pour aujourd'hui
+            localStorage.setItem("lastAchievementsCheckDate", today);
+          })
+          .catch(() => {
+            // En cas d'erreur réseau, on ne marque pas la vérification pour permettre une nouvelle tentative
+          });
+      } catch (e) {
+        // ignore localStorage/dayjs errors
+      }
     }
   }, [user]);
 
@@ -356,6 +431,56 @@ export function Index() {
                   L'application est sûre et ne collecte aucune donnée
                   personnelle en dehors de votre usage sur Wizi Learn.
                 </span>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Série de connexions - modal affichée une fois par jour */}
+        {showStreakModal ? (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 p-6"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Série de connexions">
+            <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 text-center">
+              <div className="flex items-center justify-center mb-4">
+                <div className="flex flex-col items-center px-6 py-4 rounded bg-orange-50 border border-orange-100">
+                  <span className="text-sm font-medium text-orange-600">7 jours</span>
+                  <span className="text-5xl font-extrabold text-orange-600">🔥</span>
+                </div>
+              </div>
+              <h3 className="text-2xl md:text-3xl font-extrabold text-gray-800 mb-2">Série de connexions</h3>
+              <p className="text-lg font-bold text-gray-900 mb-4">{loginStreak} jour{loginStreak > 1 ? 's' : ''} d'affilée</p>
+              <p className="text-sm text-gray-600 mb-6">Continuez comme ça pour débloquer des récompenses 🎉</p>
+              <div className="flex justify-center gap-3">
+                <button
+                  className="px-4 py-2 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600"
+                  onClick={closeStreakModal}
+                >
+                  Continuer
+                </button>
+                <button
+                  className="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200"
+                  onClick={() => {
+                    // hide and don't show again until tomorrow
+                    closeStreakModal();
+                  }}
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-4 mb-4 flex justify-center">
+            <div className="flex items-center gap-3 bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+              <div className="flex flex-col items-center px-3 py-1 rounded bg-orange-50 border border-orange-100">
+                <span className="text-xs font-medium text-orange-600">7 jours</span>
+                <span className="text-xl font-extrabold text-orange-600">🔥</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm text-gray-600">Série de connexions</span>
+                <span className="text-lg font-bold text-gray-800">{loginStreak} jour{loginStreak > 1 ? 's' : ''} d'affilée</span>
               </div>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { quizManagementService } from "@/services/quiz/QuizManagementService";
@@ -63,6 +63,41 @@ export function QuizDetail() {
 
     return t;
   }, [quiz]);
+
+  // computed helpers
+  const totalQuestions = quiz?.questions?.length || 0;
+  const possiblePoints = totalQuestions ? Math.min(totalQuestions * 2, 10) : 0;
+  const estimatedMinutes = totalQuestions ? Math.ceil(totalQuestions * 0.5) : 3;
+
+  // Swiper control to pause on hover
+  const swiperRef = useRef<unknown>(null);
+  const handleSwiperInit = (swiper: unknown) => {
+    // store swiper instance (typed as unknown to avoid lint any)
+    // @ts-ignore - swiper typing is provided by Swiper lib at runtime
+    swiperRef.current = swiper;
+  };
+
+  const pauseAutoplay = useCallback(() => {
+    // stop autoplay if available
+    // @ts-ignore
+    if (swiperRef.current?.autoplay?.stop) swiperRef.current.autoplay.stop();
+  }, []);
+  const resumeAutoplay = useCallback(() => {
+    // start autoplay if available
+    // @ts-ignore
+    if (swiperRef.current?.autoplay?.start) swiperRef.current.autoplay.start();
+  }, []);
+
+  // keyboard navigation for types (left/right)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!types || types.length <= 1) return;
+      if (e.key === "ArrowRight") setCurrentTypeIdx((s) => (s + 1) % types.length);
+      if (e.key === "ArrowLeft") setCurrentTypeIdx((s) => (s - 1 + types.length) % types.length);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [types]);
 
   if (isLoading)
     return (
@@ -135,7 +170,7 @@ export function QuizDetail() {
               <div className="mt-4">
                 <p className="text-sm font-semibold text-gray-700 mb-2">Tutoriels :</p>
                 <div className="flex md:grid md:grid-cols-2 gap-2 overflow-x-auto hide-scrollbar">
-                  {quiz.tutos.map((tuto: any, idx: number) => (
+                  {quiz.tutos.map((tuto: Record<string, any>, idx: number) => (
                     <div key={idx} className="bg-gray-50 rounded-lg p-2 flex flex-col">
                       <span className="font-semibold text-xs text-indigo-700 truncate">{tuto.titre || `Tuto ${idx + 1}`}</span>
                       <span className="text-xs text-gray-600 truncate">{tuto.description || ""}</span>

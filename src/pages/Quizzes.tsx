@@ -95,19 +95,26 @@ export default function Quizzes() {
         <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
           {/* Sélecteur Formation */}
           <div className="flex items-center min-w-[120px]">
-            <select
-              id="formation-select"
-              value={selectedFormationId ?? ''}
-              onChange={e => setSelectedFormationId(e.target.value || null)}
-              className="w-full border rounded-lg px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
-              aria-label="Sélectionner une formation"
-            >
-              {formationsWithTutos.map((formation) => (
-                <option key={formation.id} value={formation.id}>
-                  {formation.label ?? formation.titre}
-                </option>
-              ))}
-            </select>
+            
+            {formationsWithTutos.length > 1 ? (
+              <select
+                id="formation-select"
+                value={selectedFormationId ?? ''}
+                onChange={e => setSelectedFormationId(e.target.value || null)}
+                className="w-full border rounded-lg px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label="Sélectionner une formation"
+              >
+                {formationsWithTutos.map((formation) => (
+                  <option key={formation.id} value={formation.id}>
+                    {formation.label ?? formation.titre}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <span className="px-3 py-2 text-base">
+                {formationsWithTutos[0]?.label ?? formationsWithTutos[0]?.titre}
+              </span>
+            )}
           </div>
 
           {/* Toggle Vue Quiz */}

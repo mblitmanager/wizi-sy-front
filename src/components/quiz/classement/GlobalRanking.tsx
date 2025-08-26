@@ -128,6 +128,9 @@ export function GlobalRanking({
     "#CD7F32", // bronze
   ];
 
+  // Liste sans les 3 premiers (affichés uniquement dans le podium)
+  const listRanking = sortedRanking.slice(3);
+
   return (
     <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
       {/* Header */}
@@ -146,7 +149,7 @@ export function GlobalRanking({
               placeholder="Rechercher un stagiaire..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="pl-10 pr-4 py-2 w-full text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
             />
           </div>
         </div>
@@ -157,7 +160,7 @@ export function GlobalRanking({
         <div className="px-4 pt-4">
           <div className="rounded-xl border" style={{ borderColor: "rgba(0,0,0,0.06)" }}>
             <div className="p-4">
-              <div className="text-center text-blue-600 font-bold mb-2">🏆 PODIUM 🏆</div>
+              <div className="text-center text-orange-600 font-bold mb-2">🏆 PODIUM 🏆</div>
               <div className="flex items-end justify-center gap-4">
                 {podiumOrder.map((pos, i) => {
                   const entry = podium[pos];
@@ -197,11 +200,11 @@ export function GlobalRanking({
                       </div>
                       <div className="mt-2 text-center">
                         <div
-                          className={`text-sm font-bold ${isCurrentUser ? "text-blue-600" : "text-gray-800"}`}
+                          className={`text-sm font-bold ${isCurrentUser ? "text-orange-600" : "text-gray-800"}`}
                         >
                           {entry.name}
                         </div>
-                        <div className="mt-1 inline-block text-xs px-2 py-0.5 rounded-md" style={{ backgroundColor: "rgba(59,130,246,0.1)", color: "#2563eb" }}>
+                        <div className="mt-1 inline-block text-s px-2 py-0.5 rounded-md font-bold text-orange-600">
                           {entry.score} pts
                         </div>
                       </div>
@@ -236,7 +239,7 @@ export function GlobalRanking({
       <div className="p-2 sm:p-4">
         {/* Mobile View */}
         <div className="sm:hidden space-y-3">
-          {sortedRanking.length === 0 ? (
+          {listRanking.length === 0 ? (
             <div className="text-center py-8">
               <div className="mx-auto h-12 w-12 text-gray-400 mb-2">
                 <Trophy className="w-full h-full" />
@@ -249,7 +252,7 @@ export function GlobalRanking({
               </p>
             </div>
           ) : (
-            sortedRanking.map((entry, index) => {
+            listRanking.map((entry, index) => {
               const isCurrentUser = entry.id?.toString() === currentUserId;
               const percentage = Math.round(
                 ((entry.score || 0) / maxScore) * 100
@@ -259,7 +262,7 @@ export function GlobalRanking({
                 <div
                   key={entry.id || index}
                   className={`p-4 rounded-lg border shadow-xs ${isCurrentUser
-                    ? "border-blue-300 bg-blue-50"
+                    ? "border-orange-300 bg-orange-50"
                     : "border-gray-200 bg-white"
                     }`}>
                   <div className="flex items-start justify-between">
@@ -277,11 +280,7 @@ export function GlobalRanking({
                             {entry.name || "Inconnu"}
                           </h3>
                           {isCurrentUser && (
-                            <Badge
-                              variant="secondary"
-                              className="px-1.5 py-0.5 text-xs">
-                              Vous
-                            </Badge>
+                      <User className="h-4 w-4 text-orange-600" />
                           )}
                         </div>
                         <div className="text-sm text-gray-500">
@@ -289,7 +288,7 @@ export function GlobalRanking({
                         </div>
                       </div>
                     </div>
-                    <div className="text-lg font-bold text-blue-600">
+                    <div className="text-lg font-bold text-orange-600">
                       {entry.score}
                     </div>
                   </div>
@@ -309,7 +308,7 @@ export function GlobalRanking({
 
         {/* Desktop Table */}
         <div className="hidden sm:block">
-          {sortedRanking.length === 0 ? (
+          {listRanking.length === 0 ? (
             <div className="text-center py-12">
               <div className="mx-auto h-16 w-16 text-gray-400 mb-4">
                 <Trophy className="w-full h-full" />
@@ -364,7 +363,7 @@ export function GlobalRanking({
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {sortedRanking.map((entry, index) => {
+                  {listRanking.map((entry, index) => {
                     const isCurrentUser =
                       (entry as any).id?.toString() === currentUserId;
                     const percentage = Math.round(
@@ -375,7 +374,7 @@ export function GlobalRanking({
                       <tr
                         key={(entry as any).id || index}
                         className={
-                          isCurrentUser ? "bg-blue-50" : "hover:bg-gray-50"
+                          isCurrentUser ? "bg-orange-50" : "hover:bg-gray-50"
                         }>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div
@@ -399,11 +398,7 @@ export function GlobalRanking({
                                 {(entry as any).name || "Inconnu"}
                               </span>
                               {isCurrentUser && (
-                                <Badge
-                                  variant="secondary"
-                                  className="px-1.5 py-0.5 text-xs">
-                                  Vous
-                                </Badge>
+                                <User className="h-4 w-4 text-orange-600" />
                               )}
                             </div>
                           </div>
@@ -411,7 +406,7 @@ export function GlobalRanking({
                         <td className="px-6 py-4 whitespace-nowrap text-gray-500">
                           {(entry as any).quizCount}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap font-bold text-blue-600">
+                        <td className="px-6 py-4 whitespace-nowrap font-bold text-orange-600">
                           {(entry as any).score}
                         </td>
                         {/* <td className="px-6 py-4 whitespace-nowrap">

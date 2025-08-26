@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfileStats } from "./classement/ProfileStats";
 import { GlobalRanking } from "./classement/GlobalRanking";
@@ -46,6 +47,7 @@ export function Classement() {
   // Etat pour panneau d'info (modal simple)
   const [infoTitle, setInfoTitle] = useState<string | null>(null);
   const [infoContent, setInfoContent] = useState<React.ReactNode>(null);
+  const [hideProfileStats, setHideProfileStats] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -106,6 +108,15 @@ export function Classement() {
     fetchQuizStats();
     fetchGlobalRanking();
     fetchQuizHistory();
+
+    // read persisted preference for hiding profile stats
+    try {
+      const saved = localStorage.getItem('hideProfileStats');
+      if (saved === 'true') setHideProfileStats(true);
+      } catch (e) {
+      // localStorage may be unavailable (private mode) — keep app usable
+      console.warn('Could not read hideProfileStats from localStorage', e);
+    }
   }, []);
 
   // Calcul des stats utilisateur (fallback local)
@@ -146,15 +157,54 @@ export function Classement() {
   }
 
   return (
-    <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
+  <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 pb-24 sm:pb-12 space-y-6 sm:space-y-8">
       {/* Statistiques synthétiques en tête */}
-      <div className="w-full mt-[10%] md:mt-0">
-        <ProfileStats
-          profile={profile as unknown as Record<string, unknown>}
-          stats={statsFallback as unknown as Record<string, unknown>}
-          loading={loading.profile || loading.ranking}
-        />
-      </div>
+      {!hideProfileStats ? (
+        <div
+          className={`w-full mt-4 md:mt-0 relative overflow-hidden transform transition-all duration-300 ease-out ${
+            hideProfileStats ? "max-h-0 opacity-0 -translate-y-2" : "max-h-[800px] opacity-100 translate-y-0"
+          }`}
+          aria-hidden={hideProfileStats}
+        >
+          <button
+            aria-label="Masquer les statistiques"
+            title="Masquer"
+            onClick={() => {
+              try {
+                localStorage.setItem("hideProfileStats", "true");
+              } catch (e) {
+                console.warn("Could not persist hideProfileStats", e);
+              }
+              setHideProfileStats(true);
+            }}
+            className="absolute right-2 top-2 text-gray-400 hover:text-gray-600 rounded-md p-1 z-20"
+          >
+            <X className="h-5 w-5" aria-hidden="true" />
+            <span className="sr-only">Masquer les statistiques</span>
+          </button>
+          <ProfileStats
+            profile={profile as unknown as Record<string, unknown>}
+            stats={statsFallback as unknown as Record<string, unknown>}
+            loading={loading.profile || loading.ranking}
+          />
+        </div>
+      ) : (
+        <div className="w-full mt-4 md:mt-0 flex justify-center">
+          <button
+            className="text-sm px-3 py-1 rounded-md border border-gray-200 bg-white hover:bg-gray-50"
+            onClick={() => {
+              try {
+                localStorage.removeItem("hideProfileStats");
+              } catch (e) {
+                console.warn("Could not remove hideProfileStats", e);
+              }
+              setHideProfileStats(false);
+            }}
+          >
+            Afficher les statistiques
+          </button>
+        </div>
+      )}
       <hr className="mn-2" />
 
       <Tabs

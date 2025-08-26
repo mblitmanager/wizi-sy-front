@@ -8,6 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useState, useMemo } from "react";
 import { StagiaireQuizGrid } from "./StagiaireQuizGrid";
 import { useClassementPoints } from "@/hooks/useClassementPoints";
+import { buildAvailableQuizzes } from "./quizUtils";
 import { useToast } from "@/hooks/use-toast";
 import { quizHistoryService } from "@/services/quiz/submission/QuizHistoryService";
 
@@ -124,63 +125,31 @@ export function StagiaireQuizList({ selectedFormationId }: { selectedFormationId
   const effectiveFormationId = useMemo(() => {
     if (selectedFormationId) return selectedFormationId;
     if (!quizHistory || !quizzes || quizzes.length === 0) return null;
-    type HistoryMinimal = { quiz?: { id?: string | number; formationId?: string | number; formation?: { id?: string | number } }; quizId?: string | number; completedAt?: string };
-    const sorted = [...(quizHistory as HistoryMinimal[])].sort((a, b) => {
+  type HistoryMinimal = { quiz?: { id?: string | number; formationId?: string | number; formation?: { id?: string | number } }; quizId?: string | number; completedAt?: string };
+  const sorted = [...(quizHistory as HistoryMinimal[])].sort((a, b) => {
       const da = a.completedAt ? Date.parse(a.completedAt) : 0;
       const db = b.completedAt ? Date.parse(b.completedAt) : 0;
       return db - da;
     });
-    for (const h of sorted) {
+      for (const h of sorted) {
       const qId = h.quiz?.id ?? h.quizId;
       if (!qId) continue;
       const q = quizzes.find((x) => String(x.id) === String(qId));
-      const fid = (q as any)?.formationId ?? h.quiz?.formationId ?? h.quiz?.formation?.id;
+      const fid = (q as unknown as { formationId?: string | number })?.formationId ?? h.quiz?.formationId ?? h.quiz?.formation?.id;
       if (fid !== undefined && fid !== null) return String(fid);
     }
-    const first = (quizzes[0] as any)?.formationId;
+    const first = (quizzes[0] as unknown as { formationId?: string | number })?.formationId;
     return first ? String(first) : null;
   }, [selectedFormationId, quizHistory, quizzes]);
 
   const filteredQuizzes = useMemo(() => {
-    if (!quizzes) return [];
-    // Filtre par formation
-    let filtered = quizzes;
-    if (effectiveFormationId) {
-      filtered = filtered.filter(q => String((q as any).formationId) === String(effectiveFormationId));
-    }
-    const debutant = filtered.filter(
-      (q) => q.niveau?.toLowerCase() === "débutant"
-    );
-    const inter = filtered.filter(
-      (q) => q.niveau?.toLowerCase() === "intermédiaire"
-    );
-    const avance = filtered.filter((q) => q.niveau?.toLowerCase() === "avancé");
-    let result: typeof quizzes = [];
-
-    if (userPoints < 10) {
-      result = debutant.slice(0, 2);
-    } else if (userPoints < 20) {
-      result = debutant.slice(0, 4);
-    } else if (userPoints < 40) {
-      result = [...debutant, ...inter.slice(0, 2)];
-    } else if (userPoints < 60) {
-      result = [...debutant, ...inter];
-    } else if (userPoints < 80) {
-      result = [...debutant, ...inter, ...avance.slice(0, 2)];
-    } else if (userPoints < 100) {
-      result = [...debutant, ...inter, ...avance.slice(0, 4)];
-    } else {
-      result = [...debutant, ...inter, ...avance];
-    }
-
-    return result.filter((quiz) => {
+    const base = buildAvailableQuizzes(quizzes, userPoints, effectiveFormationId);
+    return base.filter((quiz) => {
       const categoryMatch =
         selectedCategory === "all" ||
-        (quiz.categorieId &&
-          String(quiz.categorieId) === String(selectedCategory));
+        (quiz.categorieId && String(quiz.categorieId) === String(selectedCategory));
       const levelMatch =
-        selectedLevel === "all" ||
-        (quiz.niveau && quiz.niveau === selectedLevel);
+        selectedLevel === "all" || (quiz.niveau && quiz.niveau === selectedLevel);
       return categoryMatch && levelMatch;
     });
   }, [quizzes, selectedCategory, selectedLevel, userPoints, effectiveFormationId]);
@@ -196,7 +165,7 @@ export function StagiaireQuizList({ selectedFormationId }: { selectedFormationId
     let list = quizzes.filter((q) => byId.has(String(q.id)));
     // Filtrer selon la formation sélectionnée
     if (effectiveFormationId) {
-      list = list.filter(q => String((q as any).formationId) === String(effectiveFormationId));
+      list = list.filter(q => String((q as unknown as { formationId?: string | number }).formationId) === String(effectiveFormationId));
     }
     // tri antéchronologique par completedAt
     list.sort((a, b) => {
