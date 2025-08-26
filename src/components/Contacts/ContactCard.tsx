@@ -11,7 +11,7 @@ interface ContactCardProps {
 const typeStyles: Record<string, string> = {
   Commercial: "bg-blue-100 text-blue-800",
   Formateur: "bg-green-100 text-green-800",
-  "Pôle Relation": "bg-yellow-100 text-yellow-800",
+  pole_relation_client: "bg-yellow-100 text-yellow-800",
   autre: "bg-gray-100 text-gray-800",
 };
 
@@ -38,7 +38,9 @@ export const ContactCard = ({ contact }: ContactCardProps) => {
             className={`text-xs px-2 py-1 rounded-full font-medium ${
               typeStyles[contact.role]
             }`}>
-            {contact.role}
+            {contact.role === "pole_relation_client"
+              ? "Pôle relation client"
+              : contact.role}
           </span>
         </div>
       </div>

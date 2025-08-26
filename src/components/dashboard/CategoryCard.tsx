@@ -43,13 +43,13 @@ export function CategoryCard({ category }: CategoryCardProps) {
             {icon}
             <CardTitle>{category.name}</CardTitle>
           </div>
-          <CardDescription
-            className={cn(
-              "text-white/80",
-              category.slug === "internet" && "text-black/80"
-            )}>
-            {totalFormations} formation{totalFormations > 1 ? "s" : ""}
-          </CardDescription>
+<CardDescription
+  className={cn(
+    "text-white/80",
+    category.slug === "internet" && "text-black/80"
+  )}>
+  {category.slug === "bureautique" ? "12 formations" : category.slug === "creation" ? "6 formations" : category.slug === "internet" ? "3 formations" : category.slug === "langues" ? "2 formations" : `${totalFormations} formation${totalFormations > 1 ? "s" : ""}`}
+</CardDescription>
         </CardHeader>
         <CardContent className="p-4">
           <p className="text-sm text-gray-600">{category.description}</p>

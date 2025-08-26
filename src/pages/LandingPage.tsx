@@ -41,6 +41,7 @@ const staggerContainer = {
 
 export default function LandingPage() {
   const isOnline = useOnlineStatus();
+
   return (
     <Layout>
       <div className="bg-gradient-to-br from-[#FDF6ED] via-[#F7E7D2] to-[#F9E0C7] min-h-screen">
@@ -59,7 +60,7 @@ export default function LandingPage() {
         {/* Header with Logo */}
         <header className="w-full">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex justify-center lg:justify-start">
+            <div className="flex justify-center">
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -67,8 +68,8 @@ export default function LandingPage() {
               >
                 <img
                   src={logo}
-                  alt="Wizi Learn Logo"
-                  className="h-16 w-auto md:h-20 transition-all duration-300 hover:scale-105"
+                  alt="Logo Wizi Learn"
+                  className="h-20 w-auto transition-all duration-300 hover:scale-105"
                   loading="eager"
                 />
               </motion.div>
@@ -77,11 +78,11 @@ export default function LandingPage() {
         </header>
 
         {/* Hero Section */}
-        <section className="py-8 md:py-12 lg:py-16">
+        <section className="py-12 md:py-20 lg:py-28">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col lg:flex-row items-center gap-8 md:gap-12">
               <motion.div
-                className="lg:w-1/2 space-y-6 md:space-y-8 order-2 lg:order-1"
+                className="space-y-6 md:space-y-8 order-2 lg:order-1"
                 initial="hidden"
                 animate="visible"
                 variants={staggerContainer}
@@ -104,7 +105,7 @@ export default function LandingPage() {
                   <Button
                     size="lg"
                     asChild
-                    className="w-full md:w-auto bg-black hover:bg-[#8B5C2A] text-white font-semibold rounded-lg px-6 py-3 transition-all duration-200 hover:shadow-lg"
+                    className="w-full md:w-auto bg-black hover:bg-[#8B5C2A] text-white font-semibold rounded-lg px-6 py-3 transition-all duration-200 hover:shadow-lg focus:ring-2 focus:ring-offset-2 focus:ring-black"
                   >
                     <Link
                       to="/login"
@@ -118,7 +119,7 @@ export default function LandingPage() {
                     size="lg"
                     variant="outline"
                     asChild
-                    className="w-full md:w-auto border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 rounded-lg px-6 py-3 transition-all duration-200"
+                    className="w-full md:w-auto border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 rounded-lg px-6 py-3 transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
                   >
                     <Link
                       to="/login"
@@ -137,81 +138,13 @@ export default function LandingPage() {
               >
                 <div className="absolute -top-6 -left-6 w-48 md:w-64 h-48 md:h-64 bg-indigo-200 rounded-full blur-3xl opacity-30"></div>
                 <div className="absolute -bottom-10 -right-10 w-56 md:w-72 h-56 md:h-72 bg-purple-200 rounded-full blur-3xl opacity-30"></div>
-                <motion.div
-                  className="relative"
-                  whileHover={{ y: -8, scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  <div className="relative bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-gray-100">
-                    <div className="grid grid-cols-2 gap-4 md:gap-5">
-                      {[
-                        {
-                          name: "Bureautique",
-                          icon: <FileText className="h-5 w-5" />,
-                          bgColor: "bg-bureautique",
-                          textColor: "text-white",
-                        },
-                        {
-                          name: "Langues",
-                          icon: <MessageSquare className="h-5 w-5" />,
-                          bgColor: "bg-langues",
-                          textColor: "text-white",
-                        },
-                        {
-                          name: "Internet",
-                          icon: <Globe className="h-5 w-5" />,
-                          bgColor: "bg-internet",
-                          textColor: "text-black",
-                        },
-                        {
-                          name: "Création",
-                          icon: <PenTool className="h-5 w-5" />,
-                          bgColor: "bg-creation",
-                          textColor: "text-white",
-                        },
-                      ].map((item, index) => (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{
-                            delay: index * 0.15,
-                            duration: 0.5,
-                            type: "spring",
-                            stiffness: 100,
-                          }}
-                          whileHover={{
-                            y: -5,
-                            scale: 1.05,
-                            transition: { duration: 0.2 },
-                          }}
-                        >
-                          <div
-                            className={`bg-${
-                              item.bgColor.split("-")[1]
-                            }/10 p-4 rounded-xl flex items-center gap-3 transition-all duration-200 hover:shadow-md`}
-                          >
-                            <div
-                              className={`${item.bgColor} ${item.textColor} p-2 rounded-lg`}
-                            >
-                              {item.icon}
-                            </div>
-                            <span className="font-medium text-base">
-                              {item.name}
-                            </span>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
               </motion.div>
             </div>
           </div>
         </section>
 
         {/* Categories Section */}
-        <section className="py-16 md:py-24 bg-white/50 backdrop-blur-sm">
+        <section className="py-16 md:py-24">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               className="text-center mb-16"
@@ -233,8 +166,76 @@ export default function LandingPage() {
                 compétences professionnelles.
               </motion.p>
             </motion.div>
+            {/* Mobile */}
             <motion.div
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+              className="relative md:hidden"
+              whileHover={{ y: -8, scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <div className="relative bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-gray-100">
+                <div className="grid grid-cols-2 gap-4 md:gap-5">
+                  {[
+                    {
+                      name: "Bureautique",
+                      icon: <FileText className="h-5 w-5" />,
+                      bgColor: "bg-bureautique",
+                      textColor: "text-white",
+                    },
+                    {
+                      name: "Langues",
+                      icon: <MessageSquare className="h-5 w-5" />,
+                      bgColor: "bg-langues",
+                      textColor: "text-white",
+                    },
+                    {
+                      name: "Internet",
+                      icon: <Globe className="h-5 w-5" />,
+                      bgColor: "bg-internet",
+                      textColor: "text-black",
+                    },
+                    {
+                      name: "Création",
+                      icon: <PenTool className="h-5 w-5" />,
+                      bgColor: "bg-creation",
+                      textColor: "text-white",
+                    },
+                  ].map((item, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        delay: index * 0.15,
+                        duration: 0.5,
+                        type: "spring",
+                        stiffness: 100,
+                      }}
+                      whileHover={{
+                        y: -5,
+                        scale: 1.05,
+                        transition: { duration: 0.2 },
+                      }}
+                    >
+                      <div
+                        className={`bg-${item.bgColor.split("-")[1]}/10 p-4 rounded-xl flex items-center gap-3 transition-all duration-200 hover:shadow-md`}
+                      >
+                        <div
+                          className={`${item.bgColor} ${item.textColor} p-2 rounded-lg`}
+                        >
+                          {item.icon}
+                        </div>
+                        <span className="font-medium text-base">
+                          {item.name}
+                        </span>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+            {/* Desktop */}
+            <motion.div
+              className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
               initial="hidden"
               animate="visible"
               variants={staggerContainer}
@@ -263,13 +264,13 @@ export default function LandingPage() {
               variants={fadeIn}
             >
               <motion.h2
-                className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-amber-600"
+                className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-yellow-500"
                 variants={slideUp}
               >
                 Comment ça marche
               </motion.h2>
               <motion.p
-                className="text-gray-600 max-w-3xl mx-auto text-lg"
+                className="text-gray-800 max-w-3xl mx-auto text-lg"
                 variants={slideUp}
               >
                 Une approche simple et efficace pour améliorer vos compétences
@@ -288,7 +289,8 @@ export default function LandingPage() {
                   title: "Choisissez un quiz",
                   description:
                     "Sélectionnez parmi nos quiz, suivant votre formation.",
-                  color: "indigo",
+                  bgColor: "bg-orange-100",
+                  textColor: "text-orange-800",
                   icon: <BookOpen className="h-6 w-6" />,
                 },
                 {
@@ -296,7 +298,8 @@ export default function LandingPage() {
                   title: "Testez vos connaissances",
                   description:
                     "Répondez aux questions dans différents formats: QCM, vrai/faux, remplir les blancs et plus encore.",
-                  color: "purple",
+                  bgColor: "bg-yellow-100",
+                  textColor: "text-yellow-800",
                   icon: <ClipboardCheck className="h-6 w-6" />,
                 },
                 {
@@ -304,30 +307,31 @@ export default function LandingPage() {
                   title: "Suivez votre progression",
                   description:
                     "Consultez vos statistiques, comparez vos performances et remportez des défis pour gagner des points.",
-                  color: "blue",
+                  bgColor: "bg-green-100",
+                  textColor: "text-green-800",
                   icon: <TrendingUp className="h-6 w-6" />,
                 },
               ].map((item, index) => (
                 <motion.div
                   key={index}
-                  className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300"
+                  className={`${item.bgColor} p-8 rounded-2xl shadow-md transition-all hover:shadow-xl`}
                   variants={slideUp}
-                  whileHover={{ y: -8, scale: 1.02 }}
+                  whileHover={{ y: -6, scale: 1.02 }}
                 >
                   <div
-                    className={`w-14 h-14 bg-${item.color}-100 rounded-xl flex items-center justify-center mb-6`}
+                    className={`w-14 h-14 ${item.bgColor} rounded-xl flex items-center justify-center mb-6`}
                   >
-                    <div className={`text-${item.color}-600`}>{item.icon}</div>
+                    <div className={`${item.textColor}`}>{item.icon}</div>
                   </div>
                   <div
-                    className={`text-${item.color}-600 font-bold text-lg mb-2`}
+                    className={`${item.textColor} font-bold text-lg mb-2`}
                   >
                     Étape {item.step}
                   </div>
-                  <h3 className="text-xl font-semibold mb-3 text-gray-800">
+                  <h3 className="text-xl font-semibold mb-3">
                     {item.title}
                   </h3>
-                  <p className="text-gray-600 leading-relaxed">
+                  <p className="text-gray-700 leading-relaxed">
                     {item.description}
                   </p>
                 </motion.div>

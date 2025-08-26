@@ -226,7 +226,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                   </span>
                   <span className="text-lg font-extrabold text-orange-600">
                     {formation.tarif
-                      ? `${Number(formation.tarif).toLocaleString(
+                      ? `${Math.trunc(Number(formation.tarif)).toLocaleString(
                           "fr-FR"
                         )} € HT`
                       : "Gratuit"}

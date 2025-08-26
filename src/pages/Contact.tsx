@@ -17,7 +17,7 @@ const typeDisplayNames: Record<string, string> = {
 const typeStyles: Record<string, string> = {
   Formateur: "bg-blue-100 text-blue-800",
   Commercial: "bg-green-100 text-green-800",
-  "Pôle Relation Client": "bg-yellow-100 text-yellow-800",
+  pole_relation_client: "bg-yellow-100 text-yellow-800",
   Conseiller: "bg-purple-100 text-purple-800",
   "Consultant 1er accueil": "bg-pink-100 text-pink-800",
   Interlocuteur: "bg-orange-100 text-orange-800",
@@ -321,7 +321,9 @@ export default function Contact() {
                     </span>
                     {contact.role && (
                       <span className="ml-2 text-xs px-2 py-1 rounded-full font-medium bg-gray-200 text-gray-700 border border-gray-300">
-                        {contact.role}
+                        {contact.role === "pole_relation_client"
+                          ? "Pôle relation client"
+                          : contact.role}
                       </span>
                     )}
                   </div>

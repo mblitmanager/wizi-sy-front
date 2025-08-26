@@ -450,6 +450,8 @@ export function Index() {
                       d="M17.25 6.75L12 12m0 0l-5.25-5.25M12 12V3"
                     />
                   </svg>
+                </span>
+                <h2 className="text-l md:text-2xl font-bold text-brown-shade">
                   Installer Wizi Learn sur iOS
                 </h2>
               </div>
@@ -532,7 +534,7 @@ export function Index() {
                   Vous pourrez accéder à Wizi Learn comme une application native
                   !
                 </span>
-              </div>
+              </p>
             </div>
           ) : (
             <div
