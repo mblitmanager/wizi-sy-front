@@ -10,7 +10,6 @@ export const useAnswerHandling = (
   const handleAnswer = (answerId: string) => {
     const answerText =
       question.answers?.find((a) => a.id === answerId)?.text || "";
-    console.log("handleAnswer", answerId, answerText);
     setSelectedAnswer(answerId);
     onAnswer({ id: answerId, text: answerText });
   };

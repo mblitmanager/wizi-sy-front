@@ -1,8 +1,6 @@
 import { Media } from "@/types/media";
 import VideoPlayer from "./VideoPlayer";
 import { Bookmark, FileText, Music } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import SkeletonCard from "@/components/ui/SkeletonCard";
 import { stripHtmlTags } from "@/utils/UtilsFunction";
 
 const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
@@ -55,6 +53,7 @@ export default function MediaPlayer({
               key={media.id} // Utilisez l'ID plutôt que l'URL pour la clé
               url={media.url}
               mediaId={media.id} // Passez l'ID du média
+              stagiaireId={0} // Provide a default stagiaireId value
             />
           </div>
         );

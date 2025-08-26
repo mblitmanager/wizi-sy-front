@@ -6,7 +6,6 @@ export class QuizAnswerService {
   async getQuizQuestions(quizId: number): Promise<Question[]> {
     try {
       const response = await apiClient.get(`/quiz/${quizId}/questions`);
-      console.log("Réponses des questions du quiz:", response.data);
 
       const questions = response.data.data || [];
       return questions.map((question: any) => this.formatQuestion(question));
@@ -47,7 +46,10 @@ export class QuizAnswerService {
         ) {
           formattedAnswers[questionId] = Object.entries(answer).reduce(
             (acc, [key, value]) => {
-              acc[key] = typeof value === "object" ? value.text : value;
+              acc[key] =
+                typeof value === "object" && value !== null && "text" in value
+                  ? (value as { text: string }).text
+                  : value;
               return acc;
             },
             {}
@@ -79,7 +81,10 @@ export class QuizAnswerService {
           formattedAnswers[questionId] = Object.entries(answer).reduce(
             (acc, [key, value]) => {
               if (key !== "questionType" && key !== "__type")
-                acc[key] = value.text || value;
+                acc[key] =
+                  typeof value === "object" && value !== null && "text" in value
+                    ? (value as { text: string }).text
+                    : value;
               return acc;
             },
             {}

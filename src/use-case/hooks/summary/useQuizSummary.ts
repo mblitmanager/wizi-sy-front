@@ -21,8 +21,6 @@ export function formatAnswer(
     | undefined
 ): string {
   if (!userAnswer) return "Aucune réponse";
-  console.log("Question type", question.type);
-  console.log("userAnswer", userAnswer);
   switch (question.type) {
     case "remplir le champ vide": {
       if (typeof userAnswer === "object" && !Array.isArray(userAnswer)) {
@@ -154,12 +152,11 @@ export function formatAnswer(
           })
           .join(", ");
       }
-      console.log("userAnswer dans rearrangement", userAnswer);
       return String(userAnswer);
     }
     case "question audio": {
       if (typeof userAnswer === "object" && "text" in userAnswer) {
-        return userAnswer.text;
+        return String(userAnswer.text);
       }
       if (typeof userAnswer === "string") {
         return userAnswer;
@@ -382,7 +379,8 @@ export function isAnswerCorrect(
 
             return (
               String(userCapital) === String(capitalItem.id) ||
-              normalizeString(String(userCapital)) === normalizeString(capital)
+              normalizeString(String(userCapital)) ===
+                normalizeString(String(capital))
             );
           }
         );
@@ -444,7 +442,6 @@ export function isAnswerCorrect(
     }
 
     case "rearrangement": {
-      console.log("rearrangement", question);
       if (!Array.isArray(userAnswerData)) return false;
 
       return userAnswerData.every(
@@ -520,11 +517,11 @@ export function isAnswerCorrect(
       // Vérification que toutes les réponses correctes sont sélectionnées
       // et qu'aucune réponse incorrecte n'est sélectionnée
       const allCorrectSelected = question.correctAnswers.every((answer) =>
-        userAnswerData.includes(answer)
+        userAnswerData.includes(String(answer))
       );
 
       const noIncorrectSelected = userAnswerData.every((answer) =>
-        question.correctAnswers.includes(answer)
+        question.correctAnswers.includes(String(answer))
       );
 
       return allCorrectSelected && noIncorrectSelected;
@@ -542,11 +539,11 @@ export function isAnswerCorrect(
       // Vérification que toutes les réponses correctes sont sélectionnées
       // et qu'aucune réponse incorrecte n'est sélectionnée
       const allCorrectSelected = question.correctAnswers.every((answer) =>
-        userAnswerData.includes(answer)
+        userAnswerData.includes(String(answer))
       );
 
       const noIncorrectSelected = userAnswerData.every((answer) =>
-        question.correctAnswers.includes(answer)
+        question.correctAnswers.includes(String(answer))
       );
 
       return allCorrectSelected && noIncorrectSelected;

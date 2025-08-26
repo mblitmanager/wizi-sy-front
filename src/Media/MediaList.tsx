@@ -1,13 +1,5 @@
 import { Media } from "@/types/media";
-import clsx from "clsx";
-import {
-  PlayCircle,
-  FileText,
-  ImageIcon,
-  Music,
-  Video,
-  ChevronDown,
-} from "lucide-react";
+import { FileText, ImageIcon, Music, Video, ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
 
 // MediaList.tsx

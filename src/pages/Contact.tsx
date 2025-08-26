@@ -99,7 +99,6 @@ export default function Contact() {
           ...(data.commerciaux || []),
           ...(data.pole_relation || []),
         ];
-        console.log(allContacts);
         setContacts(allContacts);
       } catch (error) {
         console.error("Erreur lors de la récupération des contacts :", error);
@@ -183,7 +182,10 @@ export default function Contact() {
         {isLoadingPartner && (
           <div className="mb-4">
             <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div className="h-full bg-amber-400 animate-pulse" style={{ width: "50%" }} />
+              <div
+                className="h-full bg-amber-400 animate-pulse"
+                style={{ width: "50%" }}
+              />
             </div>
           </div>
         )}
@@ -205,18 +207,26 @@ export default function Contact() {
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-gray-800">{partner.identifiant}</h2>
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    {partner.identifiant}
+                  </h2>
                   <span className="text-xs px-2 py-1 rounded-full font-medium bg-amber-100 text-amber-800 border border-amber-200">
                     {partner.type}
                   </span>
                 </div>
                 <div className="text-sm text-gray-600 mt-1">
-                  {partner.adresse}, {partner.ville} ({partner.departement}) {partner.code_postal}
+                  {partner.adresse}, {partner.ville} ({partner.departement}){" "}
+                  {partner.code_postal}
                 </div>
-                {typeof partner.actif === 'boolean' && (
+                {typeof partner.actif === "boolean" && (
                   <div className="text-xs mt-1">
-                    <span className={`px-2 py-0.5 rounded ${partner.actif ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                      {partner.actif ? 'Actif' : 'Inactif'}
+                    <span
+                      className={`px-2 py-0.5 rounded ${
+                        partner.actif
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}>
+                      {partner.actif ? "Actif" : "Inactif"}
                     </span>
                   </div>
                 )}
@@ -225,22 +235,37 @@ export default function Contact() {
 
             {partner.contacts && partner.contacts.length > 0 && (
               <div className="mt-4">
-                <h3 className="text-md font-semibold mb-2">Contacts du partenaire</h3>
+                <h3 className="text-md font-semibold mb-2">
+                  Contacts du partenaire
+                </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {partner.contacts.map((c, idx) => (
                     <div key={idx} className="border rounded-lg p-3 bg-gray-50">
-                      <div className="font-medium">{[c.prenom, c.nom].filter(Boolean).join(' ') || 'Contact partenaire'}</div>
-                      {c.fonction && <div className="text-xs text-gray-500">{c.fonction}</div>}
+                      <div className="font-medium">
+                        {[c.prenom, c.nom].filter(Boolean).join(" ") ||
+                          "Contact partenaire"}
+                      </div>
+                      {c.fonction && (
+                        <div className="text-xs text-gray-500">
+                          {c.fonction}
+                        </div>
+                      )}
                       {c.email && (
                         <div className="text-sm mt-1 flex items-center gap-2">
                           <Mail className="w-4 h-4" />
-                          <a href={`mailto:${c.email}`} className="hover:underline">{c.email}</a>
+                          <a
+                            href={`mailto:${c.email}`}
+                            className="hover:underline">
+                            {c.email}
+                          </a>
                         </div>
                       )}
                       {c.tel && (
                         <div className="text-sm mt-1 flex items-center gap-2">
                           <Phone className="w-4 h-4" />
-                          <a href={`tel:${c.tel}`} className="hover:underline">{c.tel}</a>
+                          <a href={`tel:${c.tel}`} className="hover:underline">
+                            {c.tel}
+                          </a>
                         </div>
                       )}
                     </div>
@@ -278,8 +303,9 @@ export default function Contact() {
                       {contact.name}
                     </h2>
                     <span
-                      className={`text-xs px-2 py-1 rounded-full font-medium ${typeStyles[contact.type] || "bg-gray-100 text-gray-800"
-                        }`}>
+                      className={`text-xs px-2 py-1 rounded-full font-medium ${
+                        typeStyles[contact.type] || "bg-gray-100 text-gray-800"
+                      }`}>
                       {contact.type}
                     </span>
                     {contact.role && (

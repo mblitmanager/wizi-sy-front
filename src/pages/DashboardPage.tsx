@@ -62,7 +62,6 @@ export default function DashboardPage() {
       setCatalogueData(formations);
     });
   }, []);
-  console.log("Catalogue Data:", catalogueData);
   return (
     <Layout>
       {!isOnline && (

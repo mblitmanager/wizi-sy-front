@@ -145,7 +145,6 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
   };
 
   if (!formations || formations.length === 0) return null;
-  console.log(formations);
   return (
     <div className="mb-12 px-4 sm:px-6 lg:px-8">
       {/* Header avec gradient accrocheur */}

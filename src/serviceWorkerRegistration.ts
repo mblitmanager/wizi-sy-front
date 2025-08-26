@@ -1,32 +1,28 @@
-
 // Check if service workers are supported
 export function registerServiceWorker() {
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      const swUrl = '/service-worker.js';
-      
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      const swUrl = "/service-worker.js";
+
       navigator.serviceWorker
         .register(swUrl)
         .then((registration) => {
-          console.log('Service Worker registered with scope:', registration.scope);
-          
           // Check for updates on page refresh
           registration.update();
-          
+
           // Add an update listener
           registration.onupdatefound = () => {
             const installingWorker = registration.installing;
             if (installingWorker) {
               installingWorker.onstatechange = () => {
-                if (installingWorker.state === 'installed') {
+                if (installingWorker.state === "installed") {
                   if (navigator.serviceWorker.controller) {
-                    // At this point, the updated content has been fetched,
-                    // but the previous service worker will still serve older
-                    // content until all client tabs are closed.
-                    console.log('New content is available; please refresh.');
+                    // New content is available; please refresh.
+                    console.log("New content is available; please refresh.");
+                    // Optionally, you can notify the user and prompt them to refresh
                   } else {
-                    // At this point, everything has been precached.
-                    console.log('Content is cached for offline use.');
+                    // Content is cached for offline use.
+                    console.log("Content is cached for offline use.");
                   }
                 }
               };
@@ -34,7 +30,7 @@ export function registerServiceWorker() {
           };
         })
         .catch((error) => {
-          console.error('Error during service worker registration:', error);
+          console.error("Error during service worker registration:", error);
         });
     });
   }
@@ -42,7 +38,7 @@ export function registerServiceWorker() {
 
 // Optional: Function to unregister service worker
 export function unregisterServiceWorker() {
-  if ('serviceWorker' in navigator) {
+  if ("serviceWorker" in navigator) {
     navigator.serviceWorker.ready
       .then((registration) => {
         registration.unregister();

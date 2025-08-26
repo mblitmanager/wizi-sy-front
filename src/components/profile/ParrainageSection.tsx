@@ -37,7 +37,6 @@ const ParrainageSection = () => {
       try {
         const userId = user?.user?.id;
         if (!userId) {
-          console.log("Aucun ID utilisateur trouvé");
           return;
         }
 
@@ -56,7 +55,6 @@ const ParrainageSection = () => {
         }
 
         const data = await response.json();
-        console.log("Statistiques récupérées :", data);
 
         setStats({
           total_filleuls: data.nombre_filleuls,
