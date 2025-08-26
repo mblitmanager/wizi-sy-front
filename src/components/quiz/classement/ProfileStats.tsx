@@ -52,7 +52,7 @@ export function ProfileStats({
   }
 
   return (
-    <div className="container mx-auto mb-4 p-3 sm:p-4 bg-gradient-to-br from-yellow-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 rounded-2xl shadow-lg border dark:border-gray-800">
+    <div className="container mx-auto mb-4 p-3 sm:p-4 bg-gradient-to-br from-yellow-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 rounded-lg ring-1 ring-gray-100 dark:ring-0">
       {/* Titre */}
       <div className="mb-3 text-center md:text-left">
         <h3 className="text-2xl font-extrabold text-brown-shade dark:text-yellow-400 flex items-center gap-2 justify-center md:justify-start">
@@ -99,7 +99,7 @@ export function ProfileStats({
         ].map((stat, index) => (
           <div
             key={index}
-            className={`flex flex-col items-center gap-1 sm:gap-2 p-3 sm:p-4 rounded-xl shadow-md border-2 border-transparent hover:border-orange-300 transition-all duration-200 ${stat.bg}`}
+            className={`flex flex-col items-center gap-1 sm:gap-2 p-3 sm:p-4 rounded-lg ${stat.bg}`}
             style={{ minHeight: 90 }}>
             <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 mb-0.5 sm:mb-1">
               {stat.icon}

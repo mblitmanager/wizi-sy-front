@@ -132,7 +132,7 @@ export function GlobalRanking({
   const listRanking = sortedRanking.slice(3);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+    <div className="mb-4 bg-white rounded-lg ring-1 ring-gray-50 overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       {/* Header */}
       <div className="p-4 sm:p-4 border-b bg-gradient-to-r ">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -158,7 +158,7 @@ export function GlobalRanking({
       {/* Podium */}
       {podium.length > 0 && (
         <div className="px-4 pt-4">
-          <div className="rounded-xl border" style={{ borderColor: "rgba(0,0,0,0.06)" }}>
+          <div className="rounded-lg" style={{ borderColor: "rgba(0,0,0,0.06)" }}>
             <div className="p-4">
               <div className="text-center text-orange-600 font-bold mb-2">🏆 PODIUM 🏆</div>
               <div className="flex items-end justify-center gap-4">
@@ -173,7 +173,7 @@ export function GlobalRanking({
                   return (
                     <div key={i} className="flex-1 flex flex-col items-center justify-end">
                       <div
-                        className="mb-2 px-2 py-1 rounded-md border"
+                        className="mb-2 px-2 py-1 rounded-md"
                         style={{
                           borderColor: color,
                           backgroundColor: `${color}33`,
@@ -185,10 +185,12 @@ export function GlobalRanking({
                         {pos === 0 ? "er" : "e"}
                       </div>
                       <div
-                        className="rounded-2xl border shadow-sm flex items-center justify-center"
+                        className="rounded-xl flex items-center justify-center"
                         style={{
                           height: heights[i],
                           width: sizes[i],
+                          borderWidth: 1,
+                          borderStyle: 'solid',
                           borderColor: color,
                           background: `linear-gradient(135deg, ${color}4D, ${color}1A)`,
                         }}
@@ -238,7 +240,7 @@ export function GlobalRanking({
       {/* Content */}
       <div className="p-2 sm:p-4">
         {/* Mobile View */}
-        <div className="sm:hidden space-y-3">
+  <div className="sm:hidden space-y-3">
           {listRanking.length === 0 ? (
             <div className="text-center py-8">
               <div className="mx-auto h-12 w-12 text-gray-400 mb-2">
@@ -261,7 +263,7 @@ export function GlobalRanking({
               return (
                 <div
                   key={entry.id || index}
-                  className={`p-4 rounded-lg border shadow-xs ${isCurrentUser
+                  className={`p-4 rounded-lg border ${isCurrentUser
                     ? "border-orange-300 bg-orange-50"
                     : "border-gray-200 bg-white"
                     }`}>

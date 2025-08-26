@@ -157,11 +157,14 @@ export function Classement() {
   }
 
   return (
-  <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 pb-24 sm:pb-12 space-y-6 sm:space-y-8">
+  <div
+    className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8"
+    style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 3rem)' }}
+  >
       {/* Statistiques synthétiques en tête */}
       {!hideProfileStats ? (
         <div
-          className={`w-full mt-4 md:mt-0 relative overflow-hidden transform transition-all duration-300 ease-out ${
+          className={`w-full mt-4 md:mt-0 relative overflow-hidden transform transition-all duration-200 ease-in-out ${
             hideProfileStats ? "max-h-0 opacity-0 -translate-y-2" : "max-h-[800px] opacity-100 translate-y-0"
           }`}
           aria-hidden={hideProfileStats}

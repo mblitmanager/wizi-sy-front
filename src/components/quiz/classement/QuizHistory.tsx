@@ -102,7 +102,7 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history, loading }) =>
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border p-6 text-center text-gray-500">
+      <div className="bg-white rounded-lg ring-1 ring-gray-50 p-6 text-center text-gray-500">
         Chargement de l'historique...
       </div>
     );
@@ -110,7 +110,7 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history, loading }) =>
 
   if (!history || history.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border p-6 text-center">
+      <div className="mb-4 bg-white rounded-lg ring-1 ring-gray-50 p-6 text-center">
         <div className="mx-auto max-w-md">
           <Trophy className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-lg font-medium text-gray-900">
@@ -125,7 +125,7 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history, loading }) =>
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+    <div className="bg-white rounded-lg ring-1 ring-gray-50 overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       <div className="p-4 sm:p-6 border-b">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex flex-col">
@@ -197,14 +197,14 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history, loading }) =>
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50">
+                className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50">
                 <ChevronLeft className="h-4 w-4 mr-1" />
                 Précédent
               </button>
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50">
+                className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50">
                 Suivant
                 <ChevronRight className="h-4 w-4 ml-1" />
               </button>
