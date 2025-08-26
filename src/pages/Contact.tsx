@@ -4,7 +4,16 @@ import { Mail, Phone, User } from "lucide-react";
 import { contactService } from "@/services/ContactService";
 import apiClient from "@/lib/api-client";
 
-// Données mock
+// Mapping des noms d'affichage
+const typeDisplayNames: Record<string, string> = {
+  Formateur: "Formateur",
+  Commercial: "Commercial",
+  pole_relation_client: "Pôle Relation Client",
+  Conseiller: "Conseiller",
+  "Consultant 1er accueil": "Consultant 1er accueil",
+  Interlocuteur: "Interlocuteur",
+};
+
 const typeStyles: Record<string, string> = {
   Formateur: "bg-blue-100 text-blue-800",
   Commercial: "bg-green-100 text-green-800",
@@ -12,8 +21,8 @@ const typeStyles: Record<string, string> = {
   Conseiller: "bg-purple-100 text-purple-800",
   "Consultant 1er accueil": "bg-pink-100 text-pink-800",
   Interlocuteur: "bg-orange-100 text-orange-800",
-  // Autre: "bg-gray-100 text-gray-800",
 };
+
 const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_MEDIA;
 
 interface FormationStagiaire {
@@ -304,9 +313,11 @@ export default function Contact() {
                     </h2>
                     <span
                       className={`text-xs px-2 py-1 rounded-full font-medium ${
-                        typeStyles[contact.type] || "bg-gray-100 text-gray-800"
+                        typeStyles[typeDisplayNames[contact.type]] ||
+                        typeStyles[contact.type] ||
+                        "bg-gray-100 text-gray-800"
                       }`}>
-                      {contact.type}
+                      {typeDisplayNames[contact.type] || contact.type}
                     </span>
                     {contact.role && (
                       <span className="ml-2 text-xs px-2 py-1 rounded-full font-medium bg-gray-200 text-gray-700 border border-gray-300">

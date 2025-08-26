@@ -1,7 +1,6 @@
-// import axios from "axios"; // supprimé car déjà importé ailleurs
 import { Layout } from "@/components/layout/Layout";
 import { useUser } from "@/hooks/useAuth";
-import { WifiOff, Megaphone } from "lucide-react";
+import { Megaphone } from "lucide-react";
 import { ProgressCard } from "@/components/dashboard/ProgressCard";
 
 import { useQuery } from "@tanstack/react-query";
@@ -11,22 +10,12 @@ import { toast } from "@/hooks/use-toast";
 
 import { Contact } from "@/types/contact";
 import ContactsSection from "@/components/FeatureHomePage/ContactSection";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
 import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
 import { catalogueFormationApi } from "@/services/api";
-import illustration from "../assets/Information tab-bro.png";
-import LienParrainage from "@/components/parrainage/LienParainage";
 import { Card, CardContent } from "@mui/material";
 import LandingPage from "./LandingPage";
-import {
-  DECOUVRIR_NOS_FORMATIONS,
-  DECOUVRIR_NOUS,
-  INFO_OFFLINE,
-  LIEN_PARRAINAGE,
-  OFFLINE,
-  WELCOME,
-} from "@/utils/constants";
+import { DECOUVRIR_NOS_FORMATIONS } from "@/utils/constants";
 import { CatalogueFormation } from "@/types/stagiaire";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -69,12 +58,15 @@ export function Index() {
     queryFn: async () => {
       const response = await catalogueFormationApi.getAllCatalogueFormation();
       if (response && typeof response === "object") {
-        // @ts-expect-error
-        if (Array.isArray(response.data?.member)) {
-          return response.data.member;
-        } else if (Array.isArray(response.member)) {
-          return response.member;
-        } else if (Array.isArray(response?.data)) {
+        if (
+          response.data &&
+          typeof response.data === "object" &&
+          Array.isArray((response.data as any).member)
+        ) {
+          return (response.data as any).member;
+        } else if (Array.isArray((response as any).member)) {
+          return (response as any).member;
+        } else if (Array.isArray(response.data)) {
           return response.data;
         }
       }
@@ -269,7 +261,7 @@ export function Index() {
                   ach.name || ach.titre || ach.title || "Achievement"
                 } !`,
                 duration: 4000,
-                variant: "success",
+                variant: "default",
                 className: "bg-orange-600 text-white",
               });
             });
@@ -618,7 +610,7 @@ export function Index() {
                                 "Achievement"
                               } !`,
                               duration: 4000,
-                              variant: "success",
+                              variant: "default",
                               className: "bg-orange-600 text-white",
                             });
                           });
