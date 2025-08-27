@@ -87,8 +87,8 @@ export function Layout({ children }: LayoutProps) {
 
         {/* Bannière en haut (uniquement sur desktop) */}
         {showBanner && !isMobile && (
-          <div className="w-full bg-[#feb823] rounded-b-lg text-white relative z-30">
-            <div className="container mx-auto px-4 py-2 flex items-center justify-between  rounded-md shadow-md rounded-b-lg">
+          <div className="w-full  bg-slate-100  text-white relative z-30">
+            <div className="container mx-auto px-4 py-2 flex bg-[#feb823] items-center justify-between  rounded-md shadow-md rounded-b-lg">
               <div className="flex items-center overflow-hidden">
                 <Gift className="h-6 w-6 mr-2 flex-shrink-0" />
 
