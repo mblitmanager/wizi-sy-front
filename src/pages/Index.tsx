@@ -473,7 +473,7 @@ export function Index() {
           </div>
         ) : (
           <div className="mt-4 mb-4 flex justify-center">
-            <div className="flex items-center gap-3 bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+            {/* <div className="flex items-center gap-3 bg-white rounded-lg p-3 shadow-sm border border-gray-100">
               <div className="flex flex-col items-center px-3 py-1 rounded bg-orange-50 border border-orange-100">
                 <span className="text-xs font-medium text-orange-600">7 jours</span>
                 <span className="text-xl font-extrabold text-orange-600">🔥</span>
@@ -482,7 +482,7 @@ export function Index() {
                 <span className="text-sm text-gray-600">Série de connexions</span>
                 <span className="text-lg font-bold text-gray-800">{loginStreak} jour{loginStreak > 1 ? 's' : ''} d'affilée</span>
               </div>
-            </div>
+            </div> */}
           </div>
         )}
         {isLoadingCatalogue ? (
@@ -557,7 +557,7 @@ export function Index() {
               </button>
               <div className="flex flex-col items-center gap-3 mb-4">
                 <img
-                  src="/assets/ios-pwa-illustration.png"
+                  src="/assets/ios-pwa-illustration-2.png"
                   alt="Installer Wizi Learn sur iOS"
                   className="w-32 h-32 object-contain mb-2"
                 />
