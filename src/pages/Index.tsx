@@ -543,8 +543,8 @@ export function Index() {
           />
         </div>
         {/* Bloc téléchargement application Android ou instruction PWA pour iOS */}
-        {showApkBlock &&
-          (isIOS ? (
+        {showApkBlock && (
+          isIOS ? (
             <div className="group relative bg-gradient-to-br from-brown-50 via-white to-yellow-50 rounded-xl shadow-lg border border-brown-200 p-6 pb-12 mb-6">
               <button
                 className="absolute top-3 right-3 text-green-700 hover:text-green-900 text-xl bg-transparent border-none p-0 z-10"
@@ -575,8 +575,6 @@ export function Index() {
                       d="M17.25 6.75L12 12m0 0l-5.25-5.25M12 12V3"
                     />
                   </svg>
-                </span>
-                <h2 className="text-l md:text-2xl font-bold text-brown-shade">
                   Installer Wizi Learn sur iOS
                 </h2>
               </div>
@@ -588,8 +586,7 @@ export function Index() {
                       alt="Safari"
                       className="w-6 h-6 inline-block"
                     />
-                    Ouvrez <b>Safari</b> et rendez-vous sur{" "}
-                    <b>wizi-learn.com</b>
+                    Ouvrez <b>Safari</b> et rendez-vous sur <b>wizi-learn.com</b>
                   </li>
                   <li className="flex items-center gap-2 mb-2">
                     <svg
@@ -605,9 +602,7 @@ export function Index() {
                         d="M12 4v16m8-8H4"
                       />
                     </svg>
-                    Touchez le bouton <b>Partager</b>{" "}
-                    <span className="inline-block align-middle">🔗</span> en bas
-                    de l'écran
+                    Touchez le bouton <b>Partager</b> <span className="inline-block align-middle">🔗</span> en bas de l'écran
                   </li>
                   <li className="flex items-center gap-2 mb-2">
                     <svg
@@ -656,10 +651,9 @@ export function Index() {
                       d="M5 13l4 4L19 7"
                     />
                   </svg>
-                  Vous pourrez accéder à Wizi Learn comme une application native
-                  !
+                  Vous pourrez accéder à Wizi Learn comme une application native !
                 </span>
-              </p>
+              </div>
             </div>
           ) : (
             <div
@@ -667,7 +661,6 @@ export function Index() {
               tabIndex={0}
               role="button"
               aria-label="Télécharger l'application Android Wizi Learn">
-              {/* Bouton X pour fermer */}
               <button
                 className="absolute top-3 right-3 text-green-700 hover:text-green-900 text-xl bg-transparent border-none p-0 z-10"
                 onClick={(e) => {
@@ -710,7 +703,6 @@ export function Index() {
                     "https://www.wizi-learn.com/application/wizi-learn.apk",
                     "_blank"
                   );
-                  // Déclencher l'achievement côté backend
                   if (user && localStorage.getItem("token")) {
                     axios
                       .post(
@@ -718,9 +710,7 @@ export function Index() {
                         { code: "android_download" },
                         {
                           headers: {
-                            Authorization: `Bearer ${localStorage.getItem(
-                              "token"
-                            )}`,
+                            Authorization: `Bearer ${localStorage.getItem("token")}`,
                           },
                         }
                       )
@@ -730,12 +720,8 @@ export function Index() {
                           unlocked.forEach((ach) => {
                             toast({
                               title: `🎉 Succès débloqué`,
-                              description: `${
-                                ach.name ||
-                                ach.titre ||
-                                ach.title ||
-                                "Achievement"
-                              } !`,
+                              description:
+                                (ach.name || ach.titre || ach.title || "Achievement") + " !",
                               duration: 4000,
                               variant: "default",
                               className: "bg-orange-600 text-white",
@@ -757,7 +743,8 @@ export function Index() {
                 💡 Astuce : Comment installer l'application ?
               </button>
             </div>
-          ))}
+          )
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
           <ProgressCard user={user} />
         </div>
