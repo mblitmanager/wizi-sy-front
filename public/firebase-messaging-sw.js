@@ -14,12 +14,24 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(function(payload) {
+  // Build a notification payload that mirrors mobile formatting
   const notificationTitle = payload.notification?.title || 'Notification';
   const notificationOptions = {
     body: payload.notification?.body || '',
-    icon: '/firebase-logo.png',
-    data: payload.data || {},
+    icon: '/logo.png',
+    badge: '/logo.png',
+    image: payload.data?.image || payload.notification?.image || undefined,
+    data: Object.assign({}, payload.data || {}, {
+      // ensure a link is available for click handling; prefer explicit data.link,
+      // then webpush.fcm_options.link, then fallback '/'
+      link: (payload.data && payload.data.link) || (payload.fcmOptions && payload.fcmOptions.link) || '/',
+    }),
+    actions: [
+      // Example action: open app
+      { action: 'open', title: 'Ouvrir', icon: '/logo.png' }
+    ],
   };
+
   self.registration.showNotification(notificationTitle, notificationOptions);
 });
 

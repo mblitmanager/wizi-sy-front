@@ -49,8 +49,46 @@ export function useFcmToken(userToken) {
 export function useOnMessage() {
   useEffect(() => {
     onMessage(messaging, (payload) => {
-      // Affichez la notification ou mettez à jour l'UI
-      alert(payload.notification?.title + '\n' + payload.notification?.body);
+      // Affichez une notification formatée similaire au mobile
+      const title = payload.notification?.title || 'Notification';
+      const body = payload.notification?.body || '';
+      const icon = '/logo.png';
+      const image = payload.data?.image || payload.notification?.image;
+      const data = payload.data || {};
+
+      // Try to use the service worker to show the notification (keeps it in the notification center)
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.getRegistration().then(reg => {
+          if (reg && reg.showNotification) {
+            reg.showNotification(title, ({
+              body,
+              icon,
+              badge: icon,
+              // cast to any to allow non-standard image field in some browsers/types
+              image,
+              data: Object.assign({}, data, { link: data.link || '/' }),
+            } as any));
+            return;
+          }
+          // Fallback to Notification API
+          new Notification(title, ({ body, icon, data: Object.assign({}, data, { link: data.link || '/' }) } as any));
+        }).catch(err => {
+          console.error('Erreur en affichant la notification via SW:', err);
+          try {
+            new Notification(title, ({ body, icon, data: Object.assign({}, data, { link: data.link || '/' }) } as any));
+          } catch (e) {
+            console.error('Notification API failed:', e);
+          }
+        });
+      } else {
+        try {
+          new Notification(title, { body, icon, data: Object.assign({}, data, { link: data.link || '/' }) });
+        } catch (e) {
+          console.error('Notification API failed (no SW):', e);
+          // As a last resort, update the UI; keep as simple alert for now
+          alert(title + '\n' + body);
+        }
+      }
     });
   }, []);
 }
