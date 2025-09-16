@@ -23,14 +23,20 @@ export function useFcmToken(userToken) {
         const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
         const fcmToken = await getToken(messaging, { vapidKey });
         if (fcmToken) {
-          await fetch('/fcm-token', {
+          const apiUrl = import.meta.env.VITE_API_URL || '';
+          const url = apiUrl.endsWith('/') ? `${apiUrl}api/fcm-token` : `${apiUrl}/api/fcm-token`;
+          const res = await fetch(url, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${userToken}`
+              'Accept': 'application/json',
+              'Authorization': userToken ? `Bearer ${userToken}` : undefined,
             },
             body: JSON.stringify({ token: fcmToken })
           });
+          if (!res.ok) {
+            console.warn('Enregistrement FCM failed', await res.text());
+          }
         }
       } catch (err) {
         console.error('Erreur FCM', err);
