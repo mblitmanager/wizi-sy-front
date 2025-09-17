@@ -449,17 +449,6 @@ export function isAnswerCorrect(
       );
     }
 
-    case "carte flash": {
-      // Pour les flashcards
-      const correctAnswer = question.answers?.find(
-        (a) => a.isCorrect || a.is_correct === 1
-      );
-      return (
-        correctAnswer &&
-        (correctAnswer.text === userAnswerData ||
-          correctAnswer.id === String(userAnswerData))
-      );
-    }
     case "question audio": {
       if (typeof userAnswerData === "string") {
         // Trouve la réponse correspondante et vérifie si elle est correcte

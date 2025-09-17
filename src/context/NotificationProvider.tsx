@@ -19,6 +19,13 @@ interface NotificationContextValue {
 
 export const NotificationContext = createContext<NotificationContextValue | undefined>(undefined);
 
+// Convenience hook for consumers which also throws when used outside provider
+export function useNotificationContext(): NotificationContextValue {
+  const ctx = useContext(NotificationContext);
+  if (!ctx) throw new Error('useNotificationContext must be used within NotificationProvider');
+  return ctx;
+}
+
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
