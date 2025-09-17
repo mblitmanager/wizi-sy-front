@@ -12,10 +12,24 @@ export const api = axios.create({
   },
 });
 
+// Optional token provider: a function returning the current auth token (string | null).
+// If not set, we fall back to reading from localStorage to preserve existing behaviour.
+let tokenProvider: (() => string | null | undefined) | null = null;
+
+export function setTokenProvider(provider: () => string | null | undefined) {
+  tokenProvider = provider;
+}
+
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  try {
+    const token = tokenProvider ? tokenProvider() : localStorage.getItem("token");
+    if (token) {
+      config.headers = config.headers || {};
+      (config.headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+    }
+  } catch (err) {
+    // If reading token fails, omit Authorization header (safe fallback)
+    console.warn('Error reading auth token for API request interceptor', err);
   }
   return config;
 });

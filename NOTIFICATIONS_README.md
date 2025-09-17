@@ -26,3 +26,25 @@ Tips
 
 - Keep the server and FCM message payloads consistent: include `id`, `type`, `created_at` and `data` fields when possible.
 - On mobile (Flutter), after receiving FCM, call API refresh endpoint to sync.
+
+Quick test: envoyer un push de test
+
+1. Depuis le backend (endpoint interne `/send-notification` si exposé) :
+
+```bash
+# Exemple POST vers votre API qui enverra un push via votre serveur
+curl -X POST "https://wizi-learn.com/api/send-notification" \
+   -H "Authorization: Bearer <ADMIN_TOKEN>" \
+   -H "Content-Type: application/json" \
+   -d '{"user_id": 123, "title": "Test", "body": "Message de test", "data": {"id": "server-123"}}'
+```
+
+1. Envoi direct via FCM HTTP v1 (nécessite JWT serveur côté Firebase):
+
+```bash
+# Remplacez <FCM_SERVER_KEY> par votre clé serveur (legacy) ou utilisez HTTP v1 avec OAuth2
+curl -X POST https://fcm.googleapis.com/fcm/send \
+   -H "Authorization: key=<FCM_SERVER_KEY>" \
+   -H "Content-Type: application/json" \
+   -d '{"to":"<device_token>", "notification":{"title":"Test","body":"Hello"}, "data":{"id":"server-123"}}'
+```

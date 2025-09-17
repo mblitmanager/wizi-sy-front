@@ -10,6 +10,7 @@ import React, {
 import { User } from "@/types";
 import { toast } from "sonner";
 import { startTransition } from "react";
+import { setTokenProvider } from '@/services/api';
 
 interface UserContextType {
   user: User | null;
@@ -131,11 +132,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
       if (mounted) setIsLoading(false);
     };
 
+    // register token provider for API interceptor; it reads from state/token with fallback
+    setTokenProvider(() => token ?? localStorage.getItem('token'));
+
     initializeAuth();
     return () => {
       mounted = false;
+      // clear provider on unmount
+      setTokenProvider(() => localStorage.getItem('token'));
     };
-  }, [fetchUserData]);
+  }, [fetchUserData, token]);
 
   const logout = useCallback(async () => {
     setIsLoading(true);
