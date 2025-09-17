@@ -273,7 +273,7 @@ export default function NotificationsPage() {
       </div>,
       { duration: 5000 }
     );
-    if ("Notification" in window && Notification.permission === "granted") {
+      if ("Notification" in window && Notification.permission === "granted") {
       new Notification("Nouvelle notification", {
         body: notif.message,
         icon: "/favicon.ico",

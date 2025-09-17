@@ -52,7 +52,7 @@ export function useOnMessage() {
       // Affichez une notification formatée similaire au mobile
       const title = payload.notification?.title || 'Notification';
       const body = payload.notification?.body || '';
-      const icon = '/logo.png';
+  const icon = '/favicon.ico';
       const image = payload.data?.image || payload.notification?.image;
       const data = payload.data || {};
 
@@ -63,7 +63,7 @@ export function useOnMessage() {
             reg.showNotification(title, ({
               body,
               icon,
-              badge: icon,
+              badge: '/favicon.ico',
               // cast to any to allow non-standard image field in some browsers/types
               image,
               data: Object.assign({}, data, { link: data.link || '/' }),
