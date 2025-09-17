@@ -1,25 +1,26 @@
 import { useEffect } from 'react';
 import { messaging, onMessage } from '@/firebase-fcm';
 import { toast } from 'sonner';
+import { useNotifications } from '@/hooks/useNotifications';
 
-interface NotificationListenerProps {
-  onPushNotification?: (notif: { id: string; message: string; type?: string; created_at?: string; data?: Record<string, unknown> }) => void;
-}
+// Ce composant écoute les notifications FCM en premier plan et les synchronise avec l'API
+export default function NotificationListener() {
+  const { pushLocal, refresh } = useNotifications();
 
-// Ce composant écoute les notifications Pusher globalement
-export default function NotificationListener({ onPushNotification }: NotificationListenerProps) {
   useEffect(() => {
-    // Écoute des notifications en premier plan
-    const unsubscribe = onMessage(messaging, (payload) => {
+    const unsub = onMessage(messaging, async (payload) => {
       const { title, body } = payload.notification || {};
+      const data = payload.data || {};
       const notif = {
-        id: payload.data?.id || Date.now().toString(),
-        message: body || '',
-        type: payload.data?.type || 'system',
-        created_at: payload.data?.created_at || new Date().toISOString(),
-        data: payload.data || {},
+        id: data.id || Date.now().toString(),
+        message: body || data.message || '',
+        type: data.type || 'system',
+        created_at: data.created_at || new Date().toISOString(),
+        data,
         read: false,
       };
+
+      // show toast/notification
       toast(
         <div className="flex items-center gap-2">
           <span>🔔</span>
@@ -28,15 +29,20 @@ export default function NotificationListener({ onPushNotification }: Notificatio
         </div>,
         { duration: 5000 }
       );
-      if (onPushNotification) {
-        onPushNotification(notif);
-      }
+
+      // Add to local state so UI updates immediately
+      pushLocal(notif as any);
+
+      // Try to refresh from API to ensure server-side state is synced
+      // Do not block UI; fire-and-forget but log errors
+      refresh().catch(err => console.error('Refresh after push failed', err));
     });
 
     return () => {
-      // Pas de désabonnement nécessaire pour onMessage
+      // onMessage has no unsubscribe callback in older firebase versions; keep return for future-proof
+      if (typeof unsub === 'function') unsub();
     };
-  }, [onPushNotification]);
+  }, [pushLocal, refresh]);
 
   return null;
 }

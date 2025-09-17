@@ -1,3 +1,10 @@
+import { useNotificationContext } from '@/context/NotificationProvider';
+
+export function useNotifications() {
+  return useNotificationContext();
+}
+
+export default useNotifications;
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/services/api";
 
