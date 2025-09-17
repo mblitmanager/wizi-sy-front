@@ -27,11 +27,16 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Rediriger vers la page de connexion si le token est invalide
-      localStorage.removeItem("token");
-      window.location.href = "/login";
-    }
+      if (error.response?.status === 401) {
+        // Remove token and emit an SPA event so the app can navigate centrally
+        localStorage.removeItem("token");
+        try {
+          window.dispatchEvent(new CustomEvent("auth:logout"));
+        } catch (e) {
+          // fallback
+          window.location.href = "/login";
+        }
+      }
     return Promise.reject(error);
   }
 );

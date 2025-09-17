@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { NotificationProvider } from "./context/NotificationProvider";
+import DisplaySettingsProvider from "@/contexts/DisplaySettingsContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { registerServiceWorker } from "./serviceWorkerRegistration";
 
@@ -19,9 +20,11 @@ const queryClient = new QueryClient();
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <NotificationProvider>
+      <DisplaySettingsProvider>
       <QueryClientProvider client={queryClient}>
         <App />
       </QueryClientProvider>
+      </DisplaySettingsProvider>
     </NotificationProvider>
   </React.StrictMode>
 );

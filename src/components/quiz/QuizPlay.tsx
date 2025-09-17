@@ -26,6 +26,7 @@ export function QuizPlay() {
     toggleHistory,
     toggleStats,
     closeResults,
+    resetQuiz,
   } = useQuizPlay(quizId || "");
 
   // États locaux
@@ -83,8 +84,8 @@ export function QuizPlay() {
   }, []);
 
   const handleRestart = React.useCallback(() => {
-    window.location.reload();
-  }, []);
+    resetQuiz();
+  }, [resetQuiz]);
 
   // Rendu conditionnel
   if (isLoading) return <LoadingState />;

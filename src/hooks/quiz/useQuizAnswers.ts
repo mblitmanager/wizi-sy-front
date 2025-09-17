@@ -5,14 +5,17 @@ export const useQuizAnswers = () => {
   const [answers, setAnswers] = useState<Record<string, string[]>>({});
 
   const submitAnswer = (questionId: string, selectedAnswers: string[]) => {
-    setAnswers(prev => ({
+    setAnswers((prev) => ({
       ...prev,
-      [questionId]: selectedAnswers
+      [questionId]: selectedAnswers,
     }));
   };
 
+  const reset = () => setAnswers({});
+
   return {
     answers,
-    submitAnswer
+    submitAnswer,
+    reset,
   };
 };

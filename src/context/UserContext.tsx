@@ -136,10 +136,18 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setTokenProvider(() => token ?? localStorage.getItem('token'));
 
     initializeAuth();
+    // Listen for global auth:logout events (dispatched by API interceptors)
+    const onAuthLogout = () => {
+      localStorage.removeItem("token");
+      setUser(null);
+      setToken(null);
+    };
+    window.addEventListener("auth:logout", onAuthLogout as EventListener);
     return () => {
       mounted = false;
       // clear provider on unmount
       setTokenProvider(() => localStorage.getItem('token'));
+      window.removeEventListener("auth:logout", onAuthLogout as EventListener);
     };
   }, [fetchUserData, token]);
 

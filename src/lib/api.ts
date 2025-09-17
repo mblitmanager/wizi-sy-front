@@ -28,9 +28,13 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Handle unauthorized access
+      // Handle unauthorized access (SPA friendly)
       localStorage.removeItem("token");
-      window.location.href = "/login";
+      try {
+        window.dispatchEvent(new CustomEvent("auth:logout"));
+      } catch (e) {
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   }

@@ -13,14 +13,14 @@ export const useQuizPlay = (quizId: string) => {
   const [filteredQuestions, setFilteredQuestions] = useState<Question[]>([]);
 
   // Setup answers
-  const { answers, submitAnswer } = useQuizAnswers();
+  const { answers, submitAnswer, reset: resetAnswers } = useQuizAnswers();
 
   // Process questions based on difficulty level
   useEffect(() => {
     if (!quiz || !quiz.questions) return;
 
     // Determine number of questions based on difficulty level
-    let questionCount = 5; // default for beginner
+    let questionCount = 5; // default
 
     if (quiz.niveau && quiz.niveau.toLowerCase() === "intermédiaire") {
       questionCount = 5;
@@ -29,9 +29,7 @@ export const useQuizPlay = (quizId: string) => {
     }
 
     // Shuffle the questions array to get random questions
-    const shuffledQuestions = [...quiz.questions].sort(
-      () => 0.5 - Math.random()
-    );
+    const shuffledQuestions = [...quiz.questions].sort(() => 0.5 - Math.random());
 
     // Take only the required number of questions
     const selectedQuestions = shuffledQuestions.slice(0, questionCount);
@@ -43,8 +41,7 @@ export const useQuizPlay = (quizId: string) => {
   const navigation = useQuizNavigation(filteredQuestions);
 
   // Setup timer - use quiz duration if available
-  const defaultDuration = 30; // 30 minutes in seconds
-  // const timer = useQuizTimer(quiz?.duree || defaultDuration);
+  const defaultDuration = 30; // default seconds
   const timer = useQuizTimer(defaultDuration);
 
   // Setup dialogs
@@ -53,7 +50,7 @@ export const useQuizPlay = (quizId: string) => {
   // Setup submission
   const { isSubmitting, submitQuiz } = useQuizSubmission(quizId);
 
-  // Passe à la question suivante automatiquement après expiration du timer
+  // Auto next on timer expire
   useEffect(() => {
     if (timer.timeLeft === 0 && !navigation.isLastQuestion) {
       navigation.goToNextQuestion();
@@ -61,7 +58,7 @@ export const useQuizPlay = (quizId: string) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timer.timeLeft]);
 
-  // Réinitialise le timer à chaque changement de question
+  // Reset timer on question change
   useEffect(() => {
     timer.reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -74,63 +71,56 @@ export const useQuizPlay = (quizId: string) => {
     }
   }, [quiz, timer]);
 
-  // Check if the current question has been answered
+  // resetQuiz: resets navigation index, answers and timer
+  const resetQuiz = () => {
+    timer.reset();
+    navigation.goToQuestion(0);
+    resetAnswers();
+  };
+
   const isCurrentQuestionAnswered = () => {
     if (!quiz || filteredQuestions.length === 0) return false;
 
     const currentQuestion = filteredQuestions[navigation.currentQuestionIndex];
-    return (
-      !!answers[currentQuestion?.id] && answers[currentQuestion?.id].length > 0
-    );
+    return !!answers[currentQuestion?.id] && answers[currentQuestion?.id].length > 0;
   };
 
-  // Handle submitting an answer
   const handleAnswer = (answer: string[]) => {
     if (!navigation.currentQuestion) return;
     submitAnswer(navigation.currentQuestion.id, answer);
   };
 
-  // Handle submitting the whole quiz
   const handleFinish = () => {
     submitQuiz(answers, timer.timeSpent);
   };
 
-  // Calculate points based on filtered questions (2 points per question)
-  const calculateTotalPoints = () => {
-    return filteredQuestions.length * 2; // 2 points par question
-  };
+  const calculateTotalPoints = () => filteredQuestions.length * 2;
 
   return {
-    // Quiz data with filtered questions
     quiz: quiz
       ? {
           ...quiz,
           questions: filteredQuestions,
-          points: calculateTotalPoints(), // Update points calculation
+          points: calculateTotalPoints(),
         }
       : null,
     isLoading: isLoading || isSubmitting,
     error,
 
-    // Current question data
     currentQuestion: navigation.currentQuestion,
     currentQuestionIndex: navigation.currentQuestionIndex,
     totalQuestions: navigation.totalQuestions,
     isLastQuestion: navigation.isLastQuestion,
 
-    // Timer data
     timeLeft: timer.timeLeft,
     timeSpent: timer.timeSpent,
     isPaused: timer.isPaused,
     setIsPaused: timer.setIsPaused,
 
-    // Answers
     answers,
 
-    // Dialog states
     ...dialogs,
 
-    // Actions
     handleAnswer,
     handleNext: navigation.goToNextQuestion,
     handleBack: navigation.goToPreviousQuestion,
@@ -138,6 +128,7 @@ export const useQuizPlay = (quizId: string) => {
     submitQuiz: handleFinish,
     isCurrentQuestionAnswered,
     handleFinish,
+    resetQuiz,
     showResults: dialogs.resultsOpen,
     toggleHistory: dialogs.openHistory,
     toggleStats: dialogs.openStats,

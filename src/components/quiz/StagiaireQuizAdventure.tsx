@@ -96,6 +96,7 @@ import { Loader2, Lock, ChartSpline } from "lucide-react";
 import { useClassementPoints } from "@/hooks/useClassementPoints";
 import { buildAvailableQuizzes } from "./quizUtils";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 type Participation = { id?: string | number; quizId?: string | number };
@@ -327,12 +328,12 @@ function QuizStepCard({ quiz, playable, played, history, quizHistory, categoryCo
             {/* Boutons Commencer / Rejouer */}
             {(playable || played) && (
                 <div className="mt-2 flex flex-row gap-2 items-center">
-                    <a
-                        href={`/quiz/${quiz.id}`}
+                    <Link
+                        to={`/quiz/${quiz.id}`}
                         className={`text-xs sm:text-sm md:text-base text-white px-3 py-2 rounded-md inline-block ${categoryConfig.color} hover:brightness-90 text-center w-auto`}
                     >
                         {played ? 'Rejouer' : 'Commencer'}
-                    </a>
+                    </Link>
                     {played && (
                         <div className="w-auto">
                             <QuizHistoryModal quizId={quiz.id} quizHistory={quizHistory} noBorder />

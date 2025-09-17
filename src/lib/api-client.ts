@@ -24,7 +24,11 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
-      window.location.href = "/login";
+      try {
+        window.dispatchEvent(new CustomEvent("auth:logout"));
+      } catch (e) {
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   }
