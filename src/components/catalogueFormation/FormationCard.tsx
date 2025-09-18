@@ -57,14 +57,10 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
   };
 
   const image = getImageSource();
-  // Priorité au catalogue pour la catégorie, fallback sur formation.base
-  const categorie =
-    formation.formation?.catalogue?.categorie ||
-    formation.formation?.formation?.categorie ||
-    (formation as any)?.categorie ||
-    "";
-  const categoryColor = getCategoryColor(categorie);
-  const categoryBadgeStyle = getCategoryBadgeStyle(categorie);
+  const categoryColor = getCategoryColor(formation.formation.categorie);
+  const categoryBadgeStyle = getCategoryBadgeStyle(
+    formation.formation.categorie
+  );
 
   return (
     <Link
@@ -92,7 +88,7 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
         <div className="flex justify-between items-start">
           <span
             className={`text-xs font-medium px-2 py-1 rounded-full ${categoryBadgeStyle}`}>
-            {categorie}
+            {formation.formation.categorie}
           </span>
 
           {/* Certification badge */}
