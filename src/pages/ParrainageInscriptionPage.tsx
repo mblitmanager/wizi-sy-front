@@ -16,6 +16,7 @@ interface FormData {
   lien_parrainage: string;
   motif?: string;
   date_demande?: string;
+  date_inscription?: string;
 }
 
 interface ParrainData {
@@ -131,12 +132,12 @@ const ParrainageInscriptionPage = () => {
     setSubmitting(true);
 
     try {
+      // Préparer les données avec le motif par défaut
       const payload = {
         ...formData,
         date_inscription: new Date().toISOString().split("T")[0],
-        motif: "Soumission d'une demande d'inscription par parrainage",
+        motif: "Soumission d'une demande d'inscription par parrainage	",
         date_demande: new Date().toISOString(),
-        lien_parrainage: token,
       };
 
       const response = await fetch(`${API_URL}/parrainage/register-filleul`, {
@@ -168,6 +169,9 @@ const ParrainageInscriptionPage = () => {
         statut: "1",
         parrain_id: formData.parrain_id,
         lien_parrainage: token || "",
+        date_inscription: "",
+        motif: "",
+        date_demande: "",
       });
 
       setErrors({});
