@@ -57,10 +57,14 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
   };
 
   const image = getImageSource();
-  const categoryColor = getCategoryColor(formation.formation.categorie);
-  const categoryBadgeStyle = getCategoryBadgeStyle(
-    formation.formation.categorie
-  );
+  // Priorité au catalogue pour la catégorie, fallback sur formation.base
+  const categorie =
+    formation.formation?.catalogue?.categorie ||
+    formation.formation?.formation?.categorie ||
+    (formation as any)?.categorie ||
+    "";
+  const categoryColor = getCategoryColor(categorie);
+  const categoryBadgeStyle = getCategoryBadgeStyle(categorie);
 
   return (
     <div
@@ -89,7 +93,7 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
           <span
             className={`text-xs font-medium px-2 py-1 rounded-full ${categoryBadgeStyle}`}
           >
-            {formation.formation.categorie}
+            {categorie}
           </span>
 
           {/* Certification badge */}
@@ -116,8 +120,8 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
             <span className="text-xl text-orange-500 font-extrabold drop-shadow-lg">
               {formation.tarif
                 ? `${Math.round(Number(formation.tarif)).toLocaleString(
-                    "fr-FR"
-                  )} € HT`
+                  "fr-FR"
+                )} € HT`
                 : "-"}
             </span>
           </div>
