@@ -46,30 +46,30 @@ const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {formations && formations.length > 0 ? (
           formations.map((formation) => {
-            // On privilégie les infos de formation, puis de catalogue
+            // On privilégie désormais le catalogue, puis la formation
             const titre =
-              formation.formation?.titre ||
               formation.catalogue?.titre ||
+              formation.formation?.titre ||
               formation.titre ||
               "Sans titre";
             const categorie =
-              formation.formation?.categorie ||
               formation.catalogue?.categorie ||
+              formation.formation?.categorie ||
               formation.categorie ||
               "default";
             const description =
-              formation.formation?.description ||
               formation.catalogue?.description ||
+              formation.formation?.description ||
               formation.description ||
               "";
             const image =
-              formation.formation?.image ||
               formation.catalogue?.image_url ||
+              formation.formation?.image ||
               formation.image ||
               null;
             const duree =
-              formation.formation?.duree ||
               formation.catalogue?.duree ||
+              formation.formation?.duree ||
               formation.duree ||
               "";
             const formateur = formation.formateur || null;
@@ -101,34 +101,34 @@ const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
                       <h3 className="text-lg font-bold text-gray-800 dark:text-white line-clamp-2">
                         {formatTitle(titre).toUpperCase()}
                       </h3>
-                    
+
                     </div>
                   </div>
 
                   {/* Description */}
                   <div className="flex-grow">
-                      {formateur && (
-                        <div className="text-xs text-gray-500 mt-1 flex items-center gap-2">
-                          <span>Formateur :</span>
-                          {formateur.image && (
-                            <img
-                              src={formateur.image}
-                              alt={formateur.nom || "Formateur"}
-                              className="w-6 h-6 rounded-full object-cover border border-gray-300"
-                            />
-                          )}
-                          <a
-                            href="/contacts"
-                            className="font-semibold hover:underline text-blue-600 dark:text-blue-400"
-                            title="Voir le profil du formateur dans les contacts"
-                          >
-                            {formateur.prenom} {formateur.nom?.toUpperCase()}
-                          </a>
-                          {formateur.email && (
-                            <span className="ml-2 text-gray-400">({formateur.email})</span>
-                          )}
-                        </div>
-                      )}
+                    {formateur && (
+                      <div className="text-xs text-gray-500 mt-1 flex items-center gap-2">
+                        <span>Formateur :</span>
+                        {formateur.image && (
+                          <img
+                            src={formateur.image}
+                            alt={formateur.nom || "Formateur"}
+                            className="w-6 h-6 rounded-full object-cover border border-gray-300"
+                          />
+                        )}
+                        <a
+                          href="/contacts"
+                          className="font-semibold hover:underline text-blue-600 dark:text-blue-400"
+                          title="Voir le profil du formateur dans les contacts"
+                        >
+                          {formateur.prenom} {formateur.nom?.toUpperCase()}
+                        </a>
+                        {formateur.email && (
+                          <span className="ml-2 text-gray-400">({formateur.email})</span>
+                        )}
+                      </div>
+                    )}
                     <p className="text-gray-600 dark:text-gray-300 mb-4">
                       {isExpanded ? desc : truncateText(desc, 50)}
                     </p>
