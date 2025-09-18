@@ -20,6 +20,22 @@ export const catalogueFormationApi = {
       throw error;
     }
   },
+  getCatalogueFormationStagiaire: async (): Promise<CatalogueFormationResponse> => {
+    try {
+      const response = await axios.get<CatalogueFormationResponse>(
+        `${API_URL}/catalogueFormations/stagiaire`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération du catalogue:', error);
+      throw error;
+    }
+  },
 
   getFormationDetails: async (formationId: string): Promise<any> => {
     try {

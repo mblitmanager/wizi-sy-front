@@ -44,7 +44,7 @@ const ProfilePage = () => {
   const { user } = useUser();
   const { results, categories } = useLoadQuizData();
   const { userProgress, rankings } = useLoadRankings();
-  const formations = useLoadFormations();
+  const formations = useLoadFormations(user?.stagiaire?.id ?? null);
   const [quizHistory, setQuizHistory] = useState<QuizHistoryType[]>([]);
 
   // Contacts (comme HomePage)
@@ -190,7 +190,7 @@ const ProfilePage = () => {
       }
     };
     fetchAchievements();
-  }, [user, toast, API_URL]);
+  }, [user, toast]);
 
   // Re-synchronisation manuelle des achievements
   const handleResyncAchievements = async () => {
@@ -274,56 +274,46 @@ const ProfilePage = () => {
     );
   };
 
-  const AchievementsSection = () => (
-    <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg sm:text-xl font-semibold font-montserrat dark:text-white">Mes badges</h3>
-        <div className="flex items-center gap-2">
-          {/* <button
-            onClick={handleResyncAchievements}
-            disabled={achvLoading}
-            className="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50"
-          >
-            {achvLoading ? "Synchronisation…" : "Re-synchroniser"}
-          </button> */}
-          <div className="text-sm text-gray-600 dark:text-gray-300">
-            {userAchievements.length} débloqués
+  const AchievementsSection = () => {
+    const [showAllBadges, setShowAllBadges] = useState(false);
+    const visibleBadges = showAllBadges ? filteredAchievements : filteredAchievements.slice(0, 3);
+
+    return (
+      <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-lg sm:text-xl font-semibold font-montserrat dark:text-white">Mes badges</h3>
+          <div className="flex items-center gap-2">
+            <div className="text-sm text-gray-600 dark:text-gray-300">
+              {userAchievements.length} débloqués
+            </div>
           </div>
         </div>
+
+        {achvLoading ? (
+          <div className="py-6 text-center text-sm text-gray-500">Chargement des badges...</div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+              {visibleBadges.map((a) => (
+                <AchievementBadge key={a.id} a={a} unlocked={unlockedIds.has(a.id)} />
+              ))}
+            </div>
+            {filteredAchievements.length > 3 && (
+              <div className="flex justify-center mt-4">
+                <button
+                  type="button"
+                  className="px-4 py-2 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  onClick={() => setShowAllBadges((v) => !v)}
+                >
+                  {showAllBadges ? "Voir moins" : "Voir plus"}
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
-
-      {/* Filtres */}
-      {/* {availableTypes.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-4">
-          <button
-            className={`px-3 py-1 rounded-full text-sm border ${selectedType === null ? "bg-gray-900 text-white" : "bg-gray-100"}`}
-            onClick={() => setSelectedType(null)}
-          >
-            Tous
-          </button>
-          {availableTypes.map((t) => (
-            <button
-              key={t}
-              className={`px-3 py-1 rounded-full text-sm border ${selectedType === t ? "bg-gray-900 text-white" : "bg-gray-100"}`}
-              onClick={() => setSelectedType(t)}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-      )} */}
-
-      {achvLoading ? (
-        <div className="py-6 text-center text-sm text-gray-500">Chargement des badges...</div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          {filteredAchievements.map((a) => (
-            <AchievementBadge key={a.id} a={a} unlocked={unlockedIds.has(a.id)} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+    );
+  };
 
   if (isLoading) {
     return (

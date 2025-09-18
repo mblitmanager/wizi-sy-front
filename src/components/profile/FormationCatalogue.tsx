@@ -4,8 +4,37 @@ import { BookAIcon, FolderOpenIcon } from "lucide-react";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
+type FormationItem = {
+  id?: string | number;
+  formation?: {
+    titre?: string;
+    categorie?: string;
+    description?: string;
+    image?: string | null;
+    duree?: string;
+  } | null;
+  catalogue?: {
+    titre?: string;
+    categorie?: string;
+    description?: string;
+    image_url?: string | null;
+    duree?: string;
+  } | null;
+  titre?: string;
+  categorie?: string;
+  description?: string;
+  image?: string | null;
+  duree?: string;
+  formateur?: {
+    image?: string | null;
+    nom?: string | null;
+    prenom?: string | null;
+    email?: string | null;
+  } | null;
+};
+
 interface FormationCatalogueProps {
-  formations: any[];
+  formations: FormationItem[];
 }
 // Color map for categories
 const CATEGORY_COLORS: Record<string, string> = {
@@ -22,7 +51,11 @@ const CATEGORY_COLORS: Record<string, string> = {
 const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
   formations,
 }) => {
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<string | number | null>(null);
+  const [showAll, setShowAll] = useState<boolean>(false);
+  const visibleFormations = Array.isArray(formations)
+    ? (showAll ? formations : formations.slice(0, 3))
+    : [];
 
   // Fonction pour formater le titre (supprimer "formation" sous toutes ses formes)
   const formatTitle = (title: string) => {
@@ -44,9 +77,9 @@ const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
   return (
     <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md">
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {formations && formations.length > 0 ? (
-          formations.map((formation) => {
-            // On privilégie désormais le catalogue, puis la formation
+        {visibleFormations && visibleFormations.length > 0 ? (
+          visibleFormations.map((formation) => {
+            // Catalogue prioritaire pour l'affichage
             const titre =
               formation.catalogue?.titre ||
               formation.formation?.titre ||
@@ -165,6 +198,17 @@ const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
           </div>
         )}
       </div>
+      {Array.isArray(formations) && formations.length > 3 && (
+        <div className="flex justify-center mt-6">
+          <button
+            type="button"
+            className="px-4 py-2 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+            onClick={() => setShowAll((v) => !v)}
+          >
+            {showAll ? "Voir moins" : "Voir plus"}
+          </button>
+        </div>
+      )}
     </div>
   );
 };
