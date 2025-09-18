@@ -12,7 +12,11 @@ import { buildAvailableQuizzes } from "./quizUtils";
 import { useToast } from "@/hooks/use-toast";
 import { quizHistoryService } from "@/services/quiz/submission/QuizHistoryService";
 
-export function StagiaireQuizList({ selectedFormationId }: { selectedFormationId?: string | null }) {
+export function StagiaireQuizList({
+  selectedFormationId,
+}: {
+  selectedFormationId?: string | null;
+}) {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedLevel, setSelectedLevel] = useState<string>("all");
   const { toast } = useToast();
@@ -125,47 +129,81 @@ export function StagiaireQuizList({ selectedFormationId }: { selectedFormationId
   const effectiveFormationId = useMemo(() => {
     if (selectedFormationId) return selectedFormationId;
     if (!quizHistory || !quizzes || quizzes.length === 0) return null;
-  type HistoryMinimal = { quiz?: { id?: string | number; formationId?: string | number; formation?: { id?: string | number } }; quizId?: string | number; completedAt?: string };
-  const sorted = [...(quizHistory as HistoryMinimal[])].sort((a, b) => {
+    type HistoryMinimal = {
+      quiz?: {
+        id?: string | number;
+        formationId?: string | number;
+        formation?: { id?: string | number };
+      };
+      quizId?: string | number;
+      completedAt?: string;
+    };
+    const sorted = [...(quizHistory as HistoryMinimal[])].sort((a, b) => {
       const da = a.completedAt ? Date.parse(a.completedAt) : 0;
       const db = b.completedAt ? Date.parse(b.completedAt) : 0;
       return db - da;
     });
-      for (const h of sorted) {
+    for (const h of sorted) {
       const qId = h.quiz?.id ?? h.quizId;
       if (!qId) continue;
       const q = quizzes.find((x) => String(x.id) === String(qId));
-      const fid = (q as unknown as { formationId?: string | number })?.formationId ?? h.quiz?.formationId ?? h.quiz?.formation?.id;
+      const fid =
+        (q as unknown as { formationId?: string | number })?.formationId ??
+        h.quiz?.formationId ??
+        h.quiz?.formation?.id;
       if (fid !== undefined && fid !== null) return String(fid);
     }
-    const first = (quizzes[0] as unknown as { formationId?: string | number })?.formationId;
+    const first = (quizzes[0] as unknown as { formationId?: string | number })
+      ?.formationId;
     return first ? String(first) : null;
   }, [selectedFormationId, quizHistory, quizzes]);
 
   const filteredQuizzes = useMemo(() => {
-    const base = buildAvailableQuizzes(quizzes, userPoints, effectiveFormationId);
+    const base = buildAvailableQuizzes(
+      quizzes,
+      userPoints,
+      effectiveFormationId
+    );
     return base.filter((quiz) => {
       const categoryMatch =
         selectedCategory === "all" ||
-        (quiz.categorieId && String(quiz.categorieId) === String(selectedCategory));
+        (quiz.categorieId &&
+          String(quiz.categorieId) === String(selectedCategory));
       const levelMatch =
-        selectedLevel === "all" || (quiz.niveau && quiz.niveau === selectedLevel);
+        selectedLevel === "all" ||
+        (quiz.niveau && quiz.niveau === selectedLevel);
       return categoryMatch && levelMatch;
     });
-  }, [quizzes, selectedCategory, selectedLevel, userPoints, effectiveFormationId]);
+  }, [
+    quizzes,
+    selectedCategory,
+    selectedLevel,
+    userPoints,
+    effectiveFormationId,
+  ]);
 
   const playedQuizzes = useMemo(() => {
     if (!quizzes || !quizHistory) return [] as typeof quizzes;
-    type HistoryMinimal = { quiz?: { id?: string | number; formationId?: string | number }; quizId?: string | number; completedAt?: string };
+    type HistoryMinimal = {
+      quiz?: { id?: string | number; formationId?: string | number };
+      quizId?: string | number;
+      completedAt?: string;
+    };
     const byId = new Map<string, { completedAt?: string }>();
     (quizHistory as HistoryMinimal[]).forEach((h) => {
       const id = h.quiz?.id ?? h.quizId;
-      if (id !== undefined) byId.set(String(id), { completedAt: h.completedAt });
+      if (id !== undefined)
+        byId.set(String(id), { completedAt: h.completedAt });
     });
     let list = quizzes.filter((q) => byId.has(String(q.id)));
     // Filtrer selon la formation sélectionnée
     if (effectiveFormationId) {
-      list = list.filter(q => String((q as unknown as { formationId?: string | number }).formationId) === String(effectiveFormationId));
+      list = list.filter(
+        (q) =>
+          String(
+            (q as unknown as { formationId?: string | number }).formationId
+          ) === String(effectiveFormationId)
+      );
     }
     // tri antéchronologique par completedAt
     list.sort((a, b) => {
@@ -182,11 +220,11 @@ export function StagiaireQuizList({ selectedFormationId }: { selectedFormationId
     () =>
       quizzes && participations
         ? filteredQuizzes.filter(
-          (q) =>
-            !participations.some(
-              (p) => String(p.quizId || p.id) === String(q.id)
-            )
-        )
+            (q) =>
+              !participations.some(
+                (p) => String(p.quizId || p.id) === String(q.id)
+              )
+          )
         : [],
     [filteredQuizzes, quizzes, participations]
   );
@@ -311,14 +349,12 @@ export function StagiaireQuizList({ selectedFormationId }: { selectedFormationId
               className="text-xs px-2 py-1 rounded bg-yellow-200 hover:bg-yellow-300 text-yellow-900"
               onClick={() =>
                 setStep((s) => (s - 1 + steps.length) % steps.length)
-              }
-            >
+              }>
               ◀
             </button>
             <button
               className="text-xs px-2 py-1 rounded bg-yellow-200 hover:bg-yellow-300 text-yellow-900"
-              onClick={() => setStep((s) => (s + 1) % steps.length)}
-            >
+              onClick={() => setStep((s) => (s + 1) % steps.length)}>
               ▶
             </button>
           </div>
@@ -367,8 +403,7 @@ export function StagiaireQuizList({ selectedFormationId }: { selectedFormationId
                   setSelectedLevel(e.target.value);
                   setNotPlayedCurrentPage(1);
                   setPlayedCurrentPage(1);
-                }}
-              >
+                }}>
                 <option value="all">Niveau</option>
                 {levels.map((level) => (
                   <option key={level} value={level}>
@@ -383,8 +418,7 @@ export function StagiaireQuizList({ selectedFormationId }: { selectedFormationId
                     setSelectedLevel("all");
                     setNotPlayedCurrentPage(1);
                     setPlayedCurrentPage(1);
-                  }}
-                >
+                  }}>
                   Réinitialiser
                 </button>
               )}
@@ -417,8 +451,7 @@ export function StagiaireQuizList({ selectedFormationId }: { selectedFormationId
                         setNotPlayedCurrentPage((prev) => Math.max(prev - 1, 1))
                       }
                       disabled={notPlayedCurrentPage === 1}
-                      className="p-2 rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
+                      className="p-2 rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed">
                       <ChevronLeft className="w-4 h-4" />
                     </button>
                     {Array.from(
@@ -428,11 +461,11 @@ export function StagiaireQuizList({ selectedFormationId }: { selectedFormationId
                       <button
                         key={page}
                         onClick={() => setNotPlayedCurrentPage(page)}
-                        className={`w-8 h-8 rounded-md ${notPlayedCurrentPage === page
-                          ? "bg-orange-500 text-white"
-                          : "border border-gray-300"
-                          }`}
-                      >
+                        className={`w-8 h-8 rounded-md ${
+                          notPlayedCurrentPage === page
+                            ? "bg-black text-white"
+                            : "border border-gray-300"
+                        }`}>
                         {page}
                       </button>
                     ))}
@@ -443,8 +476,7 @@ export function StagiaireQuizList({ selectedFormationId }: { selectedFormationId
                         )
                       }
                       disabled={notPlayedCurrentPage === totalNotPlayedPages}
-                      className="p-2 rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
+                      className="p-2 rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed">
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   </nav>
@@ -456,7 +488,7 @@ export function StagiaireQuizList({ selectedFormationId }: { selectedFormationId
 
         {/* Quiz joués */}
         <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6 sm:mb-4">
-          <h3 className="text-lg font-semibold mb-2 text-gray-700">
+          <h3 className="text-3xl sm:text-2xl md:text-3xl text-brown-shade font-bold mb-2">
             Rejouez à vos anciens quiz
           </h3>
           <hr className="mb-4" />
@@ -478,8 +510,7 @@ export function StagiaireQuizList({ selectedFormationId }: { selectedFormationId
                         setPlayedCurrentPage((prev) => Math.max(prev - 1, 1))
                       }
                       disabled={playedCurrentPage === 1}
-                      className="p-2 rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
+                      className="p-2 rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed">
                       <ChevronLeft className="w-4 h-4" />
                     </button>
                     {Array.from(
@@ -489,11 +520,11 @@ export function StagiaireQuizList({ selectedFormationId }: { selectedFormationId
                       <button
                         key={page}
                         onClick={() => setPlayedCurrentPage(page)}
-                        className={`w-8 h-8 rounded-md ${playedCurrentPage === page
-                          ? "bg-orange-500 text-white"
-                          : "border border-gray-300"
-                          }`}
-                      >
+                        className={`w-8 h-8 rounded-md ${
+                          playedCurrentPage === page
+                            ? "bg-black text-white"
+                            : "border border-gray-300"
+                        }`}>
                         {page}
                       </button>
                     ))}
@@ -504,8 +535,7 @@ export function StagiaireQuizList({ selectedFormationId }: { selectedFormationId
                         )
                       }
                       disabled={playedCurrentPage === totalPlayedPages}
-                      className="p-2 rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
+                      className="p-2 rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed">
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   </nav>
