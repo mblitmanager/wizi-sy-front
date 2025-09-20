@@ -62,7 +62,7 @@ export default function MainNav({
       color: "text-amber-500",
     },
     {
-      title: "Profil",
+      title: "Profile",
       href: "/profile",
       icon: User,
       color: "text-amber-500",
