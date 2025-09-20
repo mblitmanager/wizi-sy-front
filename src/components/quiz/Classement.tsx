@@ -380,7 +380,7 @@ export function Classement() {
                       <div className="p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition">
                         <div className="flex items-center justify-between">
                           <div className="font-medium text-gray-800">{lvl.label}</div>
-                          <div className="text-sm text-gray-600">{percentage.toFixed(1)}%</div>
+                          {/* <div className="text-sm text-gray-600">{percentage.toFixed(1)}%</div> */}
                         </div>
                         <div className="mt-2 w-full h-2 bg-gray-100 rounded">
                           <div
