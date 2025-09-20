@@ -338,7 +338,7 @@ export default function TutoAstucePage() {
   return (
     <Layout>
       <div
-        className="mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-7xl w-full overflow-hidden"
+        className="mx-auto mt-[-8%] px-2 sm:px-4 py-4 sm:py-6 max-w-7xl w-full overflow-hidden"
         style={{ maxWidth: "90vw" }}>
         <div className="flex flex-col gap-4 sm:gap-6">
           {/* En-tête */}
