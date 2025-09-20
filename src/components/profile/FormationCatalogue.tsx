@@ -53,9 +53,16 @@ const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
 }) => {
   const [expanded, setExpanded] = useState<string | number | null>(null);
   const [showAll, setShowAll] = useState<boolean>(false);
-  const visibleFormations = Array.isArray(formations)
-    ? (showAll ? formations : formations.slice(0, 3))
-    : [];
+  const uniqueFormations = React.useMemo(() => {
+    if (!Array.isArray(formations)) {
+      return [];
+    }
+    return Array.from(new Map(formations.map((item) => [item.id, item])).values());
+  }, [formations]);
+
+  const visibleFormations = showAll
+    ? uniqueFormations
+    : uniqueFormations.slice(0, 3);
 
   // Fonction pour formater le titre (supprimer "formation" sous toutes ses formes)
   const formatTitle = (title: string) => {
@@ -78,7 +85,7 @@ const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
     <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md">
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {visibleFormations && visibleFormations.length > 0 ? (
-          visibleFormations.map((formation) => {
+          visibleFormations.map((formation, index) => {
             // Catalogue prioritaire pour l'affichage
             const titre =
               formation.catalogue?.titre ||
@@ -116,7 +123,7 @@ const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
             return (
               <div
                 className="relative group cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
-                key={formation?.id || Math.random().toString()}
+                key={formation?.id ? `formation-${formation.id}` : `formation-${index}`}
               >
                 {/* Ombre colorée */}
                 <span
@@ -198,7 +205,7 @@ const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
           </div>
         )}
       </div>
-      {Array.isArray(formations) && formations.length > 3 && (
+      {uniqueFormations.length > 3 && (
         <div className="flex justify-center mt-6">
           <button
             type="button"

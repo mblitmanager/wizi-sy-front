@@ -381,10 +381,15 @@ export default function TutoAstucePage() {
 
           {/* Contenu principal */}
           <div
-            className="flex flex-col-reverse sm:flex-col lg:grid lg:grid-cols-3 gap-4 sm:gap-6 w-full max-w-full"
+            className="flex flex-col gap-4 sm:gap-6 w-full max-w-full"
             style={{ maxWidth: "90vw" }}>
+            {/* Lecteur de média */}
+            <div className="w-full">
+              <MediaPlayerSection media={selectedMedia} />
+            </div>
+
             {/* Liste des médias */}
-            <div className="p-3 sm:p-4 lg:col-span-1 overflow-auto w-full lg:max-w-[350px]">
+            <div className="p-3 sm:p-4 overflow-auto w-full">
               {/* <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2">
                 <PlayCircle className="w-5 h-5 text-blue-600" />
                 <span>
@@ -423,11 +428,6 @@ export default function TutoAstucePage() {
                   )}
                 </div>
               )}
-            </div>
-
-            {/* Lecteur de média */}
-            <div className="lg:col-span-2 w-full">
-              <MediaPlayerSection media={selectedMedia} />
             </div>
           </div>
         </div>
