@@ -472,7 +472,7 @@ function StatsCard({
           <div className="text-lg font-semibold text-gray-900">{value}</div>
         </div>
       </div>
-      <div className="mt-2 text-xs text-gray-500">Appuyer pour en savoir plus</div>
+      {/* <div className="mt-2 text-xs text-gray-500">Appuyer pour en savoir plus</div> */}
     </button>
   );
 }
