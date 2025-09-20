@@ -271,16 +271,17 @@ export function Classement() {
               <StatsCard
                 icon="star_rate"
                 title="Score moyen"
-                value={totalQuizzes > 0 ? `${Number(averageScore).toFixed(1)}%` : "-"}
+                value={totalQuizzes > 0 ? `${Number(averageScore*10).toFixed(1)}%` : "-"}
                 color="amber"
                 onClick={() =>
                   openInfo(
                     "Score moyen",
                     <div className="space-y-2">
-                      <SheetRow
-                        label="Score moyen"
-                        value={totalQuizzes > 0 ? `${Number(averageScore).toFixed(1)}%` : "-"}
-                      />
+                     <SheetRow
+  label="Score moyen"
+  value={totalQuizzes > 0 ? `${(averageScore * 10).toFixed(1)}%` : "-"}
+/>
+
                       <SheetRow label="Quiz complétés" value={String(totalQuizzes)} />
                     </div>
                   )
@@ -370,7 +371,7 @@ export function Classement() {
                           <div className="space-y-2">
                             <SheetRow label="Niveau" value={lvl.label} />
                             <SheetRow label="Quiz complétés" value={String(completed)} />
-                            <SheetRow label="Score moyen" value={`${avg.toFixed(1)}%`} />
+                            <SheetRow label="Score moyen" value={`${(avg * 10).toFixed(1)}%`} />
                           </div>
                         )
                       }
@@ -389,7 +390,7 @@ export function Classement() {
                         </div>
                         <div className="mt-1 flex items-center justify-between text-xs text-gray-500">
                           <span>{completed} quiz complétés</span>
-                          <span>Moyenne: {avg.toFixed(1)}%</span>
+                          <span>Moyenne: {(avg * 10).toFixed(1)}%</span>
                         </div>
                       </div>
                     </button>
