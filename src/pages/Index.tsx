@@ -445,7 +445,7 @@ export function Index() {
             <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 text-center">
               <div className="flex items-center justify-center mb-4">
                 <div className="flex flex-col items-center px-6 py-4 rounded bg-orange-50 border border-orange-100">
-                  <span className="text-sm font-medium text-orange-600">7 jours</span>
+                  {/* <span className="text-sm font-medium text-orange-600">7 jours</span> */}
                   <span className="text-5xl font-extrabold text-orange-600">🔥</span>
                 </div>
               </div>
@@ -459,7 +459,7 @@ export function Index() {
                 >
                   Continuer
                 </button>
-                <button
+                {/* <button
                   className="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200"
                   onClick={() => {
                     // hide and don't show again until tomorrow
@@ -467,7 +467,7 @@ export function Index() {
                   }}
                 >
                   Fermer
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
