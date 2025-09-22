@@ -120,9 +120,18 @@ export function Index() {
 
   // Streak modal: show large blocking modal once per day when user has a login streak
   const [showStreakModal, setShowStreakModal] = useState<boolean>(false);
+  const [hideStreakFor7Days, setHideStreakFor7Days] = useState<boolean>(false);
   useEffect(() => {
     try {
       if (!user || !localStorage.getItem("token")) return;
+      const hideUntil = localStorage.getItem('streakModalHideUntil');
+      if (hideUntil) {
+        const today = dayjs().tz("Europe/Paris");
+        const hideDate = dayjs(hideUntil);
+        if (today.isBefore(hideDate)) {
+          return;
+        }
+      }
       const today = dayjs().tz("Europe/Paris").format("YYYY-MM-DD");
       const lastShown = localStorage.getItem("lastStreakModalDate");
       // If already shown today, don't show again
@@ -140,6 +149,12 @@ export function Index() {
     try {
       const today = dayjs().tz("Europe/Paris").format("YYYY-MM-DD");
       localStorage.setItem("lastStreakModalDate", today);
+      if (hideStreakFor7Days) {
+        const hideUntil = dayjs().tz("Europe/Paris").add(7, 'day').format("YYYY-MM-DD");
+        localStorage.setItem('streakModalHideUntil', hideUntil);
+      } else {
+        localStorage.removeItem('streakModalHideUntil');
+      }
     } catch (e) {
       // ignore localStorage errors
     }
@@ -229,57 +244,36 @@ export function Index() {
       .catch(() => setUserPoints(0));
   }, []);
 
-  // Filtrage avancé selon les points utilisateur (pour les quiz à jouer)
   const filteredQuizzes = useMemo(() => {
-    if (!quizzes.length) return [];
-    // Filtrer les quiz non joués et débloqués
-    const notPlayedAndUnlocked = quizzes.filter(
+    if (!quizzes.length || !stagiaireCatalogues.length) return [];
+
+    const notPlayedQuizzes = quizzes.filter(
       (q) => !history.some((h) => String(h.quiz?.id) === String(q.id))
     );
-    // 1. Séparer les quiz par niveau
-    const debutant = notPlayedAndUnlocked.filter(
-      (q) => q.niveau?.toLowerCase() === "débutant"
-    );
-    const inter = notPlayedAndUnlocked.filter(
-      (q) => q.niveau?.toLowerCase() === "intermédiaire"
-    );
 
-    const avance = notPlayedAndUnlocked.filter(
-      (q) => q.niveau?.toLowerCase() === "avancé"
-    );
-    let result = [];
-    let inter1 = [];
-    let avance1 = [];
-    let avance2 = [];
-    // if (userPoints < 10) {
-    //   // Montrer 1 ou 2 quiz débutant max
-    //   result = debutant.slice(0, 2);
-    // } else
-    if (userPoints < 20) {
-      // Montrer tous les quiz débutant
-      result = debutant.slice(0, 3);
-    } else if (userPoints < 40) {
-      // Débutant + intermédiaire (2 quiz intermédiaire max)
-      inter1 = inter.slice(0, 2);
-      result = [...debutant, ...inter1];
-    } else if (userPoints < 50) {
-      // Débutant + tous les intermédiaires
-      result = [...debutant, ...inter];
-    } else if (userPoints < 80) {
-      // Débutant + tous les intermédiaires + 2 quiz avancé
-      avance1 = avance.slice(0, 2);
-      result = [...debutant, ...inter, ...avance1];
-    } else if (userPoints < 100) {
-      // Débutant + intermédiaire + 4 quiz avancé
-      avance2 = avance.slice(0, 4);
-      result = [...debutant, ...inter, ...avance2];
-    } else {
-      // Tous les quiz
-      result = [...debutant, ...inter, ...avance];
-    }
+    // Get user's formation IDs
+    const userFormationIds = new Set(stagiaireCatalogues.map(sc => sc.id));
+
+    // Group quizzes by formation ID
+    const quizzesByFormation = notPlayedQuizzes.reduce((acc, quiz) => {
+      const formationId = quiz.formation?.id;
+      if (formationId && userFormationIds.has(formationId)) {
+        if (!acc[formationId]) {
+          acc[formationId] = [];
+        }
+        acc[formationId].push(quiz);
+      }
+      return acc;
+    }, {} as Record<string, any[]>);
+
+    // Take 2 quizzes from each formation
+    const result = Array.from(userFormationIds).flatMap(formationId => {
+      const formationQuizzes = quizzesByFormation[formationId] || [];
+      return formationQuizzes.slice(0, 2);
+    });
 
     return result;
-  }, [quizzes, history, userPoints]);
+  }, [quizzes, history, stagiaireCatalogues]);
 
   // === Notification automatique à 9h ===
   useEffect(() => {
@@ -451,7 +445,19 @@ export function Index() {
               </div>
               <h3 className="text-2xl md:text-3xl font-extrabold text-gray-800 mb-2">Série de connexions</h3>
               <p className="text-lg font-bold text-gray-900 mb-4">{loginStreak} jour{loginStreak > 1 ? 's' : ''} d'affilée</p>
-              <p className="text-sm text-gray-600 mb-6">Continuez comme ça pour débloquer des récompenses 🎉</p>
+              <p className="text-sm text-gray-600 mb-4">Continuez comme ça pour débloquer des récompenses 🎉</p>
+              <div className="flex items-center justify-center mb-4">
+                <input
+                  type="checkbox"
+                  id="hide-streak"
+                  checked={hideStreakFor7Days}
+                  onChange={(e) => setHideStreakFor7Days(e.target.checked)}
+                  className="h-4 w-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                />
+                <label htmlFor="hide-streak" className="ml-2 block text-sm text-gray-900">
+                  Ne plus montrer pendant 7 jours
+                </label>
+              </div>
               <div className="flex justify-center gap-3">
                 <button
                   className="px-4 py-2 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600"
