@@ -5,7 +5,7 @@ import { categoryService } from "@/services/quiz/CategoryService";
 import type { Category } from "@/types/quiz";
 import { Loader2, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { StagiaireQuizGrid } from "./StagiaireQuizGrid";
 import { useClassementPoints } from "@/hooks/useClassementPoints";
 import { buildAvailableQuizzes } from "./quizUtils";
@@ -20,8 +20,12 @@ export function StagiaireQuizList({
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedLevel, setSelectedLevel] = useState<string>("all");
   const { toast } = useToast();
-  const [currentPage, setCurrentPage] = useState(1);
   const quizzesPerPage = 6;
+
+  // DEBUG: Log pour voir la formation sélectionnée
+  useEffect(() => {
+    console.log("🔍 DEBUG - Formation sélectionnée:", selectedFormationId);
+  }, [selectedFormationId]);
 
   const {
     data: quizzes,
@@ -31,6 +35,10 @@ export function StagiaireQuizList({
     queryKey: ["stagiaire-quizzes"],
     queryFn: async () => {
       const quizzes = await stagiaireQuizService.getStagiaireQuizzes();
+
+      // DEBUG: Log des quizzes récupérés
+      console.log("📥 DEBUG - Tous les quizzes récupérés:", quizzes);
+
       return quizzes.map((quiz) => {
         const totalPoints =
           quiz.questions?.reduce((sum, question) => {
@@ -63,9 +71,15 @@ export function StagiaireQuizList({
     enabled: !!localStorage.getItem("token"),
   });
 
+  // Dans le useQuery de quizHistory, ajoutez :
   const { data: quizHistory } = useQuery({
     queryKey: ["quiz-history"],
-    queryFn: () => quizHistoryService.getQuizHistory(),
+    queryFn: async () => {
+      const history = await quizHistoryService.getQuizHistory();
+      console.log("📋 DEBUG - Historique complet:", history);
+      console.log("📋 DEBUG - Premier élément de l'historique:", history[0]);
+      return history;
+    },
     enabled: !!localStorage.getItem("token"),
     staleTime: 5 * 60 * 1000,
   });
@@ -125,86 +139,97 @@ export function StagiaireQuizList({
     }
   }, [userPoints, quizzes, notifiedLevel, toast, lastUserPoints]);
 
-  // Déterminer une formation par défaut via l'historique si aucune n'est fournie
-  const effectiveFormationId = useMemo(() => {
-    if (selectedFormationId) return selectedFormationId;
-    if (!quizHistory || !quizzes || quizzes.length === 0) return null;
-    type HistoryMinimal = {
-      quiz?: {
-        id?: string | number;
-        formationId?: string | number;
-        formation?: { id?: string | number };
-      };
-      quizId?: string | number;
-      completedAt?: string;
-    };
-    const sorted = [...(quizHistory as HistoryMinimal[])].sort((a, b) => {
-      const da = a.completedAt ? Date.parse(a.completedAt) : 0;
-      const db = b.completedAt ? Date.parse(b.completedAt) : 0;
-      return db - da;
-    });
-    for (const h of sorted) {
-      const qId = h.quiz?.id ?? h.quizId;
-      if (!qId) continue;
-      const q = quizzes.find((x) => String(x.id) === String(qId));
-      const fid =
-        (q as unknown as { formationId?: string | number })?.formationId ??
-        h.quiz?.formationId ??
-        h.quiz?.formation?.id;
-      if (fid !== undefined && fid !== null) return String(fid);
+  // DEBUG: Vérifier la structure des quizzes
+  useEffect(() => {
+    if (quizzes && quizzes.length > 0) {
+      console.log("- DEBUG - Structure du premier quiz:", quizzes[0]);
+      console.log(
+        "- DEBUG - FormationId du premier quiz:",
+        (quizzes[0] as any).formationId
+      );
+      console.log(
+        "- DEBUG - Tous les formationIds:",
+        quizzes.map((q: any) => ({
+          id: q.id,
+          titre: q.titre,
+          formationId: q.formationId,
+          formation: q.formation,
+        }))
+      );
     }
-    const first = (quizzes[0] as unknown as { formationId?: string | number })
-      ?.formationId;
-    return first ? String(first) : null;
-  }, [selectedFormationId, quizHistory, quizzes]);
+  }, [quizzes]);
 
+  // CORRECTION: Simplifier la logique de formation
   const filteredQuizzes = useMemo(() => {
+    if (!quizzes) return [];
+
+    // Étape 1: Filtrer par formation sélectionnée
+    let formationFiltered = quizzes;
+    if (selectedFormationId) {
+      formationFiltered = quizzes.filter((quiz) => {
+        const quizFormationId = (quiz as any).formationId;
+        const match = String(quizFormationId) === String(selectedFormationId);
+
+        return match;
+      });
+    }
+
+    // Étape 2: Appliquer buildAvailableQuizzes
     const base = buildAvailableQuizzes(
-      quizzes,
+      formationFiltered,
       userPoints,
-      effectiveFormationId
+      selectedFormationId
     );
-    return base.filter((quiz) => {
+
+    // Étape 3: Filtrer par catégorie et niveau
+    const finalFiltered = base.filter((quiz) => {
       const categoryMatch =
         selectedCategory === "all" ||
         (quiz.categorieId &&
           String(quiz.categorieId) === String(selectedCategory));
+
       const levelMatch =
         selectedLevel === "all" ||
         (quiz.niveau && quiz.niveau === selectedLevel);
+
       return categoryMatch && levelMatch;
     });
+    return finalFiltered;
   }, [
     quizzes,
     selectedCategory,
     selectedLevel,
     userPoints,
-    effectiveFormationId,
+    selectedFormationId, // IMPORTANT: utiliser selectedFormationId directement
   ]);
 
   const playedQuizzes = useMemo(() => {
     if (!quizzes || !quizHistory) return [] as typeof quizzes;
+
     type HistoryMinimal = {
       quiz?: { id?: string | number; formationId?: string | number };
       quizId?: string | number;
       completedAt?: string;
     };
+
     const byId = new Map<string, { completedAt?: string }>();
     (quizHistory as HistoryMinimal[]).forEach((h) => {
       const id = h.quiz?.id ?? h.quizId;
       if (id !== undefined)
         byId.set(String(id), { completedAt: h.completedAt });
     });
+
     let list = quizzes.filter((q) => byId.has(String(q.id)));
-    // Filtrer selon la formation sélectionnée
-    if (effectiveFormationId) {
+
+    // CORRECTION: Filtrer par formation sélectionnée
+    if (selectedFormationId) {
       list = list.filter(
-        (q) =>
-          String(
-            (q as unknown as { formationId?: string | number }).formationId
-          ) === String(effectiveFormationId)
+        (q) => String((q as any).formationId) === String(selectedFormationId)
       );
     }
+
+    console.log("🎮 DEBUG - Quiz joués après filtrage:", list.length, list);
+
     // tri antéchronologique par completedAt
     list.sort((a, b) => {
       const ha = byId.get(String(a.id));
@@ -213,21 +238,20 @@ export function StagiaireQuizList({
       const db = hb?.completedAt ? Date.parse(hb.completedAt) : 0;
       return db - da;
     });
-    return list;
-  }, [quizzes, quizHistory, effectiveFormationId]);
 
-  const notPlayedQuizzes = useMemo(
-    () =>
-      quizzes && participations
-        ? filteredQuizzes.filter(
-            (q) =>
-              !participations.some(
-                (p) => String(p.quizId || p.id) === String(q.id)
-              )
-          )
-        : [],
-    [filteredQuizzes, quizzes, participations]
-  );
+    return list;
+  }, [quizzes, quizHistory, selectedFormationId]);
+
+  const notPlayedQuizzes = useMemo(() => {
+    if (!quizzes || !participations) return [];
+
+    const result = filteredQuizzes.filter(
+      (q) =>
+        !participations.some((p) => String(p.quizId || p.id) === String(q.id))
+    );
+
+    return result;
+  }, [filteredQuizzes, quizzes, participations]);
 
   // Pagination logic
   const [notPlayedCurrentPage, setNotPlayedCurrentPage] = useState(1);
@@ -247,6 +271,24 @@ export function StagiaireQuizList({
     notPlayedQuizzes.length / quizzesPerPage
   );
   const totalPlayedPages = Math.ceil(playedQuizzes.length / quizzesPerPage);
+
+  // DEBUG: Résumé final
+  useEffect(() => {
+    console.log("- DEBUG - RÉSUMÉ FINAL:");
+    console.log("- Formation sélectionnée:", selectedFormationId);
+    console.log("- Total quizzes:", quizzes?.length);
+    console.log("- Quiz joués:", playedQuizzes.length);
+    console.log("- Quiz non joués:", notPlayedQuizzes.length);
+    console.log("- Pages non joués:", totalNotPlayedPages);
+    console.log("- Pages joués:", totalPlayedPages);
+  }, [
+    selectedFormationId,
+    quizzes,
+    playedQuizzes,
+    notPlayedQuizzes,
+    totalNotPlayedPages,
+    totalPlayedPages,
+  ]);
 
   if (isLoading) {
     return (
@@ -365,35 +407,24 @@ export function StagiaireQuizList({
 
   return (
     <div className="">
+      {/* DEBUG: Afficher la formation sélectionnée
+      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
+        <p className="text-sm text-blue-800">
+          <strong>DEBUG:</strong> Formation sélectionnée:{" "}
+          <code>{selectedFormationId || "Aucune"}</code> | Quiz totaux:{" "}
+          <code>{quizzes?.length || 0}</code> | Quiz filtrés:{" "}
+          <code>{filteredQuizzes.length}</code> | Non joués:{" "}
+          <code>{notPlayedQuizzes.length}</code> | Joués:{" "}
+          <code>{playedQuizzes.length}</code>
+        </p>
+      </div> */}
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
         <h2 className="text-3xl sm:text-2xl md:text-3xl text-brown-shade font-bold">
           Quiz
         </h2>
-        {/* Affichage formation sélectionnée */}
-        {/* {selectedFormationId && (
-          <div className="mb-2 text-sm text-gray-600">Formation sélectionnée : {selectedFormationId}</div>
-        )} */}
 
         <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-3 sm:gap-4">
-          {/* <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1.5 sm:gap-2">
-            <select
-              className="w-full sm:w-auto border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring focus:ring-blue-200 bg-white"
-              value={selectedCategory}
-              onChange={(e) => {
-                setSelectedCategory(e.target.value);
-                setNotPlayedCurrentPage(1);
-                setPlayedCurrentPage(1);
-              }}
-            >
-              <option value="all">Catégorie</option>
-              {(categories || []).map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-          </div> */}
-
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1.5 sm:gap-2">
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <select
@@ -435,7 +466,11 @@ export function StagiaireQuizList({
         <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6">
           {notPlayedQuizzes.length === 0 ? (
             <div className="text-center py-12 sm:py-16 bg-gray-50 rounded-lg">
-              <p className="text-gray-500">Tous les quiz ont été joués !</p>
+              <p className="text-gray-500">
+                {filteredQuizzes.length === 0
+                  ? "Aucun quiz disponible pour cette formation"
+                  : "Tous les quiz ont été joués !"}
+              </p>
             </div>
           ) : (
             <>

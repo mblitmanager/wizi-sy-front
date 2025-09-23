@@ -5,7 +5,9 @@ import { StagiaireQuizList } from "@/components/quiz/StagiaireQuizList";
 import { useQuery } from "@tanstack/react-query";
 import { categoryService } from "@/services/quiz/CategoryService";
 import {
-  Loader2, WifiOff, List,
+  Loader2,
+  WifiOff,
+  List,
   ListOrdered,
   ListChecks,
   Table,
@@ -13,7 +15,7 @@ import {
   Columns,
   LayoutGrid,
   Grid3X3,
-  Grid
+  Grid,
 } from "lucide-react";
 import StagiaireQuizAdventure from "@/components/quiz/StagiaireQuizAdventure";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
@@ -52,10 +54,18 @@ export default function Quizzes() {
   const { user } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
-  const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const params = useMemo(
+    () => new URLSearchParams(location.search),
+    [location.search]
+  );
 
   // Utiliser les préférences utilisateur
-  const { viewMode, isLoading: preferencesLoading, savePreference, toggleViewMode } = useQuizPreferences();
+  const {
+    viewMode,
+    isLoading: preferencesLoading,
+    savePreference,
+    toggleViewMode,
+  } = useQuizPreferences();
 
   // Priorité : paramètre URL > préférence utilisateur > défaut
   const initialToggle = params.get("toggle") || viewMode;
@@ -64,9 +74,16 @@ export default function Quizzes() {
   const [hasInitialized, setHasInitialized] = useState(false);
 
   // Ajout filtre formation
-  const [selectedFormationId, setSelectedFormationId] = useState<string | null>(null);
-  const { data: formations = [] } = useFormationStagiaire(user?.stagiaire?.id ?? null);
-  const formationsWithTutos = useMemo(() => formations.data ?? [], [formations]);
+  const [selectedFormationId, setSelectedFormationId] = useState<string | null>(
+    null
+  );
+  const { data: formations = [] } = useFormationStagiaire(
+    user?.stagiaire?.id ?? null
+  );
+  const formationsWithTutos = useMemo(
+    () => formations.data ?? [],
+    [formations]
+  );
 
   // Initialisation des préférences et redirection automatique
   useEffect(() => {
@@ -114,19 +131,19 @@ export default function Quizzes() {
   return (
     <Layout>
       <QuizViewManager>
-        <div className="sticky top-0 z-20 bg-white flex flex-row flex-wrap items-center gap-2 mb-4 w-full border-b border-gray-200">
+        <div className="sticky top-0 z-20 bg-white flex flex-row flex-wrap items-center gap-2 mb-4 w-full border-b border-gray-200 py-2 ">
           <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
             {/* Sélecteur Formation */}
             <div className="flex items-center min-w-[120px]">
-
               {formationsWithTutos.length > 1 ? (
                 <select
                   id="formation-select"
-                  value={selectedFormationId ?? ''}
-                  onChange={e => setSelectedFormationId(e.target.value || null)}
+                  value={selectedFormationId ?? ""}
+                  onChange={(e) =>
+                    setSelectedFormationId(e.target.value || null)
+                  }
                   className="w-full border rounded-lg px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  aria-label="Sélectionner une formation"
-                >
+                  aria-label="Sélectionner une formation">
                   {formationsWithTutos.map((formation) => (
                     <option key={formation.id} value={formation.id}>
                       {formation.label ?? formation.titre}
@@ -135,7 +152,8 @@ export default function Quizzes() {
                 </select>
               ) : (
                 <span className="px-3 py-2 text-base">
-                  {formationsWithTutos[0]?.label ?? formationsWithTutos[0]?.titre}
+                  {formationsWithTutos[0]?.label ??
+                    formationsWithTutos[0]?.titre}
                 </span>
               )}
             </div>
@@ -143,37 +161,42 @@ export default function Quizzes() {
             {/* Toggle Vue Quiz */}
             <div className="flex items-center gap-3 top-1 right-4 absolute">
               <List
-                className={`h-7 w-7 transition-colors ${activeToggle === 'adventure' ? 'text-black' : 'text-gray-400'
-                  }`}
+                className={`h-7 w-7 transition-colors ${
+                  activeToggle === "adventure" ? "text-black" : "text-gray-400"
+                }`}
               />
 
               <button
                 type="button"
                 aria-label="Basculer la vue quiz"
                 className={`relative w-14 h-7 rounded-full transition-colors duration-300 
-        ${activeToggle === 'mes-quizzes' ? 'bg-yellow-400' : 'bg-gray-300'}
+        ${activeToggle === "mes-quizzes" ? "bg-yellow-400" : "bg-gray-300"}
       `}
                 onClick={() => {
-                  const newToggle = activeToggle === 'adventure' ? 'mes-quizzes' : 'adventure';
+                  const newToggle =
+                    activeToggle === "adventure" ? "mes-quizzes" : "adventure";
                   setActiveToggle(newToggle);
                   // Sauvegarder la préférence utilisateur
-                  savePreference(newToggle === 'adventure' ? 'adventure' : 'list');
-                }}
-              >
+                  savePreference(
+                    newToggle === "adventure" ? "adventure" : "list"
+                  );
+                }}>
                 <span
                   className={`absolute left-1 top-1 w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300
-          ${activeToggle === 'mes-quizzes' ? 'translate-x-7' : ''}
+          ${activeToggle === "mes-quizzes" ? "translate-x-7" : ""}
         `}
                 />
               </button>
 
               <Grid3X3
-                className={`h-7 w-7 transition-colors ${activeToggle === 'mes-quizzes' ? 'text-black' : 'text-gray-400'
-                  }`}
+                className={`h-7 w-7 transition-colors ${
+                  activeToggle === "mes-quizzes"
+                    ? "text-black"
+                    : "text-gray-400"
+                }`}
               />
             </div>
           </div>
-
         </div>
         {categoriesLoading || preferencesLoading || !hasInitialized ? (
           <div className="flex items-center justify-center min-h-[50vh]">
@@ -181,12 +204,17 @@ export default function Quizzes() {
           </div>
         ) : (
           <div className="space-y-6">
-            {activeToggle === 'adventure' && <StagiaireQuizAdventure selectedFormationId={selectedFormationId} />}
-            {activeToggle === 'mes-quizzes' && <StagiaireQuizList selectedFormationId={selectedFormationId} />}
+            {activeToggle === "adventure" && (
+              <StagiaireQuizAdventure
+                selectedFormationId={selectedFormationId}
+              />
+            )}
+            {activeToggle === "mes-quizzes" && (
+              <StagiaireQuizList selectedFormationId={selectedFormationId} />
+            )}
           </div>
         )}
       </QuizViewManager>
     </Layout>
   );
 }
-
