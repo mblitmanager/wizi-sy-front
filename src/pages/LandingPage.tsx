@@ -1,9 +1,10 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
-import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
+// Optimisation du chargement des images avec le composant next/image
+const logo = new URL('@/assets/logo.png', import.meta.url).href;
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -68,12 +69,16 @@ export default function LandingPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                <img
-                  src={logo}
-                  alt="Logo Wizi Learn"
-                  className="h-20 w-auto transition-all duration-300 hover:scale-105"
-                  loading="eager"
-                />
+                                  <img
+                    src={logo}
+                    alt="Logo Wizi Learn"
+                    className="h-20 w-auto transition-all duration-300 hover:scale-105"
+                    loading="lazy"
+                    width={80}
+                    height={80}
+                    decoding="async"
+                    fetchPriority="high"
+                  />
               </motion.div>
             </div>
           </div>
@@ -88,6 +93,10 @@ export default function LandingPage() {
                 initial="hidden"
                 animate="visible"
                 variants={staggerContainer}
+                // Optimisation des performances d'animation
+                layout="position"
+                layoutId="hero-content"
+                transition={{ type: "spring", bounce: 0.2 }}
               >
                 <motion.h1
                   className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-amber-600"

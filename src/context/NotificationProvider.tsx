@@ -78,6 +78,13 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, []);
 
   useEffect(() => {
+    // initial load: only refresh if we have a token (avoid 401 on public pages)
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (!token) {
+      setNotifications([]);
+      setUnreadCount(0);
+      return;
+    }
     // initial load
     refresh();
   }, [refresh]);

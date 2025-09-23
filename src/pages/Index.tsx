@@ -574,10 +574,10 @@ export function Index() {
                 ×
               </button>
               <div className="flex items-center gap-3 mb-2">
-                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-gray-800 group-hover:bg-gray-300 transition-colors">
+                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-yellow-200 text-yellow-800 group-hover:bg-yellow-300 transition-colors">
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7" viewBox="0 0 24 24" fill="currentColor"><path d="M20.999 6.999a2 2 0 0 0-1.9-1.3h-1.5a5.3 5.3 0 0 0-9.2 0h-1.5a2 2 0 0 0-1.9 1.3l-2.5 9a2 2 0 0 0 1.9 2.7h16.2a2 2 0 0 0 1.9-2.7l-2.5-9zm-10-2.8a3.3 3.3 0 0 1 6.6 0h-6.6zM12 15.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>
                 </span>
-                <h2 className="text-l md:text-2xl font-bold text-gray-800">
+                <h2 className="text-l md:text-2xl font-bold text-yellow-400">
                   Télécharger sur l'App Store
                 </h2>
               </div>
@@ -625,7 +625,7 @@ export function Index() {
                   Télécharger l'application Android
                 </h2>
               </div>
-              <p className="text-gray-700 text-s mb-3">
+              <p className="text-orange-700 text-s mb-3">
                 Accédez à Wizi Learn partout grâce à notre application Android.
                 Cliquez sur le bouton ci-dessous pour télécharger le fichier APK
                 et suivez les instructions d'installation.
