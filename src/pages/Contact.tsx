@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Mail, Phone, User } from "lucide-react";
 import { contactService } from "@/services/ContactService";
+import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
+import { CatalogueFormation } from "@/types/stagiaire";
 import apiClient from "@/lib/api-client";
 
 // Mapping des noms d'affichage
@@ -32,6 +34,8 @@ interface FormationStagiaire {
   dateFin?: string;
   formateur?: string;
 }
+// (we use CatalogueFormation from @/types/stagiaire)
+// (we use CatalogueFormation from @/types/stagiaire)
 
 interface RawFormateur {
   id: number;
@@ -68,6 +72,8 @@ interface Contact {
   formations?: FormationStagiaire[];
   role?: string;
   image?: string;
+  prenom?: string;
+  nom?: string;
 }
 
 interface PartnerContact {
@@ -131,6 +137,44 @@ export default function Contact() {
     };
     fetchPartner();
   }, []);
+
+  // Temporary placeholders for catalogue data used by AdCatalogueBlock
+  const [stagiaireCatalogues, setStagiaireCatalogues] = useState<CatalogueFormation[]>([]);
+  const [catalogueData, setCatalogueData] = useState<CatalogueFormation[]>([]);
+
+  // Fetch catalogue data and stagiaire-specific catalogues
+  useEffect(() => {
+    if (!localStorage.getItem("token")) return;
+    let mounted = true;
+    apiClient
+      .get("/catalogueFormations/formations")
+      .then((res) => {
+        if (!mounted) return;
+        const d = res?.data;
+        if (Array.isArray(d)) setCatalogueData(d);
+        else if (d && Array.isArray(d.data)) setCatalogueData(d.data);
+        else setCatalogueData([]);
+      })
+      .catch(() => setCatalogueData([]));
+
+    apiClient
+      .get("/catalogueFormations/stagiaire")
+      .then((res) => {
+        if (!mounted) return;
+        setStagiaireCatalogues(res?.data?.catalogues || []);
+      })
+      .catch(() => setStagiaireCatalogues([]));
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const filteredFormations = useMemo<CatalogueFormation[]>(() => {
+    if (!stagiaireCatalogues.length) return catalogueData;
+    const ids = new Set(stagiaireCatalogues.map((f) => f.id));
+    return catalogueData.filter((f) => !ids.has(f.id));
+  }, [catalogueData, stagiaireCatalogues]);
 
   if (isLoading) {
     return (
@@ -249,10 +293,13 @@ export default function Contact() {
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {partner.contacts.map((c, idx) => (
-                    <div key={idx} className="border rounded-lg p-3 bg-gray-50">
+                    <div
+                      key={c.email ? c.email : c.tel ? c.tel : `partner-${idx}`}
+                      className="border rounded-lg p-3 bg-gray-50">
                       <div className="font-medium">
-                        {[c.prenom, c.nom].filter(Boolean).join(" ") ||
-                          "Contact partenaire"}
+                        {c.prenom || c.nom
+                          ? `${c.prenom || ''} ${c.nom ? c.nom.toUpperCase() : ''}`.trim()
+                          : 'Contact partenaire'}
                       </div>
                       {c.fonction && (
                         <div className="text-xs text-gray-500">
@@ -293,23 +340,39 @@ export default function Contact() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {contacts.map((contact) => (
               <div
-                key={contact.id}
+                key={`${contact.type || 'contact'}-${contact.id}`}
                 className="bg-white shadow-md rounded-2xl p-5 border hover:shadow-lg transition">
                 <div className="flex items-center mb-4">
-                  {contact.image ? (
+                  {contact.image && contact.image !== "/images/default-avatar.png" ? (
                     <img
                       src={`${VITE_API_URL_IMG}/${contact.image}`}
                       alt={contact.name}
                       className="w-12 h-12 rounded-full object-cover mr-4"
                     />
                   ) : (
-                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4">
-                      <User className="text-gray-500" />
+                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4 text-sm font-semibold text-gray-700">
+                      {(() => {
+                        const prenom = contact.prenom || '';
+                        const nom = contact.nom || '';
+                        if (prenom || nom) {
+                          const n = nom ? nom.trim().charAt(0).toUpperCase() : '';
+                          const p = prenom ? prenom.trim().charAt(0).toUpperCase() : '';
+                          return `${n}${p}` || <User className="text-gray-500" />;
+                        }
+                        const parts = (contact.name || '').trim().split(/\s+/).filter(Boolean);
+                        if (parts.length === 0) return <User className="text-gray-500" />;
+                        if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+                        const first = parts[0].charAt(0).toUpperCase();
+                        const last = parts[parts.length - 1].charAt(0).toUpperCase();
+                        return `${last}${first}`;
+                      })()}
                     </div>
                   )}
                   <div>
                     <h2 className="text-lg font-semibold text-gray-800">
-                      {contact.name}
+                      {contact.prenom
+                        ? `${contact.prenom} ${((contact.nom || contact.name || '')).toUpperCase()}`.trim()
+                        : (contact.name || '').toUpperCase()}
                     </h2>
                     <span
                       className={`text-xs px-2 py-1 rounded-full font-medium ${
@@ -398,6 +461,10 @@ export default function Contact() {
             ))}
           </div>
         )}
+
+        <div className="w-full flex flex-col items-center">
+                        <AdCatalogueBlock formations={filteredFormations.slice(0, 4)} />
+                      </div>
       </div>
     </Layout>
   );

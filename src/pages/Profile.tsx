@@ -20,6 +20,9 @@ import ContactSection from "@/components/FeatureHomePage/ContactSection";
 import type { Contact } from "@/types/contact";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
+import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
+import apiClient from "@/lib/api-client";
+import type { CatalogueFormation } from "@/types/stagiaire";
 
 const API_URL = import.meta.env.VITE_API_URL as string;
 
@@ -125,6 +128,28 @@ const ProfilePage = () => {
   const MemoizedFormationCatalogue = useMemo(() => {
     return <FormationCatalogue formations={formations} />;
   }, [formations]);
+
+  // Fetch catalogue formations for ad block
+  const [adFormations, setAdFormations] = useState<CatalogueFormation[]>([]);
+  const [adLoading, setAdLoading] = useState<boolean>(false);
+  useEffect(() => {
+    let mounted = true;
+    setAdLoading(true);
+    apiClient
+      .get("/catalogueFormations/formations")
+      .then((res) => {
+        if (!mounted) return;
+        const d = res?.data;
+        if (Array.isArray(d)) setAdFormations(d);
+        else if (d && Array.isArray(d.data)) setAdFormations(d.data);
+        else setAdFormations([]);
+      })
+      .catch(() => setAdFormations([]))
+      .finally(() => setAdLoading(false));
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   // Chargement asynchrone de l'historique des quiz
   useEffect(() => {
@@ -378,6 +403,13 @@ const ProfilePage = () => {
           poleRelation={poleRelation}
           showFormations={false}
         />
+
+        {/* Ad catalogue block */}
+        {!adLoading && adFormations.length > 0 && (
+          <div className="mt-6">
+            <AdCatalogueBlock formations={adFormations.slice(0, 4)} />
+          </div>
+        )}
 
         {/* Contenu principal avec composants mémoïsés */}
         <div className="space-y-4 px-2 sm:px-0">

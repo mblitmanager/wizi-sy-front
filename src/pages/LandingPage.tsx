@@ -47,7 +47,7 @@ export default function LandingPage() {
 
   return (
     <Layout>
-      <div className="bg-gradient-to-br from-[#FDF6ED] via-[#F7E7D2] to-[#F9E0C7] min-h-screen">
+  <div className="bg-gradient-to-br from-[#FEFBF8] via-[#FEF8F0] to-[#FEF6EC] min-h-screen">
         {/* Offline Alert */}
         {!isOnline && (
           <Alert variant="destructive" className="mb-4 mx-4 mt-4">
@@ -220,7 +220,7 @@ export default function LandingPage() {
               whileHover={{ y: -8, scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <div className="relative bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-gray-100">
+              <div className="relative bg-white p-6 md:p-8 rounded-xl shadow-md">
                 <div className="grid grid-cols-2 gap-4 md:gap-5">
                   {[
                     {
@@ -265,10 +265,10 @@ export default function LandingPage() {
                       }}
                     >
                       <div
-                        className={`bg-${item.bgColor.split("-")[1]}/10 p-4 rounded-xl flex items-center gap-3 transition-all duration-200 hover:shadow-md`}
+                        className={`bg-${item.bgColor.split("-")[1]}/10 p-3 rounded-lg flex items-center gap-3 transition-all duration-200 hover:shadow-sm`}
                       >
                         <div
-                          className={`${item.bgColor} ${item.textColor} p-2 rounded-lg`}
+                          className={`${item.bgColor} ${item.textColor} p-2 rounded-md`}
                         >
                           {item.icon}
                         </div>
@@ -292,8 +292,8 @@ export default function LandingPage() {
                 <motion.div
                   key={category.id}
                   variants={slideUp}
-                  whileHover={{ y: -8, scale: 1.03 }}
-                  transition={{ type: "spring", stiffness: 300 }}
+                  whileHover={{ y: -6, scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 220 }}
                 >
                   <CategoryCard category={category} />
                 </motion.div>
@@ -362,12 +362,12 @@ export default function LandingPage() {
               ].map((item, index) => (
                 <motion.div
                   key={index}
-                  className={`${item.bgColor} p-8 rounded-2xl shadow-md transition-all hover:shadow-xl`}
+                  className={`${item.bgColor} p-6 rounded-lg shadow-sm transition-all`}
                   variants={slideUp}
-                  whileHover={{ y: -6, scale: 1.02 }}
+                  whileHover={{ y: -4, scale: 1.01 }}
                 >
                   <div
-                    className={`w-14 h-14 ${item.bgColor} rounded-xl flex items-center justify-center mb-6`}
+                    className={`w-12 h-12 ${item.bgColor} rounded-lg flex items-center justify-center mb-5`}
                   >
                     <div className={`${item.textColor}`}>{item.icon}</div>
                   </div>

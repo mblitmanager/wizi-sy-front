@@ -69,6 +69,7 @@ const ContactSection = ({
     staleTime: 5 * 60 * 1000, // 5 minutes de cache
     retry: 2, // 2 tentatives en cas d'erreur
   });
+  
 
   const ContactCardSkeleton = () => (
     <div className="bg-white shadow-md rounded-2xl p-5 border">
@@ -93,20 +94,37 @@ const ContactSection = ({
       key={`${contact.type}-${contact.id}`}
       className="bg-white shadow-md rounded-2xl p-5 border hover:shadow-lg transition">
       <div className="flex items-center mb-4">
-        {contact.image ? (
+        {contact.image && contact.image !== "/images/default-avatar.png" ? (
           <img
             src={`${VITE_API_URL_IMG}/${contact.image}`}
             alt={contact.name}
             className="w-12 h-12 rounded-full object-cover mr-4"
           />
         ) : (
-          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4">
-            <User className="text-gray-500" />
+          // show initials when no custom avatar
+          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4 text-white font-semibold text-sm" style={{backgroundColor: '#F3F4F6'}}>
+            {(() => {
+              const prenom = contact.prenom || '';
+              const nom = contact.nom || '';
+              if (nom || prenom) {
+                // initials in order: NOM then PRENOM (as requested)
+                const n = nom ? nom.trim().charAt(0).toUpperCase() : '';
+                const p = prenom ? prenom.trim().charAt(0).toUpperCase() : '';
+                return `${n}${p}` || <User className="text-gray-500" />;
+              }
+              const parts = (contact.name || '').trim().split(/\s+/).filter(Boolean);
+              if (parts.length === 0) return <User className="text-gray-500" />;
+              if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+              // default: first char of last and first name
+              const first = parts[0].charAt(0).toUpperCase();
+              const last = parts[parts.length - 1].charAt(0).toUpperCase();
+              return `${last}${first}`;
+            })()}
           </div>
         )}
         <div>
           <h2 className="text-lg font-semibold text-gray-800">
-            {contact.name}
+            {contact.prenom ? `${contact.prenom} ${contact.nom ? contact.nom.toUpperCase() : contact.name.toUpperCase()}` : contact.name.toUpperCase()}
           </h2>
           <span
             className={`text-xs px-2 py-1 rounded-full font-medium ${

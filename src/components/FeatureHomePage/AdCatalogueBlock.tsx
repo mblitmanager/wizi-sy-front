@@ -9,6 +9,7 @@ import { ArrowRight, Clock, Loader2, User } from "lucide-react";
 import { stripHtmlTags } from "@/utils/UtilsFunction";
 import { Link, useNavigate } from "react-router-dom";
 const VITE_API_URL = import.meta.env.VITE_API_URL;
+const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
 function stripHtml(html: string): string {
   if (!html) return "";
   return html.replace(/<[^>]+>/g, "");
@@ -143,7 +144,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
       .replace(/\s{2,}/g, " ") // Supprime les espaces multiples
       .replace(/^\w/, (c) => c.toUpperCase()); // Première lettre en majuscule
   };
-
+  
   if (!formations || formations.length === 0) return null;
   return (
     <div className="mb-12 px-4 sm:px-6 lg:px-8">
@@ -172,7 +173,8 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
           return (
             <div
               key={formation.id || idx}
-              className="relative bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 group hover:-translate-y-2">
+              onClick={() => setShowDetailsIdx(isOpen ? null : idx)}
+              className="relative bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 group hover:-translate-y-2 cursor-pointer">
               {/* Badge "Populaire" ou "Certifié" */}
               {formation.certification && (
                 <div className="absolute top-4 right-4 bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full z-10">
@@ -184,8 +186,8 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
               {formation.image_url && (
                 <div className="h-40 overflow-hidden">
                   <img
-                    src={formation.image_url}
-                    alt={formation.formation?.titre}
+                    src={VITE_API_URL_MEDIA + '/' + formation.image_url}
+                    alt={formation.formation?.titre || formation.titre}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
@@ -234,30 +236,35 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                 </div>
 
                 {/* Bouton principal - Effet "Shine" au hover */}
-                <button
-                  onClick={() => handleInscription(idx)}
-                  disabled={inscriptionLoading === idx}
-                  className={`
-                    w-full relative overflow-hidden
-                    bg-black
-                    text-white font-bold py-3 px-6 rounded-lg
-                    shadow-md hover:shadow-lg transition-all
-                    hover:brightness-110
-                    ${inscriptionLoading === idx ? "opacity-80" : ""}
-                  `}>
-                  <span className="relative z-10">
-                    {inscriptionLoading === idx ? (
-                      <span className="flex justify-center">
-                        <Loader2 className="animate-spin mr-2 h-5 w-5" />
-                        Traitement...
-                      </span>
-                    ) : (
-                      "S'inscrire maintenant"
-                    )}
-                  </span>
-                  {/* Effet shine au survol */}
-                  <span className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-0 transition-transform duration-700" />
-                </button>
+                {isOpen && (
+                  <button
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                      e.stopPropagation();
+                      handleInscription(idx);
+                    }}
+                    disabled={inscriptionLoading === idx}
+                    className={`
+                      w-full relative overflow-hidden
+                      bg-black
+                      text-white font-bold py-3 px-6 rounded-lg
+                      shadow-md hover:shadow-lg transition-all
+                      hover:brightness-110
+                      ${inscriptionLoading === idx ? "opacity-80" : ""}
+                    `}>
+                    <span className="relative z-10">
+                      {inscriptionLoading === idx ? (
+                        <span className="flex justify-center">
+                          <Loader2 className="animate-spin mr-2 h-5 w-5" />
+                          Traitement...
+                        </span>
+                      ) : (
+                        "S'inscrire maintenant"
+                      )}
+                    </span>
+                    {/* Effet shine au survol */}
+                    <span className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-0 transition-transform duration-700" />
+                  </button>
+                )}
 
                 {/* Témoignage factice (optionnel) */}
                 {/* <div className="mt-4 flex items-center">

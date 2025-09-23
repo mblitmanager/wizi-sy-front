@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useState, useRef } from "react";
+import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
+import apiClient from "@/lib/api-client";
+import type { CatalogueFormation } from "@/types/stagiaire";
 import { stripHtmlTags } from "@/utils/UtilsFunction";
 import {
   FilmIcon,
@@ -243,6 +246,28 @@ export default function TutoAstucePage() {
     }
   }, [mediasData]);
 
+  // Ad catalogue block data
+  const [adFormations, setAdFormations] = useState<CatalogueFormation[]>([]);
+  const [adLoading, setAdLoading] = useState(false);
+  useEffect(() => {
+    let mounted = true;
+    setAdLoading(true);
+    apiClient
+      .get("/catalogueFormations/formations")
+      .then((res) => {
+        if (!mounted) return;
+        const d = res?.data;
+        if (Array.isArray(d)) setAdFormations(d);
+        else if (d && Array.isArray(d.data)) setAdFormations(d.data);
+        else setAdFormations([]);
+      })
+      .catch(() => setAdFormations([]))
+      .finally(() => setAdLoading(false));
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const mediaTypeConfig = {
     video: {
       icon: <FilmIcon className="w-4 h-4 text-red-500" />,
@@ -429,6 +454,12 @@ export default function TutoAstucePage() {
                 </div>
               )}
             </div>
+            {/* Ad catalogue block */}
+            {!adLoading && adFormations.length > 0 && (
+              <div className="mt-6">
+                <AdCatalogueBlock formations={adFormations.slice(0, 4)} />
+              </div>
+            )}
           </div>
         </div>
       </div>

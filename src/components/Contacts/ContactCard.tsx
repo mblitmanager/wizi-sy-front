@@ -32,7 +32,7 @@ export const ContactCard = ({ contact }: ContactCardProps) => {
         </div>
         <div>
           <h2 className="text-lg font-semibold text-gray-800">
-            {contact.name}
+            {displayName}
           </h2>
           <span
             className={`text-xs px-2 py-1 rounded-full font-medium ${
