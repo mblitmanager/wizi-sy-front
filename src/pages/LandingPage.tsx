@@ -15,6 +15,8 @@ import {
   BookOpen,
   ClipboardCheck,
   TrendingUp,
+  Smartphone,
+  Apple,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { categories } from "@/data/mockData";
@@ -128,6 +130,43 @@ export default function LandingPage() {
                       Connexion
                     </Link>
                   </Button>
+                </motion.div>
+                <motion.div className="mt-8 text-center" variants={slideUp}>
+                  <p className="text-sm text-orange-600 mb-4">Ou téléchargez l'application mobile</p>
+                  <div className="flex flex-wrap gap-4 justify-center">
+                    <Button
+                        size="lg"
+                        variant="outline"
+                        asChild
+                        className="w-full md:w-auto border-orange-300 text-orange-700 hover:bg-yellow-100 hover:text-yellow-800 rounded-lg px-6 py-3 transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400"
+                    >
+                        <a
+                        href="https://www.wizi-learn.com/application/wizi-learn.apk"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2"
+                        >
+                            <Smartphone className="h-5 w-5" />
+                            Google Play
+                        </a>
+                    </Button>
+                    <Button
+                        size="lg"
+                        variant="outline"
+                        asChild
+                        className="w-full md:w-auto border-orange-300 text-orange-700 hover:bg-yellow-100 hover:text-yellow-800 rounded-lg px-6 py-3 transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
+                    >
+                        <a
+                        href="https://apps.apple.com/mg/app/wizi-learn/id6752468866"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2"
+                        >
+                            <Apple className="h-5 w-5" />
+                            App Store
+                        </a>
+                    </Button>
+                  </div>
                 </motion.div>
               </motion.div>
               <motion.div

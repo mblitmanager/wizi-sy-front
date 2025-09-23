@@ -551,9 +551,21 @@ export function Index() {
         {/* Bloc téléchargement application Android ou instruction PWA pour iOS */}
         {showApkBlock && (
           isIOS ? (
-            <div className="group relative bg-gradient-to-br from-brown-50 via-white to-yellow-50 rounded-xl shadow-lg border border-brown-200 p-6 pb-12 mb-6">
+            <div
+              className="group relative bg-gradient-to-br from-gray-100 via-white to-blue-50 rounded-xl shadow-lg border border-gray-200 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105 cursor-pointer"
+              tabIndex={0}
+              role="button"
+              aria-label="Télécharger l'application iOS sur l'App Store"
+              onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(
+                    "https://apps.apple.com/mg/app/wizi-learn/id6752468866",
+                    "_blank"
+                  );
+                }}
+              >
               <button
-                className="absolute top-3 right-3 text-green-700 hover:text-green-900 text-xl bg-transparent border-none p-0 z-10"
+                className="absolute top-3 right-3 text-gray-700 hover:text-gray-900 text-xl bg-transparent border-none p-0 z-10"
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowApkBlock(false);
@@ -561,105 +573,22 @@ export function Index() {
                 aria-label="Fermer">
                 ×
               </button>
-              <div className="flex flex-col items-center gap-3 mb-4">
-                <img
-                  src="/assets/ios-pwa-illustration-2.png"
-                  alt="Installer Wizi Learn sur iOS"
-                  className="w-32 h-32 object-contain mb-2"
-                />
-                <h2 className="text-l md:text-2xl font-bold text-brown-shade flex items-center gap-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-7 h-7 text-blue-500">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M17.25 6.75L12 12m0 0l-5.25-5.25M12 12V3"
-                    />
-                  </svg>
-                  Installer Wizi Learn sur iOS
+              <div className="flex items-center gap-3 mb-2">
+                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-gray-800 group-hover:bg-gray-300 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7" viewBox="0 0 24 24" fill="currentColor"><path d="M20.999 6.999a2 2 0 0 0-1.9-1.3h-1.5a5.3 5.3 0 0 0-9.2 0h-1.5a2 2 0 0 0-1.9 1.3l-2.5 9a2 2 0 0 0 1.9 2.7h16.2a2 2 0 0 0 1.9-2.7l-2.5-9zm-10-2.8a3.3 3.3 0 0 1 6.6 0h-6.6zM12 15.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>
+                </span>
+                <h2 className="text-l md:text-2xl font-bold text-gray-800">
+                  Télécharger sur l'App Store
                 </h2>
               </div>
-              <div className="bg-white rounded-lg p-4 shadow mb-3">
-                <ol className="list-decimal pl-5 mt-2 mb-2 text-gray-700">
-                  <li className="flex items-center gap-2 mb-2">
-                    <img
-                      src="/assets/safari-icon.png"
-                      alt="Safari"
-                      className="w-6 h-6 inline-block"
-                    />
-                    Ouvrez <b>Safari</b> et rendez-vous sur <b>wizi-learn.com</b>
-                  </li>
-                  <li className="flex items-center gap-2 mb-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={2}
-                      stroke="currentColor"
-                      className="w-6 h-6 text-blue-500 inline-block">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 4v16m8-8H4"
-                      />
-                    </svg>
-                    Touchez le bouton <b>Partager</b> <span className="inline-block align-middle">🔗</span> en bas de l'écran
-                  </li>
-                  <li className="flex items-center gap-2 mb-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={2}
-                      stroke="currentColor"
-                      className="w-6 h-6 text-green-500 inline-block">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4 6h16M4 12h16M4 18h16"
-                      />
-                    </svg>
-                    Sélectionnez <b>"Sur l'écran d'accueil"</b>
-                  </li>
-                  <li className="flex items-center gap-2 mb-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={2}
-                      stroke="currentColor"
-                      className="w-6 h-6 text-amber-500 inline-block">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    Validez pour ajouter l'application à votre écran d'accueil
-                  </li>
-                </ol>
-                <span className="text-xs text-yellow-700 block mt-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-5 h-5 inline-block mr-1 text-green-500">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  Vous pourrez accéder à Wizi Learn comme une application native !
-                </span>
-              </div>
+              <p className="text-gray-700 text-s mb-3">
+                Accédez à Wizi Learn partout grâce à notre application iOS.
+              </p>
+              <button
+                className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-blue-600 transition-colors"
+              >
+                Télécharger
+              </button>
             </div>
           ) : (
             <div
