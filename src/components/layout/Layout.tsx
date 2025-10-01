@@ -8,7 +8,7 @@ import { Gift, Menu, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useMediaQuery } from "@mui/system";
-import back from "../../assets/test.jpg";
+import gift from "../../../public/assets/giftbox.png";
 
 interface LayoutProps {
   children: ReactNode;
@@ -87,38 +87,52 @@ export function Layout({ children }: LayoutProps) {
 
         {/* Bannière en haut (uniquement sur desktop) */}
         {showBanner && !isMobile && (
-          <div className="  bg-slate-100  text-white relative z-30">
-            <div className=" container mx-auto px-4 py-2 flex bg-[#feb823] items-center justify-between  rounded-md shadow-md rounded-b-lg">
-              <div className="flex items-center overflow-hidden">
-                <Gift className="h-6 w-6 mr-2 flex-shrink-0" />
+          <div className="bg-slate-100 text-white relative z-30">
+            <div className="container mx-auto px-4 h-[60px] flex items-center justify-between rounded-md shadow-md bg-gradient-to-r from-orange-500 to-red-600">
+              {/* Contenu centré */}
+              <div className="flex-1 flex items-center justify-center gap-2">
+                {/* Icône cadeau oblique */}
+                <img
+                  src={gift}
+                  className="h-7 w-7 text-white drop-shadow-md transform"
+                />
 
-                <div className="truncate">
-                  <span className="block font-semibold text-sm sm:text-md text-white">
-                    Je parraine et je gagne
-                    <span className="ml-1 text-2xl sm:text-2xl font-extrabold drop-shadow-md text-red-600">
-                      50 €
-                    </span>
+                {/* Texte */}
+                <span
+                  className="font-extrabold text-xl sm:text-3xl text-white drop-shadow-md transform"
+                  style={{ fontFamily: "Poppins" }}>
+                  Je parraine et je gagne
+                  <span className="ml-2 text-3xl text-yellow-300 drop-shadow-lg">
+                    50 €
                   </span>
-                  <span className="block text-xs sm:text-sm text-[#5c371d] font-semibold mt-1">
-                    Profitez de notre offre de parrainage dès maintenant !
-                  </span>
-                </div>
-              </div>
+                </span>
 
-              <div className="flex items-center space-x-2">
+                {/* Flèche */}
                 <Link
-                  className="text-black underline hover:text-red-700 text-xs sm:text-sm px-2 font-semibold"
-                  to="/parrainage">
-                  Découvrir
+                  to="/parrainage"
+                  className="flex items-center justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-8 w-8 text-white hover:text-yellow-300 transition-transform transform hover:translate-x-1 drop-shadow-md"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
                 </Link>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="text-white hover:bg-white/10 p-1"
-                  onClick={() => setShowBanner(false)}>
-                  <X className="h-3 w-3 sm:h-4 sm:w-4" />
-                </Button>
               </div>
+
+              {/* Bouton X (fermer) */}
+              <button
+                onClick={() => setShowBanner(false)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-yellow-300 transition">
+                <X className="h-6 w-6" />
+              </button>
             </div>
           </div>
         )}
@@ -134,68 +148,54 @@ export function Layout({ children }: LayoutProps) {
         </main>
 
         {/* Bannière en bas (uniquement sur mobile) */}
+        {/* Bannière en bas (uniquement sur mobile) */}
         {showBanner && isMobile && (
-          <div className="fixed top-[54px] left-0 right-0 bg-[#feb823] rounded-b-lg text-white z-40">
-            {/* <div className="container mx-auto px-3 py-2 flex items-center justify-between">
-              <div className="flex items-center overflow-hidden">
-                <Gift className="h-4 w-4 mr-2 flex-shrink-0" />
-                <div className="truncate">
-                  <span className="font-bold text-xs sm:text-sm">
-                    Parraine et gagne{" "}
-                    <span className="text-2xl text-[#fff] font-extrabold drop-shadow-lg">
-                      50€
-                    </span>{" "}
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center space-x-1 sm:space-x-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="text-white bg-blue-custom-50 border-white hover:bg-white/10 hover:text-white text-xs px-2"
-                  onClick={() => navigate("/parrainage")}>
-                  Voir
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="text-white hover:bg-white/10 p-1"
-                  onClick={() => setShowBanner(false)}>
-                  <X className="h-3 w-3 sm:h-4 sm:w-4" />
-                </Button>
-              </div>
-            </div> */}
-            <div className="container mx-auto px-4 py-2 flex items-center justify-between  rounded-md shadow-md">
-              <div className="flex items-center overflow-hidden">
-                <Gift className="h-6 w-6 mr-2 flex-shrink-0" />
+          <div className="fixed top-[54px] left-0 right-0 z-40">
+            <div className="container mx-auto px-4 h-[60px] flex items-center justify-center rounded-md shadow-md bg-gradient-to-r from-orange-500 to-red-600 relative">
+              {/* Contenu centré */}
+              <div className="flex items-center gap-2">
+                {/* Cadeau oblique */}
+                <img
+                  src={gift}
+                  className="h-6 w-6 text-white drop-shadow-md transform"
+                />
 
-                <div className="truncate">
-                  <span className="block font-semibold text-sm sm:text-md text-white">
-                    Je parraine et je gagne
-                    <span className="ml-1 text-2xl sm:text-2xl font-extrabold drop-shadow-md text-red-600">
-                      50 €
-                    </span>
+                {/* Texte */}
+                <span
+                  className="font-extrabold text-lg sm:text-xl text-white drop-shadow-md transform"
+                  style={{ fontFamily: '"Inter", sans-serif' }}>
+                  Je parraine et je gagne
+                  <span className="ml-1 text-2xl text-yellow-300 drop-shadow-lg">
+                    50 €
                   </span>
-                  <span className="block text-xs sm:text-sm text-[#5c371d] font-semibold mt-1">
-                    Profitez de notre offre de parrainage dès maintenant !
-                  </span>
-                </div>
-              </div>
+                </span>
 
-              <div className="flex items-center space-x-2">
+                {/* Flèche */}
                 <Link
-                  className="text-black underline hover:text-red-700 text-xs sm:text-sm px-2 font-semibold"
-                  to="/parrainage">
-                  Découvrir
+                  to="/parrainage"
+                  className="flex items-center justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6 text-white hover:text-yellow-300 transition-transform transform hover:translate-x-1 drop-shadow-md"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
                 </Link>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="text-white hover:bg-white/10 p-1"
-                  onClick={() => setShowBanner(false)}>
-                  <X className="h-3 w-3 sm:h-4 sm:w-4" />
-                </Button>
               </div>
+
+              {/* Bouton X (fermer) */}
+              <button
+                onClick={() => setShowBanner(false)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white hover:text-yellow-300 transition">
+                <X className="h-5 w-5" />
+              </button>
             </div>
           </div>
         )}

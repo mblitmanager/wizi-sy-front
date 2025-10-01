@@ -216,7 +216,7 @@ const sections = [
         </p>
         <p>
           Sur la page de parrainage, vous pouvez consulter la liste de vos
-          filleuls ainsi que vos gains cumulés.
+          filleuls ainsi que vos cartes cadeaux cumulés.
         </p>
       </>
     ),
@@ -249,8 +249,7 @@ const ManuelPage = () => {
                   ? "bg-black text-white"
                   : "bg-gray-100 text-brown-shade hover:bg-black hover:text-white"
               }`}
-              onClick={() => setActiveSection(section.key)}
-            >
+              onClick={() => setActiveSection(section.key)}>
               {section.label}
             </button>
           ))}

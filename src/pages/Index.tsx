@@ -13,7 +13,7 @@ import ContactsSection from "@/components/FeatureHomePage/ContactSection";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
 import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
 import { catalogueFormationApi } from "@/services/api";
-import { Card, CardContent } from "@mui/material";
+import { Card, CardContent, useMediaQuery } from "@mui/material";
 import LandingPage from "./LandingPage";
 import { DECOUVRIR_NOS_FORMATIONS } from "@/utils/constants";
 import { CatalogueFormation } from "@/types/stagiaire";
@@ -110,7 +110,8 @@ export function Index() {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((res) => {
-        const val = res?.data?.stagiaire?.login_streak ?? res?.data?.login_streak;
+        const val =
+          res?.data?.stagiaire?.login_streak ?? res?.data?.login_streak;
         if (typeof val === "number") setLoginStreak(val);
       })
       .catch(() => {
@@ -124,7 +125,7 @@ export function Index() {
   useEffect(() => {
     try {
       if (!user || !localStorage.getItem("token")) return;
-      const hideUntil = localStorage.getItem('streakModalHideUntil');
+      const hideUntil = localStorage.getItem("streakModalHideUntil");
       if (hideUntil) {
         const today = dayjs().tz("Europe/Paris");
         const hideDate = dayjs(hideUntil);
@@ -150,10 +151,13 @@ export function Index() {
       const today = dayjs().tz("Europe/Paris").format("YYYY-MM-DD");
       localStorage.setItem("lastStreakModalDate", today);
       if (hideStreakFor7Days) {
-        const hideUntil = dayjs().tz("Europe/Paris").add(7, 'day').format("YYYY-MM-DD");
-        localStorage.setItem('streakModalHideUntil', hideUntil);
+        const hideUntil = dayjs()
+          .tz("Europe/Paris")
+          .add(7, "day")
+          .format("YYYY-MM-DD");
+        localStorage.setItem("streakModalHideUntil", hideUntil);
       } else {
-        localStorage.removeItem('streakModalHideUntil');
+        localStorage.removeItem("streakModalHideUntil");
       }
     } catch (e) {
       // ignore localStorage errors
@@ -252,7 +256,7 @@ export function Index() {
     );
 
     // Get user's formation IDs
-    const userFormationIds = new Set(stagiaireCatalogues.map(sc => sc.id));
+    const userFormationIds = new Set(stagiaireCatalogues.map((sc) => sc.id));
 
     // Group quizzes by formation ID
     const quizzesByFormation = notPlayedQuizzes.reduce((acc, quiz) => {
@@ -267,7 +271,7 @@ export function Index() {
     }, {} as Record<string, any[]>);
 
     // Take 2 quizzes from each formation
-    const result = Array.from(userFormationIds).flatMap(formationId => {
+    const result = Array.from(userFormationIds).flatMap((formationId) => {
       const formationQuizzes = quizzesByFormation[formationId] || [];
       return formationQuizzes.slice(0, 2);
     });
@@ -291,6 +295,7 @@ export function Index() {
       });
     }
   }, []);
+  const isTablet = useMediaQuery("(min-width: 769px) and (max-width: 1024px)");
 
   // === Redirection si non connecté ===
   useEffect(() => {
@@ -348,7 +353,7 @@ export function Index() {
     <Layout>
       <div className="px-2 md:px-6">
         {/* Présentation interactive de la plateforme */}
-        {!hidePresentationBlock && (
+        {!hidePresentationBlock && isTablet && (
           <div
             className="group relative bg-gradient-to-br from-yellow-50 via-white to-orange-50 rounded-xl shadow-lg border border-yellow-200 p-6 pb-16 mb-6 transition-transform duration-300 hover:scale-105 cursor-pointer"
             tabIndex={0}
@@ -440,12 +445,20 @@ export function Index() {
               <div className="flex items-center justify-center mb-4">
                 <div className="flex flex-col items-center px-6 py-4 rounded bg-orange-50 border border-orange-100">
                   {/* <span className="text-sm font-medium text-orange-600">7 jours</span> */}
-                  <span className="text-5xl font-extrabold text-orange-600">🔥</span>
+                  <span className="text-5xl font-extrabold text-orange-600">
+                    🔥
+                  </span>
                 </div>
               </div>
-              <h3 className="text-2xl md:text-3xl font-extrabold text-gray-800 mb-2">Série de connexions</h3>
-              <p className="text-lg font-bold text-gray-900 mb-4">{loginStreak} jour{loginStreak > 1 ? 's' : ''} d'affilée</p>
-              <p className="text-sm text-gray-600 mb-4">Continuez comme ça pour débloquer des récompenses 🎉</p>
+              <h3 className="text-2xl md:text-3xl font-extrabold text-gray-800 mb-2">
+                Série de connexions
+              </h3>
+              <p className="text-lg font-bold text-gray-900 mb-4">
+                {loginStreak} jour{loginStreak > 1 ? "s" : ""} d'affilée
+              </p>
+              <p className="text-sm text-gray-600 mb-4">
+                Continuez comme ça pour débloquer des récompenses 🎉
+              </p>
               <div className="flex items-center justify-center mb-4">
                 <input
                   type="checkbox"
@@ -454,42 +467,23 @@ export function Index() {
                   onChange={(e) => setHideStreakFor7Days(e.target.checked)}
                   className="h-4 w-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                 />
-                <label htmlFor="hide-streak" className="ml-2 block text-sm text-gray-900">
+                <label
+                  htmlFor="hide-streak"
+                  className="ml-2 block text-sm text-gray-900">
                   Ne plus montrer pendant 7 jours
                 </label>
               </div>
               <div className="flex justify-center gap-3">
                 <button
                   className="px-4 py-2 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600"
-                  onClick={closeStreakModal}
-                >
+                  onClick={closeStreakModal}>
                   Continuer
                 </button>
-                {/* <button
-                  className="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200"
-                  onClick={() => {
-                    // hide and don't show again until tomorrow
-                    closeStreakModal();
-                  }}
-                >
-                  Fermer
-                </button> */}
               </div>
             </div>
           </div>
         ) : (
-          <div className="mt-4 mb-4 flex justify-center">
-            {/* <div className="flex items-center gap-3 bg-white rounded-lg p-3 shadow-sm border border-gray-100">
-              <div className="flex flex-col items-center px-3 py-1 rounded bg-orange-50 border border-orange-100">
-                <span className="text-xs font-medium text-orange-600">7 jours</span>
-                <span className="text-xl font-extrabold text-orange-600">🔥</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm text-gray-600">Série de connexions</span>
-                <span className="text-lg font-bold text-gray-800">{loginStreak} jour{loginStreak > 1 ? 's' : ''} d'affilée</span>
-              </div>
-            </div> */}
-          </div>
+          <div className="mt-4 mb-4 flex justify-center"></div>
         )}
         {isLoadingCatalogue ? (
           <div className="flex justify-center items-center py-16">
@@ -502,13 +496,6 @@ export function Index() {
               <span className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-orange-400 rounded-full"></span>
             </h1>
             <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 px-2 py-6 md:py-3 bg-white rounded-xl">
-              {/* <div className="hidden md:flex md:w-1/3 justify-center mb-4 md:mb-0">
-                <img
-                  src={illustration}
-                  alt="Catalogue Illustration"
-                  className="max-w-xs w-full h-auto object-contain"
-                />
-              </div> */}
               <div className="w-full flex flex-col items-center">
                 <AdCatalogueBlock formations={filteredFormations.slice(0, 4)} />
               </div>
@@ -549,21 +536,20 @@ export function Index() {
           />
         </div>
         {/* Bloc téléchargement application Android ou instruction PWA pour iOS */}
-        {showApkBlock && (
-          isIOS ? (
+        {showApkBlock &&
+          (isIOS ? (
             <div
               className="group relative bg-gradient-to-br from-gray-100 via-white to-blue-50 rounded-xl shadow-lg border border-gray-200 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105 cursor-pointer"
               tabIndex={0}
               role="button"
               aria-label="Télécharger l'application iOS sur l'App Store"
               onClick={(e) => {
-                  e.stopPropagation();
-                  window.open(
-                    "https://apps.apple.com/mg/app/wizi-learn/id6752468866",
-                    "_blank"
-                  );
-                }}
-              >
+                e.stopPropagation();
+                window.open(
+                  "https://apps.apple.com/mg/app/wizi-learn/id6752468866",
+                  "_blank"
+                );
+              }}>
               <button
                 className="absolute top-3 right-3 text-gray-700 hover:text-gray-900 text-xl bg-transparent border-none p-0 z-10"
                 onClick={(e) => {
@@ -575,7 +561,13 @@ export function Index() {
               </button>
               <div className="flex items-center gap-3 mb-2">
                 <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-yellow-200 text-yellow-800 group-hover:bg-yellow-300 transition-colors">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7" viewBox="0 0 24 24" fill="currentColor"><path d="M20.999 6.999a2 2 0 0 0-1.9-1.3h-1.5a5.3 5.3 0 0 0-9.2 0h-1.5a2 2 0 0 0-1.9 1.3l-2.5 9a2 2 0 0 0 1.9 2.7h16.2a2 2 0 0 0 1.9-2.7l-2.5-9zm-10-2.8a3.3 3.3 0 0 1 6.6 0h-6.6zM12 15.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-7 h-7"
+                    viewBox="0 0 24 24"
+                    fill="currentColor">
+                    <path d="M20.999 6.999a2 2 0 0 0-1.9-1.3h-1.5a5.3 5.3 0 0 0-9.2 0h-1.5a2 2 0 0 0-1.9 1.3l-2.5 9a2 2 0 0 0 1.9 2.7h16.2a2 2 0 0 0 1.9-2.7l-2.5-9zm-10-2.8a3.3 3.3 0 0 1 6.6 0h-6.6zM12 15.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" />
+                  </svg>
                 </span>
                 <h2 className="text-l md:text-2xl font-bold text-yellow-400">
                   Télécharger sur l'App Store
@@ -584,9 +576,7 @@ export function Index() {
               <p className="text-gray-700 text-s mb-3">
                 Accédez à Wizi Learn partout grâce à notre application iOS.
               </p>
-              <button
-                className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-blue-600 transition-colors"
-              >
+              <button className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-blue-600 transition-colors">
                 Télécharger
               </button>
             </div>
@@ -645,7 +635,9 @@ export function Index() {
                         { code: "android_download" },
                         {
                           headers: {
-                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                            Authorization: `Bearer ${localStorage.getItem(
+                              "token"
+                            )}`,
                           },
                         }
                       )
@@ -656,7 +648,10 @@ export function Index() {
                             toast({
                               title: `🎉 Succès débloqué`,
                               description:
-                                (ach.name || ach.titre || ach.title || "Achievement") + " !",
+                                (ach.name ||
+                                  ach.titre ||
+                                  ach.title ||
+                                  "Achievement") + " !",
                               duration: 4000,
                               variant: "default",
                               className: "bg-orange-600 text-white",
@@ -678,8 +673,7 @@ export function Index() {
                 💡 Astuce : Comment installer l'application ?
               </button>
             </div>
-          )
-        )}
+          ))}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
           <ProgressCard user={user} />
         </div>
