@@ -3,10 +3,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { UserPlus, Gift, Share2, ChevronRight, User } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import image from "../../assets/aopia parrainage.png";
+import image from "../../assets/plan.png";
 import { useUser } from "@/hooks/useAuth";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
 
 interface FormData {
   civilite: string;
@@ -144,7 +144,7 @@ const ParrainageSection = () => {
               Programme de parrainage
             </h1>
             <p className="hidden lg:block text-lg text-gray-600 mb-6">
-              Parrainez vos amis et gagnez{" "}
+              Parrainez vos collègues et gagnez{" "}
               <span className="text-orange-600 font-bold">50€</span> pour chaque
               inscription valide.
             </p>
@@ -229,7 +229,8 @@ const ParrainageSection = () => {
                         <div className="mt-2 text-sm text-green-700">
                           <p>
                             Le filleul a été inscrit avec succès. Vous recevrez
-                            50€ une fois son inscription validée.
+                            50€ en carte cadeau une fois son inscription
+                            validée.
                           </p>
                         </div>
                       </div>
@@ -426,7 +427,7 @@ const ParrainageSection = () => {
                       Remplissez le formulaire
                     </h4>
                     <p className="text-gray-600 text-sm">
-                      Inscrivez vos filleuls avec leurs informations.
+                      Inscrivez la personne avec ses informations.
                     </p>
                   </div>
                 </div>
@@ -437,10 +438,10 @@ const ParrainageSection = () => {
                   </div>
                   <div>
                     <h4 className="font-medium text-gray-800 mb-1">
-                      Validation de l'inscription
+                      Contact commercial
                     </h4>
                     <p className="text-gray-600 text-sm">
-                      Nous contactons le filleul pour finaliser l'inscription.
+                      Un commercial le contacte pour ses choix de formation.
                     </p>
                   </div>
                 </div>
@@ -451,10 +452,10 @@ const ParrainageSection = () => {
                   </div>
                   <div>
                     <h4 className="font-medium text-gray-800 mb-1">
-                      Inscription confirmée
+                      Validation des formations
                     </h4>
                     <p className="text-gray-600 text-sm">
-                      Le filleul complète son processus d'inscription.
+                      Le commercial valide les formations choisies.
                     </p>
                   </div>
                 </div>
@@ -465,10 +466,11 @@ const ParrainageSection = () => {
                   </div>
                   <div>
                     <h4 className="font-medium text-gray-800 mb-1">
-                      Vous gagnez 50€
+                      Récompense de 50€
                     </h4>
                     <p className="text-gray-600 text-sm">
-                      Pour chaque inscription validée, vous recevez 50€.
+                      Vous recevez 50€ en carte cadeau pour chaque inscription
+                      validée.
                     </p>
                   </div>
                 </div>

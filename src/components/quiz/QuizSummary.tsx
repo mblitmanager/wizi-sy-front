@@ -133,7 +133,7 @@ export function QuizSummary() {
       if (userPoints >= 50) {
         toast({
           title: "Niveau avancé débloqué !",
-          description: "Vous pouvez maintenant jouer aux quiz avancés.",
+          description: "Vous pouvez maintenant participer aux quiz avancés.",
           variant: "default",
           className:
             "bg-gradient-to-r from-orange-700 to-yellow-700 text-white border-0",
@@ -141,7 +141,8 @@ export function QuizSummary() {
       } else if (userPoints >= 20) {
         toast({
           title: "Niveau intermédiaire débloqué !",
-          description: "Vous pouvez maintenant jouer aux quiz intermédiaires.",
+          description:
+            "Vous pouvez maintenant participer aux quiz intermédiaires.",
           variant: "default",
           className:
             "bg-gradient-to-r from-orange-700 to-yellow-700 text-white border-0",
@@ -240,15 +241,7 @@ export function QuizSummary() {
   };
 
   return (
-    <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
-      {/* <NotificationBanner /> */}
-
-      {/* Header avec titre et bouton de retour */}
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-gradient bg-clip-text text-transparent bg-gradient-to-r from-blue-custom-100 to-blue-custom-50">
-          Résultats du Quiz : {}
-        </h1>
-      </div>
+    <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-2 space-y-6 sm:space-y-8">
       {result && !showCountdown && (
         <div className="fixed bottom-4 right-4 z-40 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 p-3">
           <div className="flex items-center gap-3">
@@ -289,7 +282,7 @@ export function QuizSummary() {
         </div>
       )}
       {/* Section des statistiques principales */}
-      <div className="mb-6">
+      <div className="">
         {/* Titre de section */}
         <div className="flex items-center gap-2 mb-3">
           <div className="p-1.5 rounded-md bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300">
@@ -377,7 +370,7 @@ export function QuizSummary() {
                 </div>
                 <div>
                   <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                    Complété le
+                    Fait le
                   </p>
                   <p className="text-xl font-bold text-purple-600 dark:text-purple-400">
                     {new Date(result.completedAt).toLocaleDateString("fr-FR", {
@@ -393,9 +386,9 @@ export function QuizSummary() {
       </div>
 
       {/* Section détaillée des résultats */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-100 dark:border-gray-700 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-100 dark:border-gray-700 mb-3 p-4">
         {/* En-tête du résumé */}
-        <div className="p-3 bg-gradient-to-r bg-slate-300 via-slate-700 to-slate-800 text-black flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 justify-between">
+        <div className="p-3 bg-gradient-to-r bg-slate-300 via-slate-700 to-slate-800 text-black flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 justify-between mb-3">
           <h3 className="font-bold flex items-center gap-2 text-sm sm:text-base">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -418,19 +411,24 @@ export function QuizSummary() {
         </div>
 
         {/* Liste des questions/réponses */}
-
         {playedQuestions.map(
-          (question: Question & { isPlayed: boolean }, index: number) => (
-            <div
-              key={question.id}
-              className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+          (question: Question & { isPlayed: boolean }, index: number) => {
+            console.log(
+              `Question ${index + 1}: index = ${index}, background = ${
+                index % 2 === 0 ? "gray" : "white"
+              }`
+            );
+            return (
               <QuizAnswerCard
+                key={question.id}
                 question={question}
                 userAnswer={formattedUserAnswers[question.id]}
                 isPlayed={question.isPlayed}
+                index={index}
+                questionNumber={index + 1}
               />
-            </div>
-          )
+            );
+          }
         )}
 
         {/* Pied de page avec actions */}

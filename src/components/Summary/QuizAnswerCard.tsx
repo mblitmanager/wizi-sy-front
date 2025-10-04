@@ -31,11 +31,10 @@ export default function QuizAnswerCard({
   const correctResponse = formatCorrectAnswer(question);
   const isCorrect = isAnswerCorrect(question, userAnswer);
 
-  // Alternance simple basée sur l'index
   const backgroundColorClass =
     index % 2 === 0
-      ? "bg-gray-50 dark:bg-gray-800/50" // Index pair = gris
-      : "bg-white dark:bg-gray-800"; // Index impair = blanc
+      ? "bg-gray-200 dark:bg-gray-800/50" // Index pair = gris
+      : "bg-gray-50 dark:bg-gray-800";
 
   return (
     <div

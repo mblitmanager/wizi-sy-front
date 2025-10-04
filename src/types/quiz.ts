@@ -176,15 +176,21 @@ export interface UserProgress {
 export interface LeaderboardEntry {
   id: number;
   name: string;
-  score: number;
-  position?: number;
   image?: string;
   avatar?: string;
-  quizCount?: number;
-  averageScore?: number;
+  score: number;
+  quizCount: number;
+  averageScore: number;
   rang?: number;
+  formateurs?: Formateur[]; // Ajoutez cette ligne
 }
 
+export interface Formateur {
+  id: number;
+  prenom: string;
+  telephone?: string;
+  image?: string | null;
+}
 // Extend the existing QuizResult type with missing properties
 export interface QuizResult {
   id?: string;

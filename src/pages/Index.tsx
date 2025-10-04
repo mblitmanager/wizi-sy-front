@@ -28,15 +28,27 @@ dayjs.extend(timezone);
 const API_URL = import.meta.env.VITE_API_URL;
 
 const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
-  const response = await axios.get(
-    `${API_URL}/stagiaire/contacts/${endpoint}`,
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.log("No token found, skipping contacts fetch");
+      return [];
     }
-  );
-  return response.data.data;
+
+    const response = await axios.get(
+      `${API_URL}/stagiaire/contacts/${endpoint}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data.data || [];
+  } catch (error) {
+    console.error(`Error fetching ${endpoint}:`, error);
+    return [];
+  }
 };
 
 export function Index() {
@@ -81,29 +93,46 @@ export function Index() {
       }
       return [];
     },
+    enabled: !!user && !!localStorage.getItem("token"), // ← AJOUT IMPORTANT
+    retry: 1, // Éviter les tentatives répétées en cas d'erreur 401
   });
 
   const [stagiaireCatalogues, setStagiaireCatalogues] = useState<
     CatalogueFormation[]
   >([]);
+
   useEffect(() => {
-    axios
-      .get(`${API_URL}/catalogueFormations/stagiaire`)
-      .then((res) => setStagiaireCatalogues(res.data.catalogues || []))
-      .catch(() => setStagiaireCatalogues([]));
-  }, []);
+    // Ne pas faire l'appel si pas connecté
+    if (!user || !localStorage.getItem("token")) {
+      setStagiaireCatalogues([]);
+      return;
+    }
+
+    const fetchStagiaireCatalogues = async () => {
+      try {
+        const res = await axios.get(
+          `${API_URL}/catalogueFormations/stagiaire`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        setStagiaireCatalogues(res.data.catalogues || []);
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          // Ne pas setter d'état si déconnecté
+          return;
+        }
+        setStagiaireCatalogues([]);
+      }
+    };
+
+    fetchStagiaireCatalogues();
+  }, [user]);
 
   // Ensure we have the latest login streak: prefer user.stagiaire but fallback to a lightweight profile call
   useEffect(() => {
-    try {
-      if (user?.stagiaire?.login_streak !== undefined) {
-        setLoginStreak(Number(user.stagiaire.login_streak || 0));
-        return;
-      }
-    } catch (e) {
-      /* ignore errors reading user object */
-    }
-
     if (!localStorage.getItem("token")) return;
     axios
       .get(`${API_URL}/stagiaire/profile`, {
@@ -191,6 +220,11 @@ export function Index() {
   >({
     queryKey: ["contacts", "pole-relation"],
     queryFn: () => fetchContacts("pole-relation"),
+  });
+
+  const { data: poleSav, isLoading: loadingPoleSav } = useQuery<Contact[]>({
+    queryKey: ["contacts", "pole-save"],
+    queryFn: () => fetchContacts("pole-save"),
   });
 
   // === Quiz stagiaire ===
@@ -533,6 +567,7 @@ export function Index() {
             commerciaux={commerciaux}
             formateurs={formateurs}
             poleRelation={poleRelation}
+            poleSav={poleSav}
           />
         </div>
         {/* Bloc téléchargement application Android ou instruction PWA pour iOS */}
