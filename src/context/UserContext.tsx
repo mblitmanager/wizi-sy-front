@@ -10,7 +10,7 @@ import React, {
 import { User } from "@/types";
 import { toast } from "sonner";
 import { startTransition } from "react";
-import { setTokenProvider } from '@/services/api';
+import api, { setTokenProvider } from "@/services/api";
 
 interface UserContextType {
   user: User | null;
@@ -28,7 +28,7 @@ export const UserContext = createContext<UserContextType | undefined>(
 );
 
 // Constants
-const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
 const TOAST_STYLE = {
   style: { background: "#fb923c", color: "#fff" },
   className: "bg-orange-400 text-white",
@@ -86,33 +86,27 @@ export function UserProvider({ children }: { children: ReactNode }) {
   );
 
   // Auth check with transition support
-  const fetchUserData = useCallback(
-    async (authToken: string) => {
-      try {
-        const userData = await apiFetch("/me", {
-          headers: { Authorization: `Bearer ${authToken}` },
-        });
+  const fetchUserData = useCallback(async (authToken: string) => {
+    try {
+      const response = await api.get("/me");
+      const userData = response.data;
 
-        startTransition(() => {
-          setUser(userData);
-          setToken(authToken);
-          setError(null);
-        });
-        return true;
-      } catch (error) {
-        startTransition(() => {
-          localStorage.removeItem("token");
-          setUser(null);
-          setToken(null);
-          setError(
-            error instanceof Error ? error.message : "Authentication failed"
-          );
-        });
-        return false;
-      }
-    },
-    [apiFetch]
-  );
+      startTransition(() => {
+        setUser(userData);
+        setToken(authToken);
+        setError(null);
+      });
+      return true;
+    } catch (error) {
+      // L'intercepteur gère déjà la suppression du token
+      startTransition(() => {
+        setUser(null);
+        setToken(null);
+        setError("Authentication failed");
+      });
+      return false;
+    }
+  }, []);
 
   const refetchUser = useCallback(async () => {
     const storedToken = localStorage.getItem("token");
@@ -133,7 +127,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     };
 
     // register token provider for API interceptor; it reads from state/token with fallback
-    setTokenProvider(() => token ?? localStorage.getItem('token'));
+    setTokenProvider(() => token ?? localStorage.getItem("token"));
 
     initializeAuth();
     // Listen for global auth:logout events (dispatched by API interceptors)
@@ -146,7 +140,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     return () => {
       mounted = false;
       // clear provider on unmount
-      setTokenProvider(() => localStorage.getItem('token'));
+      setTokenProvider(() => localStorage.getItem("token"));
       window.removeEventListener("auth:logout", onAuthLogout as EventListener);
     };
   }, [fetchUserData, token]);
@@ -223,36 +217,42 @@ export function UserProvider({ children }: { children: ReactNode }) {
     [user, token, apiFetch, refetchUser]
   );
 
-  const login = useCallback(
-    async (email: string, password: string) => {
-      setIsLoading(true);
-      try {
-        const clientIp = await getClientIp();
-        const data = await apiFetch("/login", {
-          method: "POST",
+  const login = useCallback(async (email: string, password: string) => {
+    setIsLoading(true);
+    try {
+      const clientIp = await getClientIp();
+
+      // ✅ Utiliser l'instance api
+      const response = await api.post(
+        "/login",
+        {
+          email,
+          password,
+        },
+        {
           headers: {
-            "Content-Type": "application/json",
             "X-Client-IP": clientIp,
           },
-          body: JSON.stringify({ email, password }),
-        });
+        }
+      );
 
-        startTransition(() => {
-          localStorage.setItem("token", data.token);
-          setUser(data.user);
-          setToken(data.token);
-          setError(null);
-        });
-        toast.success("Connexion réussie", TOAST_STYLE);
-      } catch (error) {
-        const message = handleApiError(error, "Erreur lors de la connexion");
-        startTransition(() => setError(message));
-      } finally {
-        startTransition(() => setIsLoading(false));
-      }
-    },
-    [apiFetch]
-  );
+      const { token: newToken, user: userData } = response.data;
+
+      startTransition(() => {
+        localStorage.setItem("token", newToken);
+        setUser(userData);
+        setToken(newToken);
+        setError(null);
+      });
+
+      toast.success("Connexion réussie", TOAST_STYLE);
+    } catch (error) {
+      const message = handleApiError(error, "Erreur lors de la connexion");
+      startTransition(() => setError(message));
+    } finally {
+      startTransition(() => setIsLoading(false));
+    }
+  }, []);
 
   // Memoized context value
   const contextValue = useMemo(

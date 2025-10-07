@@ -9,6 +9,9 @@ import {
   Search,
   ChevronUp,
   ChevronDown,
+  Users,
+  Star,
+  Crown,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -90,6 +93,41 @@ export function GlobalRanking({
     );
   };
 
+  // Composant pour afficher les formateurs du podium
+  const FormateursPodium = ({ entry }: { entry: any }) => {
+    if (!entry.formateurs || entry.formateurs.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+        <div className="flex items-center gap-2 mb-2">
+          <Users className="h-3 w-3 text-blue-500" />
+          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+            Formateurs :
+          </span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {entry.formateurs.map((formateur: any, index: number) => (
+            <div
+              key={formateur.id}
+              className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-full border border-blue-200 dark:border-blue-800">
+              <div className="w-4 h-4 rounded-full bg-blue-100 dark:bg-blue-800 flex items-center justify-center">
+                <span className="text-xs font-bold text-blue-600 dark:text-blue-300">
+                  {index + 1}
+                </span>
+              </div>
+              <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                {formateur.prenom}
+              </span>
+              {index === 0 && <Crown className="h-3 w-3 text-yellow-500" />}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <Card className="border rounded-xl shadow-sm">
@@ -128,18 +166,34 @@ export function GlobalRanking({
     "#CD7F32", // bronze
   ];
 
+  const podiumIcons = [
+    <Medal key="silver" className="h-5 w-5 text-gray-400" />,
+    <Trophy key="gold" className="h-6 w-6 text-yellow-500" />,
+    <Award key="bronze" className="h-5 w-5 text-orange-600" />,
+  ];
+
   // Liste sans les 3 premiers (affichés uniquement dans le podium)
   const listRanking = sortedRanking.slice(3);
 
   return (
-    <div className="mb-4 bg-white rounded-lg ring-1 ring-gray-50 overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+    <div
+      className="mb-4 bg-white dark:bg-gray-900 rounded-lg ring-1 ring-gray-50 dark:ring-gray-800 overflow-hidden"
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
       {/* Header */}
-      <div className="p-4 sm:p-4 border-b bg-gradient-to-r ">
+      <div className="p-4 sm:p-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Classement Général
-            </h2>
+            <div className="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+              <Trophy className="h-6 w-6 text-yellow-500" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                Classement Général
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Découvrez les meilleurs stagiaires et leurs formateurs
+              </p>
+            </div>
           </div>
 
           <div className="relative w-full sm:w-64">
@@ -149,7 +203,7 @@ export function GlobalRanking({
               placeholder="Rechercher un stagiaire..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              className="pl-10 pr-4 py-2 w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white"
             />
           </div>
         </div>
@@ -157,276 +211,316 @@ export function GlobalRanking({
 
       {/* Podium */}
       {podium.length > 0 && (
-        <div className="px-4 pt-4">
-          <div className="rounded-lg" style={{ borderColor: "rgba(0,0,0,0.06)" }}>
-            <div className="p-4">
-              <div className="text-center text-orange-600 font-bold mb-2">🏆 PODIUM 🏆</div>
-              <div className="flex items-end justify-center gap-4">
-                {podiumOrder.map((pos, i) => {
-                  const entry = podium[pos];
-                  if (!entry) return <div key={i} className="flex-1" />;
-                  const color = podiumColors[i];
-                  const isCurrentUser = entry.id?.toString() === currentUserId;
-                  const base = 70;
-                  const heights = [base, base + 40, base - 15];
-                  const sizes = [48, 72, 40];
-                  return (
-                    <div key={i} className="flex-1 flex flex-col items-center justify-end">
-                      <div
-                        className="mb-2 px-2 py-1 rounded-md"
-                        style={{
-                          borderColor: color,
-                          backgroundColor: `${color}33`,
-                          color,
-                          fontWeight: 700,
-                        }}
-                      >
-                        {pos + 1}
-                        {pos === 0 ? "er" : "e"}
-                      </div>
-                      <div
-                        className="rounded-xl flex items-center justify-center"
-                        style={{
-                          height: heights[i],
-                          width: sizes[i],
-                          borderWidth: 1,
-                          borderStyle: 'solid',
-                          borderColor: color,
-                          background: `linear-gradient(135deg, ${color}4D, ${color}1A)`,
-                        }}
-                      >
-                        <Avatar className="h-full w-full">
-                          <AvatarImage src={(entry.avatar as any) || (entry.image as any)} />
-                          <AvatarFallback>{entry.name?.charAt(0) || "U"}</AvatarFallback>
-                        </Avatar>
-                      </div>
-                      <div className="mt-2 text-center">
-                        <div
-                          className={`text-sm font-bold ${isCurrentUser ? "text-orange-600" : "text-gray-800"}`}
-                        >
-                          {entry.name}
-                        </div>
-                        <div className="mt-1 inline-block text-s px-2 py-0.5 rounded-md font-bold text-orange-600">
-                          {entry.score} pts
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+        <div className="px-4 pt-6 pb-4">
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full">
+              <Crown className="h-5 w-5 text-white" />
+              <span className="text-white font-bold text-lg">PODIUM</span>
+              <Crown className="h-5 w-5 text-white" />
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+            {podiumOrder.map((pos, i) => {
+              const entry = podium[pos];
+              if (!entry) return null;
+
+              const isCurrentUser = entry.id?.toString() === currentUserId;
+              const heightClass = i === 1 ? "h-32" : "h-24";
+              const rankLabels = ["2ème", "1er", "3ème"];
+              const rankColors = [
+                "from-gray-400 to-gray-300",
+                "from-yellow-400 to-yellow-300",
+                "from-orange-500 to-orange-400",
+              ];
+
+              return (
+                <div
+                  key={i}
+                  className={`flex flex-col items-center ${
+                    i === 1 ? "order-first md:order-none -mt-4" : ""
+                  }`}>
+                  {/* Badge de rang */}
+                  <div
+                    className={`flex items-center gap-2 mb-3 px-3 py-1 rounded-full bg-gradient-to-r ${rankColors[i]} text-white font-bold text-sm`}>
+                    {podiumIcons[i]}
+                    {rankLabels[i]}
+                  </div>
+
+                  {/* Carte du stagiaire */}
+                  <div
+                    className={`w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg border-2 ${
+                      i === 1
+                        ? "border-yellow-400"
+                        : i === 0
+                        ? "border-gray-300"
+                        : "border-orange-400"
+                    } overflow-hidden`}>
+                    <div className="p-4">
+                      {/* Avatar et nom */}
+                      <div className="flex flex-col items-center text-center mb-3">
+                        <div className="relative">
+                          <Avatar className="h-16 w-16 border-2 border-white shadow-lg">
+                            <AvatarImage
+                              src={
+                                (entry.avatar as any) || (entry.image as any)
+                              }
+                            />
+                            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold">
+                              {entry.name?.charAt(0) || "U"}
+                            </AvatarFallback>
+                          </Avatar>
+                          {isCurrentUser && (
+                            <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1 border-2 border-white">
+                              <User className="h-3 w-3 text-white" />
+                            </div>
+                          )}
+                        </div>
+                        <h3
+                          className={`mt-2 font-bold ${
+                            isCurrentUser
+                              ? "text-green-600"
+                              : "text-gray-800 dark:text-white"
+                          }`}>
+                          {entry.name}
+                        </h3>
+                        <div className="flex items-center gap-1 mt-1">
+                          <Star className="h-4 w-4 text-yellow-500" />
+                          <span className="font-bold text-orange-600">
+                            {entry.score} pts
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Stats */}
+                      <div className="grid grid-cols-2 gap-2 text-xs mb-3">
+                        <div className="text-center p-2 bg-gray-50 dark:bg-gray-700 rounded">
+                          <div className="font-semibold text-gray-900 dark:text-white">
+                            {entry.quizCount}
+                          </div>
+                          <div className="text-gray-500 dark:text-gray-400">
+                            Quiz
+                          </div>
+                        </div>
+                        <div className="text-center p-2 bg-gray-50 dark:bg-gray-700 rounded">
+                          <div className="font-semibold text-gray-900 dark:text-white">
+                            {entry.averageScore?.toFixed(1)}
+                          </div>
+                          <div className="text-gray-500 dark:text-gray-400">
+                            Moyenne
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Formateurs */}
+                      <FormateursPodium entry={entry} />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* Stats Summary */}
-      {/* <div className="p-4 border-b bg-gray-50">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="bg-white p-3 rounded-lg shadow-xs border">
-            <div className="text-sm text-gray-500">Participants</div>
-            <div className="text-2xl font-bold">{sortedRanking.length}</div>
-          </div>
-          <div className="bg-white p-3 rounded-lg shadow-xs border">
-            <div className="text-sm text-gray-500">Total Points</div>
-            <div className="text-2xl font-bold">{totalPoints}</div>
-          </div>
-          <div className="bg-white p-3 rounded-lg shadow-xs border">
-            <div className="text-sm text-gray-500">Total Quiz</div>
-            <div className="text-2xl font-bold">{totalQuizzes}</div>
-          </div>
-        </div>
-      </div> */}
-
-      {/* Content */}
-      <div className="p-2 sm:p-4">
-        {/* Mobile View */}
-  <div className="sm:hidden space-y-3">
-          {listRanking.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="mx-auto h-12 w-12 text-gray-400 mb-2">
-                <Trophy className="w-full h-full" />
-              </div>
-              <h3 className="text-sm font-medium text-gray-900">
-                Aucun résultat
+      {/* Reste du classement */}
+      <div className="p-4">
+        {listRanking.length > 0 && (
+          <>
+            <div className="flex items-center gap-2 mb-4">
+              <LayoutList className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+              <h3 className="font-semibold text-gray-900 dark:text-white">
+                Classement complet
               </h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Aucun stagiaire ne correspond à votre recherche
-              </p>
+              <Badge variant="secondary" className="ml-2">
+                {listRanking.length} stagiaires
+              </Badge>
             </div>
-          ) : (
-            listRanking.map((entry, index) => {
-              const isCurrentUser = entry.id?.toString() === currentUserId;
-              const percentage = Math.round(
-                ((entry.score || 0) / maxScore) * 100
-              );
 
-              return (
-                <div
-                  key={entry.id || index}
-                  className={`p-4 rounded-lg border ${isCurrentUser
-                    ? "border-orange-300 bg-orange-50"
-                    : "border-gray-200 bg-white"
-                    }`}>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`flex items-center justify-center h-10 w-10 rounded-full ${index < 3
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-gray-100 text-gray-800"
-                          } font-bold`}>
-                        {entry.rang || index + 1}
+            {/* Mobile View */}
+            <div className="sm:hidden space-y-3">
+              {listRanking.map((entry, index) => {
+                const isCurrentUser = entry.id?.toString() === currentUserId;
+                const globalIndex = index + 4; // Après le podium
+
+                return (
+                  <div
+                    key={entry.id || index}
+                    className={`p-4 rounded-xl border-2 ${
+                      isCurrentUser
+                        ? "border-green-300 bg-green-50 dark:bg-green-900/20"
+                        : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                    } shadow-sm`}>
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold">
+                          {globalIndex}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold text-gray-900 dark:text-white">
+                              {entry.name || "Inconnu"}
+                            </h3>
+                            {isCurrentUser && (
+                              <Badge variant="default" className="bg-green-500">
+                                Vous
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            {entry.quizCount} quiz • Moyenne:{" "}
+                            {entry.averageScore?.toFixed(1)}
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <div className="flex items-center gap-1">
-                          <h3 className="font-medium text-gray-900">
-                            {entry.name || "Inconnu"}
-                          </h3>
-                          {isCurrentUser && (
-                      <User className="h-4 w-4 text-orange-600" />
-                          )}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {entry.quizCount} quiz complétés
-                        </div>
+                      <div className="text-lg font-bold text-orange-600">
+                        {entry.score} pts
                       </div>
                     </div>
-                    <div className="text-lg font-bold text-orange-600">
-                      {entry.score}
-                    </div>
+
+                    {/* Formateurs pour mobile */}
+                    {entry.formateurs && entry.formateurs.length > 0 && (
+                      <div className="pt-3 border-t border-gray-200 dark:border-gray-600">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Users className="h-4 w-4 text-blue-500" />
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Formateurs :
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {entry.formateurs.map((formateur: any) => (
+                            <Badge
+                              key={formateur.id}
+                              variant="outline"
+                              className="bg-blue-50 dark:bg-blue-900/20">
+                              {formateur.prenom}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-
-                  {/* <div className="mt-3">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Progression</span>
-                      <span>{percentage}%</span>
-                    </div>
-                    <Progress value={percentage} className="h-2" />
-                  </div> */}
-                </div>
-              );
-            })
-          )}
-        </div>
-
-        {/* Desktop Table */}
-        <div className="hidden sm:block">
-          {listRanking.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="mx-auto h-16 w-16 text-gray-400 mb-4">
-                <Trophy className="w-full h-full" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900">
-                Aucun résultat
-              </h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Aucun stagiaire ne correspond à votre recherche
-              </p>
+                );
+              })}
             </div>
-          ) : (
-            <div className="overflow-hidden rounded-lg border shadow-xs">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                      onClick={() => handleSort("rang")}>
-                      <div className="flex items-center gap-1">
+
+            {/* Desktop Table */}
+            <div className="hidden sm:block">
+              <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-800">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">
                         Rang
-                        <SortIcon column="rang" />
-                      </div>
-                    </th>
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                      onClick={() => handleSort("name")}>
-                      <div className="flex items-center gap-1">
+                      </th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">
                         Stagiaire
-                        <SortIcon column="name" />
-                      </div>
-                    </th>
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                      onClick={() => handleSort("quizCount")}>
-                      <div className="flex items-center gap-1">
+                      </th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">
+                        Formateurs
+                      </th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">
                         Quiz
-                        <SortIcon column="quizCount" />
-                      </div>
-                    </th>
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                      onClick={() => handleSort("score")}>
-                      <div className="flex items-center gap-1">
+                      </th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">
                         Points
-                        <SortIcon column="score" />
-                      </div>
-                    </th>
-                    {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Progression
-                    </th> */}
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {listRanking.map((entry, index) => {
-                    const isCurrentUser =
-                      (entry as any).id?.toString() === currentUserId;
-                    const percentage = Math.round(
-                      (((entry as any).score || 0) / maxScore) * 100
-                    );
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                    {listRanking.map((entry, index) => {
+                      const isCurrentUser =
+                        entry.id?.toString() === currentUserId;
+                      const globalIndex = index + 4;
 
-                    return (
-                      <tr
-                        key={(entry as any).id || index}
-                        className={
-                          isCurrentUser ? "bg-orange-50" : "hover:bg-gray-50"
-                        }>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div
-                            className={`flex items-center justify-center h-8 w-8 rounded-full ${index < 3
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-gray-100 text-gray-800"
-                              } font-bold`}>
-                            {(entry as any).rang || index + 1}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-8 w-8">
-                              <AvatarImage src={(entry as any).avatar || (entry as any).image} />
-                              <AvatarFallback>
-                                {(entry as any).name?.charAt(0) || "U"}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">
-                                {(entry as any).name || "Inconnu"}
-                              </span>
-                              {isCurrentUser && (
-                                <User className="h-4 w-4 text-orange-600" />
-                              )}
+                      return (
+                        <tr
+                          key={entry.id || index}
+                          className={
+                            isCurrentUser
+                              ? "bg-green-50 dark:bg-green-900/20"
+                              : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                          }>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold">
+                              {globalIndex}
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                          {(entry as any).quizCount}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap font-bold text-orange-600">
-                          {(entry as any).score}
-                        </td>
-                        {/* <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center gap-3">
-                            <Progress value={percentage} className="h-2 w-32" />
-                            <span className="text-sm text-gray-500">
-                              {percentage}%
-                            </span>
-                          </div>
-                        </td> */}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-10 w-10 border-2 border-white shadow-sm">
+                                <AvatarImage
+                                  src={
+                                    (entry.avatar as any) ||
+                                    (entry.image as any)
+                                  }
+                                />
+                                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                                  {entry.name?.charAt(0) || "U"}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold text-gray-900 dark:text-white">
+                                  {entry.name || "Inconnu"}
+                                </span>
+                                {isCurrentUser && (
+                                  <Badge
+                                    variant="default"
+                                    className="bg-green-500">
+                                    Vous
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            {entry.formateurs && entry.formateurs.length > 0 ? (
+                              <div className="flex flex-wrap gap-1">
+                                {entry.formateurs.map((formateur: any) => (
+                                  <Badge
+                                    key={formateur.id}
+                                    variant="secondary"
+                                    className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300">
+                                    {formateur.prenom}
+                                  </Badge>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-gray-400 dark:text-gray-500 text-sm">
+                                Aucun formateur
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-400">
+                            <div className="text-center">
+                              <div className="font-semibold">
+                                {entry.quizCount}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                complétés
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center gap-2">
+                              <Star className="h-4 w-4 text-yellow-500" />
+                              <span className="font-bold text-orange-600 dark:text-orange-400">
+                                {entry.score}
+                              </span>
+                              <span className="text-sm text-gray-500 dark:text-gray-400">
+                                pts
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          )}
-        </div>
+          </>
+        )}
       </div>
     </div>
   );

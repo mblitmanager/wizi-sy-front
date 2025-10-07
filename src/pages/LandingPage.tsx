@@ -4,7 +4,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
 import { Button } from "@/components/ui/button";
 // Optimisation du chargement des images avec le composant next/image
-const logo = new URL('@/assets/logo.png', import.meta.url).href;
+const logo = new URL("@/assets/logo.png", import.meta.url).href;
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -47,7 +47,7 @@ export default function LandingPage() {
 
   return (
     <Layout>
-  <div className="bg-gradient-to-br from-[#FEFBF8] via-[#FEF8F0] to-[#FEF6EC] min-h-screen">
+      <div className="bg-gradient-to-br from-[#FEFBF8] via-[#FEF8F0] to-[#FEF6EC] min-h-screen">
         {/* Offline Alert */}
         {!isOnline && (
           <Alert variant="destructive" className="mb-4 mx-4 mt-4">
@@ -67,18 +67,16 @@ export default function LandingPage() {
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                                  <img
-                    src={logo}
-                    alt="Logo Wizi Learn"
-                    className="h-20 w-auto transition-all duration-300 hover:scale-105"
-                    loading="lazy"
-                    width={80}
-                    height={80}
-                    decoding="async"
-                    fetchPriority="high"
-                  />
+                transition={{ duration: 0.5 }}>
+                <img
+                  src={logo}
+                  alt="Logo Wizi Learn"
+                  className="h-20 w-auto transition-all duration-300 hover:scale-105"
+                  loading="eager" // ← Utiliser "eager" au lieu de "lazy" pour le logo principal
+                  width={80}
+                  height={80}
+                  decoding="async"
+                />
               </motion.div>
             </div>
           </div>
@@ -96,18 +94,15 @@ export default function LandingPage() {
                 // Optimisation des performances d'animation
                 layout="position"
                 layoutId="hero-content"
-                transition={{ type: "spring", bounce: 0.2 }}
-              >
+                transition={{ type: "spring", bounce: 0.2 }}>
                 <motion.h1
                   className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-amber-600"
-                  variants={slideUp}
-                >
+                  variants={slideUp}>
                   Apprenez de façon interactive et ludique
                 </motion.h1>
                 <motion.p
                   className="text-lg md:text-xl text-gray-700 leading-relaxed"
-                  variants={slideUp}
-                >
+                  variants={slideUp}>
                   Bienvenue sur Wizi Learn, la plateforme de quiz éducatifs pour
                   nos stagiaires. Testez vos connaissances, suivez votre
                   progression et développez vos compétences professionnelles.
@@ -116,12 +111,10 @@ export default function LandingPage() {
                   <Button
                     size="lg"
                     asChild
-                    className="w-full md:w-auto bg-black hover:bg-[#8B5C2A] text-white font-semibold rounded-lg px-6 py-3 transition-all duration-200 hover:shadow-lg focus:ring-2 focus:ring-offset-2 focus:ring-black"
-                  >
+                    className="w-full md:w-auto bg-black hover:bg-[#8B5C2A] text-white font-semibold rounded-lg px-6 py-3 transition-all duration-200 hover:shadow-lg focus:ring-2 focus:ring-offset-2 focus:ring-black">
                     <Link
                       to="/login"
-                      className="flex items-center justify-center gap-2"
-                    >
+                      className="flex items-center justify-center gap-2">
                       Commencer maintenant
                       <ArrowRight className="h-5 w-5" />
                     </Link>
@@ -130,50 +123,46 @@ export default function LandingPage() {
                     size="lg"
                     variant="outline"
                     asChild
-                    className="w-full md:w-auto border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 rounded-lg px-6 py-3 transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
-                  >
+                    className="w-full md:w-auto border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600 rounded-lg px-6 py-3 transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:ring-orange-400">
                     <Link
                       to="/login"
-                      className="flex items-center justify-center"
-                    >
+                      className="flex items-center justify-center">
                       Connexion
                     </Link>
                   </Button>
                 </motion.div>
                 <motion.div className="mt-8 text-center" variants={slideUp}>
-                  <p className="text-sm text-orange-600 mb-4">Ou téléchargez l'application mobile</p>
+                  <p className="text-sm text-orange-600 mb-4">
+                    Ou téléchargez l'application mobile
+                  </p>
                   <div className="flex flex-wrap gap-4 justify-center">
                     <Button
-                        size="lg"
-                        variant="outline"
-                        asChild
-                        className="w-full md:w-auto border-orange-300 text-orange-700 hover:bg-yellow-100 hover:text-yellow-800 rounded-lg px-6 py-3 transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400"
-                    >
-                        <a
+                      size="lg"
+                      variant="outline"
+                      asChild
+                      className="w-full md:w-auto border-orange-300 text-orange-700 hover:bg-yellow-100 hover:text-yellow-800 rounded-lg px-6 py-3 transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400">
+                      <a
                         href="https://www.wizi-learn.com/application/wizi-learn.apk"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2"
-                        >
-                            <Smartphone className="h-5 w-5" />
-                            Google Play
-                        </a>
+                        className="flex items-center justify-center gap-2">
+                        <Smartphone className="h-5 w-5" />
+                        Google Play
+                      </a>
                     </Button>
                     <Button
-                        size="lg"
-                        variant="outline"
-                        asChild
-                        className="w-full md:w-auto border-orange-300 text-orange-700 hover:bg-yellow-100 hover:text-yellow-800 rounded-lg px-6 py-3 transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
-                    >
-                        <a
+                      size="lg"
+                      variant="outline"
+                      asChild
+                      className="w-full md:w-auto border-orange-300 text-orange-700 hover:bg-yellow-100 hover:text-yellow-800 rounded-lg px-6 py-3 transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:ring-gray-400">
+                      <a
                         href="https://apps.apple.com/mg/app/wizi-learn/id6752468866"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2"
-                        >
-                            <Apple className="h-5 w-5" />
-                            App Store
-                        </a>
+                        className="flex items-center justify-center gap-2">
+                        <Apple className="h-5 w-5" />
+                        App Store
+                      </a>
                     </Button>
                   </div>
                 </motion.div>
@@ -182,8 +171,7 @@ export default function LandingPage() {
                 className="lg:w-1/2 relative order-1 lg:order-2"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6 }}
-              >
+                transition={{ duration: 0.6 }}>
                 <div className="absolute -top-6 -left-6 w-48 md:w-64 h-48 md:h-64 bg-indigo-200 rounded-full blur-3xl opacity-30"></div>
                 <div className="absolute -bottom-10 -right-10 w-56 md:w-72 h-56 md:h-72 bg-purple-200 rounded-full blur-3xl opacity-30"></div>
               </motion.div>
@@ -198,18 +186,15 @@ export default function LandingPage() {
               className="text-center mb-16"
               initial="hidden"
               animate="visible"
-              variants={fadeIn}
-            >
+              variants={fadeIn}>
               <motion.h2
                 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-amber-600"
-                variants={slideUp}
-              >
+                variants={slideUp}>
                 Nos catégories de formations
               </motion.h2>
               <motion.p
                 className="text-gray-600 max-w-3xl mx-auto text-lg"
-                variants={slideUp}
-              >
+                variants={slideUp}>
                 Découvrez notre large éventail de formations pour développer vos
                 compétences professionnelles.
               </motion.p>
@@ -218,8 +203,7 @@ export default function LandingPage() {
             <motion.div
               className="relative md:hidden"
               whileHover={{ y: -8, scale: 1.02 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
+              transition={{ type: "spring", stiffness: 300 }}>
               <div className="relative bg-white p-6 md:p-8 rounded-xl shadow-md">
                 <div className="grid grid-cols-2 gap-4 md:gap-5">
                   {[
@@ -262,14 +246,13 @@ export default function LandingPage() {
                         y: -5,
                         scale: 1.05,
                         transition: { duration: 0.2 },
-                      }}
-                    >
+                      }}>
                       <div
-                        className={`bg-${item.bgColor.split("-")[1]}/10 p-3 rounded-lg flex items-center gap-3 transition-all duration-200 hover:shadow-sm`}
-                      >
+                        className={`bg-${
+                          item.bgColor.split("-")[1]
+                        }/10 p-3 rounded-lg flex items-center gap-3 transition-all duration-200 hover:shadow-sm`}>
                         <div
-                          className={`${item.bgColor} ${item.textColor} p-2 rounded-md`}
-                        >
+                          className={`${item.bgColor} ${item.textColor} p-2 rounded-md`}>
                           {item.icon}
                         </div>
                         <span className="font-medium text-base">
@@ -286,15 +269,13 @@ export default function LandingPage() {
               className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
               initial="hidden"
               animate="visible"
-              variants={staggerContainer}
-            >
+              variants={staggerContainer}>
               {categories.map((category) => (
                 <motion.div
                   key={category.id}
                   variants={slideUp}
                   whileHover={{ y: -6, scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 220 }}
-                >
+                  transition={{ type: "spring", stiffness: 220 }}>
                   <CategoryCard category={category} />
                 </motion.div>
               ))}
@@ -309,18 +290,15 @@ export default function LandingPage() {
               className="text-center mb-16"
               initial="hidden"
               animate="visible"
-              variants={fadeIn}
-            >
+              variants={fadeIn}>
               <motion.h2
                 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-yellow-500"
-                variants={slideUp}
-              >
+                variants={slideUp}>
                 Comment ça marche
               </motion.h2>
               <motion.p
                 className="text-gray-800 max-w-3xl mx-auto text-lg"
-                variants={slideUp}
-              >
+                variants={slideUp}>
                 Une approche simple et efficace pour améliorer vos compétences
                 grâce à notre plateforme de quiz.
               </motion.p>
@@ -329,8 +307,7 @@ export default function LandingPage() {
               className="grid grid-cols-1 md:grid-cols-3 gap-10"
               initial="hidden"
               animate="visible"
-              variants={staggerContainer}
-            >
+              variants={staggerContainer}>
               {[
                 {
                   step: "1",
@@ -364,21 +341,15 @@ export default function LandingPage() {
                   key={index}
                   className={`${item.bgColor} p-6 rounded-lg shadow-sm transition-all`}
                   variants={slideUp}
-                  whileHover={{ y: -4, scale: 1.01 }}
-                >
+                  whileHover={{ y: -4, scale: 1.01 }}>
                   <div
-                    className={`w-12 h-12 ${item.bgColor} rounded-lg flex items-center justify-center mb-5`}
-                  >
+                    className={`w-12 h-12 ${item.bgColor} rounded-lg flex items-center justify-center mb-5`}>
                     <div className={`${item.textColor}`}>{item.icon}</div>
                   </div>
-                  <div
-                    className={`${item.textColor} font-bold text-lg mb-2`}
-                  >
+                  <div className={`${item.textColor} font-bold text-lg mb-2`}>
                     Étape {item.step}
                   </div>
-                  <h3 className="text-xl font-semibold mb-3">
-                    {item.title}
-                  </h3>
+                  <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
                   <p className="text-gray-700 leading-relaxed">
                     {item.description}
                   </p>

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
@@ -27,16 +27,16 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-      if (error.response?.status === 401) {
-        // Remove token and emit an SPA event so the app can navigate centrally
-        localStorage.removeItem("token");
-        try {
-          window.dispatchEvent(new CustomEvent("auth:logout"));
-        } catch (e) {
-          // fallback
-          window.location.href = "/login";
-        }
+    if (error.response?.status === 401) {
+      // Remove token and emit an SPA event so the app can navigate centrally
+      localStorage.removeItem("token");
+      try {
+        window.dispatchEvent(new CustomEvent("auth:logout"));
+      } catch (e) {
+        // fallback
+        window.location.href = "/login";
       }
+    }
     return Promise.reject(error);
   }
 );

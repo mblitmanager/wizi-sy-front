@@ -17,6 +17,10 @@ import QuizSummaryFooter from "../Summary/QuizSummaryFooter";
 import { Question } from "@/types/quiz";
 import quizimg from "../../assets/loading_img.png";
 import React from "react";
+import { useNextQuiz } from "@/hooks/quiz/useNextQuiz";
+import { CountdownAnimation } from "./CountdownAnimation";
+import { stagiaireQuizService } from "@/services/quiz";
+import { ProgressBar } from "../ui/ProgressBar";
 
 interface QuizSummaryProps {
   quiz?: {
@@ -50,10 +54,15 @@ export function QuizSummary() {
   const location = useLocation();
   const { toast } = useToast();
   const { notifyQuizCompleted, permission } = useNotifications();
+  const [timeElapsed, setTimeElapsed] = useState(0);
 
   // Store result state locally to avoid triggering re-renders
   const [result, setResult] = useState<QuizSummaryProps | null>(null);
   const [notificationSent, setNotificationSent] = useState(false);
+  const [showCountdown, setShowCountdown] = useState(false);
+
+  // Récupérer le quiz suivant
+  const { nextQuiz, loading: nextQuizLoading } = useNextQuiz(quizId);
 
   // Check if the result was passed through navigation state
   const resultFromState = location.state?.result;
@@ -68,6 +77,26 @@ export function QuizSummary() {
     queryFn: () => quizSubmissionService.getQuizResult(quizId as string),
     enabled: !!quizId && !resultFromState && !!localStorage.getItem("token"),
   });
+
+  useEffect(() => {
+    if (!result) return;
+    setTimeElapsed(0);
+
+    const totalTime = 20;
+    let currentTime = 0;
+
+    const interval = setInterval(() => {
+      currentTime++;
+      setTimeElapsed(currentTime);
+
+      if (currentTime >= totalTime) {
+        setShowCountdown(true);
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [!!result]); // dépend de l'état (booléen) et non de l'objet complet
 
   // Use useEffect to set the result once to avoid infinite loops
   useEffect(() => {
@@ -104,7 +133,7 @@ export function QuizSummary() {
       if (userPoints >= 50) {
         toast({
           title: "Niveau avancé débloqué !",
-          description: "Vous pouvez maintenant jouer aux quiz avancés.",
+          description: "Vous pouvez maintenant participer aux quiz avancés.",
           variant: "default",
           className:
             "bg-gradient-to-r from-orange-700 to-yellow-700 text-white border-0",
@@ -112,7 +141,8 @@ export function QuizSummary() {
       } else if (userPoints >= 20) {
         toast({
           title: "Niveau intermédiaire débloqué !",
-          description: "Vous pouvez maintenant jouer aux quiz intermédiaires.",
+          description:
+            "Vous pouvez maintenant participer aux quiz intermédiaires.",
           variant: "default",
           className:
             "bg-gradient-to-r from-orange-700 to-yellow-700 text-white border-0",
@@ -211,35 +241,48 @@ export function QuizSummary() {
   };
 
   return (
-    <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
-      {/* <NotificationBanner /> */}
+    <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-2 space-y-6 sm:space-y-8">
+      {result && !showCountdown && (
+        <div className="fixed bottom-4 right-4 z-40 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 p-3">
+          <div className="flex items-center gap-3">
+            <div className="text-center">
+              <div className="text-lg font-bold text-green-600">
+                {20 - timeElapsed}
+              </div>
+              <div className="text-xs text-gray-500">secondes</div>
+            </div>
 
-      {/* Header avec titre et bouton de retour */}
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-gradient bg-clip-text text-transparent bg-gradient-to-r from-blue-custom-100 to-blue-custom-50">
-          Résultats du Quiz : {}
-        </h1>
-        {/* <Button
-          onClick={handleBack}
-          variant="outline"
-          className="flex items-center gap-2 border border-blue-custom-100 text-brown-shade hover:bg-blue-50 text-sm py-1.5 px-3">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4"
-            viewBox="0 0 20 20"
-            fill="currentColor">
-            <path
-              fillRule="evenodd"
-              d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
-          Retour
-        </Button> */}
-      </div>
-
+            <div className="w-12 h-12 relative">
+              {/* Cercle de progression */}
+              <svg
+                className="w-12 h-12 transform -rotate-90"
+                viewBox="0 0 48 48">
+                <circle
+                  cx="24"
+                  cy="24"
+                  r="20"
+                  stroke="#e5e7eb"
+                  strokeWidth="3"
+                  fill="none"
+                />
+                <circle
+                  cx="24"
+                  cy="24"
+                  r="20"
+                  stroke="#10b981"
+                  strokeWidth="3"
+                  fill="none"
+                  strokeDasharray="125.6"
+                  strokeDashoffset={125.6 - (timeElapsed / 20) * 125.6}
+                  className="transition-all duration-1000"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Section des statistiques principales */}
-      <div className="mb-6">
+      <div className="">
         {/* Titre de section */}
         <div className="flex items-center gap-2 mb-3">
           <div className="p-1.5 rounded-md bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300">
@@ -327,7 +370,7 @@ export function QuizSummary() {
                 </div>
                 <div>
                   <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                    Complété le
+                    Fait le
                   </p>
                   <p className="text-xl font-bold text-purple-600 dark:text-purple-400">
                     {new Date(result.completedAt).toLocaleDateString("fr-FR", {
@@ -343,9 +386,9 @@ export function QuizSummary() {
       </div>
 
       {/* Section détaillée des résultats */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-100 dark:border-gray-700 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-100 dark:border-gray-700 mb-3 p-4">
         {/* En-tête du résumé */}
-        <div className="p-3 bg-gradient-to-r bg-slate-300 via-slate-700 to-slate-800 text-black flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 justify-between">
+        <div className="p-3 bg-gradient-to-r bg-slate-300 via-slate-700 to-slate-800 text-black flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 justify-between mb-3">
           <h3 className="font-bold flex items-center gap-2 text-sm sm:text-base">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -368,25 +411,38 @@ export function QuizSummary() {
         </div>
 
         {/* Liste des questions/réponses */}
-
         {playedQuestions.map(
-          (question: Question & { isPlayed: boolean }, index: number) => (
-            <div
-              key={question.id}
-              className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+          (question: Question & { isPlayed: boolean }, index: number) => {
+            console.log(
+              `Question ${index + 1}: index = ${index}, background = ${
+                index % 2 === 0 ? "gray" : "white"
+              }`
+            );
+            return (
               <QuizAnswerCard
+                key={question.id}
                 question={question}
                 userAnswer={formattedUserAnswers[question.id]}
                 isPlayed={question.isPlayed}
+                index={index}
+                questionNumber={index + 1}
               />
-            </div>
-          )
+            );
+          }
         )}
 
         {/* Pied de page avec actions */}
         <div className="p-3 bg-gray-50 dark:bg-gray-700/30 border-t border-gray-100 dark:border-gray-700">
           <QuizSummaryFooter quizId={result.quiz?.id || quizId || ""} />
         </div>
+        {showCountdown && (
+          <CountdownAnimation
+            currentQuizId={quizId || ""}
+            nextQuiz={nextQuiz}
+            delay={5}
+            onCountdownEnd={() => setShowCountdown(false)}
+          />
+        )}
       </div>
     </div>
   );

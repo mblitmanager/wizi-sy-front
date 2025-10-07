@@ -33,7 +33,7 @@ Quick test: envoyer un push de test
 
 ```bash
 # Exemple POST vers votre API qui enverra un push via votre serveur
-curl -X POST "https://wizi-learn.com/api/send-notification" \
+curl -X POST "http://127.0.0.1:8000/api/send-notification" \
    -H "Authorization: Bearer <ADMIN_TOKEN>" \
    -H "Content-Type: application/json" \
    -d '{"user_id": 123, "title": "Test", "body": "Message de test", "data": {"id": "server-123"}}'

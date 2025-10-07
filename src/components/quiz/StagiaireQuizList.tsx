@@ -111,7 +111,7 @@ export function StagiaireQuizList({
         if (userPoints >= 50 && notifiedLevel !== 2) {
           toast({
             title: "Niveau avancé débloqué !",
-            description: "Vous pouvez maintenant jouer aux quiz avancés.",
+            description: "Vous pouvez maintenant participer aux quiz avancés.",
             variant: "default",
             className: "bg-orange-600 text-white border-0",
           });
@@ -120,7 +120,7 @@ export function StagiaireQuizList({
           toast({
             title: "Niveau intermédiaire débloqué !",
             description:
-              "Vous pouvez maintenant jouer aux quiz intermédiaires.",
+              "Vous pouvez maintenant participer aux quiz intermédiaires.",
             variant: "default",
             className: "bg-orange-600 text-white border-0",
           });

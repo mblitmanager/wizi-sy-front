@@ -33,7 +33,7 @@ const sections = [
 								<li>vrai/faux</li> */}
               </ul>
               <div className="mt-2 text-sm text-gray-700">
-                <strong>Comment jouer :</strong> Pour les quiz{" "}
+                <strong>Comment participer :</strong> Pour les quiz{" "}
                 <span className="font-semibold">choix multiples</span>,{" "}
                 <span className="font-semibold">vrai/faux</span> et{" "}
                 <span className="font-semibold">question audio</span>, il suffit
@@ -50,7 +50,7 @@ const sections = [
 								<li>carte flash</li> */}
               </ul>
               <div className="mt-2 text-sm text-gray-700">
-                <strong>Comment jouer :</strong>
+                <strong>Comment participer :</strong>
                 <ul className="list-disc pl-5">
                   <li>
                     <span className="font-semibold">Banque de mots :</span>{" "}
@@ -78,7 +78,7 @@ const sections = [
 								<li>remplir le champ vide</li> */}
               </ul>
               <div className="mt-2 text-sm text-gray-700">
-                <strong>Comment jouer :</strong>
+                <strong>Comment participer :</strong>
                 <ul className="list-disc pl-5">
                   <li>
                     <span className="font-semibold">Rearrangement :</span>{" "}
@@ -216,7 +216,7 @@ const sections = [
         </p>
         <p>
           Sur la page de parrainage, vous pouvez consulter la liste de vos
-          filleuls ainsi que vos gains cumulés.
+          filleuls ainsi que vos cartes cadeaux cumulés.
         </p>
       </>
     ),
@@ -249,8 +249,7 @@ const ManuelPage = () => {
                   ? "bg-black text-white"
                   : "bg-gray-100 text-brown-shade hover:bg-black hover:text-white"
               }`}
-              onClick={() => setActiveSection(section.key)}
-            >
+              onClick={() => setActiveSection(section.key)}>
               {section.label}
             </button>
           ))}
