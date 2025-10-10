@@ -60,9 +60,9 @@ export const useQuizPlay = (quizId: string) => {
 
   // Reset timer on question change
   useEffect(() => {
-    timer.reset();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navigation.currentQuestionIndex]);
+  timer.resetTimeLeft(); // <-- NOUVEAU : Réinitialise seulement timeLeft
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [navigation.currentQuestionIndex]);
 
   // Reset timer when quiz changes
   useEffect(() => {
@@ -72,11 +72,11 @@ export const useQuizPlay = (quizId: string) => {
   }, [quiz, timer]);
 
   // resetQuiz: resets navigation index, answers and timer
-  const resetQuiz = () => {
-    timer.reset();
-    navigation.goToQuestion(0);
-    resetAnswers();
-  };
+const resetQuiz = () => {
+  timer.reset(); // Utiliser le VRAI reset ici (remet timeSpent à 0 pour le nouveau quiz)
+  navigation.goToQuestion(0);
+  resetAnswers();
+};
 
   const isCurrentQuestionAnswered = () => {
     if (!quiz || filteredQuestions.length === 0) return false;
