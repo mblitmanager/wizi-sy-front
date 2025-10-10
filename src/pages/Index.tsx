@@ -490,9 +490,9 @@ export function Index() {
               <p className="text-lg font-bold text-gray-900 mb-4">
                 {loginStreak} jour{loginStreak > 1 ? "s" : ""} d'affilée
               </p>
-              <p className="text-sm text-gray-600 mb-4">
+              {/* <p className="text-sm text-gray-600 mb-4">
                 Continuez comme ça pour débloquer des récompenses 🎉
-              </p>
+              </p> */}
               <div className="flex items-center justify-center mb-4">
                 <input
                   type="checkbox"
@@ -574,7 +574,7 @@ export function Index() {
         {showApkBlock &&
           (isIOS ? (
             <div
-              className="group relative bg-gradient-to-br from-gray-100 via-white to-blue-50 rounded-xl shadow-lg border border-gray-200 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105 cursor-pointer"
+              className="group relative bg-gradient-to-br from-gray-900 to-black rounded-xl shadow-lg border border-orange-500/30 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105 cursor-pointer"
               tabIndex={0}
               role="button"
               aria-label="Télécharger l'application iOS sur l'App Store"
@@ -586,7 +586,7 @@ export function Index() {
                 );
               }}>
               <button
-                className="absolute top-3 right-3 text-gray-700 hover:text-gray-900 text-xl bg-transparent border-none p-0 z-10"
+                className="absolute top-3 right-3 text-gray-500 hover:text-white text-xl bg-transparent border-none p-0 z-10"
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowApkBlock(false);
@@ -595,7 +595,7 @@ export function Index() {
                 ×
               </button>
               <div className="flex items-center gap-3 mb-2">
-                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-yellow-200 text-yellow-800 group-hover:bg-yellow-300 transition-colors">
+                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-orange-500/10 text-orange-400 group-hover:bg-orange-500/20 transition-colors">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="w-7 h-7"
@@ -604,25 +604,25 @@ export function Index() {
                     <path d="M20.999 6.999a2 2 0 0 0-1.9-1.3h-1.5a5.3 5.3 0 0 0-9.2 0h-1.5a2 2 0 0 0-1.9 1.3l-2.5 9a2 2 0 0 0 1.9 2.7h16.2a2 2 0 0 0 1.9-2.7l-2.5-9zm-10-2.8a3.3 3.3 0 0 1 6.6 0h-6.6zM12 15.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" />
                   </svg>
                 </span>
-                <h2 className="text-l md:text-2xl font-bold text-yellow-400">
+                <h2 className="text-l md:text-2xl font-bold text-orange-400">
                   Télécharger sur l'App Store
                 </h2>
               </div>
-              <p className="text-gray-700 text-s mb-3">
+              <p className="text-gray-400 text-s mb-3">
                 Accédez à Wizi Learn partout grâce à notre application iOS.
               </p>
-              <button className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-blue-600 transition-colors">
+              <button className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-orange-700 transition-colors">
                 Télécharger
               </button>
             </div>
           ) : (
             <div
-              className="group relative bg-gradient-to-br from-brown-50 via-white to-yellow-50 rounded-xl shadow-lg border border-brown-200 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105 cursor-pointer"
+              className="group relative bg-gradient-to-br from-gray-900 to-black rounded-xl shadow-lg border border-orange-500/30 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105 cursor-pointer"
               tabIndex={0}
               role="button"
               aria-label="Télécharger l'application Android Wizi Learn">
               <button
-                className="absolute top-3 right-3 text-green-700 hover:text-green-900 text-xl bg-transparent border-none p-0 z-10"
+                className="absolute top-3 right-3 text-gray-500 hover:text-white text-xl bg-transparent border-none p-0 z-10"
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowApkBlock(false);
@@ -631,7 +631,7 @@ export function Index() {
                 ×
               </button>
               <div className="flex items-center gap-3 mb-2">
-                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-yellow-100 text-brown-shade group-hover:bg-brown-yellow-100 transition-colors">
+                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-orange-500/10 text-orange-400 group-hover:bg-orange-500/20 transition-colors">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -646,17 +646,17 @@ export function Index() {
                     />
                   </svg>
                 </span>
-                <h2 className="text-l md:text-2xl font-bold text-brown-shade">
+                <h2 className="text-l md:text-2xl font-bold text-orange-400">
                   Télécharger l'application Android
                 </h2>
               </div>
-              <p className="text-orange-700 text-s mb-3">
+              <p className="text-gray-400 text-s mb-3">
                 Accédez à Wizi Learn partout grâce à notre application Android.
                 Cliquez sur le bouton ci-dessous pour télécharger le fichier APK
                 et suivez les instructions d'installation.
               </p>
               <button
-                className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-orange-500 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-yellow-600 transition-colors"
+                className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-orange-700 transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
                   window.open(
@@ -700,7 +700,7 @@ export function Index() {
                 Télécharger
               </button>
               <button
-                className="mt-6 text-yellow-900 font-medium text-sm cursor-pointer hover:text-yellow-700 bg-transparent border-none p-0"
+                className="mt-6 text-orange-500 font-medium text-sm cursor-pointer hover:text-orange-400 bg-transparent border-none p-0"
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowInstallHint(true);

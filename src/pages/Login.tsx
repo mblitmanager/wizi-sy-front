@@ -79,7 +79,7 @@ const Login = () => {
       <div className="flex flex-col items-center mb-8">
         <img src={logo} alt="Wizi Learn" className="h-32 mb-2 drop-shadow-lg" />
         <p className="text-[#000] font-bold text-center max-w-xs">
-          La plateforme de quiz éducatifs pour nos stagiaires
+          La plateforme de quiz éducatifs 
         </p>
       </div>
       <div className="w-full max-w-md px-4">
