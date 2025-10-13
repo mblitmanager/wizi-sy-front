@@ -396,20 +396,7 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {/* Section contacts (comme HomePage) */}
-        <ContactSection
-          commerciaux={commerciaux}
-          formateurs={formateurs}
-          poleRelation={poleRelation}
-          showFormations={false}
-        />
 
-        {/* Ad catalogue block */}
-        {!adLoading && adFormations.length > 0 && (
-          <div className="mt-6">
-            <AdCatalogueBlock formations={adFormations.slice(0, 4)} />
-          </div>
-        )}
 
         {/* Contenu principal avec composants mémoïsés */}
         <div className="space-y-4 px-2 sm:px-0">
@@ -437,6 +424,21 @@ const ProfilePage = () => {
             {MemoizedFormationCatalogue}
           </div>
         </div>
+
+        {/* Section contacts (comme HomePage) */}
+        <ContactSection
+          commerciaux={commerciaux}
+          formateurs={formateurs}
+          poleRelation={poleRelation}
+          showFormations={true}
+        />
+
+        {/* Ad catalogue block */}
+        {!adLoading && adFormations.length > 0 && (
+          <div className="mt-6">
+            <AdCatalogueBlock formations={adFormations.slice(0, 4)} />
+          </div>
+        )}
       </div>
       {/* Section liens vers FAQ, CGV et Manuel */}
       <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm mb-4">

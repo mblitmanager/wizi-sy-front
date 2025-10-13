@@ -144,16 +144,16 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
       .replace(/\s{2,}/g, " ") // Supprime les espaces multiples
       .replace(/^\w/, (c) => c.toUpperCase()); // Première lettre en majuscule
   };
-  
+
   if (!formations || formations.length === 0) return null;
   return (
     <div className="mb-12 px-4 sm:px-6 lg:px-8">
       {/* Header avec gradient accrocheur */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h2 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-600">
+          {/* <h2 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-600">
             Boostez vos compétences dès aujourd'hui !
-          </h2>
+          </h2> */}
           <p className="text-gray-600 mt-2">
             Des formations certifiantes adaptées à vos besoins.
           </p>
@@ -229,8 +229,8 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                   <span className="text-lg font-extrabold text-orange-600">
                     {formation.tarif
                       ? `${Math.trunc(Number(formation.tarif)).toLocaleString(
-                          "fr-FR"
-                        )} € HT`
+                        "fr-FR"
+                      )} € HT`
                       : "Gratuit"}
                   </span>
                 </div>

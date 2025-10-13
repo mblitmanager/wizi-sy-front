@@ -358,9 +358,8 @@ export function Index() {
               unlocked.forEach((ach) => {
                 toast({
                   title: `🎉 Succès débloqué`,
-                  description: `${
-                    ach.name || ach.titre || ach.title || "Achievement"
-                  } !`,
+                  description: `${ach.name || ach.titre || ach.title || "Achievement"
+                    } !`,
                   duration: 4000,
                   variant: "success",
                   className: "bg-orange-600 text-white",
@@ -525,10 +524,13 @@ export function Index() {
           </div>
         ) : filteredFormations.length > 0 ? (
           <>
-            <h1 className="text-2xl md:text-2xl text-orange-400 font-bold mb-4 md:mb-2 text-center mt-4 py-6 relative">
+            {/* <h1 className="text-2xl md:text-2xl text-orange-400 font-bold mb-4 md:mb-2 text-center mt-4 py-6 relative">
               {DECOUVRIR_NOS_FORMATIONS}
               <span className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-orange-400 rounded-full"></span>
-            </h1>
+            </h1> */}
+            <h2 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-600">
+              Boostez vos compétences dès aujourd'hui !
+            </h2>
             <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 px-2 py-6 md:py-3 bg-white rounded-xl">
               <div className="w-full flex flex-col items-center">
                 <AdCatalogueBlock formations={filteredFormations.slice(0, 4)} />
@@ -568,13 +570,16 @@ export function Index() {
             formateurs={formateurs}
             poleRelation={poleRelation}
             poleSav={poleSav}
+            showFormations={false}
           />
+
+
         </div>
         {/* Bloc téléchargement application Android ou instruction PWA pour iOS */}
         {showApkBlock &&
           (isIOS ? (
             <div
-              className="group relative bg-gradient-to-br from-gray-900 to-black rounded-xl shadow-lg border border-orange-500/30 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105 cursor-pointer"
+              className="group relative  rounded-xl shadow-lg border border-orange-500/30 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105 cursor-pointer"
               tabIndex={0}
               role="button"
               aria-label="Télécharger l'application iOS sur l'App Store"
@@ -617,7 +622,7 @@ export function Index() {
             </div>
           ) : (
             <div
-              className="group relative bg-gradient-to-br from-gray-900 to-black rounded-xl shadow-lg border border-orange-500/30 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105 cursor-pointer"
+              className="group relative rounded-xl shadow-lg border border-orange-500/30 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105 cursor-pointer"
               tabIndex={0}
               role="button"
               aria-label="Télécharger l'application Android Wizi Learn">
@@ -694,7 +699,7 @@ export function Index() {
                           });
                         }
                       })
-                      .catch(() => {});
+                      .catch(() => { });
                   }
                 }}>
                 Télécharger
