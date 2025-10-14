@@ -97,7 +97,7 @@ export default function Catalogue() {
               variant="outline"
               size="sm"
               onClick={() => setSelectedCategory(null)}
-              className="sm:mb-0 bg-green-300 hover:bg-green-100">
+              className="sm:mb-0 bg-yellow-300 hover:bg-yellow-100">
               Réinitialiser le filtre
             </Button>
           )}
