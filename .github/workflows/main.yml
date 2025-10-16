@@ -80,11 +80,6 @@ jobs:
           php artisan queue:restart
           echo "✓ Queue restarted"
 
-          echo "➤ Fixing permissions..."
-          chmod -R 755 storage
-          chmod -R 755 bootstrap/cache
-          echo "✓ Permissions set"
-
           php artisan optimize:clear
 
     - name: Clean temporary files
