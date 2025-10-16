@@ -58,19 +58,6 @@ jobs:
         rsync -avz -e "ssh -i private_key -o StrictHostKeyChecking=no" ./temp_views/stagiaire.blade.php $REMOTE_USER@$REMOTE_HOST:./www/resources/views/
         rm -f private_key
 
-    - name: Execute deployment via SSH
-      uses: appleboy/ssh-action@v0.1.10
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        timeout: 30s
-        script_stop: true
-        script: |
-          set -e
-          cd ~/www
-
-          php artisan optimize:clear
-
+    
     - name: Clean temporary files
       run: rm -rf temp_views
