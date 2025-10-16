@@ -471,7 +471,6 @@ export default function TutoAstucePage() {
               </div>
             )}
           </div>
-          </div>
         </div>
       </div>
     </Layout>
