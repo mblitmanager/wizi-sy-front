@@ -205,6 +205,8 @@ export default function TutoAstucePage() {
     tutoriels: Media[];
     astuces: Media[];
   } | null>(null);
+  // State for collapsing the left media list on wide screens (tablet/landscape)
+  const [isLeftCollapsed, setIsLeftCollapsed] = useState(false);
 
   // Hooks
   const { user } = useUser();
@@ -405,61 +407,70 @@ export default function TutoAstucePage() {
           </div>
 
           {/* Contenu principal */}
-          <div
-            className="flex flex-col gap-4 sm:gap-6 w-full max-w-full"
-            style={{ maxWidth: "90vw" }}>
-            {/* Lecteur de média */}
-            <div className="w-full">
-              <MediaPlayerSection media={selectedMedia} />
-            </div>
+          <div className="w-full max-w-full">
+            {/* Responsive layout: player + collapsible list on large screens */}
+            <div
+              className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-start"
+              style={{ maxWidth: "90vw" }}>
+              {/* Left column: media list (collapsible on large screens) */}
+              <div className={`col-span-1 order-2 lg:order-1`}> 
+                <div className="p-3 sm:p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h2 className="text-sm font-semibold">Liste des médias</h2>
+                    <button
+                      aria-pressed={isLeftCollapsed}
+                      aria-label={isLeftCollapsed ? "Afficher la liste" : "Masquer la liste"}
+                      onClick={() => setIsLeftCollapsed((s) => !s)}
+                      className="px-2 py-1 text-sm rounded bg-gray-100 hover:bg-gray-200">
+                      {isLeftCollapsed ? "Afficher" : "Masquer"}
+                    </button>
+                  </div>
 
-            {/* Liste des médias */}
-            <div className="p-3 sm:p-4 overflow-auto w-full">
-              {/* <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2">
-                <PlayCircle className="w-5 h-5 text-blue-600" />
-                <span>
-                  {activeCategory === "tutoriel" ? "Tutoriels" : "Astuces"}
-                </span>
-              </h2> */}
-
-              {isLoading ? (
-                <MediaSkeleton count={5} />
-              ) : medias.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  Aucun média disponible
-                </div>
-              ) : (
-                <div
-                  className="space-y-2 overflow-y-auto"
-                  style={{
-                    maxHeight: "calc(100vh - 320px)", // Ajuste dynamiquement selon la taille de l'écran
-                    minHeight: "200px",
-                    paddingRight: "4px",
-                  }}>
-                  {Object.entries(groupedMediasByType).map(
-                    ([type, categories]) => (
-                      <MediaListSection
-                        key={type}
-                        type={type}
-                        icon={mediaTypeConfig[type].icon}
-                        label={mediaTypeConfig[type].label}
-                        categories={categories}
-                        isExpanded={expandedSections[type]}
-                        onToggle={() => toggleSection(type)}
-                        selectedMedia={selectedMedia}
-                        onSelectMedia={setSelectedMedia}
-                      />
-                    )
+                  {!isLeftCollapsed ? (
+                    <div className="p-2 overflow-auto">
+                      {isLoading ? (
+                        <MediaSkeleton count={5} />
+                      ) : medias.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500">Aucun média disponible</div>
+                      ) : (
+                        <div className="space-y-2 overflow-y-auto max-h-[60vh]">
+                          {Object.entries(groupedMediasByType).map(([type, categories]) => (
+                            <MediaListSection
+                              key={type}
+                              type={type}
+                              icon={mediaTypeConfig[type].icon}
+                              label={mediaTypeConfig[type].label}
+                              categories={categories}
+                              isExpanded={expandedSections[type]}
+                              onToggle={() => toggleSection(type)}
+                              selectedMedia={selectedMedia}
+                              onSelectMedia={setSelectedMedia}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-gray-400 text-sm">Liste masquée</div>
                   )}
                 </div>
-              )}
+              </div>
+
+              {/* Media player column (main) */}
+              <div className="col-span-1 lg:col-span-3 order-1 lg:order-2">
+                <div className="sticky top-20">
+                  <MediaPlayerSection media={selectedMedia} />
+                </div>
+              </div>
             </div>
+
             {/* Ad catalogue block */}
             {!adLoading && adFormations.length > 0 && (
               <div className="mt-6">
                 <AdCatalogueBlock formations={adFormations.slice(0, 4)} />
               </div>
             )}
+          </div>
           </div>
         </div>
       </div>
