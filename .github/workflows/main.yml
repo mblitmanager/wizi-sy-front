@@ -83,8 +83,6 @@ jobs:
           echo "➤ Fixing permissions..."
           chmod -R 755 storage
           chmod -R 755 bootstrap/cache
-          echo '<?php return [];' > bootstrap/cache/packages.php
-          echo '<?php return [];' > bootstrap/cache/services.php
           echo "✓ Permissions set"
 
           php artisan optimize:clear
