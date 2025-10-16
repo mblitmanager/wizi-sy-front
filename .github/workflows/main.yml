@@ -70,13 +70,6 @@ jobs:
           set -e
           cd ~/www
 
-          echo "➤ Optimizing Laravel..."
-          php artisan optimize:clear
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
-          echo "✓ Application optimized"
-
           php artisan optimize:clear
 
     - name: Clean temporary files
