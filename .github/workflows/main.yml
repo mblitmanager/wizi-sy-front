@@ -77,9 +77,6 @@ jobs:
           php artisan view:cache
           echo "✓ Application optimized"
 
-          php artisan queue:restart
-          echo "✓ Queue restarted"
-
           php artisan optimize:clear
 
     - name: Clean temporary files
