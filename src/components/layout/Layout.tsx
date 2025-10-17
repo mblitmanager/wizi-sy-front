@@ -35,9 +35,9 @@ export function Layout({ children }: LayoutProps) {
       {/* Sidebar - visible sur desktop */}
       <aside className="hidden lg:flex lg:flex-col lg:w-64 border-r border-gray-200 bg-white shadow-sm">
         {/* Logo en haut de la sidebar */}
-        <div className="flex items-center justify-center border-b">
+        <Link to="/" className="flex items-center justify-center border-b">
           <img src={logo} alt="" className="object-contain h-14 w-40" />
-        </div>
+        </Link>
         <div className="flex-1 overflow-y-auto">
           <MainNav />
         </div>
