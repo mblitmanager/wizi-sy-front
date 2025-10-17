@@ -7,6 +7,7 @@ import logo from "../../assets/logo.png";
 import { Menu, X } from "lucide-react";
 import { useMediaQuery } from "@mui/system";
 import { ParrainageBanner } from "../parrainage/ParrainageBanner";
+import { Link } from "react-router-dom";
 
 interface LayoutProps {
   children: ReactNode;
