@@ -1,4 +1,3 @@
-// components/ParrainageBanner.tsx
 import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import gift from "../../assets/giftbox.png";
@@ -40,7 +39,6 @@ export function ParrainageBanner({ isMobile = false }: ParrainageBannerProps) {
     }
   };
 
-  // MODIFICATION : Ne pas vérifier le loading, seulement si pas d'événement actif
   if (!activeEvent || !showBanner) {
     return null;
   }
@@ -49,10 +47,13 @@ export function ParrainageBanner({ isMobile = false }: ParrainageBannerProps) {
     <div
       className={`${
         isMobile
-          ? "fixed top-[54px] left-0 right-0 z-40"
+          ? "fixed top-[54px] left-0 right-0 z-40 w-full"
           : "bg-slate-100 text-white relative z-30"
       }`}>
-      <div className="container mx-auto px-4 h-[60px] flex items-center justify-center rounded-md shadow-md bg-gradient-to-r from-orange-500 to-red-600 relative">
+      <div
+        className={`${
+          isMobile ? "px-4 py-2" : "container mx-auto px-4 py-3"
+        } h-[60px] flex items-center justify-between rounded-md shadow-md bg-gradient-to-r from-orange-500 to-red-600 relative`}>
         <div className="flex items-center gap-2">
           <img
             src={gift}
@@ -62,12 +63,12 @@ export function ParrainageBanner({ isMobile = false }: ParrainageBannerProps) {
           />
           <span
             className={`font-extrabold ${
-              isMobile ? "text-lg sm:text-xl" : "text-xl sm:text-3xl"
+              isMobile ? "text-sm sm:text-lg" : "text-xl sm:text-2xl"
             } text-white drop-shadow-md`}>
             {activeEvent.titre}
             <span
               className={`${
-                isMobile ? "ml-1 text-2xl" : "ml-2 text-3xl"
+                isMobile ? "ml-1 text-xl" : "ml-2 text-2xl"
               } text-yellow-300 drop-shadow-lg`}>
               {parseFloat(activeEvent.prix).toFixed(0)} €
             </span>

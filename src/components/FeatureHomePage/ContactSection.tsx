@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { User, Mail, Phone, ChevronDown, ChevronRight } from "lucide-react";
+import { User, Mail, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,20 +8,23 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
 import { Contact } from "@/types/contact";
 import { CONTACTEZ_NOUS } from "@/utils/constants";
-import { Card, CardContent } from "@mui/material";
 import { ArrowRight } from "lucide-react";
 
-// Mapping des noms d'affichage
+// Mapping des noms d'affichage avec gestion des rôles féminins
 const typeDisplayNames: Record<string, string> = {
   Formateur: "Formateur",
+  Formatrice: "Formatrice",
   Commercial: "Commercial",
+  Commerciale: "Commerciale",
   pole_relation_client: "Pôle Relation Client",
   pole_sav: "Pôle SAV",
 };
 
 const typeStyles: Record<string, string> = {
   Formateur: "bg-blue-100 text-blue-800",
+  Formatrice: "bg-blue-100 text-blue-800",
   Commercial: "bg-green-100 text-green-800",
+  Commerciale: "bg-green-100 text-green-800",
   pole_relation_client: "bg-yellow-100 text-yellow-800",
   pole_sav: "bg-purple-100 text-purple-800",
 };
@@ -38,7 +41,7 @@ interface ContactsSectionProps {
   commerciaux: Contact[];
   formateurs: Contact[];
   poleRelation: Contact[];
-  poleSav?: Contact[]; // Ajout du pôle SAV
+  poleSav?: Contact[];
   showFormations?: boolean;
 }
 
@@ -67,12 +70,12 @@ const ContactSection = ({
         ...(data.formateurs || []),
         ...(data.commerciaux || []),
         ...(data.pole_relation || []),
-        ...(data.pole_sav || []), // Ajout du pôle SAV
+        ...(data.pole_sav || []),
       ];
       return allContacts;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes de cache
-    retry: 2, // 2 tentatives en cas d'erreur
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
   });
 
   const ContactCardSkeleton = () => (
@@ -92,6 +95,35 @@ const ContactSection = ({
       </div>
     </div>
   );
+
+  // Fonction pour formater la civilité
+  const formatCivilite = (civilite: string): string => {
+    const civiliteMap: Record<string, string> = {
+      M: "M.",
+      "M.": "M.",
+      Mme: "Mme",
+      "Mme.": "Mme",
+      Mlle: "Mlle",
+      "Mlle.": "Mlle",
+    };
+    return civiliteMap[civilite] || civilite;
+  };
+
+  // Fonction pour formater le nom complet avec civilité
+  const formatFullName = (contact: Contact): string => {
+    const civilite = contact.civilite
+      ? `${formatCivilite(contact.civilite)} `
+      : "";
+
+    if (contact.prenom) {
+      const nom = contact.nom
+        ? contact.nom.toUpperCase()
+        : (contact.name || "").toUpperCase();
+      return `${civilite}${contact.prenom} ${nom}`;
+    }
+
+    return `${civilite}${(contact.name || "").toUpperCase()}`;
+  };
 
   const renderContactCard = (contact: Contact) => (
     <div
@@ -130,13 +162,7 @@ const ContactSection = ({
         )}
         <div>
           <h2 className="text-lg font-semibold text-gray-800">
-            {contact.prenom
-              ? `${contact.prenom} ${
-                  contact.nom
-                    ? contact.nom.toUpperCase()
-                    : contact.name.toUpperCase()
-                }`
-              : contact.name.toUpperCase()}
+            {formatFullName(contact)}
           </h2>
           <span
             className={`text-xs px-2 py-1 rounded-full font-medium ${
@@ -147,19 +173,24 @@ const ContactSection = ({
         </div>
       </div>
 
-      <div className="text-sm text-gray-600 space-y-1 mt-2">
+      <div className="text-sm text-gray-600 space-y-3 mt-2">
+        {/* Bouton Envoyer email */}
         <div className="flex items-center gap-2">
           <Mail className="w-4 h-4" />
-          <a href={`mailto:${contact.email}`} className="hover:underline">
-            {contact.email}
+          <a onClick={() => (window.location.href = `mailto:${contact.email}`)}>
+            Envoyer email
           </a>
         </div>
+
+        {/* Téléphone */}
         <div className="flex items-center gap-2">
           <Phone className="w-4 h-4" />
           <a href={`tel:${contact.telephone}`} className="hover:underline">
             {contact.telephone || "Non renseigné"}
           </a>
         </div>
+
+        {/* Formations */}
         {showFormations &&
           contact.formations &&
           contact.formations.length > 0 && (
@@ -216,14 +247,16 @@ const ContactSection = ({
   const getContactsInOrder = () => {
     const order = [
       "Formateur",
+      "Formatrice",
       "pole_sav",
       "Commercial",
+      "Commerciale",
       "pole_relation_client",
     ];
     const contactsInOrder = [];
 
     for (const type of order) {
-      const contact = groupedContacts(type)[0]; // Prend le premier contact de chaque type
+      const contact = groupedContacts(type)[0];
       if (contact) {
         contactsInOrder.push(contact);
       }

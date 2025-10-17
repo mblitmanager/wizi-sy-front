@@ -7,9 +7,12 @@ import {
   Trophy,
   Gift,
 } from "lucide-react";
-import { NavLink, useNavigate, useLocation, Link } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useUser } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
+
+// Importer le composant ParrainageBanner
+import { ParrainageBanner } from "../parrainage/ParrainageBanner";
 
 interface MainNavProps {
   showBottomNav?: boolean;
@@ -23,7 +26,7 @@ export default function MainNav({
   const navigate = useNavigate();
   const { logout } = useUser();
 
-  // Main navigation items with additional metadata for animations
+  // Main navigation items
   const navItems = [
     {
       title: "Accueil",
@@ -163,52 +166,10 @@ export default function MainNav({
         </motion.ul>
       </div>
 
-      {/* Promo Banner */}
-      <AnimatePresence>
-        <motion.div
-          className="px-3 pb-6 pt-2"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}>
-          <Link to="/parrainage" className="block w-full">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="relative bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-xl p-3 flex items-center gap-3 overflow-hidden shadow-md hover:shadow-lg transition-all duration-300">
-              <div className="absolute inset-0 bg-noise opacity-10" />
-              <motion.div
-                animate={{
-                  rotate: [0, 5, -5, 0],
-                }}
-                transition={{
-                  repeat: Infinity,
-                  repeatType: "reverse",
-                  duration: 2,
-                }}
-                className="bg-white/20 p-2 rounded-lg flex-shrink-0">
-                <Gift className="w-6 h-6 text-white" />
-              </motion.div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-white truncate">
-                  Je parraine et je gagne
-                </p>
-                <p className="text-lg font-bold text-white">50€</p>
-              </div>
-              <motion.div
-                animate={{
-                  x: [0, 5, 0],
-                }}
-                transition={{
-                  repeat: Infinity,
-                  duration: 2,
-                }}
-                className="text-white">
-                →
-              </motion.div>
-            </motion.div>
-          </Link>
-        </motion.div>
-      </AnimatePresence>
+      {/* Remplacer la bannière statique par ParrainageBanner */}
+      {/* <AnimatePresence>
+        <ParrainageBanner isMobile={true} />
+      </AnimatePresence> */}
     </div>
   );
 }

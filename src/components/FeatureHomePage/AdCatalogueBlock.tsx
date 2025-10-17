@@ -186,7 +186,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
               {formation.image_url && (
                 <div className="h-40 overflow-hidden">
                   <img
-                    src={VITE_API_URL_MEDIA + '/' + formation.image_url}
+                    src={VITE_API_URL_MEDIA + "/" + formation.image_url}
                     alt={formation.formation?.titre || formation.titre}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
@@ -228,9 +228,12 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                   </span>
                   <span className="text-lg font-extrabold text-orange-600">
                     {formation.tarif
-                      ? `${Math.trunc(Number(formation.tarif)).toLocaleString(
-                        "fr-FR"
-                      )} € HT`
+                      ? `${Math.round(Number(formation.tarif))
+                          .toLocaleString("fr-FR", {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 2,
+                          })
+                          .replace(/\s/g, "\u00A0")} €`
                       : "Gratuit"}
                   </span>
                 </div>
