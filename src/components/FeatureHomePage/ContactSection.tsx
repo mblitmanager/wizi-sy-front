@@ -16,12 +16,14 @@ const typeDisplayNames: Record<string, string> = {
   Formateur: "Formateur",
   Commercial: "Commercial",
   pole_relation_client: "Pôle Relation Client",
+  pole_sav: "Pôle SAV",
 };
 
 const typeStyles: Record<string, string> = {
   Formateur: "bg-blue-100 text-blue-800",
   Commercial: "bg-green-100 text-green-800",
   pole_relation_client: "bg-yellow-100 text-yellow-800",
+  pole_sav: "bg-purple-100 text-purple-800",
 };
 
 interface FormationStagiaire {
@@ -36,6 +38,7 @@ interface ContactsSectionProps {
   commerciaux: Contact[];
   formateurs: Contact[];
   poleRelation: Contact[];
+  poleSav?: Contact[]; // Ajout du pôle SAV
   showFormations?: boolean;
 }
 
@@ -45,6 +48,7 @@ const ContactSection = ({
   commerciaux,
   formateurs,
   poleRelation,
+  poleSav,
   showFormations = true,
 }: ContactsSectionProps) => {
   const [showAllContacts, setShowAllContacts] = useState(false);
@@ -63,13 +67,13 @@ const ContactSection = ({
         ...(data.formateurs || []),
         ...(data.commerciaux || []),
         ...(data.pole_relation || []),
+        ...(data.pole_sav || []), // Ajout du pôle SAV
       ];
       return allContacts;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes de cache
     retry: 2, // 2 tentatives en cas d'erreur
   });
-  
 
   const ContactCardSkeleton = () => (
     <div className="bg-white shadow-md rounded-2xl p-5 border">
@@ -92,7 +96,7 @@ const ContactSection = ({
   const renderContactCard = (contact: Contact) => (
     <div
       key={`${contact.type}-${contact.id}`}
-      className="bg-white shadow-md rounded-2xl p-5 border hover:shadow-lg transition">
+      className="bg-white shadow-md rounded-2xl p-5 border hover:shadow-lg transition h-full">
       <div className="flex items-center mb-4">
         {contact.image && contact.image !== "/images/default-avatar.png" ? (
           <img
@@ -101,21 +105,23 @@ const ContactSection = ({
             className="w-12 h-12 rounded-full object-cover mr-4"
           />
         ) : (
-          // show initials when no custom avatar
-          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4 text-white font-semibold text-sm" style={{backgroundColor: '#F3F4F6'}}>
+          <div
+            className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4 text-white font-semibold text-sm"
+            style={{ backgroundColor: "#F3F4F6" }}>
             {(() => {
-              const prenom = contact.prenom || '';
-              const nom = contact.nom || '';
+              const prenom = contact.prenom || "";
+              const nom = contact.nom || "";
               if (nom || prenom) {
-                // initials in order: NOM then PRENOM (as requested)
-                const n = nom ? nom.trim().charAt(0).toUpperCase() : '';
-                const p = prenom ? prenom.trim().charAt(0).toUpperCase() : '';
+                const n = nom ? nom.trim().charAt(0).toUpperCase() : "";
+                const p = prenom ? prenom.trim().charAt(0).toUpperCase() : "";
                 return `${n}${p}` || <User className="text-gray-500" />;
               }
-              const parts = (contact.name || '').trim().split(/\s+/).filter(Boolean);
+              const parts = (contact.name || "")
+                .trim()
+                .split(/\s+/)
+                .filter(Boolean);
               if (parts.length === 0) return <User className="text-gray-500" />;
               if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-              // default: first char of last and first name
               const first = parts[0].charAt(0).toUpperCase();
               const last = parts[parts.length - 1].charAt(0).toUpperCase();
               return `${last}${first}`;
@@ -124,7 +130,13 @@ const ContactSection = ({
         )}
         <div>
           <h2 className="text-lg font-semibold text-gray-800">
-            {contact.prenom ? `${contact.prenom} ${contact.nom ? contact.nom.toUpperCase() : contact.name.toUpperCase()}` : contact.name.toUpperCase()}
+            {contact.prenom
+              ? `${contact.prenom} ${
+                  contact.nom
+                    ? contact.nom.toUpperCase()
+                    : contact.name.toUpperCase()
+                }`
+              : contact.name.toUpperCase()}
           </h2>
           <span
             className={`text-xs px-2 py-1 rounded-full font-medium ${
@@ -135,7 +147,6 @@ const ContactSection = ({
         </div>
       </div>
 
-      {/* Le reste du code reste inchangé */}
       <div className="text-sm text-gray-600 space-y-1 mt-2">
         <div className="flex items-center gap-2">
           <Mail className="w-4 h-4" />
@@ -199,15 +210,26 @@ const ContactSection = ({
   );
 
   const groupedContacts = (type: string) =>
-    contacts.filter((c) => c.type === type);
+    contacts?.filter((c) => c.type === type) || [];
 
-  // Afficher un seul contact de chaque type (Formateur, Commercial, Pôle Relation Client)
-  const getVisibleContacts = () => {
-    return [
-      groupedContacts("Commercial")[0],
-      groupedContacts("Formateur")[0],
-      groupedContacts("pole_relation_client")[0],
-    ].filter(Boolean);
+  // Fonction pour obtenir les contacts dans l'ordre spécifié
+  const getContactsInOrder = () => {
+    const order = [
+      "Formateur",
+      "pole_sav",
+      "Commercial",
+      "pole_relation_client",
+    ];
+    const contactsInOrder = [];
+
+    for (const type of order) {
+      const contact = groupedContacts(type)[0]; // Prend le premier contact de chaque type
+      if (contact) {
+        contactsInOrder.push(contact);
+      }
+    }
+
+    return contactsInOrder;
   };
 
   return (
@@ -226,7 +248,8 @@ const ContactSection = ({
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+            <ContactCardSkeleton />
             <ContactCardSkeleton />
             <ContactCardSkeleton />
             <ContactCardSkeleton />
@@ -240,8 +263,8 @@ const ContactSection = ({
             Aucun contact disponible.
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {getVisibleContacts().map(renderContactCard)}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            {getContactsInOrder().map(renderContactCard)}
           </div>
         )}
       </div>

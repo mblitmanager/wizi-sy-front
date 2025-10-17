@@ -143,12 +143,13 @@ export function QuizCard({ quiz, categories, history }: QuizCardProps) {
   const timeSpent = h?.timeSpent || 0;
   const totalQuestions = h?.totalQuestions || quiz.questions?.length || 0;
   const correct = h?.correctAnswers || 0;
-  const percent = totalQuestions ? Math.round((correct / totalQuestions) * 100) : 0;
+  const percent = totalQuestions
+    ? Math.round((correct / totalQuestions) * 100)
+    : 0;
 
   return (
     <Card
-      className={`w-full h-full overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1 ${categoryConfig.borderColor} ${categoryConfig.bgColor}`}
-    >
+      className={`w-full h-full overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1 ${categoryConfig.borderColor} ${categoryConfig.bgColor}`}>
       {/* Bande de couleur de catégorie en haut */}
       <div
         className="h-2 w-full"
@@ -157,12 +158,11 @@ export function QuizCard({ quiz, categories, history }: QuizCardProps) {
 
       <div className="p-4">
         {/* Header avec icône et titre */}
-        <CardHeader className="p-0 mb-3 flex flex-row items-start gap-3">
+        <CardHeader className="p-0 mb-4 flex flex-row items-start gap-4">
           {categoryConfig.icon && (
             <div
-              className="p-2 rounded-lg flex-shrink-0"
-              style={{ backgroundColor: `${categoryConfig.color}20` }}
-            >
+              className="p-2 rounded-lg flex-shrink-0 mt-1"
+              style={{ backgroundColor: `${categoryConfig.color}20` }}>
               <img
                 src={categoryConfig.icon}
                 alt={categoryName}
@@ -171,23 +171,55 @@ export function QuizCard({ quiz, categories, history }: QuizCardProps) {
             </div>
           )}
 
-          <div className="flex-1">
-            <CardTitle
-              className={`text-lg font-bold line-clamp-2 ${categoryConfig.textColor}`}
-            >
-              {quiz.titre}
-              {/* Niveau badge coloration */}
-              {quiz.niveau && (
-                <span className={`ml-2 px-2 py-1 rounded ${levelConfig.bgClass} ${levelConfig.textClass} text-xs align-middle`}>
-                  {quiz.niveau}
-                </span>
-              )}
-            </CardTitle>
-            <Badge
-              className={`mt-2 text-xs font-medium ${categoryConfig.badgeColor} ${categoryConfig.textColor}`}
-            >
-              {categoryName}
-            </Badge>
+          <div className="flex-1 min-w-0">
+            {/* Conteneur principal du titre */}
+            <div className="mb-2">
+              {(() => {
+                const title = quiz.titre;
+                if (title && title.includes(":")) {
+                  const [mainTitle, subTitle] = title
+                    .split(":")
+                    .map((part) => part.trim());
+                  return (
+                    <div className="space-y-1">
+                      {/* Ligne 1 : Titre principal et badge niveau */}
+                      <div className="flex items-start gap-2 flex-wrap">
+                        <span
+                          className={`text-lg font-bold leading-tight ${categoryConfig.textColor} break-words`}>
+                          {mainTitle}
+                        </span>
+                        {/* Badge de catégorie */}
+                        <Badge
+                          className={`text-xs font-medium ${categoryConfig.badgeColor} ${categoryConfig.textColor} px-2 py-1`}>
+                          {categoryName}
+                        </Badge>
+                      </div>
+
+                      {/* Ligne 2 : Sous-titre sur une ligne séparée */}
+                      <p className="text-sm font-bold text-gray-600 leading-relaxed break-words">
+                        {subTitle}
+                      </p>
+                    </div>
+                  );
+                }
+
+                // Si pas de deux-points, afficher normalement
+                return (
+                  <div className="flex items-start gap-2 flex-wrap">
+                    <span
+                      className={`text-lg font-bold leading-tight ${categoryConfig.textColor} break-words`}>
+                      {title}
+                    </span>
+                    {quiz.niveau && (
+                      <span
+                        className={`px-2 py-1 rounded ${levelConfig.bgClass} ${levelConfig.textClass} text-xs font-medium whitespace-nowrap mt-0.5`}>
+                        {quiz.niveau}
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
           </div>
         </CardHeader>
 
@@ -202,8 +234,7 @@ export function QuizCard({ quiz, categories, history }: QuizCardProps) {
           <div className="flex flex-wrap gap-2">
             {/* Niveau */}
             <Badge
-              className={`text-xs ${levelConfig.bgClass} ${levelConfig.textClass} flex items-center gap-1`}
-            >
+              className={`text-xs ${levelConfig.bgClass} ${levelConfig.textClass} flex items-center gap-1`}>
               <BookOpen className="w-3 h-3" />
               {quiz.niveau || "Niveau"}
             </Badge>
@@ -211,33 +242,33 @@ export function QuizCard({ quiz, categories, history }: QuizCardProps) {
             {/* Points */}
             <Badge
               variant="outline"
-              className="text-xs flex items-center gap-1"
-            >
+              className="text-xs flex items-center gap-1">
               <Award className="w-3 h-3" />
-              {correct > 0 ? `${correct} pts` :(quiz.questions?.length
+              {correct > 0
+                ? `${correct} pts`
+                : quiz.questions?.length
                 ? `${Math.min(quiz.questions.length * 2, 10)} pts`
-                : "0 pt")}
-
+                : "0 pt"}
             </Badge>
 
             {/* Temps estimé */}
             <Badge
               variant="outline"
-              className="text-xs flex items-center gap-1"
-            >
+              className="text-xs flex items-center gap-1">
               <Clock className="w-3 h-3" />
-                {timeSpent ? `${Math.floor(timeSpent / 60)} min ${(timeSpent % 60).toString().padStart(2, "0")} sec` : "03 min"}
-              
+              {timeSpent
+                ? `${Math.floor(timeSpent / 60)} min ${(timeSpent % 60)
+                    .toString()
+                    .padStart(2, "0")} sec`
+                : "03 min"}
             </Badge>
           </div>
           {h && (
             <div className="mt-3 text-xs text-gray-700 flex items-center gap-2">
               <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-50 text-blue-700 text-[10px] font-bold">
-                {correct/5*100}%
+                {(correct / 5) * 100}%
               </span>
-              <span>
-                {correct}/5 bonnes réponses
-              </span>
+              <span>{correct}/5 bonnes réponses</span>
             </div>
           )}
         </CardContent>

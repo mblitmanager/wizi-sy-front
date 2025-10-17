@@ -2,7 +2,7 @@ import { CatalogueFormationResponse } from "@/types/stagiaire";
 import axios from "axios";
 
 const VITE_API_URL =
-  import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
+  import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
 
 export const api = axios.create({
   baseURL: VITE_API_URL,
@@ -22,14 +22,18 @@ export function setTokenProvider(provider: () => string | null | undefined) {
 
 api.interceptors.request.use((config) => {
   try {
-    const token = tokenProvider ? tokenProvider() : localStorage.getItem("token");
+    const token = tokenProvider
+      ? tokenProvider()
+      : localStorage.getItem("token");
     if (token) {
       config.headers = config.headers || {};
-      (config.headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+      (config.headers as Record<string, string>)[
+        "Authorization"
+      ] = `Bearer ${token}`;
     }
   } catch (err) {
     // If reading token fails, omit Authorization header (safe fallback)
-    console.warn('Error reading auth token for API request interceptor', err);
+    console.warn("Error reading auth token for API request interceptor", err);
   }
   return config;
 });
@@ -40,13 +44,10 @@ export const catalogueFormationApi = {
     stagiaireId: string
   ): Promise<CatalogueFormationResponse> => {
     try {
-      const response = await axios.get<CatalogueFormationResponse>(
-        `${VITE_API_URL}/catalogueFormations/stagiaire/${stagiaireId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
+      // Use the configured api instance instead of axios directly
+      const response = await api.get<CatalogueFormationResponse>(
+        `/catalogueFormations/stagiaire/${stagiaireId}`
+        // Remove the manual headers - the interceptor will handle it
       );
       return response.data;
     } catch (error) {
@@ -97,21 +98,32 @@ export const catalogueFormationApi = {
 
   getAllCatalogueFormation: async (): Promise<CatalogueFormationResponse> => {
     try {
+      // Vérifier si un token existe
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
       const response = await axios.get<CatalogueFormationResponse>(
         `${VITE_API_URL}/catalogueFormations/with-formations`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
-      // La réponse inclut déjà les formations associées
       return response.data;
     } catch (error) {
       console.error(
         "Erreur lors de la récupération du catalogue complet:",
         error
       );
+
+      // Relancer l'erreur pour que React Query puisse la gérer
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        // Optionnel: nettoyer le token invalide
+        localStorage.removeItem("token");
+      }
       throw error;
     }
   },
@@ -156,4 +168,5 @@ export const formationApi = {
 export const questionApi = {
   getQuestionById: (id: string) => api.get(`questions/questionById/${id}`),
 };
+
 export default api;

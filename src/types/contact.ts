@@ -21,4 +21,5 @@ export interface ContactResponse {
   commerciaux: Contact[];
   formateurs: Contact[];
   poleRelation: Contact[];
+  poleSav?: Contact[];
 }

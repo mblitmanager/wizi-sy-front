@@ -1,115 +1,117 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Users,
-  Link as LinkIcon,
-  Copy,
-  BarChart2,
-  UserPlus,
-  Star,
-  Award,
-  Megaphone,
-  Gift,
-  Share2,
-  ChevronRight,
-} from "lucide-react";
+import { UserPlus, Gift, Share2, ChevronRight, User } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { parrainageService } from "../../services/parrainageService";
-import { ParrainageStats as ParrainageStatsType } from "../../services/parrainageService";
-import image from "../../assets/aopia parrainage.png";
+import image from "../../assets/plan.png";
 import { useUser } from "@/hooks/useAuth";
-import LienParrainage from "../parrainage/LienParainage";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://wizi-learn.com/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
+
+interface FormData {
+  civilite: string;
+  prenom: string;
+  nom: string;
+  telephone: string;
+  statut: string;
+  parrain_id: string;
+  lien_parrainage: string;
+  motif?: string;
+  date_demande?: string;
+  date_inscription?: string;
+}
 
 const ParrainageSection = () => {
-  const [parrainageLink, setParrainageLink] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [stats, setStats] = useState<ParrainageStatsType | null>(null);
-  const [statsLoading, setStatsLoading] = useState(true);
-  const [statsError, setStatsError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<FormData>({
+    civilite: "M",
+    prenom: "",
+    nom: "",
+    telephone: "",
+    statut: "1",
+    parrain_id: "",
+    lien_parrainage: "",
+  });
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const { toast } = useToast();
   const { user } = useUser();
 
+  // Pré-remplir le parrain_id avec l'ID de l'utilisateur connecté
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const userId = user?.user?.id;
-        if (!userId) {
-          return;
-        }
+    if (user?.user?.id) {
+      setFormData((prev) => ({
+        ...prev,
+        parrain_id: user.user.id.toString(),
+      }));
+    }
+  }, [user]);
 
-        const response = await fetch(`${API_URL}/parrainage/stats/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            errorData.message ||
-              "Erreur lors de la récupération des statistiques"
-          );
-        }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
 
-        const data = await response.json();
-
-        setStats({
-          total_filleuls: data.nombre_filleuls,
-          total_points: parseInt(data.total_points),
-          gains: parseFloat(data.gains),
-        });
-      } catch (err) {
-        console.error("Error in fetchStats:", err);
-        setStatsError(
-          err instanceof Error
-            ? err.message
-            : "Erreur lors du chargement des statistiques"
-        );
-      } finally {
-        setStatsLoading(false);
-      }
-    };
-
-    fetchStats();
-  }, [user?.user?.id]);
-
-  const generateLink = async () => {
     try {
-      setIsLoading(true);
-      const response = await fetch(`${API_URL}/parrainage/generate-link`, {
+      // Préparer les données avec le motif par défaut
+      const payload = {
+        ...formData,
+        date_inscription: new Date().toISOString().split("T")[0],
+        motif: "Soumission d'une demande d'inscription par parrainage",
+        date_demande: new Date().toISOString(),
+      };
+
+      const response = await fetch(`${API_URL}/parrainage/register-filleul`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "application/json",
         },
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
-      if (data.success) {
-        setParrainageLink(data.link);
-      } else {
-        throw new Error(data.message || "Erreur lors de la génération du lien");
+
+      if (!response.ok) {
+        if (data.errors) {
+          setErrors(data.errors);
+          throw new Error("Veuillez corriger les erreurs dans le formulaire");
+        }
+        throw new Error(data.message || "Erreur lors de l'inscription");
       }
-    } catch (error) {
+
+      // Réinitialisation du formulaire après succès
+      setFormData({
+        civilite: "M",
+        prenom: "",
+        nom: "",
+        telephone: "",
+        statut: "1",
+        parrain_id: user?.user?.id?.toString() || "",
+        lien_parrainage: "",
+      });
+
+      setErrors({});
+      setIsSuccess(true);
+
+      toast({
+        title: "Succès",
+        description: "Inscription du filleul réussie !",
+      });
+    } catch (error: any) {
       toast({
         title: "Erreur",
         description: error.message,
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setSubmitting(false);
     }
-  };
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(parrainageLink);
-    toast({
-      title: "Succès",
-      description: "Lien copié dans le presse-papiers",
-    });
   };
 
   return (
@@ -142,10 +144,9 @@ const ParrainageSection = () => {
               Programme de parrainage
             </h1>
             <p className="hidden lg:block text-lg text-gray-600 mb-6">
-              Parrainez vos amis et gagnez{" "}
+              Parrainez vos collègues et gagnez{" "}
               <span className="text-orange-600 font-bold">50€</span> pour chaque
-              inscription valide. Partagez votre lien unique et suivez vos gains
-              en temps réel.
+              inscription valide.
             </p>
 
             <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6 mb-6 border border-yellow-100">
@@ -155,126 +156,253 @@ const ParrainageSection = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                    Gagnez jusqu'à 500€ par mois
+                    Plus vous parrainez, plus vous gagnez des cartes cadeaux.
                   </h3>
-                  <p className="text-gray-600 mb-4">
-                    Plus vous parrainez, plus vous gagnez. Vos gains sont
-                    directement versés sur votre compte chaque mois.
-                  </p>
-                  <Button className="bg-orange-600 hover:bg-orange-700 text-white">
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Commencer à parrainer
-                  </Button>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Link Generation Card */}
-          <div className="mb-8">
-            <Card className="border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+          {/* Section Informations du Parrain */}
+          <div className="mb-6">
+            <Card className="border border-blue-200 rounded-xl shadow-sm">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="bg-indigo-100 p-2 rounded-lg">
-                    <Megaphone className="h-5 w-5 text-orange-600" />
+                  <div className="bg-blue-100 p-2 rounded-lg">
+                    <User className="h-5 w-5 text-blue-600" />
                   </div>
                   <h3 className="text-xl font-semibold text-gray-800">
-                    Votre lien de parrainage
+                    Votre profil de parrain
                   </h3>
                 </div>
-                <p className="text-gray-600 mb-6">
-                  Partagez ce lien unique avec vos amis et commencez à gagner.
-                  Chaque inscription valide vous rapporte{" "}
-                  <span className="font-bold text-orange-600">50€</span>.
-                </p>
-                <LienParrainage />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-600">Nom du parrain</p>
+                    <p className="text-lg font-semibold text-gray-800">
+                      {user?.user?.name || "Non disponible"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Email du parrain</p>
+                    <p className="text-lg font-semibold text-orange-600">
+                      {user?.user?.email || "Non disponible"}
+                    </p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Stats Section */}
+          {/* Formulaire d'inscription des filleuls */}
           <div className="mb-8">
-            {statsLoading ? (
-              <div className="flex justify-center items-center h-40">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              </div>
-            ) : statsError ? (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-600">
-                {statsError}
-              </div>
-            ) : (
-              stats && (
-                <Card className="border border-gray-200 rounded-xl shadow-sm">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="bg-amber-100 p-2 rounded-lg">
-                        <BarChart2 className="h-5 w-5 text-amber-600" />
-                      </div>
-                      <h3 className="text-xl font-semibold text-gray-800">
-                        Vos statistiques
-                      </h3>
-                    </div>
+            <Card className="border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="bg-indigo-100 p-2 rounded-lg">
+                    <UserPlus className="h-5 w-5 text-orange-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-800">
+                    Inscrire un filleul
+                  </h3>
+                </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="bg-white border border-gray-100 rounded-lg p-4 shadow-xs hover:shadow-sm transition-shadow">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="bg-blue-100 p-2 rounded-full">
-                            <UserPlus className="h-4 w-4 text-orange-600" />
-                          </div>
-                          <h4 className="text-sm font-medium text-gray-500">
-                            Filleuls
-                          </h4>
-                        </div>
-                        <p className="text-3xl font-bold text-gray-800">
-                          {stats.total_filleuls}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          +0 cette semaine
-                        </p>
+                {/* Message de succès */}
+                {isSuccess && (
+                  <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex">
+                      <div className="flex-shrink-0">
+                        <svg
+                          className="h-5 w-5 text-green-400"
+                          fill="currentColor"
+                          viewBox="0 0 20 20">
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
                       </div>
-
-                      <div className="bg-white border border-gray-100 rounded-lg p-4 shadow-xs hover:shadow-sm transition-shadow">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="bg-green-100 p-2 rounded-full">
-                            <Star className="h-4 w-4 text-green-600" />
-                          </div>
-                          <h4 className="text-sm font-medium text-gray-500">
-                            Points
-                          </h4>
+                      <div className="ml-3">
+                        <h3 className="text-sm font-medium text-green-800">
+                          Filleul inscrit avec succès !
+                        </h3>
+                        <div className="mt-2 text-sm text-green-700">
+                          <p>
+                            Le filleul a été inscrit avec succès. Vous recevrez
+                            50€ en carte cadeau une fois son inscription
+                            validée.
+                          </p>
                         </div>
-                        <p className="text-3xl font-bold text-gray-800">
-                          {stats.total_points || 0}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">Cumulés</p>
-                      </div>
-
-                      <div className="bg-white border border-gray-100 rounded-lg p-4 shadow-xs hover:shadow-sm transition-shadow">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="bg-purple-100 p-2 rounded-full">
-                            <Award className="h-4 w-4 text-purple-600" />
-                          </div>
-                          <h4 className="text-sm font-medium text-gray-500">
-                            Gains
-                          </h4>
-                        </div>
-                        <p className="text-3xl font-bold text-gray-800">
-                          {stats.gains && stats.gains > 0
-                            ? `${
-                                stats.gains % 1 === 0
-                                  ? stats.gains.toFixed(0)
-                                  : stats.gains.toFixed(2)
-                              } €`
-                            : "0 €"}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          Par chaque isncription
-                        </p>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              )
-            )}
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <input
+                    type="hidden"
+                    name="parrain_id"
+                    value={formData.parrain_id}
+                  />
+
+                  <div className="grid grid-cols-1 gap-6">
+                    {/* Civilité */}
+                    <div>
+                      <label
+                        htmlFor="civilite"
+                        className="block text-sm font-medium text-gray-700 mb-2">
+                        Civilité
+                      </label>
+                      <div className="flex space-x-4">
+                        {[
+                          { value: "M", label: "Monsieur" },
+                          { value: "Mme", label: "Madame" },
+                        ].map((option) => (
+                          <label
+                            key={option.value}
+                            className="inline-flex items-center">
+                            <input
+                              type="radio"
+                              name="civilite"
+                              value={option.value}
+                              checked={formData.civilite === option.value}
+                              onChange={handleChange}
+                              className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300"
+                            />
+                            <span className="ml-2 text-gray-700">
+                              {option.label}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                      {errors.civilite && (
+                        <p className="mt-2 text-sm text-red-600">
+                          {errors.civilite[0]}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Nom et Prénom */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Prénom */}
+                      <div>
+                        <label
+                          htmlFor="prenom"
+                          className="block text-sm font-medium text-gray-700 mb-2">
+                          Prénom
+                        </label>
+                        <input
+                          type="text"
+                          id="prenom"
+                          name="prenom"
+                          value={formData.prenom}
+                          onChange={handleChange}
+                          className={`block w-full px-4 py-3 rounded-md border shadow-sm focus:ring-orange-500 focus:border-orange-500 ${
+                            errors.prenom ? "border-red-300" : "border-gray-300"
+                          }`}
+                          required
+                        />
+                        {errors.prenom && (
+                          <p className="mt-2 text-sm text-red-600">
+                            {errors.prenom[0]}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Nom */}
+                      <div>
+                        <label
+                          htmlFor="nom"
+                          className="block text-sm font-medium text-gray-700 mb-2">
+                          Nom
+                        </label>
+                        <input
+                          type="text"
+                          id="nom"
+                          name="nom"
+                          value={formData.nom}
+                          onChange={handleChange}
+                          className={`block w-full px-4 py-3 rounded-md border shadow-sm focus:ring-orange-500 focus:border-orange-500 ${
+                            errors.nom ? "border-red-300" : "border-gray-300"
+                          }`}
+                          required
+                        />
+                        {errors.nom && (
+                          <p className="mt-2 text-sm text-red-600">
+                            {errors.nom[0]}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Téléphone uniquement */}
+                    <div>
+                      <label
+                        htmlFor="telephone"
+                        className="block text-sm font-medium text-gray-700 mb-2">
+                        Téléphone
+                      </label>
+                      <input
+                        type="tel"
+                        id="telephone"
+                        name="telephone"
+                        value={formData.telephone}
+                        onChange={handleChange}
+                        className={`block w-full px-4 py-3 rounded-md border shadow-sm focus:ring-orange-500 focus:border-orange-500 ${
+                          errors.telephone
+                            ? "border-red-300"
+                            : "border-gray-300"
+                        }`}
+                        required
+                        placeholder="Ex: +33 1 23 45 67 89"
+                      />
+                      {errors.telephone && (
+                        <p className="mt-2 text-sm text-red-600">
+                          {errors.telephone[0]}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Statut (caché) */}
+                  <input type="hidden" name="statut" value={formData.statut} />
+
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition ${
+                        submitting ? "opacity-75 cursor-not-allowed" : ""
+                      }`}>
+                      {submitting ? (
+                        <>
+                          <svg
+                            className="animate-spin -ml-1 mr-3 h-4 w-4 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24">
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Inscription en cours...
+                        </>
+                      ) : (
+                        "Inscrire le filleul"
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
           </div>
 
           {/* How It Works Section */}
@@ -296,10 +424,10 @@ const ParrainageSection = () => {
                   </div>
                   <div>
                     <h4 className="font-medium text-gray-800 mb-1">
-                      Générez votre lien
+                      Remplissez le formulaire
                     </h4>
                     <p className="text-gray-600 text-sm">
-                      Créez votre lien de parrainage unique en un clic.
+                      Inscrivez la personne avec ses informations.
                     </p>
                   </div>
                 </div>
@@ -310,11 +438,10 @@ const ParrainageSection = () => {
                   </div>
                   <div>
                     <h4 className="font-medium text-gray-800 mb-1">
-                      Partagez avec vos proches
+                      Contact commercial
                     </h4>
                     <p className="text-gray-600 text-sm">
-                      Envoyez votre lien par email, réseaux sociaux ou
-                      messagerie.
+                      Un commercial le contacte pour ses choix de formation.
                     </p>
                   </div>
                 </div>
@@ -325,10 +452,10 @@ const ParrainageSection = () => {
                   </div>
                   <div>
                     <h4 className="font-medium text-gray-800 mb-1">
-                      Vos amis s'inscrivent
+                      Validation des formations
                     </h4>
                     <p className="text-gray-600 text-sm">
-                      Ils utilisent votre lien pour créer leur compte.
+                      Le commercial valide les formations choisies.
                     </p>
                   </div>
                 </div>
@@ -339,10 +466,11 @@ const ParrainageSection = () => {
                   </div>
                   <div>
                     <h4 className="font-medium text-gray-800 mb-1">
-                      Vous gagnez 50€
+                      Récompense de 50€
                     </h4>
                     <p className="text-gray-600 text-sm">
-                      Pour chaque inscription valide, vous recevez 50€.
+                      Vous recevez 50€ en carte cadeau pour chaque inscription
+                      validée.
                     </p>
                   </div>
                 </div>
@@ -360,43 +488,6 @@ const ParrainageSection = () => {
                 alt="Programme de parrainage"
                 className="w-full h-auto object-contain rounded-lg"
               />
-              <div className="mt-6">
-                <h3 className="text-xl font-semibold text-gray-800 mb-3">
-                  Pourquoi parrainer ?
-                </h3>
-                <ul className="space-y-3">
-                  <li className="flex items-start gap-3">
-                    <div className="bg-blue-100 p-1 rounded-full mt-1">
-                      <ChevronRight className="h-4 w-4 text-orange-600" />
-                    </div>
-                    <span className="text-gray-600">
-                      Revenus complémentaires faciles
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <div className="bg-blue-100 p-1 rounded-full mt-1">
-                      <ChevronRight className="h-4 w-4 text-orange-600" />
-                    </div>
-                    <span className="text-gray-600">Sans limite de gains</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <div className="bg-blue-100 p-1 rounded-full mt-1">
-                      <ChevronRight className="h-4 w-4 text-orange-600" />
-                    </div>
-                    <span className="text-gray-600">
-                      Paiements mensuels sécurisés
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <div className="bg-blue-100 p-1 rounded-full mt-1">
-                      <ChevronRight className="h-4 w-4 text-orange-600" />
-                    </div>
-                    <span className="text-gray-600">
-                      Tableau de bord de suivi
-                    </span>
-                  </li>
-                </ul>
-              </div>
             </div>
           </div>
         </div>
