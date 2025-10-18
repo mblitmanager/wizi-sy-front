@@ -5,76 +5,11 @@ import { contactService } from "@/services/ContactService";
 import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
 import { CatalogueFormation } from "@/types/stagiaire";
 import apiClient from "@/lib/api-client";
+import { ContactCard } from "@/components/Contacts/ContactCard";
+import type { Contact } from "@/types/contact";
 
-// Mapping des noms d'affichage
-const typeDisplayNames: Record<string, string> = {
-  Formateur: "Formateur",
-  Commercial: "Commercial",
-  pole_relation_client: "Pôle Relation Client",
-  pole_sav: "Pôle SAV", // Ajout du Pôle SAV
-  Conseiller: "Conseiller",
-  "Consultant 1er accueil": "Consultant 1er accueil",
-  Interlocuteur: "Interlocuteur",
-};
-
-const typeStyles: Record<string, string> = {
-  Formateur: "bg-blue-100 text-blue-800",
-  Commercial: "bg-green-100 text-green-800",
-  pole_relation_client: "bg-yellow-100 text-yellow-800",
-  pole_sav: "bg-purple-100 text-purple-800", // Ajout du style pour Pôle SAV
-  Conseiller: "bg-purple-100 text-purple-800",
-  "Consultant 1er accueil": "bg-pink-100 text-pink-800",
-  Interlocuteur: "bg-orange-100 text-orange-800",
-};
 
 const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_MEDIA;
-
-interface FormationStagiaire {
-  id: number;
-  titre: string;
-  dateDebut?: string;
-  dateFin?: string;
-  formateur?: string;
-}
-
-interface RawFormateur {
-  id: number;
-  user: {
-    name: string;
-    email: string;
-  };
-  telephone?: string;
-  formations?: Array<{
-    id: number;
-    titre: string;
-    pivot?: {
-      date_debut?: string;
-      date_fin?: string;
-    };
-  }>;
-}
-
-interface RawContact {
-  id: number;
-  user: {
-    name: string;
-    email: string;
-  };
-  telephone?: string;
-}
-
-interface Contact {
-  id: number;
-  type: string;
-  name: string;
-  email: string;
-  telephone?: string;
-  formations?: FormationStagiaire[];
-  role?: string;
-  image?: string;
-  prenom?: string;
-  nom?: string;
-}
 
 interface PartnerContact {
   prenom?: string;
@@ -113,7 +48,7 @@ export default function Contact() {
           ...(data.formateurs || []),
           ...(data.commerciaux || []),
           ...(data.pole_relation || []),
-          ...(data.pole_sav || []), // Ajout du Pôle SAV
+          ...(data.pole_sav || []), 
         ];
         setContacts(allContacts);
       } catch (error) {
@@ -344,145 +279,10 @@ export default function Contact() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {contacts.map((contact) => (
-              <div
-                key={`${contact.type || "contact"}-${contact.id}`}
-                className="bg-white shadow-md rounded-2xl p-5 border hover:shadow-lg transition">
-                <div className="flex items-center mb-4">
-                  {contact.image &&
-                  contact.image !== "/images/default-avatar.png" ? (
-                    <img
-                      src={`${VITE_API_URL_IMG}/${contact.image}`}
-                      alt={contact.name}
-                      className="w-12 h-12 rounded-full object-cover mr-4"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4 text-sm font-semibold text-gray-700">
-                      {(() => {
-                        const prenom = contact.prenom || "";
-                        const nom = contact.nom || "";
-                        if (prenom || nom) {
-                          const n = nom
-                            ? nom.trim().charAt(0).toUpperCase()
-                            : "";
-                          const p = prenom
-                            ? prenom.trim().charAt(0).toUpperCase()
-                            : "";
-                          return (
-                            `${n}${p}` || <User className="text-gray-500" />
-                          );
-                        }
-                        const parts = (contact.name || "")
-                          .trim()
-                          .split(/\s+/)
-                          .filter(Boolean);
-                        if (parts.length === 0)
-                          return <User className="text-gray-500" />;
-                        if (parts.length === 1)
-                          return parts[0].charAt(0).toUpperCase();
-                        const first = parts[0].charAt(0).toUpperCase();
-                        const last = parts[parts.length - 1]
-                          .charAt(0)
-                          .toUpperCase();
-                        return `${last}${first}`;
-                      })()}
-                    </div>
-                  )}
-                  <div>
-                    <h2 className="text-lg font-semibold text-gray-800">
-                      {contact.prenom
-                        ? `${contact.prenom} ${(
-                            contact.nom ||
-                            contact.name ||
-                            ""
-                          ).toUpperCase()}`.trim()
-                        : (contact.name || "").toUpperCase()}
-                    </h2>
-                    <span
-                      className={`text-xs px-2 py-1 rounded-full font-medium ${
-                        typeStyles[typeDisplayNames[contact.type]] ||
-                        typeStyles[contact.type] ||
-                        "bg-gray-100 text-gray-800"
-                      }`}>
-                      {typeDisplayNames[contact.type] || contact.type}
-                    </span>
-                    {contact.role && (
-                      <span className="ml-2 text-xs px-2 py-1 rounded-full font-medium bg-gray-200 text-gray-700 border border-gray-300">
-                        {contact.role === "pole_relation_client"
-                          ? "Pôle relation client"
-                          : contact.role === "pole_sav"
-                          ? "Pôle SAV"
-                          : contact.role}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="text-sm text-gray-600 space-y-1 mt-2">
-                  <div className="flex items-center gap-2">
-                    <Mail className="w-4 h-4" />
-                    <a
-                      href={`mailto:${contact.email}`}
-                      className="hover:underline">
-                      {contact.email}
-                    </a>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Phone className="w-4 h-4" />
-                    <a
-                      href={`tel:${contact.telephone}`}
-                      className="hover:underline">
-                      {contact.telephone || "Non renseigné"}
-                    </a>
-                  </div>
-                  {contact.formations && contact.formations.length > 0 && (
-                    <div className="mt-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="inline-block bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">
-                          {contact.formations.length > 1
-                            ? "Formations"
-                            : "Formation"}
-                        </span>
-                        <span className="text-xs text-gray-400">
-                          ({contact.formations.length})
-                        </span>
-                      </div>
-                      <div className="space-y-2">
-                        {contact.formations.map((formation) => (
-                          <div
-                            key={formation.id}
-                            className="flex items-center bg-gray-50 rounded-lg px-3 py-2 shadow-sm hover:bg-blue-50 transition">
-                            <div className="flex-1">
-                              <span className="font-medium text-gray-800">
-                                {formation.titre}
-                              </span>
-                              <div className="text-xs text-gray-500">
-                                {formation.dateDebut && (
-                                  <span className="mr-2">
-                                    <span className="font-semibold">
-                                      Début:
-                                    </span>{" "}
-                                    {new Date(
-                                      formation.dateDebut
-                                    ).toLocaleDateString("fr-FR")}
-                                  </span>
-                                )}
-                                {formation.dateFin && (
-                                  <span>
-                                    <span className="font-semibold">Fin:</span>{" "}
-                                    {new Date(
-                                      formation.dateFin
-                                    ).toLocaleDateString("fr-FR")}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <ContactCard 
+                key={`${contact.role || contact.type}-${contact.id}`} 
+                contact={contact} 
+              />
             ))}
           </div>
         )}

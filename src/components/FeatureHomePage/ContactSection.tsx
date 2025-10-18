@@ -1,41 +1,13 @@
 import { useEffect, useState } from "react";
-import { User, Mail, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { contactService } from "@/services";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
 import { Contact } from "@/types/contact";
 import { CONTACTEZ_NOUS } from "@/utils/constants";
 import { ArrowRight } from "lucide-react";
-
-// Mapping des noms d'affichage avec gestion des rôles féminins
-const typeDisplayNames: Record<string, string> = {
-  Formateur: "Formateur",
-  Formatrice: "Formatrice",
-  Commercial: "Commercial",
-  Commerciale: "Commerciale",
-  pole_relation_client: "Pôle Relation Client",
-  pole_sav: "Pôle SAV",
-};
-
-const typeStyles: Record<string, string> = {
-  Formateur: "bg-blue-100 text-blue-800",
-  Formatrice: "bg-blue-100 text-blue-800",
-  Commercial: "bg-green-100 text-green-800",
-  Commerciale: "bg-green-100 text-green-800",
-  pole_relation_client: "bg-yellow-100 text-yellow-800",
-  pole_sav: "bg-purple-100 text-purple-800",
-};
-
-interface FormationStagiaire {
-  id: number;
-  titre: string;
-  dateDebut?: string;
-  dateFin?: string;
-  formateur?: string;
-}
+import { ContactCard } from "@/components/Contacts/ContactCard";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ContactsSectionProps {
   commerciaux: Contact[];
@@ -44,8 +16,6 @@ interface ContactsSectionProps {
   poleSav?: Contact[];
   showFormations?: boolean;
 }
-
-const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_MEDIA;
 
 const ContactSection = ({
   commerciaux,
@@ -96,167 +66,30 @@ const ContactSection = ({
     </div>
   );
 
-  // Fonction pour formater la civilité
-  const formatCivilite = (civilite: string): string => {
-    const civiliteMap: Record<string, string> = {
-      M: "M.",
-      "M.": "M.",
-      Mme: "Mme",
-      "Mme.": "Mme",
-      Mlle: "Mlle",
-      "Mlle.": "Mlle",
-    };
-    return civiliteMap[civilite] || civilite;
-  };
-
-  // Fonction pour formater le nom complet avec civilité
-  const formatFullName = (contact: Contact): string => {
-    const civilite = contact.civilite
-      ? `${formatCivilite(contact.civilite)} `
-      : "";
-
-    if (contact.prenom) {
-      const nom = contact.nom
-        ? contact.nom.toUpperCase()
-        : (contact.name || "").toUpperCase();
-      return `${civilite}${contact.prenom} ${nom}`;
-    }
-
-    return `${civilite}${(contact.name || "").toUpperCase()}`;
-  };
-
-  const renderContactCard = (contact: Contact) => (
-    <div
-      key={`${contact.type}-${contact.id}`}
-      className="bg-white shadow-md rounded-2xl p-5 border hover:shadow-lg transition h-full">
-      <div className="flex items-center mb-4">
-        {contact.image && contact.image !== "/images/default-avatar.png" ? (
-          <img
-            src={`${VITE_API_URL_IMG}/${contact.image}`}
-            alt={contact.name}
-            className="w-12 h-12 rounded-full object-cover mr-4"
-          />
-        ) : (
-          <div
-            className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4 text-white font-semibold text-sm"
-            style={{ backgroundColor: "#F3F4F6" }}>
-            {(() => {
-              const prenom = contact.prenom || "";
-              const nom = contact.nom || "";
-              if (nom || prenom) {
-                const n = nom ? nom.trim().charAt(0).toUpperCase() : "";
-                const p = prenom ? prenom.trim().charAt(0).toUpperCase() : "";
-                return `${n}${p}` || <User className="text-gray-500" />;
-              }
-              const parts = (contact.name || "")
-                .trim()
-                .split(/\s+/)
-                .filter(Boolean);
-              if (parts.length === 0) return <User className="text-gray-500" />;
-              if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-              const first = parts[0].charAt(0).toUpperCase();
-              const last = parts[parts.length - 1].charAt(0).toUpperCase();
-              return `${last}${first}`;
-            })()}
-          </div>
-        )}
-        <div>
-          <h2 className="text-lg font-semibold text-gray-800">
-            {formatFullName(contact)}
-          </h2>
-          <span
-            className={`text-xs px-2 py-1 rounded-full font-medium ${
-              typeStyles[contact.type]
-            }`}>
-            {typeDisplayNames[contact.type] || contact.type}
-          </span>
-        </div>
-      </div>
-
-      <div className="text-sm text-gray-600 space-y-3 mt-2">
-        {/* Bouton Envoyer email */}
-        <div className="flex items-center gap-2">
-          <Mail className="w-4 h-4" />
-          <a onClick={() => (window.location.href = `mailto:${contact.email}`)}>
-            Envoyer email
-          </a>
-        </div>
-
-        {/* Téléphone */}
-        <div className="flex items-center gap-2">
-          <Phone className="w-4 h-4" />
-          <a href={`tel:${contact.telephone}`} className="hover:underline">
-            {contact.telephone || "Non renseigné"}
-          </a>
-        </div>
-
-        {/* Formations */}
-        {showFormations &&
-          contact.formations &&
-          contact.formations.length > 0 && (
-            <div className="mt-4">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="inline-block bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">
-                  {contact.formations.length > 1 ? "Formations" : "Formation"}
-                </span>
-                <span className="text-xs text-gray-400">
-                  ({contact.formations.length})
-                </span>
-              </div>
-              <div className="space-y-2">
-                {contact.formations.map((formation) => (
-                  <div
-                    key={formation.id}
-                    className="flex items-center bg-gray-50 rounded-lg px-3 py-2 shadow-sm hover:bg-blue-50 transition">
-                    <div className="flex-1">
-                      <span className="font-medium text-gray-800">
-                        {formation.titre}
-                      </span>
-                      <div className="text-xs text-gray-500">
-                        {formation.dateDebut && (
-                          <span className="mr-2">
-                            <span className="font-semibold">Début:</span>{" "}
-                            {new Date(formation.dateDebut).toLocaleDateString(
-                              "fr-FR"
-                            )}
-                          </span>
-                        )}
-                        {formation.dateFin && (
-                          <span>
-                            <span className="font-semibold">Fin:</span>{" "}
-                            {new Date(formation.dateFin).toLocaleDateString(
-                              "fr-FR"
-                            )}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-      </div>
-    </div>
-  );
-
-  const groupedContacts = (type: string) =>
-    contacts?.filter((c) => c.type === type) || [];
+  // Fonction améliorée pour grouper les contacts par rôle
+  const groupedContacts = (targetRole: string) =>
+    contacts?.filter((c) => {
+      const role = c.role || c.type;
+      // Gérer les différents formats de rôle
+      if (targetRole === "pole_sav") {
+        return role === "pole_sav" || role === "Pôle SAV";
+      }
+      return role === targetRole;
+    }) || [];
 
   // Fonction pour obtenir les contacts dans l'ordre spécifié
   const getContactsInOrder = () => {
     const order = [
-      "Formateur",
-      "Formatrice",
-      "pole_sav",
-      "Commercial",
-      "Commerciale",
-      "pole_relation_client",
+      "formateur",           // Formateurs
+      "pole_sav",            // Pôle SAV  
+      "commerciale",         // Commercial
+      "pole_relation_client" // Pôle relation clients
     ];
+    
     const contactsInOrder = [];
 
-    for (const type of order) {
-      const contact = groupedContacts(type)[0];
+    for (const role of order) {
+      const contact = groupedContacts(role)[0];
       if (contact) {
         contactsInOrder.push(contact);
       }
@@ -297,7 +130,9 @@ const ContactSection = ({
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {getContactsInOrder().map(renderContactCard)}
+            {getContactsInOrder().map((contact) => (
+              <ContactCard key={`${contact.role}-${contact.id}`} contact={contact} />
+            ))}
           </div>
         )}
       </div>

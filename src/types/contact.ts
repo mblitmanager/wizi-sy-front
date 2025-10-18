@@ -14,6 +14,7 @@ export interface Contact {
   image?: string;
   poste?: string;
   image_url?: string;
+  phone?: string;
   formation?: Formation[];
   formations?: Formation[];
 }
