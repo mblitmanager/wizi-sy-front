@@ -23,12 +23,12 @@ const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_MEDIA;
 
 const FormationCard = ({ formation }: { formation: FormationCardData }) => {
   const navigate = useNavigate();
-  const categoryBorderClasses: Record<CATEGORIES, string> = {
-    [CATEGORIES.BUREAUTIQUE]: "border-bureautique",
-    [CATEGORIES.LANGUES]: "border-langues",
-    [CATEGORIES.INTERNET]: "border-internet",
-    [CATEGORIES.CREATION]: "border-creation",
-    [CATEGORIES.IA]: "border-ia",
+  const categoryColors: Record<CATEGORIES, string> = {
+    [CATEGORIES.BUREAUTIQUE]: "border-[#3D9BE9]",
+    [CATEGORIES.LANGUES]: "border-[#A55E6E]",
+    [CATEGORIES.INTERNET]: "border-[#FFC533]",
+    [CATEGORIES.CREATION]: "border-[#9392BE]",
+    [CATEGORIES.IA]: "border-[#ABDA96]",
   };
 
   const getCategorySuffix = (category: string) => {
@@ -40,9 +40,9 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
       case CATEGORIES.INTERNET:
         return "internet";
       case CATEGORIES.CREATION:
-        return "creation";
+        return "bg-[#9392BE]/20 text-[#9392BE]";
       case CATEGORIES.IA:
-        return "ia";
+        return "bg-[#ABDA96]/20 text-[#ABDA96]";
       default:
         return "default";
     }
@@ -134,11 +134,9 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
 
             <span className={suffix !== "default" ? `inline-block text-xl font-extrabold drop-shadow-lg px-2 py-0.5 rounded price-badge-${suffix}` : "text-xl text-orange-500 font-extrabold drop-shadow-lg"}>
               {formation.tarif
-                ? `${Math.round(Number(formation.tarif))
-                    .toString()
-                    .replace(/\B(?=(\d{3})+(?!\d))/g, " ")} ${
-                    FORMATIONMETADATA.euros
-                  }`
+                ? `${Math.round(Number(formation.tarif)).toLocaleString(
+                    "fr-FR"
+                  )} €`
                 : "-"}
             </span>
           </div>

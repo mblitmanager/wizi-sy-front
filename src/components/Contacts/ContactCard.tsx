@@ -97,15 +97,8 @@ export const ContactCard = ({ contact }: ContactCardProps) => {
     if (contact.name) {
       return contact.name.toUpperCase();
     }
-
-    const prenom = contact.prenom || "";
-    const nom = contact.nom ? contact.nom.toUpperCase() : "";
-
-    if (contact.civilite) {
-      return `${contact.civilite} ${prenom} ${nom}`.trim();
-    }
-
-    return `${prenom} ${nom}`.trim() || "Nom inconnu";
+    
+    return "Nom inconnu";
   };
 
   // Get initials for avatar fallback

@@ -55,6 +55,8 @@ const getCategoryColor = (categoryId: string, categories: Category[] | undefined
         return '#EF4444';
       case 'excel':
         return '#6366F1';
+      case 'IA':
+        return '#ABDA96';
       default:
         return '#3B82F6';
     }

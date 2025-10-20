@@ -37,6 +37,11 @@ const CATEGORY_STYLES = {
     text: "text-indigo-600",
     border: "border-indigo-200",
   },
+  [CATEGORIES.IA]: {
+    bg: "bg-green-50",
+    text: "text-green-600",
+    border: "border-green-200",
+  },
   default: {
     bg: "bg-gray-50",
     text: "text-gray-600",
