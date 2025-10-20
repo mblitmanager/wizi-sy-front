@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import {
   Card,
@@ -8,7 +8,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, AlertTriangle } from "lucide-react";
+import { Loader2, AlertTriangle, X, CheckCircle } from "lucide-react";
 import { catalogueFormationApi } from "@/services/api";
 import { inscrireAFormation } from "@/services/inscriptionApi";
 import {
@@ -47,6 +47,74 @@ interface CatalogueFormationDetailsType {
   };
 }
 
+// Composant Modal pour le succès de l'inscription
+interface SuccessModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  message: string;
+  formationTitle: string;
+}
+
+const SuccessModal: React.FC<SuccessModalProps> = ({
+  isOpen,
+  onClose,
+  message,
+  formationTitle,
+}) => {
+  const navigate = useNavigate();
+  if (!isOpen) return null;
+  const handleClick = () => {
+    // Fermer le modal d'abord
+    onClose();
+    // Puis rediriger vers le catalogue
+    navigate("/catalogue");
+  };
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-in fade-in duration-300">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-yellow-100 p-2 rounded-full">
+              <CheckCircle className="w-6 h-6 text-yellow-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900">
+              Demande d'inscription envoyée avec succès !
+            </h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="mb-6">
+          <p className="text-gray-700 mb-3">
+            Votre demande d'inscription a été envoyée pour la formation :{" "}
+          </p>
+          <p className="font-semibold text-gray-900 mb-4 text-center bg-gray-50 py-2 px-4 rounded-lg">
+            {formationTitle}
+          </p>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <p className="text-yellow-800 text-sm text-center">{message}</p>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-3">
+          <button
+            onClick={handleClick}
+            className="flex-1 bg-gray-900 text-white py-2 px-4 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
+            Continuer à explorer
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function CatalogueFormationDetails() {
   const { id } = useParams();
 
@@ -60,6 +128,10 @@ export default function CatalogueFormationDetails() {
     null
   );
   const [inscriptionError, setInscriptionError] = useState<string | null>(null);
+
+  // États pour le modal de succès
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const getCategoryColor = useCallback((category?: CATEGORIES): string => {
     switch (category) {
@@ -106,13 +178,25 @@ export default function CatalogueFormationDetails() {
     setInscriptionError(null);
 
     try {
-      await inscrireAFormation(details.catalogueFormation.id);
+      const response = await inscrireAFormation(details.catalogueFormation.id);
+
+      // Afficher le modal de succès avec le message de l'API
+      setSuccessMessage(
+        response.message ||
+          "Inscription réussie, mails et notification envoyés."
+      );
+      setShowSuccessModal(true);
       setInscriptionSuccess("Inscription réussie !");
     } catch (e) {
       setInscriptionError("Erreur lors de l'inscription. Veuillez réessayer.");
     } finally {
       setInscriptionLoading(false);
     }
+  };
+
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    setSuccessMessage("");
   };
 
   const renderMediaElement = () => {
@@ -189,6 +273,14 @@ export default function CatalogueFormationDetails() {
           </div>
         </Card>
       </div>
+
+      {/* Modal de succès */}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={handleCloseSuccessModal}
+        message={successMessage}
+        formationTitle={details.catalogueFormation.titre}
+      />
     </Layout>
   );
 }
@@ -343,9 +435,16 @@ const InscriptionSection = ({
       onClick={onInscription}
       disabled={loading}
       className="w-full md:w-auto bg-black">
-      {loading ? "Inscription en cours..." : "S'inscrire à la formation"}
+      {loading ? (
+        <span className="flex items-center gap-2">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          Inscription en cours...
+        </span>
+      ) : (
+        "S'inscrire à la formation"
+      )}
     </Button>
-    {success && <div className="text-green-600 mt-2 text-sm">{success}</div>}
+    {success && <div className="text-yellow-600 mt-2 text-sm">{success}</div>}
     {error && <div className="text-red-600 mt-2 text-sm">{error}</div>}
   </div>
 );
