@@ -23,6 +23,7 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
     [CATEGORIES.LANGUES]: "border-[#A55E6E]",
     [CATEGORIES.INTERNET]: "border-[#FFC533]",
     [CATEGORIES.CREATION]: "border-[#9392BE]",
+    [CATEGORIES.IA]: "border-[#ABDA96]",
   };
 
   const getCategoryColor = (category: string) => {
@@ -41,6 +42,8 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
         return "bg-[#FFC533]/20 text-[#FFC533]";
       case CATEGORIES.CREATION:
         return "bg-[#9392BE]/20 text-[#9392BE]";
+      case CATEGORIES.IA:
+        return "bg-[#ABDA96]/20 text-[#ABDA96]";
       default:
         return "bg-gray-200/20 text-gray-600";
     }
@@ -116,7 +119,7 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
               {formation.tarif
                 ? `${Math.round(Number(formation.tarif)).toLocaleString(
                     "fr-FR"
-                  )} € HT`
+                  )} €`
                 : "-"}
             </span>
           </div>

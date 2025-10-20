@@ -226,6 +226,12 @@ export default function LandingPage() {
                       textColor: "text-black",
                     },
                     {
+                      name: "IA",
+                      icon: <Globe className="h-5 w-5" />,
+                      bgColor: "bg-IA",
+                      textColor: "text-black",
+                    },
+                    {
                       name: "Création",
                       icon: <PenTool className="h-5 w-5" />,
                       bgColor: "bg-creation",

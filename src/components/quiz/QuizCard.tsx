@@ -14,6 +14,7 @@ import bureatique from "../../assets/icons/bureautique.png";
 import internet from "../../assets/icons/internet.png";
 import creation from "../../assets/icons/creation.png";
 import langues from "../../assets/icons/langues.png";
+import IA from "../../assets/icons/IA.png";
 
 // Configuration complète des catégories
 const CATEGORY_CONFIG = {
@@ -40,6 +41,14 @@ const CATEGORY_CONFIG = {
     borderColor: "border-purple-200",
     textColor: "text-purple-800",
     badgeColor: "bg-purple-100",
+  },
+  IA: {
+    icon: creation,
+    color: "#ABDA96", // Violet
+    bgColor: "bg-green-50",
+    borderColor: "border-green-200",
+    textColor: "text-green-800",
+    badgeColor: "bg-green-100",
   },
   langues: {
     icon: langues,

@@ -57,6 +57,7 @@ export default function CategoryFormations() {
           {categorySlug === "bureautique" && "Bureautique"}
           {categorySlug === "langues" && "Langues"}
           {categorySlug === "internet" && "Internet"}
+          {categorySlug === "IA" && "IA"}
           {categorySlug === "creation" && "Création"}
         </h1>
 
