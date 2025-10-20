@@ -46,6 +46,8 @@ const ParrainageSection = () => {
       }));
     }
   }, [user]);
+  console.log("User in ParrainageSection:", user);
+
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -146,7 +148,7 @@ const ParrainageSection = () => {
             <p className="hidden lg:block text-lg text-gray-600 mb-6">
               Parrainez vos collègues et gagnez{" "}
               <span className="text-orange-600 font-bold">50€</span> pour chaque
-              inscription valide.
+              inscription validée à une formation.
             </p>
 
             <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6 mb-6 border border-yellow-100">
@@ -165,7 +167,7 @@ const ParrainageSection = () => {
 
           {/* Section Informations du Parrain */}
           <div className="mb-6">
-            <Card className="border border-blue-200 rounded-xl shadow-sm">
+            <Card className="border-none rounded-xl shadow-sm">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="bg-blue-100 p-2 rounded-lg">
@@ -177,14 +179,17 @@ const ParrainageSection = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-gray-600">Nom du parrain</p>
+                    {/* <p className="text-sm text-gray-600">Nom du parrain</p> */}
                     <p className="text-lg font-semibold text-gray-800">
-                      {user?.user?.name || "Non disponible"}
+                      {user?.user?.name.toUpperCase() +
+                    " " +
+                    user?.stagiaire?.prenom || "Non disponible"}
+                
                     </p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Email du parrain</p>
-                    <p className="text-lg font-semibold text-orange-600">
+                  <div className="overflow-hidden">
+                    <p className="text-sm text-gray-600">Votre mail</p>
+                    <p className="text-lg font-semibold text-orange-600 truncate">
                       {user?.user?.email || "Non disponible"}
                     </p>
                   </div>
@@ -202,7 +207,7 @@ const ParrainageSection = () => {
                     <UserPlus className="h-5 w-5 text-orange-600" />
                   </div>
                   <h3 className="text-xl font-semibold text-gray-800">
-                    Inscrire un filleul
+                    Inscrire votre filleul(e)
                   </h3>
                 </div>
 
@@ -469,8 +474,8 @@ const ParrainageSection = () => {
                       Récompense de 50€
                     </h4>
                     <p className="text-gray-600 text-sm">
-                      Vous recevez 50€ en carte cadeau pour chaque inscription
-                      validée.
+                      Vous recevez 50€ en carte cadeau pour chaque inscription validée à une formation
+                      .
                     </p>
                   </div>
                 </div>
@@ -482,7 +487,7 @@ const ParrainageSection = () => {
         {/* Right Column - Image (Desktop only) */}
         <div className="hidden lg:block flex-1 order-1 lg:order-2">
           <div className="sticky top-6">
-            <div className="bg-gradient-to-br from-yellow-50 to-yellow-50 rounded-2xl p-8 border border-yellow-200 shadow-sm">
+            <div className="shadow-sm">
               <img
                 src={image}
                 alt="Programme de parrainage"

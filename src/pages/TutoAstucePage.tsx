@@ -415,7 +415,7 @@ export default function TutoAstucePage() {
               {/* Left column: media list (collapsible on large screens) */}
               <div className={`col-span-1 order-2 lg:order-1`}> 
                 <div className="p-3 sm:p-4">
-                  <div className="flex items-center justify-between mb-2">
+                  {/* <div className="flex items-center justify-between mb-2">
                     <h2 className="text-sm font-semibold">Liste des médias</h2>
                     <button
                       aria-pressed={isLeftCollapsed}
@@ -424,7 +424,7 @@ export default function TutoAstucePage() {
                       className="px-2 py-1 text-sm rounded bg-gray-100 hover:bg-gray-200">
                       {isLeftCollapsed ? "Afficher" : "Masquer"}
                     </button>
-                  </div>
+                  </div> */}
 
                   {!isLeftCollapsed ? (
                     <div className="p-2 overflow-auto">

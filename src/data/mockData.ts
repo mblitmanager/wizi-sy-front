@@ -51,6 +51,16 @@ export const categories: Category[] = [
     description: "Exprimez votre créativité avec nos formations sur les logiciels de création.",
     formations: []
   }
+  ,
+  {
+    id: "cat5",
+    name: "IA",
+    slug: "IA",
+    color: "#ABDA96",
+    icon: "brain",
+    description: "L’IA n’est plus l’avenir, c’est le présent : apprenez à la maîtriser dès aujourd’hui.",
+    formations: []
+  }
 ];
 
 export const formations: Formation[] = [
