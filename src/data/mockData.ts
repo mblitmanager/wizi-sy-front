@@ -58,7 +58,7 @@ export const categories: Category[] = [
     slug: "IA",
     color: "#ABDA96",
     icon: "brain",
-    description: "L’IA n’est plus l’avenir, c’est le présent : apprenez à la maîtriser dès aujourd’hui.",
+    description: "Création de contenus rédactionnels et visuels à l'aide de l'intelligence artificielle générative.",
     formations: []
   }
 ];
