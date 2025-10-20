@@ -6,11 +6,13 @@ import DownloadPdfButton from "@/components/FeatureHomePage/DownloadPdfButton";
 import { inscrireAFormation } from "@/services/inscriptionApi";
 import { BUREAUTIQUE, CREATION, INTERNET, LANGUES, IA } from "@/utils/constants";
 
-import { ArrowRight, Clock, Loader2, User } from "lucide-react";
+import { ArrowRight, Clock, Loader2, User, X, CheckCircle } from "lucide-react";
 import { stripHtmlTags } from "@/utils/UtilsFunction";
 import { Link, useNavigate } from "react-router-dom";
+
 const VITE_API_URL = import.meta.env.VITE_API_URL;
 const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
+
 function stripHtml(html: string): string {
   if (!html) return "";
   return html.replace(/<[^>]+>/g, "");
@@ -31,7 +33,7 @@ function getAdContent(formation: CatalogueFormation) {
   const desc =
     stripHtml(formation.description) ||
     "Une formation incontournable pour progresser rapidement.";
-  // Associe une icône à chaque formation selon le titre
+
   const iconMap: Record<string, string> = {
     word: "📝",
     excel: "📊",
@@ -63,36 +65,88 @@ function getAdContent(formation: CatalogueFormation) {
     Object.entries(iconMap).find(([key]) => titreKey.includes(key))?.[1] ||
     "📚";
 
-  const titles = [
-    titre,
-    // ,
-    // `Nouveau : ${titre}`,
-    // `À découvrir : ${titre}`,
-    // `Boostez vos compétences avec ${titre}`,
-  ];
+  const titles = [titre];
   const descriptions = [
     desc,
     "Développez vos compétences avec des modules interactifs et concrets.",
     "Rejoignez une communauté d'apprenants motivés et bénéficiez d'un accompagnement personnalisé.",
   ];
-  const ctas = [
-    "Découvrez maintenant",
-    // "Je m'inscris",
-    "Commencer la formation",
-  ];
+  const ctas = ["Découvrez maintenant", "Commencer la formation"];
   return {
     title: titles[Math.floor(Math.random() * titles.length)],
     description: descriptions[Math.floor(Math.random() * descriptions.length)],
     cta: ctas[Math.floor(Math.random() * ctas.length)],
     emoji,
-    formation, // <-- Ajout de la formation d'origine
+    formation,
   };
 }
 
 interface AdCatalogueBlockProps {
   formations: CatalogueFormation[];
-  // stagiaireId?: string | number;
 }
+
+// Composant Modal pour le succès de l'inscription
+interface SuccessModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  message: string;
+  formationTitle: string;
+}
+
+const SuccessModal: React.FC<SuccessModalProps> = ({
+  isOpen,
+  onClose,
+  message,
+  formationTitle,
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-in fade-in duration-300">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-yellow-100 p-2 rounded-full">
+              <CheckCircle className="w-6 h-6 text-yellow-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900">
+              Demande d'inscription envoyée avec succès !
+            </h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="mb-6">
+          <p className="text-gray-700 mb-3">
+            Votre demande d'inscription a été envoyée pour la formation :
+          </p>
+          <p className="font-semibold text-gray-900 mb-4 text-center bg-gray-50 py-2 px-4 rounded-lg">
+            {formationTitle}
+          </p>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <p className="text-yellow-800 text-sm text-center">{message}</p>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 bg-gray-900 text-white py-2 px-4 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
+            Continuer à explorer
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
   const navigate = useNavigate();
   const [inscriptionLoading, setInscriptionLoading] = useState<number | null>(
@@ -105,6 +159,11 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
   const [inscriptionErrorIdx, setInscriptionErrorIdx] = useState<number | null>(
     null
   );
+
+  // États pour le modal de succès
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [successFormationTitle, setSuccessFormationTitle] = useState("");
 
   const getCategoryColor = useCallback((category?: string): string => {
     switch (category) {
@@ -122,6 +181,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
         return "#E0E0E0";
     }
   }, []);
+
   const selected = useMemo(() => getRandomItems(formations, 3), [formations]);
   const ads = useMemo(() => selected.map(getAdContent), [selected]);
 
@@ -129,8 +189,17 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
     setInscriptionLoading(idx);
     setInscriptionSuccessIdx(null);
     setInscriptionErrorIdx(null);
+
     try {
-      await inscrireAFormation(selected[idx]?.id);
+      const response = await inscrireAFormation(selected[idx]?.id);
+
+      // Afficher le modal de succès avec le message de l'API
+      setSuccessMessage(
+        response.message ||
+          "Inscription réussie, mails et notification envoyés."
+      );
+      setSuccessFormationTitle(selected[idx]?.titre || "Formation");
+      setShowSuccessModal(true);
       setInscriptionSuccessIdx(idx);
     } catch (e) {
       setInscriptionErrorIdx(idx);
@@ -139,35 +208,40 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
     }
   };
 
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    setSuccessMessage("");
+    setSuccessFormationTitle("");
+  };
+
   const formatTitle = (title: string) => {
     if (!title) return "Sans titre";
     return title
       .replace(/formations?/gi, "")
       .trim()
-      .replace(/\s{2,}/g, " ") // Supprime les espaces multiples
-      .replace(/^\w/, (c) => c.toUpperCase()); // Première lettre en majuscule
+      .replace(/\s{2,}/g, " ")
+      .replace(/^\w/, (c) => c.toUpperCase());
   };
 
   if (!formations || formations.length === 0) return null;
+
   return (
-    <div className="mb-12 px-4 sm:px-6 lg:px-8">
-      {/* Header avec gradient accrocheur */}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          {/* <h2 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-600">
-            Boostez vos compétences dès aujourd'hui !
-          </h2> */}
-          <p className="text-gray-600 mt-2">
-            Des formations certifiantes adaptées à vos besoins.
-          </p>
+    <>
+      <div className="mb-12 px-4 sm:px-6 lg:px-8">
+        {/* Header avec gradient accrocheur */}
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <p className="text-gray-600 mt-2">
+              Des formations certifiantes adaptées à vos besoins.
+            </p>
+          </div>
+          <Link
+            to="/catalogue"
+            className="group flex items-center gap-1 text-orange-600 hover:text-orange-700 font-semibold transition-colors">
+            Explorer le catalogue
+            <ArrowRight className="w-4 h-4 transform transition-transform group-hover:translate-x-1" />
+          </Link>
         </div>
-        <Link
-          to="/catalogue"
-          className="group flex items-center gap-1 text-orange-600 hover:text-orange-700 font-semibold transition-colors">
-          Explorer le catalogue
-          <ArrowRight className="w-4 h-4 transform transition-transform group-hover:translate-x-1" />
-        </Link>
-      </div>
 
       {/* Grid des formations - Design "Card Hover" */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -280,26 +354,108 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                   </button>
                 )}
 
-                {/* Témoignage factice (optionnel) */}
-                {/* <div className="mt-4 flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-                      <User className="h-4 w-4 text-gray-500" />
-                    </div>
+                {/* Image de fond avec overlay */}
+                {formation.image_url && (
+                  <div className="h-40 overflow-hidden">
+                    <img
+                      src={VITE_API_URL_MEDIA + "/" + formation.image_url}
+                      alt={formation.formation?.titre || formation.titre}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                   </div>
-                  <div className="ml-3">
-                    <p className="text-xs text-gray-500 italic">
-                      "Formation très pratique, j'ai doublé mon salaire après
-                      cette certification !"
-                    </p>
+                )}
+
+                {/* Contenu de la carte */}
+                <div className="p-6">
+                  {/* Catégorie + Titre */}
+                  <div className="flex items-center gap-2 mb-3">
+                    <span
+                      className="text-xs font-bold px-2.5 py-1 rounded-full"
+                      style={{
+                        backgroundColor:
+                          getCategoryColor(formation.formation?.categorie) +
+                          "20",
+                        color: getCategoryColor(formation.formation?.categorie),
+                      }}>
+                      {formation.formation?.categorie?.toUpperCase() ||
+                        "FORMATION"}
+                    </span>
                   </div>
-                </div> */}
+
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 min-h-[3rem]">
+                    {formatTitle(formation?.titre || "Sans titre")}
+                  </h3>
+
+                  {/* Description avec effet "Lire plus" */}
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                    {stripHtmlTags(formation.description) ||
+                      "Description non disponible"}
+                  </p>
+
+                  {/* Infos clés (Durée, Prix) */}
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="flex items-center text-sm text-gray-500">
+                      <Clock className="w-4 h-4 mr-1" />
+                      {formation.formation?.duree || formation.duree} heures
+                    </span>
+                    <span className="text-lg font-extrabold text-orange-600">
+                      {formation.tarif
+                        ? `${Math.round(Number(formation.tarif))
+                            .toLocaleString("fr-FR", {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 2,
+                            })
+                            .replace(/\s/g, "\u00A0")} €`
+                        : "Gratuit"}
+                    </span>
+                  </div>
+
+                  {/* Bouton principal - Effet "Shine" au hover */}
+                  {isOpen && (
+                    <button
+                      onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                        e.stopPropagation();
+                        handleInscription(idx);
+                      }}
+                      disabled={inscriptionLoading === idx}
+                      className={`
+                        w-full relative overflow-hidden
+                        bg-black
+                        text-white font-bold py-3 px-6 rounded-lg
+                        shadow-md hover:shadow-lg transition-all
+                        hover:brightness-110
+                        ${inscriptionLoading === idx ? "opacity-80" : ""}
+                      `}>
+                      <span className="relative z-10">
+                        {inscriptionLoading === idx ? (
+                          <span className="flex justify-center">
+                            <Loader2 className="animate-spin mr-2 h-5 w-5" />
+                            Traitement...
+                          </span>
+                        ) : (
+                          "S'inscrire maintenant"
+                        )}
+                      </span>
+                      {/* Effet shine au survol */}
+                      <span className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-0 transition-transform duration-700" />
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
+
+      {/* Modal de succès */}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={handleCloseSuccessModal}
+        message={successMessage}
+        formationTitle={successFormationTitle}
+      />
+    </>
   );
 };
 
