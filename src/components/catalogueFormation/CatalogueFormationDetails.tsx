@@ -406,10 +406,10 @@ const FormationMetadata = ({
         {tarif
           ? `${Number(tarif)
               .toLocaleString("fr-FR", {
-                minimumFractionDigits: Number(tarif) % 1 === 0 ? 0 : 2,
-                maximumFractionDigits: 2,
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
               })
-              .replace(/\u202F/g, "  ")} ${FORMATIONMETADATA.euros}`
+              .replace(/\u202F/g, " ")} ${FORMATIONMETADATA.euros}`
           : "-"}
       </span>
     </li>
