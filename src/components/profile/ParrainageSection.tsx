@@ -13,6 +13,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import image from "../../assets/plan.png";
 import { useUser } from "@/hooks/useAuth";
+import { FORMATIONMETADATA } from "@/utils/constants";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
 
@@ -71,8 +72,8 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
           </p>
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <p className="text-yellow-800 text-sm text-center">
-              Vous recevrez 50€ en carte cadeau une fois son inscription
-              validée.
+              Vous recevrez 50 ${FORMATIONMETADATA.euros} en carte cadeau une
+              fois son inscription validée.
             </p>
           </div>
         </div>
@@ -229,7 +230,7 @@ const ParrainageSection = () => {
                   <p className="text-sm text-gray-600">
                     Gagnez{" "}
                     <span className="text-orange-600 font-bold">
-                      50€ par filleul
+                      50 € par filleul
                     </span>
                   </p>
                 </div>
@@ -567,11 +568,11 @@ const ParrainageSection = () => {
                     </div>
                     <div>
                       <h4 className="font-medium text-gray-800 mb-1">
-                        Récompense de 50€
+                        Récompense de 50 €
                       </h4>
                       <p className="text-gray-600 text-sm">
-                        Vous recevez 50€ en carte cadeau pour chaque inscription
-                        validée.
+                        Vous recevez 50 € en carte cadeau pour chaque
+                        inscription validée.
                       </p>
                     </div>
                   </div>

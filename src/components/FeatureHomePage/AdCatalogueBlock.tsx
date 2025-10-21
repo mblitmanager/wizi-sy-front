@@ -4,7 +4,13 @@ import DOMPurify from "dompurify";
 import { CatalogueFormation } from "@/types/stagiaire";
 import DownloadPdfButton from "@/components/FeatureHomePage/DownloadPdfButton";
 import { inscrireAFormation } from "@/services/inscriptionApi";
-import { BUREAUTIQUE, CREATION, INTERNET, LANGUES, IA } from "@/utils/constants";
+import {
+  BUREAUTIQUE,
+  CREATION,
+  FORMATIONMETADATA,
+  INTERNET,
+  LANGUES,IA
+} from "@/utils/constants";
 
 import { ArrowRight, Clock, Loader2, User, X, CheckCircle } from "lucide-react";
 import { stripHtmlTags } from "@/utils/UtilsFunction";
@@ -406,7 +412,9 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                               minimumFractionDigits: 0,
                               maximumFractionDigits: 2,
                             })
-                            .replace(/\s/g, "\u00A0")} €`
+                            .replace(/\s/g, "\u00A0")} ${
+                            FORMATIONMETADATA.euros
+                          }`
                         : "Gratuit"}
                     </span>
                   </div>

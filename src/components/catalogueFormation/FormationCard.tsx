@@ -5,7 +5,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { CardFooter } from "../ui/card";
 import { Button } from "../ui/button";
 import { ArrowRight, Clock } from "lucide-react";
-import { CATEGORIES, VOIR_LES_DETAILS } from "@/utils/constants";
+import {
+  CATEGORIES,
+  FORMATIONMETADATA,
+  VOIR_LES_DETAILS,
+} from "@/utils/constants";
 import nomedia from "../../assets/nomedia.png";
 import DOMPurify from "dompurify";
 import { FormationCardData } from "@/types/Formation";
@@ -130,9 +134,11 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
 
             <span className={suffix !== "default" ? `inline-block text-xl font-extrabold drop-shadow-lg px-2 py-0.5 rounded price-badge-${suffix}` : "text-xl text-orange-500 font-extrabold drop-shadow-lg"}>
               {formation.tarif
-                ? `${Math.round(Number(formation.tarif)).toLocaleString(
-                    "fr-FR"
-                  )} €`
+                ? `${Math.round(Number(formation.tarif))
+                    .toString()
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, " ")} ${
+                    FORMATIONMETADATA.euros
+                  }`
                 : "-"}
             </span>
           </div>

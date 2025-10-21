@@ -1,6 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { useState } from "react";
 import logo from "../assets/logo.png";
+import { FORMATIONMETADATA } from "@/utils/constants";
 
 const sections = [
   {
@@ -202,7 +203,10 @@ const sections = [
         <p>
           Partagez votre lien de parrainage depuis la page d'accueil pour
           inviter vos amis.{" "}
-          <strong>Vous gagnez 50€ à chaque inscription validée.</strong>
+          <strong>
+            Vous gagnez 50 ${FORMATIONMETADATA.euros} à chaque inscription
+            validée.
+          </strong>
         </p>
         <p>
           Un <strong>lien unique</strong> est généré pour chaque parrainage. Ce
