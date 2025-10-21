@@ -31,46 +31,46 @@ const roleDisplayNames: Record<string, string> = {
 export const ContactCard = ({ contact }: ContactCardProps) => {
   // Fonction pour déterminer le titre du poste avec civilité
   // Dans votre ContactCard existant, vérifiez que cette partie gère bien "Pôle SAV" :
-const getJobTitleWithCivility = (contact: Contact) => {
-  // Utiliser le rôle s'il est disponible, sinon le type
-  const role = contact.role || contact.type;
-  const { civilite } = contact;
-  
-  if (!civilite) {
-    return roleDisplayNames[role] || role;
-  }
+  const getJobTitleWithCivility = (contact: Contact) => {
+    // Utiliser le rôle s'il est disponible, sinon le type
+    const role = contact.role || contact.type;
+    const { civilite } = contact;
 
-  // Nettoyer la civilité (enlever le point si présent)
-  const cleanCivilite = civilite.replace('.', '');
-  
-  switch (role) {
-    case "formateur":
-      if (cleanCivilite === "M") {
-        return "Formateur";
-      } else if (cleanCivilite === "Mme" || cleanCivilite === "Mlle") {
-        return "Formatrice";
-      }
-      return "Formateur/Formatrice";
-    
-    case "commerciale":
-      if (cleanCivilite === "M") {
-        return "Commercial";
-      } else if (cleanCivilite === "Mme" || cleanCivilite === "Mlle") {
-        return "Commerciale";
-      }
-      return "Commercial(e)";
-    
-    case "pole_relation_client":
-      return "Pôle Relation Client";
-    
-    case "Pôle SAV":  // Ajout explicite
-    case "pole_sav":  // Format alternatif
-      return "Pôle SAV";
-    
-    default:
+    if (!civilite) {
       return roleDisplayNames[role] || role;
-  }
-};
+    }
+
+    // Nettoyer la civilité (enlever le point si présent)
+    const cleanCivilite = civilite.replace(".", "");
+
+    switch (role) {
+      case "formateur":
+        if (cleanCivilite === "M") {
+          return "Formateur";
+        } else if (cleanCivilite === "Mme" || cleanCivilite === "Mlle") {
+          return "Formatrice";
+        }
+        return "Formateur/Formatrice";
+
+      case "commerciale":
+        if (cleanCivilite === "M") {
+          return "Commercial";
+        } else if (cleanCivilite === "Mme" || cleanCivilite === "Mlle") {
+          return "Commerciale";
+        }
+        return "Commercial(e)";
+
+      case "pole_relation_client":
+        return "Pôle Relation Client";
+
+      case "Pôle SAV": // Ajout explicite
+      case "pole_sav": // Format alternatif
+        return "Pôle SAV";
+
+      default:
+        return roleDisplayNames[role] || role;
+    }
+  };
 
   // Get name from either name field or combine nom/prenom
   const displayName =
@@ -83,33 +83,37 @@ const getJobTitleWithCivility = (contact: Contact) => {
     if (contact.name) {
       return contact.name.toUpperCase();
     }
-    
+
     const prenom = contact.prenom || "";
     const nom = contact.nom ? contact.nom.toUpperCase() : "";
-    
+
     if (contact.civilite) {
       return `${contact.civilite} ${prenom} ${nom}`.trim();
     }
-    
+
     return `${prenom} ${nom}`.trim() || "Nom inconnu";
   };
 
   // Get initials for avatar fallback
   const getInitials = () => {
     if (contact.prenom || contact.nom) {
-      const prenomInitial = contact.prenom ? contact.prenom.charAt(0).toUpperCase() : '';
-      const nomInitial = contact.nom ? contact.nom.charAt(0).toUpperCase() : '';
+      const prenomInitial = contact.prenom
+        ? contact.prenom.charAt(0).toUpperCase()
+        : "";
+      const nomInitial = contact.nom ? contact.nom.charAt(0).toUpperCase() : "";
       return `${nomInitial}${prenomInitial}`;
     }
-    
+
     if (contact.name) {
-      const parts = contact.name.split(' ').filter(part => part.length > 0);
-      if (parts.length === 0) return '?';
+      const parts = contact.name.split(" ").filter((part) => part.length > 0);
+      if (parts.length === 0) return "?";
       if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-      return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+      return (
+        parts[0].charAt(0) + parts[parts.length - 1].charAt(0)
+      ).toUpperCase();
     }
-    
-    return '?';
+
+    return "?";
   };
 
   const formattedName = getFormattedName();
@@ -124,7 +128,7 @@ const getJobTitleWithCivility = (contact: Contact) => {
       <div className="flex items-center mb-4">
         {contact.image && contact.image !== "/images/default-avatar.png" ? (
           <img
-            src={contact.image}
+            src={`${import.meta.env.VITE_API_URL_MEDIA}/${contact.image}`}
             alt={formattedName}
             className="w-12 h-12 rounded-full object-cover mr-4"
           />
@@ -150,10 +154,9 @@ const getJobTitleWithCivility = (contact: Contact) => {
         <div className="flex items-center gap-2">
           <Mail className="w-4 h-4" />
           {contact.email ? (
-            <a 
-              href={`mailto:${contact.email}?subject=Contact&body=Bonjour,`} 
-              className="hover:underline text-blue-600 hover:text-blue-800"
-            >
+            <a
+              href={`mailto:${contact.email}?subject=Contact&body=Bonjour,`}
+              className="hover:underline text-blue-600 hover:text-blue-800">
               Envoyer un email
             </a>
           ) : (
@@ -163,10 +166,9 @@ const getJobTitleWithCivility = (contact: Contact) => {
         <div className="flex items-center gap-2">
           <Phone className="w-4 h-4" />
           {contact.telephone ? (
-            <a 
-              href={`tel:${contact.telephone}`} 
-              className="hover:underline text-blue-600 hover:text-blue-800"
-            >
+            <a
+              href={`tel:${contact.telephone}`}
+              className="hover:underline text-blue-600 hover:text-blue-800">
               {contact.telephone}
             </a>
           ) : (
