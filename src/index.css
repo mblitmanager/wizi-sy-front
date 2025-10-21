@@ -228,6 +228,9 @@ body {
   .category-creation {
     @apply bg-creation text-white;
   }
+  .category-ia {
+    @apply bg-ia text-white;
+  }
 
   .quiz-option {
     @apply border-2 rounded-lg p-4 cursor-pointer transition-all hover:shadow-md;

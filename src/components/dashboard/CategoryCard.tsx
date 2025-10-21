@@ -37,7 +37,8 @@ export function CategoryCard({ category }: CategoryCardProps) {
             category.slug === "bureautique" && "bg-[#3D9BE9]",
             category.slug === "langues" && "bg-[#A55E6E]",
             category.slug === "internet" && "bg-[#FFC533] text-black",
-            category.slug === "creation" && "bg-[#9392BE]"
+            category.slug === "creation" && "bg-[#9392BE]",
+            category.slug === "IA" && "bg-[#ABDA96]"
           )}>
           <div className="flex items-center gap-2">
             {icon}
@@ -48,7 +49,18 @@ export function CategoryCard({ category }: CategoryCardProps) {
     "text-white/80",
     category.slug === "internet" && "text-black/80"
   )}>
-  {category.slug === "bureautique" ? "12 formations" : category.slug === "creation" ? "6 formations" : category.slug === "internet" ? "3 formations" : category.slug === "langues" ? "2 formations" : `${totalFormations} formation${totalFormations > 1 ? "s" : ""}`}
+  {category.slug === "bureautique"
+  ? "12 formations"
+  : category.slug === "creation"
+  ? "6 formations"
+  : category.slug === "internet"
+  ? "3 formations"
+  : category.slug === "langues"
+  ? "2 formations"
+  : category.slug === "IA"
+  ? "2 formations"
+  : `${totalFormations} formation${totalFormations > 1 ? "s" : ""}`}
+
 </CardDescription>
         </CardHeader>
         <CardContent className="p-4">

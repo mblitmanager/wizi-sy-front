@@ -9,6 +9,7 @@ import bureatique from "../../assets/icons/bureautique.png";
 import internet from "../../assets/icons/internet.png";
 import creation from "../../assets/icons/creation.png";
 import langues from "../../assets/icons/langues.png";
+import IA from "../../assets/icons/ia.png";
 interface StagiaireQuizGridProps {
   quizzes: Quiz[];
   categories: Category[] | undefined;

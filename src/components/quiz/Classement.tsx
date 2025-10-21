@@ -102,7 +102,8 @@ export function Classement() {
         const mappedRanking: LeaderboardEntry[] = (ranking || []).map(
           (item) => ({
             id: Number(item.stagiaire.id),
-            name: item.stagiaire.prenom,
+            firstname: item.stagiaire.prenom,
+            name: item.stagiaire.nom,
             image: item.stagiaire.image || undefined,
             avatar: item.stagiaire.image || undefined,
             score: item.totalPoints,

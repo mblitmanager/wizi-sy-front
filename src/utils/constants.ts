@@ -24,6 +24,7 @@ export const BUREAUTIQUE = "Bureautique";
 export const LANGUES = "Langues";
 export const INTERNET = "Internet";
 export const CREATION = "Création";
+export const IA = "IA";
 
 // Other common translations
 export const TUTORIELS = "Tutoriels";
@@ -37,6 +38,7 @@ export const enum CATEGORIES {
   LANGUES = "Langues",
   INTERNET = "Internet",
   CREATION = "Création",
+  IA = "IA",
 }
 
 export const FORMATIONMETADATA = {

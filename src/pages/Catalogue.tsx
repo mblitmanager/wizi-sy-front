@@ -114,6 +114,7 @@ export default function Catalogue() {
                   Bureautique:
                     "bg-[#3D9BE9] border-[#3D9BE9]/30 text-[#3D9BE9]",
                   Langues: "bg-[#A55E6E] border-[#A55E6E]/30 text-[#A55E6E]",
+                  IA: "bg-[#ABDA96] border-[#ABDA96]/30 text-[#ABDA96]",
                   Internet: "bg-[#FFC533] border-[#FFC533]/30 text-[#FFC533]",
                   Création: "bg-[#9392BE] border-[#9392BE]/30 text-[#9392BE]",
                 };

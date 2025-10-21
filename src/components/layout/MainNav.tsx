@@ -33,6 +33,11 @@ export default function MainNav({
       href: "/",
       icon: Home,
       color: "text-amber-500",
+    }, {
+      title: "Formations",
+      href: "/catalogue",
+      icon: GraduationCap,
+      color: "text-amber-500",
     },
     {
       title: "Quiz",
@@ -46,24 +51,19 @@ export default function MainNav({
       icon: Trophy,
       color: "text-amber-500",
     },
-    {
-      title: "Parrainage",
-      href: "/parrainage",
-      icon: Gift,
-      color: "text-amber-500",
-    },
+
     {
       title: "Tutoriels",
       href: "/tuto-astuce",
       icon: Video,
       color: "text-amber-500",
-    },
-    {
-      title: "Formations",
-      href: "/catalogue",
-      icon: GraduationCap,
+    }, {
+      title: "Parrainage",
+      href: "/parrainage",
+      icon: Gift,
       color: "text-amber-500",
     },
+
     {
       title: "Profile",
       href: "/profile",
@@ -116,10 +116,9 @@ export default function MainNav({
               <NavLink
                 to={item.href}
                 className={({ isActive }) =>
-                  `group flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 ${
-                    isActive
-                      ? "bg-gradient-to-r from-[#f27905] to-yellow-500 text-white shadow-lg"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  `group flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 ${isActive
+                    ? "bg-gradient-to-r from-[#f27905] to-yellow-500 text-white shadow-lg"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`
                 }>
                 {({ isActive }) => (
@@ -130,13 +129,11 @@ export default function MainNav({
                         rotate: isActive ? [0, 5, -5, 0] : 0,
                       }}
                       transition={{ duration: 0.3 }}
-                      className={`p-2 rounded-lg ${
-                        isActive ? "bg-white/20" : "bg-gray-100"
-                      }`}>
+                      className={`p-2 rounded-lg ${isActive ? "bg-white/20" : "bg-gray-100"
+                        }`}>
                       <item.icon
-                        className={`w-5 h-5 ${
-                          isActive ? "text-white" : item.color
-                        }`}
+                        className={`w-5 h-5 ${isActive ? "text-white" : item.color
+                          }`}
                       />
                     </motion.span>
                     <motion.span

@@ -79,6 +79,9 @@ const getCategoryColor = (quiz: Quiz, categories: Category[] | undefined) => {
   if (searchText.includes("création")) {
     return "#8B5CF6"; // Violet
   }
+  if (searchText.includes("IA")) {
+    return "#ABDA96"; // Violet
+  }
 
   return "#3B82F6";
 };

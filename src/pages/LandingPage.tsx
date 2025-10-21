@@ -226,6 +226,12 @@ export default function LandingPage() {
                       textColor: "text-black",
                     },
                     {
+                      name: "IA",
+                      icon: <Globe className="h-5 w-5" />,
+                      bgColor: "bg-IA",
+                      textColor: "text-black",
+                    },
+                    {
                       name: "Création",
                       icon: <PenTool className="h-5 w-5" />,
                       bgColor: "bg-creation",
@@ -266,7 +272,7 @@ export default function LandingPage() {
             </motion.div>
             {/* Desktop */}
             <motion.div
-              className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+              className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8"
               initial="hidden"
               animate="visible"
               variants={staggerContainer}>

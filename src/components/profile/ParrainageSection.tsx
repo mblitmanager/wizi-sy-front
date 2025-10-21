@@ -120,6 +120,7 @@ const ParrainageSection = () => {
       }));
     }
   }, [user]);
+  console.log("User in ParrainageSection:", user);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -238,9 +239,9 @@ const ParrainageSection = () => {
                 Programme de parrainage
               </h1>
               <p className="hidden lg:block text-lg text-gray-600 mb-6">
-                Parrainez vos collègues et gagnez{" "}
-                <span className="text-orange-600 font-bold">50€</span> pour
-                chaque inscription valide.
+                Parrainez et gagnez une carte cadeau de
+                <span className="text-orange-600 font-bold"> 50€</span> pour
+                toute formation validée grâce à vous !
               </p>
 
               <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6 mb-6 border border-yellow-100">
@@ -250,7 +251,8 @@ const ParrainageSection = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                      Plus vous parrainez, plus vous gagnez des cartes cadeaux.
+                      Parlez de nos formations à votre entourage (famille, amis,
+                      collègues et connaissances) et gagnez 50 €{" "}
                     </h3>
                   </div>
                 </div>

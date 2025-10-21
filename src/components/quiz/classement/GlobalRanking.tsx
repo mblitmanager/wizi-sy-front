@@ -118,7 +118,7 @@ export function GlobalRanking({
                 </span>
               </div>
               <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
-                {formateur.prenom}
+                {formateur.prenom} {formateur.nom.toUpperCase()}
               </span>
               {index === 0 && <Crown className="h-3 w-3 text-yellow-500" />}
             </div>
@@ -282,7 +282,7 @@ export function GlobalRanking({
                               ? "text-green-600"
                               : "text-gray-800 dark:text-white"
                           }`}>
-                          {entry.name}
+                         {entry.firstname || ""} {entry.name.toUpperCase() || ""} 
                         </h3>
                         <div className="flex items-center gap-1 mt-1">
                           <Star className="h-4 w-4 text-yellow-500" />
@@ -304,7 +304,7 @@ export function GlobalRanking({
                         </div>
                         <div className="text-center p-2 bg-gray-50 dark:bg-gray-700 rounded">
                           <div className="font-semibold text-gray-900 dark:text-white">
-                            {entry.averageScore?.toFixed(1)}
+                            {entry.averageScore?.toFixed(1)} pts/quiz
                           </div>
                           <div className="text-gray-500 dark:text-gray-400">
                             Moyenne
@@ -359,7 +359,8 @@ export function GlobalRanking({
                         <div>
                           <div className="flex items-center gap-2">
                             <h3 className="font-semibold text-gray-900 dark:text-white">
-                              {entry.name || "Inconnu"}
+                              {/* {entry.name || "Inconnu"} */}
+                              {entry.firstname || ""} {entry.name || ""}
                             </h3>
                             {isCurrentUser && (
                               <Badge variant="default" className="bg-green-500">
@@ -393,7 +394,8 @@ export function GlobalRanking({
                               key={formateur.id}
                               variant="outline"
                               className="bg-blue-50 dark:bg-blue-900/20">
-                              {formateur.prenom}
+                              {formateur.prenom} 
+                              {formateur.nom.toUpperCase()}
                             </Badge>
                           ))}
                         </div>
@@ -461,7 +463,7 @@ export function GlobalRanking({
                               </Avatar>
                               <div className="flex items-center gap-2">
                                 <span className="font-semibold text-gray-900 dark:text-white">
-                                  {entry.name || "Inconnu"}
+                                   {entry.firstname || ""} {entry.name.toLocaleUpperCase() || ""}
                                 </span>
                                 {isCurrentUser && (
                                   <Badge
@@ -481,7 +483,7 @@ export function GlobalRanking({
                                     key={formateur.id}
                                     variant="secondary"
                                     className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300">
-                                    {formateur.prenom}
+                                    {formateur.prenom} {formateur.nom.toUpperCase()}
                                   </Badge>
                                 ))}
                               </div>

@@ -176,18 +176,21 @@ export interface UserProgress {
 export interface LeaderboardEntry {
   id: number;
   name: string;
+  firstname: string;
+  lastname: string;
   image?: string;
   avatar?: string;
   score: number;
   quizCount: number;
   averageScore: number;
   rang?: number;
-  formateurs?: Formateur[]; // Ajoutez cette ligne
+  formateurs?: Formateur[];
 }
 
 export interface Formateur {
   id: number;
   prenom: string;
+  nom: string;
   telephone?: string;
   image?: string | null;
 }

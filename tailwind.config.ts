@@ -76,6 +76,7 @@ export default {
         langues: "#A55E6E",
         internet: "#FFC533",
         creation: "#9392BE",
+        ia: "#ABDA96",
         gold: "#FEB823",
         // Wizi brand colors
         wizi: {
