@@ -45,7 +45,7 @@ export const FORMATIONMETADATA = {
   heures: "heures",
   certification: "Certification",
   prerequis: "Pré-requis",
-  euros: "€ HT",
+  euros: "€",
 };
 
 export const DASHBOARD = "Tableau de bord";

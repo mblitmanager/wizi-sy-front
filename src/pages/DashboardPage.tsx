@@ -15,7 +15,7 @@ import { catalogueFormationApi } from "@/services/api";
 import { useEffect, useState } from "react";
 import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
 import illustration from "../assets/Information tab-bro.png";
-import { DASHBOARD } from "@/utils/constants";
+import { DASHBOARD, FORMATIONMETADATA } from "@/utils/constants";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -99,7 +99,9 @@ export default function DashboardPage() {
                 </h3>
               </div>
               <p className="text-xs md:text-base text-gray-700 mb-2 md:mb-3">
-                Gagnez <span className="font-bold">50€</span> par ami inscrit
+                Gagnez{" "}
+                <span className="font-bold">50 ${FORMATIONMETADATA.euros}</span>{" "}
+                par ami inscrit
               </p>
             </CardContent>
           </Card>
