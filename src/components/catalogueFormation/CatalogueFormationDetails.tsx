@@ -426,8 +426,50 @@ const FormationDetailsContent = ({
 
       <InscriptionSection onInscription={onInscription} loading={inscriptionLoading} success={inscriptionSuccess} error={inscriptionError} category={category} />
     </div>
-  );
-};
+
+    <DownloadPdfButton formationId={formation.id} />
+
+    <InscriptionSection
+      onInscription={onInscription}
+      loading={inscriptionLoading}
+      success={inscriptionSuccess}
+      error={inscriptionError}
+    />
+  </div>
+);
+
+const FormationMetadata = ({
+  duree,
+  tarif,
+  certification,
+}: {
+  duree?: string;
+  tarif?: string;
+  certification?: string;
+}) => (
+  <ul className="text-sm space-y-1">
+    <li className="text-gray-500">
+      <strong>{FORMATIONMETADATA.duree} :</strong> {duree}{" "}
+      {FORMATIONMETADATA.heures}
+    </li>
+    <li className="text-gray-500">
+      <strong>{FORMATIONMETADATA.tarif} :</strong>{" "}
+      <span className="text-xl text-orange-500 font-extrabold drop-shadow-lg">
+        {tarif
+          ? `${Number(tarif)
+              .toLocaleString("fr-FR", {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              })
+              .replace(/\u202F/g, " ")} ${FORMATIONMETADATA.euros}`
+          : "-"}
+      </span>
+    </li>
+    <li className="text-gray-500">
+      <strong>Certification :</strong> {certification}
+    </li>
+  </ul>
+);
 
 const InscriptionSection = ({
   onInscription,
