@@ -40,9 +40,9 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
       case CATEGORIES.INTERNET:
         return "internet";
       case CATEGORIES.CREATION:
-        return "bg-[#9392BE]/20 text-[#9392BE]";
+        return "creation";
       case CATEGORIES.IA:
-        return "bg-[#ABDA96]/20 text-[#ABDA96]";
+        return "ia";
       default:
         return "default";
     }
@@ -133,11 +133,11 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
             </div>
 
             <span className={suffix !== "default" ? `inline-block text-xl font-extrabold drop-shadow-lg px-2 py-0.5 rounded price-badge-${suffix}` : "text-xl text-orange-500 font-extrabold drop-shadow-lg"}>
-              {formation.tarif
+              {Number(formation.tarif) > 0
                 ? `${Math.round(Number(formation.tarif)).toLocaleString(
                     "fr-FR"
                   )} €`
-                : "-"}
+                : "À la demande"}
             </span>
           </div>
         </div>

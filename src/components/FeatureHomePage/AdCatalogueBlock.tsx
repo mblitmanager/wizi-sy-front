@@ -316,14 +316,14 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                       {formation.formation?.duree || formation.duree} heures
                     </span>
                     <span className="text-lg font-extrabold text-orange-600">
-                      {formation.tarif
+                      {Number(formation.tarif) > 0
                         ? `${Math.round(Number(formation.tarif))
                             .toLocaleString("fr-FR", {
                               minimumFractionDigits: 0,
                               maximumFractionDigits: 2,
                             })
                             .replace(/\s/g, "\u00A0")} €`
-                        : "Gratuit"}
+                        : "À la demande"}
                     </span>
                   </div>
 

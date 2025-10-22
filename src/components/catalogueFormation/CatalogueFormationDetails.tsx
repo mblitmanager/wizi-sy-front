@@ -285,7 +285,7 @@ export default function CatalogueFormationDetails() {
           const price = details.catalogueFormation.tarif;
           return (
             <div className={`inline-block px-3 py-1 rounded-md text-white ${suffix ? `price-badge-${suffix}` : 'bg-gray-700'}`}>
-              {price ? `${Number(price).toLocaleString('fr-FR')} €` : '-'}
+              {Number(price) > 0 ? `${Number(price).toLocaleString('fr-FR')} €` : 'À la demande'}
             </div>
           );
             })()}

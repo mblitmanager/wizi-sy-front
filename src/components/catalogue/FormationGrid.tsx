@@ -36,50 +36,49 @@ export function FormationGrid({ formations, isLoading }: FormationGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {formations.map((formation) => (
-        <Card key={formation.id} className="flex flex-col hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2" style={{ 
-            backgroundColor: formation.category?.color || "#9b87f5",
-            color: "#fff"
-          }}>
-            <div className="flex justify-between items-start">
-              <CardTitle className="text-lg">{formation.title || formation.titre}</CardTitle>
-              {formation.category && (
-                <Badge variant="outline" className="bg-white/20">
-                  {formation.category.name}
-                </Badge>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent className="py-4 flex-1">
-            <CardDescription className="line-clamp-3 mb-4 text-foreground/70">
-              {formation.description}
-            </CardDescription>
-            {(formation.startDate || formation.duree) && (
-              <div className="flex flex-col gap-2 text-sm">
-                {formation.duree && (
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span>{formation.duree}</span>
-                  </div>
-                )}
-                {formation.startDate && (
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span>{formation.startDate}</span>
-                  </div>
-                )}
-              </div>
-            )}
-          </CardContent>
-          <CardFooter className="pt-0">
-            <Button asChild className="w-full">
-              <Link to={`/formation/${formation.id}`}>
-                Voir les détails
-              </Link>
-            </Button>
-          </CardFooter>
-        </Card>
-      ))}
+                <Card key={formation.id} className="group flex flex-col hover:shadow-md transition-shadow">
+                  <CardHeader className="pb-2" style={{
+                    backgroundColor: formation.category?.color || "#9b87f5",
+                    color: "#fff"
+                  }}>
+                    <div className="flex justify-between items-start">
+                      <CardTitle className="text-lg">{formation.title || formation.titre}</CardTitle>
+                      {formation.category && (
+                        <Badge variant="outline" className="bg-white/20">
+                          {formation.category.name}
+                        </Badge>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="py-4 flex-1">
+                    <CardDescription className="line-clamp-3 mb-4 text-foreground/70">
+                      {formation.description}
+                    </CardDescription>
+                    {(formation.startDate || formation.duree) && (
+                      <div className="flex flex-col gap-2 text-sm">
+                        {formation.duree && (
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4 text-muted-foreground" />
+                            <span>{formation.duree}</span>
+                          </div>
+                        )}
+                        {formation.startDate && (
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-muted-foreground" />
+                            <span>{formation.startDate}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                  <CardFooter className="pt-0 mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <Button asChild className="w-full">
+                      <Link to={`/formation/${formation.id}`}>
+                        Voir les détails
+                      </Link>
+                    </Button>
+                  </CardFooter>
+                </Card>      ))}
     </div>
   );
 }
