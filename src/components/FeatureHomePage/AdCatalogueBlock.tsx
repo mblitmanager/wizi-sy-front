@@ -4,7 +4,13 @@ import DOMPurify from "dompurify";
 import { CatalogueFormation } from "@/types/stagiaire";
 import DownloadPdfButton from "@/components/FeatureHomePage/DownloadPdfButton";
 import { inscrireAFormation } from "@/services/inscriptionApi";
-import { BUREAUTIQUE, CREATION, INTERNET, LANGUES, IA } from "@/utils/constants";
+import {
+  BUREAUTIQUE,
+  CREATION,
+  FORMATIONMETADATA,
+  INTERNET,
+  LANGUES,IA
+} from "@/utils/constants";
 
 import { ArrowRight, Clock, Loader2, User, X, CheckCircle } from "lucide-react";
 import { stripHtmlTags } from "@/utils/UtilsFunction";
@@ -175,8 +181,6 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
         return "#FFC533";
       case CREATION:
         return "#9392BE";
-      case IA:
-        return "#ABDA96";
       default:
         return "#E0E0E0";
     }

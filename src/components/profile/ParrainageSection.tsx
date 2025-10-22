@@ -72,7 +72,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
           </p>
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <p className="text-yellow-800 text-sm text-center">
-              Vous recevrez 50 ${FORMATIONMETADATA.euros} en carte cadeau une
+              Vous recevrez 50 {FORMATIONMETADATA.euros} en carte cadeau une
               fois son inscription validée.
             </p>
           </div>
@@ -304,11 +304,11 @@ const ParrainageSection = () => {
 
                   {/* Ancien message de succès (maintenant désactivé car on utilise le modal) */}
                   {/* {isSuccess && (
-                    <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                       <div className="flex">
                         <div className="flex-shrink-0">
                           <svg
-                            className="h-5 w-5 text-green-400"
+                            className="h-5 w-5 text-yellow-400"
                             fill="currentColor"
                             viewBox="0 0 20 20">
                             <path
@@ -319,10 +319,10 @@ const ParrainageSection = () => {
                           </svg>
                         </div>
                         <div className="ml-3">
-                          <h3 className="text-sm font-medium text-green-800">
+                          <h3 className="text-sm font-medium text-yellow-800">
                             Filleul inscrit avec succès !
                           </h3>
-                          <div className="mt-2 text-sm text-green-700">
+                          <div className="mt-2 text-sm text-yellow-700">
                             <p>
                               Le filleul a été inscrit avec succès. Vous recevrez
                               50€ en carte cadeau une fois son inscription
@@ -511,8 +511,8 @@ const ParrainageSection = () => {
             <Card className="border border-gray-200 rounded-xl shadow-sm">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="bg-green-100 p-2 rounded-lg">
-                    <ChevronRight className="h-5 w-5 text-green-600" />
+                  <div className="bg-yellow-100 p-2 rounded-lg">
+                    <ChevronRight className="h-5 w-5 text-yellow-600" />
                   </div>
                   <h3 className="text-xl font-semibold text-gray-800">
                     Comment ça marche ?
