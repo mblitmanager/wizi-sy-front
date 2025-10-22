@@ -58,7 +58,7 @@ export const categories: Category[] = [
     slug: "IA",
     color: "#ABDA96",
     icon: "brain",
-    description: "Création de contenus rédactionnels et visuels à l'aide de l'intelligence artificielle générative.",
+    description: "Créez des contenus rédactionnels et visuels à l'aide de l'intelligence artificielle générative.",
     formations: []
   }
 ];

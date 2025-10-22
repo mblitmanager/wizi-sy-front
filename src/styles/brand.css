@@ -1,0 +1,22 @@
+:root {
+  /* Unified brand tokens to match Flutter AppColors */
+  --brand-primary: #FEB823; /* Flutter AppColors.primary */
+  --brand-primary-dark: #FE9E00; /* Flutter AppColors.primaryDark */
+  --brand-primary-accent: #FFE082; /* primaryAccent */
+  --brand-secondary: #2B2D42; /* secondary */
+  --brand-accent: #EF233C; /* accent */
+  --brand-background: #F8F9FA; /* background */
+  --brand-surface: #FFFFFF; /* surface */
+  --brand-error: #D32F2F; /* error */
+  --brand-on-primary: #000000; /* onPrimary */
+  --brand-on-secondary: #FFFFFF; /* onSecondary */
+}
+
+/* Convenience utility classes (fallbacks) */
+.bg-brand-primary { background-color: var(--brand-primary); }
+.bg-brand-primary-dark { background-color: var(--brand-primary-dark); }
+.bg-brand-surface { background-color: var(--brand-surface); }
+.text-brand-primary { color: var(--brand-primary); }
+.text-brand-secondary { color: var(--brand-secondary); }
+.text-brand-on-primary { color: var(--brand-on-primary); }
+.border-brand-primary { border-color: var(--brand-primary); }

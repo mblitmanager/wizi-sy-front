@@ -76,12 +76,28 @@ export default {
         langues: "#A55E6E",
         internet: "#FFC533",
         creation: "#9392BE",
+        ia: "#ABDA96",
         gold: "#FEB823",
         // Wizi brand colors
         wizi: {
-          DEFAULT: "#FFC533",
-          dark: "#F97316",
+          // align React brand with Flutter AppColors.primary (#FEB823)
+          DEFAULT: "#FEB823",
+          dark: "#FE9E00",
           light: "#FEF7CD",
+        },
+        // Semantic brand palette to use across the app
+        brand: {
+          // Map to CSS variables so we can change centrally in src/styles/brand.css
+          primary: "var(--brand-primary)",
+          "primary-dark": "var(--brand-primary-dark)",
+          "primary-accent": "var(--brand-primary-accent)",
+          secondary: "var(--brand-secondary)",
+          accent: "var(--brand-accent)",
+          success: "var(--brand-success, #10B981)",
+          danger: "var(--brand-error, #D32F2F)",
+          background: "var(--brand-background)",
+          surface: "var(--brand-surface)",
+          neutral: "var(--brand-neutral, #64748B)",
         },
         // Custom colors
         "brown-shade": "#b07661",
