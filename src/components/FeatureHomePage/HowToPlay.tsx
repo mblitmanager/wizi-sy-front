@@ -14,7 +14,7 @@ const steps = [
   {
     icon: <Trophy className="w-8 h-8 text-yellow-500" />,
     title: "Gagnez des points",
-    description: "Accumulez des points pour chaque bonne réponse et montez dans le classement.",
+    description: "Accumulez des points à chaque bonne réponse et montez dans le classement.",
   },
 ];
 

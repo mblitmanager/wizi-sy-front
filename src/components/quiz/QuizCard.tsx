@@ -252,7 +252,7 @@ export function QuizCard({ quiz, categories, history }: QuizCardProps) {
             </Badge>
 
             {/* Temps estimé */}
-            <Badge
+            {/* <Badge
               variant="outline"
               className="text-xs flex items-center gap-1">
               <Clock className="w-3 h-3" />
@@ -261,7 +261,7 @@ export function QuizCard({ quiz, categories, history }: QuizCardProps) {
                     .toString()
                     .padStart(2, "0")} sec`
                 : "03 min"}
-            </Badge>
+            </Badge> */}
           </div>
           {h && (
             <div className="mt-3 text-xs text-gray-700 flex items-center gap-2">

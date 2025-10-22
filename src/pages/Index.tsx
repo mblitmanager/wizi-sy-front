@@ -1,8 +1,9 @@
 import { Layout } from "@/components/layout/Layout";
+import apiClient from "@/lib/api-client";
 import { useUser } from "@/hooks/useAuth";
 import { Megaphone } from "lucide-react";
 import { ProgressCard } from "@/components/dashboard/ProgressCard";
-
+import { categoryService } from "@/services/quiz/CategoryService";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios"; // déjà importé ailleurs
@@ -14,6 +15,7 @@ import useOnlineStatus from "@/hooks/useOnlineStatus";
 import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
 import { catalogueFormationApi } from "@/services/api";
 import { Card, CardContent, useMediaQuery } from "@mui/material";
+import { stagiaireQuizService } from "@/services/quiz/StagiaireQuizService";
 import LandingPage from "./LandingPage";
 import { DECOUVRIR_NOS_FORMATIONS } from "@/utils/constants";
 import { CatalogueFormation } from "@/types/stagiaire";
@@ -21,6 +23,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { StagiaireQuizGrid } from "@/components/quiz/StagiaireQuizGrid";
+import type { Quiz as QuizType } from "@/types/quiz";
 import { HowToPlay } from "@/components/FeatureHomePage/HowToPlay";
 
 dayjs.extend(utc);
@@ -59,16 +62,44 @@ export function Index() {
     /iPad|iPhone|iPod/.test(window.navigator.userAgent);
   const { user } = useUser();
   const isOnline = useOnlineStatus();
+  
   const [showInstallHint, setShowInstallHint] = useState(false);
   const [showApkBlock, setShowApkBlock] = useState(true);
+  const [adFormations, setAdFormations] = useState<CatalogueFormation[]>([]);
+const [adLoading, setAdLoading] = useState(false);
+useEffect(() => {
+    let mounted = true;
+    setAdLoading(true);
+    apiClient
+      .get("/catalogueFormations/formations")
+      .then((res) => {
+        if (!mounted) return;
+        const d = res?.data;
+        if (Array.isArray(d)) setAdFormations(d);
+        else if (d && Array.isArray(d.data)) setAdFormations(d.data);
+        else setAdFormations([]);
+      })
+      .catch(() => setAdFormations([]))
+      .finally(() => setAdLoading(false));
+    return () => {
+      mounted = false;
+    };
+  }, []);
   const [hidePresentationBlock, setHidePresentationBlock] = useState(() => {
     return localStorage.getItem("hidePresentationBlock") === "true";
   });
   // Série de connexions (login streak)
   const [loginStreak, setLoginStreak] = useState<number>(() => {
     try {
-      const fromUser = user?.stagiaire?.login_streak;
-      return typeof fromUser === "number" ? fromUser : 0;
+      // Some APIs return snake_case, others camelCase
+  const stagiaire = (user?.stagiaire as unknown) as Record<string, unknown> | undefined;
+      const fromUser =
+        typeof stagiaire?.["login_streak"] === "number"
+          ? (stagiaire["login_streak"] as number)
+          : typeof stagiaire?.["loginStreak"] === "number"
+          ? (stagiaire["loginStreak"] as number)
+          : 0;
+      return fromUser;
     } catch (e) {
       return 0;
     }
@@ -79,20 +110,17 @@ export function Index() {
     queryKey: ["catalogueFormations"],
     queryFn: async () => {
       const response = await catalogueFormationApi.getAllCatalogueFormation();
-      if (response && typeof response === "object") {
-        if (
-          response.data &&
-          typeof response.data === "object" &&
-          Array.isArray((response.data as any).member)
-        ) {
-          return (response.data as any).member;
-        } else if (Array.isArray((response as any).member)) {
-          return (response as any).member;
-        } else if (Array.isArray(response.data)) {
-          return response.data;
-        }
+      const resp = response as unknown;
+      // If API returns an array directly
+      if (Array.isArray(resp)) return resp as CatalogueFormation[];
+      if (resp && typeof resp === "object") {
+        const respObj = resp as Record<string, unknown>;
+        const member = respObj["member"];
+        const data = respObj["data"];
+        if (Array.isArray(member)) return member as CatalogueFormation[];
+        if (Array.isArray(data)) return data as CatalogueFormation[];
       }
-      return [];
+      return [] as CatalogueFormation[];
     },
     enabled: !!user && !!localStorage.getItem("token"), // ← AJOUT IMPORTANT
     retry: 1, // Éviter les tentatives répétées en cas d'erreur 401
@@ -197,8 +225,10 @@ export function Index() {
 
   const filteredFormations = useMemo(() => {
     if (!stagiaireCatalogues.length) return catalogueData;
-    const ids = new Set(stagiaireCatalogues.map((f) => f.id));
-    return catalogueData.filter((f) => !ids.has(f.id));
+    const ids = new Set(
+      stagiaireCatalogues.flatMap((f) => (f && f.id != null ? [String(f.id)] : []))
+    );
+    return catalogueData.filter((f) => !ids.has(String(f.id)));
   }, [catalogueData, stagiaireCatalogues]);
 
   // === Récupération des contacts ===
@@ -229,7 +259,7 @@ export function Index() {
   });
 
   // === Quiz stagiaire ===
-  const { data: quizzes = [], isLoading: isLoadingQuizzes } = useQuery({
+  const { data: quizzes = [], isLoading: isLoadingQuizzes } = useQuery<unknown[]>({
     queryKey: ["stagiaire-quizzes-home"],
     queryFn: async () => {
       try {
@@ -265,6 +295,36 @@ export function Index() {
     enabled: !!localStorage.getItem("token"),
   });
 
+    // --- Runtime-safe helpers used by quiz filtering ---
+    const asRecord = (v: unknown) => (v as Record<string, unknown> | null) ?? null;
+    const getHistoryQuizId = (h: unknown): string | null => {
+      const r = asRecord(h);
+      if (!r) return null;
+      const quiz = asRecord(r["quiz"]);
+      const val = quiz?.["id"] ?? r["quizId"] ?? r["id"] ?? null;
+      return val != null ? String(val) : null;
+    };
+    const getQuizId = (q: unknown): string | null => {
+      const r = asRecord(q);
+      if (!r) return null;
+      const val = r["id"] ?? r["_id"] ?? null;
+      return val != null ? String(val) : null;
+    };
+    const getQuizFormationId = (q: unknown): number | null => {
+      const r = asRecord(q);
+      if (!r) return null;
+      const formation = asRecord(r["formation"]);
+      if (formation && formation["id"]) return Number(formation["id"]);
+      if (r["formation_id"]) return Number(r["formation_id"]);
+      if (r["formationId"]) return Number(r["formationId"]);
+      const formations = r["formations"] as unknown;
+      if (Array.isArray(formations) && formations.length > 0) {
+        const f0 = asRecord(formations[0]);
+        if (f0 && f0["id"]) return Number(f0["id"]);
+      }
+      return null;
+    };
+
   // Filtrage des quiz à découvrir selon le nombre de points utilisateur
   // Récupérer les points utilisateur depuis le classement global
   const [userPoints, setUserPoints] = useState(0);
@@ -283,35 +343,98 @@ export function Index() {
       .catch(() => setUserPoints(0));
   }, []);
 
-  const filteredQuizzes = useMemo(() => {
+  const filteredQuizzes = useMemo<QuizType[]>(() => {
     if (!quizzes.length || !stagiaireCatalogues.length) return [];
 
-    const notPlayedQuizzes = quizzes.filter(
-      (q) => !history.some((h) => String(h.quiz?.id) === String(q.id))
-    );
-
-    // Get user's formation IDs
-    const userFormationIds = new Set(stagiaireCatalogues.map((sc) => sc.id));
-
-    // Group quizzes by formation ID
-    const quizzesByFormation = notPlayedQuizzes.reduce((acc, quiz) => {
-      const formationId = quiz.formation?.id;
-      if (formationId && userFormationIds.has(formationId)) {
-        if (!acc[formationId]) {
-          acc[formationId] = [];
-        }
-        acc[formationId].push(quiz);
+    // Runtime helpers to safely extract fields from unknown shapes
+    const asRecord = (v: unknown) => (v as Record<string, unknown> | null) ?? null;
+    const getHistoryQuizId = (h: unknown): string | null => {
+      const r = asRecord(h);
+      if (!r) return null;
+      const quiz = asRecord(r["quiz"]);
+      const raw = (quiz?.["id"] ?? r["quizId"] ?? r["id"] ?? null) as string | number | null;
+      return raw != null ? String(raw) : null;
+    };
+    const getQuizId = (q: unknown): string | null => {
+      const r = asRecord(q);
+      if (!r) return null;
+      const raw = (r["id"] ?? r["_id"] ?? null) as string | number | null;
+      return raw != null ? String(raw) : null;
+    };
+    const getQuizFormationId = (q: unknown): number | null => {
+      const r = asRecord(q);
+      if (!r) return null;
+      // possible shapes: formation?.id, formation_id, formationId, formations[0]?.id
+      const formation = asRecord(r["formation"]);
+      if (formation && formation["id"]) return Number(formation["id"]);
+      if (r["formation_id"]) return Number(r["formation_id"]);
+      if (r["formationId"]) return Number(r["formationId"]);
+      const formations = r["formations"] as unknown;
+      if (Array.isArray(formations) && formations.length > 0) {
+        const f0 = asRecord(formations[0]);
+        if (f0 && f0["id"]) return Number(f0["id"]);
       }
-      return acc;
-    }, {} as Record<string, any[]>);
+      return null;
+    };
 
-    // Take 2 quizzes from each formation
-    const result = Array.from(userFormationIds).flatMap((formationId) => {
-      const formationQuizzes = quizzesByFormation[formationId] || [];
-      return formationQuizzes.slice(0, 2);
+    // Filter out quizzes that are in user's history
+    const notPlayedQuizzes = (quizzes as unknown[]).filter((q) => {
+      const qid = getQuizId(q);
+      if (!qid) return true;
+      return !history.some((h) => String(getHistoryQuizId(h)) === String(qid));
     });
 
-    return result;
+    // Collect unique formation IDs from user catalogues
+    const formationIds = Array.from(
+      new Set(
+        stagiaireCatalogues
+          .map((item) => item.formation_id)
+          .filter((id) => id != null)
+          .map((id) => Number(id))
+      )
+    ).filter(Boolean) as number[];
+
+    if (!formationIds.length) return [];
+
+    // Group quizzes by formation ID
+    const quizzesByFormation = (notPlayedQuizzes as unknown[]).reduce((acc, q) => {
+      const formationId = getQuizFormationId(q);
+      if (formationId && formationIds.includes(formationId)) {
+        if (!acc[formationId]) acc[formationId] = [];
+        (acc[formationId] as unknown[]).push(q);
+      }
+      return acc;
+    }, {} as Record<number, unknown[]>);
+
+    const shuffle = <T,>(arr: T[]) => {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const tmp = a[i];
+        a[i] = a[j];
+        a[j] = tmp;
+      }
+      return a;
+    };
+
+    // Rotate chosen formation by day
+    const dayIndex = dayjs().tz("Europe/Paris").diff(dayjs("1970-01-01"), "day");
+    const chosenIndex = Math.abs(dayIndex) % formationIds.length;
+    const chosenFormationId = formationIds[chosenIndex];
+
+    const chosenQuizzes = (quizzesByFormation[chosenFormationId] || []) as unknown[];
+    const shuffledChosen = shuffle(chosenQuizzes);
+    const selected = shuffledChosen.slice(0, 3);
+
+    if (selected.length >= 3) return selected.map((s) => s as QuizType);
+
+    const remainingNeeded = 3 - selected.length;
+    const otherFormationIds = formationIds.filter((id) => id !== chosenFormationId);
+    const pool = otherFormationIds.flatMap((id) => (quizzesByFormation[id] || []) as unknown[]);
+    const shuffledPool = shuffle(pool);
+    const fillers = shuffledPool.slice(0, remainingNeeded);
+
+    return [...selected, ...fillers].slice(0, 3).map((s) => s as QuizType);
   }, [quizzes, history, stagiaireCatalogues]);
 
   // === Notification automatique à 9h ===
@@ -362,7 +485,7 @@ export function Index() {
                   description: `${ach.name || ach.titre || ach.title || "Achievement"
                     } !`,
                   duration: 4000,
-                  variant: "success",
+                  variant: "default",
                   className: "bg-orange-600 text-white",
                 });
               });
@@ -378,6 +501,37 @@ export function Index() {
       }
     }
   }, [user]);
+  const { data: participations } = useQuery<unknown[]>({
+      queryKey: ["stagiaire-participations"],
+      queryFn: () => stagiaireQuizService.getStagiaireQuizJoue(),
+      enabled: !!localStorage.getItem("token"),
+    });
+
+    const { data: categories, isLoading: categoriesLoading } = useQuery({
+        queryKey: ["quiz-categories"],
+        queryFn: () => categoryService.getCategories(),
+        enabled: !!localStorage.getItem("token"),
+      });
+  const notPlayedQuizzes = useMemo<QuizType[]>(() => {
+      if (!quizzes || !participations) return [];
+
+      const result = filteredQuizzes.filter((q) => {
+        const qid = String(q.id ?? q.titre ?? "");
+        return !participations.some((p) => {
+          const hid = getHistoryQuizId(p);
+          return hid ? String(hid) === String(qid) : false;
+        });
+      });
+
+      return result as QuizType[];
+  }, [filteredQuizzes, quizzes, participations, getHistoryQuizId]);
+  const [notPlayedCurrentPage, setNotPlayedCurrentPage] = useState(1);
+    const [playedCurrentPage, setPlayedCurrentPage] = useState(1);
+    const quizzesPerPage = 6;
+  const notPlayedPaginatedQuizzes = useMemo(() => {
+      const startIndex = (notPlayedCurrentPage - 1) * quizzesPerPage;
+      return notPlayedQuizzes.slice(startIndex, startIndex + quizzesPerPage);
+    }, [notPlayedQuizzes, notPlayedCurrentPage]);
 
   if (!user || !localStorage.getItem("token")) {
     return <LandingPage />;
@@ -520,6 +674,42 @@ export function Index() {
           <div className="mt-4 mb-4 flex justify-center"></div>
         )}
         <HowToPlay />
+                {filteredQuizzes.length > 0 && (
+          <Card className="border-yellow-100">
+            <CardContent className="p-3 md:p-6">
+              <div className="flex items-center mb-2 md:mb-3">
+                <h2 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-600">
+                  Quiz à découvrir
+                </h2>
+              </div>
+              {/* <StagiaireQuizGrid
+                quizzes={filteredQuizzes}
+                categories={Array.from(
+                  new Set(
+                    filteredQuizzes
+                      .map((q) => q.formation?.categorie)
+                      .filter(Boolean)
+                  )
+                )}/> */}
+                <StagiaireQuizGrid
+                                quizzes={notPlayedPaginatedQuizzes}
+                                categories={categories || []}
+                              />
+              
+            </CardContent>
+          </Card>
+        )}
+         <div className="bg-white md:p-4 rounded-lg mt-2">
+          <ContactsSection
+            commerciaux={commerciaux}
+            formateurs={formateurs}
+            poleRelation={poleRelation}
+            poleSav={poleSav}
+            showFormations={false}
+          />
+
+
+        </div>
         {isLoadingCatalogue ? (
           <div className="flex justify-center items-center py-16">
             <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-yellow-400 border-solid"></div>
@@ -535,7 +725,13 @@ export function Index() {
             </h2>
             <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 px-2 py-6 md:py-3 bg-white rounded-xl">
               <div className="w-full flex flex-col items-center">
-                <AdCatalogueBlock formations={filteredFormations.slice(0, 6)} />
+                {/* <AdCatalogueBlock formations={filteredFormations.slice(0, 6)} /> */}
+                {/* Ad catalogue block */}
+                            {!adLoading && adFormations.length > 0 && (
+                              <div className="mt-6">
+                                <AdCatalogueBlock formations={adFormations.slice(0, 6)} />
+                              </div>
+                            )}
               </div>
             </div>
           </>
@@ -544,40 +740,10 @@ export function Index() {
             Aucune formation disponible.
           </div>
         )}
-        {filteredQuizzes.length > 0 && (
-          <Card className="border-yellow-100">
-            <CardContent className="p-3 md:p-6">
-              <div className="flex items-center mb-2 md:mb-3">
-                <h2 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-600">
-                  Quiz à découvrir
-                </h2>
-              </div>
-              <StagiaireQuizGrid
-                quizzes={filteredQuizzes}
-                categories={Array.from(
-                  new Set(
-                    filteredQuizzes
-                      .map((q) => q.formation?.categorie)
-                      .filter(Boolean)
-                  )
-                )}
-              />
-            </CardContent>
-          </Card>
-        )}
+
         {/* <hr /> */}
         
-        <div className="bg-white md:p-4 rounded-lg mt-2">
-          <ContactsSection
-            commerciaux={commerciaux}
-            formateurs={formateurs}
-            poleRelation={poleRelation}
-            poleSav={poleSav}
-            showFormations={false}
-          />
-
-
-        </div>
+       
         
         {/* Bloc téléchargement application Android ou instruction PWA pour iOS */}
         {showApkBlock &&

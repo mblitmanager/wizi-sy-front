@@ -342,73 +342,42 @@ export function GlobalRanking({
               </Badge>
             </div>
 
-            {/* Mobile View */}
-            <div className="sm:hidden space-y-3">
-              {listRanking.map((entry, index) => {
+            {/* Mobile View - simplified */}
+            <div className="sm:hidden space-y-2">
+              {listRanking.slice(0, 10).map((entry, index) => {
                 const isCurrentUser = entry.id?.toString() === currentUserId;
                 const globalIndex = showPodium ? index + 4 : index + 1; // Après le podium
 
                 return (
                   <div
                     key={entry.id || index}
-                    className={`p-4 rounded-xl border-2 ${
+                    className={`flex items-center justify-between p-3 rounded-lg border ${
                       isCurrentUser
-                        ? "border-green-300 bg-green-50 dark:bg-green-900/20"
+                        ? "border-green-300 bg-green-50 dark:bg-green-900/10"
                         : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-                    } shadow-sm`}>
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold">
-                          {globalIndex}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-gray-900 dark:text-white">
-                              {/* {entry.name || "Inconnu"} */}
-                              {entry.firstname || ""} {entry.name || ""}
-                            </h3>
-                            {isCurrentUser && (
-                              <Badge variant="default" className="bg-green-500">
-                                Vous
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">
-                            {entry.quizCount} quiz • Moyenne:{" "}
-                            {entry.averageScore?.toFixed(1)}
-                          </div>
-                        </div>
+                    }`}>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold text-sm">
+                        {globalIndex}
                       </div>
-                      <div className="text-lg font-bold text-orange-600">
-                        {entry.score} pts
+                      <div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">
+                          {entry.firstname || ""} {entry.name || ""}
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {entry.quizCount} quiz • {entry.averageScore?.toFixed(1)} avg
+                        </div>
                       </div>
                     </div>
-
-                    {/* Formateurs pour mobile */}
-                    {entry.formateurs && entry.formateurs.length > 0 && (
-                      <div className="pt-3 border-t border-gray-200 dark:border-gray-600">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Users className="h-4 w-4 text-blue-500" />
-                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Formateurs :
-                          </span>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {entry.formateurs.map((formateur: any) => (
-                            <Badge
-                              key={formateur.id}
-                              variant="outline"
-                              className="bg-blue-50 dark:bg-blue-900/20">
-                              {formateur.prenom} 
-                              {formateur.nom.toUpperCase()}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                    <div className="text-sm font-bold text-orange-600">
+                      {entry.score} pts
+                    </div>
                   </div>
                 );
               })}
+              {listRanking.length > 10 && (
+                <div className="text-center text-xs text-gray-500">Afficher les {listRanking.length - 10} suivants...</div>
+              )}
             </div>
 
             {/* Desktop Table */}

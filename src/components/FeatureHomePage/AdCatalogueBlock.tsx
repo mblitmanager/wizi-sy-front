@@ -194,7 +194,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
   </div>
   {/* Texte à gauche */}
   <div className="flex-1 pr-4">
-    <h3 className="text-m font-bold text-gray-900 mb-2">
+    <h3 className="text-m font-bold text-gray-900 mb-2 text-center">
       {formatTitle(formation?.titre || "Sans titre")}
     </h3>
     </div>
