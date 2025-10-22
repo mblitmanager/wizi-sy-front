@@ -129,6 +129,7 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({
     [CATEGORIES.LANGUES]: "#A55E6E",
     [CATEGORIES.INTERNET]: "#FFC533",
     [CATEGORIES.CREATION]: "#9392BE",
+    [CATEGORIES.IA]: "#ABDA96",
   };
 
   useEffect(() => {

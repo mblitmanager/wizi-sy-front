@@ -11,8 +11,12 @@ interface ContactCardProps {
 // Mapping des styles par rôle
 const roleStyles: Record<string, string> = {
   commerciale: "bg-blue-100 text-blue-800",
+  commercial: "bg-blue-100 text-blue-800",
+  conseiller: "bg-blue-100 text-blue-800",
+  conseillere: "bg-blue-100 text-blue-800",
   formateur: "bg-green-100 text-green-800",
-  pole_relation_client: "bg-yellow-100 text-yellow-800",
+  formatrice: "bg-green-100 text-green-800",
+  pole_relation_client: "bg-yellow-400 text-yellow-00",
   "Pôle SAV": "bg-purple-100 text-purple-800",
   pole_sav: "bg-purple-100 text-purple-800",
   autre: "bg-gray-100 text-gray-800",
@@ -80,18 +84,21 @@ const getJobTitleWithCivility = (contact: Contact) => {
 
   // Format du nom avec civilité si disponible
   const getFormattedName = () => {
+    const prenom = contact.prenom || "";
+    const nom = contact.nom ? contact.nom.toUpperCase() : "";
+
+    if (prenom || nom) {
+      if (contact.civilite) {
+        return `${contact.civilite} ${prenom} ${nom}`.trim();
+      }
+      return `${prenom} ${nom}`.trim();
+    }
+
     if (contact.name) {
       return contact.name.toUpperCase();
     }
     
-    const prenom = contact.prenom || "";
-    const nom = contact.nom ? contact.nom.toUpperCase() : "";
-    
-    if (contact.civilite) {
-      return `${contact.civilite} ${prenom} ${nom}`.trim();
-    }
-    
-    return `${prenom} ${nom}`.trim() || "Nom inconnu";
+    return "Nom inconnu";
   };
 
   // Get initials for avatar fallback
@@ -135,7 +142,7 @@ const getJobTitleWithCivility = (contact: Contact) => {
         )}
         <div>
           <h2 className="text-lg font-semibold text-gray-800">
-            {formattedName}
+            {contact.prenom ? `${contact.prenom} ` : ""}{contact.nom ? contact.nom.toUpperCase() : contact.name.toUpperCase()}  
           </h2>
           <span
             className={`text-xs px-2 py-1 rounded-full font-medium ${
@@ -174,6 +181,18 @@ const getJobTitleWithCivility = (contact: Contact) => {
           )}
         </div>
       </div>
+
+      {contactRole === 'formateur' && (contact.formations || contact.formation) && (
+        <div className="mt-4">
+          {(contact.formations || contact.formation)?.length > 1 && (<h3 className="text-sm font-medium text-gray-500 mb-2">Formations</h3>)}
+          
+          <div className="flex flex-wrap gap-2">
+            {(contact.formations || contact.formation)?.map((f) => (
+              <Badge key={f.id} variant="secondary">{f.titre || f.title || f.name}</Badge>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

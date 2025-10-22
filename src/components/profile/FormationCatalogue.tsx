@@ -45,6 +45,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   Langues: "bg-[#A55E6E] text-white border-[#A55E6E]",
   Internet: "bg-[#FFC533] text-black",
   Création: "bg-[#9392BE] text-white",
+  IA: "bg-[#ABDA96] text-white",
   default: "bg-gray-100 text-gray-800",
 };
 

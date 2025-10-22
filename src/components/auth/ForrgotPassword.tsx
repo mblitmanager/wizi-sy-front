@@ -33,18 +33,20 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-t from-[#FEB823] via-[#FFF8E1] to-white">
+    <div
+      className="min-h-screen flex flex-col justify-center items-center"
+      style={{ background: `linear-gradient(to top, white 0%, var(--brand-primary) 0%, rgba(255,255,255,0) 100%)` }}>
       {/* Logo en haut */}
       <div className="flex flex-col items-center mb-8">
         <img src={logo} alt="Wizi Learn" className="h-32 mb-2 drop-shadow-lg" />
-        <p className="text-[#000] font-bold text-center max-w-xs">
+        <p className="text-black font-bold text-center max-w-xs">
           La plateforme de quiz éducatifs pour nos stagiaires
         </p>
       </div>
       <div className="w-full max-w-md px-4">
-        <div className="shadow-xl border-2 border-[#FEB823]/30 bg-white/90 backdrop-blur-md rounded-lg p-6">
+  <div className="shadow-xl bg-white/90 backdrop-blur-md rounded-lg p-6" style={{ border: '2px solid rgba(254,184,35,0.18)' }}>
           <div className="space-y-1 mb-6">
-            <h2 className="text-center text-[#FEB823] font-semibold text-lg">
+            <h2 className="text-center font-semibold text-lg" style={{ color: 'var(--brand-primary)' }}>
               Réinitialisation du mot de passe
             </h2>
             <p className="text-center text-sm text-gray-600">
@@ -67,7 +69,7 @@ const ForgotPassword = () => {
             <div className="space-y-2">
               <label
                 htmlFor="email"
-                className="text-sm font-medium text-[#A55E6E]"
+                className="text-sm font-medium text-brand-secondary"
               >
                 Adresse Email
               </label>
@@ -79,13 +81,14 @@ const ForgotPassword = () => {
                 placeholder="exemple@wizi-learn.com"
                 required
                 autoComplete="email"
-                className="focus:border-[#3D9BE9]"
+                className="focus:outline-none"
+                style={{ borderColor: 'transparent' }}
               />
             </div>
 
             <Button
               type="submit"
-              className="w-full bg-black hover:bg-[#8B5C2A] text-white font-semibold shadow-md transition"
+              className="w-full bg-black text-white font-semibold shadow-md transition hover:bg-[color:var(--brand-primary-dark)]"
             >
               Envoyer le lien de réinitialisation
             </Button>
@@ -94,7 +97,7 @@ const ForgotPassword = () => {
           <div className="mt-4 text-center text-sm">
             <Link
               to="/login"
-              className="text-[#A55E6E] hover:underline font-medium"
+              className="hover:underline font-medium text-brand-secondary"
             >
               Retour à la connexion
             </Link>
