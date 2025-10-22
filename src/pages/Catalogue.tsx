@@ -136,7 +136,7 @@ export default function Catalogue() {
 
                     <CardHeader className="relative z-10 p-2 sm:p-4">
                       <div className="flex items-center gap-1.5 sm:gap-3">
-                        <div
+                        {/* <div
                           className={`p-1 sm:p-2 rounded-lg ${
                             cardStyle.split(" ")[2]
                           }`}>
@@ -152,10 +152,10 @@ export default function Catalogue() {
                               d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                             />
                           </svg>
-                        </div>
+                        </div> */}
                         <div className="flex-1 min-w-0">
                           <CardTitle className="text-xs sm:text-lg font-bold text-white truncate">
-                            {category.name}
+                            {category.name.toLocaleUpperCase()}
                           </CardTitle>
                           <CardDescription className="text-[10px] sm:text-sm line-clamp-1 text-white/90">
                             {stripHtmlTags(category.description)}

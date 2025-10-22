@@ -7,6 +7,7 @@ import { Button } from "../ui/button";
 import { ArrowRight, Clock } from "lucide-react";
 import { CATEGORIES, VOIR_LES_DETAILS } from "@/utils/constants";
 import nomedia from "../../assets/nomedia.png";
+import DOMPurify from "dompurify";
 import { FormationCardData } from "@/types/Formation";
 const stripHtml = (html: string) => {
   const tmp = document.createElement("div");
@@ -18,34 +19,28 @@ const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_MEDIA;
 
 const FormationCard = ({ formation }: { formation: FormationCardData }) => {
   const navigate = useNavigate();
-  const categoryColors: Record<CATEGORIES, string> = {
-    [CATEGORIES.BUREAUTIQUE]: "border-[#3D9BE9]",
-    [CATEGORIES.LANGUES]: "border-[#A55E6E]",
-    [CATEGORIES.INTERNET]: "border-[#FFC533]",
-    [CATEGORIES.CREATION]: "border-[#9392BE]",
-    [CATEGORIES.IA]: "border-[#ABDA96]",
+  const categoryBorderClasses: Record<CATEGORIES, string> = {
+    [CATEGORIES.BUREAUTIQUE]: "border-bureautique",
+    [CATEGORIES.LANGUES]: "border-langues",
+    [CATEGORIES.INTERNET]: "border-internet",
+    [CATEGORIES.CREATION]: "border-creation",
+    [CATEGORIES.IA]: "border-ia",
   };
 
-  const getCategoryColor = (category: string) => {
-    return (
-      categoryColors[category as CATEGORIES] || "bg-gray-50/10 border-gray-200"
-    );
-  };
-
-  const getCategoryBadgeStyle = (category: string) => {
+  const getCategorySuffix = (category: string) => {
     switch (category) {
       case CATEGORIES.BUREAUTIQUE:
-        return "bg-[#3D9BE9]/20 text-[#3D9BE9]";
+        return "bureautique";
       case CATEGORIES.LANGUES:
-        return "bg-[#A55E6E]/20 text-[#A55E6E]";
+        return "langues";
       case CATEGORIES.INTERNET:
-        return "bg-[#FFC533]/20 text-[#FFC533]";
+        return "internet";
       case CATEGORIES.CREATION:
-        return "bg-[#9392BE]/20 text-[#9392BE]";
+        return "creation";
       case CATEGORIES.IA:
-        return "bg-[#ABDA96]/20 text-[#ABDA96]";
+        return "ia";
       default:
-        return "bg-gray-200/20 text-gray-600";
+        return "default";
     }
   };
 
@@ -60,38 +55,54 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
   };
 
   const image = getImageSource();
-  const categoryColor = getCategoryColor(formation.formation.categorie);
-  const categoryBadgeStyle = getCategoryBadgeStyle(
-    formation.formation.categorie
-  );
+  // formation may have different nested shapes depending on API; use safe accessors
+  const getCategoryFromFormation = (f: unknown): string => {
+    if (!f || typeof f !== "object") return "";
+  const obj = f as Record<string, unknown>;
+  const formationField = obj['formation'] as Record<string, unknown> | undefined;
+  if (formationField && typeof formationField['categorie'] === 'string') return formationField['categorie'] as string;
+  const nested = formationField && (formationField['formation'] as Record<string, unknown> | undefined);
+  if (nested && typeof nested['categorie'] === 'string') return nested['categorie'] as string;
+  if (typeof obj['categorie'] === 'string') return obj['categorie'] as string;
+    return "";
+  };
+
+  const categoryString: string = getCategoryFromFormation(formation);
+  const suffix = getCategorySuffix(categoryString);
+  const categoryBorderClass = categoryBorderClasses[categoryString as CATEGORIES] || "border-gray-200";
+  const categoryBadgeClass = suffix !== "default" ? `badge-${suffix}` : "bg-gray-200/20 text-gray-600";
 
   return (
     <Link
       to={`/catalogue-formation/${formation.id}`}
-      className={`group p-4 border-t-4 rounded-lg  ${categoryColor} shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full overflow-hidden hover:translate-y-[-2px]`}>
+      className={`group p-4 border-t-4 rounded-lg  ${categoryBorderClass} shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full overflow-hidden hover:translate-y-[-2px]`}>
       {/* Image container */}
-      <div className="relative rounded-md overflow-hidden mb-3 h-36 bg-gray-100 flex items-center justify-center">
-        <img
-          src={image}
-          alt={formation.titre}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          loading="lazy"
-        />
-        <div className="absolute inset-0 bg-black/5 group-hover:bg-black/10 transition-colors duration-300" />
-      </div>
+      <div className="relative mb-3 flex items-center justify-center">
+  <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200 shadow-md">
+    <img
+      src={image}
+      alt={formation.titre}
+      className="w-full h-full object-cover"
+      loading="lazy"
+    />
+  </div>
+
+  <h3 className="text-base font-semibold text-orange- line-clamp-2 leading-snug text-center">
+    {formation.titre}
+  </h3>
+
+</div>
+
 
       {/* Content container */}
       <div className="flex flex-col flex-grow space-y-2">
         {/* Title */}
-        <h3 className="text-base font-semibold text-orange- line-clamp-2 leading-snug">
-          {formation.titre}
-        </h3>
-
+        
         {/* Category badge */}
         <div className="flex justify-between items-start">
           <span
-            className={`text-xs font-medium px-2 py-1 rounded-full ${categoryBadgeStyle}`}>
-            {formation.formation.categorie}
+            className={`text-xs font-medium px-2 py-1 rounded-full ${categoryBadgeClass}`}>
+            {categoryString}
           </span>
 
           {/* Certification badge */}
@@ -103,9 +114,11 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
         </div>
 
         {/* Description */}
-        <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
-          {stripHtml(formation.description || "")}
-        </p>
+        <div
+  className="text-sm text-gray-600 line-clamp-2 leading-relaxed"
+  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formation.description || "") }}
+/>
+
 
         {/* Metadata */}
         <div className="mt-auto pt-2">
@@ -115,7 +128,7 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
               <span>{formation.duree}h</span>
             </div>
 
-            <span className="text-xl text-orange-500 font-extrabold drop-shadow-lg">
+            <span className={suffix !== "default" ? `inline-block text-xl font-extrabold drop-shadow-lg px-2 py-0.5 rounded price-badge-${suffix}` : "text-xl text-orange-500 font-extrabold drop-shadow-lg"}>
               {formation.tarif
                 ? `${Math.round(Number(formation.tarif)).toLocaleString(
                     "fr-FR"
@@ -129,7 +142,7 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
       {/* Button */}
       <CardFooter className="p-0 pt-3 mt-2">
         <Button
-          className="w-full h-8 text-xs flex items-center justify-center gap-1 bg-black hover:bg-[#8B5C2A] text-white transition-colors duration-200"
+          className={`w-full h-8 text-xs flex items-center justify-center gap-1 ${suffix !== "default" ? `btn-cat-${suffix}` : 'bg-black'} hover:opacity-90 text-white transition-colors duration-200`}
           onClick={() => navigate(`/catalogue-formation/${formation.id}`)}>
           {VOIR_LES_DETAILS}
           <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />

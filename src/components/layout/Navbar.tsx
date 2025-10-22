@@ -152,7 +152,7 @@ export function Navbar() {
   const handleLogout = useCallback(async () => {
     try {
       await logout();
-      navigate("/login", { replace: true });
+      navigate("/", { replace: true });
     } catch (error) {
       console.error("Logout error:", error);
     }

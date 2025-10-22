@@ -42,7 +42,7 @@ export const enum CATEGORIES {
 }
 
 export const FORMATIONMETADATA = {
-  duree: "Duree",
+  duree: "Durée",
   tarif: "Tarif",
   heures: "heures",
   certification: "Certification",

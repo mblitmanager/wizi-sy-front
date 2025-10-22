@@ -10,6 +10,13 @@
   --brand-error: #D32F2F; /* error */
   --brand-on-primary: #000000; /* onPrimary */
   --brand-on-secondary: #FFFFFF; /* onSecondary */
+
+  /* Category color tokens (aligned with Flutter category colors) */
+  --cat-bureautique: #3D9BE9;
+  --cat-langues: #A55E6E;
+  --cat-internet: #FFC533;
+  --cat-creation: #9392BE;
+  --cat-ia: #ABDA96;
 }
 
 /* Convenience utility classes (fallbacks) */
@@ -20,3 +27,28 @@
 .text-brand-secondary { color: var(--brand-secondary); }
 .text-brand-on-primary { color: var(--brand-on-primary); }
 .border-brand-primary { border-color: var(--brand-primary); }
+
+/* Category helper classes */
+.border-bureautique { border-color: var(--cat-bureautique) !important; }
+.border-langues { border-color: var(--cat-langues) !important; }
+.border-internet { border-color: var(--cat-internet) !important; }
+.border-creation { border-color: var(--cat-creation) !important; }
+.border-ia { border-color: var(--cat-ia) !important; }
+
+.badge-bureautique { background-color: rgba(61,155,233,0.18); color: var(--cat-bureautique); }
+.badge-langues { background-color: rgba(165,94,110,0.18); color: var(--cat-langues); }
+.badge-internet { background-color: rgba(255,197,51,0.18); color: var(--cat-internet); }
+.badge-creation { background-color: rgba(147,146,190,0.18); color: var(--cat-creation); }
+.badge-ia { background-color: rgba(171,218,150,0.18); color: var(--cat-ia); }
+
+.price-badge-bureautique { background-color: var(--cat-bureautique); color: #fff; }
+.price-badge-langues { background-color: var(--cat-langues); color: #fff; }
+.price-badge-internet { background-color: var(--cat-internet); color: #fff; }
+.price-badge-creation { background-color: var(--cat-creation); color: #fff; }
+.price-badge-ia { background-color: var(--cat-ia); color: #fff; }
+
+.btn-cat-bureautique { background-color: var(--cat-bureautique); color: #fff; }
+.btn-cat-langues { background-color: var(--cat-langues); color: #fff; }
+.btn-cat-internet { background-color: var(--cat-internet); color: #fff; }
+.btn-cat-creation { background-color: var(--cat-creation); color: #fff; }
+.btn-cat-ia { background-color: var(--cat-ia); color: #fff; }

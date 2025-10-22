@@ -131,7 +131,7 @@ const getJobTitleWithCivility = (contact: Contact) => {
       <div className="flex items-center mb-4">
         {contact.image && contact.image !== "/images/default-avatar.png" ? (
           <img
-            src={contact.image}
+            src={`${import.meta.env.VITE_API_URL_MEDIA ?? ''}${'/'+ contact.image}`}
             alt={formattedName}
             className="w-12 h-12 rounded-full object-cover mr-4"
           />

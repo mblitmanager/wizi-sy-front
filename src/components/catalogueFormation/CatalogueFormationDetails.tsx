@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
+import DOMPurify from "dompurify";
 import { useCallback, useEffect, useState } from "react";
 import {
   Card,
@@ -163,32 +164,73 @@ export default function CatalogueFormationDetails() {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-5xl">
-        <HeaderSection
-          titre={CATALOGUE_FORMATION_DETAILS}
-          buttonText={RETOUR}
-        />
+        <div className="flex items-center justify-between mb-6">
+           <h2 className="relative inline-block text-3xl md:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 drop-shadow-md">
+      <span className="relative z-10 text-orange-400">{details.catalogueFormation.formation.titre}</span>
+      {/* petite barre décorative en dessous */}
+      <span className="absolute left-1/2 -bottom-2 h-1 w-16 -translate-x-1/2 rounded-full bg-gradient-to-r from-orange-400 to-yellow-400"></span>
+    </h2>
+          <Button onClick={() => window.history.back()}>{RETOUR}</Button>
+        </div>
 
         {details.catalogueFormation.formation && (
-          <FormationInfoSection
-            title={details.catalogueFormation.formation.titre}
-            description={details.catalogueFormation.formation.description}
-          />
+          <div className="mt-6 p-5 rounded-2xl bg-gradient-to-br from-yellow-50 to-white dark:from-gray-900 dark:to-gray-800 shadow-md">
+      <div className="text-gray-700 dark:text-gray-300 leading-relaxed"
+        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(details.catalogueFormation.formation.description || "") }}
+      />
+    </div>
         )}
 
         <Card className="overflow-hidden">
           <div className="grid grid-cols-1 md:grid-cols-3">
+        {/* HERO / Media column (left on desktop) */}
+        <div className="relative md:col-span-1 h-64 md:h-auto">
+          {/* media element fills the hero */}
+          <div className="absolute inset-0">
             {renderMediaElement()}
+            {/* dark overlay for readability */}
+            {/* <div className="absolute inset-0 bg-black/25" /> */}
+          </div>
 
-            <FormationDetailsContent
-              formation={details.catalogueFormation}
-              category={details.catalogueFormation.formation?.categorie}
-              onInscription={handleInscription}
-              inscriptionLoading={inscriptionLoading}
-              inscriptionSuccess={inscriptionSuccess}
-              inscriptionError={inscriptionError}
-              getCategoryColor={getCategoryColor}
-              getCategoryBadgeText={getCategoryBadgeText}
-            />
+          {/* Price badge - overlayed bottom-left */}
+          <div className="absolute left-4 bottom-4">
+            {/* determine suffix from category to apply price-badge class */}
+            {(() => {
+          const rawCat = details.catalogueFormation.formation?.categorie as unknown as string | undefined;
+          const suffix = rawCat ? rawCat.toLowerCase() : '';
+          const price = details.catalogueFormation.tarif;
+          return (
+            <div className={`inline-block px-3 py-1 rounded-md text-white ${suffix ? `price-badge-${suffix}` : 'bg-gray-700'}`}>
+              {price ? `${Number(price).toLocaleString('fr-FR')} €` : '-'}
+            </div>
+          );
+            })()}
+          </div>
+
+          {/* Category chip - overlayed top-left */}
+          <div className="absolute left-4 top-4">
+            {(() => {
+          const rawCat = details.catalogueFormation.formation?.categorie as unknown as string | undefined;
+          const suffix = rawCat ? rawCat.toLowerCase() : '';
+          return (
+            <span className={`inline-block text-sm font-medium px-3 py-1 rounded ${suffix ? `badge-${suffix}` : 'bg-gray-200'}`}>
+              {getCategoryBadgeText(details.catalogueFormation.formation?.categorie as unknown as CATEGORIES)}
+            </span>
+          );
+            })()}
+          </div>
+        </div>
+
+        {/* Details column */}
+        <FormationDetailsContent
+          formation={details.catalogueFormation}
+          category={details.catalogueFormation.formation?.categorie as unknown as CATEGORIES}
+          onInscription={handleInscription}
+          inscriptionLoading={inscriptionLoading}
+          inscriptionSuccess={inscriptionSuccess}
+          inscriptionError={inscriptionError}
+          getCategoryColor={getCategoryColor}
+        />
           </div>
         </Card>
       </div>
@@ -208,26 +250,26 @@ const NoDataAvailable = () => (
   <div>Aucune donnée disponible pour cette formation.</div>
 );
 
-const FormationInfoSection = ({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) => (
-  <div className="mt-12 mb-12 text-center">
-    <h2 className="relative inline-block text-3xl md:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 drop-shadow-md">
-      <span className="relative z-10 text-[#F33F18]">{title}</span>
-      {/* petite barre décorative en dessous */}
-      <span className="absolute left-1/2 -bottom-2 h-1 w-16 -translate-x-1/2 rounded-full bg-gradient-to-r from-orange-400 to-yellow-400"></span>
-    </h2>
-    <div className="mt-6 p-5 rounded-2xl bg-gradient-to-br from-yellow-50 to-white dark:from-gray-900 dark:to-gray-800 shadow-md">
-      <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-        {stripHtmlTags(description)}
-      </p>
-    </div>
-  </div>
-);
+// const FormationInfoSection = ({
+//   title,
+//   description,
+// }: {
+//   title: string;
+//   description: string;
+// }) => (
+//   <div className="mt-12 mb-12 text-center">
+//     <h2 className="relative inline-block text-3xl md:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 drop-shadow-md">
+//       <span className="relative z-10 text-orange-400">{title}</span>
+//       {/* petite barre décorative en dessous */}
+//       <span className="absolute left-1/2 -bottom-2 h-1 w-16 -translate-x-1/2 rounded-full bg-gradient-to-r from-orange-400 to-yellow-400"></span>
+//     </h2>
+//     <div className="mt-6 p-5 rounded-2xl bg-gradient-to-br from-yellow-50 to-white dark:from-gray-900 dark:to-gray-800 shadow-md">
+//       <div className="text-gray-700 dark:text-gray-300 leading-relaxed"
+//         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(description || "") }}
+//       />
+//     </div>
+//   </div>
+// );
 
 interface FormationDetailsContentProps {
   formation: CatalogueFormationDetailsType["catalogueFormation"];
@@ -237,7 +279,6 @@ interface FormationDetailsContentProps {
   inscriptionSuccess: string | null;
   inscriptionError: string | null;
   getCategoryColor: (category?: CATEGORIES) => string;
-  getCategoryBadgeText: (category?: CATEGORIES) => string;
 }
 
 const FormationDetailsContent = ({
@@ -248,107 +289,80 @@ const FormationDetailsContent = ({
   inscriptionSuccess,
   inscriptionError,
   getCategoryColor,
-  getCategoryBadgeText,
-}: FormationDetailsContentProps) => (
-  <div className="md:col-span-2 p-6 space-y-4">
-    <CardHeader className="p-0 space-y-1">
-      <CardTitle className="text-2xl font-bold text-orange-400">
-        {formation.titre}
-      </CardTitle>
-      <CardDescription className="text-gray-700">
-        {formation.prerequis
-          ? `Pré-requis : ${formation.prerequis}`
-          : "Aucun pré-requis"}
-      </CardDescription>
-    </CardHeader>
+}: FormationDetailsContentProps) => {
+  const rawCat = category as unknown as string | undefined;
+  const suffix = rawCat ? rawCat.toLowerCase() : '';
 
-    <CardContent className="p-0 text-gray-700 dark:text-gray-300 space-y-2">
-      <p className="text-base leading-relaxed">
-        {formation.description.replace(/<[^>]*>/g, "")}
-      </p>
+  return (
+    <div className="md:col-span-2 p-6 space-y-4">
+      <CardHeader className="p-0 space-y-1">
+        <CardTitle className="text-2xl font-bold text-orange-400">
+          {formation.titre}
+        </CardTitle>
+        <CardDescription className="text-gray-700">
+          {formation.prerequis ? (
+            <span>
+              <strong>Pré-requis</strong> : {formation.prerequis}
+            </span>
+          ) : (
+            'Aucun pré-requis'
+          )}
+        </CardDescription>
+      </CardHeader>
 
-      <FormationMetadata
-        duree={formation.duree}
-        tarif={formation.tarif}
-        certification={formation.certification}
+      <CardContent className="p-0 text-gray-700 dark:text-gray-300 space-y-2">
+         <div className="text-gray-700 dark:text-gray-300 leading-relaxed"
+        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formation.description || "") }}
       />
-    </CardContent>
 
-    <div className="pt-4">
-      <Badge
-        variant="outline"
-        className="text-sm"
-        style={{
-          backgroundColor: getCategoryColor(category),
-          color: "#fff",
-        }}>
-        {getCategoryBadgeText(category)}
-      </Badge>
+        {/* Info tiles row - mirror Flutter info tiles with category color */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+          <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
+            <div className="text-xs text-gray-500">Durée</div>
+            <div className="font-semibold" style={{ color: getCategoryColor(category) }}>{formation.duree || '-'} heures</div>
+          </div>
+
+          <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
+            <div className="text-xs text-gray-500">Certification</div>
+            <div className="font-semibold" style={{ color: getCategoryColor(category) }}>{formation.certification || '-'}</div>
+          </div>
+        </div>
+
+      </CardContent>
+
+      <DownloadPdfButton formationId={formation.id} />
+
+      <InscriptionSection onInscription={onInscription} loading={inscriptionLoading} success={inscriptionSuccess} error={inscriptionError} category={category} />
     </div>
-
-    <DownloadPdfButton formationId={formation.id} />
-
-    <InscriptionSection
-      onInscription={onInscription}
-      loading={inscriptionLoading}
-      success={inscriptionSuccess}
-      error={inscriptionError}
-    />
-  </div>
-);
-
-const FormationMetadata = ({
-  duree,
-  tarif,
-  certification,
-}: {
-  duree?: string;
-  tarif?: string;
-  certification?: string;
-}) => (
-  <ul className="text-sm space-y-1">
-    <li className="text-gray-500">
-      <strong>{FORMATIONMETADATA.duree} :</strong> {duree}{" "}
-      {FORMATIONMETADATA.heures}
-    </li>
-    <li className="text-gray-500">
-      <strong>{FORMATIONMETADATA.tarif} :</strong>{" "}
-      <span className="text-xl text-orange-500 font-extrabold drop-shadow-lg">
-        {tarif
-          ? `${Number(tarif)
-              .toLocaleString("fr-FR", {
-                minimumFractionDigits: Number(tarif) % 1 === 0 ? 0 : 2,
-                maximumFractionDigits: 2,
-              })
-              .replace(/\u202F/g, "  ")} ${FORMATIONMETADATA.euros}`
-          : "-"}
-      </span>
-    </li>
-    <li className="text-gray-500">
-      <strong>Certification :</strong> {certification}
-    </li>
-  </ul>
-);
+  );
+};
 
 const InscriptionSection = ({
   onInscription,
   loading,
   success,
   error,
+  category,
 }: {
   onInscription: () => void;
   loading: boolean;
   success: string | null;
   error: string | null;
-}) => (
-  <div className="pt-2">
-    <Button
-      onClick={onInscription}
-      disabled={loading}
-      className="w-full md:w-auto bg-black">
-      {loading ? "Inscription en cours..." : "S'inscrire à la formation"}
-    </Button>
-    {success && <div className="text-green-600 mt-2 text-sm">{success}</div>}
-    {error && <div className="text-red-600 mt-2 text-sm">{error}</div>}
-  </div>
-);
+  category?: CATEGORIES;
+}) => {
+  const raw = category as unknown as string | undefined;
+  const suffix = raw ? raw.toLowerCase() : '';
+
+  return (
+    <div className="pt-2">
+      <Button
+        onClick={onInscription}
+        disabled={loading}
+        className={`w-full md:w-auto ${suffix ? `btn-cat-${suffix}` : 'bg-black'}`}>
+        {loading ? 'Inscription en cours...' : "S'inscrire à la formation"}
+      </Button>
+      {success && <div className="text-green-600 mt-2 text-sm">{success}</div>}
+      {error && <div className="text-red-600 mt-2 text-sm">{error}</div>}
+    </div>
+  );
+};

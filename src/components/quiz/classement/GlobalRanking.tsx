@@ -17,6 +17,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { LeaderboardEntry } from "@/types/quiz";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 export interface GlobalRankingProps {
   ranking?: LeaderboardEntry[];
@@ -35,6 +37,7 @@ export function GlobalRanking({
   const [sortKey, setSortKey] = useState<SortKey>("rang");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
   const [search, setSearch] = useState("");
+  const [showPodium, setShowPodium] = useState(true);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -173,7 +176,7 @@ export function GlobalRanking({
   ];
 
   // Liste sans les 3 premiers (affichés uniquement dans le podium)
-  const listRanking = sortedRanking.slice(3);
+  const listRanking = showPodium ? sortedRanking.slice(3) : sortedRanking;
 
   return (
     <div
@@ -206,11 +209,15 @@ export function GlobalRanking({
               className="pl-10 pr-4 py-2 w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white"
             />
           </div>
+          <div className="flex items-center space-x-2">
+            <Switch id="podium-switch" checked={showPodium} onCheckedChange={setShowPodium} />
+            <Label htmlFor="podium-switch">Afficher le podium</Label>
+          </div>
         </div>
       </div>
 
       {/* Podium */}
-      {podium.length > 0 && (
+      {showPodium && podium.length > 0 && (
         <div className="px-4 pt-6 pb-4">
           <div className="text-center mb-6">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full">
@@ -262,9 +269,7 @@ export function GlobalRanking({
                         <div className="relative">
                           <Avatar className="h-16 w-16 border-2 border-white shadow-lg">
                             <AvatarImage
-                              src={
-                                (entry.avatar as any) || (entry.image as any)
-                              }
+                              src={`${import.meta.env.VITE_API_URL_MEDIA ?? ''}${'/'+ entry.image}`}
                             />
                             <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold">
                               {entry.name?.charAt(0) || "U"}
@@ -341,7 +346,7 @@ export function GlobalRanking({
             <div className="sm:hidden space-y-3">
               {listRanking.map((entry, index) => {
                 const isCurrentUser = entry.id?.toString() === currentUserId;
-                const globalIndex = index + 4; // Après le podium
+                const globalIndex = showPodium ? index + 4 : index + 1; // Après le podium
 
                 return (
                   <div
@@ -433,7 +438,7 @@ export function GlobalRanking({
                     {listRanking.map((entry, index) => {
                       const isCurrentUser =
                         entry.id?.toString() === currentUserId;
-                      const globalIndex = index + 4;
+                      const globalIndex = showPodium ? index + 4 : index + 1;
 
                       return (
                         <tr
@@ -452,10 +457,7 @@ export function GlobalRanking({
                             <div className="flex items-center gap-3">
                               <Avatar className="h-10 w-10 border-2 border-white shadow-sm">
                                 <AvatarImage
-                                  src={
-                                    (entry.avatar as any) ||
-                                    (entry.image as any)
-                                  }
+                                  src={`${import.meta.env.VITE_API_URL_MEDIA ?? ''}${'/' + entry.image}`}
                                 />
                                 <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
                                   {entry.name?.charAt(0) || "U"}
