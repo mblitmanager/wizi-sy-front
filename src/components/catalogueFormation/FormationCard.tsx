@@ -73,7 +73,7 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
 
   const categoryString: string = getCategoryFromFormation(formation);
   const suffix = getCategorySuffix(categoryString);
-  const categoryBorderClass = categoryBorderClasses[categoryString as CATEGORIES] || "border-gray-200";
+  const categoryBorderClass = categoryColors[categoryString as CATEGORIES] || "border-gray-200";
   const categoryBadgeClass = suffix !== "default" ? `badge-${suffix}` : "bg-gray-200/20 text-gray-600";
 
   return (

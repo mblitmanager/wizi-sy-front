@@ -208,7 +208,7 @@ const ParrainageSection = () => {
     setShowSuccessModal(false);
     setFilleulName("");
   };
-
+console.log("Rendering ParrainageSection with user:", user);
   return (
     <>
       <section className="mb-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -275,7 +275,7 @@ const ParrainageSection = () => {
                     <div>
                       <p className="text-sm text-gray-600">Nom du parrain</p>
                       <p className="text-lg font-semibold text-gray-800">
-                        {user?.user?.name || "Non disponible"}
+                        {user?.stagiaire?.prenom || ""} {user?.user?.name.toLocaleUpperCase() || ""}
                       </p>
                     </div>
                     <div>
