@@ -144,7 +144,7 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
       </div>
 
       {/* Button */}
-      <CardFooter className="p-0 pt-3 mt-2">
+      <CardFooter className="p-0 pt-3 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <Button
           className={`w-full h-8 text-xs flex items-center justify-center gap-1 ${suffix !== "default" ? `btn-cat-${suffix}` : 'bg-black'} hover:opacity-90 text-white transition-colors duration-200`}
           onClick={() => navigate(`/catalogue-formation/${formation.id}`)}>
