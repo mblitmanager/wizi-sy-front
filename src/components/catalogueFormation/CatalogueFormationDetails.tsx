@@ -19,6 +19,7 @@ import {
   FORMATIONMETADATA,
   INTERNET,
   LANGUES,
+  IA,
   RETOUR,
 } from "@/utils/constants";
 import HeaderSection from "../features/HeaderSection";
@@ -71,6 +72,8 @@ export default function CatalogueFormationDetails() {
         return "#FFC533";
       case CATEGORIES.CREATION:
         return "#9392BE";
+      case CATEGORIES.IA:
+        return "#ABDA96";
       default:
         return "#E0E0E0";
     }
