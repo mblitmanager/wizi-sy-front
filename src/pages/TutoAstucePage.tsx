@@ -467,7 +467,7 @@ export default function TutoAstucePage() {
             {/* Ad catalogue block */}
             {!adLoading && adFormations.length > 0 && (
               <div className="mt-6">
-                <AdCatalogueBlock formations={adFormations.slice(0, 4)} />
+                <AdCatalogueBlock formations={adFormations.slice(0, 6)} />
               </div>
             )}
           </div>

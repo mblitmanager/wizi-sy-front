@@ -21,6 +21,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { StagiaireQuizGrid } from "@/components/quiz/StagiaireQuizGrid";
+import { HowToPlay } from "@/components/FeatureHomePage/HowToPlay";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -518,6 +519,7 @@ export function Index() {
         ) : (
           <div className="mt-4 mb-4 flex justify-center"></div>
         )}
+        <HowToPlay />
         {isLoadingCatalogue ? (
           <div className="flex justify-center items-center py-16">
             <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-yellow-400 border-solid"></div>
@@ -533,7 +535,7 @@ export function Index() {
             </h2>
             <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 px-2 py-6 md:py-3 bg-white rounded-xl">
               <div className="w-full flex flex-col items-center">
-                <AdCatalogueBlock formations={filteredFormations.slice(0, 4)} />
+                <AdCatalogueBlock formations={filteredFormations.slice(0, 6)} />
               </div>
             </div>
           </>
@@ -563,7 +565,8 @@ export function Index() {
             </CardContent>
           </Card>
         )}
-        <hr />
+        {/* <hr /> */}
+        
         <div className="bg-white md:p-4 rounded-lg mt-2">
           <ContactsSection
             commerciaux={commerciaux}
@@ -575,11 +578,12 @@ export function Index() {
 
 
         </div>
+        
         {/* Bloc téléchargement application Android ou instruction PWA pour iOS */}
         {showApkBlock &&
           (isIOS ? (
             <div
-              className="group relative  rounded-xl shadow-lg border border-orange-500/30 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105 cursor-pointer"
+              className="group relative  rounded-xl shadow-lg border border-yellow-500/30 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105 cursor-pointer"
               tabIndex={0}
               role="button"
               aria-label="Télécharger l'application iOS sur l'App Store"
@@ -616,7 +620,7 @@ export function Index() {
               <p className="text-gray-400 text-s mb-3">
                 Accédez à Wizi Learn partout grâce à notre application iOS.
               </p>
-              <button className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-orange-700 transition-colors">
+              <button className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-yellow-400 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-orange-700 transition-colors">
                 Télécharger
               </button>
             </div>
@@ -636,7 +640,7 @@ export function Index() {
                 ×
               </button>
               <div className="flex items-center gap-3 mb-2">
-                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-orange-500/10 text-orange-400 group-hover:bg-orange-500/20 transition-colors">
+                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-yellow-400/10 text-orange-400 group-hover:bg-orange-500/20 transition-colors">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -661,7 +665,7 @@ export function Index() {
                 et suivez les instructions d'installation.
               </p>
               <button
-                className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-orange-700 transition-colors"
+                className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-yellow-400 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-orange-700 transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
                   window.open(

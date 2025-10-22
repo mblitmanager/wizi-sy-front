@@ -74,18 +74,26 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-t from-[#FEB823] via-[#FFF8E1] to-white">
+    <div
+      className="min-h-screen flex flex-col justify-center items-center"
+      style={{
+        background: `linear-gradient(to top, white 0%, var(--brand-primary) 0%, rgba(255,255,255,0) 100%)`,
+      }}>
       {/* Logo en haut */}
       <div className="flex flex-col items-center mb-8">
         <img src={logo} alt="Wizi Learn" className="h-32 mb-2 drop-shadow-lg" />
-        <p className="text-[#000] font-bold text-center max-w-xs">
+        <p className="text-black font-bold text-center max-w-xs">
           La plateforme de quiz éducatifs 
         </p>
       </div>
       <div className="w-full max-w-md px-4">
-        <Card className="shadow-xl border-2 border-[#FEB823]/30 bg-white/90 backdrop-blur-md">
+        <Card
+          className="shadow-xl bg-white/90 backdrop-blur-md"
+          style={{ border: '2px solid rgba(254,184,35,0.18)' }}>
           <CardHeader className="space-y-1">
-            <CardDescription className="text-center text-[#FEB823] font-semibold text-lg">
+            <CardDescription
+              className="text-center font-semibold text-lg"
+              style={{ color: 'var(--brand-primary)' }}>
               Entrez vos identifiants pour accéder à votre compte
             </CardDescription>
           </CardHeader>
@@ -99,7 +107,7 @@ const Login = () => {
               <div className="space-y-2">
                 <label
                   htmlFor="email"
-                  className="text-sm font-medium text-[#A55E6E]">
+                  className="text-sm font-medium text-brand-secondary">
                   Email
                 </label>
                 <Input
@@ -110,19 +118,20 @@ const Login = () => {
                   placeholder="exemple@wizi-learn.com"
                   required
                   autoComplete="email"
-                  className="focus:border-[#3D9BE9]"
+                  className="focus:outline-none"
+                  style={{ borderColor: 'transparent' }}
                 />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label
                     htmlFor="password"
-                    className="text-sm font-medium text-[#A55E6E]">
+                    className="text-sm font-medium" style={{ color: 'var(--brand-secondary)' }}>
                     Mot de passe
                   </label>
                   <Link
                     to="/forgot-password"
-                    className="text-sm text-[#A55E6E] hover:underline">
+                    className="text-sm text-langues hover:underline">
                     Mot de passe oublié ?
                   </Link>
                 </div>
@@ -134,12 +143,12 @@ const Login = () => {
                   placeholder="••••••••"
                   required
                   autoComplete="current-password"
-                  className="focus:border-[#A55E6E]"
+                  className="focus:outline-none"
                 />
               </div>
               <Button
                 type="submit"
-                className="w-full bg-black  hover:bg-[#8B5C2A] text-white font-semibold shadow-md transition"
+                className="w-full bg-black text-white font-semibold shadow-md transition hover:bg-[color:var(--brand-primary-dark)]"
                 disabled={isLoading}>
                 {isLoading ? "Connexion en cours..." : "Se connecter"}
               </Button>
