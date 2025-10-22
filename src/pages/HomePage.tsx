@@ -39,6 +39,7 @@ import {
   QuizSection,
   TutorielSection,
 } from "@/components/FeatureHomePage";
+import { FORMATIONMETADATA } from "@/utils/constants";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_MEDIA;
@@ -250,7 +251,8 @@ const HomePage: React.FC = () => {
               </h3>
             </div>
             <p className="text-xs md:text-base text-gray-700 mb-2 md:mb-3">
-              <span className="font-bold">50€</span> par ami inscrit
+              <span className="font-bold">50 ${FORMATIONMETADATA.euros}</span>{" "}
+              par ami inscrit
             </p>
             <LienParrainage />
           </CardContent>

@@ -5,7 +5,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { CardFooter } from "../ui/card";
 import { Button } from "../ui/button";
 import { ArrowRight, Clock } from "lucide-react";
-import { CATEGORIES, VOIR_LES_DETAILS } from "@/utils/constants";
+import {
+  CATEGORIES,
+  FORMATIONMETADATA,
+  VOIR_LES_DETAILS,
+} from "@/utils/constants";
 import nomedia from "../../assets/nomedia.png";
 import DOMPurify from "dompurify";
 import { FormationCardData } from "@/types/Formation";
@@ -19,12 +23,12 @@ const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_MEDIA;
 
 const FormationCard = ({ formation }: { formation: FormationCardData }) => {
   const navigate = useNavigate();
-  const categoryBorderClasses: Record<CATEGORIES, string> = {
-    [CATEGORIES.BUREAUTIQUE]: "border-bureautique",
-    [CATEGORIES.LANGUES]: "border-langues",
-    [CATEGORIES.INTERNET]: "border-internet",
-    [CATEGORIES.CREATION]: "border-creation",
-    [CATEGORIES.IA]: "border-ia",
+  const categoryColors: Record<CATEGORIES, string> = {
+    [CATEGORIES.BUREAUTIQUE]: "border-[#3D9BE9]",
+    [CATEGORIES.LANGUES]: "border-[#A55E6E]",
+    [CATEGORIES.INTERNET]: "border-[#FFC533]",
+    [CATEGORIES.CREATION]: "border-[#9392BE]",
+    [CATEGORIES.IA]: "border-[#ABDA96]",
   };
 
   const getCategorySuffix = (category: string) => {
@@ -36,9 +40,9 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
       case CATEGORIES.INTERNET:
         return "internet";
       case CATEGORIES.CREATION:
-        return "creation";
+        return "bg-[#9392BE]/20 text-[#9392BE]";
       case CATEGORIES.IA:
-        return "ia";
+        return "bg-[#ABDA96]/20 text-[#ABDA96]";
       default:
         return "default";
     }
@@ -69,7 +73,7 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
 
   const categoryString: string = getCategoryFromFormation(formation);
   const suffix = getCategorySuffix(categoryString);
-  const categoryBorderClass = categoryBorderClasses[categoryString as CATEGORIES] || "border-gray-200";
+  const categoryBorderClass = categoryColors[categoryString as CATEGORIES] || "border-gray-200";
   const categoryBadgeClass = suffix !== "default" ? `badge-${suffix}` : "bg-gray-200/20 text-gray-600";
 
   return (

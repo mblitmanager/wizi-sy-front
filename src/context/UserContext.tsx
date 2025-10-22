@@ -149,19 +149,54 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       const currentToken = token || localStorage.getItem("token");
-      if (!currentToken) throw new Error("No token found");
 
-      await apiFetch("/logout", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${currentToken}`,
-          "Content-Type": "application/json",
-        },
+      if (currentToken) {
+        try {
+          await apiFetch("/logout", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${currentToken}`,
+              "Content-Type": "application/json",
+            },
+          });
+        } catch (error) {
+          console.warn("Logout API call failed");
+        }
+      }
+
+      // 🔥 NETTOYAGE SÉLECTIF - supprime seulement vos clés
+      const appKeys = [
+        "token",
+        "lastAchievementsCheckDate",
+        "lastStreakModalDate",
+        "wizi_display_settings_v1",
+        // Ajoutez ici toutes les clés de votre app
+      ];
+
+      appKeys.forEach((key) => {
+        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
       });
 
-      localStorage.removeItem("token");
+      // 🔥 Nettoie les cookies de votre domaine
+      const domain = window.location.hostname;
+      const cookies = document.cookie.split(";");
+
+      cookies.forEach((cookie) => {
+        const eqPos = cookie.indexOf("=");
+        const name =
+          eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+
+        // Supprime le cookie avec différents chemins et domaines
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${domain}`;
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=.${domain}`;
+      });
+
       setUser(null);
       setToken(null);
+
+      window.dispatchEvent(new Event("auth:logout"));
       toast.success("Déconnexion réussie", TOAST_STYLE);
     } catch (error) {
       handleApiError(error, "Erreur lors de la déconnexion");

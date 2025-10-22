@@ -375,7 +375,8 @@ export function QuizSummary() {
                   <p className="text-xl font-bold text-purple-600 dark:text-purple-400">
                     {new Date(result.completedAt).toLocaleDateString("fr-FR", {
                       day: "numeric",
-                      month: "short",
+                      month: "long",
+                      year: "numeric",
                     })}
                   </p>
                 </div>

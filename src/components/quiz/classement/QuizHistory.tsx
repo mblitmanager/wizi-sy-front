@@ -37,6 +37,11 @@ const CATEGORY_STYLES = {
     text: "text-indigo-600",
     border: "border-indigo-200",
   },
+  [CATEGORIES.IA]: {
+    bg: "bg-green-50",
+    text: "text-green-600",
+    border: "border-green-200",
+  },
   default: {
     bg: "bg-gray-50",
     text: "text-gray-600",
@@ -55,9 +60,15 @@ interface QuizHistoryProps {
   loading?: boolean;
 }
 
-type HistoryWithIds = { quiz?: { id?: string | number }; quizId?: string | number };
+type HistoryWithIds = {
+  quiz?: { id?: string | number };
+  quizId?: string | number;
+};
 
-export const QuizHistory: React.FC<QuizHistoryProps> = ({ history, loading }) => {
+export const QuizHistory: React.FC<QuizHistoryProps> = ({
+  history,
+  loading,
+}) => {
   const [page, setPage] = useState(1);
   const [showAllItems, setShowAllItems] = useState(false);
   const itemsPerPage = 5;
@@ -90,8 +101,8 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history, loading }) =>
     return percentage >= 75
       ? SCORE_COLORS.high
       : percentage >= 50
-        ? SCORE_COLORS.medium
-        : SCORE_COLORS.low;
+      ? SCORE_COLORS.medium
+      : SCORE_COLORS.low;
   };
 
   const formatTime = (seconds: number) => {
@@ -125,7 +136,9 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history, loading }) =>
   }
 
   return (
-    <div className="bg-white rounded-lg ring-1 ring-gray-50 overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+    <div
+      className="bg-white rounded-lg ring-1 ring-gray-50 overflow-hidden"
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
       <div className="p-4 sm:p-6 border-b">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex flex-col">
@@ -147,11 +160,11 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history, loading }) =>
                 setShowAllItems((v) => !v);
                 if (!showAllItems) setPage(1);
               }}
-              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm ${showAllItems
-                ? "border-blue-200 bg-blue-50 text-blue-600"
-                : "border-gray-200 bg-gray-100 text-gray-700"
-                }`}
-            >
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm ${
+                showAllItems
+                  ? "border-blue-200 bg-blue-50 text-blue-600"
+                  : "border-gray-200 bg-gray-100 text-gray-700"
+              }`}>
               {/* <span className="material-icons text-base">
                 {showAllItems ? "view_list" : "view_module"}
               </span> */}
@@ -161,7 +174,12 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history, loading }) =>
         </div>
       </div>
 
-      <div className={`p-2 sm:p-4 ${showAllItems ? 'max-h-[60vh] sm:max-h-[70vh] overflow-y-auto pr-1' : ''}`}>
+      <div
+        className={`p-2 sm:p-4 ${
+          showAllItems
+            ? "max-h-[60vh] sm:max-h-[70vh] overflow-y-auto pr-1"
+            : ""
+        }`}>
         {/* Mobile View */}
         <div className="sm:hidden space-y-3">
           {displayedItems.map((quiz: QuizHistoryType) => (
@@ -191,7 +209,10 @@ export const QuizHistory: React.FC<QuizHistoryProps> = ({ history, loading }) =>
         {!showAllItems && totalPages > 1 && (
           <div className="mt-4 flex items-center justify-between">
             <div className="text-sm text-gray-500">
-              Affichage de {Math.min((page - 1) * itemsPerPage + 1, history.length)} à {Math.min(page * itemsPerPage, history.length)} sur {history.length} résultats
+              Affichage de{" "}
+              {Math.min((page - 1) * itemsPerPage + 1, history.length)} à{" "}
+              {Math.min(page * itemsPerPage, history.length)} sur{" "}
+              {history.length} résultats
             </div>
             <div className="flex space-x-2">
               <button
@@ -269,7 +290,7 @@ const QuizHistoryCard = ({
           <span>{formatTime(quiz.timeSpent)}</span>
         </div>
         <div>
-          {format(new Date(quiz.completedAt), "dd MMM yyyy - HH:mm", {
+          {format(new Date(quiz.completedAt), "dd MMMM yyyy - HH:mm", {
             locale: fr,
           })}
         </div>
@@ -355,7 +376,7 @@ const QuizHistoryTable = ({
                   </div>
                 </TableCell>
                 <TableCell className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                  {format(new Date(quiz.completedAt), "dd MMM yyyy", {
+                  {format(new Date(quiz.completedAt), "dd MMMM yyyy", {
                     locale: fr,
                   })}
                 </TableCell>

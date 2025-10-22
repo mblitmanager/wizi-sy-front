@@ -48,6 +48,14 @@ const CATEGORY_CONFIG = {
     textColor: "text-purple-800",
     badgeColor: "bg-purple-100",
   },
+  
+  IA: {
+    color: "bg-green-500",
+    bgColor: "bg-green-50",
+    borderColor: "border-green-200",
+    textColor: "text-green-800",
+    badgeColor: "bg-green-100",
+  },
   langues: {
     color: "bg-pink-500",
     bgColor: "bg-pink-50",
