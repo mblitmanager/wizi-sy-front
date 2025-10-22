@@ -28,27 +28,26 @@ export function CategoryCard({ category }: CategoryCardProps) {
 
   const totalFormations = category.formations?.length || 0;
 
+  const headerTextClass = category.slug === "internet" ? "text-black" : "text-white";
+
+  const headerClass = cn(
+    headerTextClass,
+    category.slug === "bureautique" && "bg-bureautique",
+    category.slug === "langues" && "bg-langues",
+    category.slug === "internet" && "bg-internet text-black",
+    category.slug === "creation" && "bg-creation",
+    category.slug === "IA" && "bg-ia"
+  );
+
   return (
     <Link to={`/catalogue/${category.slug}`}>
       <Card className="overflow-hidden transition-all hover:shadow-md">
-        <CardHeader
-          className={cn(
-            "text-white",
-            category.slug === "bureautique" && "bg-[#3D9BE9]",
-            category.slug === "langues" && "bg-[#A55E6E]",
-            category.slug === "internet" && "bg-[#FFC533] text-black",
-            category.slug === "creation" && "bg-[#9392BE]",
-            category.slug === "IA" && "bg-[#ABDA96]"
-          )}>
+        <CardHeader className={headerClass}>
           <div className="flex items-center gap-2">
             {icon}
             <CardTitle>{category.name}</CardTitle>
           </div>
-<CardDescription
-  className={cn(
-    "text-white/80",
-    category.slug === "internet" && "text-black/80"
-  )}>
+<CardDescription className={cn(category.slug === "internet" ? "text-black/80" : "text-white/80")}>
   {category.slug === "bureautique"
   ? "12 formations"
   : category.slug === "creation"
