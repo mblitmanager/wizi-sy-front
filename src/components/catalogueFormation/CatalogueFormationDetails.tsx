@@ -422,21 +422,19 @@ const FormationDetailsContent = ({
 
       </CardContent>
 
-      <DownloadPdfButton formationId={formation.id} />
-
-      <InscriptionSection onInscription={onInscription} loading={inscriptionLoading} success={inscriptionSuccess} error={inscriptionError} category={category} />
+      <div className="space-y-4">
+        <DownloadPdfButton formationId={formation.id} />
+        <InscriptionSection
+          onInscription={onInscription}
+          loading={inscriptionLoading}
+          success={inscriptionSuccess}
+          error={inscriptionError}
+          category={category}
+        />
+      </div>
     </div>
-
-    <DownloadPdfButton formationId={formation.id} />
-
-    <InscriptionSection
-      onInscription={onInscription}
-      loading={inscriptionLoading}
-      success={inscriptionSuccess}
-      error={inscriptionError}
-    />
-  </div>
-);
+  );
+};
 
 const FormationMetadata = ({
   duree,

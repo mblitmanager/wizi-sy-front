@@ -8,6 +8,7 @@ import { NotificationProvider } from "./context/NotificationProvider";
 import DisplaySettingsProvider from "@/contexts/DisplaySettingsContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { registerServiceWorker } from "./serviceWorkerRegistration";
+import { UserProvider } from "@/context/UserContext";
 
 registerServiceWorker();
 
@@ -24,7 +25,9 @@ createRoot(document.getElementById("root")!).render(
     <NotificationProvider>
       <DisplaySettingsProvider>
       <QueryClientProvider client={queryClient}>
-        <App />
+        <UserProvider>
+          <App />
+        </UserProvider>
       </QueryClientProvider>
       </DisplaySettingsProvider>
     </NotificationProvider>

@@ -9,7 +9,7 @@ import {
   CREATION,
   FORMATIONMETADATA,
   INTERNET,
-  LANGUES,IA
+  LANGUES, IA
 } from "@/utils/constants";
 
 import { ArrowRight, Clock, Loader2, User, X, CheckCircle } from "lucide-react";
@@ -200,7 +200,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
       // Afficher le modal de succès avec le message de l'API
       setSuccessMessage(
         response.message ||
-          "Inscription réussie, mails et notification envoyés."
+        "Inscription réussie, mails et notification envoyés."
       );
       setSuccessFormationTitle(selected[idx]?.titre || "Formation");
       setShowSuccessModal(true);
@@ -247,127 +247,39 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
           </Link>
         </div>
 
-      {/* Grid des formations - Design "Card Hover" */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {selected.map((formation, idx) => {
-          const isOpen = showDetailsIdx === idx;
-          return (
-            <div
-              key={formation.id || idx}
-              onClick={() => setShowDetailsIdx(isOpen ? null : idx)}
-              className="relative bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 group hover:-translate-y-2 cursor-pointer">
-              {/* Badge "Populaire" ou "Certifié" */}
-              
+        {/* Grid des formations - Design "Card Hover" */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {selected.map((formation, idx) => {
+            const isOpen = showDetailsIdx === idx;
+            return (
+              <div
+                key={formation.id || idx}
+                onClick={() => setShowDetailsIdx(isOpen ? null : idx)}
+                className="relative bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 group hover:-translate-y-2 cursor-pointer">
+                {/* Badge "Populaire" ou "Certifié" */}
 
-              {/* Image de fond avec overlay */}
-              {formation.image_url && (
-                <div className="flex items-center justify-between p-4 border rounded-lg shadow-sm group hover:shadow-md transition-all duration-300">
-  {/* Image dans une bulle à droite */}
-  <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200 shadow-md flex-shrink-0">
-    <img
-      src={VITE_API_URL_MEDIA + "/" + formation.image_url}
-      alt={formation.formation?.titre || formation.titre}
-      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-    />
-  </div>
-  {/* Texte à gauche */}
-  <div className="flex-1 pr-4">
-    <h3 className="text-m font-bold text-gray-900 mb-2 text-center">
-      {formatTitle(formation?.titre || "Sans titre")}
-    </h3>
-    </div>
-
-  
-</div>
-
-              )}
-
-              {/* Contenu de la carte */}
-              <div className="p-6">
-                {/* Catégorie + Titre */}
-                <div className="flex items-center gap-2 mb-3">
-                  <span
-                    className="text-xs font-bold px-2.5 py-1 rounded-full"
-                    style={{
-                      backgroundColor:
-                        getCategoryColor(formation.formation?.categorie) + "20",
-                      color: getCategoryColor(formation.formation?.categorie),
-                    }}>
-                    {formation.formation?.categorie?.toUpperCase() ||
-                      "FORMATION"}
-                  </span>
-                  {formation.certification && (
-                <div className="top-4 right-4 bg-yellow-400 text-amber-800 text-xs font-bold px-3 py-1 rounded-full z-10">
-                  {formation.certification}
-                </div>
-              )}
-                </div>
-
-           
-
-                {/* Description avec effet "Lire plus" */}
-                <div className="text-gray-600 text-sm mb-4 line-clamp-3"
-                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formation.description || "") }}/>
-
-                {/* Infos clés (Durée, Prix) */}
-                <div className="flex justify-between items-center mb-4">
-                  <span className="flex items-center text-sm text-gray-500">
-                    <Clock className="w-4 h-4 mr-1" />
-                    {formation.formation?.duree || formation.duree} heures
-                  </span>
-                  <span className="text-lg font-extrabold text-orange-600">
-                    {formation.tarif
-                      ? `${Math.round(Number(formation.tarif))
-                          .toLocaleString("fr-FR", {
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 2,
-                          })
-                          .replace(/\s/g, "\u00A0")} €`
-                      : "Gratuit"}
-                  </span>
-                </div>
-
-                {/* Bouton principal - Effet "Shine" au hover */}
-                {isOpen && (
-                  <button
-                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                      e.stopPropagation();
-                      handleInscription(idx);
-                    }}
-                    disabled={inscriptionLoading === idx}
-                    className={`
-                      w-full relative overflow-hidden
-                      bg-black
-                      text-white font-bold py-3 px-6 rounded-lg
-                      shadow-md hover:shadow-lg transition-all
-                      hover:brightness-110
-                      ${inscriptionLoading === idx ? "opacity-80" : ""}
-                    `}>
-                    <span className="relative z-10">
-                      {inscriptionLoading === idx ? (
-                        <span className="flex justify-center">
-                          <Loader2 className="animate-spin mr-2 h-5 w-5" />
-                          Traitement...
-                        </span>
-                      ) : (
-                        "S'inscrire maintenant"
-                      )}
-                    </span>
-                    {/* Effet shine au survol */}
-                    <span className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-0 transition-transform duration-700" />
-                  </button>
-                )}
 
                 {/* Image de fond avec overlay */}
                 {formation.image_url && (
-                  <div className="h-40 overflow-hidden">
-                    <img
-                      src={VITE_API_URL_MEDIA + "/" + formation.image_url}
-                      alt={formation.formation?.titre || formation.titre}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                  <div className="flex items-center justify-between p-4 border rounded-lg shadow-sm group hover:shadow-md transition-all duration-300">
+                    {/* Image dans une bulle à droite */}
+                    <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200 shadow-md flex-shrink-0">
+                      <img
+                        src={VITE_API_URL_MEDIA + "/" + formation.image_url}
+                        alt={formation.formation?.titre || formation.titre}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </div>
+                    {/* Texte à gauche */}
+                    <div className="flex-1 pr-4">
+                      <h3 className="text-m font-bold text-gray-900 mb-2 text-center">
+                        {formatTitle(formation?.titre || "Sans titre")}
+                      </h3>
+                    </div>
+
+
                   </div>
+
                 )}
 
                 {/* Contenu de la carte */}
@@ -378,24 +290,24 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                       className="text-xs font-bold px-2.5 py-1 rounded-full"
                       style={{
                         backgroundColor:
-                          getCategoryColor(formation.formation?.categorie) +
-                          "20",
+                          getCategoryColor(formation.formation?.categorie) + "20",
                         color: getCategoryColor(formation.formation?.categorie),
                       }}>
                       {formation.formation?.categorie?.toUpperCase() ||
                         "FORMATION"}
                     </span>
+                    {formation.certification && (
+                      <div className="top-4 right-4 bg-yellow-400 text-amber-800 text-xs font-bold px-3 py-1 rounded-full z-10">
+                        {formation.certification}
+                      </div>
+                    )}
                   </div>
 
-                  <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 min-h-[3rem]">
-                    {formatTitle(formation?.titre || "Sans titre")}
-                  </h3>
+
 
                   {/* Description avec effet "Lire plus" */}
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                    {stripHtmlTags(formation.description) ||
-                      "Description non disponible"}
-                  </p>
+                  <div className="text-gray-600 text-sm mb-4 line-clamp-3"
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formation.description || "") }} />
 
                   {/* Infos clés (Durée, Prix) */}
                   <div className="flex justify-between items-center mb-4">
@@ -406,13 +318,11 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                     <span className="text-lg font-extrabold text-orange-600">
                       {formation.tarif
                         ? `${Math.round(Number(formation.tarif))
-                            .toLocaleString("fr-FR", {
-                              minimumFractionDigits: 0,
-                              maximumFractionDigits: 2,
-                            })
-                            .replace(/\s/g, "\u00A0")} ${
-                            FORMATIONMETADATA.euros
-                          }`
+                          .toLocaleString("fr-FR", {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 2,
+                          })
+                          .replace(/\s/g, "\u00A0")} €`
                         : "Gratuit"}
                     </span>
                   </div>
@@ -426,13 +336,13 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                       }}
                       disabled={inscriptionLoading === idx}
                       className={`
-                        w-full relative overflow-hidden
-                        bg-black
-                        text-white font-bold py-3 px-6 rounded-lg
-                        shadow-md hover:shadow-lg transition-all
-                        hover:brightness-110
-                        ${inscriptionLoading === idx ? "opacity-80" : ""}
-                      `}>
+                      w-full relative overflow-hidden
+                      bg-black
+                      text-white font-bold py-3 px-6 rounded-lg
+                      shadow-md hover:shadow-lg transition-all
+                      hover:brightness-110
+                      ${inscriptionLoading === idx ? "opacity-80" : ""}
+                    `}>
                       <span className="relative z-10">
                         {inscriptionLoading === idx ? (
                           <span className="flex justify-center">
@@ -447,22 +357,111 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                       <span className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-0 transition-transform duration-700" />
                     </button>
                   )}
+
+                  {/* Image de fond avec overlay */}
+                  {formation.image_url && (
+                    <div className="h-40 overflow-hidden">
+                      <img
+                        src={VITE_API_URL_MEDIA + "/" + formation.image_url}
+                        alt={formation.formation?.titre || formation.titre}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                    </div>
+                  )}
+
+                  {/* Contenu de la carte */}
+                  <div className="p-6">
+                    {/* Catégorie + Titre */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <span
+                        className="text-xs font-bold px-2.5 py-1 rounded-full"
+                        style={{
+                          backgroundColor:
+                            getCategoryColor(formation.formation?.categorie) +
+                            "20",
+                          color: getCategoryColor(formation.formation?.categorie),
+                        }}>
+                        {formation.formation?.categorie?.toUpperCase() ||
+                          "FORMATION"}
+                      </span>
+                    </div>
+
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 min-h-[3rem]">
+                      {formatTitle(formation?.titre || "Sans titre")}
+                    </h3>
+
+                    {/* Description avec effet "Lire plus" */}
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                      {stripHtmlTags(formation.description) ||
+                        "Description non disponible"}
+                    </p>
+
+                    {/* Infos clés (Durée, Prix) */}
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="flex items-center text-sm text-gray-500">
+                        <Clock className="w-4 h-4 mr-1" />
+                        {formation.formation?.duree || formation.duree} heures
+                      </span>
+                      <span className="text-lg font-extrabold text-orange-600">
+                        {formation.tarif
+                          ? `${Math.round(Number(formation.tarif))
+                            .toLocaleString("fr-FR", {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 2,
+                            })
+                            .replace(/\s/g, "\u00A0")} ${FORMATIONMETADATA.euros
+                          }`
+                          : "Gratuit"}
+                      </span>
+                    </div>
+
+                    {/* Bouton principal - Effet "Shine" au hover */}
+                    {isOpen && (
+                      <button
+                        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                          e.stopPropagation();
+                          handleInscription(idx);
+                        }}
+                        disabled={inscriptionLoading === idx}
+                        className={`
+                        w-full relative overflow-hidden
+                        bg-black
+                        text-white font-bold py-3 px-6 rounded-lg
+                        shadow-md hover:shadow-lg transition-all
+                        hover:brightness-110
+                        ${inscriptionLoading === idx ? "opacity-80" : ""}
+                      `}>
+                        <span className="relative z-10">
+                          {inscriptionLoading === idx ? (
+                            <span className="flex justify-center">
+                              <Loader2 className="animate-spin mr-2 h-5 w-5" />
+                              Traitement...
+                            </span>
+                          ) : (
+                            "S'inscrire maintenant"
+                          )}
+                        </span>
+                        {/* Effet shine au survol */}
+                        <span className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-0 transition-transform duration-700" />
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
+                );
           })}
-        </div>
+              </div>
       </div>
 
-      {/* Modal de succès */}
-      <SuccessModal
-        isOpen={showSuccessModal}
-        onClose={handleCloseSuccessModal}
-        message={successMessage}
-        formationTitle={successFormationTitle}
-      />
-    </>
-  );
+        {/* Modal de succès */}
+        <SuccessModal
+          isOpen={showSuccessModal}
+          onClose={handleCloseSuccessModal}
+          message={successMessage}
+          formationTitle={successFormationTitle}
+        />
+      </>
+      );
 };
 
-export default AdCatalogueBlock;
+      export default AdCatalogueBlock;
