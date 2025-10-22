@@ -32,7 +32,7 @@ export function MobileNav() {
       href: "/",
     },
     {
-      icon: LayoutList,
+      icon: BookOpen,
       label: "Formations",
       href: "/catalogue",
     },
@@ -80,14 +80,14 @@ export function MobileNav() {
               to={item.href}
               className={cn(
                 "group flex flex-col items-center gap-0.5 p-1 relative transition-all duration-200",
-                (isActive || item.label === "Quiz") &&
+                (isActive) &&
                   "z-10 mt-0!p-2 text-yellow-700"
               )}>
               <span className="relative flex items-center justify-center">
                 <item.icon
                   className={cn(
                     "transition-all",
-                    isActive || item.label === "Quiz"
+                    isActive 
                       ? "h-6 w-6 text-yellow-500 drop-shadow-lg"
                       : "h-5 w-5 text-muted-foreground group-hover:text-yellow-500 group-hover:h-7 group-hover:w-7"
                   )}
@@ -103,7 +103,7 @@ export function MobileNav() {
               <span
                 className={cn(
                   "text-[12px] font-bold transition-all",
-                  isActive || item.label === "Quiz"
+                  isActive 
                     ? "text-yellow-700"
                     : "text-muted-foreground group-hover:text-yellow-700"
                 )}>

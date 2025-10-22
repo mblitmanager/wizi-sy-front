@@ -27,7 +27,10 @@ const UserAvatar = ({ user, initials }: { user: any; initials: string }) => {
   const [imageError, setImageError] = useState(false);
 
   return (
-    <div className="relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-gray-700 ring-2 ring-[#F27905] overflow-hidden">
+    <div
+      className="relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-gray-700 overflow-hidden"
+      style={{ boxShadow: `0 0 0 2px var(--brand-primary)` }}
+    >
       {user?.user?.image && !imageError ? (
         <img
           src={`${VITE_API_URL_MEDIA}/${user.user.image}`}
@@ -59,7 +62,7 @@ const UserDropdownMenu = ({ onLogout }: { onLogout: () => void }) => (
     <DropdownMenuSeparator />
     <DropdownMenuItem asChild>
       <Link to="/profile" className="flex items-center">
-        <User className="mr-2 h-4 w-4 text-[#F27905]" />
+  <User className="mr-2 h-4 w-4" style={{ color: 'var(--brand-primary)' }} />
         <span>Profil</span>
       </Link>
     </DropdownMenuItem>
@@ -79,10 +82,15 @@ const NotificationBadge = ({ count }: { count: number }) => (
     <Button
       variant="ghost"
       size="icon"
-      className="relative hover:bg-[#F27905]/10 transition rounded-full">
-      <Bell className="h-5 w-5 text-[#F27905]" />
+      className="relative transition rounded-full"
+      style={{
+        // subtle hover handled via CSS class using the existing Tailwind tokens
+      }}>
+      <Bell className="h-5 w-5" style={{ color: 'var(--brand-primary)' }} />
       {count > 0 && (
-        <Badge className="absolute -top-1 -right-1 px-1.5 h-5 min-w-5 text-xs bg-[#F27905] text-white animate-pulse">
+        <Badge
+          className="absolute -top-1 -right-1 px-1.5 h-5 min-w-5 text-xs text-white animate-pulse"
+          style={{ backgroundColor: 'var(--brand-primary)' }}>
           {count}
         </Badge>
       )}
@@ -96,7 +104,7 @@ const UserScore = ({ score }: { score: number | null }) => {
 
   return (
     <span className="ml-2 text-sm font-semibold text-gray-700 flex items-center">
-      <Trophy className="inline h-4 w-4 mr-1 text-[#F27905]" />
+      <Trophy className="inline h-4 w-4 mr-1" style={{ color: 'var(--brand-primary)' }} />
       {score} pts
     </span>
   );
@@ -152,7 +160,7 @@ export function Navbar() {
 
   if (!user) {
     return (
-      <nav className="px-2 md:px-6 py-2 sticky top-0 z-50 w-full bg-[#F27905]/80 text-white shadow-md">
+      <nav className="px-2 md:px-6 py-2 sticky top-0 z-50 w-full text-white shadow-md bg-brand-primary">
         {/* Navbar pour utilisateur non connecté (à compléter si besoin) */}
       </nav>
     );
@@ -173,7 +181,9 @@ export function Navbar() {
           {/* Menu utilisateur */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="relative flex items-center gap-2 px-2 py-1 rounded-full hover:bg-[#F27905]/10 hover:shadow-md transition">
+              <button className="relative flex items-center gap-2 px-2 py-1 rounded-full hover:shadow-md transition" style={{
+                backgroundColor: 'transparent'
+              }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(254,184,35,0.08)')} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}>
                 <UserAvatar user={user} initials={initials} />
                 {!isMobile && <UserInfo user={user} />}
               </button>
