@@ -71,7 +71,7 @@ export function ParrainageBanner({ isMobile = false }: ParrainageBannerProps) {
               className={`${
                 isMobile ? "ml-1 text-xl" : "ml-2 text-2xl"
               } text-yellow-300 drop-shadow-lg`}>
-              {parseFloat(activeEvent.prix).toFixed(0)} $
+              {parseFloat(activeEvent.prix).toFixed(0)}
               {FORMATIONMETADATA.euros}
             </span>
           </span>
