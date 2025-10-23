@@ -25,11 +25,45 @@ import timezone from "dayjs/plugin/timezone";
 import { StagiaireQuizGrid } from "@/components/quiz/StagiaireQuizGrid";
 import type { Quiz as QuizType } from "@/types/quiz";
 import { HowToPlay } from "@/components/FeatureHomePage/HowToPlay";
+import FormationCard from "@/components/catalogueFormation/FormationCard";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const API_URL = import.meta.env.VITE_API_URL;
+
+// Runtime-safe helpers used across the page
+const asRecord = (v: unknown) => (v as Record<string, unknown> | null) ?? null;
+const getHistoryQuizId = (h: unknown): string | null => {
+  const r = asRecord(h);
+  if (!r) return null;
+  const quiz = asRecord(r["quiz"]);
+  const val = (quiz?.["id"] ?? r["quizId"] ?? r["id"] ?? null) as
+    | string
+    | number
+    | null;
+  return val != null ? String(val) : null;
+};
+const getQuizId = (q: unknown): string | null => {
+  const r = asRecord(q);
+  if (!r) return null;
+  const val = (r["id"] ?? r["_id"] ?? null) as string | number | null;
+  return val != null ? String(val) : null;
+};
+const getQuizFormationId = (q: unknown): number | null => {
+  const r = asRecord(q);
+  if (!r) return null;
+  const formation = asRecord(r["formation"]);
+  if (formation && formation["id"]) return Number(formation["id"]);
+  if (r["formation_id"]) return Number(r["formation_id"]);
+  if (r["formationId"]) return Number(r["formationId"]);
+  const formations = r["formations"] as unknown;
+  if (Array.isArray(formations) && formations.length > 0) {
+    const f0 = asRecord(formations[0]);
+    if (f0 && f0["id"]) return Number(f0["id"]);
+  }
+  return null;
+};
 
 const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
   try {
@@ -53,6 +87,27 @@ const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
     console.error(`Error fetching ${endpoint}:`, error);
     return [];
   }
+};
+
+// Seeded RNG helpers (mulberry32) for deterministic shuffle per session
+const getSessionSeed = (): number => {
+  try {
+    const key = "wizi_shuffle_seed";
+    const existing = sessionStorage.getItem(key);
+    if (existing) return Number(existing) || 0;
+    const seed = Math.floor(Math.random() * 0xffffffff);
+    sessionStorage.setItem(key, String(seed));
+    return seed;
+  } catch {
+    return Math.floor(Math.random() * 0xffffffff);
+  }
+};
+
+const mulberry32 = (a: number) => () => {
+  let t = (a += 0x6d2b79f5);
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 };
 
 export function Index() {
@@ -231,6 +286,20 @@ useEffect(() => {
     return catalogueData.filter((f) => !ids.has(String(f.id)));
   }, [catalogueData, stagiaireCatalogues]);
 
+  // Deterministic shuffle per session for formations
+  const shuffledFormations = useMemo(() => {
+    const arr = Array.isArray(filteredFormations) ? [...filteredFormations] : [];
+    const seed = getSessionSeed();
+    const rng = mulberry32(seed);
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      const tmp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = tmp;
+    }
+    return arr as CatalogueFormation[];
+  }, [filteredFormations]);
+
   // === Récupération des contacts ===
   const { data: commerciaux, isLoading: loadingCommerciaux } = useQuery<
     Contact[]
@@ -295,35 +364,7 @@ useEffect(() => {
     enabled: !!localStorage.getItem("token"),
   });
 
-    // --- Runtime-safe helpers used by quiz filtering ---
-    const asRecord = (v: unknown) => (v as Record<string, unknown> | null) ?? null;
-    const getHistoryQuizId = (h: unknown): string | null => {
-      const r = asRecord(h);
-      if (!r) return null;
-      const quiz = asRecord(r["quiz"]);
-      const val = quiz?.["id"] ?? r["quizId"] ?? r["id"] ?? null;
-      return val != null ? String(val) : null;
-    };
-    const getQuizId = (q: unknown): string | null => {
-      const r = asRecord(q);
-      if (!r) return null;
-      const val = r["id"] ?? r["_id"] ?? null;
-      return val != null ? String(val) : null;
-    };
-    const getQuizFormationId = (q: unknown): number | null => {
-      const r = asRecord(q);
-      if (!r) return null;
-      const formation = asRecord(r["formation"]);
-      if (formation && formation["id"]) return Number(formation["id"]);
-      if (r["formation_id"]) return Number(r["formation_id"]);
-      if (r["formationId"]) return Number(r["formationId"]);
-      const formations = r["formations"] as unknown;
-      if (Array.isArray(formations) && formations.length > 0) {
-        const f0 = asRecord(formations[0]);
-        if (f0 && f0["id"]) return Number(f0["id"]);
-      }
-      return null;
-    };
+    // ...existing code...
 
   // Filtrage des quiz à découvrir selon le nombre de points utilisateur
   // Récupérer les points utilisateur depuis le classement global
@@ -344,7 +385,7 @@ useEffect(() => {
   }, []);
 
   const filteredQuizzes = useMemo<QuizType[]>(() => {
-    if (!quizzes.length || !stagiaireCatalogues.length) return [];
+    if (!quizzes.length) return [];
 
     // Runtime helpers to safely extract fields from unknown shapes
     const asRecord = (v: unknown) => (v as Record<string, unknown> | null) ?? null;
@@ -384,7 +425,7 @@ useEffect(() => {
       return !history.some((h) => String(getHistoryQuizId(h)) === String(qid));
     });
 
-    // Collect unique formation IDs from user catalogues
+    // Collect unique formation IDs from user catalogues (if any)
     const formationIds = Array.from(
       new Set(
         stagiaireCatalogues
@@ -393,8 +434,6 @@ useEffect(() => {
           .map((id) => Number(id))
       )
     ).filter(Boolean) as number[];
-
-    if (!formationIds.length) return [];
 
     // Group quizzes by formation ID
     const quizzesByFormation = (notPlayedQuizzes as unknown[]).reduce((acc, q) => {
@@ -417,24 +456,30 @@ useEffect(() => {
       return a;
     };
 
-    // Rotate chosen formation by day
-    const dayIndex = dayjs().tz("Europe/Paris").diff(dayjs("1970-01-01"), "day");
-    const chosenIndex = Math.abs(dayIndex) % formationIds.length;
-    const chosenFormationId = formationIds[chosenIndex];
+    // If user has formationIds, prefer quizzes from one chosen formation rotating by day
+    if (formationIds.length) {
+      const dayIndex = dayjs().tz("Europe/Paris").diff(dayjs("1970-01-01"), "day");
+      const chosenIndex = Math.abs(dayIndex) % formationIds.length;
+      const chosenFormationId = formationIds[chosenIndex];
 
-    const chosenQuizzes = (quizzesByFormation[chosenFormationId] || []) as unknown[];
-    const shuffledChosen = shuffle(chosenQuizzes);
-    const selected = shuffledChosen.slice(0, 3);
+      const chosenQuizzes = (quizzesByFormation[chosenFormationId] || []) as unknown[];
+      const shuffledChosen = shuffle(chosenQuizzes);
+      const selected = shuffledChosen.slice(0, 3);
 
-    if (selected.length >= 3) return selected.map((s) => s as QuizType);
+      if (selected.length >= 3) return selected.map((s) => s as QuizType);
 
-    const remainingNeeded = 3 - selected.length;
-    const otherFormationIds = formationIds.filter((id) => id !== chosenFormationId);
-    const pool = otherFormationIds.flatMap((id) => (quizzesByFormation[id] || []) as unknown[]);
-    const shuffledPool = shuffle(pool);
-    const fillers = shuffledPool.slice(0, remainingNeeded);
+      const remainingNeeded = 3 - selected.length;
+      const otherFormationIds = formationIds.filter((id) => id !== chosenFormationId);
+      const pool = otherFormationIds.flatMap((id) => (quizzesByFormation[id] || []) as unknown[]);
+      const shuffledPool = shuffle(pool);
+      const fillers = shuffledPool.slice(0, remainingNeeded);
 
-    return [...selected, ...fillers].slice(0, 3).map((s) => s as QuizType);
+      return [...selected, ...fillers].slice(0, 3).map((s) => s as QuizType);
+    }
+
+    // Fallback: user has no catalogues — take 3 random not-yet-played quizzes from the global pool
+    const globalPool = shuffle(notPlayedQuizzes as unknown[]).slice(0, 3);
+    return globalPool.map((s) => s as QuizType);
   }, [quizzes, history, stagiaireCatalogues]);
 
   // === Notification automatique à 9h ===
@@ -512,6 +557,7 @@ useEffect(() => {
         queryFn: () => categoryService.getCategories(),
         enabled: !!localStorage.getItem("token"),
       });
+  // debug logs removed
   const notPlayedQuizzes = useMemo<QuizType[]>(() => {
       if (!quizzes || !participations) return [];
 
@@ -524,10 +570,11 @@ useEffect(() => {
       });
 
       return result as QuizType[];
-  }, [filteredQuizzes, quizzes, participations, getHistoryQuizId]);
+  }, [filteredQuizzes, quizzes, participations]);
   const [notPlayedCurrentPage, setNotPlayedCurrentPage] = useState(1);
     const [playedCurrentPage, setPlayedCurrentPage] = useState(1);
     const quizzesPerPage = 6;
+    // console.log("notPlayedQuizzes", filteredQuizzes);
   const notPlayedPaginatedQuizzes = useMemo(() => {
       const startIndex = (notPlayedCurrentPage - 1) * quizzesPerPage;
       return notPlayedQuizzes.slice(startIndex, startIndex + quizzesPerPage);
@@ -543,9 +590,7 @@ useEffect(() => {
         {/* Présentation interactive de la plateforme */}
         {!hidePresentationBlock && isTablet && (
           <div
-            className="group relative bg-gradient-to-br from-yellow-50 via-white to-orange-50 rounded-xl shadow-lg border border-yellow-200 p-6 pb-16 mb-6 transition-transform duration-300 hover:scale-105 cursor-pointer"
-            tabIndex={0}
-            role="button"
+            className="group relative bg-gradient-to-br from-yellow-50 via-white to-orange-50 rounded-xl shadow-lg border border-yellow-200 p-6 pb-16 mb-6 transition-transform duration-300 hover:scale-105"
             aria-label="Découvrir la plateforme Wizi Learn">
             {/* Bouton X pour fermer */}
             <button
@@ -699,17 +744,7 @@ useEffect(() => {
             </CardContent>
           </Card>
         )}
-         <div className="bg-white md:p-4 rounded-lg mt-2">
-          <ContactsSection
-            commerciaux={commerciaux}
-            formateurs={formateurs}
-            poleRelation={poleRelation}
-            poleSav={poleSav}
-            showFormations={false}
-          />
-
-
-        </div>
+        
         {isLoadingCatalogue ? (
           <div className="flex justify-center items-center py-16">
             <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-yellow-400 border-solid"></div>
@@ -724,14 +759,17 @@ useEffect(() => {
               Boostez vos compétences dès aujourd'hui !
             </h2>
             <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 px-2 py-6 md:py-3 bg-white rounded-xl">
-              <div className="w-full flex flex-col items-center">
-                {/* <AdCatalogueBlock formations={filteredFormations.slice(0, 6)} /> */}
-                {/* Ad catalogue block */}
-                            {!adLoading && adFormations.length > 0 && (
-                              <div className="mt-6">
-                                <AdCatalogueBlock formations={adFormations.slice(0, 6)} />
-                              </div>
-                            )}
+              <div className="flex-1">
+                {!adLoading && adFormations.length > 0 ? (
+                  <AdCatalogueBlock formations={adFormations.slice(0, 6)} />
+                 ) : (
+                  shuffledFormations.slice(0, 3).map((formation: CatalogueFormation) => (
+                    <FormationCard
+                      key={`available-${formation.formation?.id || formation.id}-${formation.id}`}
+                      formation={formation}
+                    />
+                  ))
+                )} 
               </div>
             </div>
           </>
@@ -743,23 +781,24 @@ useEffect(() => {
 
         {/* <hr /> */}
         
-       
+        <div className="bg-white md:p-4 rounded-lg mt-2">
+          <ContactsSection
+            commerciaux={commerciaux}
+            formateurs={formateurs}
+            poleRelation={poleRelation}
+            poleSav={poleSav}
+            showFormations={false}
+          />
+
+
+        </div>
         
         {/* Bloc téléchargement application Android ou instruction PWA pour iOS */}
         {showApkBlock &&
           (isIOS ? (
             <div
-              className="group relative  rounded-xl shadow-lg border border-yellow-500/30 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105 cursor-pointer"
-              tabIndex={0}
-              role="button"
-              aria-label="Télécharger l'application iOS sur l'App Store"
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open(
-                  "https://apps.apple.com/mg/app/wizi-learn/id6752468866",
-                  "_blank"
-                );
-              }}>
+              className="group relative  rounded-xl shadow-lg border border-yellow-500/30 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105"
+              aria-label="Télécharger l'application iOS sur l'App Store">
               <button
                 className="absolute top-3 right-3 text-gray-500 hover:text-white text-xl bg-transparent border-none p-0 z-10"
                 onClick={(e) => {
@@ -792,9 +831,7 @@ useEffect(() => {
             </div>
           ) : (
             <div
-              className="group relative rounded-xl shadow-lg border border-orange-500/30 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105 cursor-pointer"
-              tabIndex={0}
-              role="button"
+              className="group relative rounded-xl shadow-lg border border-orange-500/30 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105"
               aria-label="Télécharger l'application Android Wizi Learn">
               <button
                 className="absolute top-3 right-3 text-gray-500 hover:text-white text-xl bg-transparent border-none p-0 z-10"

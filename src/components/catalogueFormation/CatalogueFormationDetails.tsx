@@ -41,6 +41,19 @@ interface CatalogueFormationDetailsType {
     duree?: string;
     image_url?: string;
     imageUrl?: string;
+    objectifs?: string;
+    programme?: string;
+    modalites?: string;
+    modalites_accompagnement?: string;
+    moyens_pedagogiques?: string;
+    modalites_suivi?: string;
+    evaluation?: string;
+    lieu?: string;
+    niveau?: string;
+    public_cible?: string;
+    nombre_participants?: number | null;
+    cursus_pdf?: string | null;
+    cursusPdfUrl?: string | null;
     formation?: {
       titre: string;
       description: string;
@@ -262,6 +275,20 @@ export default function CatalogueFormationDetails() {
       <div className="text-gray-700 dark:text-gray-300 leading-relaxed"
         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(details.catalogueFormation.formation.description || "") }}
       />
+      {/* Objectifs et programme (si présents) */}
+      {details.catalogueFormation.objectifs && (
+        <div className="mt-4">
+          <h3 className="text-lg font-semibold">Objectifs</h3>
+          <div className="mt-2 text-gray-700" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(details.catalogueFormation.objectifs || "") }} />
+        </div>
+      )}
+
+      {details.catalogueFormation.programme && (
+        <div className="mt-4">
+          <h3 className="text-lg font-semibold">Programme</h3>
+          <div className="mt-2 text-gray-700" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(details.catalogueFormation.programme || "") }} />
+        </div>
+      )}
     </div>
         )}
 
@@ -423,7 +450,72 @@ const FormationDetailsContent = ({
       </CardContent>
 
       <div className="space-y-4">
-        <DownloadPdfButton formationId={formation.id} />
+        {/* Afficher le PDF du cursus si fourni (backend doit exposer cursusPdfUrl) */}
+        {formation.cursusPdfUrl ? (
+          <a href={formation.cursusPdfUrl} target="_blank" rel="noreferrer" className="inline-block text-sm text-blue-600 underline">Télécharger le programme / cursus (PDF)</a>
+        ) : (
+          <DownloadPdfButton formationId={formation.id} />
+        )}
+
+        {/* Détails supplémentaires : modalités, moyens, évaluation, lieu, niveau, public */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {formation.modalites && (
+            <div className="p-3 rounded-lg bg-gray-50">
+              <strong>Modalités</strong>
+              <div className="text-sm mt-1" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formation.modalites || "") }} />
+            </div>
+          )}
+
+          {formation.modalites_accompagnement && (
+            <div className="p-3 rounded-lg bg-gray-50">
+              <strong>Modalités d'accompagnement</strong>
+              <div className="text-sm mt-1" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formation.modalites_accompagnement || "") }} />
+            </div>
+          )}
+
+          {formation.moyens_pedagogiques && (
+            <div className="p-3 rounded-lg bg-gray-50">
+              <strong>Moyens pédagogiques</strong>
+              <div className="text-sm mt-1" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formation.moyens_pedagogiques || "") }} />
+            </div>
+          )}
+
+          {formation.evaluation && (
+            <div className="p-3 rounded-lg bg-gray-50">
+              <strong>Évaluation</strong>
+              <div className="text-sm mt-1" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formation.evaluation || "") }} />
+            </div>
+          )}
+
+          {formation.lieu && (
+            <div className="p-3 rounded-lg bg-gray-50">
+              <strong>Lieu</strong>
+              <div className="text-sm mt-1">{formation.lieu}</div>
+            </div>
+          )}
+
+          {formation.niveau && (
+            <div className="p-3 rounded-lg bg-gray-50">
+              <strong>Niveau</strong>
+              <div className="text-sm mt-1">{formation.niveau}</div>
+            </div>
+          )}
+
+          {formation.public_cible && (
+            <div className="p-3 rounded-lg bg-gray-50">
+              <strong>Public cible</strong>
+              <div className="text-sm mt-1">{formation.public_cible}</div>
+            </div>
+          )}
+
+          {formation.nombre_participants !== undefined && formation.nombre_participants !== null && (
+            <div className="p-3 rounded-lg bg-gray-50">
+              <strong>Nombre participants</strong>
+              <div className="text-sm mt-1">{formation.nombre_participants}</div>
+            </div>
+          )}
+        </div>
+
         <InscriptionSection
           onInscription={onInscription}
           loading={inscriptionLoading}
