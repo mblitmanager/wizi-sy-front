@@ -262,8 +262,8 @@ export default function CatalogueFormationDetails() {
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         <div className="flex items-center justify-between mb-6">
-           <h2 className="relative inline-block text-3xl md:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 drop-shadow-md">
-      <span className="relative z-10 text-orange-400">{details.catalogueFormation.formation.titre}</span>
+           <h2 className="relative inline-block text-3xl md:text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 drop-shadow-md">
+      <span className="relative z-10 text-orange-400">{details.catalogueFormation.titre}</span>
       {/* petite barre décorative en dessous */}
       <span className="absolute left-1/2 -bottom-2 h-1 w-16 -translate-x-1/2 rounded-full bg-gradient-to-r from-orange-400 to-yellow-400"></span>
     </h2>
@@ -275,20 +275,7 @@ export default function CatalogueFormationDetails() {
       <div className="text-gray-700 dark:text-gray-300 leading-relaxed"
         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(details.catalogueFormation.formation.description || "") }}
       />
-      {/* Objectifs et programme (si présents) */}
-      {details.catalogueFormation.objectifs && (
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold">Objectifs</h3>
-          <div className="mt-2 text-gray-700" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(details.catalogueFormation.objectifs || "") }} />
-        </div>
-      )}
-
-      {details.catalogueFormation.programme && (
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold">Programme</h3>
-          <div className="mt-2 text-gray-700" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(details.catalogueFormation.programme || "") }} />
-        </div>
-      )}
+     
     </div>
         )}
 
@@ -415,9 +402,9 @@ const FormationDetailsContent = ({
   return (
     <div className="md:col-span-2 p-6 space-y-4">
       <CardHeader className="p-0 space-y-1">
-        <CardTitle className="text-2xl font-bold text-orange-400">
-          {formation.titre}
-        </CardTitle>
+        {/* <CardTitle className="text-2xl font-bold text-orange-400">
+          {formation.formation.titre}
+        </CardTitle> */}
         <CardDescription className="text-gray-700">
           {formation.prerequis ? (
             <span>
@@ -456,6 +443,20 @@ const FormationDetailsContent = ({
         ) : (
           <DownloadPdfButton formationId={formation.id} />
         )}
+         {/* Objectifs et programme (si présents) */}
+      {formation.objectifs && (
+        <div className="mt-4">
+          <h3 className="text-lg font-semibold">Objectifs</h3>
+          <div className="mt-2 text-gray-700" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formation.objectifs || "") }} />
+        </div>
+      )}
+
+      {formation.programme && (
+        <div className="mt-4">
+          <h3 className="text-lg font-semibold">Programme</h3>
+          <div className="mt-2 text-gray-700" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formation.programme || "") }} />
+        </div>
+      )}
 
         {/* Détails supplémentaires : modalités, moyens, évaluation, lieu, niveau, public */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
