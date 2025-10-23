@@ -247,7 +247,7 @@ export function QuizSummary() {
           <div className="flex items-center gap-3">
             <div className="text-center">
               <div className="text-lg font-bold text-green-600">
-                {20 - timeElapsed}
+                {30 - timeElapsed}
               </div>
               <div className="text-xs text-gray-500">secondes</div>
             </div>

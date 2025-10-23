@@ -365,7 +365,8 @@ export function GlobalRanking({
                           {entry.firstname || ""} {entry.name || ""}
                         </div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {entry.quizCount} quiz • {entry.averageScore?.toFixed(1)} avg
+                          {entry.quizCount} quiz
+                           {/* • {entry.averageScore?.toFixed(1)} avg */}
                         </div>
                       </div>
                     </div>
