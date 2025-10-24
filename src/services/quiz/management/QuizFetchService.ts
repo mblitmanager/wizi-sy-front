@@ -37,6 +37,19 @@ export class QuizFetchService {
           questions = questionsResponse.data.data.map((q: any) =>
             quizAnswerService["formatQuestion"](q)
           );
+          // Attach playedQuestions when present (API returns full objects)
+          if (questionsResponse.data.playedQuestions) {
+            // Map playedQuestions to include formatted question objects where possible
+            const pq = questionsResponse.data.playedQuestions.map((p: any) => {
+              const formattedQuestion = p.question ? quizAnswerService["formatQuestion"](p.question) : null;
+              return {
+                ...p,
+                question: formattedQuestion,
+              };
+            });
+            // store on the response so callers can consume
+            (response.data as any).playedQuestions = pq;
+          }
         }
       } catch (err) {
         questions = response.data.questions || [];
@@ -44,11 +57,24 @@ export class QuizFetchService {
 
       // Formater le quiz avec les questions détaillées
       const quizData = response.data;
-      const formattedQuiz = {
+      const formattedQuiz: any = {
         ...quizData,
         id: String(quizData.id),
         questions: questions.length > 0 ? questions : quizData.questions || [],
       };
+
+      // If the questions endpoint returned playedQuestions, attach them
+      try {
+        const questionsResponse = await apiClient.get(`/quiz/${quizId}/questions`);
+        if (questionsResponse.data && questionsResponse.data.playedQuestions) {
+          formattedQuiz.playedQuestions = (questionsResponse.data.playedQuestions || []).map((p: any) => ({
+            ...p,
+            question: p.question ? quizAnswerService["formatQuestion"](p.question) : null,
+          }));
+        }
+      } catch (e) {
+        // ignore
+      }
 
       return formattedQuiz;
     } catch (error) {

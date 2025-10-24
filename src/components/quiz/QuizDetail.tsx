@@ -12,6 +12,7 @@ import quiziload from "../../assets/loading_img.png";
 import { stripHtmlTags } from "@/utils/UtilsFunction";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
+import PlayedQuestions from "./PlayedQuestions";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -244,6 +245,19 @@ export function QuizDetail() {
           </div>
         </div>
       </div>
+      {/* Played questions section (if available) */}
+      {quiz?.playedQuestions && quiz.playedQuestions.length > 0 && (
+        <div className="max-w-6xl mx-auto mt-6">
+          {/* Lazy-load component to avoid importing when not used */}
+          {
+            /* eslint-disable-next-line @typescript-eslint/no-var-requires */
+            (() => {
+              const PlayedQuestions = require("./PlayedQuestions").default;
+              return <PlayedQuestions playedQuestions={quiz.playedQuestions} questions={quiz.questions} />;
+            })()
+          }
+        </div>
+      )}
     </Layout>
   );
 }
