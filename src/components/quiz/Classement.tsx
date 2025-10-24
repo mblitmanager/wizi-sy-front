@@ -292,12 +292,12 @@ export function Classement() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
               <StatsCard
                 icon="assignment_turned_in"
-                title="Quiz complétés"
+                title="Quiz joués"
                 value={String(totalQuizzes)}
                 color="primary"
                 onClick={() =>
                   openInfo(
-                    "Quiz complétés",
+                    "Quiz joués",
                     <div className="space-y-2">
                       <SheetRow label="Total" value={String(totalQuizzes)} />
                       <SheetRow
@@ -335,7 +335,7 @@ export function Classement() {
                       />
 
                       <SheetRow
-                        label="Quiz complétés"
+                        label="Quiz joués"
                         value={String(totalQuizzes)}
                       />
                     </div>
@@ -356,7 +356,7 @@ export function Classement() {
                         value={String(totalPoints)}
                       />
                       <SheetRow
-                        label="Quiz complétés"
+                        label="Quiz joués"
                         value={String(totalQuizzes)}
                       />
                     </div>
@@ -456,7 +456,7 @@ export function Classement() {
                           <div className="space-y-2">
                             <SheetRow label="Niveau" value={lvl.label} />
                             <SheetRow
-                              label="Quiz complétés"
+                              label="Quiz joués"
                               value={String(completed)}
                             />
                             <SheetRow
@@ -481,7 +481,7 @@ export function Classement() {
                           />
                         </div>
                         <div className="mt-1 flex items-center justify-between text-xs text-gray-500">
-                          <span>{completed} quiz complétés</span>
+                          <span>{completed} quiz joués</span>
                           <span>Moyenne: {(avg * 10).toFixed(1)}%</span>
                         </div>
                       </div>
