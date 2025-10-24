@@ -122,7 +122,6 @@ const ParrainageSection = () => {
   }, [user]);
   console.log("User in ParrainageSection:", user);
 
-
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -208,7 +207,7 @@ const ParrainageSection = () => {
     setShowSuccessModal(false);
     setFilleulName("");
   };
-console.log("Rendering ParrainageSection with user:", user);
+  console.log("Rendering ParrainageSection with user:", user);
   return (
     <>
       <section className="mb-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -273,13 +272,14 @@ console.log("Rendering ParrainageSection with user:", user);
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <p className="text-sm text-gray-600">Nom du parrain</p>
+                      <p className="text-sm text-gray-600">Nom et prénom</p>
                       <p className="text-lg font-semibold text-gray-800">
-                        {user?.stagiaire?.prenom || ""} {user?.user?.name.toLocaleUpperCase() || ""}
+                        {user?.stagiaire?.prenom || ""}{" "}
+                        {user?.user?.name.toLocaleUpperCase() || ""}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600">Email du parrain</p>
+                      <p className="text-sm text-gray-600">Email</p>
                       <p className="text-lg font-semibold text-orange-600">
                         {user?.user?.email || "Non disponible"}
                       </p>

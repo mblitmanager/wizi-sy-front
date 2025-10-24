@@ -107,7 +107,7 @@ export function GlobalRanking({
         <div className="flex items-center gap-2 mb-2">
           <Users className="h-3 w-3 text-blue-500" />
           <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
-            Formateurs :
+            Formateur :
           </span>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -210,7 +210,11 @@ export function GlobalRanking({
             />
           </div>
           <div className="flex items-center space-x-2">
-            <Switch id="podium-switch" checked={showPodium} onCheckedChange={setShowPodium} />
+            <Switch
+              id="podium-switch"
+              checked={showPodium}
+              onCheckedChange={setShowPodium}
+            />
             <Label htmlFor="podium-switch">Afficher le podium</Label>
           </div>
         </div>
@@ -269,7 +273,9 @@ export function GlobalRanking({
                         <div className="relative">
                           <Avatar className="h-16 w-16 border-2 border-white shadow-lg">
                             <AvatarImage
-                              src={`${import.meta.env.VITE_API_URL_MEDIA ?? ''}${'/'+ entry.image}`}
+                              src={`${
+                                import.meta.env.VITE_API_URL_MEDIA ?? ""
+                              }${"/" + entry.image}`}
                             />
                             <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold">
                               {entry.name?.charAt(0) || "U"}
@@ -287,7 +293,8 @@ export function GlobalRanking({
                               ? "text-green-600"
                               : "text-gray-800 dark:text-white"
                           }`}>
-                         {entry.firstname || ""} {entry.name.toUpperCase() || ""} 
+                          {entry.firstname || ""}{" "}
+                          {entry.name.toUpperCase() || ""}
                         </h3>
                         <div className="flex items-center gap-1 mt-1">
                           <Star className="h-4 w-4 text-yellow-500" />
@@ -366,7 +373,7 @@ export function GlobalRanking({
                         </div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">
                           {entry.quizCount} quiz
-                           {/* • {entry.averageScore?.toFixed(1)} avg */}
+                          {/* • {entry.averageScore?.toFixed(1)} avg */}
                         </div>
                       </div>
                     </div>
@@ -377,7 +384,9 @@ export function GlobalRanking({
                 );
               })}
               {listRanking.length > 10 && (
-                <div className="text-center text-xs text-gray-500">Afficher les {listRanking.length - 10} suivants...</div>
+                <div className="text-center text-xs text-gray-500">
+                  Afficher les {listRanking.length - 10} suivants...
+                </div>
               )}
             </div>
 
@@ -394,7 +403,7 @@ export function GlobalRanking({
                         Stagiaire
                       </th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">
-                        Formateurs
+                        Formateur
                       </th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">
                         Quiz
@@ -427,7 +436,9 @@ export function GlobalRanking({
                             <div className="flex items-center gap-3">
                               <Avatar className="h-10 w-10 border-2 border-white shadow-sm">
                                 <AvatarImage
-                                  src={`${import.meta.env.VITE_API_URL_MEDIA ?? ''}${'/' + entry.image}`}
+                                  src={`${
+                                    import.meta.env.VITE_API_URL_MEDIA ?? ""
+                                  }${"/" + entry.image}`}
                                 />
                                 <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
                                   {entry.name?.charAt(0) || "U"}
@@ -435,7 +446,8 @@ export function GlobalRanking({
                               </Avatar>
                               <div className="flex items-center gap-2">
                                 <span className="font-semibold text-gray-900 dark:text-white">
-                                   {entry.firstname || ""} {entry.name.toLocaleUpperCase() || ""}
+                                  {entry.firstname || ""}{" "}
+                                  {entry.name.toLocaleUpperCase() || ""}
                                 </span>
                                 {isCurrentUser && (
                                   <Badge
@@ -455,7 +467,8 @@ export function GlobalRanking({
                                     key={formateur.id}
                                     variant="secondary"
                                     className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300">
-                                    {formateur.prenom} {formateur.nom.toUpperCase()}
+                                    {formateur.prenom}{" "}
+                                    {formateur.nom.toUpperCase()}
                                   </Badge>
                                 ))}
                               </div>
