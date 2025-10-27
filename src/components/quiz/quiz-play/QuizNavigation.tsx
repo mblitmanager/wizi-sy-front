@@ -53,7 +53,7 @@ export function QuizNavigation({
           
           {activeStep === totalSteps - 1
             ? "Terminer"
-            : "Continuer"}
+            : "Suivant"}
           {activeStep !== totalSteps - 1 && (
             <ChevronRight className={`${isMobile ? 'ml-0' : 'ml-2'} h-4 w-4`} />
           )}
