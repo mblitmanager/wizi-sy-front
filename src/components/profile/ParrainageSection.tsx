@@ -240,7 +240,7 @@ const ParrainageSection = () => {
               </h1>
               <p className="hidden lg:block text-lg text-gray-600 mb-6">
                 Parrainez vos collègues et gagnez{" "}
-                <span className="text-orange-600 font-bold">50€</span> pour
+                <span className="text-orange-600 font-bold">50 €</span> pour
                 chaque inscription valide.
               </p>
 
@@ -280,7 +280,7 @@ const ParrainageSection = () => {
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Email</p>
-                      <p className="text-lg font-semibold text-orange-600">
+                      <p className="text-lg font-semibold text-orange-600 truncate">
                         {user?.user?.email || "Non disponible"}
                       </p>
                     </div>
@@ -508,13 +508,13 @@ const ParrainageSection = () => {
             </div>
 
             {/* How It Works Section */}
-            <Card className="border border-gray-200 rounded-xl shadow-sm">
+            <Card className="border border-gray-200 rounded-xl shadow-sm bg-gray-50">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="bg-yellow-100 p-2 rounded-lg">
                     <ChevronRight className="h-5 w-5 text-yellow-600" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-800">
+                  <h3 className="text-lg font-semibold text-gray-800">
                     Comment ça marche ?
                   </h3>
                 </div>
@@ -522,13 +522,15 @@ const ParrainageSection = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="flex items-start gap-4">
                     <div className="bg-blue-50 p-3 rounded-full flex-shrink-0">
-                      <span className="text-orange-600 font-bold">1</span>
+                      <span className="text-orange-600 font-bold text-sm">
+                        1
+                      </span>
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-800 mb-1">
+                      <h4 className="font-medium text-gray-800 mb-1 text-sm">
                         Remplissez le formulaire
                       </h4>
-                      <p className="text-gray-600 text-sm">
+                      <p className="text-gray-600 text-xs">
                         Inscrivez la personne avec ses informations.
                       </p>
                     </div>
@@ -536,13 +538,15 @@ const ParrainageSection = () => {
 
                   <div className="flex items-start gap-4">
                     <div className="bg-blue-50 p-3 rounded-full flex-shrink-0">
-                      <span className="text-orange-600 font-bold">2</span>
+                      <span className="text-orange-600 font-bold text-sm">
+                        2
+                      </span>
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-800 mb-1">
+                      <h4 className="font-medium text-gray-800 mb-1 text-sm">
                         Contact commercial
                       </h4>
-                      <p className="text-gray-600 text-sm">
+                      <p className="text-gray-600 text-xs">
                         Un commercial le contacte pour ses choix de formation.
                       </p>
                     </div>
@@ -550,13 +554,15 @@ const ParrainageSection = () => {
 
                   <div className="flex items-start gap-4">
                     <div className="bg-blue-50 p-3 rounded-full flex-shrink-0">
-                      <span className="text-orange-600 font-bold">3</span>
+                      <span className="text-orange-600 font-bold text-sm">
+                        3
+                      </span>
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-800 mb-1">
+                      <h4 className="font-medium text-gray-800 mb-1 text-sm">
                         Validation des formations
                       </h4>
-                      <p className="text-gray-600 text-sm">
+                      <p className="text-gray-600 text-xs">
                         Le commercial valide les formations choisies.
                       </p>
                     </div>
@@ -564,13 +570,15 @@ const ParrainageSection = () => {
 
                   <div className="flex items-start gap-4">
                     <div className="bg-blue-50 p-3 rounded-full flex-shrink-0">
-                      <span className="text-orange-600 font-bold">4</span>
+                      <span className="text-orange-600 font-bold text-sm">
+                        4
+                      </span>
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-800 mb-1">
+                      <h4 className="font-medium text-gray-800 mb-1 text-sm">
                         Récompense de 50 €
                       </h4>
-                      <p className="text-gray-600 text-sm">
+                      <p className="text-gray-600 text-xs">
                         Vous recevez 50 € en carte cadeau pour chaque
                         inscription validée.
                       </p>

@@ -98,6 +98,7 @@ export function GlobalRanking({
 
   // Composant pour afficher les formateurs du podium
   const FormateursPodium = ({ entry }: { entry: any }) => {
+    console.log("Formateurs ", entry);
     if (!entry.formateurs || entry.formateurs.length === 0) {
       return null;
     }
