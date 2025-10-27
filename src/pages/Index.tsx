@@ -583,6 +583,7 @@ useEffect(() => {
   if (!user || !localStorage.getItem("token")) {
     return <LandingPage />;
   }
+  
 
   return (
     <Layout>

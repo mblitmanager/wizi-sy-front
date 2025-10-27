@@ -27,9 +27,13 @@ const roleDisplayNames: Record<string, string> = {
   formateur: "Formateur",
   commerciale: "Commercial",
   pole_relation_client: "Pôle Relation Client",
-  "Pôle SAV": "Pôle SAV",
-  pole_sav: "Pôle SAV",
-  autre: "Autre",
+  // "Pôle SAV": ("Pôle SAV" ||'Chargée Administration des Ventes' || 'Responsable suivi formation & SAV & Parrainage'),
+  pole_sav: [
+    "Pôle SAV",
+    "Chargée Administration des Ventes",
+    "Responsable suivi formation & SAV & Parrainage",
+  ],
+    autre: "Autre",
 };
 
 export const ContactCard = ({ contact }: ContactCardProps) => {

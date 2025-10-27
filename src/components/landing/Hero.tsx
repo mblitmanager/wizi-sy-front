@@ -47,7 +47,7 @@ export function Hero({ logo }: { logo: string }) {
                 size="lg"
                 asChild
                 className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl px-8 py-4 shadow-xl transition-all duration-200 hover:shadow-2xl focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
-                <Link to="/quiz" className="flex items-center justify-center gap-3">
+                <Link to="/login" className="flex items-center justify-center gap-3">
                   Commencer le QUIZ
                   <ArrowRight className="h-6 w-6" />
                 </Link>

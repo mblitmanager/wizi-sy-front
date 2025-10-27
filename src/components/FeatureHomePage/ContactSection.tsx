@@ -36,12 +36,12 @@ const ContactSection = ({
     queryFn: async () => {
       const data = await contactService.getContacts();
       // Fusionne tous les contacts dans un seul tableau pour l'affichage
-      const allContacts = [
-        ...(data.formateurs || []),
-        ...(data.commerciaux || []),
-        ...(data.pole_relation || []),
-        ...(data.pole_sav || []),
-      ];
+      // Prendre un seul contact par groupe (si présent)
+      const allContacts: Contact[] = [];
+      if (data.formateurs && data.formateurs.length > 0) allContacts.push(data.formateurs[0]);
+      if (data.commerciaux && data.commerciaux.length > 0) allContacts.push(data.commerciaux[0]);
+      if (data.pole_relation && data.pole_relation.length > 0) allContacts.push(data.pole_relation[0]);
+      if (data.pole_sav && data.pole_sav.length > 0) allContacts.push(data.pole_sav[0]);
       return allContacts;
     },
     staleTime: 5 * 60 * 1000,
@@ -66,38 +66,19 @@ const ContactSection = ({
     </div>
   );
 
-  // Fonction améliorée pour grouper les contacts par rôle
-  const groupedContacts = (targetRole: string) =>
-    contacts?.filter((c) => {
-      const role = c.role || c.type;
-      // Gérer les différents formats de rôle
-      if (targetRole === "pole_sav") {
-        return role === "pole_sav" || role === "Pôle SAV";
-      }
-      return role === targetRole;
-    }) || [];
+  // // Fonction améliorée pour grouper les contacts par rôle
+  // const groupedContacts = (targetRole: string) =>
+  //   contacts?.filter((c) => {
+  //     const role = c.role || c.type;
+  //     // Gérer les différents formats de rôle
+  //     if (targetRole === "pole_sav") {
+  //       return role === "pole_sav" || role === "Pôle SAV";
+  //     }
+  //     return role === targetRole;
+  //   }) || [];
 
-  // Fonction pour obtenir les contacts dans l'ordre spécifié
-  const getContactsInOrder = () => {
-    const order = [
-      "formateur",           // Formateurs
-      "pole_sav",            // Pôle SAV  
-      "commerciale",         // Commercial
-      "pole_relation_client" // Pôle relation clients
-    ];
-    
-    const contactsInOrder = [];
-
-    for (const role of order) {
-      const contact = groupedContacts(role)[0];
-      if (contact) {
-        contactsInOrder.push(contact);
-      }
-    }
-
-    return contactsInOrder;
-  };
-
+  // NOTE: `getContactsInOrder` removed — we directly render the contacts returned
+  // from the query (which are already limited to one per group in queryFn).
   return (
     <div className="py-6 mt-2">
       <div className="">
@@ -130,7 +111,7 @@ const ContactSection = ({
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {getContactsInOrder().map((contact) => (
+            {(contacts || []).map((contact) => (
               <ContactCard key={`${contact.role}-${contact.id}`} contact={contact} />
             ))}
           </div>
