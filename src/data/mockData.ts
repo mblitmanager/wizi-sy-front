@@ -110,13 +110,13 @@ export const formations: Formation[] = [
   },
   {
     id: "form5",
-    name: "Photoshop Initiation",
-    slug: "photoshop-initiation",
+    name: "Création Visuelle",
+    slug: "creation-visuelle",
     categoryId: "cat4",
-    description: "Découvrez les bases de la retouche photo avec Photoshop.",
+    description: "Initiation aux outils de création visuelle et principes de design.",
     image: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d",
     quizzes: [],
-    totalQuizzes: 18,
+    totalQuizzes: 10,
     completedQuizzes: 0
   }
 ];
@@ -217,8 +217,8 @@ export const challenges: Challenge[] = [
   },
   {
     id: "chall3",
-    title: "Expert Photoshop",
-    description: "Obtenez 100% à tous les quiz Photoshop",
+    title: "Défi Création Visuelle",
+    description: "Mettez en pratique vos connaissances en création visuelle",
     points: 800,
     completed: false
   }
@@ -270,23 +270,11 @@ export const agendaEvents: AgendaEvent[] = [
     location: "Salle 106",
     description: "Formules et tableaux croisés dynamiques"
   },
-  {
-    id: "event3",
-    title: "Cours Photoshop",
-    start: new Date(2025, 3, 25, 9, 0),
-    end: new Date(2025, 3, 25, 12, 0),
-    formationId: "form5",
-    location: "Salle 301",
-    description: "Initiation à l'interface et aux outils de base"
-  }
+  // removed specific vendor course event to avoid referencing obsolete content
 ];
 
 // Link formations to categories
 categories.forEach(category => {
   category.formations = formations.filter(formation => formation.categoryId === category.id);
 });
-
-// Link quizzes to formations
-formations.forEach(formation => {
-  formation.quizzes = quizzes.filter(quiz => quiz.formationId === formation.id);
-});
+  

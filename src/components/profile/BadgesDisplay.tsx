@@ -37,7 +37,7 @@ const BadgeIcon = ({ type, level }: { type?: string; level?: string }) => {
       case "argent":
         return "bg-gray-100 text-gray-600";
       case "or":
-        return "bg-yellow-100 text-yellow-600";
+        return "bg-wizi-muted text-wizi-muted";
       case "platine":
         return "bg-blue-100 text-blue-600";
       default:
@@ -87,7 +87,7 @@ const BadgeLevel = ({ level }: { level?: string }) => {
   const levelMap = {
     bronze: { text: "Bronze", color: "bg-amber-100 text-amber-800" },
     argent: { text: "Argent", color: "bg-gray-100 text-gray-800" },
-    or: { text: "Or", color: "bg-yellow-100 text-yellow-800" },
+  or: { text: "Or", color: "bg-wizi-muted text-wizi-muted" },
     platine: { text: "Platine", color: "bg-blue-100 text-blue-800" },
   };
 

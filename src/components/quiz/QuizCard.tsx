@@ -122,8 +122,8 @@ const getLevelConfig = (level: string) => {
     case "super quiz":
       return {
         color: "#F59E0B",
-        bgClass: "bg-yellow-100",
-        textClass: "text-yellow-800",
+        bgClass: "bg-wizi-muted",
+        textClass: "text-wizi-muted",
       };
     default:
       return {
@@ -134,15 +134,22 @@ const getLevelConfig = (level: string) => {
   }
 };
 
+interface HistoryItem {
+  quiz?: { id?: string | number };
+  timeSpent?: number;
+  totalQuestions?: number;
+  correctAnswers?: number;
+}
+
 interface QuizCardProps {
   quiz: Quiz;
   categories: Category[] | undefined;
-  history?: any[];
+  history?: HistoryItem[];
 }
 
 export function QuizCard({ quiz, categories, history }: QuizCardProps) {
   const categoryName =
-    quiz.formation?.categorie || quiz.categorie || "Non catégorisé";
+    ( (quiz as unknown as { formation?: { categorie?: string } }).formation?.categorie ) || quiz.categorie || "Non catégorisé";
   const categoryConfig = getCategoryConfig(categoryName);
   const levelConfig = getLevelConfig(quiz.niveau);
   const estimatedTime = quiz.questions?.length

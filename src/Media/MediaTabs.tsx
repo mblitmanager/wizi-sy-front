@@ -31,7 +31,7 @@ export default function MediaTabs({ active, onChange, className }: Props) {
               <Icon
                 className={clsx(
                   "w-4 h-4",
-                  isActive ? "text-white" : "text-yellow-600"
+                  isActive ? "text-white" : "text-wizi-muted"
                 )}
               />
               <span className="hidden sm:inline">{label}</span>

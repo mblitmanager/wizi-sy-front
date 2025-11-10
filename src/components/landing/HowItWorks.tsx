@@ -29,8 +29,8 @@ export function HowItWorks() {
       step: "2",
       title: "Testez vos connaissances",
       description: "Répondez aux questions dans différents formats: QCM, vrai/faux, remplir les blancs et plus encore.",
-      bgColor: "bg-yellow-100",
-      textColor: "text-yellow-800",
+      bgColor: "bg-wizi-muted",
+      textColor: "text-wizi-muted",
       icon: <ClipboardCheck className="h-6 w-6" />,
     },
     {

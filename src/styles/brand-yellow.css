@@ -1,0 +1,30 @@
+/* Centralized muted yellow variables and utility classes */
+:root{
+  --wizi-yellow: #F7E9C9; /* soft muted background */
+  --wizi-yellow-foreground: #B77A09; /* readable text on muted bg */
+  --wizi-yellow-accent: #F2C94C; /* accent for buttons/icons */
+}
+
+.bg-wizi-muted{
+  background-color: var(--wizi-yellow) !important;
+}
+
+.text-wizi-muted{
+  color: var(--wizi-yellow-foreground) !important;
+}
+
+.bg-wizi-accent{
+  background-color: var(--wizi-yellow-accent) !important;
+}
+
+.ring-wizi-yellow:focus{
+  box-shadow: 0 0 0 3px rgba(242,201,76,0.2);
+}
+
+.badge-wizi{
+  background-color: rgba(242,201,76,0.15);
+  color: var(--wizi-yellow-foreground);
+  padding: .25rem .5rem;
+  border-radius: .5rem;
+  font-weight:600;
+}

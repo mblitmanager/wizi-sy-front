@@ -172,7 +172,7 @@ export function GlobalRanking({
 
   const podiumIcons = [
     <Medal key="silver" className="h-5 w-5 text-gray-400" />,
-    <Trophy key="gold" className="h-6 w-6 text-yellow-500" />,
+    <Trophy key="gold" className="h-6 w-6 text-wizi-accent" />,
     <Award key="bronze" className="h-5 w-5 text-orange-600" />,
   ];
 
@@ -225,7 +225,7 @@ export function GlobalRanking({
       {showPodium && podium.length > 0 && (
         <div className="px-4 pt-6 pb-4">
           <div className="text-center mb-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-wizi-accent to-orange-500 rounded-full">
               <Crown className="h-5 w-5 text-white" />
               <span className="text-white font-bold text-lg">PODIUM</span>
               <Crown className="h-5 w-5 text-white" />
@@ -242,7 +242,7 @@ export function GlobalRanking({
               const rankLabels = ["2ème", "1er", "3ème"];
               const rankColors = [
                 "from-gray-400 to-gray-300",
-                "from-yellow-400 to-yellow-300",
+                "from-wizi-accent to-orange-300",
                 "from-orange-500 to-orange-400",
               ];
 

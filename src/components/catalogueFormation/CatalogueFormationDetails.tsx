@@ -90,8 +90,8 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-3">
-            <div className="bg-yellow-100 p-2 rounded-full">
-              <CheckCircle className="w-6 h-6 text-yellow-600" />
+            <div className="bg-wizi-muted p-2 rounded-full">
+              <CheckCircle className="w-6 h-6 text-wizi-muted" />
             </div>
             <h3 className="text-lg font-bold text-gray-900">
               Demande d'inscription envoyée avec succès !
@@ -112,8 +112,8 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
           <p className="font-semibold text-gray-900 mb-4 text-center bg-gray-50 py-2 px-4 rounded-lg">
             {formationTitle}
           </p>
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <p className="text-yellow-800 text-sm text-center">{message}</p>
+          <div className="bg-wizi-muted/60 border border-wizi-accent/30 rounded-lg p-4">
+            <p className="text-wizi-muted text-sm text-center">{message}</p>
           </div>
         </div>
 

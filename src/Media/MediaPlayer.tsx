@@ -117,7 +117,7 @@ export default function MediaPlayer({
             </h3>
             {media && (
               <div className="flex items-center gap-2 mt-1">
-                <span className="bg-yellow-100 text-yellow-600 px-2 py-0.5 rounded-full text-xs whitespace-nowrap">
+                <span className="badge-wizi px-2 py-0.5 rounded-full text-xs whitespace-nowrap">
                   {media.categorie}
                 </span>
                 <span className="text-xs text-gray-500 whitespace-nowrap">

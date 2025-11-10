@@ -4,6 +4,7 @@ import App from "./App.tsx";
 import "./index.css";
 // Brand variables (shared with Flutter AppColors)
 import "./styles/brand.css";
+import "./styles/brand-yellow.css";
 import { NotificationProvider } from "./context/NotificationProvider";
 import DisplaySettingsProvider from "@/contexts/DisplaySettingsContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";

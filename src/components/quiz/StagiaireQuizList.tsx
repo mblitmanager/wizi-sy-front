@@ -340,7 +340,7 @@ export function StagiaireQuizList({
       {
         title: "Débloquez les niveaux !",
         content: (
-          <ul className="list-disc pl-5 text-sm text-yellow-900 space-y-1">
+          <ul className="list-disc pl-5 text-sm text-wizi-muted space-y-1">
             <li>
               <span className="font-medium">À 20 points :</span> Les quiz
               intermédiaires s'ouvrent à vous.
@@ -381,21 +381,21 @@ export function StagiaireQuizList({
     }, [step, steps.length]);
     return (
       <div className="mb-6">
-        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded shadow-sm transition-all duration-500">
-          <p className="font-semibold text-yellow-800 mb-1">
+            <div className="bg-wizi-muted/40 border-l-4 border-wizi-accent p-4 rounded shadow-sm transition-all duration-500">
+          <p className="font-semibold text-wizi-muted mb-1">
             {steps[step].title}
           </p>
           <div>{steps[step].content}</div>
           <div className="flex justify-end gap-2 mt-2">
             <button
-              className="text-xs px-2 py-1 rounded bg-yellow-200 hover:bg-yellow-300 text-yellow-900"
+              className="text-xs px-2 py-1 rounded badge-wizi hover:bg-wizi-accent/40 text-wizi-muted"
               onClick={() =>
                 setStep((s) => (s - 1 + steps.length) % steps.length)
               }>
               ◀
             </button>
             <button
-              className="text-xs px-2 py-1 rounded bg-yellow-200 hover:bg-yellow-300 text-yellow-900"
+              className="text-xs px-2 py-1 rounded badge-wizi hover:bg-wizi-accent/40 text-wizi-muted"
               onClick={() => setStep((s) => (s + 1) % steps.length)}>
               ▶
             </button>

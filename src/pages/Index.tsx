@@ -605,7 +605,7 @@ useEffect(() => {
               ×
             </button>
             <div className="flex items-center gap-3 mb-2">
-              <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-yellow-100 text-yellow-700 group-hover:bg-yellow-200 transition-colors">
+              <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-wizi-muted text-wizi-muted group-hover:bg-wizi-accent/20 transition-colors">
                 <Megaphone size={28} />
               </span>
               <h2 className="text-lg md:text-2xl font-bold text-brown-shade">
@@ -616,8 +616,8 @@ useEffect(() => {
               Wizi Learn est une plateforme d'apprentissage interactive dédiée à
               la montée en compétences.
             </p>
-            <button
-              className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-yellow-400 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-yellow-500 transition-colors"
+              <button
+              className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-wizi-accent text-white font-semibold px-4 py-2 rounded-lg shadow hover:bg-wizi-accent/90 transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
                 window.open("/manuel", "_blank");
@@ -765,10 +765,10 @@ useEffect(() => {
                   <AdCatalogueBlock formations={adFormations.slice(0, 6)} />
                  ) : (
                   shuffledFormations.slice(0, 3).map((formation: CatalogueFormation) => (
-                    <FormationCard
-                      key={`available-${formation.formation?.id || formation.id}-${formation.id}`}
-                      formation={formation}
-                    />
+                      <FormationCard
+                        key={`available-${(formation as any).formation?.id || (formation as any).id}-${(formation as any).id}`}
+                        formation={formation as unknown as import("@/types/Formation").FormationCardData}
+                      />
                   ))
                 )} 
               </div>

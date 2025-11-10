@@ -50,8 +50,8 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-3">
-            <div className="bg-yellow-100 p-2 rounded-full">
-              <CheckCircle className="w-6 h-6 text-yellow-600" />
+            <div className="bg-wizi-muted p-2 rounded-full">
+              <CheckCircle className="w-6 h-6 text-wizi-muted" />
             </div>
             <h3 className="text-lg font-bold text-gray-900">
               Filleul inscrit avec succès !
@@ -70,8 +70,8 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
           <p className="font-semibold text-gray-900 mb-4 text-center bg-gray-50 py-2 px-4 rounded-lg">
             {filleulName}
           </p>
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <p className="text-yellow-800 text-sm text-center">
+          <div className="bg-wizi-muted border border-yellow-200 rounded-lg p-4">
+            <p className="text-wizi-muted text-sm text-center">
               Vous recevrez 50 {FORMATIONMETADATA.euros} en carte cadeau une
               fois son inscription validée.
             </p>
@@ -244,7 +244,7 @@ const ParrainageSection = () => {
                 chaque inscription valide.
               </p>
 
-              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6 mb-6 border border-yellow-100">
+              <div className="bg-gradient-to-r from-wizi-muted/40 to-orange-50 rounded-xl p-6 mb-6 border border-wizi-accent/20">
                 <div className="flex items-start gap-4">
                   <div className="bg-blue-100 p-3 rounded-full">
                     <Gift className="h-6 w-6 text-orange-600" />
@@ -304,34 +304,34 @@ const ParrainageSection = () => {
 
                   {/* Ancien message de succès (maintenant désactivé car on utilise le modal) */}
                   {/* {isSuccess && (
-                    <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                      <div className="flex">
-                        <div className="flex-shrink-0">
-                          <svg
-                            className="h-5 w-5 text-yellow-400"
-                            fill="currentColor"
-                            viewBox="0 0 20 20">
-                            <path
-                              fillRule="evenodd"
-                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </div>
-                        <div className="ml-3">
-                          <h3 className="text-sm font-medium text-yellow-800">
-                            Filleul inscrit avec succès !
-                          </h3>
-                          <div className="mt-2 text-sm text-yellow-700">
-                            <p>
-                              Le filleul a été inscrit avec succès. Vous recevrez
-                              50€ en carte cadeau une fois son inscription
-                              validée.
-                            </p>
+                    <div className="mb-6 p-4 bg-wizi-muted/40 border border-wizi-accent/30 rounded-lg">
+                            <div className="flex">
+                              <div className="flex-shrink-0">
+                                <svg
+                                  className="h-5 w-5 text-wizi-muted"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20">
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              </div>
+                              <div className="ml-3">
+                                <h3 className="text-sm font-medium text-wizi-muted">
+                                  Filleul inscrit avec succès !
+                                </h3>
+                                <div className="mt-2 text-sm text-wizi-muted">
+                                  <p>
+                                    Le filleul a été inscrit avec succès. Vous recevrez
+                                    50€ en carte cadeau une fois son inscription
+                                    validée.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                    </div>
                   )} */}
 
                   <form onSubmit={handleSubmit} className="space-y-6">
@@ -511,8 +511,8 @@ const ParrainageSection = () => {
             <Card className="border border-gray-200 rounded-xl shadow-sm bg-gray-50">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="bg-yellow-100 p-2 rounded-lg">
-                    <ChevronRight className="h-5 w-5 text-yellow-600" />
+                  <div className="bg-wizi-muted p-2 rounded-lg">
+                    <ChevronRight className="h-5 w-5 text-wizi-muted" />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-800">
                     Comment ça marche ?
@@ -592,7 +592,7 @@ const ParrainageSection = () => {
           {/* Right Column - Image (Desktop only) */}
           <div className="hidden lg:block flex-1 order-1 lg:order-2">
             <div className="sticky top-6">
-              <div className="bg-gradient-to-br from-yellow-50 to-yellow-50 rounded-2xl p-8 border border-yellow-200 shadow-sm">
+              <div className="bg-wizi-muted/60 rounded-2xl p-8 border border-wizi-accent/30 shadow-sm">
                 <img
                   src={image}
                   alt="Programme de parrainage"

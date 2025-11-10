@@ -32,43 +32,43 @@ export default function MainNav({
       title: "Accueil",
       href: "/",
       icon: Home,
-      color: "text-amber-500",
+      color: "text-wizi-accent",
     }, {
       title: "Formations",
       href: "/catalogue",
       icon: GraduationCap,
-      color: "text-amber-500",
+      color: "text-wizi-accent",
     },
     {
       title: "Quiz",
       href: "/quizzes",
       icon: Brain,
-      color: "text-amber-500",
+      color: "text-wizi-accent",
     },
     {
       title: "Classement",
       href: "/classement",
       icon: Trophy,
-      color: "text-amber-500",
+      color: "text-wizi-accent",
     },
 
     {
       title: "Tutoriels",
       href: "/tuto-astuce",
       icon: Video,
-      color: "text-amber-500",
+      color: "text-wizi-accent",
     }, {
       title: "Parrainage",
       href: "/parrainage",
       icon: Gift,
-      color: "text-amber-500",
+      color: "text-wizi-accent",
     },
 
     {
       title: "Profil",
       href: "/profile",
       icon: User,
-      color: "text-amber-500",
+      color: "text-wizi-accent",
     },
   ];
 
@@ -117,7 +117,7 @@ export default function MainNav({
                 to={item.href}
                 className={({ isActive }) =>
                   `group flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 ${isActive
-                    ? "bg-gradient-to-r from-[#f27905] to-yellow-500 text-white shadow-lg"
+                    ? "bg-gradient-to-r from-[#f27905] to-wizi-accent text-white shadow-lg"
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`
                 }>
