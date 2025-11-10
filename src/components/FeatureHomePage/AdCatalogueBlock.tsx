@@ -128,14 +128,14 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
         </div>
 
         {/* Content */}
-        <div className="mb-6">
+          <div className="mb-6">
           <p className="text-gray-700 mb-3">
             Votre demande d'inscription a été envoyée pour la formation :
           </p>
           <p className="font-semibold text-gray-900 mb-4 text-center bg-gray-50 py-2 px-4 rounded-lg">
             {formationTitle}
           </p>
-          <div className="bg-wizi-muted border border-yellow-200 rounded-lg p-4">
+          <div className="bg-wizi-muted border border-wizi-accent rounded-lg p-4">
             <p className="text-wizi-muted text-sm text-center">{message}</p>
           </div>
         </div>

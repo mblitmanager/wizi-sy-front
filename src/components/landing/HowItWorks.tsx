@@ -47,7 +47,7 @@ export function HowItWorks() {
     <section className="py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div className="text-center mb-16" initial="hidden" animate="visible" variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}>
-          <motion.h2 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-yellow-500" variants={slideUp}>
+          <motion.h2 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-wizi-accent" variants={slideUp}>
             Comment ça marche
           </motion.h2>
           <motion.p className="text-gray-800 max-w-3xl mx-auto text-lg" variants={slideUp}>

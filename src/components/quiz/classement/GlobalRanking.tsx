@@ -102,7 +102,6 @@ export function GlobalRanking({
     if (!entry.formateurs || entry.formateurs.length === 0) {
       return null;
     }
-
     return (
       <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
         <div className="flex items-center gap-2 mb-2">
@@ -263,7 +262,7 @@ export function GlobalRanking({
                   <div
                     className={`w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg border-2 ${
                       i === 1
-                        ? "border-yellow-200"
+                        ? "border-wizi-accent"
                         : i === 0
                         ? "border-gray-300"
                         : "border-orange-400"

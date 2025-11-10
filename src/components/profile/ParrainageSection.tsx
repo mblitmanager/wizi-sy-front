@@ -70,7 +70,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
           <p className="font-semibold text-gray-900 mb-4 text-center bg-gray-50 py-2 px-4 rounded-lg">
             {filleulName}
           </p>
-          <div className="bg-wizi-muted border border-yellow-200 rounded-lg p-4">
+          <div className="bg-wizi-muted border border-wizi-accent rounded-lg p-4">
             <p className="text-wizi-muted text-sm text-center">
               Vous recevrez 50 {FORMATIONMETADATA.euros} en carte cadeau une
               fois son inscription validée.

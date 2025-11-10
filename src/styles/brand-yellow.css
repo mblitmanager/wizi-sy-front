@@ -17,6 +17,10 @@
   background-color: var(--wizi-yellow-accent) !important;
 }
 
+.border-wizi-accent{
+  border-color: var(--wizi-yellow-accent) !important;
+}
+
 .ring-wizi-yellow:focus{
   box-shadow: 0 0 0 3px rgba(242,201,76,0.2);
 }

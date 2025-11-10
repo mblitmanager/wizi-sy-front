@@ -271,7 +271,7 @@ export default function CatalogueFormationDetails() {
         </div>
 
         {details.catalogueFormation.formation && (
-          <div className="mt-6 p-5 rounded-2xl bg-gradient-to-br from-yellow-50 to-white dark:from-gray-900 dark:to-gray-800 shadow-md">
+          <div className="mt-6 p-5 rounded-2xl bg-wizi-muted dark:from-gray-900 dark:to-gray-800 shadow-md">
       <div className="text-gray-700 dark:text-gray-300 leading-relaxed"
         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(details.catalogueFormation.formation.description || "") }}
       />
@@ -364,12 +364,12 @@ const NoDataAvailable = () => (
 //   description: string;
 // }) => (
 //   <div className="mt-12 mb-12 text-center">
-//     <h2 className="relative inline-block text-3xl md:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 drop-shadow-md">
+//     <h2 className="relative inline-block text-3xl md:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-amber-500 to-wizi-accent drop-shadow-md">
 //       <span className="relative z-10 text-orange-400">{title}</span>
 //       {/* petite barre décorative en dessous */}
-//       <span className="absolute left-1/2 -bottom-2 h-1 w-16 -translate-x-1/2 rounded-full bg-gradient-to-r from-orange-400 to-yellow-400"></span>
+//       <span className="absolute left-1/2 -bottom-2 h-1 w-16 -translate-x-1/2 rounded-full bg-gradient-to-r from-orange-400 to-wizi-accent"></span>
 //     </h2>
-//     <div className="mt-6 p-5 rounded-2xl bg-gradient-to-br from-yellow-50 to-white dark:from-gray-900 dark:to-gray-800 shadow-md">
+//     <div className="mt-6 p-5 rounded-2xl bg-wizi-muted dark:from-gray-900 dark:to-gray-800 shadow-md">
 //       <div className="text-gray-700 dark:text-gray-300 leading-relaxed"
 //         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(description || "") }}
 //       />
