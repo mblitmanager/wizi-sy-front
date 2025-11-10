@@ -40,7 +40,7 @@ interface FormationCatalogueProps {
 const CATEGORY_COLORS: Record<string, string> = {
   Math: "bg-blue-100 text-blue-800",
   Science: "bg-green-100 text-green-800",
-  History: "bg-yellow-100 text-yellow-800",
+  History: "bg-wizi-muted text-wizi-muted",
   Bureautique: "bg-[#3D9BE9] text-white",
   Langues: "bg-[#A55E6E] text-white border-[#A55E6E]",
   Internet: "bg-[#FFC533] text-black",

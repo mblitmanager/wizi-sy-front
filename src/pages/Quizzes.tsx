@@ -170,7 +170,7 @@ export default function Quizzes() {
                 type="button"
                 aria-label="Basculer la vue quiz"
                 className={`relative w-14 h-7 rounded-full transition-colors duration-300 
-        ${activeToggle === "mes-quizzes" ? "bg-yellow-400" : "bg-gray-300"}
+  ${activeToggle === "mes-quizzes" ? "bg-wizi-accent" : "bg-gray-300"}
       `}
                 onClick={() => {
                   const newToggle =

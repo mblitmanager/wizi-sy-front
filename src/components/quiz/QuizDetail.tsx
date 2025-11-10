@@ -44,7 +44,7 @@ export function QuizDetail() {
       t.push(
         { icon: <BookOpen className="w-6 h-6 text-blue-500 mb-1" />, title: "QCM", desc: "Choisissez la ou les bonnes réponses.", bg: "bg-blue-50" },
         { icon: <Award className="w-6 h-6 text-green-500 mb-1" />, title: "Vrai / Faux", desc: "Indiquez si l'affirmation est vraie ou fausse.", bg: "bg-green-50" },
-        { icon: <span className="text-yellow-500 text-xl">🔊</span>, title: "Audio", desc: "Écoutez l'extrait audio et répondez.", bg: "bg-yellow-50" }
+  { icon: <span className="text-wizi-accent text-xl">🔊</span>, title: "Audio", desc: "Écoutez l'extrait audio et répondez.", bg: "bg-wizi-muted" }
       );
     }
 

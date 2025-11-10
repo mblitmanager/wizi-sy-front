@@ -44,7 +44,7 @@ export const AudioQuestion: React.FC<AudioQuestionProps> = ({
         <div className="space-y-3">
           <div className="p-2 sm:p-2 w-full bg-white rounded-xl shadow-none flex justify-center">
             <div className="flex items-center gap-3 sm:gap-4 w-full max-w-full sm:w-80">
-              <Music className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-400" />
+              <Music className="w-6 h-6 sm:w-8 sm:h-8 text-wizi-accent" />
               <audio
                 key={question.audioUrl}
                 controls

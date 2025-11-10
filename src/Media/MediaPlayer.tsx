@@ -62,7 +62,7 @@ export default function MediaPlayer({
       case "audio":
         return (
           <div className="p-4 w-full bg-gray-100 rounded-t-lg flex items-center gap-4">
-            <Music className="w-8 h-8 text-yellow-400 shrink-0" />
+            <Music className="w-8 h-8 text-wizi-accent shrink-0" />
             <audio
               key={media.url}
               controls

@@ -221,12 +221,12 @@ const ParrainageInscriptionPage = () => {
   }
 
   return (
-    <div className="bg-gradient-to-br from-yellow-50 to-amber-50 min-h-screen">
+  <div className="bg-wizi-muted min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2">
             {/* Colonne Illustration */}
-            <div className="hidden lg:block bg-gradient-to-br from-yellow-100 to-amber-100 p-8">
+            <div className="hidden lg:block bg-wizi-muted p-8">
               <div className="h-full flex flex-col justify-center items-center">
                 <img
                   src={image}
@@ -352,7 +352,7 @@ const ParrainageInscriptionPage = () => {
                               value={option.value}
                               checked={formData.civilite === option.value}
                               onChange={handleChange}
-                              className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
+                              className="h-4 w-4 text-wizi-muted ring-wizi-yellow border-gray-300"
                             />
                             <span className="ml-2 text-gray-700">
                               {option.label}
@@ -382,7 +382,7 @@ const ParrainageInscriptionPage = () => {
                           name="prenom"
                           value={formData.prenom}
                           onChange={handleChange}
-                          className={`block w-full px-4 py-3 rounded-md border shadow-sm focus:ring-yellow-500 focus:border-yellow-500 ${
+                          className={`block w-full px-4 py-3 rounded-md border shadow-sm ring-wizi-yellow ${
                             errors.prenom ? "border-red-300" : "border-gray-300"
                           }`}
                           required
@@ -407,7 +407,7 @@ const ParrainageInscriptionPage = () => {
                           name="nom"
                           value={formData.nom}
                           onChange={handleChange}
-                          className={`block w-full px-4 py-3 rounded-md border shadow-sm focus:ring-yellow-500 focus:border-yellow-500 ${
+                          className={`block w-full px-4 py-3 rounded-md border shadow-sm ring-wizi-yellow ${
                             errors.nom ? "border-red-300" : "border-gray-300"
                           }`}
                           required
@@ -435,7 +435,7 @@ const ParrainageInscriptionPage = () => {
                           name="email"
                           value={formData.email}
                           onChange={handleChange}
-                          className={`block w-full px-4 py-3 rounded-md border shadow-sm focus:ring-yellow-500 focus:border-yellow-500 ${
+                          className={`block w-full px-4 py-3 rounded-md border shadow-sm ring-wizi-yellow ${
                             errors.email ? "border-red-300" : "border-gray-300"
                           }`}
                           required
@@ -460,7 +460,7 @@ const ParrainageInscriptionPage = () => {
                           name="telephone"
                           value={formData.telephone}
                           onChange={handleChange}
-                          className={`block w-full px-4 py-3 rounded-md border shadow-sm focus:ring-yellow-500 focus:border-yellow-500 ${
+                          className={`block w-full px-4 py-3 rounded-md border shadow-sm ring-wizi-yellow focus:border-yellow-200 ${
                             errors.telephone
                               ? "border-red-300"
                               : "border-gray-300"
@@ -488,7 +488,7 @@ const ParrainageInscriptionPage = () => {
                           placeholder="Rechercher une formation..."
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
-                          className="block w-full px-4 py-2 rounded-md border border-gray-300 shadow-sm focus:ring-yellow-500 focus:border-yellow-500"
+                          className="block w-full px-4 py-2 rounded-md border border-gray-300 shadow-sm ring-wizi-yellow"
                         />
                       </div>
 
@@ -521,7 +521,7 @@ const ParrainageInscriptionPage = () => {
                                           catalogue_formation_id: formation.id,
                                         }));
                                       }}
-                                      className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
+                                      className="h-4 w-4 text-wizi-muted ring-wizi-yellow border-gray-300"
                                       required
                                     />
                                     <span className="text-sm font-medium text-gray-900">
@@ -553,7 +553,7 @@ const ParrainageInscriptionPage = () => {
                     <button
                       type="submit"
                       disabled={submitting}
-                      className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition ${
+                      className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-wizi-accent focus:outline-none ring-wizi-yellow transition ${
                         submitting ? "opacity-75 cursor-not-allowed" : ""
                       }`}>
                       {submitting ? (

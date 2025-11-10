@@ -78,7 +78,7 @@ export const RecentResults: React.FC<RecentResultsProps> = ({
               </div>
               <div className="text-right flex-shrink-0">
                 <div className="text-xs md:text-sm font-medium font-nunito flex items-center justify-end">
-                  <Trophy className="h-3.5 w-3.5 md:h-4 md:w-4 text-yellow-500 mr-1" />
+                  <Trophy className="h-3.5 w-3.5 md:h-4 md:w-4 text-wizi-accent mr-1" />
                   {result.score} pts
                 </div>
                 <div className="text-[10px] md:text-xs text-gray-500 font-roboto">

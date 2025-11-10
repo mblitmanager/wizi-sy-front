@@ -32,7 +32,7 @@ export const useLoadQuizData = () => {
           colorClass: [
             "category-blue-500",
             "category-green-500",
-            "category-yellow-500",
+            "category-wizi-accent",
             "category-red-500",
             "category-purple-500",
             "category-pink-500",

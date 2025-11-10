@@ -102,7 +102,7 @@ const sections = [
           Un tutoriel interactif s'affiche lors de votre première visite pour
           vous expliquer le fonctionnement et la progression.
         </p>
-        <p className="text-yellow-900 text-sm">
+  <p className="text-wizi-muted text-sm">
           Seul votre meilleur score est conservé. N'hésitez pas à recommencer
           pour décrocher la note parfaite ! Chaque réponse compte : accumulez
           des points et explorez tout l'univers des quiz.

@@ -30,7 +30,7 @@ const typeColors: Record<"video" | "document" | "image" | "audio", string> = {
   video: "text-red-500",
   audio: "text-purple-500",
   image: "text-green-500",
-  document: "text-yellow-500",
+  document: "text-wizi-accent",
 };
 
 export default function MediaList({ medias, selectedMedia, onSelect }: Props) {

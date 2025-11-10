@@ -360,10 +360,10 @@ export function StagiaireQuizList({
         title: "Astuce !",
         content: (
           <>
-            <p className="text-sm text-yellow-900 mb-1">
+            <p className="text-sm text-wizi-muted mb-1">
               Seul votre meilleur score est conservé.
             </p>
-            <p className="mt-1 text-xs text-yellow-700">
+            <p className="mt-1 text-xs text-wizi-muted">
               Chaque réponse compte. Accumulez des points et explorez tout
               l'univers des quiz !
             </p>

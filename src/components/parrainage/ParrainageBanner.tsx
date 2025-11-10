@@ -70,7 +70,7 @@ export function ParrainageBanner({ isMobile = false }: ParrainageBannerProps) {
             <span
               className={`${
                 isMobile ? "ml-1 text-xl" : "ml-2 text-2xl"
-              } text-yellow-300 drop-shadow-lg`}>
+              } text-wizi-accent drop-shadow-lg`}> 
               {parseFloat(activeEvent.prix).toFixed(0)}
               {FORMATIONMETADATA.euros}
             </span>
@@ -80,7 +80,7 @@ export function ParrainageBanner({ isMobile = false }: ParrainageBannerProps) {
               xmlns="http://www.w3.org/2000/svg"
               className={`${
                 isMobile ? "h-6 w-6" : "h-8 w-8"
-              } text-white hover:text-yellow-300 transition-transform transform hover:translate-x-1 drop-shadow-md`}
+              } text-white hover:text-wizi-accent transition-transform transform hover:translate-x-1 drop-shadow-md`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -95,7 +95,7 @@ export function ParrainageBanner({ isMobile = false }: ParrainageBannerProps) {
         </div>
         <button
           onClick={handleCloseBanner}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-white hover:text-yellow-300 transition">
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-white hover:text-wizi-accent transition">
           <X className={isMobile ? "h-5 w-5" : "h-6 w-6"} />
         </button>
       </div>

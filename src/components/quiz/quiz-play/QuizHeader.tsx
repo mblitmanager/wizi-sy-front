@@ -42,7 +42,7 @@ export function QuizHeader({
       difficultyLevel === "intermédiaire" ||
       difficultyLevel === "intermediaire"
     ) {
-      return "bg-yellow-500 hover:bg-yellow-600";
+  return "bg-wizi-accent";
     } else if (difficultyLevel === "avancé" || difficultyLevel === "avance") {
       return "bg-red-500 hover:bg-red-600";
     }

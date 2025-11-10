@@ -81,15 +81,15 @@ export function MobileNav() {
               className={cn(
                 "group flex flex-col items-center gap-0.5 p-1 relative transition-all duration-200",
                 (isActive) &&
-                  "z-10 mt-0!p-2 text-yellow-700"
+                  "z-10 mt-0!p-2 text-wizi-muted"
               )}>
               <span className="relative flex items-center justify-center">
                 <item.icon
                   className={cn(
                     "transition-all",
                     isActive 
-                      ? "h-6 w-6 text-yellow-500 drop-shadow-lg"
-                      : "h-5 w-5 text-muted-foreground group-hover:text-yellow-500 group-hover:h-7 group-hover:w-7"
+                      ? "h-6 w-6 text-wizi-accent drop-shadow-lg"
+                      : "h-5 w-5 text-muted-foreground group-hover:text-wizi-accent group-hover:h-7 group-hover:w-7"
                   )}
                 />
                 {item.badge !== undefined && (
@@ -104,8 +104,8 @@ export function MobileNav() {
                 className={cn(
                   "text-[12px] font-bold transition-all",
                   isActive 
-                    ? "text-yellow-700"
-                    : "text-muted-foreground group-hover:text-yellow-700"
+                    ? "text-wizi-muted"
+                    : "text-muted-foreground group-hover:text-wizi-muted"
                 )}>
                 {item.label}
               </span>

@@ -76,7 +76,7 @@ export function Flashcard({ question, onAnswer, showFeedback = false }: Flashcar
           {question.text}
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1 text-yellow-500">
+          <div className="flex items-center gap-1 text-wizi-accent">
             <Sparkles className="h-5 w-5" />
             <span className="font-bold">{points}</span>
           </div>

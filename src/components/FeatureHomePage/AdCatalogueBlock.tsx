@@ -295,7 +295,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                         "FORMATION"}
                     </span>
                     {formation.certification && (
-                      <div className="top-4 right-4 bg-yellow-400 text-amber-800 text-xs font-bold px-3 py-1 rounded-full z-10">
+                      <div className="top-4 right-4 badge-wizi text-xs font-bold px-3 py-1 rounded-full z-10">
                         {formation.certification}
                       </div>
                     )}

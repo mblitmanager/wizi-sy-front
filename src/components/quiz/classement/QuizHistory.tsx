@@ -51,7 +51,7 @@ const CATEGORY_STYLES = {
 
 const SCORE_COLORS = {
   high: "text-green-600",
-  medium: "text-yellow-600",
+  medium: "text-wizi-accent",
   low: "text-red-600",
 };
 

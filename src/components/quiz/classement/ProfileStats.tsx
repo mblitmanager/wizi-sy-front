@@ -52,10 +52,10 @@ export function ProfileStats({
   }
 
   return (
-    <div className="container mx-auto mb-4 p-3 sm:p-4 bg-gradient-to-br from-yellow-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 rounded-lg ring-1 ring-gray-100 dark:ring-0">
+    <div className="container mx-auto mb-4 p-3 sm:p-4 bg-wizi-muted rounded-lg ring-1 ring-gray-100 dark:ring-0">
       {/* Titre */}
       <div className="mb-3 text-center md:text-left">
-        <h3 className="text-2xl font-extrabold text-brown-shade dark:text-yellow-400 flex items-center gap-2 justify-center md:justify-start">
+  <h3 className="text-2xl font-extrabold text-brown-shade dark:text-wizi-muted flex items-center gap-2 justify-center md:justify-start">
           <Trophy size={32} className="mr-1" />
           Mes statistiques
         </h3>
@@ -69,11 +69,11 @@ export function ProfileStats({
             icon: (
               <TrendingUp
                 size={32}
-                className="text-yellow-500 animate-bounce"
+                className="text-wizi-accent animate-bounce"
               />
             ), // icône animée
             value: stats.totalScore || 0,
-            bg: "bg-yellow-100 dark:bg-yellow-900",
+            bg: "bg-wizi-muted dark:bg-gray-900",
           },
           {
             label: "Quiz complétés",
@@ -115,7 +115,7 @@ export function ProfileStats({
       </div>
       {/* Message motivation */}
       <div className="mt-5 text-center">
-        <span className="inline-block bg-orange-100 dark:bg-yellow-900 text-orange-700 dark:text-yellow-300 px-4 py-2 rounded-full font-semibold shadow-sm animate-bounce-slow">
+  <span className="inline-block bg-orange-100 dark:bg-gray-900 text-orange-700 dark:text-wizi-muted px-4 py-2 rounded-full font-semibold shadow-sm animate-bounce-slow">
           Continue comme ça, chaque quiz te rapproche du sommet ! 🚀
         </span>
       </div>

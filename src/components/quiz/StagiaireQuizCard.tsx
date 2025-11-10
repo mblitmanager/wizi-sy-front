@@ -33,7 +33,7 @@ const getLevelBackgroundColor = (level: string) => {
       return "bg-blue-100 text-blue-800";
     case "avancé":
     case "super quiz":
-      return "bg-yellow-100 text-yellow-800";
+  return "bg-wizi-muted text-wizi-muted";
     default:
       return "";
   }

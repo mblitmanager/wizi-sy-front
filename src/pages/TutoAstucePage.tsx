@@ -396,7 +396,7 @@ export default function TutoAstucePage() {
                 </select>
                 <button
                   onClick={() => refetch()}
-                  className="px-2 py-2 bg-yellow-400 text-white flex items-center justify-center text-sm rounded-full"
+                  className="px-2 py-2 bg-wizi-accent text-white flex items-center justify-center text-sm rounded-full"
                   title="Rafraîchir">
                   <RefreshCw
                     className={`w-5 h-5 ${isFetching ? "animate-spin" : ""}`}

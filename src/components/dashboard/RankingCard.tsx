@@ -71,7 +71,7 @@ export function RankingCard() {
                       <span
                         className={cn(
                           "flex items-center justify-center w-6 h-6 rounded-full text-white font-semibold",
-                          item.rang === 1 && "bg-yellow-500",
+                          item.rang === 1 && "bg-wizi-accent",
                           item.rang === 2 && "bg-gray-400",
                           item.rang === 3 && "bg-amber-600"
                         )}>

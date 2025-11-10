@@ -99,7 +99,7 @@ const ContactsSection = () => {
     const bgColors = {
       commerciaux: "bg-blue-50",
       formateurs: "bg-green-50",
-      "pole-relation": "bg-yellow-50",
+      "pole-relation": "bg-wizi-muted",
       "pole-sav": "bg-purple-50",
     };
 

@@ -591,11 +591,11 @@ useEffect(() => {
         {/* Présentation interactive de la plateforme */}
         {!hidePresentationBlock && isTablet && (
           <div
-            className="group relative bg-gradient-to-br from-yellow-50 via-white to-orange-50 rounded-xl shadow-lg border border-yellow-200 p-6 pb-16 mb-6 transition-transform duration-300 hover:scale-105"
+            className="group relative bg-wizi-muted rounded-xl shadow-lg border border-yellow-200 p-6 pb-16 mb-6 transition-transform duration-300 hover:scale-105"
             aria-label="Découvrir la plateforme Wizi Learn">
             {/* Bouton X pour fermer */}
             <button
-              className="absolute top-3 right-3 text-yellow-700 hover:text-yellow-900 text-xl bg-transparent border-none p-0 z-10"
+              className="absolute top-3 right-3 text-wizi-muted hover:text-wizi-muted text-xl bg-transparent border-none p-0 z-10"
               onClick={(e) => {
                 e.stopPropagation();
                 setHidePresentationBlock(true);
@@ -628,17 +628,17 @@ useEffect(() => {
         )}
         {showInstallHint && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 animate-fade-in">
-            <div className="bg-white border-l-4 border-yellow-400 rounded shadow-xl max-w-md w-full p-6 relative">
+            <div className="bg-white border-l-4 border-yellow-200 rounded shadow-xl max-w-md w-full p-6 relative">
               <button
-                className="absolute top-2 right-2 text-yellow-700 hover:text-yellow-900 text-lg"
+                className="absolute top-2 right-2 text-wizi-muted hover:text-wizi-muted text-lg"
                 onClick={() => setShowInstallHint(false)}
                 aria-label="Fermer">
                 ×
               </button>
-              <h3 className="text-lg font-bold text-yellow-800 mb-2">
+              <h3 className="text-lg font-bold text-wizi-muted mb-2">
                 Comment installer l'application Android ?
               </h3>
-              <div className="text-sm text-yellow-900">
+              <div className="text-sm text-wizi-muted">
                 <strong>Astuce :</strong> Pour installer l'application, il se
                 peut que votre téléphone affiche un message "Installation
                 bloquée" ou "Source inconnue".
@@ -660,7 +660,7 @@ useEffect(() => {
                   </li>
                   <li>Revenez à l'installation et validez.</li>
                 </ul>
-                <span className="text-xs text-yellow-700">
+                <span className="text-xs text-wizi-muted">
                   L'application est sûre et ne collecte aucune donnée
                   personnelle en dehors de votre usage sur Wizi Learn.
                 </span>
@@ -721,7 +721,7 @@ useEffect(() => {
         )}
         <HowToPlay />
                 {filteredQuizzes.length > 0 && (
-          <Card className="border-yellow-100">
+          <Card className="border-yellow-200">
             <CardContent className="p-3 md:p-6">
               <div className="flex items-center mb-2 md:mb-3">
                 <h2 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-600">
@@ -748,7 +748,7 @@ useEffect(() => {
         
         {isLoadingCatalogue ? (
           <div className="flex justify-center items-center py-16">
-            <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-yellow-400 border-solid"></div>
+            <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-wizi-accent border-solid"></div>
           </div>
         ) : filteredFormations.length > 0 ? (
           <>
@@ -798,7 +798,7 @@ useEffect(() => {
         {showApkBlock &&
           (isIOS ? (
             <div
-              className="group relative  rounded-xl shadow-lg border border-yellow-500/30 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105"
+              className="group relative  rounded-xl shadow-lg border border-yellow-200/30 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105"
               aria-label="Télécharger l'application iOS sur l'App Store">
               <button
                 className="absolute top-3 right-3 text-gray-500 hover:text-white text-xl bg-transparent border-none p-0 z-10"
@@ -826,7 +826,7 @@ useEffect(() => {
               <p className="text-gray-400 text-s mb-3">
                 Accédez à Wizi Learn partout grâce à notre application iOS.
               </p>
-              <button className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-yellow-400 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-orange-700 transition-colors">
+              <button className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-wizi-accent text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-orange-700 transition-colors">
                 Télécharger
               </button>
             </div>
@@ -844,7 +844,7 @@ useEffect(() => {
                 ×
               </button>
               <div className="flex items-center gap-3 mb-2">
-                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-yellow-400/10 text-orange-400 group-hover:bg-orange-500/20 transition-colors">
+                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-wizi-accent text-wizi-accent group-hover:opacity-90 transition-colors">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -869,7 +869,7 @@ useEffect(() => {
                 et suivez les instructions d'installation.
               </p>
               <button
-                className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-yellow-400 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-orange-700 transition-colors"
+                className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-wizi-accent text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-orange-700 transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
                   window.open(

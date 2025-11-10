@@ -124,7 +124,7 @@ export function GlobalRanking({
               <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
                 {formateur.prenom} {formateur.nom.toUpperCase()}
               </span>
-              {index === 0 && <Crown className="h-3 w-3 text-yellow-500" />}
+              {index === 0 && <Crown className="h-3 w-3 text-wizi-accent" />}
             </div>
           ))}
         </div>
@@ -188,7 +188,7 @@ export function GlobalRanking({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-              <Trophy className="h-6 w-6 text-yellow-500" />
+              <Trophy className="h-6 w-6 text-wizi-accent" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
@@ -263,7 +263,7 @@ export function GlobalRanking({
                   <div
                     className={`w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg border-2 ${
                       i === 1
-                        ? "border-yellow-400"
+                        ? "border-yellow-200"
                         : i === 0
                         ? "border-gray-300"
                         : "border-orange-400"
@@ -298,7 +298,7 @@ export function GlobalRanking({
                           {entry.name.toUpperCase() || ""}
                         </h3>
                         <div className="flex items-center gap-1 mt-1">
-                          <Star className="h-4 w-4 text-yellow-500" />
+                          <Star className="h-4 w-4 text-wizi-accent" />
                           <span className="font-bold text-orange-600">
                             {entry.score} pts
                           </span>
@@ -491,7 +491,7 @@ export function GlobalRanking({
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center gap-2">
-                              <Star className="h-4 w-4 text-yellow-500" />
+                              <Star className="h-4 w-4 text-wizi-accent" />
                               <span className="font-bold text-orange-600 dark:text-orange-400">
                                 {entry.score}
                               </span>

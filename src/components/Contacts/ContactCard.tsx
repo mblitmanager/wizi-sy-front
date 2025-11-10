@@ -16,7 +16,7 @@ const roleStyles: Record<string, string> = {
   conseillere: "bg-blue-100 text-blue-800",
   formateur: "bg-green-100 text-green-800",
   formatrice: "bg-green-100 text-green-800",
-  pole_relation_client: "bg-yellow-400 text-yellow-00",
+  pole_relation_client: "bg-wizi-muted text-wizi-muted",
   "Pôle SAV": "bg-purple-100 text-purple-800",
   pole_sav: "bg-purple-100 text-purple-800",
   autre: "bg-gray-100 text-gray-800",

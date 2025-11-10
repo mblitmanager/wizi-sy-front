@@ -262,10 +262,10 @@ export default function CatalogueFormationDetails() {
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         <div className="flex items-center justify-between mb-6">
-           <h2 className="relative inline-block text-3xl md:text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 drop-shadow-md">
+           <h2 className="relative inline-block text-3xl md:text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-amber-500 to-wizi-accent drop-shadow-md">
       <span className="relative z-10 text-orange-400">{details.catalogueFormation.titre}</span>
       {/* petite barre décorative en dessous */}
-      <span className="absolute left-1/2 -bottom-2 h-1 w-16 -translate-x-1/2 rounded-full bg-gradient-to-r from-orange-400 to-yellow-400"></span>
+  <span className="absolute left-1/2 -bottom-2 h-1 w-16 -translate-x-1/2 rounded-full bg-gradient-to-r from-orange-400 to-wizi-accent"></span>
     </h2>
           <Button onClick={() => window.history.back()}>{RETOUR}</Button>
         </div>
@@ -589,7 +589,7 @@ const InscriptionSection = ({
         "S'inscrire à la formation"
       )}
     </Button>
-    {success && <div className="text-yellow-600 mt-2 text-sm">{success}</div>}
+  {success && <div className="text-wizi-muted mt-2 text-sm">{success}</div>}
     {error && <div className="text-red-600 mt-2 text-sm">{error}</div>}
   </div>
 );

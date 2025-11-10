@@ -16,8 +16,8 @@ function getLevelConfig(level: string | undefined) {
     case "avancé":
     case "super quiz":
       return {
-        bgClass: "bg-yellow-100",
-        textClass: "text-yellow-800",
+  bgClass: "bg-wizi-muted",
+  textClass: "text-wizi-muted",
       };
     default:
       return {

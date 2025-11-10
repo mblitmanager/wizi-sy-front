@@ -71,7 +71,7 @@ const RankingComponent: React.FC<RankingComponentProps> = ({ rankings }) => {
                     }>
                     <TableCell className="relative text-center">
                       {entry.rang === 1 && (
-                        <Trophy className="h-5 w-5 text-yellow-500 inline-block" />
+                        <Trophy className="h-5 w-5 text-wizi-accent inline-block" />
                       )}
                       {entry.rang === 2 && (
                         <Medal className="h-5 w-5 text-gray-400 inline-block" />

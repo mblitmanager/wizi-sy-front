@@ -71,7 +71,7 @@ export default function LienParrainage() {
       <Button
         onClick={generateLink}
         disabled={isLoading}
-        className="w-full border-2 border-yellow-shade bg-transparent hover:bg-yellow-shade-1 text-black">
+  className="w-full border-2 border-yellow-200 bg-transparent hover:bg-wizi-accent text-black">
         <LinkIcon className="h-4 w-4 mr-2" />
         {isLoading ? "Génération..." : "Générer mon lien de parrainage"}
       </Button>
