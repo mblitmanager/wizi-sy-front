@@ -1,5 +1,5 @@
 import React from "react";
-import { Timer, Trophy, HelpCircle, Home } from "lucide-react";
+import { Timer, Trophy, HelpCircle, Home, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,11 @@ export function QuizHeader({
   const navigate = useNavigate();
 
   const goHome = () => {
-    navigate('/');
+    navigate("/");
+  };
+
+  const quitQuiz = () => {
+    navigate("/quizzes");
   };
 
   // Get level badge color based on difficulty
@@ -55,7 +59,11 @@ export function QuizHeader({
       {/* Mobile: only show title and points, hide badges and most buttons */}
       <div className="flex items-center justify-between md:hidden">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={goHome} className="h-8 w-8">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={goHome}
+            className="h-8 w-8">
             <Home className="h-4 w-4" />
           </Button>
           <h1 className="text-base font-semibold">{title}</h1>
@@ -64,37 +72,41 @@ export function QuizHeader({
           <Button
             variant="ghost"
             size="icon"
-            onClick={onToggleHint}
+            onClick={quitQuiz}
             className="h-8 w-8"
-            aria-label="Afficher l'aide"
-          >
-            <HelpCircle className="h-4 w-4" />
+            aria-label="Quitter le quiz">
+            <X className="h-4 w-4" />
           </Button>
-        </div>
-      </div>
-      {/* <div className="flex items-center gap-2 md:hidden">
-        <Badge variant="outline" className="flex items-center gap-1">
-          <Trophy className="h-3 w-3" />
-          {points} pts
-        </Badge>
-      </div> */}
-
-      {/* Desktop: full header */}
-      <div className="hidden md:flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={goHome} className="h-9 w-9">
-            <Home className="h-4 w-4" />
-          </Button>
-          <h1 className="text-xl font-semibold">{title}</h1>
-        </div>
-        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="icon"
             onClick={onToggleHint}
             className="h-8 w-8"
-            aria-label="Afficher l'aide"
-          >
+            aria-label="Afficher l'aide">
+            <HelpCircle className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Desktop: full header */}
+      <div className="hidden md:flex items-center justify-between bg-slate-200 border border-slate-300 rounded-lg px-4 py-2">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={goHome}
+            className="h-9 w-9">
+            <Home className="h-4 w-4" />
+          </Button>
+          <h1 className="text-xl font-semibold">{title}</h1>
+        </div>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggleHint}
+            className="h-8 w-8"
+            aria-label="Afficher l'aide">
             <HelpCircle className="h-4 w-4" />
           </Button>
           <Button
@@ -102,8 +114,7 @@ export function QuizHeader({
             size="icon"
             onClick={onToggleHistory}
             className="h-8 w-8"
-            aria-label="Historique"
-          >
+            aria-label="Historique">
             <Trophy className="h-4 w-4" />
           </Button>
           <Button
@@ -111,9 +122,18 @@ export function QuizHeader({
             size="icon"
             onClick={onToggleStats}
             className="h-8 w-8"
-            aria-label="Temps"
-          >
+            aria-label="Temps">
             <Timer className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={quitQuiz}
+            className="h-8 w-auto px-2"
+            aria-label="Quitter le quiz">
+            <span> Quitter</span>
+
+            <X className="h-4 w-4" />
           </Button>
         </div>
       </div>

@@ -6,7 +6,6 @@ export interface FormationFormateur {
   image: string | null;
 }
 
-
 export interface FormationPivot {
   stagiaire_id: number;
   catalogue_formation_id: number;
@@ -58,22 +57,26 @@ export interface Formation {
   formateur: FormationFormateur | null;
 }
 
+// types/Formation.ts
 export interface FormationCardData {
   id: number;
   titre: string;
   description: string;
-  prerequis: string;
-  image_url: string;
-  cursus_pdf: string;
-  tarif: string;
   certification: string;
-  statut: number;
-  duree: string;
-  formation_id: number;
-  deleted_at: string | null;
+  categorie?: string;
+  categoryId?: string;
+  image: string;
+  image_url?: string; // Ajouter cette propriété optionnelle
+  statut: number | string; // Accepter les deux types
+  duree: string | number; // Accepter les deux types
+  tarif: string | number; // Accepter les deux types
   created_at: string;
   updated_at: string;
-  formation: Formation;
+  cursus_pdf?: string;
+  deleted_at?: string | null;
+  prerequis?: string;
+  formation_id?: number; // Pour CatalogueFormation
+  formation?: Formation; // Pour les données imbriquées
 }
 
 export interface Category {

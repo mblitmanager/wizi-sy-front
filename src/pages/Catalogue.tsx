@@ -177,7 +177,9 @@ export default function Catalogue() {
                           onClick={() => {
                             setSelectedCategory(category.name);
                           }}>
-                          <span className="hidden sm:inline">Explorer</span>
+                          <span className="hidden sm:inline">
+                            Voir les formations
+                          </span>
                           <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 sm:ml-1 group-hover:translate-x-1 transition-transform" />
                         </Button>
                       </div>

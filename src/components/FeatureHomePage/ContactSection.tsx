@@ -38,10 +38,14 @@ const ContactSection = ({
       // Fusionne tous les contacts dans un seul tableau pour l'affichage
       // Prendre un seul contact par groupe (si présent)
       const allContacts: Contact[] = [];
-      if (data.formateurs && data.formateurs.length > 0) allContacts.push(data.formateurs[0]);
-      if (data.commerciaux && data.commerciaux.length > 0) allContacts.push(data.commerciaux[0]);
-      if (data.pole_relation && data.pole_relation.length > 0) allContacts.push(data.pole_relation[0]);
-      if (data.pole_sav && data.pole_sav.length > 0) allContacts.push(data.pole_sav[0]);
+      if (data.formateurs && data.formateurs.length > 0)
+        allContacts.push(data.formateurs[0]);
+      if (data.commerciaux && data.commerciaux.length > 0)
+        allContacts.push(data.commerciaux[0]);
+      if (data.pole_relation && data.pole_relation.length > 0)
+        allContacts.push(data.pole_relation[0]);
+      if (data.pole_sav && data.pole_sav.length > 0)
+        allContacts.push(data.pole_sav[0]);
       return allContacts;
     },
     staleTime: 5 * 60 * 1000,
@@ -80,7 +84,7 @@ const ContactSection = ({
   // NOTE: `getContactsInOrder` removed — we directly render the contacts returned
   // from the query (which are already limited to one per group in queryFn).
   return (
-    <div className="py-6 mt-2">
+    <div>
       <div className="">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-600">
@@ -110,9 +114,12 @@ const ContactSection = ({
             Aucun contact disponible.
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {(contacts || []).map((contact) => (
-              <ContactCard key={`${contact.role}-${contact.id}`} contact={contact} />
+              <ContactCard
+                key={`${contact.role}-${contact.id}`}
+                contact={contact}
+              />
             ))}
           </div>
         )}

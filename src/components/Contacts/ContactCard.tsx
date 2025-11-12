@@ -1,204 +1,415 @@
-import { Mail, Phone, User } from "lucide-react";
+import { Mail, Phone, User, School, ArrowRight } from "lucide-react";
 import { Contact } from "@/types/contact";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+// Palette de couleurs Flutter harmonieuse
+const colors = {
+  primaryBlue: "#3D9BE9",
+  primaryBlueLight: "#E8F4FE",
+  primaryBlueDark: "#2A7BC8",
+
+  successGreen: "#ABDA96",
+  successGreenLight: "#F0F9ED",
+  successGreenDark: "#7BBF5E",
+
+  accentPurple: "#9392BE",
+  accentPurpleLight: "#F5F4FF",
+  accentPurpleDark: "#6A6896",
+
+  warningOrange: "#FFC533",
+  warningOrangeLight: "#FFF8E8",
+  warningOrangeDark: "#E6A400",
+
+  errorRed: "#A55E6E",
+  errorRedLight: "#FBEAED",
+  errorRedDark: "#8C4454",
+
+  neutralWhite: "#FFFFFF",
+  neutralGrey: "#F8F9FA",
+  neutralGreyDark: "#6C757D",
+  neutralBlack: "#212529",
+};
 
 interface ContactCardProps {
   contact: Contact;
+  showFormations?: boolean;
 }
 
-// Mapping des styles par rôle
-const roleStyles: Record<string, string> = {
-  commerciale: "bg-blue-100 text-blue-800",
-  commercial: "bg-blue-100 text-blue-800",
-  conseiller: "bg-blue-100 text-blue-800",
-  conseillere: "bg-blue-100 text-blue-800",
-  formateur: "bg-green-100 text-green-800",
-  formatrice: "bg-green-100 text-green-800",
-  pole_relation_client: "bg-yellow-400 text-yellow-00",
-  "Pôle SAV": "bg-purple-100 text-purple-800",
-  pole_sav: "bg-purple-100 text-purple-800",
-  autre: "bg-gray-100 text-gray-800",
+// Mapping des couleurs par rôle
+const roleColors: Record<string, { main: string; light: string }> = {
+  formateur: { main: colors.primaryBlue, light: colors.primaryBlueLight },
+  formatrice: { main: colors.primaryBlue, light: colors.primaryBlueLight },
+  commercial: { main: colors.successGreen, light: colors.successGreenLight },
+  commerciale: { main: colors.successGreen, light: colors.successGreenLight },
+  pole_sav: { main: colors.warningOrange, light: colors.warningOrangeLight },
+  "pôle sav": { main: colors.warningOrange, light: colors.warningOrangeLight },
+  pole_relation_client: {
+    main: colors.accentPurple,
+    light: colors.accentPurpleLight,
+  },
+  "pôle relation client": {
+    main: colors.accentPurple,
+    light: colors.accentPurpleLight,
+  },
+  autre: { main: colors.neutralGreyDark, light: colors.neutralGrey },
 };
 
 // Mapping des noms d'affichage par rôle
 const roleDisplayNames: Record<string, string> = {
   formateur: "Formateur",
-  commerciale: "Commercial",
+  formatrice: "Formatrice",
+  commercial: "Commercial",
+  commerciale: "Commerciale",
+  pole_sav: "Pôle SAV",
+  "pôle sav": "Pôle SAV",
   pole_relation_client: "Pôle Relation Client",
-  // "Pôle SAV": ("Pôle SAV" ||'Chargée Administration des Ventes' || 'Responsable suivi formation & SAV & Parrainage'),
-  pole_sav: [
-    "Pôle SAV",
-    "Chargée Administration des Ventes",
-    "Responsable suivi formation & SAV & Parrainage",
-  ],
-    autre: "Autre",
+  "pôle relation client": "Pôle Relation Client",
+  autre: "Contact",
 };
 
-export const ContactCard = ({ contact }: ContactCardProps) => {
+export const ContactCard = ({
+  contact,
+  showFormations = true,
+}: ContactCardProps) => {
   // Fonction pour déterminer le titre du poste avec civilité
-  // Dans votre ContactCard existant, vérifiez que cette partie gère bien "Pôle SAV" :
-  const getJobTitleWithCivility = (contact: Contact) => {
-    // Utiliser le rôle s'il est disponible, sinon le type
-    const role = contact.role || contact.type;
-    const { civilite } = contact;
+  const getJobTitleWithCivility = () => {
+    const role = (contact.role || contact.type || "").toLowerCase();
+    const civilite = contact.civilite?.toLowerCase().replace(".", "") || "";
 
-    if (!civilite) {
+    const feminineRoles = ["formatrice", "commerciale"];
+    const masculineRoles = ["formateur", "commercial"];
+
+    // Si le rôle est déjà genré, le garder tel quel
+    if (feminineRoles.includes(role) || masculineRoles.includes(role)) {
       return roleDisplayNames[role] || role;
     }
 
-    // Nettoyer la civilité (enlever le point si présent)
-    const cleanCivilite = civilite.replace(".", "");
-
-    switch (role) {
-      case "formateur":
-        if (cleanCivilite === "M") {
-          return "Formateur";
-        } else if (cleanCivilite === "Mme" || cleanCivilite === "Mlle") {
-          return "Formatrice";
-        }
-        return "Formateur/Formatrice";
-
-      case "commerciale":
-        if (cleanCivilite === "M") {
-          return "Commercial";
-        } else if (cleanCivilite === "Mme" || cleanCivilite === "Mlle") {
-          return "Commerciale";
-        }
-        return "Commercial(e)";
-
-      case "pole_relation_client":
-        return "Pôle Relation Client";
-
-      case "Pôle SAV": // Ajout explicite
-      case "pole_sav": // Format alternatif
-        return "Pôle SAV";
-
-      default:
-        return roleDisplayNames[role] || role;
+    // Sinon, genrer selon la civilité
+    if (civilite === "mme" || civilite === "mlle") {
+      if (role === "formateur") return "Formatrice";
+      if (role === "commercial") return "Commerciale";
     }
+
+    return roleDisplayNames[role] || role;
   };
 
-  // Get name from either name field or combine nom/prenom
-  const displayName =
-    contact.name ||
-    `${contact.prenom || ""} ${contact.nom || ""}`.trim() ||
-    "Nom inconnu";
-
-  // Format du nom avec civilité si disponible
+  // Format du nom avec civilité
   const getFormattedName = () => {
     const prenom = contact.prenom || "";
     const nom = contact.nom ? contact.nom.toUpperCase() : "";
+    const civilite = contact.civilite || "";
+
+    if (civilite && (prenom || nom)) {
+      return `${civilite} ${prenom} ${nom}`.trim();
+    }
 
     if (prenom || nom) {
-      if (contact.civilite) {
-        return `${contact.civilite} ${prenom} ${nom}`.trim();
-      }
       return `${prenom} ${nom}`.trim();
     }
 
-    if (contact.name) {
-      return contact.name.toUpperCase();
-    }
-    
-    return "Nom inconnu";
+    return contact.name || "Nom inconnu";
   };
 
-  // Get initials for avatar fallback
+  // Initiales pour l'avatar
   const getInitials = () => {
     if (contact.prenom || contact.nom) {
       const prenomInitial = contact.prenom
         ? contact.prenom.charAt(0).toUpperCase()
         : "";
       const nomInitial = contact.nom ? contact.nom.charAt(0).toUpperCase() : "";
-      return `${nomInitial}${prenomInitial}`;
+      return `${prenomInitial}${nomInitial}`;
     }
+    return contact.name ? contact.name.charAt(0).toUpperCase() : "?";
+  };
 
-    if (contact.name) {
-      const parts = contact.name.split(" ").filter((part) => part.length > 0);
-      if (parts.length === 0) return "?";
-      if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-      return (
-        parts[0].charAt(0) + parts[parts.length - 1].charAt(0)
-      ).toUpperCase();
-    }
+  // Couleur du rôle
+  const getRoleColor = () => {
+    const role = (contact.role || contact.type || "autre").toLowerCase();
+    return roleColors[role] || roleColors.autre;
+  };
 
-    return "?";
+  // Vérifier si c'est un formateur
+  const isFormateur = () => {
+    const role = (contact.role || contact.type || "").toLowerCase();
+    return role.includes("formateur") || role.includes("formatrice");
+  };
+
+  // Formater les dates de formation
+  const formatFormationDates = (dateDebut?: string, dateFin?: string) => {
+    if (!dateDebut && !dateFin) return "";
+
+    const formatDate = (date: string) => {
+      try {
+        const d = new Date(date);
+        return `${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1)
+          .toString()
+          .padStart(2, "0")}/${d.getFullYear()}`;
+      } catch {
+        return date;
+      }
+    };
+
+    const debut = dateDebut ? formatDate(dateDebut) : "";
+    const fin = dateFin ? formatDate(dateFin) : "";
+
+    if (debut && fin) return `${debut} - ${fin}`;
+    if (debut) return `Début: ${debut}`;
+    if (fin) return `Fin: ${fin}`;
+    return "";
   };
 
   const formattedName = getFormattedName();
-  const jobTitle = getJobTitleWithCivility(contact);
-  // Utiliser le rôle en priorité, sinon le type pour la compatibilité
-  const contactRole = contact.role || contact.type;
+  const jobTitle = getJobTitleWithCivility();
+  const roleColor = getRoleColor();
+  const formations = contact.formations || contact.formation || [];
 
   return (
-    <div
-      key={contact.id}
-      className="bg-white shadow-md rounded-2xl p-5 border hover:shadow-lg transition">
-      <div className="flex items-center mb-4">
-        {contact.image && contact.image !== "/images/default-avatar.png" ? (
-          <img
-            src={`${import.meta.env.VITE_API_URL_MEDIA}/${contact.image}`}
-            alt={formattedName}
-            className="w-12 h-12 rounded-full object-cover mr-4"
-          />
-        ) : (
-          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4 text-gray-600 font-semibold text-sm">
-            {getInitials()}
-          </div>
-        )}
-        <div>
-          <h2 className="text-lg font-semibold text-gray-800">
-            {contact.prenom ? `${contact.prenom} ` : ""}{contact.nom ? contact.nom.toUpperCase() : contact.name.toUpperCase()}  
-          </h2>
-          <span
-            className={`text-xs px-2 py-1 rounded-full font-medium ${
-              roleStyles[contactRole] || roleStyles.autre
-            }`}>
-            {jobTitle}
-          </span>
-        </div>
-      </div>
+    <TooltipProvider>
+      <Card className="bg-white dark:bg-gray-800 rounded-2xl border-0 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
+        <div
+          className="p-4 md:p-6"
+          style={{
+            background: `linear-gradient(135deg, ${colors.neutralWhite} 0%, ${colors.neutralGrey} 100%)`,
+          }}>
+          <div className="flex items-start justify-between">
+            {/* Section avatar et informations */}
+            <div className="flex items-start space-x-3 flex-1 min-w-0">
+              {/* Avatar avec badge de rôle */}
+              <div className="relative">
+                <div
+                  className="relative rounded-full p-0.5"
+                  style={{
+                    background: `linear-gradient(135deg, ${roleColor.main}, ${roleColor.main}dd)`,
+                    boxShadow: `0 4px 12px ${roleColor.main}40`,
+                  }}>
+                  {contact.image &&
+                  contact.image !== "/images/default-avatar.png" ? (
+                    <Avatar className="w-12 h-12 md:w-14 md:h-14 border-2 border-white">
+                      <AvatarImage
+                        src={`${import.meta.env.VITE_API_URL_MEDIA}/${
+                          contact.image
+                        }`}
+                        alt={formattedName}
+                      />
+                      <AvatarFallback
+                        className="text-white font-semibold"
+                        style={{ backgroundColor: roleColor.main }}>
+                        {getInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    <Avatar
+                      className="w-12 h-12 md:w-14 md:h-14 border-2 border-white"
+                      style={{ backgroundColor: roleColor.main }}>
+                      <AvatarFallback className="text-white font-semibold">
+                        {getInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                </div>
+              </div>
 
-      <div className="text-sm text-gray-600 space-y-1 mt-2">
-        <div className="flex items-center gap-2">
-          <Mail className="w-4 h-4" />
-          {contact.email ? (
-            <a
-              href={`mailto:${contact.email}?subject=Contact&body=Bonjour,`}
-              className="hover:underline text-blue-600 hover:text-blue-800">
-              Envoyer un email
-            </a>
-          ) : (
-            <span className="text-gray-400">Email non disponible</span>
+              {/* Informations du contact */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-base md:text-lg font-bold text-gray-900 dark:text-white truncate">
+                      {formattedName}
+                    </h3>
+                    <div className="mt-1">
+                      <Badge
+                        variant="secondary"
+                        className="text-xs font-semibold border-0"
+                        style={{
+                          backgroundColor: roleColor.light,
+                          color: roleColor.main,
+                        }}>
+                        {jobTitle}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {/* Boutons d'action version mobile */}
+                  <div className="flex space-x-1 md:hidden ml-2">
+                    {contact.email && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            size="sm"
+                            className="w-8 h-8 rounded-full p-0"
+                            style={{ backgroundColor: colors.successGreen }}
+                            onClick={() =>
+                              (window.location.href = `mailto:${contact.email}`)
+                            }>
+                            <Mail className="w-3 h-3 text-white" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Envoyer un email</TooltipContent>
+                      </Tooltip>
+                    )}
+                    {contact.telephone && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            size="sm"
+                            className="w-8 h-8 rounded-full p-0"
+                            style={{ backgroundColor: colors.primaryBlue }}
+                            onClick={() =>
+                              (window.location.href = `tel:${contact.telephone}`)
+                            }>
+                            <Phone className="w-3 h-3 text-white" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Appeler</TooltipContent>
+                      </Tooltip>
+                    )}
+                  </div>
+                </div>
+
+                {/* Coordonnées */}
+                <div className="mt-3 space-y-2">
+                  {/* Email */}
+                  <div className="flex items-center space-x-2">
+                    <Mail
+                      className="w-4 h-4"
+                      style={{ color: colors.neutralGreyDark }}
+                    />
+                    {contact.email ? (
+                      <a
+                        href={`mailto:${contact.email}`}
+                        className="text-sm text-blue-600 hover:text-blue-800 hover:underline truncate flex-1">
+                        {contact.email}
+                      </a>
+                    ) : (
+                      <span className="text-sm text-gray-400">
+                        Email non disponible
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Téléphone */}
+                  <div className="flex items-center space-x-2">
+                    <Phone
+                      className="w-4 h-4"
+                      style={{ color: colors.neutralGreyDark }}
+                    />
+                    {contact.telephone ? (
+                      <a
+                        href={`tel:${contact.telephone}`}
+                        className="text-sm text-blue-600 hover:text-blue-800 hover:underline">
+                        {contact.telephone}
+                      </a>
+                    ) : (
+                      <span className="text-sm text-gray-400">
+                        Non renseigné
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Boutons d'action version desktop */}
+            <div className="hidden md:flex flex-col space-y-2 ml-4">
+              {contact.email && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="sm"
+                      className="w-10 h-10 rounded-full p-0"
+                      style={{ backgroundColor: colors.successGreen }}
+                      onClick={() =>
+                        (window.location.href = `mailto:${contact.email}`)
+                      }>
+                      <Mail className="w-4 h-4 text-white" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Envoyer un email</TooltipContent>
+                </Tooltip>
+              )}
+              {contact.telephone && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="sm"
+                      className="w-10 h-10 rounded-full p-0"
+                      style={{ backgroundColor: colors.primaryBlue }}
+                      onClick={() =>
+                        (window.location.href = `tel:${contact.telephone}`)
+                      }>
+                      <Phone className="w-4 h-4 text-white" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Appeler</TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+          </div>
+
+          {/* Section Formations */}
+          {showFormations && isFormateur() && formations.length > 0 && (
+            <div
+              className="mt-4 p-3 rounded-xl border"
+              style={{
+                backgroundColor: colors.successGreenLight,
+                borderColor: colors.successGreen + "20",
+              }}>
+              <div className="flex items-center space-x-2 mb-2">
+                <School
+                  className="w-4 h-4"
+                  style={{ color: colors.successGreenDark }}
+                />
+                <span
+                  className="text-sm font-semibold"
+                  style={{ color: colors.successGreenDark }}>
+                  Formations
+                </span>
+              </div>
+
+              {formations.length > 1 ? (
+                <div className="flex items-center justify-between">
+                  <span
+                    className="text-sm"
+                    style={{ color: colors.neutralGreyDark }}>
+                    {formations.length} formations disponibles
+                  </span>
+                  <ArrowRight
+                    className="w-4 h-4"
+                    style={{ color: colors.successGreenDark }}
+                  />
+                </div>
+              ) : (
+                formations.slice(0, 1).map((formation, index) => (
+                  <div key={index} className="space-y-1">
+                    <div className="text-sm font-medium text-gray-900 line-clamp-1">
+                      {formation.titre || formation.title || formation.name}
+                    </div>
+                    {formation.dateDebut && (
+                      <div
+                        className="text-xs"
+                        style={{ color: colors.neutralGreyDark }}>
+                        {formatFormationDates(
+                          formation.dateDebut,
+                          formation.dateFin
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          <Phone className="w-4 h-4" />
-          {contact.telephone ? (
-            <a
-              href={`tel:${contact.telephone}`}
-              className="hover:underline text-blue-600 hover:text-blue-800">
-              {contact.telephone}
-            </a>
-          ) : (
-            <span className="text-gray-400">Non renseigné</span>
-          )}
-        </div>
-      </div>
-
-      {contactRole === 'formateur' && (contact.formations || contact.formation) && (
-        <div className="mt-4">
-          {(contact.formations || contact.formation)?.length > 1 && (<h3 className="text-sm font-medium text-gray-500 mb-2">Formations</h3>)}
-          
-          <div className="flex flex-wrap gap-2">
-            {(contact.formations || contact.formation)?.map((f) => (
-              <Badge key={f.id} variant="secondary">{f.titre || f.title || f.name}</Badge>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
+      </Card>
+    </TooltipProvider>
   );
 };
