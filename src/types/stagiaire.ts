@@ -10,10 +10,13 @@ export interface Formation {
   duree: string;
   created_at: string;
   updated_at: string;
+  cursus_pdf?: string;
   pivot?: {
     stagiaire_id: number;
     formation_id: number;
   };
+  deleted_at: string | null;
+  prerequis?: string;
   catalogue_formation?: CatalogueFormationWithFormation | CatalogueFormation;
 }
 
@@ -29,6 +32,8 @@ export interface CatalogueFormation {
   certification: string;
   formation_id: number;
   created_at: string;
+  deleted_at?: string | null;
+  prerequis?: string;
   updated_at: string;
   formation?: Formation;
 }

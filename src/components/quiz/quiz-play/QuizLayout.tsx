@@ -34,10 +34,11 @@ export const QuizLayout = ({
     style={{
       marginTop:
         typeof window !== "undefined" && window.innerWidth < 640
-          ? (window.innerWidth < 400 ? "-15%" : "-10%")
+          ? window.innerWidth < 400
+            ? "-15%"
+            : "-10%"
           : undefined,
-    }}
-  >
+    }}>
     <QuizHeader
       title={quiz.titre}
       timeLeft={timeLeft}

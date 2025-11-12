@@ -78,11 +78,14 @@ export function QuizSummary() {
     enabled: !!quizId && !resultFromState && !!localStorage.getItem("token"),
   });
 
+  // CORRECTION: Augmenter le temps de consultation à 40 secondes
+  const CONSULTATION_TIME = 40; // 40 secondes au lieu de 20
+
   useEffect(() => {
     if (!result) return;
     setTimeElapsed(0);
 
-    const totalTime = 20;
+    const totalTime = CONSULTATION_TIME;
     let currentTime = 0;
 
     const interval = setInterval(() => {
@@ -242,20 +245,29 @@ export function QuizSummary() {
 
   return (
     <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-2 space-y-6 sm:space-y-8">
+      {/* CORRECTION: Position améliorée pour mobile */}
       {result && !showCountdown && (
-        <div className="fixed bottom-4 right-4 z-40 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 p-3">
-          <div className="flex items-center gap-3">
+        <div
+          className="fixed z-40 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 p-3 
+          /* Position différente selon l'appareil */
+          bottom-20 right-4  /* Position pour mobile - au-dessus de la navbar */
+          sm:bottom-4 sm:right-4 /* Position pour desktop */
+          /* Taille adaptative */
+          w-20 h-20 sm:w-auto sm:h-auto">
+          <div className="flex items-center justify-center gap-2 sm:gap-3">
             <div className="text-center">
               <div className="text-lg font-bold text-green-600">
-                {30 - timeElapsed}
+                {CONSULTATION_TIME - timeElapsed}
               </div>
-              <div className="text-xs text-gray-500">secondes</div>
+              <div className="text-xs text-gray-500 hidden sm:block">
+                secondes
+              </div>
+              <div className="text-[10px] text-gray-500 sm:hidden">sec</div>
             </div>
 
-            <div className="w-12 h-12 relative">
-              {/* Cercle de progression */}
+            <div className="w-10 h-10 sm:w-12 sm:h-12 relative">
               <svg
-                className="w-12 h-12 transform -rotate-90"
+                className="w-10 h-10 sm:w-12 sm:h-12 transform -rotate-90"
                 viewBox="0 0 48 48">
                 <circle
                   cx="24"
@@ -273,7 +285,9 @@ export function QuizSummary() {
                   strokeWidth="3"
                   fill="none"
                   strokeDasharray="125.6"
-                  strokeDashoffset={125.6 - (timeElapsed / 20) * 125.6}
+                  strokeDashoffset={
+                    125.6 - (timeElapsed / CONSULTATION_TIME) * 125.6
+                  }
                   className="transition-all duration-1000"
                 />
               </svg>
@@ -281,6 +295,7 @@ export function QuizSummary() {
           </div>
         </div>
       )}
+
       {/* Section des statistiques principales */}
       <div className="">
         {/* Titre de section */}
@@ -407,7 +422,7 @@ export function QuizSummary() {
             Détail des réponses
           </h3>
           <span className="text-xs sm:text-sm opacity-90">
-            Revoyez chaque question et vos réponses
+            Revoyez chaque question et vos réponses (40s de consultation)
           </span>
         </div>
 

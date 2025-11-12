@@ -8,7 +8,6 @@ import apiClient from "@/lib/api-client";
 import { ContactCard } from "@/components/Contacts/ContactCard";
 import type { Contact } from "@/types/contact";
 
-
 const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_MEDIA;
 
 interface PartnerContact {
@@ -48,7 +47,7 @@ export default function Contact() {
           ...(data.formateurs || []),
           ...(data.commerciaux || []),
           ...(data.pole_relation || []),
-          ...(data.pole_sav || []), 
+          ...(data.pole_sav || []),
         ];
         setContacts(allContacts);
       } catch (error) {
@@ -279,15 +278,15 @@ export default function Contact() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {contacts.map((contact) => (
-              <ContactCard 
-                key={`${contact.role || contact.type}-${contact.id}`} 
-                contact={contact} 
+              <ContactCard
+                key={`${contact.role || contact.type}-${contact.id}`}
+                contact={contact}
               />
             ))}
           </div>
         )}
 
-        <div className="w-full flex flex-col items-center">
+        <div className="flex-1">
           <AdCatalogueBlock formations={filteredFormations.slice(0, 4)} />
         </div>
       </div>
