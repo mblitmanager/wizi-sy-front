@@ -53,20 +53,62 @@ export const RecentResults: React.FC<RecentResultsProps> = ({
       {displayResults.map((result) => {
         // Use appropriate property name depending on what's available
         const resultId = result.id || `quiz-result-${Math.random()}`;
-        const quizName = result.title || result.titre || result.quiz.title || result.quizTitle || "Quiz";
+
+        // Gestion robuste du nom du quiz avec plusieurs fallbacks
+        let quizName = "Quiz";
+        if (result.quizTitle) {
+          quizName = result.quizTitle;
+        } else if (result.quiz_name) {
+          quizName = result.quiz_name;
+        } else if (result.title) {
+          quizName = result.title;
+        } else if (result.titre) {
+          quizName = result.titre;
+        } else if (result.quiz?.title) {
+          quizName = result.quiz.title;
+        } else if (result.quiz?.titre) {
+          quizName = result.quiz.titre;
+        }
+
         const correctAnswers =
           result.correct_answers || result.correctAnswers || 0;
         const totalQuestions =
           result.total_questions || result.totalQuestions || 0;
 
+        // Calcul du pourcentage de réussite
+        const successRate =
+          totalQuestions > 0
+            ? Math.round((correctAnswers / totalQuestions) * 100)
+            : 0;
+
         // Date de complétion avec fallback
-        const completedAt =
-          result.completedAt || result.completed_at
-            ? format(new Date(result.completedAt || result.completed_at), "dd/MM/yyyy HH:mm", { locale: fr })
-            : "Date inconnue";
-        
+        let completedAt = "Date inconnue";
+        try {
+          const dateStr = result.completedAt || result.completed_at;
+          if (dateStr) {
+            completedAt = format(new Date(dateStr), "dd/MM/yyyy HH:mm", {
+              locale: fr,
+            });
+          }
+        } catch (error) {
+          console.warn(
+            "Invalid date format:",
+            result.completedAt || result.completed_at
+          );
+        }
+
+        // Score avec fallback - si le score n'est pas disponible, calculer à partir des bonnes réponses
+        const score =
+          result.score !== undefined
+            ? result.score
+            : totalQuestions > 0
+            ? Math.round((correctAnswers / totalQuestions) * 100)
+            : 0;
+
         return (
-          <Card key={resultId} className="w-full p-2.5 md:p-3 border border-gray-100">
+          <Card
+            key={resultId}
+            className="w-full p-2.5 md:p-3 border border-gray-100 hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start md:items-center">
               <div className="flex-1 min-w-0 mr-2">
                 <h4 className="font-medium text-xs md:text-sm font-nunito truncate">
@@ -75,14 +117,38 @@ export const RecentResults: React.FC<RecentResultsProps> = ({
                 <div className="text-[10px] md:text-xs text-gray-500 font-roboto mt-0.5">
                   {completedAt}
                 </div>
+                {/* Barre de progression visuelle */}
+                <div className="mt-1 w-full bg-gray-200 rounded-full h-1.5">
+                  <div
+                    className={`h-1.5 rounded-full ${
+                      successRate >= 80
+                        ? "bg-green-500"
+                        : successRate >= 60
+                        ? "bg-yellow-500"
+                        : "bg-red-500"
+                    }`}
+                    style={{ width: `${successRate}%` }}
+                  />
+                </div>
               </div>
               <div className="text-right flex-shrink-0">
                 <div className="text-xs md:text-sm font-medium font-nunito flex items-center justify-end">
-                  <Trophy className="h-3.5 w-3.5 md:h-4 md:w-4 text-wizi-accent mr-1" />
-                  {result.score} pts
+                  <Trophy className="h-3.5 w-3.5 md:h-4 md:w-4 text-yellow-500 mr-1" />
+                  {score}{" "}
+                  {typeof score === "number" && score <= 100 ? "%" : "pts"}
                 </div>
                 <div className="text-[10px] md:text-xs text-gray-500 font-roboto">
                   {correctAnswers}/{totalQuestions} correctes
+                </div>
+                <div
+                  className={`text-[10px] font-medium ${
+                    successRate >= 80
+                      ? "text-green-600"
+                      : successRate >= 60
+                      ? "text-yellow-600"
+                      : "text-red-600"
+                  }`}>
+                  {successRate}%
                 </div>
               </div>
             </div>

@@ -30,6 +30,11 @@ import ContactSupportPage from "@/pages/ContactSupportPage";
 import ForgotPassword from "./components/auth/ForrgotPassword";
 import ResetPassword from "./components/auth/ResetPassword";
 
+// Import des nouvelles pages de profil
+import ProfileBadgesPage from "@/pages/ProfileBadgesPage";
+import ProfileFormationsPage from "@/pages/ProfileFormationsPage";
+import ProfileStatsPage from "@/pages/ProfileStatsPage";
+
 export const routes = [
   {
     path: "/remerciements",
@@ -143,12 +148,37 @@ export const routes = [
       React.createElement(QuizResults)
     ),
   },
+  // Routes de profil
   {
     path: "/profile",
     element: React.createElement(
       ProtectedRoute,
       undefined,
       React.createElement(Profile)
+    ),
+  },
+  {
+    path: "/profile/badges",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      React.createElement(ProfileBadgesPage)
+    ),
+  },
+  {
+    path: "/profile/formations",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      React.createElement(ProfileFormationsPage)
+    ),
+  },
+  {
+    path: "/profile/statistiques",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      React.createElement(ProfileStatsPage)
     ),
   },
   {

@@ -80,40 +80,65 @@ export const ContactCard = ({
   contact,
   showFormations = true,
 }: ContactCardProps) => {
-  // Fonction pour déterminer le titre du poste avec civilité
-  const getJobTitleWithCivility = () => {
-    const role = (contact.role || contact.type || "").toLowerCase();
-    const civilite = contact.civilite?.toLowerCase().replace(".", "") || "";
+  // Fonction pour déterminer le titre du poste avec civilité - CORRIGÉE
+  console.log("Contact reçu dans ContactCard:", contact);
+  const getJobTitleWithCivility = (contact: Contact) => {
+    // Utiliser le rôle s'il est disponible, sinon le type
+    const role = contact.role || contact.type;
+    const { civilite } = contact;
 
-    const feminineRoles = ["formatrice", "commerciale"];
-    const masculineRoles = ["formateur", "commercial"];
-
-    // Si le rôle est déjà genré, le garder tel quel
-    if (feminineRoles.includes(role) || masculineRoles.includes(role)) {
+    if (!civilite) {
       return roleDisplayNames[role] || role;
     }
 
-    // Sinon, genrer selon la civilité
-    if (civilite === "mme" || civilite === "mlle") {
-      if (role === "formateur") return "Formatrice";
-      if (role === "commercial") return "Commerciale";
+    // Nettoyer la civilité (enlever le point si présent)
+    const cleanCivilite = civilite.replace(".", "");
+
+    switch (role) {
+      case "formateur":
+        if (cleanCivilite === "M") {
+          return "Formateur";
+        } else if (cleanCivilite === "Mme" || cleanCivilite === "Mlle") {
+          return "Formatrice";
+        }
+        return "Formateur/Formatrice";
+
+      case "commerciale":
+        if (cleanCivilite === "M") {
+          return "Commercial";
+        } else if (cleanCivilite === "Mme" || cleanCivilite === "Mlle") {
+          return "Commerciale";
+        }
+        return "Commercial(e)";
+
+      case "pole_relation_client":
+        return "Pôle Relation Client";
+
+      case "Pôle SAV": // Ajout explicite
+      case "pole_sav": // Format alternatif
+        return "Pôle SAV";
+
+      default:
+        return roleDisplayNames[role] || role;
     }
-
-    return roleDisplayNames[role] || role;
   };
-
-  // Format du nom avec civilité
+  // Format du nom avec première lettre du nom et prénom entier - CORRIGÉE
   const getFormattedName = () => {
     const prenom = contact.prenom || "";
-    const nom = contact.nom ? contact.nom.toUpperCase() : "";
-    const civilite = contact.civilite || "";
+    const nom = contact.nom || "";
 
-    if (civilite && (prenom || nom)) {
-      return `${civilite} ${prenom} ${nom}`.trim();
+    if (prenom && nom) {
+      // Format "J. Marc" - première lettre du nom + point + prénom
+      const nomInitial = nom.charAt(0).toUpperCase() + ".";
+      return `${nomInitial} ${prenom}`;
     }
 
-    if (prenom || nom) {
-      return `${prenom} ${nom}`.trim();
+    if (prenom) {
+      return prenom;
+    }
+
+    if (nom) {
+      return nom.toUpperCase();
     }
 
     return contact.name || "Nom inconnu";
@@ -122,11 +147,10 @@ export const ContactCard = ({
   // Initiales pour l'avatar
   const getInitials = () => {
     if (contact.prenom || contact.nom) {
-      const prenomInitial = contact.prenom
-        ? contact.prenom.charAt(0).toUpperCase()
+      const nomInitial = contact.name
+        ? contact.name.charAt(0).toUpperCase()
         : "";
-      const nomInitial = contact.nom ? contact.nom.charAt(0).toUpperCase() : "";
-      return `${prenomInitial}${nomInitial}`;
+      return `${nomInitial}`;
     }
     return contact.name ? contact.name.charAt(0).toUpperCase() : "?";
   };
@@ -137,10 +161,16 @@ export const ContactCard = ({
     return roleColors[role] || roleColors.autre;
   };
 
-  // Vérifier si c'est un formateur
+  // Vérifier si c'est un formateur - CORRIGÉE
   const isFormateur = () => {
     const role = (contact.role || contact.type || "").toLowerCase();
-    return role.includes("formateur") || role.includes("formatrice");
+    const jobTitle = getJobTitleWithCivility(contact);
+    return (
+      role.includes("formateur") ||
+      role.includes("formatrice") ||
+      jobTitle.includes("formateur") ||
+      jobTitle.includes("formatrice")
+    );
   };
 
   // Formater les dates de formation
@@ -168,7 +198,7 @@ export const ContactCard = ({
   };
 
   const formattedName = getFormattedName();
-  const jobTitle = getJobTitleWithCivility();
+  const jobTitle = getJobTitleWithCivility(contact);
   const roleColor = getRoleColor();
   const formations = contact.formations || contact.formation || [];
 
@@ -208,7 +238,7 @@ export const ContactCard = ({
                     </Avatar>
                   ) : (
                     <Avatar
-                      className="w-12 h-12 md:w-14 md:h-14 border-2 border-white"
+                      className="w-12 h-12 md:w-14 md-h-14 border-2 border-white"
                       style={{ backgroundColor: roleColor.main }}>
                       <AvatarFallback className="text-white font-semibold">
                         {getInitials()}
@@ -223,7 +253,7 @@ export const ContactCard = ({
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <h3 className="text-base md:text-lg font-bold text-gray-900 dark:text-white truncate">
-                      {formattedName}
+                      {getInitials()}. {formattedName}
                     </h3>
                     <div className="mt-1">
                       <Badge

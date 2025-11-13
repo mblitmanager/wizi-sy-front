@@ -152,21 +152,21 @@ export const StagiaireQuizAdventure: React.FC<{
 }> = ({ selectedFormationId }) => {
   const { points: userPoints } = useClassementPoints();
 
-  // Récupération des données
+  // Récupération des données - CORRECTION: Retour à l'ancienne structure de queryKey
   const { data: quizzes, isLoading } = useQuery<Quiz[]>({
-    queryKey: ["stagiaire-quizzes-adventure", selectedFormationId],
+    queryKey: ["stagiaire-quizzes-adventure"],
     queryFn: () => stagiaireQuizService.getStagiaireQuizzes(),
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: participations } = useQuery({
-    queryKey: ["stagiaire-participations-adventure", selectedFormationId],
+    queryKey: ["stagiaire-participations-adventure"],
     queryFn: () => stagiaireQuizService.getStagiaireQuizJoue(),
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: quizHistory } = useQuery<QuizHistory[]>({
-    queryKey: ["quiz-history-adventure", selectedFormationId],
+    queryKey: ["quiz-history-adventure"],
     queryFn: () => quizHistoryService.getQuizHistory(),
     staleTime: 5 * 60 * 1000,
     enabled: !!localStorage.getItem("token"),
@@ -183,52 +183,21 @@ export const StagiaireQuizAdventure: React.FC<{
     return played;
   }, [participations]);
 
-  // Logique de filtrage et organisation des quiz - RÉTABLIE depuis l'anc
+  // CORRECTION: Retour à la logique originale qui fonctionnait
   const computed = useMemo(() => {
-    if (!quizzes) {
+    if (!quizzes)
       return {
         list: [] as Quiz[],
         playableById: new Map<string, boolean>(),
         avatarId: undefined as undefined | string,
       };
-    }
 
-    // ÉTAPE CRITIQUE: Filtrer d'abord par formation
-    let formationFilteredQuizzes = quizzes;
-    if (selectedFormationId) {
-      formationFilteredQuizzes = quizzes.filter((quiz) => {
-        const quizFormationId = (quiz as any).formationId;
-        const match = String(quizFormationId) === String(selectedFormationId);
-
-        console.log(
-          `🔍 DEBUG - Quiz ${quiz.id}: formationId=${quizFormationId}, match=${match}`
-        );
-        return match;
-      });
-    }
-
-    console.log(
-      "🔍 DEBUG - Quizzes après filtrage formation:",
-      formationFilteredQuizzes
-    );
-
-    // Utiliser buildAvailableQuizzes uniquement sur les quiz filtrés
+    // Use shared selection logic - IMPORTANT: utiliser quizzes directement
     const base = buildAvailableQuizzes(
-      formationFilteredQuizzes,
+      quizzes, // Utiliser quizzes directement, pas filteredQuizzes
       userPoints,
       selectedFormationId
     );
-
-    console.log("🔍 DEBUG - Quizzes après buildAvailableQuizzes:", base);
-
-    // Si aucun quiz après filtrage, retourner vide
-    if (base.length === 0) {
-      return {
-        list: [],
-        playableById: new Map<string, boolean>(),
-        avatarId: undefined,
-      };
-    }
 
     const byIdCompletedAt = new Map<string, number>();
     (quizHistory || []).forEach((h: QuizHistory) => {
@@ -237,18 +206,21 @@ export const StagiaireQuizAdventure: React.FC<{
       if (id) byIdCompletedAt.set(id, ts);
     });
 
+    // CORRECTION: Logique d'organisation des quiz joués/non joués
     const playedList = base
       .filter((q) => playedIds.has(String(q.id)))
       .sort((a, b) => {
         const da = byIdCompletedAt.get(String(a.id)) || 0;
         const db = byIdCompletedAt.get(String(b.id)) || 0;
-        return db - da;
+        return db - da; // Tri antéchronologique
       });
+
     const unplayedList = base.filter((q) => !playedIds.has(String(q.id)));
+
+    // Combiner: d'abord les joués (triés), puis les non joués
     const displayListFull = [...playedList, ...unplayedList];
 
-    console.log("🔍 DEBUG - Liste finale à afficher:", displayListFull);
-
+    // Déterminer quels quiz sont jouables
     const playableById = new Map<string, boolean>();
     for (let i = 0; i < displayListFull.length; i++) {
       const q = displayListFull[i];
@@ -257,18 +229,21 @@ export const StagiaireQuizAdventure: React.FC<{
       const hasQuestions = Array.isArray(q.questions)
         ? q.questions.length > 0
         : true;
+
       playableById.set(
         String(q.id),
         (prevPlayed || playedIds.has(String(q.id))) && hasQuestions
       );
     }
 
+    // Déterminer l'avatar (quiz actuel)
     let avatarId: string | undefined = undefined;
     if (displayListFull.length) {
       let lastPlayedIdx = -1;
       for (let k = 0; k < displayListFull.length; k++) {
         if (playedIds.has(String(displayListFull[k].id))) lastPlayedIdx = k;
       }
+
       if (lastPlayedIdx >= 0) {
         avatarId = String(displayListFull[lastPlayedIdx].id);
         if (
@@ -289,13 +264,7 @@ export const StagiaireQuizAdventure: React.FC<{
     };
   }, [quizzes, userPoints, playedIds, selectedFormationId, quizHistory]);
 
-  // Gestion du démarrage du quiz
-  const handleStartQuiz = (quiz: Quiz) => {
-    // Navigation vers la page du quiz
-    window.location.href = `/quiz/${quiz.id}`;
-  };
-
-  // Scroll vers le premier quiz non joué
+  // Références pour le scroll
   const quizRefs = useMemo(
     () => computed.list.map(() => React.createRef<HTMLDivElement>()),
     [computed.list]
@@ -326,12 +295,18 @@ export const StagiaireQuizAdventure: React.FC<{
   if (!computed.list.length) {
     return (
       <div className="text-center py-8">
-        {selectedFormationId && (
-          <div className="mb-2 text-sm text-gray-600">
-            Formation sélectionnée : {selectedFormationId}
+        {selectedFormationId ? (
+          <div className="space-y-2">
+            <div className="text-gray-500">
+              Aucun quiz disponible pour cette formation
+            </div>
+            <div className="text-sm text-gray-400">
+              Formation ID: {selectedFormationId}
+            </div>
           </div>
+        ) : (
+          <div className="text-gray-500">Aucun quiz disponible</div>
         )}
-        <div className="text-gray-500">Aucun quiz disponible</div>
       </div>
     );
   }
@@ -345,12 +320,9 @@ export const StagiaireQuizAdventure: React.FC<{
         const played = playedIds.has(quizId);
         const playable = computed.playableById.get(quizId) === true;
         const categoryConfig = getCategoryConfig(quiz.categorie);
-
-        // CORRECTION : Utiliser la même logique que dans l'ancien code qui fonctionnait
         const history = quizHistory?.find(
           (x) => String(x.quizId ?? x.quiz?.id) === quizId
         );
-
         const isLeft = index % 2 === 0;
 
         return (
@@ -376,14 +348,14 @@ export const StagiaireQuizAdventure: React.FC<{
               )}
             </div>
 
-            {/* Carte du quiz avec QuizCard */}
+            {/* Carte du quiz */}
             <div
               className={`w-full flex ${
                 isLeft ? "justify-start" : "justify-end"
               }`}>
               <div className="w-full max-w-xs sm:max-w-sm md:max-w-xl">
                 <div className="relative">
-                  {/* Indicateur de verrouillage si le quiz n'est pas jouable */}
+                  {/* Indicateur de verrouillage */}
                   {!playable && !played && (
                     <div className="absolute inset-0 bg-gray-100 bg-opacity-80 rounded-lg z-10 flex items-center justify-center">
                       <div className="text-center p-4">
@@ -398,14 +370,12 @@ export const StagiaireQuizAdventure: React.FC<{
                     </div>
                   )}
 
-                  {/* Utilisation du QuizCard */}
+                  {/* CORRECTION: Utilisation correcte de QuizCard */}
                   <QuizCard
                     quiz={quiz}
                     categories={[]}
                     history={history ? [history] : []}
-                    onStartQuiz={
-                      playable || played ? handleStartQuiz : undefined
-                    }
+                    // Pas besoin de onStartQuiz car QuizCard gère déjà la navigation via Link
                   />
                 </div>
               </div>
@@ -417,7 +387,7 @@ export const StagiaireQuizAdventure: React.FC<{
   );
 };
 
-// Modal d'historique (conservé pour référence)
+// Modal d'historique (optionnel)
 function QuizHistoryModal({
   quizId,
   quizHistory,

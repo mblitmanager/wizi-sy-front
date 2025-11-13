@@ -1,8 +1,7 @@
 import { stripHtmlTags } from "@/utils/UtilsFunction";
 import { Badge } from "@mui/material";
-import { BookAIcon, FolderOpenIcon } from "lucide-react";
+import { BookAIcon, FolderOpenIcon, Clock, User } from "lucide-react";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 
 type FormationItem = {
   id?: string | number;
@@ -35,59 +34,82 @@ type FormationItem = {
 
 interface FormationCatalogueProps {
   formations: FormationItem[];
+  isLoading?: boolean; // 👈 ajouté
 }
-// Color map for categories
-const CATEGORY_COLORS: Record<string, string> = {
-  Math: "bg-blue-100 text-blue-800",
-  Science: "bg-green-100 text-green-800",
-  History: "bg-wizi-muted text-wizi-muted",
-  Bureautique: "bg-[#3D9BE9] text-white",
-  Langues: "bg-[#A55E6E] text-white border-[#A55E6E]",
-  Internet: "bg-[#FFC533] text-black",
-  Création: "bg-[#9392BE] text-white",
-  IA: "bg-[#ABDA96] text-white",
-  default: "bg-gray-100 text-gray-800",
+
+const CATEGORY_COLORS: Record<
+  string,
+  { bg: string; text: string; border: string }
+> = {
+  Bureautique: {
+    bg: "bg-[#3D9BE9]",
+    text: "text-white",
+    border: "border-[#3D9BE9]",
+  },
+  Langues: {
+    bg: "bg-[#A55E6E]",
+    text: "text-white",
+    border: "border-[#A55E6E]",
+  },
+  Internet: {
+    bg: "bg-[#FFC533]",
+    text: "text-gray-900",
+    border: "border-[#FFC533]",
+  },
+  Création: {
+    bg: "bg-[#9392BE]",
+    text: "text-white",
+    border: "border-[#9392BE]",
+  },
+  IA: {
+    bg: "bg-[#ABDA96]",
+    text: "text-gray-900",
+    border: "border-[#ABDA96]",
+  },
+  default: {
+    bg: "bg-gray-100",
+    text: "text-gray-800",
+    border: "border-gray-200",
+  },
 };
 
 const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
   formations,
+  isLoading = false,
 }) => {
   const [expanded, setExpanded] = useState<string | number | null>(null);
   const [showAll, setShowAll] = useState<boolean>(false);
+
   const uniqueFormations = React.useMemo(() => {
-    if (!Array.isArray(formations)) {
-      return [];
-    }
-    return Array.from(new Map(formations.map((item) => [item.id, item])).values());
+    if (!Array.isArray(formations)) return [];
+    return Array.from(new Map(formations.map((f) => [f.id, f])).values());
   }, [formations]);
 
   const visibleFormations = showAll
     ? uniqueFormations
     : uniqueFormations.slice(0, 3);
 
-  // Fonction pour formater le titre (supprimer "formation" sous toutes ses formes)
-  const formatTitle = (title: string) => {
-    if (!title) return "Sans titre";
-    return title
-      .replace(/formations?/gi, "")
-      .trim()
-      .replace(/\s{2,}/g, " ") // Supprime les espaces multiples
-      .replace(/^\w/, (c) => c.toUpperCase()); // Première lettre en majuscule
-  };
+  const hasFormations = uniqueFormations.length > 0;
 
-  // Fonction pour tronquer le texte
-  const truncateText = (text: string, maxLength: number) => {
-    if (!text) return "Pas de description";
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + "...";
-  };
+  // 🔄 Si on est encore en chargement
+  if (isLoading) {
+    return (
+      <div className="col-span-full text-center py-12">
+        <div className="text-gray-400 dark:text-gray-500 mb-4">
+          <Clock className="mx-auto h-16 w-16 animate-spin" />
+        </div>
+        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+          Chargement des formations...
+        </h3>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md">
+    <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-gray-800">
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {visibleFormations && visibleFormations.length > 0 ? (
+        {hasFormations ? (
           visibleFormations.map((formation, index) => {
-            // Catalogue prioritaire pour l'affichage
             const titre =
               formation.catalogue?.titre ||
               formation.formation?.titre ||
@@ -103,11 +125,6 @@ const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
               formation.formation?.description ||
               formation.description ||
               "";
-            const image =
-              formation.catalogue?.image_url ||
-              formation.formation?.image ||
-              formation.image ||
-              null;
             const duree =
               formation.catalogue?.duree ||
               formation.formation?.duree ||
@@ -115,76 +132,81 @@ const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
               "";
             const formateur = formation.formateur || null;
 
-            const categoryColor =
+            const categoryStyle =
               CATEGORY_COLORS[categorie] || CATEGORY_COLORS["default"];
-            const desc = stripHtmlTags(description || "Pas de description");
+            const desc = stripHtmlTags(description);
             const isExpanded = expanded === formation.id;
-            const shouldShowMore = desc.length > 50;
+            const shouldShowMore = desc.length > 100;
 
             return (
               <div
-                className="relative group cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
-                key={formation?.id ? `formation-${formation.id}` : `formation-${index}`}
-              >
-                {/* Ombre colorée */}
-                <span
-                  className={`absolute top-0 left-0 w-full h-full mt-1.5 ml-1.5 ${categoryColor} rounded-lg dark:bg-gray-700 transition-all duration-300 group-hover:mt-1 group-hover:ml-1`}
-                ></span>
-
-                {/* Carte principale */}
-                <div className="relative p-6 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg h-full flex flex-col">
-                  {/* En-tête */}
-                  <div className="flex items-start mb-4">
-                    <div className={`p-2 rounded-lg ${categoryColor} mr-3`}>
+                key={formation.id || index}
+                className="group cursor-pointer transition-all duration-300 hover:shadow-lg">
+                <div
+                  className={`relative p-6 bg-white dark:bg-gray-800 border-l-4 rounded-r-lg h-full flex flex-col shadow-sm hover:shadow-md ${categoryStyle.border}`}>
+                  <div className="flex justify-between items-start mb-4">
+                    <Badge
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${categoryStyle.bg} ${categoryStyle.text} border ${categoryStyle.border}`}>
+                      {categorie}
+                    </Badge>
+                    <div
+                      className={`p-2 rounded-lg ${categoryStyle.bg} ${categoryStyle.text}`}>
                       <BookAIcon className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-800 dark:text-white line-clamp-2">
-                        {formatTitle(titre).toUpperCase()}
-                      </h3>
-
                     </div>
                   </div>
 
-                  {/* Description */}
-                  <div className="flex-grow">
-                    {formateur && (
-                      <div className="text-xs text-gray-500 mt-1 flex items-center gap-2">
-                        <span>Formateur :</span>
-                        {formateur.image && (
-                          <img
-                            src={formateur.image}
-                            alt={formateur.nom || "Formateur"}
-                            className="w-6 h-6 rounded-full object-cover border border-gray-300"
-                          />
-                        )}
-                        <a
-                          href="/contacts"
-                          className="font-semibold hover:underline text-blue-600 dark:text-blue-400"
-                          title="Voir le profil du formateur dans les contacts"
-                        >
+                  <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-3 leading-tight">
+                    {titre}
+                  </h3>
+
+                  {duree && (
+                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      <Clock className="w-4 h-4 mr-1" />
+                      <span>{duree}</span>
+                    </div>
+                  )}
+
+                  {formateur && (
+                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <User className="w-4 h-4 mr-2" />
+                      {formateur.image && (
+                        <img
+                          src={formateur.image}
+                          alt={formateur.nom || "Formateur"}
+                          className="w-6 h-6 rounded-full object-cover border border-gray-300 mr-2"
+                        />
+                      )}
+                      <div>
+                        <span className="font-medium">
                           {formateur.prenom} {formateur.nom?.toUpperCase()}
-                        </a>
+                        </span>
                         {formateur.email && (
-                          <span className="ml-2 text-gray-400">({formateur.email})</span>
+                          <div className="text-xs text-gray-500 truncate">
+                            {formateur.email}
+                          </div>
                         )}
                       </div>
-                    )}
-                    <p className="text-gray-600 dark:text-gray-300 mb-4">
-                      {isExpanded ? desc : truncateText(desc, 50)}
+                    </div>
+                  )}
+
+                  <div className="flex-grow mb-4">
+                    <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
+                      {isExpanded
+                        ? desc
+                        : desc.length > 100
+                        ? desc.slice(0, 100) + "..."
+                        : desc}
                     </p>
                   </div>
 
-                  {/* Bouton "Lire la suite" */}
                   {shouldShowMore && (
                     <button
-                      className="mt-auto w-full py-2 px-4 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                      type="button"
+                      className="mt-auto w-full py-2 px-4 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
                       onClick={(e) => {
                         e.stopPropagation();
                         setExpanded(isExpanded ? null : formation.id);
-                      }}
-                      type="button"
-                    >
+                      }}>
                       {isExpanded ? "Réduire" : "Lire la suite"}
                     </button>
                   )}
@@ -193,31 +215,36 @@ const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
             );
           })
         ) : (
+          // ❌ Ce message n'apparaît plus pendant le chargement
           <div className="col-span-full text-center py-12">
-            <div className="text-gray-500 dark:text-gray-400 text-lg mb-2">
-              <FolderOpenIcon className="mx-auto h-12 w-12" />
+            <div className="text-gray-400 dark:text-gray-500 mb-4">
+              <FolderOpenIcon className="mx-auto h-16 w-16" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
               Aucune formation disponible
             </h3>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Essayez de modifier vos critères de recherche
+            <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+              Essayez de modifier vos critères de recherche ou contactez-nous
+              pour plus d'informations.
             </p>
           </div>
         )}
       </div>
-      {uniqueFormations.length > 3 && (
-        <div className="flex justify-center mt-6">
+
+      {hasFormations && uniqueFormations.length > 3 && (
+        <div className="flex justify-center mt-8">
           <button
             type="button"
-            className="px-4 py-2 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-            onClick={() => setShowAll((v) => !v)}
-          >
-            {showAll ? "Voir moins" : "Voir plus"}
+            className="px-6 py-3 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+            onClick={() => setShowAll((v) => !v)}>
+            {showAll
+              ? "Voir moins de formations"
+              : `Voir toutes les formations (${uniqueFormations.length})`}
           </button>
         </div>
       )}
     </div>
   );
 };
+
 export default FormationCatalogue;

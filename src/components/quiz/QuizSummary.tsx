@@ -1,26 +1,20 @@
-import { useLocation, useParams, Link } from "react-router-dom";
+import { useLocation, useParams, Link, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { quizSubmissionService } from "@/services/quiz/QuizSubmissionService";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowRight, Play } from "lucide-react";
 import { useNotifications } from "@/hooks/useNotifications";
-import { NotificationBanner } from "./NotificationBanner";
-import { isRearrangementCorrect } from "@/utils/UtilsFunction";
 import { Clock, CheckCircle, Calendar, TrendingUp } from "lucide-react";
-import QuizSummaryHeader from "../Summary/QuizSummaryHeader";
 import QuizSummaryCard from "../Summary/QuizSummaryCard";
 import QuizAnswerCard from "../Summary/QuizAnswerCard";
 import QuizSummaryFooter from "../Summary/QuizSummaryFooter";
 import { Question } from "@/types/quiz";
 import quizimg from "../../assets/loading_img.png";
-import React from "react";
 import { useNextQuiz } from "@/hooks/quiz/useNextQuiz";
 import { CountdownAnimation } from "./CountdownAnimation";
-import { stagiaireQuizService } from "@/services/quiz";
-import { ProgressBar } from "../ui/ProgressBar";
 
 interface QuizSummaryProps {
   quiz?: {
@@ -52,11 +46,10 @@ interface QuizSummaryProps {
 export function QuizSummary() {
   const { quizId } = useParams<{ quizId: string }>();
   const location = useLocation();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { notifyQuizCompleted, permission } = useNotifications();
-  const [timeElapsed, setTimeElapsed] = useState(0);
 
-  // Store result state locally to avoid triggering re-renders
   const [result, setResult] = useState<QuizSummaryProps | null>(null);
   const [notificationSent, setNotificationSent] = useState(false);
   const [showCountdown, setShowCountdown] = useState(false);
@@ -77,29 +70,6 @@ export function QuizSummary() {
     queryFn: () => quizSubmissionService.getQuizResult(quizId as string),
     enabled: !!quizId && !resultFromState && !!localStorage.getItem("token"),
   });
-
-  // CORRECTION: Augmenter le temps de consultation à 40 secondes
-  const CONSULTATION_TIME = 40; // 40 secondes au lieu de 20
-
-  useEffect(() => {
-    if (!result) return;
-    setTimeElapsed(0);
-
-    const totalTime = CONSULTATION_TIME;
-    let currentTime = 0;
-
-    const interval = setInterval(() => {
-      currentTime++;
-      setTimeElapsed(currentTime);
-
-      if (currentTime >= totalTime) {
-        setShowCountdown(true);
-        clearInterval(interval);
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [!!result]); // dépend de l'état (booléen) et non de l'objet complet
 
   // Use useEffect to set the result once to avoid infinite loops
   useEffect(() => {
@@ -129,7 +99,7 @@ export function QuizSummary() {
     }
   }, [error, toast]);
 
-  // Notification toast pour niveau débloqué (mêmes règles que StagiaireQuizList)
+  // Notification toast pour niveau débloqué
   useEffect(() => {
     if (!isLoading && result) {
       const userPoints = result.score;
@@ -162,6 +132,17 @@ export function QuizSummary() {
     }
   }, [isLoading, result, toast]);
 
+  // CORRECTION: Utiliser navigate pour la redirection vers /start
+  const handleStartNextQuiz = () => {
+    if (nextQuiz) {
+      navigate(`/quiz/${nextQuiz.id}/start`);
+    }
+  };
+
+  const handleShowCountdown = () => {
+    setShowCountdown(true);
+  };
+
   if (isLoading || (!result && !error)) {
     return (
       <Layout>
@@ -193,7 +174,8 @@ export function QuizSummary() {
 
   // Format data for QuizSummary component
   const formattedUserAnswers: Record<string, any> = {};
-  // Ajout du flag isPlayed à chaque question (jouée = réponse non vide)
+
+  // Ajout du flag isPlayed à chaque question
   const questionsWithFlag = result.questions.map((q: any) => {
     let isPlayed = false;
     if (q.selectedAnswers !== null && q.selectedAnswers !== undefined) {
@@ -207,6 +189,7 @@ export function QuizSummary() {
         isPlayed = true;
       }
     }
+
     if (q.selectedAnswers) {
       if (Array.isArray(q.selectedAnswers)) {
         formattedUserAnswers[q.id] = q.selectedAnswers;
@@ -233,72 +216,17 @@ export function QuizSummary() {
     } else {
       formattedUserAnswers[q.id] = null;
     }
+
     return { ...q, isPlayed };
   });
 
-  // Filtrer les questions jouées (celles où isPlayed est true)
+  // Filtrer les questions jouées
   const playedQuestions = questionsWithFlag.filter((q: any) => q.isPlayed);
-
-  const handleBack = () => {
-    window.history.back();
-  };
 
   return (
     <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-2 space-y-6 sm:space-y-8">
-      {/* CORRECTION: Position améliorée pour mobile */}
-      {result && !showCountdown && (
-        <div
-          className="fixed z-40 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 p-3 
-          /* Position différente selon l'appareil */
-          bottom-20 right-4  /* Position pour mobile - au-dessus de la navbar */
-          sm:bottom-4 sm:right-4 /* Position pour desktop */
-          /* Taille adaptative */
-          w-20 h-20 sm:w-auto sm:h-auto">
-          <div className="flex items-center justify-center gap-2 sm:gap-3">
-            <div className="text-center">
-              <div className="text-lg font-bold text-green-600">
-                {CONSULTATION_TIME - timeElapsed}
-              </div>
-              <div className="text-xs text-gray-500 hidden sm:block">
-                secondes
-              </div>
-              <div className="text-[10px] text-gray-500 sm:hidden">sec</div>
-            </div>
-
-            <div className="w-10 h-10 sm:w-12 sm:h-12 relative">
-              <svg
-                className="w-10 h-10 sm:w-12 sm:h-12 transform -rotate-90"
-                viewBox="0 0 48 48">
-                <circle
-                  cx="24"
-                  cy="24"
-                  r="20"
-                  stroke="#e5e7eb"
-                  strokeWidth="3"
-                  fill="none"
-                />
-                <circle
-                  cx="24"
-                  cy="24"
-                  r="20"
-                  stroke="#10b981"
-                  strokeWidth="3"
-                  fill="none"
-                  strokeDasharray="125.6"
-                  strokeDashoffset={
-                    125.6 - (timeElapsed / CONSULTATION_TIME) * 125.6
-                  }
-                  className="transition-all duration-1000"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Section des statistiques principales */}
-      <div className="">
-        {/* Titre de section */}
+      <div>
         <div className="flex items-center gap-2 mb-3">
           <div className="p-1.5 rounded-md bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300">
             <TrendingUp size={16} />
@@ -308,9 +236,8 @@ export function QuizSummary() {
           </h2>
         </div>
 
-        {/* Conteneur flex pour aligner les deux composants */}
         <div className="flex flex-col md:flex-row gap-3">
-          {/* Carte de résumé (QuizSummaryCard) */}
+          {/* Carte de résumé */}
           <div className="flex-1 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm">
             <QuizSummaryCard
               score={result.correctAnswers * 2}
@@ -422,35 +349,74 @@ export function QuizSummary() {
             Détail des réponses
           </h3>
           <span className="text-xs sm:text-sm opacity-90">
-            Revoyez chaque question et vos réponses (40s de consultation)
+            Revoyez chaque question et vos réponses
           </span>
         </div>
 
         {/* Liste des questions/réponses */}
         {playedQuestions.map(
-          (question: Question & { isPlayed: boolean }, index: number) => {
-            console.log(
-              `Question ${index + 1}: index = ${index}, background = ${
-                index % 2 === 0 ? "gray" : "white"
-              }`
-            );
-            return (
-              <QuizAnswerCard
-                key={question.id}
-                question={question}
-                userAnswer={formattedUserAnswers[question.id]}
-                isPlayed={question.isPlayed}
-                index={index}
-                questionNumber={index + 1}
-              />
-            );
-          }
+          (question: Question & { isPlayed: boolean }, index: number) => (
+            <QuizAnswerCard
+              key={question.id}
+              question={question}
+              userAnswer={formattedUserAnswers[question.id]}
+              isPlayed={question.isPlayed}
+              index={index}
+              questionNumber={index + 1}
+            />
+          )
         )}
 
         {/* Pied de page avec actions */}
         <div className="p-3 bg-gray-50 dark:bg-gray-700/30 border-t border-gray-100 dark:border-gray-700">
-          <QuizSummaryFooter quizId={result.quiz?.id || quizId || ""} />
+          <div className="flex flex-col sm:flex-row gap-3 justify-between items-center">
+            <QuizSummaryFooter quizId={result.quiz?.id || quizId || ""} />
+
+            {/* Bouton Quiz suivant */}
+            {nextQuiz && !showCountdown && (
+              <div className="flex flex-col sm:flex-row gap-2 items-center">
+                <Button
+                  onClick={handleStartNextQuiz}
+                  className="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2">
+                  <Play className="w-4 h-4" />
+                  Quiz suivant
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+
+                <Button
+                  onClick={handleShowCountdown}
+                  variant="outline"
+                  className="text-gray-600 border-gray-300 hover:bg-gray-50">
+                  Voir l'animation
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* Section pour le quiz suivant */}
+        {nextQuiz && !showCountdown && (
+          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-semibold text-blue-800 dark:text-blue-300">
+                  Quiz suivant disponible
+                </h4>
+                <p className="text-sm text-blue-600 dark:text-blue-400">
+                  {nextQuiz.titre} • {nextQuiz.niveau}
+                </p>
+              </div>
+              <Button
+                onClick={handleStartNextQuiz}
+                size="sm"
+                className="bg-blue-600 hover:bg-blue-700 text-white">
+                Commencer
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Countdown optionnel */}
         {showCountdown && (
           <CountdownAnimation
             currentQuizId={quizId || ""}

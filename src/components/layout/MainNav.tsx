@@ -6,13 +6,20 @@ import {
   User,
   Trophy,
   Gift,
+  HelpCircle,
+  FileText,
+  Mail,
+  Book,
+  Heart,
+  Shield,
+  ChevronDown,
+  Award,
+  BarChart3,
 } from "lucide-react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
-
-// Importer le composant ParrainageBanner
-import { ParrainageBanner } from "../parrainage/ParrainageBanner";
+import { useState } from "react";
 
 interface MainNavProps {
   showBottomNav?: boolean;
@@ -24,149 +31,244 @@ export default function MainNav({
   onItemClick,
 }: MainNavProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { logout } = useUser();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  // Main navigation items
-  const navItems = [
+  // Navigation principale
+  const mainNavItems = [
     {
       title: "Accueil",
       href: "/",
       icon: Home,
-      color: "text-wizi-accent",
-    }, {
+      color: "text-yellow-600",
+    },
+    {
       title: "Formations",
       href: "/catalogue",
       icon: GraduationCap,
-      color: "text-wizi-accent",
+      color: "text-yellow-600",
     },
     {
       title: "Quiz",
       href: "/quizzes",
       icon: Brain,
-      color: "text-wizi-accent",
+      color: "text-yellow-600",
     },
     {
       title: "Classement",
       href: "/classement",
       icon: Trophy,
-      color: "text-wizi-accent",
+      color: "text-yellow-600",
     },
-
     {
       title: "Tutoriels",
       href: "/tuto-astuce",
       icon: Video,
-      color: "text-wizi-accent",
-    }, {
+      color: "text-yellow-600",
+    },
+    {
       title: "Parrainage",
       href: "/parrainage",
       icon: Gift,
-      color: "text-wizi-accent",
-    },
-
-    {
-      title: "Profil",
-      href: "/profile",
-      icon: User,
-      color: "text-wizi-accent",
+      color: "text-yellow-600",
     },
   ];
 
-  const handleLogout = async () => {
-    try {
-      localStorage.removeItem("token");
-      if (logout) logout();
-      navigate("/login", { replace: true });
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
-  };
+  // Sous-navigation du profil
+  const profileNavItems = [
+    {
+      title: "Profil Principal",
+      href: "/profile",
+      icon: User,
+      color: "text-yellow-600",
+    },
+    {
+      title: "Mes Badges",
+      href: "/profile/badges",
+      icon: Award,
+      color: "text-yellow-600",
+    },
+    {
+      title: "Mes Formations",
+      href: "/profile/formations",
+      icon: GraduationCap,
+      color: "text-yellow-600",
+    },
+    {
+      title: "Mes Statistiques",
+      href: "/profile/statistiques",
+      icon: BarChart3,
+      color: "text-yellow-600",
+    },
+  ];
+
+  // Navigation Aide & Information
+  const helpNavItems = [
+    {
+      title: "FAQ",
+      href: "/faq",
+      icon: HelpCircle,
+      color: "text-yellow-600",
+    },
+    {
+      title: "CGV",
+      href: "/cgv",
+      icon: FileText,
+      color: "text-yellow-600",
+    },
+    {
+      title: "Contact & Support",
+      href: "/contact-support",
+      icon: Mail,
+      color: "text-yellow-600",
+    },
+    {
+      title: "Manuel d'utilisation",
+      href: "/manuel",
+      icon: Book,
+      color: "text-yellow-600",
+    },
+    {
+      title: "Remerciements",
+      href: "/remerciements",
+      icon: Heart,
+      color: "text-yellow-600",
+    },
+    {
+      title: "Confidentialité",
+      href: "/politique-confidentialite",
+      icon: Shield,
+      color: "text-yellow-600",
+    },
+  ];
+
+  const NavItem = ({ item }: { item: (typeof mainNavItems)[0] }) => (
+    <NavLink
+      to={item.href}
+      onClick={onItemClick}
+      className={({ isActive }) =>
+        `group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 border-l-4 ${
+          isActive
+            ? "bg-yellow-50 border-yellow-500 text-yellow-700 font-semibold shadow-sm"
+            : "border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+        }`
+      }>
+      {({ isActive }) => (
+        <>
+          <div
+            className={`p-2 rounded-lg ${
+              isActive ? "bg-yellow-100" : "bg-gray-100"
+            }`}>
+            <item.icon
+              className={`w-5 h-5 ${isActive ? "text-yellow-600" : item.color}`}
+            />
+          </div>
+          <span className="text-sm">{item.title}</span>
+          {isActive && (
+            <div className="ml-auto w-2 h-2 bg-yellow-500 rounded-full" />
+          )}
+        </>
+      )}
+    </NavLink>
+  );
+
+  const ProfileNavItem = ({ item }: { item: (typeof profileNavItems)[0] }) => (
+    <NavLink
+      to={item.href}
+      onClick={onItemClick}
+      className={({ isActive }) =>
+        `group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 border-l-4 ${
+          isActive
+            ? "bg-yellow-50 border-yellow-500 text-yellow-700 font-semibold shadow-sm"
+            : "border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+        }`
+      }>
+      {({ isActive }) => (
+        <>
+          <div
+            className={`p-2 rounded-lg ${
+              isActive ? "bg-yellow-100" : "bg-gray-100"
+            }`}>
+            <item.icon
+              className={`w-5 h-5 ${isActive ? "text-yellow-600" : item.color}`}
+            />
+          </div>
+          <span className="text-sm">{item.title}</span>
+          {isActive && (
+            <div className="ml-auto w-2 h-2 bg-yellow-500 rounded-full" />
+          )}
+        </>
+      )}
+    </NavLink>
+  );
+
+  const HelpNavItem = ({ item }: { item: (typeof helpNavItems)[0] }) => (
+    <NavLink
+      to={item.href}
+      onClick={onItemClick}
+      className={({ isActive }) =>
+        `group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 border-l-4 ${
+          isActive
+            ? "bg-yellow-50 border-yellow-500 text-yellow-700 font-semibold shadow-sm"
+            : "border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300"
+        }`
+      }>
+      {({ isActive }) => (
+        <>
+          <div
+            className={`p-2 rounded-lg ${
+              isActive ? "bg-yellow-100" : "bg-gray-100"
+            }`}>
+            <item.icon
+              className={`w-5 h-5 ${isActive ? "text-yellow-600" : item.color}`}
+            />
+          </div>
+          <span className="text-sm">{item.title}</span>
+          {isActive && (
+            <div className="ml-auto w-2 h-2 bg-yellow-500 rounded-full" />
+          )}
+        </>
+      )}
+    </NavLink>
+  );
 
   return (
-    <div className="flex flex-col h-full bg-white/90 backdrop-blur-sm border-r border-gray-100">
-      {/* Navigation Items */}
-      <div className="flex-1 space-y-1 px-3 py-2">
-        <motion.ul
-          className="space-y-2"
-          initial="hidden"
-          animate="visible"
-          variants={{
-            visible: {
-              transition: {
-                staggerChildren: 0.1,
-                delayChildren: 0.2,
-              },
-            },
-          }}>
-          {navItems.map((item, index) => (
-            <motion.li
-              key={item.href}
-              variants={{
-                hidden: { opacity: 0, x: -20 },
-                visible: {
-                  opacity: 1,
-                  x: 0,
-                  transition: {
-                    type: "spring",
-                    stiffness: 100,
-                    damping: 10,
-                  },
-                },
-              }}>
-              <NavLink
-                to={item.href}
-                className={({ isActive }) =>
-                  `group flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 ${isActive
-                    ? "bg-gradient-to-r from-[#f27905] to-wizi-accent text-white shadow-lg"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  }`
-                }>
-                {({ isActive }) => (
-                  <>
-                    <motion.span
-                      animate={{
-                        scale: isActive ? 1.1 : 1,
-                        rotate: isActive ? [0, 5, -5, 0] : 0,
-                      }}
-                      transition={{ duration: 0.3 }}
-                      className={`p-2 rounded-lg ${isActive ? "bg-white/20" : "bg-gray-100"
-                        }`}>
-                      <item.icon
-                        className={`w-5 h-5 ${isActive ? "text-white" : item.color
-                          }`}
-                      />
-                    </motion.span>
-                    <motion.span
-                      animate={{
-                        x: isActive ? 5 : 0,
-                      }}
-                      transition={{ type: "spring", stiffness: 300 }}>
-                      {item.title}
-                    </motion.span>
-                    {isActive && (
-                      <motion.span
-                        layoutId="navActiveIndicator"
-                        className="absolute right-4 w-2 h-2 bg-white rounded-full"
-                        initial={false}
-                        transition={{
-                          type: "spring",
-                          stiffness: 500,
-                          damping: 30,
-                        }}
-                      />
-                    )}
-                  </>
-                )}
-              </NavLink>
-            </motion.li>
-          ))}
-        </motion.ul>
-      </div>
+    <div className="flex flex-col h-full bg-white border-r border-gray-200">
+      {/* Navigation avec scroll */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-4 space-y-6 h-[600px]">
+          {/* Navigation principale */}
+          <div className="space-y-1">
+            <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+              Navigation
+            </h3>
+            {mainNavItems.map((item, index) => (
+              <NavItem key={item.href} item={item} />
+            ))}
+          </div>
 
-      {/* Remplacer la bannière statique par ParrainageBanner */}
-      {/* <AnimatePresence>
-        <ParrainageBanner isMobile={true} />
-      </AnimatePresence> */}
+          {/* Section Profil - Tous les items au même niveau */}
+          <div className="space-y-1">
+            <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+              Mon Profil
+            </h3>
+            {profileNavItems.map((item) => (
+              <ProfileNavItem key={item.href} item={item} />
+            ))}
+          </div>
+
+          {/* Section Aide & Information */}
+          <div className="space-y-1">
+            <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+              Aide & Information
+            </h3>
+            {helpNavItems.map((item) => (
+              <HelpNavItem key={item.href} item={item} />
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
