@@ -270,19 +270,36 @@ const ParrainageSection = () => {
                       Votre profil de parrain
                     </h3>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-gray-600">Nom et prénom</p>
-                      <p className="text-lg font-semibold text-gray-800">
-                        {user?.stagiaire?.prenom || ""}{" "}
-                        {user?.user?.name.toLocaleUpperCase() || ""}
-                      </p>
+
+                  {/* Nouvelle structure pour éviter le troncage */}
+                  <div className="space-y-4">
+                    {/* Nom et prénom */}
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6">
+                      <div className="w-full sm:w-32 flex-shrink-0">
+                        <p className="text-sm text-gray-600 font-medium">
+                          Nom et prénom
+                        </p>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-lg font-semibold text-gray-800 break-words">
+                          {user?.stagiaire?.prenom || ""}{" "}
+                          {user?.user?.name?.toLocaleUpperCase() || ""}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Email</p>
-                      <p className="text-lg font-semibold text-orange-600 truncate">
-                        {user?.user?.email || "Non disponible"}
-                      </p>
+
+                    {/* Email - Structure améliorée */}
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6">
+                      <div className="w-full sm:w-32 flex-shrink-0">
+                        <p className="text-sm text-gray-600 font-medium">
+                          Email
+                        </p>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-lg font-semibold text-orange-600 break-all whitespace-normal word-wrap break-words">
+                          {user?.user?.email || "Non disponible"}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </CardContent>

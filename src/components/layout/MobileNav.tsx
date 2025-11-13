@@ -40,7 +40,6 @@ export function MobileNav() {
       icon: Brain,
       label: "Quiz",
       href: "/quizzes",
-      // Ajout d'une propriété spéciale pour le style
       gold: true,
     },
     {
@@ -48,64 +47,84 @@ export function MobileNav() {
       label: "Classement",
       href: "/classement",
     },
-
-    // {
-    //   icon: Bell,
-    //   label: "Notifs",
-    //   href: "/notifications",
-    //   badge: 2
-    // },
     {
-      label: "Tutoriels",
+      label: "Tutoriel",
       href: "/tuto-astuce",
       icon: Video,
     },
-    // {
-    //   icon: UserRound,
-    //   label: "Profile",
-    //   href: "/profile"
-    // }
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-background pb-safe z-50">
-      <div className="flex items-center justify-around">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-safe z-50">
+      <div className="flex items-center justify-around py-2">
         {items.map((item) => {
           const isActive = location.pathname === item.href;
-          const isHoverOrActive = isActive;
+          const isQuizActive = isActive && item.gold;
 
           return (
             <Link
               key={item.href}
               to={item.href}
               className={cn(
-                "group flex flex-col items-center gap-0.5 p-1 relative transition-all duration-200",
-                (isActive) &&
-                  "z-10 mt-0!p-2 text-yellow-700"
+                "group flex flex-col items-center gap-1 p-2 relative transition-all duration-300 ease-in-out",
+                "min-w-[60px]"
               )}>
-              <span className="relative flex items-center justify-center">
+              {/* Bulle d'arrière-plan pour l'élément actif */}
+              {isActive && (
+                <div className="absolute -top-1 inset-x-0 flex justify-center">
+                  <div
+                    className={cn(
+                      "w-14 h-14 rounded-full shadow-lg flex items-center justify-center",
+                      isQuizActive
+                        ? "bg-gradient-to-br from-[#667eea] to-[#764ba2] shadow-purple-500/30"
+                        : "bg-gradient-to-br from-yellow-400 to-yellow-500 shadow-yellow-500/30"
+                    )}>
+                    <div
+                      className={cn(
+                        "w-12 h-12 rounded-full flex items-center justify-center",
+                        isQuizActive ? "bg-purple-100" : "bg-yellow-100"
+                      )}>
+                      {/* Légère ombre intérieure */}
+                      <div className="absolute inset-0 rounded-full shadow-inner"></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Conteneur d'icône avec position relative */}
+              <span
+                className={cn(
+                  "relative flex items-center justify-center transition-all duration-300 z-10",
+                  isActive ? "mt-2" : "mt-0"
+                )}>
                 <item.icon
                   className={cn(
-                    "transition-all",
-                    isActive 
-                      ? "h-6 w-6 text-yellow-500 drop-shadow-lg"
-                      : "h-5 w-5 text-muted-foreground group-hover:text-yellow-500 group-hover:h-7 group-hover:w-7"
+                    "transition-all duration-300",
+                    isActive
+                      ? isQuizActive
+                        ? "h-7 w-7 text-[#667eea] drop-shadow-sm"
+                        : "h-7 w-7 text-yellow-600 drop-shadow-sm"
+                      : "h-6 w-6 text-gray-500 group-hover:text-yellow-500"
                   )}
                 />
                 {item.badge !== undefined && (
                   <Badge
                     variant="destructive"
-                    className="absolute -top-1.5 -right-1.5 h-4 w-4 p-0 flex items-center justify-center">
+                    className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
                     {item.badge}
                   </Badge>
                 )}
               </span>
+
+              {/* Label */}
               <span
                 className={cn(
-                  "text-[12px] font-bold transition-all",
-                  isActive 
-                    ? "text-yellow-700"
-                    : "text-muted-foreground group-hover:text-yellow-700"
+                  "text-xs font-semibold transition-all duration-300 mt-1",
+                  isActive
+                    ? isQuizActive
+                      ? "text-[#667eea] font-bold"
+                      : "text-yellow-600 font-bold"
+                    : "text-gray-500 group-hover:text-yellow-600"
                 )}>
                 {item.label}
               </span>

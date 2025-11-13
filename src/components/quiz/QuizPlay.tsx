@@ -79,6 +79,7 @@ export function QuizPlay() {
       ? Math.round((answeredQuestions / totalQuestions) * 100)
       : 0;
   }, [answers, totalQuestions]);
+
   const toggleHint = React.useCallback(() => {
     setShowHint((prev) => !prev);
   }, []);
@@ -87,9 +88,22 @@ export function QuizPlay() {
     resetQuiz();
   }, [resetQuiz]);
 
-  // Rendu conditionnel
-  if (isLoading) return <LoadingState />;
-  if (error || !quiz) return <ErrorState />;
+  // Rendu conditionnel - AMÉLIORATION : Gestion complète des états de chargement
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <LoadingState />
+      </div>
+    );
+  }
+
+  if (error || !quiz) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <ErrorState />
+      </div>
+    );
+  }
 
   return (
     <QuizLayout

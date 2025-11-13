@@ -18,7 +18,7 @@ export const useLoadRankings = () => {
         rankingService.getUserProgress(),
         rankingService.getGlobalRanking(),
       ]);
-      
+
       if (progressRes?.total) {
         setUserProgress({
           totalScore: progressRes.total.points || 0,
@@ -29,16 +29,21 @@ export const useLoadRankings = () => {
       }
 
       setRankings(
-        (rankingsRes || []).map((entry: { stagiaire: { id: string; prenom: string }; totalPoints: number }) => ({
-          id: entry.stagiaire?.id ? Number(entry.stagiaire.id) : 0,
-          name: entry.stagiaire?.prenom || "Unknown",
-          score: entry.totalPoints || 0,
-        }))
+        (rankingsRes || []).map(
+          (entry: {
+            stagiaire: { id: string; prenom: string };
+            totalPoints: number;
+          }) => ({
+            id: entry.stagiaire?.id ? Number(entry.stagiaire.id) : 0,
+            name: entry.stagiaire?.prenom || "Unknown",
+            score: entry.totalPoints || 0,
+          })
+        )
       );
     };
 
     fetchProgressAndRankings();
   }, []);
-  
+
   return { userProgress, rankings };
 };

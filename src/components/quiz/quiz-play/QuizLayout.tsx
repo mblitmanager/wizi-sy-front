@@ -29,56 +29,73 @@ export const QuizLayout = ({
   closeResults,
   calculateScore,
 }) => (
-  <div
-    className="max-w-4xl mx-auto px-2 sm:px-4 sm:py-8 flex flex-col overflow-x-hidden min-h-screen relative"
-    style={{
-      marginTop:
-        typeof window !== "undefined" && window.innerWidth < 640
-          ? window.innerWidth < 400
-            ? "-15%"
-            : "-10%"
-          : undefined,
-    }}>
-    <QuizHeader
-      title={quiz.titre}
-      timeLeft={timeLeft}
-      niveau={quiz.niveau}
-      points={quiz.points}
-      onToggleHint={onToggleHint}
-      onToggleHistory={onToggleHistory}
-      onToggleStats={onToggleStats}
-    />
+  <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 flex flex-col min-h-screen bg-background">
+    {/* Header */}
+    <div className="flex-shrink-0">
+      <QuizHeader
+        title={quiz.titre}
+        timeLeft={timeLeft}
+        niveau={quiz.niveau}
+        points={quiz.points}
+        onToggleHint={onToggleHint}
+        onToggleHistory={onToggleHistory}
+        onToggleStats={onToggleStats}
+      />
+    </div>
 
-    <QuizProgress currentStep={activeStep} totalSteps={totalQuestions} />
+    {/* Progress Bar */}
+    <div className="flex-shrink-0 mt-4 sm:mt-5 lg:mt-6">
+      <QuizProgress currentStep={activeStep} totalSteps={totalQuestions} />
+    </div>
 
-    <QuizHint hint={currentQuestion?.astuce} visible={showHint} />
+    {/* Hint */}
+    <div className="flex-shrink-0 mt-3 sm:mt-4">
+      <QuizHint hint={currentQuestion?.astuce} visible={showHint} />
+    </div>
 
-    {currentQuestion && (
-      <div
-        {...handlers}
-        className="flex-grow w-full max-w-full overflow-x-hidden touch-pan-y relative">
-        {showSwipeHint && activeStep === 0 && (
-          <SwipeTutorial tutorialStep={tutorialStep} />
-        )}
+    {/* Question Area - Section flexible et scrollable */}
+    <div
+      {...handlers}
+      className="flex-1 w-full max-w-full overflow-hidden mt-4 sm:mt-5 lg:mt-6 relative min-h-[400px]">
+      {showSwipeHint && activeStep === 0 && (
+        <SwipeTutorial tutorialStep={tutorialStep} />
+      )}
 
-        <div className="w-full">
-          <Question
-            question={currentQuestion}
-            onAnswer={onAnswer}
-            showFeedback={showResults}
-          />
+      {/* État de chargement de la question */}
+      {!currentQuestion ? (
+        <div className="w-full h-full flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-gray-600">Chargement de la question...</p>
+          </div>
         </div>
+      ) : (
+        <div className="w-full h-full flex items-center justify-center p-2">
+          <div className="w-full max-w-2xl mx-auto">
+            <Question
+              question={currentQuestion}
+              onAnswer={onAnswer}
+              showFeedback={showResults}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+
+    {/* Footer - Conditionnel si on a une question */}
+    {currentQuestion && (
+      <div className="flex-shrink-0 mt-6 sm:mt-7 lg:mt-8">
+        <QuizFooter
+          activeStep={activeStep}
+          totalQuestions={totalQuestions}
+          onBack={onBack}
+          onNext={onNext}
+          onFinish={onFinish}
+        />
       </div>
     )}
 
-    <QuizFooter
-      activeStep={activeStep}
-      totalQuestions={totalQuestions}
-      onBack={onBack}
-      onNext={onNext}
-      onFinish={onFinish}
-    />
-
+    {/* Results Dialog */}
     <QuizResultsDialog
       open={showResults}
       onClose={closeResults}

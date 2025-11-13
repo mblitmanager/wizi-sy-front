@@ -52,9 +52,12 @@ const ProfilePage = () => {
 
   // Contacts (comme HomePage)
   const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
-    const response = await axios.get<Contact[]>(`${API_URL}/stagiaire/contacts/${endpoint}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
+    const response = await axios.get<Contact[]>(
+      `${API_URL}/stagiaire/contacts/${endpoint}`,
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
     return response.data;
   };
   const { data: commerciaux } = useQuery<Contact[]>({
@@ -80,11 +83,24 @@ const ProfilePage = () => {
 
   // Mémoïsation des composants enfants pour éviter des rendus inutiles
   const MemoizedProfileHeader = useMemo(() => {
-    return <ProfileHeader user={user} userProgress={userProgress} achievements={userAchievements} achievementsLoading={achvLoading} />;
+    return (
+      <ProfileHeader
+        user={user}
+        userProgress={userProgress}
+        achievements={userAchievements}
+        achievementsLoading={achvLoading}
+      />
+    );
   }, [user, userProgress, userAchievements, achvLoading]);
 
   const MemoizedUserStats = useMemo(() => {
-    return <UserStats user={user} userProgress={userProgress} achievements={userAchievements} />;
+    return (
+      <UserStats
+        user={user}
+        userProgress={userProgress}
+        achievements={userAchievements}
+      />
+    );
   }, [user, userProgress, userAchievements]);
 
   const MemoizedCategoryProgress = useMemo(() => {
@@ -97,7 +113,9 @@ const ProfilePage = () => {
   const recentResultsData: QuizResult[] = useMemo(() => {
     return (quizHistory || []).slice(0, 10).map((h) => {
       let quizTitle = "Quiz";
-      const q: unknown = (h as unknown as { quiz?: { titre?: string; title?: string } }).quiz;
+      const q: unknown = (
+        h as unknown as { quiz?: { titre?: string; title?: string } }
+      ).quiz;
       if (q && typeof q === "object") {
         const maybe = q as { titre?: string; title?: string };
         quizTitle = maybe.titre || maybe.title || "Quiz";
@@ -124,10 +142,6 @@ const ProfilePage = () => {
       />
     );
   }, [recentResultsData, isLoading]);
-
-  const MemoizedFormationCatalogue = useMemo(() => {
-    return <FormationCatalogue formations={formations} />;
-  }, [formations]);
 
   // Fetch catalogue formations for ad block
   const [adFormations, setAdFormations] = useState<CatalogueFormation[]>([]);
@@ -187,7 +201,8 @@ const ProfilePage = () => {
         const userResp = await axios.get(`${API_URL}/stagiaire/achievements`, {
           headers,
         });
-        const mine: Achievement[] = userResp.data?.achievements || userResp.data || [];
+        const mine: Achievement[] =
+          userResp.data?.achievements || userResp.data || [];
         setUserAchievements(mine);
 
         // Tous les badges (facultatif, peut échouer selon droits)
@@ -195,7 +210,8 @@ const ProfilePage = () => {
           const allResp = await axios.get(`${API_URL}/admin/achievements`, {
             headers,
           });
-          const all: Achievement[] = allResp.data?.achievements || allResp.data || [];
+          const all: Achievement[] =
+            allResp.data?.achievements || allResp.data || [];
           setAllAchievements(all);
         } catch (e) {
           // On ignore silencieusement si l’endpoint admin n’est pas accessible
@@ -240,7 +256,8 @@ const ProfilePage = () => {
       const userResp = await axios.get(`${API_URL}/stagiaire/achievements`, {
         headers,
       });
-      const mine: Achievement[] = userResp.data?.achievements || userResp.data || [];
+      const mine: Achievement[] =
+        userResp.data?.achievements || userResp.data || [];
       setUserAchievements(mine);
 
       toast({
@@ -262,15 +279,22 @@ const ProfilePage = () => {
     }
   };
 
-  const unlockedIds = useMemo(() => new Set(userAchievements.map(a => a.id)), [userAchievements]);
+  const unlockedIds = useMemo(
+    () => new Set(userAchievements.map((a) => a.id)),
+    [userAchievements]
+  );
   const availableTypes = useMemo(() => {
     const set = new Set<string>();
-    allAchievements.forEach(a => { if ((a.type || '').trim()) set.add(a.type); });
+    allAchievements.forEach((a) => {
+      if ((a.type || "").trim()) set.add(a.type);
+    });
     return Array.from(set).sort();
   }, [allAchievements]);
 
   const filteredAchievements = useMemo(() => {
-    const source = selectedType ? allAchievements.filter(a => a.type === selectedType) : allAchievements.slice();
+    const source = selectedType
+      ? allAchievements.filter((a) => a.type === selectedType)
+      : allAchievements.slice();
     source.sort((a, b) => {
       const au = unlockedIds.has(a.id);
       const bu = unlockedIds.has(b.id);
@@ -280,13 +304,20 @@ const ProfilePage = () => {
     return source;
   }, [allAchievements, selectedType, unlockedIds]);
 
-  const AchievementBadge = ({ a, unlocked }: { a: Achievement; unlocked: boolean }) => {
+  const AchievementBadge = ({
+    a,
+    unlocked,
+  }: {
+    a: Achievement;
+    unlocked: boolean;
+  }) => {
     return (
       <div
-        className={`p-3 rounded-xl border shadow-sm flex flex-col items-center text-center transition ${unlocked ? "bg-white" : "bg-gray-50 opacity-70"}
+        className={`p-3 rounded-xl border shadow-sm flex flex-col items-center text-center transition ${
+          unlocked ? "bg-white" : "bg-gray-50 opacity-70"
+        }
         `}
-        style={!unlocked ? { filter: "grayscale(100%)" } : undefined}
-      >
+        style={!unlocked ? { filter: "grayscale(100%)" } : undefined}>
         <div className="w-12 h-12 rounded-full flex items-center justify-center bg-amber-100 text-amber-700 mb-2">
           {/* Fallback icon rendering */}
           <span className="text-lg">🏅</span>
@@ -301,26 +332,36 @@ const ProfilePage = () => {
 
   const AchievementsSection = () => {
     const [showAllBadges, setShowAllBadges] = useState(false);
-    const visibleBadges = showAllBadges ? filteredAchievements : filteredAchievements.slice(0, 3);
+    const visibleBadges = showAllBadges
+      ? filteredAchievements
+      : filteredAchievements.slice(0, 3);
 
     return (
       <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg sm:text-xl font-semibold font-montserrat dark:text-white">Mes badges</h3>
+        {/* <div className="flex items-center justify-between mb-3">
+          <h3 className="text-lg sm:text-xl font-semibold font-montserrat dark:text-white">
+            Mes badges
+          </h3>
           <div className="flex items-center gap-2">
             <div className="text-sm text-gray-600 dark:text-gray-300">
               {userAchievements.length} débloqués
             </div>
           </div>
-        </div>
+        </div> */}
 
-        {achvLoading ? (
-          <div className="py-6 text-center text-sm text-gray-500">Chargement des badges...</div>
+        {/* {achvLoading ? (
+          <div className="py-6 text-center text-sm text-gray-500">
+            Chargement des badges...
+          </div>
         ) : (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
               {visibleBadges.map((a) => (
-                <AchievementBadge key={a.id} a={a} unlocked={unlockedIds.has(a.id)} />
+                <AchievementBadge
+                  key={a.id}
+                  a={a}
+                  unlocked={unlockedIds.has(a.id)}
+                />
               ))}
             </div>
             {filteredAchievements.length > 3 && (
@@ -328,14 +369,13 @@ const ProfilePage = () => {
                 <button
                   type="button"
                   className="px-4 py-2 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                  onClick={() => setShowAllBadges((v) => !v)}
-                >
+                  onClick={() => setShowAllBadges((v) => !v)}>
                   {showAllBadges ? "Voir moins" : "Voir plus"}
                 </button>
               </div>
             )}
           </>
-        )}
+        )} */}
       </div>
     );
   };
@@ -396,8 +436,6 @@ const ProfilePage = () => {
           </div>
         </div>
 
-
-
         {/* Contenu principal avec composants mémoïsés */}
         <div className="space-y-4 px-2 sm:px-0">
           {/* <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
@@ -417,12 +455,12 @@ const ProfilePage = () => {
             <div className="overflow-x-auto">{MemoizedRecentResults}</div>
           </div> */}
 
-          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
+          {/* <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
             <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
               Mes formations
             </h3>
             {MemoizedFormationCatalogue}
-          </div>
+          </div> */}
         </div>
 
         {/* Section contacts (comme HomePage) */}
@@ -441,7 +479,7 @@ const ProfilePage = () => {
         )}
       </div>
       {/* Section liens vers FAQ, CGV et Manuel */}
-      <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm mb-4">
+      {/* <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm mb-4">
         <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
           Ressources utiles
         </h3>
@@ -478,7 +516,7 @@ const ProfilePage = () => {
             Politique de Confidentialité
           </Link>
         </div>
-      </div>
+      </div> */}
     </Layout>
   );
 };
