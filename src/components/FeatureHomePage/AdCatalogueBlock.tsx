@@ -290,11 +290,11 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                     {formation.formation?.categorie?.toUpperCase() ||
                       "FORMATION"}
                   </span>
-                  {formation.certification && (
+                  {/* {formation.certification && (
                     <div className="top-4 right-4 bg-yellow-400 text-amber-800 text-xs font-bold px-3 py-1 rounded-full z-10">
                       {formation.certification}
                     </div>
-                  )}
+                  )} */}
                 </div>
 
                 {/* Description avec effet "Lire plus" */}
@@ -311,7 +311,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                     <Clock className="w-4 h-4 mr-1" />
                     {formation.formation?.duree || formation.duree} heures
                   </span>
-                  <span className="text-lg font-extrabold text-orange-600">
+                  {/* <span className="text-lg font-extrabold text-orange-600">
                     {Number(formation.tarif) > 0
                       ? `${Math.round(Number(formation.tarif))
                           .toLocaleString("fr-FR", {
@@ -320,7 +320,7 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                           })
                           .replace(/\s/g, "\u00A0")} €`
                       : "À la demande"}
-                  </span>
+                  </span> */}
                 </div>
 
                 {/* Bouton principal - Effet "Shine" au hover */}

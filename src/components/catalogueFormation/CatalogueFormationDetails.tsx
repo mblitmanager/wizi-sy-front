@@ -273,7 +273,7 @@ export default function CatalogueFormationDetails() {
         </div>
 
         {details.catalogueFormation.formation && (
-          <div className="mt-6 p-5 rounded-2xl bg-gradient-to-br from-yellow-50 to-white dark:from-gray-900 dark:to-gray-800 shadow-md">
+          <div className="mt-6 p-5 rounded-2xl bg-gradient-to-br from-yellow-50 to-white dark:from-gray-900 dark:to-gray-800 shadow-md mb-2">
             <div
               className="text-gray-700 dark:text-gray-300 leading-relaxed"
               dangerouslySetInnerHTML={{
@@ -299,7 +299,7 @@ export default function CatalogueFormationDetails() {
               {/* Price badge - overlayed bottom-left */}
               <div className="absolute left-4 bottom-4">
                 {/* determine suffix from category to apply price-badge class */}
-                {(() => {
+                {/* {(() => {
                   const rawCat = details.catalogueFormation.formation
                     ?.categorie as unknown as string | undefined;
                   const suffix = rawCat ? rawCat.toLowerCase() : "";
@@ -321,7 +321,7 @@ export default function CatalogueFormationDetails() {
                         : "-"}
                     </div>
                   );
-                })()}
+                })()} */}
               </div>
 
               {/* Category chip - overlayed top-left */}
@@ -464,14 +464,14 @@ const FormationDetailsContent = ({
             </div>
           </div>
 
-          <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
+          {/* <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
             <div className="text-xs text-gray-500">Certification</div>
             <div
               className="font-semibold"
               style={{ color: getCategoryColor(category) }}>
               {formation.certification || "-"}
             </div>
-          </div>
+          </div> */}
         </div>
       </CardContent>
 
@@ -625,7 +625,7 @@ const FormationMetadata = ({
       <strong>{FORMATIONMETADATA.duree} :</strong> {duree}{" "}
       {FORMATIONMETADATA.heures}
     </li>
-    <li className="text-gray-500">
+    {/* <li className="text-gray-500">
       <strong>{FORMATIONMETADATA.tarif} :</strong>{" "}
       <span className="text-xl text-orange-500 font-extrabold drop-shadow-lg">
         {tarif
@@ -637,10 +637,10 @@ const FormationMetadata = ({
               .replace(/\u202F/g, " ")} ${FORMATIONMETADATA.euros}`
           : "-"}
       </span>
-    </li>
-    <li className="text-gray-500">
+    </li> */}
+    {/* <li className="text-gray-500">
       <strong>Certification :</strong> {certification}
-    </li>
+    </li> */}
   </ul>
 );
 

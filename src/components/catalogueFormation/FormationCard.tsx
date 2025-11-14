@@ -133,11 +133,11 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
           </span>
 
           {/* Certification badge */}
-          {formation.certification && (
+          {/* {formation.certification && (
             <span className="text-l font-medium px-2 py-1 rounded-full bg-orange-50 text-orange-500">
               {formation.certification}
             </span>
-          )}
+          )} */}
         </div>
 
         {/* Description */}
@@ -156,7 +156,7 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
               <span>{formation.duree}h</span>
             </div>
 
-            <span
+            {/* <span
               className={
                 suffix !== "default"
                   ? `inline-block text-xl font-extrabold drop-shadow-lg px-2 py-0.5 rounded price-badge-${suffix}`
@@ -167,7 +167,7 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
                     "fr-FR"
                   )} €`
                 : "À la demande"}
-            </span>
+            </span> */}
           </div>
         </div>
       </div>

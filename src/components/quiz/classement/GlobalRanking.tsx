@@ -194,7 +194,7 @@ export function GlobalRanking({
           return "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-900/30 dark:text-gray-300 dark:border-gray-800";
       }
     }, []);
-
+    console.log("FORMATEUR ", formateur);
     return (
       <Dialog>
         <DialogTrigger asChild>
@@ -226,7 +226,7 @@ export function GlobalRanking({
 
           {/* Contenu avec défilement */}
           <div className="max-h-[60vh] overflow-y-auto p-6 bg-gray-50/50 dark:bg-gray-900/50">
-            {formateur.formations?.length === 0 ? (
+            {!formateur.formations || formateur.formations.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
                   <BookOpen className="h-8 w-8 text-gray-400" />
@@ -235,12 +235,109 @@ export function GlobalRanking({
                   Aucune formation disponible
                 </h3>
                 <p className="text-gray-500 dark:text-gray-500 text-sm">
-                  Ce formateur n'a pas encore de forma tions attribuées
+                  Ce formateur n'a pas encore de formations attribuées
                 </p>
               </div>
             ) : (
               <div className="grid gap-6 md:grid-cols-2">
-                {/* ajoute une verification si elle n'est pas vide  */}
+                {formateur.formations.map((formation) => (
+                  <Card
+                    key={formation.id}
+                    className="overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white dark:bg-gray-800">
+                    <div
+                      className={`h-2 bg-gradient-to-r ${getCategoryGradient(
+                        formation.formation?.categorie
+                      )}`}
+                    />
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="w-12 h-12 rounded-lg flex items-center justify-center text-white"
+                            style={{
+                              backgroundColor: getCategoryColor(
+                                formation.formation?.categorie
+                              ),
+                            }}>
+                            <BookOpen className="h-6 w-6" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <CardTitle className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2">
+                              {formation.titre ||
+                                formation.formation?.titre ||
+                                "Formation sans titre"}
+                            </CardTitle>
+                            <Badge
+                              className={`mt-2 ${getCategoryBadgeColor(
+                                formation.formation?.categorie
+                              )}`}>
+                              {formation.formation?.categorie ||
+                                "Non catégorisé"}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pb-4">
+                      <div
+                        className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2"
+                        dangerouslySetInnerHTML={{
+                          __html:
+                            formation.description ||
+                            "Aucune description disponible",
+                        }}
+                      />
+
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                          <Clock className="h-4 w-4" />
+                          <span>
+                            Durée : {formation.duree || "Non spécifiée"}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-sm">
+                          <div
+                            className={`w-3 h-3 rounded-full ${
+                              formation.statut === 1
+                                ? "bg-green-500"
+                                : formation.statut === 0
+                                ? "bg-yellow-500"
+                                : "bg-gray-500"
+                            }`}
+                          />
+                          <span
+                            className={
+                              formation.statut === 1
+                                ? "text-green-600 dark:text-green-400"
+                                : formation.statut === 0
+                                ? "text-yellow-600 dark:text-yellow-400"
+                                : "text-gray-500"
+                            }>
+                            {formation.statut === 1
+                              ? "Activée"
+                              : formation.statut === 0
+                              ? "Désactivée"
+                              : "Statut inconnu"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <Button
+                        className="w-full mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                        onClick={() => {
+                          // Navigation vers les détails de la formation
+                          navigate(
+                            `/catalogue-formation/${formateur.formations[0].id}`
+                          );
+                        }}>
+                        <FileText className="h-4 w-4 mr-2" />
+                        Voir les détails
+                        <ArrowRight className="h-4 w-4 ml-2" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             )}
           </div>
@@ -314,7 +411,6 @@ export function GlobalRanking({
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {formateur.prenom} {formateur.nom.toUpperCase()}
                 </span>
-                {/* 💡 Correction appliquée ici */}
                 <div className="text-xs text-gray-500 dark:text-gray-400">
                   {formateur.formations?.length ?? 0} formation(s)
                 </div>
