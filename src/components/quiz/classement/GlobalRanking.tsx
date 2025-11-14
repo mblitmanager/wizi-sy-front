@@ -127,6 +127,7 @@ export function GlobalRanking({
     formateur: Formateur;
   }) => {
     const navigate = useNavigate();
+
     const getCategoryColor = useCallback((category?: string): string => {
       switch (category) {
         case "Bureautique":
@@ -144,20 +145,22 @@ export function GlobalRanking({
       }
     }, []);
 
-    const getCategoryGradient = useCallback((category?: string): string => {
+    // Fonction pour formater les noms en format abrégé
+
+    const getCategoryButtonColor = useCallback((category?: string): string => {
       switch (category) {
         case "Bureautique":
-          return "from-blue-400 to-blue-600";
+          return "bg-[#3D9BE9] hover:bg-[#3D9BE9] text-white border-[#3D9BE9]";
         case "Langues":
-          return "from-red-400 to-pink-600";
+          return "bg-[#A55E6E] hover:bg-[#A55E6E] text-white border-[#A55E6E]";
         case "Internet":
-          return "from-amber-400 to-orange-500";
+          return "bg-[#FFC533] hover:bg-[#FFC533] text-white border-[#FFC533]";
         case "Création":
-          return "from-purple-400 to-indigo-600";
+          return "bg-[#9392BE] hover:bg-[#9392BE] text-white border-[#9392BE]";
         case "IA":
-          return "from-green-400 to-emerald-600";
+          return "bg-[#ABDA96] hover:bg-[#ABDA96] text-white border-[#ABDA96]";
         default:
-          return "from-gray-400 to-gray-600";
+          return "bg-gray-600 hover:bg-gray-700 text-white border-gray-600";
       }
     }, []);
 
@@ -194,21 +197,23 @@ export function GlobalRanking({
           return "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-900/30 dark:text-gray-300 dark:border-gray-800";
       }
     }, []);
+
     console.log("FORMATEUR ", formateur);
+
     return (
       <Dialog>
         <DialogTrigger asChild>
           <Button
             variant="outline"
             size="sm"
-            className="text-xs bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 border-blue-200 text-blue-700 hover:text-blue-800 dark:from-blue-900/20 dark:to-indigo-900/20 dark:border-blue-800 dark:text-blue-300 dark:hover:text-blue-200 transition-all duration-200">
+            className="text-xs bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700 hover:text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300 dark:hover:text-blue-200 transition-all duration-200">
             <BookOpen className="h-3 w-3 mr-1" />
             Voir formations
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden p-0 border-0 shadow-xl">
-          {/* En-tête avec fond gradient */}
-          <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 text-white p-6">
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden p-0 border border-gray-200 dark:border-gray-700 shadow-xl">
+          {/* En-tête avec fond simple */}
+          <div className="bg-blue-600 text-white p-6">
             <DialogHeader className="text-white">
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
@@ -225,7 +230,7 @@ export function GlobalRanking({
           </div>
 
           {/* Contenu avec défilement */}
-          <div className="max-h-[60vh] overflow-y-auto p-6 bg-gray-50/50 dark:bg-gray-900/50">
+          <div className="max-h-[60vh] overflow-y-auto p-6 bg-white dark:bg-gray-900">
             {!formateur.formations || formateur.formations.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
@@ -240,104 +245,112 @@ export function GlobalRanking({
               </div>
             ) : (
               <div className="grid gap-6 md:grid-cols-2">
-                {formateur.formations.map((formation) => (
-                  <Card
-                    key={formation.id}
-                    className="overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white dark:bg-gray-800">
-                    <div
-                      className={`h-2 bg-gradient-to-r ${getCategoryGradient(
-                        formation.formation?.categorie
-                      )}`}
-                    />
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className="w-12 h-12 rounded-lg flex items-center justify-center text-white"
-                            style={{
-                              backgroundColor: getCategoryColor(
-                                formation.formation?.categorie
-                              ),
-                            }}>
-                            <BookOpen className="h-6 w-6" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <CardTitle className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2">
-                              {formation.titre ||
-                                formation.formation?.titre ||
-                                "Formation sans titre"}
-                            </CardTitle>
-                            <Badge
-                              className={`mt-2 ${getCategoryBadgeColor(
-                                formation.formation?.categorie
-                              )}`}>
-                              {formation.formation?.categorie ||
-                                "Non catégorisé"}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pb-4">
+                {formateur.formations.map((formation) => {
+                  const category = formation.formation?.categorie;
+                  const buttonColorClass = getCategoryButtonColor(category);
+
+                  return (
+                    <Card
+                      key={formation.id}
+                      className="overflow-hidden border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg transition-all duration-300 bg-white dark:bg-gray-800">
+                      {/* Barre de couleur en haut */}
                       <div
-                        className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2"
-                        dangerouslySetInnerHTML={{
-                          __html:
-                            formation.description ||
-                            "Aucune description disponible",
+                        className="h-2"
+                        style={{
+                          backgroundColor: getCategoryColor(category),
                         }}
                       />
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="w-12 h-12 rounded-lg flex items-center justify-center text-white"
+                              style={{
+                                backgroundColor: getCategoryColor(category),
+                              }}>
+                              <BookOpen className="h-6 w-6" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <CardTitle className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2">
+                                {formation.titre ||
+                                  formation.formation?.titre ||
+                                  "Formation sans titre"}
+                              </CardTitle>
+                              <Badge
+                                className={`mt-2 ${getCategoryBadgeColor(
+                                  category
+                                )}`}>
+                                {category || "Non catégorisé"}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="pb-4">
+                        <div
+                          className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2"
+                          dangerouslySetInnerHTML={{
+                            __html:
+                              formation.description ||
+                              "Aucune description disponible",
+                          }}
+                        />
 
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                          <Clock className="h-4 w-4" />
-                          <span>
-                            Durée : {formation.duree || "Non spécifiée"}
-                          </span>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                            <Clock className="h-4 w-4" />
+                            <span>
+                              Durée : {formation.duree || "Non spécifiée"}
+                            </span>
+                          </div>
+
+                          {/* <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                            <EuroIcon className="h-4 w-4" />
+                            <span>
+                              Tarif : {formation.tarif || "Non spécifié"}
+                            </span>
+                          </div> */}
+
+                          <div className="flex items-center gap-2 text-sm">
+                            <div
+                              className={`w-3 h-3 rounded-full ${
+                                formation.statut === 1
+                                  ? "bg-green-500"
+                                  : formation.statut === 0
+                                  ? "bg-yellow-500"
+                                  : "bg-gray-500"
+                              }`}
+                            />
+                            <span
+                              className={
+                                formation.statut === 1
+                                  ? "text-green-600 dark:text-green-400"
+                                  : formation.statut === 0
+                                  ? "text-yellow-600 dark:text-yellow-400"
+                                  : "text-gray-500"
+                              }>
+                              {formation.statut === 1
+                                ? "Activée"
+                                : formation.statut === 0
+                                ? "Désactivée"
+                                : "Statut inconnu"}
+                            </span>
+                          </div>
                         </div>
 
-                        <div className="flex items-center gap-2 text-sm">
-                          <div
-                            className={`w-3 h-3 rounded-full ${
-                              formation.statut === 1
-                                ? "bg-green-500"
-                                : formation.statut === 0
-                                ? "bg-yellow-500"
-                                : "bg-gray-500"
-                            }`}
-                          />
-                          <span
-                            className={
-                              formation.statut === 1
-                                ? "text-green-600 dark:text-green-400"
-                                : formation.statut === 0
-                                ? "text-yellow-600 dark:text-yellow-400"
-                                : "text-gray-500"
-                            }>
-                            {formation.statut === 1
-                              ? "Activée"
-                              : formation.statut === 0
-                              ? "Désactivée"
-                              : "Statut inconnu"}
-                          </span>
-                        </div>
-                      </div>
-
-                      <Button
-                        className="w-full mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
-                        onClick={() => {
-                          // Navigation vers les détails de la formation
-                          navigate(
-                            `/catalogue-formation/${formateur.formations[0].id}`
-                          );
-                        }}>
-                        <FileText className="h-4 w-4 mr-2" />
-                        Voir les détails
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
+                        <Button
+                          className={`w-full mt-4 ${buttonColorClass}`}
+                          onClick={() => {
+                            navigate(`/catalogue-formation/${formation.id}`);
+                          }}>
+                          <FileText className="h-4 w-4 mr-2" />
+                          Voir les détails
+                          <ArrowRight className="h-4 w-4 ml-2" />
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -373,7 +386,7 @@ export function GlobalRanking({
                 </div>
                 <div>
                   <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                    {formateur.prenom} {formateur.nom.toUpperCase()}
+                    {formatName(formateur.prenom, formateur.nom)}
                   </span>
                   <div className="text-xs text-blue-600 dark:text-blue-400">
                     {formateur.formations?.length ?? 0} formation(s)
@@ -387,6 +400,7 @@ export function GlobalRanking({
     );
   };
 
+  // Composant pour afficher les formateurs dans le tableau
   // Composant pour afficher les formateurs dans le tableau
   const FormateursTable = ({ formateurs }: { formateurs: Formateur[] }) => {
     if (!formateurs || formateurs.length === 0) {
@@ -409,7 +423,7 @@ export function GlobalRanking({
               </div>
               <div>
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {formateur.prenom} {formateur.nom.toUpperCase()}
+                  {formatName(formateur.prenom, formateur.nom)}
                 </span>
                 <div className="text-xs text-gray-500 dark:text-gray-400">
                   {formateur.formations?.length ?? 0} formation(s)
@@ -469,7 +483,13 @@ export function GlobalRanking({
 
   // Liste sans les 3 premiers (affichés uniquement dans le podium)
   const listRanking = showPodium ? sortedRanking.slice(3) : sortedRanking;
+  const formatName = (prenom: string, nom: string): string => {
+    if (!nom || nom.trim().length === 0) return prenom || "";
+    if (!prenom || prenom.trim().length === 0) return nom || "";
 
+    const firstLetter = nom.charAt(0).toUpperCase();
+    return `${firstLetter}. ${prenom}`;
+  };
   return (
     <div
       className="mb-4 bg-white dark:bg-gray-900 rounded-lg ring-1 ring-gray-50 dark:ring-gray-800 overflow-hidden"
@@ -585,8 +605,7 @@ export function GlobalRanking({
                               ? "text-green-600"
                               : "text-gray-800 dark:text-white"
                           }`}>
-                          {entry.firstname || ""}{" "}
-                          {entry.name.toUpperCase() || ""}
+                          {formatName(entry.firstname || "", entry.name || "")}
                         </h3>
                         <div className="flex items-center gap-1 mt-1">
                           <Star className="h-4 w-4 text-yellow-500" />
@@ -661,7 +680,7 @@ export function GlobalRanking({
                       </div>
                       <div>
                         <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {entry.firstname || ""} {entry.name || ""}
+                          {formatName(entry.firstname || "", entry.name || "")}
                         </div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">
                           {entry.quizCount} quiz
@@ -742,8 +761,10 @@ export function GlobalRanking({
                               </Avatar>
                               <div className="flex items-center gap-2">
                                 <span className="font-semibold text-gray-900 dark:text-white">
-                                  {entry.firstname || ""}{" "}
-                                  {entry.name.toLocaleUpperCase() || ""}
+                                  {formatName(
+                                    entry.firstname || "",
+                                    entry.name || ""
+                                  )}
                                 </span>
                                 {isCurrentUser && (
                                   <Badge
