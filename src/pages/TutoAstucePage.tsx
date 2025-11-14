@@ -12,6 +12,9 @@ import {
   CheckCircle,
   PlayCircle,
   RefreshCw,
+  BookOpen,
+  Sparkles,
+  Clock,
 } from "lucide-react";
 import axios from "axios";
 import { useMediaByFormation } from "@/use-case/hooks/media/useMediaByFormation";
@@ -21,6 +24,22 @@ import { Media } from "@/types/media";
 import { useUser } from "@/hooks/useAuth";
 import { useFormationStagiaire } from "@/use-case/hooks/stagiaire/useFormationStagiaire";
 
+// Skeleton simplifié
+const MediaSkeleton = () => (
+  <div className="space-y-3">
+    {[...Array(4)].map((_, i) => (
+      <div key={i} className="flex items-center gap-3 p-3">
+        <div className="w-10 h-10 bg-gray-200 rounded-lg animate-pulse" />
+        <div className="flex-1">
+          <div className="h-4 bg-gray-200 rounded animate-pulse mb-2 w-3/4" />
+          <div className="h-3 bg-gray-200 rounded animate-pulse w-1/2" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+// MediaItem simplifié et élégant
 const MediaItem = ({
   media,
   isSelected,
@@ -31,163 +50,126 @@ const MediaItem = ({
   isSelected: boolean;
   onClick: () => void;
   isWatched: boolean;
-}) => (
-  <div
-    onClick={onClick}
-    className={`p-3 cursor-pointer transition-colors flex items-center gap-3 border-0 ${
-      isSelected ? "bg-blue-50" : "hover:bg-gray-50"
-    }`}>
-    <div className={`p-2 ${isSelected ? "bg-blue-100" : "bg-gray-100"}`}>
-      <PlayCircle
-        className={`w-5 h-5 ${isSelected ? "text-blue-600" : "text-gray-500"}`}
-      />
-    </div>
-    <div className="flex-1 min-w-0">
-      <h3
-        className={`text-sm font-medium truncate ${
-          isWatched ? "text-green-600" : "text-gray-800"
-        }`}>
-        {media.titre}
-      </h3>
-    </div>
-    {isWatched && <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />}
-  </div>
-);
-// Skeleton de chargement pour la liste des médias
-const MediaSkeleton = ({ count = 5 }: { count?: number }) => (
-  <div className="space-y-3">
-    {[...Array(count)].map((_, i) => (
-      <div key={i} className="h-16 bg-gray-100 animate-pulse" />
-    ))}
-  </div>
-);
-
-interface MediaListSectionProps {
-  type: string;
-  icon: React.ReactNode;
-  label: string;
-  categories: Record<string, Media[]>;
-  isExpanded: boolean;
-  onToggle: () => void;
-  selectedMedia: Media | null;
-  onSelectMedia: (media: Media) => void;
-}
-
-const MediaListSection: React.FC<MediaListSectionProps> = ({
-  type,
-  icon,
-  label,
-  categories,
-  isExpanded,
-  onToggle,
-  selectedMedia,
-  onSelectMedia,
 }) => {
-  return (
-    <div className="mb-4">
-      <div className="flex items-center justify-between p-2 bg-gray-100 rounded-lg">
-        <div className="flex items-center gap-2">
-          {icon}
-          <span className="font-medium text-base">{label}</span>
-        </div>
-        <button
-          type="button"
-          className="p-2 rounded-full hover:bg-gray-200 transition"
-          onClick={onToggle}
-          aria-label={isExpanded ? `Réduire ${label}` : `Déplier ${label}`}>
-          <ChevronDown
-            className={`w-5 h-5 transition-transform ${
-              isExpanded ? "rotate-180" : ""
-            }`}
-          />
-        </button>
-      </div>
+  const getTypeIcon = (type: string) => {
+    const icons = {
+      video: <FilmIcon className="w-4 h-4" />,
+      image: <PhoneOutgoingIcon className="w-4 h-4" />,
+      audio: <Music2Icon className="w-4 h-4" />,
+      document: <FileIcon className="w-4 h-4" />,
+    };
+    return icons[type] || <FileIcon className="w-4 h-4" />;
+  };
 
-      {/* Playlist always shown when expanded, description only when collapsed */}
-      {isExpanded ? (
-        <div className="mt-2">
-          {Object.entries(categories).map(([category, items]) => (
-            <div key={category} className="mb-2">
-              <div className="font-semibold text-sm text-gray-600 mb-1 ml-3">
-                {category}
-              </div>
-              <div className="space-y-1 ml-3">
-                {items.map((media) => (
-                  <MediaItem
-                    key={media.id}
-                    media={media}
-                    isSelected={selectedMedia?.id === media.id}
-                    isWatched={media.stagiaires?.[0]?.is_watched}
-                    onClick={() => onSelectMedia(media)}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
+  const getTypeColor = (type: string) => {
+    const colors = {
+      video: "bg-red-100 text-red-600",
+      image: "bg-blue-100 text-blue-600",
+      audio: "bg-purple-100 text-purple-600",
+      document: "bg-green-100 text-green-600",
+    };
+    return colors[type] || "bg-gray-100 text-gray-600";
+  };
+
+  return (
+    <div
+      onClick={onClick}
+      className={`p-3 cursor-pointer transition-all duration-200 rounded-lg border ${
+        isSelected
+          ? "bg-blue-50 border-blue-200 shadow-sm"
+          : "bg-white border-gray-200 hover:border-blue-300 hover:shadow-sm"
+      }`}>
+      <div className="flex items-center gap-3">
+        <div
+          className={`w-10 h-10 rounded-lg flex items-center justify-center ${getTypeColor(
+            media.type
+          )}`}>
+          {getTypeIcon(media.type)}
         </div>
-      ) : (
-        <div className="mt-4 px-2">
-          {selectedMedia ? (
-            <>
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="text-lg font-bold">{selectedMedia.titre}</h3>
-                {selectedMedia.stagiaires?.[0]?.is_watched && (
-                  <span title="Déjà vu">
-                    <CheckCircle className="w-5 h-5 text-green-500" />
-                  </span>
-                )}
-              </div>
-              <p className="text-gray-600 text-sm">
-                {selectedMedia.description
-                  ? stripHtmlTags(selectedMedia.description)
-                  : "Aucune description disponible."}
-              </p>
-            </>
-          ) : (
-            <span className="text-gray-400 text-sm">
-              Aucun média sélectionné
-            </span>
-          )}
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <h3
+              className={`text-sm font-medium truncate ${
+                isWatched ? "text-green-600" : "text-gray-900"
+              }`}>
+              {media.titre}
+            </h3>
+            {isWatched && (
+              <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+            )}
+          </div>
+
+          <div className="flex items-center gap-3 text-xs text-gray-500">
+            <span className="capitalize">{media.type}</span>
+            <span>•</span>
+            <span>{media.categorie}</span>
+          </div>
         </div>
-      )}
+
+        <PlayCircle
+          className={`w-5 h-5 ${
+            isSelected ? "text-blue-600" : "text-gray-400"
+          }`}
+        />
+      </div>
     </div>
   );
 };
 
+// Section simple et claire
+const MediaCategorySection = ({
+  title,
+  medias,
+  selectedMedia,
+  onSelectMedia,
+}: {
+  title: string;
+  medias: Media[];
+  selectedMedia: Media | null;
+  onSelectMedia: (media: Media) => void;
+}) => {
+  if (medias.length === 0) return null;
+
+  return (
+    <div className="mb-6">
+      <h3 className="text-sm font-semibold text-gray-700 mb-3 px-1">
+        {title} <span className="text-gray-400">({medias.length})</span>
+      </h3>
+      <div className="space-y-2">
+        {medias.map((media) => (
+          <MediaItem
+            key={media.id}
+            media={media}
+            isSelected={selectedMedia?.id === media.id}
+            isWatched={media.stagiaires?.[0]?.is_watched}
+            onClick={() => onSelectMedia(media)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// MediaPlayerSection épuré
 const MediaPlayerSection = ({ media }: { media: Media | null }) => (
-  <div className="bg-white rounded-xl shadow-sm p-0 sm:p-4 lg:col-span-2">
+  <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
     {media ? (
       <>
-        <div className="-mx-4 sm:mx-0">
-          <div className="aspect-video bg-black rounded-none sm:rounded-lg overflow-hidden">
-            <MediaPlayer key={media.id} media={media} />
-          </div>
+        <div className="aspect-video bg-black">
+          <MediaPlayer key={media.id} media={media} />
         </div>
-
-        {/* <div className="mt-4 px-4 sm:px-0">
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold">{media.titre}</h2>
-            {media.stagiaires?.[0]?.is_watched && (
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-50 text-green-700 rounded-full">
-                <CheckCircle className="w-5 h-5" />
-                <span className="text-sm font-medium">Déjà regardé</span>
-              </div>
-            )}
-          </div>
-          <p className="text-gray-600 mt-2">
-            {stripHtmlTags(media.description)}
-          </p>
-        </div> */}
       </>
     ) : (
-      <div className="flex items-center justify-center h-64 text-gray-500">
-        Sélectionnez un média
+      <div className="flex flex-col items-center justify-center h-64 text-gray-400">
+        <PlayCircle className="w-12 h-12 mb-3" />
+        <p className="text-sm">Sélectionnez un média</p>
       </div>
     )}
   </div>
 );
 
-// Page principale
+// Page principale simplifiée
 export default function TutoAstucePage() {
   // États
   const [selectedFormationId, setSelectedFormationId] = useState<string | null>(
@@ -197,16 +179,10 @@ export default function TutoAstucePage() {
     "tutoriel"
   );
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
-  const hasCheckedAchievement = useRef(false);
-  const [expandedSections, setExpandedSections] = useState<
-    Record<string, boolean>
-  >({});
   const [localMediasData, setLocalMediasData] = useState<{
     tutoriels: Media[];
     astuces: Media[];
   } | null>(null);
-  // State for collapsing the left media list on wide screens (tablet/landscape)
-  const [isLeftCollapsed, setIsLeftCollapsed] = useState(false);
 
   // Hooks
   const { user } = useUser();
@@ -229,28 +205,22 @@ export default function TutoAstucePage() {
   const astuces = localMediasData?.astuces ?? mediasData?.astuces ?? [];
   const medias = activeCategory === "tutoriel" ? tutoriels : astuces;
 
-  const groupedMediasByType = useMemo(() => {
-    const result: Record<string, Record<string, Media[]>> = {};
-
+  // Grouper par catégorie simplement
+  const groupedMedias = useMemo(() => {
+    const groups: Record<string, Media[]> = {};
     medias.forEach((media) => {
-      if (!result[media.type]) result[media.type] = {};
-      if (!result[media.type][media.categorie])
-        result[media.type][media.categorie] = [];
-      result[media.type][media.categorie].push(media);
+      if (!groups[media.categorie]) {
+        groups[media.categorie] = [];
+      }
+      groups[media.categorie].push(media);
     });
-
-    return result;
+    return groups;
   }, [medias]);
-
-  useEffect(() => {
-    if (mediasData) {
-      setLocalMediasData(mediasData);
-    }
-  }, [mediasData]);
 
   // Ad catalogue block data
   const [adFormations, setAdFormations] = useState<CatalogueFormation[]>([]);
   const [adLoading, setAdLoading] = useState(false);
+
   useEffect(() => {
     let mounted = true;
     setAdLoading(true);
@@ -270,52 +240,18 @@ export default function TutoAstucePage() {
     };
   }, []);
 
-  const mediaTypeConfig = {
-    video: {
-      icon: <FilmIcon className="w-4 h-4 text-red-500" />,
-      label: "Vidéos",
-    },
-    image: {
-      icon: <PhoneOutgoingIcon className="w-4 h-4 text-blue-500" />,
-      label: "Images",
-    },
-    audio: {
-      icon: <Music2Icon className="w-4 h-4 text-purple-500" />,
-      label: "Audios",
-    },
-    document: {
-      icon: <FileIcon className="w-4 h-4 text-green-500" />,
-      label: "Documents",
-    },
-  };
-
   // Effets
   useEffect(() => {
-    if (medias.length > 0) {
-      setSelectedMedia((prev) =>
-        prev && medias.some((m) => m.id === prev.id) ? prev : medias[0]
-      );
-    } else {
-      setSelectedMedia(null);
+    if (mediasData) {
+      setLocalMediasData(mediasData);
     }
+  }, [mediasData]);
 
-    setExpandedSections((prev) => {
-      const newExpanded = { ...prev };
-      let hasChanged = false;
-
-      Object.keys(groupedMediasByType).forEach((type) => {
-        Object.keys(groupedMediasByType[type]).forEach((category) => {
-          const key = `${type}-${category}`;
-          if (newExpanded[key] === undefined) {
-            newExpanded[key] = true;
-            hasChanged = true;
-          }
-        });
-      });
-
-      return hasChanged ? newExpanded : prev;
-    });
-  }, [activeCategory, groupedMediasByType, medias]);
+  useEffect(() => {
+    if (medias.length > 0 && !selectedMedia) {
+      setSelectedMedia(medias[0]);
+    }
+  }, [medias, selectedMedia]);
 
   useEffect(() => {
     if (!selectedFormationId && formationsWithTutos.length > 0) {
@@ -323,80 +259,45 @@ export default function TutoAstucePage() {
     }
   }, [formationsWithTutos, selectedFormationId]);
 
-  useEffect(() => {
-    const handleMediaWatched = (e: CustomEvent) => {
-      const { mediaId } = e.detail;
-      setLocalMediasData((prev) => {
-        if (!prev) return prev;
-
-        return {
-          ...prev,
-          tutoriels: prev.tutoriels.map((media) =>
-            media.id === mediaId
-              ? { ...media, stagiaires: [{ is_watched: true }] }
-              : media
-          ),
-          astuces: prev.astuces.map((media) =>
-            media.id === mediaId
-              ? { ...media, stagiaires: [{ is_watched: true }] }
-              : media
-          ),
-        };
-      });
-    };
-
-    window.addEventListener(
-      "media-watched",
-      handleMediaWatched as EventListener
-    );
-    return () =>
-      window.removeEventListener(
-        "media-watched",
-        handleMediaWatched as EventListener
-      );
-  }, []);
-
-  // Handlers
-  const toggleSection = (section: string) => {
-    setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
-  };
-
-  // Rendu
   return (
     <Layout>
-      <div
-        className="mx-auto mt-[-8%] px-2 sm:px-4 py-4 sm:py-6 max-w-7xl w-full overflow-hidden"
-        style={{ maxWidth: "90vw" }}>
-        <div className="flex flex-col gap-4 sm:gap-6">
-          {/* En-tête */}
-          <div className="p-3 sm:p-4">
-            <h1 className="block text-xl sm:text-3xl text-brown-shade font-bold mb-2 sm:mb-4 text-center sm:text-left">
-              Tutoriels et astuces
-            </h1>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header simple */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h1 className="text-xl font-semibold text-gray-900">
+                  Tutoriels & Astuces
+                </h1>
+                <p className="text-gray-600 text-sm mt-1">
+                  Apprenez à votre rythme
+                </p>
+              </div>
 
-            <div className="flex flex-col gap-2 w-full sm:flex-row sm:items-center sm:gap-4 sm:justify-between">
-              <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="flex items-center gap-3">
                 <MediaTabs
                   active={activeCategory}
                   onChange={setActiveCategory}
-                  className="flex-1"
                 />
+
                 <select
                   value={selectedFormationId ?? ""}
                   onChange={(e) =>
                     setSelectedFormationId(e.target.value || null)
                   }
-                  className="w-full sm:w-auto px-3 py-2 text-sm"
-                  aria-label="Sélectionner une formation">
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                   {formationsWithTutos.map((formation) => (
                     <option key={formation.id} value={formation.id}>
                       {formation.titre}
                     </option>
                   ))}
                 </select>
+
                 <button
                   onClick={() => refetch()}
-                  className="px-2 py-2 bg-yellow-400 text-white flex items-center justify-center text-sm rounded-full"
+                  disabled={isFetching}
+                  className="p-2 text-gray-600 hover:text-gray-800 disabled:opacity-50"
                   title="Rafraîchir">
                   <RefreshCw
                     className={`w-5 h-5 ${isFetching ? "animate-spin" : ""}`}
@@ -405,72 +306,61 @@ export default function TutoAstucePage() {
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Contenu principal */}
-          <div className="w-full max-w-full">
-            {/* Responsive layout: player + collapsible list on large screens */}
-            <div
-              className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-start"
-              style={{ maxWidth: "90vw" }}>
-              {/* Left column: media list (collapsible on large screens) */}
-              <div className={`col-span-1 order-2 lg:order-1`}> 
-                <div className="p-3 sm:p-4">
-                  {/* <div className="flex items-center justify-between mb-2">
-                    <h2 className="text-sm font-semibold">Liste des médias</h2>
-                    <button
-                      aria-pressed={isLeftCollapsed}
-                      aria-label={isLeftCollapsed ? "Afficher la liste" : "Masquer la liste"}
-                      onClick={() => setIsLeftCollapsed((s) => !s)}
-                      className="px-2 py-1 text-sm rounded bg-gray-100 hover:bg-gray-200">
-                      {isLeftCollapsed ? "Afficher" : "Masquer"}
-                    </button>
-                  </div> */}
-
-                  {!isLeftCollapsed ? (
-                    <div className="p-2 overflow-auto">
-                      {isLoading ? (
-                        <MediaSkeleton count={5} />
-                      ) : medias.length === 0 ? (
-                        <div className="text-center py-8 text-gray-500">Aucun média disponible</div>
-                      ) : (
-                        <div className="space-y-2 overflow-y-auto max-h-[60vh]">
-                          {Object.entries(groupedMediasByType).map(([type, categories]) => (
-                            <MediaListSection
-                              key={type}
-                              type={type}
-                              icon={mediaTypeConfig[type].icon}
-                              label={mediaTypeConfig[type].label}
-                              categories={categories}
-                              isExpanded={expandedSections[type]}
-                              onToggle={() => toggleSection(type)}
-                              selectedMedia={selectedMedia}
-                              onSelectMedia={setSelectedMedia}
-                            />
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-gray-400 text-sm">Liste masquée</div>
-                  )}
+        {/* Contenu principal */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Liste des médias - Version simplifiée */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-xl border border-gray-200 p-4">
+                <div className="mb-4">
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Liste des médias
+                  </h2>
+                  <p className="text-gray-500 text-sm mt-1">
+                    {medias.length} média{medias.length > 1 ? "s" : ""}{" "}
+                    disponible{medias.length > 1 ? "s" : ""}
+                  </p>
                 </div>
-              </div>
 
-              {/* Media player column (main) */}
-              <div className="col-span-1 lg:col-span-3 order-1 lg:order-2">
-                <div className="sticky top-20">
-                  <MediaPlayerSection media={selectedMedia} />
-                </div>
+                {isLoading ? (
+                  <MediaSkeleton />
+                ) : medias.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <Sparkles className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">Aucun média disponible</p>
+                  </div>
+                ) : (
+                  <div className="space-y-1 max-h-[600px] overflow-y-auto">
+                    {Object.entries(groupedMedias).map(
+                      ([category, categoryMedias]) => (
+                        <MediaCategorySection
+                          key={category}
+                          title={category}
+                          medias={categoryMedias}
+                          selectedMedia={selectedMedia}
+                          onSelectMedia={setSelectedMedia}
+                        />
+                      )
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Ad catalogue block */}
-            {!adLoading && adFormations.length > 0 && (
-              <div className="mt-6">
-                <AdCatalogueBlock formations={adFormations.slice(0, 6)} />
-              </div>
-            )}
+            {/* Lecteur de média */}
+            <div className="lg:col-span-2">
+              <MediaPlayerSection media={selectedMedia} />
+            </div>
           </div>
+
+          {/* Catalogue de formations */}
+          {!adLoading && adFormations.length > 0 && (
+            <div className="mt-8">
+              <AdCatalogueBlock formations={adFormations.slice(0, 6)} />
+            </div>
+          )}
         </div>
       </div>
     </Layout>
