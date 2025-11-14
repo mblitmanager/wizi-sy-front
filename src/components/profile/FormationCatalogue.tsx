@@ -34,7 +34,7 @@ type FormationItem = {
 
 interface FormationCatalogueProps {
   formations: FormationItem[];
-  isLoading?: boolean; // 👈 ajouté
+  isLoading?: boolean;
 }
 
 const CATEGORY_COLORS: Record<
@@ -73,6 +73,52 @@ const CATEGORY_COLORS: Record<
   },
 };
 
+// Composant Skeleton pour le chargement
+const FormationCardSkeleton: React.FC = () => {
+  return (
+    <div className="group cursor-pointer transition-all duration-300">
+      <div className="relative p-6 bg-white dark:bg-gray-800 border-l-4 border-gray-300 dark:border-gray-600 rounded-r-lg h-full flex flex-col shadow-sm">
+        {/* En-tête avec badge et icône */}
+        <div className="flex justify-between items-start mb-4">
+          <div className="h-6 w-20 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
+          <div className="h-9 w-9 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+        </div>
+
+        {/* Titre */}
+        <div className="space-y-2 mb-3">
+          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4"></div>
+        </div>
+
+        {/* Durée */}
+        <div className="flex items-center mb-3">
+          <div className="h-4 w-4 bg-gray-200 dark:bg-gray-700 rounded mr-2 animate-pulse"></div>
+          <div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+        </div>
+
+        {/* Formateur */}
+        <div className="flex items-center mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <div className="h-6 w-6 bg-gray-200 dark:bg-gray-600 rounded-full mr-2 animate-pulse"></div>
+          <div className="space-y-1 flex-1">
+            <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded animate-pulse w-24"></div>
+            <div className="h-3 bg-gray-200 dark:bg-gray-600 rounded animate-pulse w-32"></div>
+          </div>
+        </div>
+
+        {/* Description */}
+        <div className="flex-grow mb-4 space-y-2">
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-2/3"></div>
+        </div>
+
+        {/* Bouton */}
+        <div className="h-9 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+      </div>
+    </div>
+  );
+};
+
 const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
   formations,
   isLoading = false,
@@ -91,16 +137,19 @@ const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
 
   const hasFormations = uniqueFormations.length > 0;
 
-  // 🔄 Si on est encore en chargement
+  // 🔄 Affichage du skeleton pendant le chargement
   if (isLoading) {
     return (
-      <div className="col-span-full text-center py-12">
-        <div className="text-gray-400 dark:text-gray-500 mb-4">
-          <Clock className="mx-auto h-16 w-16 animate-spin" />
+      <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-gray-800">
+        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Affiche 3 cartes de skeleton pendant le chargement */}
+          {[...Array(3)].map((_, index) => (
+            <FormationCardSkeleton key={index} />
+          ))}
         </div>
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-          Chargement des formations...
-        </h3>
+        <div className="flex justify-center mt-8">
+          <div className="h-9 w-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+        </div>
       </div>
     );
   }
@@ -215,7 +264,6 @@ const FormationCatalogue: React.FC<FormationCatalogueProps> = ({
             );
           })
         ) : (
-          // ❌ Ce message n'apparaît plus pendant le chargement
           <div className="col-span-full text-center py-12">
             <div className="text-gray-400 dark:text-gray-500 mb-4">
               <FolderOpenIcon className="mx-auto h-16 w-16" />
