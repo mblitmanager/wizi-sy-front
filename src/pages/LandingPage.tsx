@@ -4,7 +4,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
 import { Button } from "@/components/ui/button";
 // Optimisation du chargement des images avec le composant next/image
-const logo = new URL("@/assets/logo.png", import.meta.url).href;
+const logo = '/logons.png';
 import { WifiOff } from "lucide-react";
 import Hero from "@/components/landing/Hero";
 import HowItWorks from "@/components/landing/HowItWorks";

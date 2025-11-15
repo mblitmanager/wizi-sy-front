@@ -67,7 +67,7 @@ const ContactSupportPage = () => {
     } catch (error) {
       console.error("Erreur lors de l'envoi:", error);
       setSubmitStatus("error");
-    } finally {
+               <img src="/logons.png" alt="Logo" className="h-16 mb-2" />
       setIsSubmitting(false);
     }
   };
@@ -104,7 +104,7 @@ const ContactSupportPage = () => {
         <motion.div
           variants={itemVariants}
           className="flex flex-col items-center mb-6">
-          <img src="/assets/logo.png" alt="Logo" className="h-16 mb-2" />
+          <img src="/logons.png" alt="Logo" className="h-16 mb-2" />
           <h1 className="text-3xl font-bold text-brown-shade">
             Comment peut-on t'aider ?
           </h1>

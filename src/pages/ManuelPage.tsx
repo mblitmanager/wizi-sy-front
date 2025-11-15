@@ -1,6 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
 import { useState } from "react";
-import logo from "../assets/logo.png";
 import { FORMATIONMETADATA } from "@/utils/constants";
 
 const sections = [
@@ -235,7 +234,7 @@ const ManuelPage = () => {
       <div className="container mx-auto py-8 px-4">
         <div className="flex flex-col items-center mb-6">
           <img
-            src="/assets/logo.png"
+            src="/logons.png"
             alt="Wizi Learn Logo"
             className="h-16 mb-2"
           />

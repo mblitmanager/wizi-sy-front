@@ -260,11 +260,11 @@ const HomePage: React.FC = () => {
       </div>
       {/* En-tête avec bienvenue et progression */}
       <div className="mb-8">
-        <img
-          src="/assets/wizi-learn-logo.png"
-          alt="Wizi Learn Logo"
-          className="w-32 mb-6"
-        />
+          <img
+            src="/logons.png"
+            alt="Wizi Learn Logo"
+            className="w-32 mb-6"
+          />
         <h1 className="text-3xl font-bold mb-2">Bienvenue sur Wizi-Learn</h1>
         <p className="text-muted-foreground mb-4">
           Votre plateforme d'apprentissage personnalisée

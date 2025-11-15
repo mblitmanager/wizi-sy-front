@@ -3,7 +3,7 @@ import MainNav from "./MainNav";
 import { MobileNav } from "./MobileNav";
 import { Navbar } from "./Navbar";
 import { useUser } from "@/hooks/useAuth";
-import logo from "../../assets/logo.png";
+const logo = '/logons.png';
 import { Menu, X } from "lucide-react";
 import { useMediaQuery } from "@mui/system";
 import { ParrainageBanner } from "../parrainage/ParrainageBanner";

@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Link, Navigate } from "react-router-dom";
 import { useUser } from "@/hooks/useAuth";
-import logo from "@/assets/logo.png";
+const logo = '/logons.png';
 import { messaging, getToken } from "@/firebase-fcm";
 import { api } from "@/services";
 

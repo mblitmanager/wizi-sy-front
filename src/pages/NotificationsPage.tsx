@@ -241,14 +241,14 @@ export default function NotificationsPage() {
           if (Notification.permission === "granted") {
             new Notification("Nouvelle notification", {
               body: newNotif.message,
-              icon: "/favicon.ico",
+              icon: "/favicon2.ico",
             });
           } else if (Notification.permission !== "denied") {
             Notification.requestPermission().then((permission) => {
               if (permission === "granted") {
                 new Notification("Nouvelle notification", {
                   body: newNotif.message,
-                  icon: "/favicon.ico",
+                  icon: "/favicon2.ico",
                 });
               }
             });
@@ -276,7 +276,7 @@ export default function NotificationsPage() {
       if ("Notification" in window && Notification.permission === "granted") {
       new Notification("Nouvelle notification", {
         body: notif.message,
-        icon: "/favicon.ico",
+        icon: "/favicon2.ico",
       });
     }
     setNotifications((prev) => [notif, ...prev]);

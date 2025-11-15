@@ -1,12 +1,11 @@
 import { Layout } from "@/components/layout/Layout";
-import logo from "../../assets/logo.png";
 import { FORMATIONMETADATA } from "@/utils/constants";
 
 const CGVPage = () => (
   <Layout>
     <div className="container mx-auto py-8 px-4">
       <div className="flex flex-col items-center mb-6">
-        <img src="/assets/logo.png" alt="Logo" className="h-16 mb-2" />
+  <img src="/logons.png" alt="Logo" className="h-16 mb-2" />
         <h1 className="text-3xl font-bold text-brown-shade">
           Conditions Générales de Vente (CGV)
         </h1>

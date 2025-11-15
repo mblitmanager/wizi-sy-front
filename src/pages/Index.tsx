@@ -535,7 +535,45 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
               <p className="text-gray-400 text-s mb-3">
                 Accédez à Wizi Learn partout grâce à notre application iOS.
               </p>
-              <button className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-yellow-400 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-orange-700 transition-colors">
+              <button
+                className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-yellow-400 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-orange-700 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(
+                    "https://apps.apple.com/mg/app/wizi-learn/id6752468866",
+                    "_blank"
+                  );
+                  if (user && localStorage.getItem("token")) {
+                    axios
+                      .post(
+                        `${API_URL}/stagiaire/achievements/check`,
+                        { code: "ios_download" },
+                        {
+                          headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                          },
+                        }
+                      )
+                      .then((res) => {
+                        const unlocked = res.data?.new_achievements || [];
+                        if (Array.isArray(unlocked) && unlocked.length > 0) {
+                          unlocked.forEach((ach) => {
+                            toast({
+                              title: `🎉 Succès débloqué`,
+                              description:
+                                (ach.name || ach.titre || ach.title || "Achievement") +
+                                " !",
+                              duration: 4000,
+                              variant: "default",
+                              className: "bg-orange-600 text-white",
+                            });
+                          });
+                        }
+                      })
+                      .catch(() => {});
+                  }
+                }}
+              >
                 Télécharger
               </button>
             </div>

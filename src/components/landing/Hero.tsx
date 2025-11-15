@@ -117,6 +117,12 @@ export function Hero({ logo }: { logo: string }) {
                 className="max-w-[200px] md:max-w-[300px] lg:max-w-full h-auto object-contain mx-auto"
                 loading="lazy"
               />
+              <img
+                src="./assets/logo.png"
+                alt="Wizi Learn logo"
+                className="max-w-[200px] md:max-w-[300px] lg:max-w-full h-auto object-contain mx-auto"
+                loading="lazy"
+              />
             </div>
           </motion.div>
         </div>

@@ -1,11 +1,10 @@
 import { Layout } from "@/components/layout/Layout";
-import logo from "../../assets/logo.png";
 
 const PolitiqueConfidentialitePage = () => (
   <Layout>
     <div className="container mx-auto py-8 px-4 max-w-3xl">
       <div className="flex flex-col items-center mb-6">
-        <img src="/assets/logo.png" alt="Logo" className="h-16 mb-2" />
+  <img src="/logons.png" alt="Logo" className="h-16 mb-2" />
         <h1 className="text-3xl font-bold text-brown-shade">Politique de Confidentialité</h1>
       </div>
       <div className="space-y-6 text-left">
