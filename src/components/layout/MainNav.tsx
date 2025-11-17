@@ -78,7 +78,7 @@ export default function MainNav({
   // Sous-navigation du profil
   const profileNavItems = [
     {
-      title: "Profil Principal",
+      title: "Mes Informations",
       href: "/profile",
       icon: User,
       color: "text-yellow-600",
