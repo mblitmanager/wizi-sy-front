@@ -113,7 +113,7 @@ export function Hero({ logo }: { logo: string }) {
             <div className="w-full max-w-md p-6 flex items-center justify-center">
               <img
                 src={logo}
-                alt="Wizi Learn logo"
+                alt="NS Conseil logo"
                 className="max-w-[200px] md:max-w-[300px] lg:max-w-full h-auto object-contain mx-auto"
                 loading="lazy"
               />

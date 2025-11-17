@@ -4,6 +4,8 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 const logo = '/logons.png';
+const logonsImg = "/assets/ns.png"; // public asset
+import wiziLogo from "@/assets/logo.png";
 
 interface ApiResponse {
   message?: string;
@@ -63,7 +65,19 @@ const ResetPassword = () => {
       style={{ background: `linear-gradient(to top, white 0%, var(--brand-primary) 0%, rgba(255,255,255,0) 100%)` }}>
       {/* Logo en haut */}
       <div className="flex flex-col items-center mb-8">
-        <img src={logo} alt="Wizi Learn" className="h-32 mb-2 drop-shadow-lg" />
+        <div className="flex items-center gap-6">
+          
+          <img
+            src={logonsImg}
+            alt="NS Conseil"
+            className="h-16 w-auto sm:h-20 md:h-24 lg:h-28 opacity-90"
+          />
+          <img
+            src={wiziLogo}
+            alt="Wizi Learn"
+            className="h-16 w-auto sm:h-20 md:h-24 lg:h-28"
+          />
+        </div>
         <p className="text-black font-bold text-center max-w-xs">
           La plateforme de quiz éducatifs pour nos stagiaires
         </p>
