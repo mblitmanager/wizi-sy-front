@@ -11,7 +11,7 @@ import { BookOpen, Award, Clock, Play } from "lucide-react";
 import type { Quiz, Category } from "@/types/quiz";
 import React from "react";
 import { stripHtmlTags } from "@/utils/UtilsFunction";
-import { Link } from "react-router-dom"; // Import important
+import { useNavigate } from "react-router-dom";
 import bureatique from "../../assets/icons/bureautique.png";
 import internet from "../../assets/icons/internet.png";
 import creation from "../../assets/icons/creation.png";
@@ -153,6 +153,7 @@ export function QuizCard({
   history,
   onStartQuiz,
 }: QuizCardProps) {
+  const navigate = useNavigate();
   const categoryName =
     quiz.formation?.categorie || quiz.categorie || "Non catégorisé";
   const categoryConfig = getCategoryConfig(categoryName);
@@ -170,15 +171,34 @@ export function QuizCard({
 
   const handleStartQuiz = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Si onStartQuiz est fourni, l'utiliser, sinon la navigation se fera via le Link
+    // If an external handler is provided, call it. Otherwise navigate to quiz page.
     if (onStartQuiz) {
       onStartQuiz(quiz);
+      return;
+    }
+    navigate(`/quiz/${quiz.id}`);
+  };
+
+  const handleCardActivation = () => {
+    if (onStartQuiz) {
+      onStartQuiz(quiz);
+    } else {
+      navigate(`/quiz/${quiz.id}`);
     }
   };
 
   return (
     <Card
-      className={`w-full h-full overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1 ${categoryConfig.borderColor} ${categoryConfig.bgColor}`}>
+      onClick={handleCardActivation}
+      onKeyDown={(e: React.KeyboardEvent) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleCardActivation();
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      className={`cursor-pointer w-full h-full overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1 ${categoryConfig.borderColor} ${categoryConfig.bgColor}`}>
       {/* Bande de couleur de catégorie en haut */}
       <div
         className="h-2 w-full"
@@ -296,15 +316,16 @@ export function QuizCard({
             </div>
           )}
 
-          {/* Bouton Commencer avec Link */}
-          <Link to={`/quiz/${quiz.id}`} className="block w-full">
+          {/* Bouton Commencer (visuel) - clicking card also starts/navigates */}
+          <div className="block w-full">
             <Button
+              onClick={handleStartQuiz}
               className={`w-full ${categoryConfig.buttonColor} text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md active:scale-95`}
               size="sm">
               <Play className="w-4 h-4" />
               {h ? "Refaire le quiz" : "Commencer le quiz"}
             </Button>
-          </Link>
+          </div>
         </CardContent>
       </div>
     </Card>

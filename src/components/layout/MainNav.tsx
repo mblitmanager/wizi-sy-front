@@ -44,7 +44,7 @@ export default function MainNav({
       color: "text-yellow-600",
     },
     {
-      title: "Formations",
+      title: "Formation",
       href: "/catalogue",
       icon: GraduationCap,
       color: "text-yellow-600",
@@ -62,7 +62,7 @@ export default function MainNav({
       color: "text-yellow-600",
     },
     {
-      title: "Tutoriels",
+      title: "Tutoriel",
       href: "/tuto-astuce",
       icon: Video,
       color: "text-yellow-600",
@@ -239,14 +239,14 @@ export default function MainNav({
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 space-y-6 h-[600px]">
           {/* Navigation principale */}
-          <div className="space-y-1">
+            <div className="space-y-1 hidden md:block">
             <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
               Navigation
             </h3>
-            {mainNavItems.map((item, index) => (
+            {mainNavItems.map((item) => (
               <NavItem key={item.href} item={item} />
             ))}
-          </div>
+            </div>
 
           {/* Section Profil - Tous les items au même niveau */}
           <div className="space-y-1">

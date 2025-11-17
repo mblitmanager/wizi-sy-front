@@ -88,19 +88,16 @@ export default function Catalogue() {
   return (
     <Layout>
       <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-2 sm:gap-0 mt-[-5%] md:mt-0 sm:mt-0">
-          <div>
-            <h1 className="text-3xl sm:text-2xl md:text-3xl text-brown-shade font-bold">
-              Catalogue de formations
-            </h1>
-            <p className="text-sm text-gray-600 mt-1">Bienvenue sur votre plateforme d’apprentissage intelligente Wizi Learn. Parcourez nos formations pour progresser rapidement.</p>
-          </div>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-2 sm:gap-0 mt-[-5%] md:mt-0 sm:mt-0">
+          <h1 className="text-2xl sm:text-xl md:text-2xl text-brown-shade font-bold">
+            Notre catalogue de formations
+          </h1>
           {selectedCategory && (
             <Button
               variant="outline"
               size="sm"
               onClick={() => setSelectedCategory(null)}
-              className="sm:mb-0 bg-wizi-muted text-wizi-muted hover:bg-wizi-accent/20">
+              className="sm:mb-0 bg-yellow-300 hover:bg-yellow-100">
               Réinitialiser le filtre
             </Button>
           )}
@@ -129,12 +126,12 @@ export default function Catalogue() {
                   ] || defaultStyle;
 
                 return (
-                    <Card
-                      key={category.id}
-                      className={`group relative overflow-hidden border rounded-lg transition-all hover:shadow-lg ${
-                        cardStyle.split(" ")[0]
-                      } ${cardStyle.split(" ")[1]}`}
-                      onClick={() => setSelectedCategory(category.name)}>
+                  <Card
+                    key={category.id}
+                    className={`group relative overflow-hidden border rounded-lg transition-all hover:shadow-lg ${
+                      cardStyle.split(" ")[0]
+                    } ${cardStyle.split(" ")[1]}`}
+                    onClick={() => setSelectedCategory(category.name)}>
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 opacity-20"></div>
 
                     <CardHeader className="relative z-10 p-2 sm:p-4">

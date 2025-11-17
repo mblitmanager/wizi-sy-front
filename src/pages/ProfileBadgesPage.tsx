@@ -156,7 +156,7 @@ const ProfileBadgesPage = () => {
         </div>
 
         {/* Filtres par type */}
-        {availableTypes.length > 0 && (
+        {/* {availableTypes.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-6">
             <button
               onClick={() => setSelectedType(null)}
@@ -180,7 +180,7 @@ const ProfileBadgesPage = () => {
               </button>
             ))}
           </div>
-        )}
+        )} */}
 
         {/* Grille des badges */}
         {loading ? (
