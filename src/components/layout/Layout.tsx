@@ -8,14 +8,14 @@ import { Menu, X,  LogOut } from "lucide-react";
 import { useMediaQuery } from "@mui/system";
 import { ParrainageBanner } from "../parrainage/ParrainageBanner";
 import { Link } from "react-router-dom";
-import { Button } from "react-day-picker";
+import { Button } from "@/components/ui/button";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 export function Layout({ children }: LayoutProps) {
-  const { token } = useUser();
+  const { token, logout } = useUser();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Règles de responsive design
@@ -56,12 +56,13 @@ export function Layout({ children }: LayoutProps) {
             `}
           />
         </Link>
-               <Button
-      onClick={onLogout}
-      className="text-red-600 hover:bg-red-50">
-      <LogOut className="mr-2 h-4 w-4" />
-      <span>Déconnexion</span>
-    </Button>
+        <Button
+          onClick={logout}
+          className="text-orange-600 hover:bg-orange-50 mx-4 mt-2 bg-m">
+          <span>Déconnexion</span>
+          <LogOut className="mr-2 h-4 w-4" />
+          
+        </Button>
         <div className="flex-1 overflow-y-auto">
           <MainNav />
         </div>
@@ -77,11 +78,18 @@ export function Layout({ children }: LayoutProps) {
           <div className="fixed inset-y-0 left-0 w-80 max-w-full bg-white shadow-xl z-50">
             <div className="flex items-center justify-between p-4 border-b">
               <img src={logo} alt="Logo" className="object-contain h-10" />
-              <button
+                <Button
+          onClick={logout}
+          className="text-orange-600 hover:bg-orange-50 mx-4 mt-2 bg-m">
+          <span>Déconnexion</span>
+          <LogOut className="mr-2 h-4 w-4" />
+          
+        </Button>
+              {/* <Button
                 onClick={() => setIsMenuOpen(false)}
                 className="rounded-md p-2 text-gray-400 hover:text-gray-600 cursor-pointer transition-colors duration-200">
                 <X className="h-6 w-6" />
-              </button>
+              </Button> */}
             </div>
             <div className="p-4 overflow-y-auto h-full">
               <MainNav onItemClick={() => setIsMenuOpen(false)} />

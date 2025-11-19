@@ -184,13 +184,13 @@ export function Navbar({ onMenuToggle }: { onMenuToggle?: () => void }) {
         <div className="flex items-center justify-between">
           {/* left: hamburger + logo */}
           <div className="flex items-center gap-3">
-            {(isTablet || isMobile) && (
+            {/* {(isTablet || isMobile) && (
               <button
                 onClick={() => onMenuToggle && onMenuToggle()}
                 className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-200">
                 <Menu className="h-5 w-5" />
               </button>
-            )}
+            )} */}
             {(isTablet || isMobile) && (
               <Link to="/" className="flex items-center">
                 <img
@@ -200,6 +200,7 @@ export function Navbar({ onMenuToggle }: { onMenuToggle?: () => void }) {
                 />
               </Link>
             )}
+            
           </div>
 
           {/* right: points + notifications + user menu */}
