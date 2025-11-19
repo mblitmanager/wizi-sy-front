@@ -60,8 +60,8 @@ export function Layout({ children }: LayoutProps) {
         </div>
       </aside>
 
-      {/* Menu burger tablette */}
-      {isTablet && isMenuOpen && (
+      {/* Menu burger pour mobile ET tablette */}
+      {(isMobile || isTablet) && isMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
             className="fixed inset-0 bg-black bg-opacity-25"
@@ -92,19 +92,22 @@ export function Layout({ children }: LayoutProps) {
           className={`
           border-b border-gray-200 bg-white shadow-sm 
           flex items-center flex-shrink-0 justify-between 
-          relative z-40
+          relative z-10
           ${isMobile ? "h-12 px-3" : ""}
           ${isTablet ? "h-14 px-4" : ""}
           ${isLaptop || isDesktop ? "h-16 px-6" : ""}
           transition-all duration-300
         `}>
-          {isTablet && !isQuizPlay && (
+          {/* Bouton menu burger pour mobile ET tablette */}
+          {(isMobile || isTablet) && !isQuizPlay && (
             <button
               className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-200"
-              onClick={() => setIsMenuOpen(true)}>
+              onClick={() => setIsMenuOpen(true)}
+              aria-label="Ouvrir le menu">
               <Menu className="h-5 w-5" />
             </button>
           )}
+
           <div
             className={`
             flex-1 flex 
