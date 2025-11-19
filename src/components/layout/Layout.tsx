@@ -4,10 +4,11 @@ import { MobileNav } from "./MobileNav";
 import { Navbar } from "./Navbar";
 import { useUser } from "@/hooks/useAuth";
 const logo = '/assets/logo.png';
-import { Menu, X } from "lucide-react";
+import { Menu, X,  LogOut } from "lucide-react";
 import { useMediaQuery } from "@mui/system";
 import { ParrainageBanner } from "../parrainage/ParrainageBanner";
 import { Link } from "react-router-dom";
+import { Button } from "react-day-picker";
 
 interface LayoutProps {
   children: ReactNode;
@@ -55,6 +56,12 @@ export function Layout({ children }: LayoutProps) {
             `}
           />
         </Link>
+               <Button
+      onClick={onLogout}
+      className="text-red-600 hover:bg-red-50">
+      <LogOut className="mr-2 h-4 w-4" />
+      <span>Déconnexion</span>
+    </Button>
         <div className="flex-1 overflow-y-auto">
           <MainNav />
         </div>
