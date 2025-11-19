@@ -49,7 +49,7 @@ export function ParrainageBanner({ isMobile = false }: ParrainageBannerProps) {
       className={`${
         isMobile
           ? "fixed top-[54px] left-0 right-0 z-40 w-full"
-          : "bg-slate-100 text-white relative z-30"
+          : "bg-slate-100 text-white relative"
       }`}>
       <div
         className={`${

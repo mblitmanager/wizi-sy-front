@@ -60,7 +60,6 @@ export default function MediaPlayer({
               url={media.url}
               mediaId={media.id}
               stagiaireId={0}
-              className="w-full h-full"
             />
           </div>
         );
