@@ -324,21 +324,30 @@ export function QuizSummary() {
                 </div>
               </div>
             </div>
-            fill="none"
-            viewBox="0 0 24 24"
+          </div>
+        </div>
+
+        <div className="mt-8 mb-4">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 text-gray-500"
+              fill="none"
+              viewBox="0 0 24 24"
               stroke="currentColor">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-            />
-          </svg>
-          Détail des réponses
-        </h3>
-        <span className="text-xs sm:text-sm opacity-90">
-          Revoyez chaque question et vos réponses
-        </span>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            Détail des réponses
+          </h3>
+          <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+            Revoyez chaque question et vos réponses
+          </span>
+        </div>
       </div>
 
       {/* Liste des questions/réponses */}
@@ -414,6 +423,6 @@ export function QuizSummary() {
         />
       )}
     </div>
-    </div >
+
   );
 }

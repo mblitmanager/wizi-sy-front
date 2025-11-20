@@ -97,18 +97,20 @@ export const ResumeQuizModal = ({
                 <Button
                     onClick={onDismiss}
                     variant="outlined"
-                    startIcon={<CloseIcon />}
-                    sx={{ flex: { xs: 1, sm: 0 } }}
+                    endIcon={<CloseIcon />}
+                    size="small"
+                    // sx={{ flex: { xs: 1, sm: 0 } }}
                 >
                     Ignorer
                 </Button>
                 <Button
                     onClick={onResume}
                     variant="contained"
-                    startIcon={<QuizIcon />}
-                    sx={{ flex: { xs: 1, sm: 0 } }}
+                    endIcon={<QuizIcon />}
+                    size="small"
+                    // sx={{ flex: { xs: 1, sm: 0 } }}
                 >
-                    Reprendre le quiz
+                    Reprendre
                 </Button>
             </DialogActions>
         </Dialog>
