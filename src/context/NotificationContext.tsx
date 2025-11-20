@@ -32,7 +32,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     if (success) {
       showNotification('Notifications activées', {
         body: 'Vous recevrez désormais des notifications de Wizi Learn.',
-        icon: '/favicon.ico'
+        icon: '/favicon2.ico'
       });
     }
     

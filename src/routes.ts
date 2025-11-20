@@ -1,90 +1,106 @@
-// src/routes.ts
-import { Index } from "@/pages/Index";
-import Login from "@/pages/Login";
-import Register from "@/pages/Register";
-import NotFound from "@/pages/NotFound";
-import Catalogue from "@/pages/Catalogue";
-import CategoryFormations from "@/pages/CategoryFormations";
-import Formation from "@/pages/Formation";
-import Quizzes from "@/pages/Quizzes";
-import Quiz from "@/pages/Quiz";
-import Profile from "@/pages/Profile";
-import Settings from "@/pages/Settings";
-import Classement from "@/pages/Classement";
-import TutoAstucePage from "@/pages/TutoAstucePage";
-import { QuizDetail } from "@/components/quiz/QuizDetail";
-import { QuizResults } from "@/components/quiz/QuizResults";
-import Contact from "@/pages/Contact";
-import Parainage from "@/pages/Parainage";
-import ParrainageInscriptionPage from "@/pages/ParrainageInscriptionPage";
-import CatalogueFormationDetails from "@/components/catalogueFormation/CatalogueFormationDetails";
-import NotificationsPage from "@/pages/NotificationsPage";
+import React, { Suspense, lazy } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import React from "react";
-import FAQPage from "@/pages/FAQPage";
-import CGVPage from "@/pages/CGVPage";
-import ManuelPage from "@/pages/ManuelPage";
-import RemerciementsPage from "@/pages/RemerciementsPage";
-import PolitiqueConfidentialitePage from "@/pages/PolitiqueConfidentialitePage";
-import ContactSupportPage from "@/pages/ContactSupportPage";
-import ForgotPassword from "./components/auth/ForrgotPassword";
-import ResetPassword from "./components/auth/ResetPassword";
+import { LoadingState } from "@/components/quiz/quiz-play/LoadingState";
+
+// Lazy load components
+// Named exports
+const Index = lazy(() => import("@/pages/Index").then(module => ({ default: module.Index })));
+const QuizDetail = lazy(() => import("@/components/quiz/QuizDetail").then(module => ({ default: module.QuizDetail })));
+const QuizResults = lazy(() => import("@/components/quiz/QuizResults").then(module => ({ default: module.QuizResults })));
+
+// Default exports
+const Login = lazy(() => import("@/pages/Login"));
+const Register = lazy(() => import("@/pages/Register"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
+const Catalogue = lazy(() => import("@/pages/Catalogue"));
+const CategoryFormations = lazy(() => import("@/pages/CategoryFormations"));
+const Formation = lazy(() => import("@/pages/Formation"));
+const Quizzes = lazy(() => import("@/pages/Quizzes"));
+const Quiz = lazy(() => import("@/pages/Quiz"));
+const Profile = lazy(() => import("@/pages/Profile"));
+const Settings = lazy(() => import("@/pages/Settings"));
+const Classement = lazy(() => import("@/pages/Classement"));
+const TutoAstucePage = lazy(() => import("@/pages/TutoAstucePage"));
+const Contact = lazy(() => import("@/pages/Contact"));
+const Parainage = lazy(() => import("@/pages/Parainage"));
+const ParrainageInscriptionPage = lazy(() => import("@/pages/ParrainageInscriptionPage"));
+const CatalogueFormationDetails = lazy(() => import("@/components/catalogueFormation/CatalogueFormationDetails"));
+const NotificationsPage = lazy(() => import("@/pages/NotificationsPage"));
+const FAQPage = lazy(() => import("@/pages/FAQPage"));
+const CGVPage = lazy(() => import("@/pages/CGVPage"));
+const ManuelPage = lazy(() => import("@/pages/ManuelPage"));
+const RemerciementsPage = lazy(() => import("@/pages/RemerciementsPage"));
+const PolitiqueConfidentialitePage = lazy(() => import("@/pages/PolitiqueConfidentialitePage"));
+const ContactSupportPage = lazy(() => import("@/pages/ContactSupportPage"));
+const ForgotPassword = lazy(() => import("./components/auth/ForrgotPassword"));
+const ResetPassword = lazy(() => import("./components/auth/ResetPassword"));
+const ProfileBadgesPage = lazy(() => import("@/pages/ProfileBadgesPage"));
+const ProfileFormationsPage = lazy(() => import("@/pages/ProfileFormationsPage"));
+const ProfileStatsPage = lazy(() => import("@/pages/ProfileStatsPage"));
+
+// Helper to wrap components in Suspense
+const Loadable = (Component: React.LazyExoticComponent<any>) =>
+  React.createElement(
+    Suspense,
+    { fallback: React.createElement(LoadingState) },
+    React.createElement(Component)
+  );
 
 export const routes = [
   {
     path: "/remerciements",
-    element: React.createElement(RemerciementsPage),
+    element: Loadable(RemerciementsPage),
   },
   {
     path: "/politique-confidentialite",
-    element: React.createElement(PolitiqueConfidentialitePage),
+    element: Loadable(PolitiqueConfidentialitePage),
   },
   {
     path: "/contact-support",
-    element: React.createElement(ContactSupportPage),
+    element: Loadable(ContactSupportPage),
   },
   {
     path: "/faq",
-    element: React.createElement(FAQPage),
+    element: Loadable(FAQPage),
   },
   {
     path: "/cgv",
-    element: React.createElement(CGVPage),
+    element: Loadable(CGVPage),
   },
   {
     path: "/manuel",
-    element: React.createElement(ManuelPage),
+    element: Loadable(ManuelPage),
   },
   {
     path: "/",
-    element: React.createElement(Index),
+    element: Loadable(Index),
   },
   {
     path: "/login",
-    element: React.createElement(Login),
+    element: Loadable(Login),
   },
   {
     path: "/forgot-password",
-    element: React.createElement(ForgotPassword),
+    element: Loadable(ForgotPassword),
   },
   {
     path: "/reset-password",
-    element: React.createElement(ResetPassword),
+    element: Loadable(ResetPassword),
   },
   {
     path: "/register",
-    element: React.createElement(Register),
+    element: Loadable(Register),
   },
   {
     path: "/parrainage/:token",
-    element: React.createElement(ParrainageInscriptionPage),
+    element: Loadable(ParrainageInscriptionPage),
   },
   {
     path: "/catalogue",
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      React.createElement(Catalogue)
+      Loadable(Catalogue)
     ),
   },
   {
@@ -92,7 +108,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      React.createElement(CategoryFormations)
+      Loadable(CategoryFormations)
     ),
   },
   {
@@ -100,7 +116,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      React.createElement(Formation)
+      Loadable(Formation)
     ),
   },
   {
@@ -108,7 +124,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      React.createElement(Quizzes)
+      Loadable(Quizzes)
     ),
   },
   {
@@ -116,7 +132,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      React.createElement(Quiz)
+      Loadable(Quiz)
     ),
   },
   {
@@ -124,7 +140,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      React.createElement(QuizDetail)
+      Loadable(QuizDetail)
     ),
   },
   {
@@ -132,7 +148,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      React.createElement(Quiz)
+      Loadable(Quiz)
     ),
   },
   {
@@ -140,15 +156,40 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      React.createElement(QuizResults)
+      Loadable(QuizResults)
     ),
   },
+  // Routes de profil
   {
     path: "/profile",
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      React.createElement(Profile)
+      Loadable(Profile)
+    ),
+  },
+  {
+    path: "/profile/badges",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(ProfileBadgesPage)
+    ),
+  },
+  {
+    path: "/profile/formations",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(ProfileFormationsPage)
+    ),
+  },
+  {
+    path: "/profile/statistiques",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(ProfileStatsPage)
     ),
   },
   {
@@ -156,7 +197,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      React.createElement(Settings)
+      Loadable(Settings)
     ),
   },
   {
@@ -164,7 +205,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      React.createElement(Classement)
+      Loadable(Classement)
     ),
   },
   {
@@ -172,7 +213,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      React.createElement(TutoAstucePage)
+      Loadable(TutoAstucePage)
     ),
   },
   {
@@ -180,7 +221,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      React.createElement(Contact)
+      Loadable(Contact)
     ),
   },
   {
@@ -188,7 +229,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      React.createElement(Parainage)
+      Loadable(Parainage)
     ),
   },
   {
@@ -196,7 +237,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      React.createElement(CatalogueFormationDetails)
+      Loadable(CatalogueFormationDetails)
     ),
   },
   {
@@ -204,11 +245,11 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      React.createElement(NotificationsPage)
+      Loadable(NotificationsPage)
     ),
   },
   {
     path: "*",
-    element: React.createElement(NotFound),
+    element: Loadable(NotFound),
   },
 ];

@@ -262,73 +262,102 @@ export default function CatalogueFormationDetails() {
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         <div className="flex items-center justify-between mb-6">
-           <h2 className="relative inline-block text-3xl md:text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-amber-500 to-wizi-accent drop-shadow-md">
-      <span className="relative z-10 text-orange-400">{details.catalogueFormation.titre}</span>
-      {/* petite barre décorative en dessous */}
-  <span className="absolute left-1/2 -bottom-2 h-1 w-16 -translate-x-1/2 rounded-full bg-gradient-to-r from-orange-400 to-wizi-accent"></span>
-    </h2>
+          <h2 className="relative inline-block text-3xl md:text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 drop-shadow-md">
+            <span className="relative z-10 text-orange-400">
+              {details.catalogueFormation.titre}
+            </span>
+            {/* petite barre décorative en dessous */}
+            <span className="absolute left-1/2 -bottom-2 h-1 w-16 -translate-x-1/2 rounded-full bg-gradient-to-r from-orange-400 to-yellow-400"></span>
+          </h2>
           <Button onClick={() => window.history.back()}>{RETOUR}</Button>
         </div>
 
         {details.catalogueFormation.formation && (
-          <div className="mt-6 p-5 rounded-2xl bg-wizi-muted dark:from-gray-900 dark:to-gray-800 shadow-md">
-      <div className="text-gray-700 dark:text-gray-300 leading-relaxed"
-        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(details.catalogueFormation.formation.description || "") }}
-      />
-     
-    </div>
+          <div className="mt-6 p-5 rounded-2xl bg-gradient-to-br from-yellow-50 to-white dark:from-gray-900 dark:to-gray-800 shadow-md mb-2">
+            <div
+              className="text-gray-700 dark:text-gray-300 leading-relaxed"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(
+                  details.catalogueFormation.formation.description || ""
+                ),
+              }}
+            />
+          </div>
         )}
 
         <Card className="overflow-hidden">
           <div className="grid grid-cols-1 md:grid-cols-3">
-        {/* HERO / Media column (left on desktop) */}
-        <div className="relative md:col-span-1 h-64 md:h-auto">
-          {/* media element fills the hero */}
-          <div className="absolute inset-0">
-            {renderMediaElement()}
-            {/* dark overlay for readability */}
-            {/* <div className="absolute inset-0 bg-black/25" /> */}
-          </div>
+            {/* HERO / Media column (left on desktop) */}
+            <div className="relative md:col-span-1 h-64 md:h-auto">
+              {/* media element fills the hero */}
+              <div className="absolute inset-0">
+                {renderMediaElement()}
+                {/* dark overlay for readability */}
+                {/* <div className="absolute inset-0 bg-black/25" /> */}
+              </div>
 
-          {/* Price badge - overlayed bottom-left */}
-          <div className="absolute left-4 bottom-4">
-            {/* determine suffix from category to apply price-badge class */}
-            {(() => {
-          const rawCat = details.catalogueFormation.formation?.categorie as unknown as string | undefined;
-          const suffix = rawCat ? rawCat.toLowerCase() : '';
-          const price = details.catalogueFormation.tarif;
-          return (
-            <div className={`inline-block px-3 py-1 rounded-md text-white ${suffix ? `price-badge-${suffix}` : 'bg-gray-700'}`}>
-              {Number(price) > 0 ? `${Number(price).toLocaleString('fr-FR')} €` : 'À la demande'}
+              {/* Price badge - overlayed bottom-left */}
+              <div className="absolute left-4 bottom-4">
+                {/* determine suffix from category to apply price-badge class */}
+                {/* {(() => {
+                  const rawCat = details.catalogueFormation.formation
+                    ?.categorie as unknown as string | undefined;
+                  const suffix = rawCat ? rawCat.toLowerCase() : "";
+                  const price = details.catalogueFormation.tarif;
+                  return (
+                    <div
+                      className={`inline-block px-3 py-1 font-extrabold drop-shadow-lg rounded-md text-white ${
+                        suffix ? `price-badge-${suffix}` : "bg-gray-700"
+                      }`}>
+                      {price
+                        ? `${Number(price)
+                            .toLocaleString("fr-FR", {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            })
+                            .replace(/\u202F/g, " ")} ${
+                            FORMATIONMETADATA.euros
+                          }`
+                        : "-"}
+                    </div>
+                  );
+                })()} */}
+              </div>
+
+              {/* Category chip - overlayed top-left */}
+              <div className="absolute left-4 top-4">
+                {(() => {
+                  const rawCat = details.catalogueFormation.formation
+                    ?.categorie as unknown as string | undefined;
+                  const suffix = rawCat ? rawCat.toLowerCase() : "";
+                  return (
+                    <span
+                      className={`inline-block text-sm font-medium px-3 py-1 rounded ${
+                        suffix ? `badge-${suffix}` : "bg-gray-200"
+                      }`}>
+                      {getCategoryBadgeText(
+                        details.catalogueFormation.formation
+                          ?.categorie as unknown as CATEGORIES
+                      )}
+                    </span>
+                  );
+                })()}
+              </div>
             </div>
-          );
-            })()}
-          </div>
 
-          {/* Category chip - overlayed top-left */}
-          <div className="absolute left-4 top-4">
-            {(() => {
-          const rawCat = details.catalogueFormation.formation?.categorie as unknown as string | undefined;
-          const suffix = rawCat ? rawCat.toLowerCase() : '';
-          return (
-            <span className={`inline-block text-sm font-medium px-3 py-1 rounded ${suffix ? `badge-${suffix}` : 'bg-gray-200'}`}>
-              {getCategoryBadgeText(details.catalogueFormation.formation?.categorie as unknown as CATEGORIES)}
-            </span>
-          );
-            })()}
-          </div>
-        </div>
-
-        {/* Details column */}
-        <FormationDetailsContent
-          formation={details.catalogueFormation}
-          category={details.catalogueFormation.formation?.categorie as unknown as CATEGORIES}
-          onInscription={handleInscription}
-          inscriptionLoading={inscriptionLoading}
-          inscriptionSuccess={inscriptionSuccess}
-          inscriptionError={inscriptionError}
-          getCategoryColor={getCategoryColor}
-        />
+            {/* Details column */}
+            <FormationDetailsContent
+              formation={details.catalogueFormation}
+              category={
+                details.catalogueFormation.formation
+                  ?.categorie as unknown as CATEGORIES
+              }
+              onInscription={handleInscription}
+              inscriptionLoading={inscriptionLoading}
+              inscriptionSuccess={inscriptionSuccess}
+              inscriptionError={inscriptionError}
+              getCategoryColor={getCategoryColor}
+            />
           </div>
         </Card>
       </div>
@@ -397,7 +426,7 @@ const FormationDetailsContent = ({
   getCategoryColor,
 }: FormationDetailsContentProps) => {
   const rawCat = category as unknown as string | undefined;
-  const suffix = rawCat ? rawCat.toLowerCase() : '';
+  const suffix = rawCat ? rawCat.toLowerCase() : "";
 
   return (
     <div className="md:col-span-2 p-6 space-y-4">
@@ -411,80 +440,130 @@ const FormationDetailsContent = ({
               <strong>Pré-requis</strong> : {formation.prerequis}
             </span>
           ) : (
-            'Aucun pré-requis'
+            "Aucun pré-requis"
           )}
         </CardDescription>
       </CardHeader>
 
       <CardContent className="p-0 text-gray-700 dark:text-gray-300 space-y-2">
-         <div className="text-gray-700 dark:text-gray-300 leading-relaxed"
-        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formation.description || "") }}
-      />
+        <div
+          className="text-gray-700 dark:text-gray-300 leading-relaxed"
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(formation.description || ""),
+          }}
+        />
 
         {/* Info tiles row - mirror Flutter info tiles with category color */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
           <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
             <div className="text-xs text-gray-500">Durée</div>
-            <div className="font-semibold" style={{ color: getCategoryColor(category) }}>{formation.duree || '-'} heures</div>
+            <div
+              className="font-semibold"
+              style={{ color: getCategoryColor(category) }}>
+              {formation.duree || "-"} heures
+            </div>
           </div>
 
-          <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
+          {/* <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
             <div className="text-xs text-gray-500">Certification</div>
-            <div className="font-semibold" style={{ color: getCategoryColor(category) }}>{formation.certification || '-'}</div>
-          </div>
+            <div
+              className="font-semibold"
+              style={{ color: getCategoryColor(category) }}>
+              {formation.certification || "-"}
+            </div>
+          </div> */}
         </div>
-
       </CardContent>
 
       <div className="space-y-4">
         {/* Afficher le PDF du cursus si fourni (backend doit exposer cursusPdfUrl) */}
         {formation.cursusPdfUrl ? (
-          <a href={formation.cursusPdfUrl} target="_blank" rel="noreferrer" className="inline-block text-sm text-blue-600 underline">Télécharger le programme / cursus (PDF)</a>
+          <a
+            href={formation.cursusPdfUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-block text-sm text-blue-600 underline">
+            Télécharger le programme / cursus (PDF)
+          </a>
         ) : (
           <DownloadPdfButton formationId={formation.id} />
         )}
-         {/* Objectifs et programme (si présents) */}
-      {formation.objectifs && (
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold">Objectifs</h3>
-          <div className="mt-2 text-gray-700" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formation.objectifs || "") }} />
-        </div>
-      )}
+        {/* Objectifs et programme (si présents) */}
+        {formation.objectifs && (
+          <div className="mt-4">
+            <h3 className="text-lg font-semibold">Objectifs</h3>
+            <div
+              className="mt-2 text-gray-700"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(formation.objectifs || ""),
+              }}
+            />
+          </div>
+        )}
 
-      {formation.programme && (
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold">Programme</h3>
-          <div className="mt-2 text-gray-700" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formation.programme || "") }} />
-        </div>
-      )}
+        {formation.programme && (
+          <div className="mt-4">
+            <h3 className="text-lg font-semibold">Programme</h3>
+            <div
+              className="mt-2 text-gray-700"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(formation.programme || ""),
+              }}
+            />
+          </div>
+        )}
 
         {/* Détails supplémentaires : modalités, moyens, évaluation, lieu, niveau, public */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {formation.modalites && (
             <div className="p-3 rounded-lg bg-gray-50">
               <strong>Modalités</strong>
-              <div className="text-sm mt-1" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formation.modalites || "") }} />
+              <div
+                className="text-sm mt-1"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(formation.modalites || ""),
+                }}
+              />
             </div>
           )}
 
           {formation.modalites_accompagnement && (
             <div className="p-3 rounded-lg bg-gray-50">
               <strong>Modalités d'accompagnement</strong>
-              <div className="text-sm mt-1" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formation.modalites_accompagnement || "") }} />
+              <div
+                className="text-sm mt-1"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(
+                    formation.modalites_accompagnement || ""
+                  ),
+                }}
+              />
             </div>
           )}
 
           {formation.moyens_pedagogiques && (
             <div className="p-3 rounded-lg bg-gray-50">
               <strong>Moyens pédagogiques</strong>
-              <div className="text-sm mt-1" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formation.moyens_pedagogiques || "") }} />
+              <div
+                className="text-sm mt-1"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(
+                    formation.moyens_pedagogiques || ""
+                  ),
+                }}
+              />
             </div>
           )}
 
           {formation.evaluation && (
             <div className="p-3 rounded-lg bg-gray-50">
               <strong>Évaluation</strong>
-              <div className="text-sm mt-1" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formation.evaluation || "") }} />
+              <div
+                className="text-sm mt-1"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(formation.evaluation || ""),
+                }}
+              />
             </div>
           )}
 
@@ -509,12 +588,15 @@ const FormationDetailsContent = ({
             </div>
           )}
 
-          {formation.nombre_participants !== undefined && formation.nombre_participants !== null && (
-            <div className="p-3 rounded-lg bg-gray-50">
-              <strong>Nombre participants</strong>
-              <div className="text-sm mt-1">{formation.nombre_participants}</div>
-            </div>
-          )}
+          {formation.nombre_participants !== undefined &&
+            formation.nombre_participants !== null && (
+              <div className="p-3 rounded-lg bg-gray-50">
+                <strong>Nombre participants</strong>
+                <div className="text-sm mt-1">
+                  {formation.nombre_participants}
+                </div>
+              </div>
+            )}
         </div>
 
         <InscriptionSection
@@ -543,7 +625,7 @@ const FormationMetadata = ({
       <strong>{FORMATIONMETADATA.duree} :</strong> {duree}{" "}
       {FORMATIONMETADATA.heures}
     </li>
-    <li className="text-gray-500">
+    {/* <li className="text-gray-500">
       <strong>{FORMATIONMETADATA.tarif} :</strong>{" "}
       <span className="text-xl text-orange-500 font-extrabold drop-shadow-lg">
         {tarif
@@ -555,10 +637,10 @@ const FormationMetadata = ({
               .replace(/\u202F/g, " ")} ${FORMATIONMETADATA.euros}`
           : "-"}
       </span>
-    </li>
-    <li className="text-gray-500">
+    </li> */}
+    {/* <li className="text-gray-500">
       <strong>Certification :</strong> {certification}
-    </li>
+    </li> */}
   </ul>
 );
 

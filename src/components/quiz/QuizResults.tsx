@@ -155,14 +155,16 @@ export function QuizResults() {
   };
 
   return (
-    <Layout>
-      <QuizSummary
-        questions={result.questions}
-        quiz={quizData}
-        userAnswers={formattedUserAnswers}
-        score={result.score}
-        totalQuestions={result.totalQuestions}
-      />
-    </Layout>
+    <div className="mb-[5%]">
+      <Layout>
+        <QuizSummary
+          questions={result.questions}
+          quiz={quizData}
+          userAnswers={formattedUserAnswers}
+          score={result.score}
+          totalQuestions={result.totalQuestions}
+        />
+      </Layout>
+    </div>
   );
 }

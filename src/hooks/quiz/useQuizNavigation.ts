@@ -4,7 +4,7 @@ import type { Question } from '@/types/quiz';
 
 export const useQuizNavigation = (questions: Question[] = []) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  
+
   const goToNextQuestion = () => {
     const nextIndex = currentQuestionIndex + 1;
     if (nextIndex < questions.length) {
@@ -32,6 +32,7 @@ export const useQuizNavigation = (questions: Question[] = []) => {
   return {
     currentQuestion,
     currentQuestionIndex,
+    setCurrentQuestionIndex,
     totalQuestions,
     isLastQuestion,
     goToNextQuestion,

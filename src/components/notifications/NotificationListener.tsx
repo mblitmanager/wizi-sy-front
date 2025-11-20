@@ -4,8 +4,8 @@ import { toast } from 'sonner';
 import { useNotifications } from '@/hooks/useNotifications';
 
 // Ce composant écoute les notifications FCM en premier plan et les synchronise avec l'API
-export default function NotificationListener() {
-  const { pushLocal, refresh } = useNotifications();
+export default function NotificationListener({ onPushNotification }: { onPushNotification?: (n: any) => void }) {
+  const { pushLocal } = useNotifications();
 
   useEffect(() => {
     const unsub = onMessage(messaging, async (payload) => {
@@ -30,19 +30,19 @@ export default function NotificationListener() {
         { duration: 5000 }
       );
 
-      // Add to local state so UI updates immediately
+  // Add to local state so UI updates immediately
+  // The provider will schedule a debounced refresh to sync with server
       pushLocal(notif as any);
 
-      // Try to refresh from API to ensure server-side state is synced
-      // Do not block UI; fire-and-forget but log errors
-      refresh().catch(err => console.error('Refresh after push failed', err));
+      // also notify any parent callback (e.g. page-level handler used for toasts when app is visible)
+      if (onPushNotification) onPushNotification(notif);
     });
 
     return () => {
       // onMessage has no unsubscribe callback in older firebase versions; keep return for future-proof
       if (typeof unsub === 'function') unsub();
     };
-  }, [pushLocal, refresh]);
+  }, [pushLocal, onPushNotification]);
 
   return null;
 }

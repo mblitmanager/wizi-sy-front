@@ -6,4 +6,4 @@ export default {
   component: Hero,
 };
 
-export const Default = () => <Hero logo={new URL('@/assets/logo.png', import.meta.url).href} />;
+export const Default = () => <Hero logo={'/logons.png'} />;

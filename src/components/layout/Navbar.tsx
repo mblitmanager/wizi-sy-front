@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-import { Bell, LogOut, User, Trophy } from "lucide-react";
+import { Bell, LogOut, User, Trophy, Menu } from "lucide-react";
 
 const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
 import { rankingService } from "@/services/rankingService";
@@ -112,12 +112,22 @@ const UserScore = ({ score }: { score: number | null }) => {
 
 /* ---------------------- Navbar principale ---------------------- */
 
-export function Navbar() {
+export function Navbar({ onMenuToggle }: { onMenuToggle?: () => void }) {
   const { user, logout } = useUser();
   const isMobile = useIsMobile();
+  const [isTablet, setIsTablet] = useState<boolean>(false);
   const { unreadCount } = useNotifications();
   const navigate = useNavigate();
   const [userScore, setUserScore] = useState<number | null>(null);
+
+  // Detect tablet breakpoint (769px - 1024px)
+  useEffect(() => {
+    const mql = window.matchMedia("(min-width: 769px) and (max-width: 1024px)");
+    const onChange = () => setIsTablet(mql.matches);
+    mql.addEventListener("change", onChange);
+    setIsTablet(mql.matches);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
 
   // Récupération du score utilisateur
   const fetchUserScore = useCallback(async () => {
@@ -171,25 +181,45 @@ export function Navbar() {
   return (
     <nav className="px-3 md:px-6 py-2 sticky top-0 z-50 w-full">
       <div className="w-full">
-        <div className="flex justify-between md:justify-end items-center gap-4">
-          {/* Notifications + Score */}
-          <div className="flex items-center gap-4">
-            <NotificationBadge count={unreadCount} />
-            <UserScore score={userScore} />
+        <div className="flex items-center justify-between">
+          {/* left: hamburger + logo */}
+          <div className="flex items-center gap-3">
+            {/* {(isTablet || isMobile) && (
+              <button
+                onClick={() => onMenuToggle && onMenuToggle()}
+                className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-200">
+                <Menu className="h-5 w-5" />
+              </button>
+            )} */}
+            {(isTablet || isMobile) && (
+              <Link to="/" className="flex items-center">
+                <img
+                  src="/assets/logo.png"
+                  alt="Wizi Learn"
+                  className={`object-contain ${isMobile ? "h-6" : "h-8"}`}
+                />
+              </Link>
+            )}
+            
           </div>
 
-          {/* Menu utilisateur */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="relative flex items-center gap-2 px-2 py-1 rounded-full hover:shadow-md transition" style={{
-                backgroundColor: 'transparent'
-              }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(254,184,35,0.08)')} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}>
-                <UserAvatar user={user} initials={initials} />
-                {!isMobile && <UserInfo user={user} />}
-              </button>
-            </DropdownMenuTrigger>
-            <UserDropdownMenu onLogout={handleLogout} />
-          </DropdownMenu>
+          {/* right: points + notifications + user menu */}
+          <div className="flex items-center gap-4">
+            <UserScore score={userScore} />
+            <NotificationBadge count={unreadCount} />
+
+            {/* <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="relative flex items-center gap-2 px-2 py-1 rounded-full hover:shadow-md transition" style={{
+                  backgroundColor: 'transparent'
+                }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(254,184,35,0.08)')} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}>
+                  <UserAvatar user={user} initials={initials} />
+                  {!isMobile && <UserInfo user={user} />}
+                </button>
+              </DropdownMenuTrigger>
+              <UserDropdownMenu onLogout={handleLogout} />
+            </DropdownMenu> */}
+          </div>
         </div>
       </div>
     </nav>

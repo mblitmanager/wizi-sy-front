@@ -16,6 +16,11 @@ import {
   LayoutGrid,
   Grid3X3,
   Grid,
+  Target,
+  Brain,
+  Trophy,
+  Star,
+  Zap,
 } from "lucide-react";
 import StagiaireQuizAdventure from "@/components/quiz/StagiaireQuizAdventure";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
@@ -49,6 +54,35 @@ function ToggleContentSkeleton() {
   );
 }
 
+// Phrases d'accroche avec icônes
+const ACCROCHE_PHRASES = [
+  {
+    text: " L'aventure des quiz commence ici !",
+    icon: <Zap className="w-5 h-5" />,
+    color: "from-orange-500 to-amber-500",
+  },
+  {
+    text: " Entraînez-vous et devenez incollable !",
+    icon: <Target className="w-5 h-5" />,
+    color: "from-blue-500 to-cyan-500",
+  },
+  {
+    text: " Montez dans le classement, quiz après quiz !",
+    icon: <Trophy className="w-5 h-5" />,
+    color: "from-green-500 to-emerald-500",
+  },
+  {
+    text: " Défiez vos connaissances, dépassez vos limites !",
+    icon: <Brain className="w-5 h-5" />,
+    color: "from-purple-500 to-pink-500",
+  },
+  {
+    text: " Chaque quiz réussi vous rapproche de l'excellence !",
+    icon: <Star className="w-5 h-5" />,
+    color: "from-yellow-500 to-orange-500",
+  },
+];
+
 export default function Quizzes() {
   const isOnline = useOnlineStatus();
   const { user } = useUser();
@@ -59,6 +93,9 @@ export default function Quizzes() {
     [location.search]
   );
 
+  // Phrase d'accroche aléatoire
+  const [randomAccroche, setRandomAccroche] = useState(ACCROCHE_PHRASES[0]);
+
   // Utiliser les préférences utilisateur
   const {
     viewMode,
@@ -67,8 +104,8 @@ export default function Quizzes() {
     toggleViewMode,
   } = useQuizPreferences();
 
-  // Priorité : paramètre URL > préférence utilisateur > défaut
-  const initialToggle = params.get("toggle") || viewMode;
+  // CORRECTION: Forcer "adventure" par défaut au lieu d'utiliser viewMode
+  const initialToggle = params.get("toggle") || "adventure"; // ← CHANGEMENT ICI
   const [activeToggle, setActiveToggle] = useState<string>(initialToggle);
   const [isSwitching, setIsSwitching] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
@@ -85,18 +122,37 @@ export default function Quizzes() {
     [formations]
   );
 
-  // Initialisation des préférences et redirection automatique
+  // Choisir une phrase d'accroche aléatoire au chargement
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * ACCROCHE_PHRASES.length);
+    setRandomAccroche(ACCROCHE_PHRASES[randomIndex]);
+  }, []);
+
+  // CORRECTION: Initialisation simplifiée pour forcer "adventure"
   useEffect(() => {
     if (preferencesLoading || hasInitialized) return;
 
-    // Si aucun paramètre URL, utiliser la préférence utilisateur
     const urlToggle = params.get("toggle");
+
+    // Si pas de paramètre URL, forcer "adventure"
     if (!urlToggle) {
-      setActiveToggle(viewMode);
+      setActiveToggle("adventure");
+      // Optionnel: sauvegarder la préférence
+      savePreference("adventure");
+    } else {
+      setActiveToggle(urlToggle);
     }
 
     setHasInitialized(true);
-  }, [preferencesLoading, hasInitialized, params, viewMode]);
+  }, [preferencesLoading, hasInitialized, params, savePreference]);
+
+  // CORRECTION: Nettoyer l'URL si elle contient "mes-quizzes" par défaut
+  useEffect(() => {
+    if (params.get("toggle") === "mes-quizzes" && !hasInitialized) {
+      // Rediriger sans le paramètre pour forcer l'aventure
+      navigate("/quizzes", { replace: true });
+    }
+  }, [params, navigate, hasInitialized]);
 
   // Sélection par défaut: première formation disponible
   useEffect(() => {
@@ -131,6 +187,26 @@ export default function Quizzes() {
   return (
     <Layout>
       <QuizViewManager>
+        {/* Bannière d'accroche */}
+        <div className="mb-6">
+          <div
+            className={`bg-gradient-to-r ${randomAccroche.color} rounded-2xl p-6 text-white shadow-lg`}>
+            <div className="flex items-center justify-center gap-3 text-center">
+              <div className="flex items-center justify-center w-10 h-10 bg-white/20 rounded-full">
+                {randomAccroche.icon}
+              </div>
+              <h1 className="text-2xl md:text-3xl font-bold">
+                {randomAccroche.text}
+              </h1>
+            </div>
+            <p className="text-center mt-3 text-white/90 text-lg">
+              {activeToggle === "adventure"
+                ? "Parcourez les chemins du savoir et découvrez de nouveaux défis !"
+                : "Consultez tous vos quiz disponibles et mesurez vos progrès !"}
+            </p>
+          </div>
+        </div>
+
         <div className="sticky top-0 z-20 bg-white flex flex-row flex-wrap items-center gap-2 mb-4 w-full border-b border-gray-200 py-2 ">
           <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
             {/* Sélecteur Formation */}
@@ -158,11 +234,20 @@ export default function Quizzes() {
               )}
             </div>
 
+            {/* Indicateur de mode actuel */}
+            {/* <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-lg">
+              <span className="text-sm font-medium text-gray-700">
+                Mode {activeToggle === "adventure" ? "Aventure" : "Liste"}
+              </span>
+            </div> */}
+
             {/* Toggle Vue Quiz */}
             <div className="flex items-center gap-3 top-1 right-4 absolute">
               <List
                 className={`h-7 w-7 transition-colors ${
-                  activeToggle === "adventure" ? "text-black" : "text-gray-400"
+                  activeToggle === "adventure"
+                    ? "text-brown-shade"
+                    : "text-gray-400"
                 }`}
               />
 
@@ -180,6 +265,15 @@ export default function Quizzes() {
                   savePreference(
                     newToggle === "adventure" ? "adventure" : "list"
                   );
+
+                  // Mettre à jour l'URL
+                  navigate(`/quizzes?toggle=${newToggle}`, { replace: true });
+
+                  // Changer la phrase d'accroche en fonction du mode
+                  const newIndex = Math.floor(
+                    Math.random() * ACCROCHE_PHRASES.length
+                  );
+                  setRandomAccroche(ACCROCHE_PHRASES[newIndex]);
                 }}>
                 <span
                   className={`absolute left-1 top-1 w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300
@@ -191,19 +285,29 @@ export default function Quizzes() {
               <Grid3X3
                 className={`h-7 w-7 transition-colors ${
                   activeToggle === "mes-quizzes"
-                    ? "text-black"
+                    ? "text-brown-shade"
                     : "text-gray-400"
                 }`}
               />
             </div>
           </div>
         </div>
+
         {categoriesLoading || preferencesLoading || !hasInitialized ? (
           <div className="flex items-center justify-center min-h-[50vh]">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : (
           <div className="space-y-6">
+            {/* Sous-titre contextuel */}
+            <div className="text-center mb-2">
+              <p className="text-lg text-gray-600 font-medium">
+                {activeToggle === "adventure"
+                  ? "🎮 Explorez les quiz comme une aventure passionnante !"
+                  : "📋 Gérez efficacement tous vos quiz en un seul endroit"}
+              </p>
+            </div>
+
             {activeToggle === "adventure" && (
               <StagiaireQuizAdventure
                 selectedFormationId={selectedFormationId}

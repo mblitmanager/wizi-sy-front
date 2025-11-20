@@ -407,18 +407,7 @@ export function StagiaireQuizList({
 
   return (
     <div className="">
-      {/* DEBUG: Afficher la formation sélectionnée
-      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
-        <p className="text-sm text-blue-800">
-          <strong>DEBUG:</strong> Formation sélectionnée:{" "}
-          <code>{selectedFormationId || "Aucune"}</code> | Quiz totaux:{" "}
-          <code>{quizzes?.length || 0}</code> | Quiz filtrés:{" "}
-          <code>{filteredQuizzes.length}</code> | Non joués:{" "}
-          <code>{notPlayedQuizzes.length}</code> | Joués:{" "}
-          <code>{playedQuizzes.length}</code>
-        </p>
-      </div> */}
-
+      <QuizUnlockTutorial />
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
         <h2 className="text-3xl sm:text-2xl md:text-3xl text-brown-shade font-bold">
           Quiz
@@ -460,8 +449,6 @@ export function StagiaireQuizList({
       <hr className="mb-4" />
 
       <div className="space-y-6">
-        <QuizUnlockTutorial />
-
         {/* Quiz non joués */}
         <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6">
           {notPlayedQuizzes.length === 0 ? (

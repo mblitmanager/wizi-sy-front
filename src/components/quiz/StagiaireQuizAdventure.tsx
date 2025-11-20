@@ -1,91 +1,75 @@
 import React, { useMemo, useState } from "react";
-// Logique de configuration des catégories (copiée de QuizCard)
-// Helpers pour la coloration des niveaux
-function getLevelConfig(level: string | undefined) {
-  switch (level?.toLowerCase()) {
-    case "débutant":
-      return {
-        bgClass: "bg-green-100",
-        textClass: "text-green-800",
-      };
-    case "intermédiaire":
-      return {
-        bgClass: "bg-blue-100",
-        textClass: "text-blue-800",
-      };
-    case "avancé":
-    case "super quiz":
-      return {
-  bgClass: "bg-wizi-muted",
-  textClass: "text-wizi-muted",
-      };
-    default:
-      return {
-        bgClass: "bg-gray-100",
-        textClass: "text-gray-800",
-      };
-  }
-}
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+import { stagiaireQuizService } from "@/services/quiz/StagiaireQuizService";
+import { quizHistoryService } from "@/services/quiz/submission/QuizHistoryService";
+import type { Quiz, QuizHistory } from "@/types/quiz";
+import { Loader2, Lock, ChartSpline } from "lucide-react";
+import { useClassementPoints } from "@/hooks/useClassementPoints";
+import { buildAvailableQuizzes } from "./quizUtils";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { QuizCard } from "./QuizCard";
+
+// Configuration des catégories
 const CATEGORY_CONFIG = {
   bureautique: {
     color: "bg-blue-500",
     bgColor: "bg-blue-50",
     borderColor: "border-blue-200",
     textColor: "text-blue-800",
-    badgeColor: "bg-blue-100",
   },
   internet: {
     color: "bg-orange-500",
     bgColor: "bg-orange-50",
     borderColor: "border-orange-200",
     textColor: "text-orange-800",
-    badgeColor: "bg-orange-100",
   },
   création: {
     color: "bg-purple-500",
     bgColor: "bg-purple-50",
     borderColor: "border-purple-200",
     textColor: "text-purple-800",
-    badgeColor: "bg-purple-100",
   },
-  
   IA: {
     color: "bg-green-500",
     bgColor: "bg-green-50",
     borderColor: "border-green-200",
     textColor: "text-green-800",
-    badgeColor: "bg-green-100",
   },
   langues: {
     color: "bg-pink-500",
     bgColor: "bg-pink-50",
     borderColor: "border-pink-200",
     textColor: "text-pink-800",
-    badgeColor: "bg-pink-100",
   },
   anglais: {
     color: "bg-emerald-500",
     bgColor: "bg-emerald-50",
     borderColor: "border-emerald-200",
     textColor: "text-emerald-800",
-    badgeColor: "bg-emerald-100",
   },
   français: {
     color: "bg-red-500",
     bgColor: "bg-red-50",
     borderColor: "border-red-200",
     textColor: "text-red-800",
-    badgeColor: "bg-red-100",
   },
   default: {
     color: "bg-gray-400",
     bgColor: "bg-slate-50",
     borderColor: "border-slate-200",
     textColor: "text-slate-800",
-    badgeColor: "bg-slate-100",
   },
 };
 
+// Helpers
 function getCategoryConfig(categoryName: string | undefined) {
   if (!categoryName) return CATEGORY_CONFIG.default;
   const lowerName = categoryName.toLowerCase();
@@ -96,38 +80,86 @@ function getCategoryConfig(categoryName: string | undefined) {
   }
   return CATEGORY_CONFIG.default;
 }
-import { useQuery } from "@tanstack/react-query";
-import { stagiaireQuizService } from "@/services/quiz/StagiaireQuizService";
-import { quizHistoryService } from "@/services/quiz/submission/QuizHistoryService";
-import type { Quiz, QuizHistory } from "@/types/quiz";
-import { Loader2, Lock, ChartSpline } from "lucide-react";
-import { useClassementPoints } from "@/hooks/useClassementPoints";
-import { buildAvailableQuizzes } from "./quizUtils";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
-type Participation = { id?: string | number; quizId?: string | number };
+function getLevelConfig(level: string | undefined) {
+  switch (level?.toLowerCase()) {
+    case "débutant":
+      return { bgClass: "bg-green-100", textClass: "text-green-800" };
+    case "intermédiaire":
+      return { bgClass: "bg-blue-100", textClass: "text-blue-800" };
+    case "avancé":
+    case "super quiz":
+      return { bgClass: "bg-yellow-100", textClass: "text-yellow-800" };
+    default:
+      return { bgClass: "bg-gray-100", textClass: "text-gray-800" };
+  }
+}
 
+// Composant Carrousel de conseils
+function QuizAdventureTutorial() {
+  const steps = [
+    {
+      title: "🎯 Suivez le chemin de la connaissance !",
+      content:
+        "Les quiz sont organisés en parcours progressif. Terminez un quiz pour débloquer le suivant.",
+    },
+    {
+      title: "🏆 Accumulez les succès !",
+      content:
+        "Chaque quiz réussi vous rapporte des points et débloque de nouveaux défis.",
+    },
+    {
+      title: "💡 Conseil stratégique !",
+      content: "Prenez votre temps pour lire chaque question attentivement.",
+    },
+  ];
+
+  const [step, setStep] = useState(0);
+
+  React.useEffect(() => {
+    const timer = setTimeout(
+      () => setStep((s) => (s + 1) % steps.length),
+      5000
+    );
+    return () => clearTimeout(timer);
+  }, [step, steps.length]);
+
+  return (
+    <div className="mb-6 w-full">
+      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded shadow-sm">
+        <p className="font-semibold text-yellow-800 mb-1">
+          {steps[step].title}
+        </p>
+        <p className="text-yellow-700 text-sm">{steps[step].content}</p>
+        <div className="flex justify-center gap-1 mt-2">
+          {steps.map((_, index) => (
+            <div
+              key={index}
+              className={`w-2 h-2 rounded-full ${
+                index === step ? "bg-yellow-600" : "bg-yellow-300"
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Composant principal
 export const StagiaireQuizAdventure: React.FC<{
   selectedFormationId?: string | null;
 }> = ({ selectedFormationId }) => {
   const { points: userPoints } = useClassementPoints();
-  const [showAllForFormation, setShowAllForFormation] = useState(false);
 
+  // Récupération des données - CORRECTION: Retour à l'ancienne structure de queryKey
   const { data: quizzes, isLoading } = useQuery<Quiz[]>({
     queryKey: ["stagiaire-quizzes-adventure"],
     queryFn: () => stagiaireQuizService.getStagiaireQuizzes(),
     staleTime: 5 * 60 * 1000,
   });
 
-  const { data: participations } = useQuery<Participation[]>({
+  const { data: participations } = useQuery({
     queryKey: ["stagiaire-participations-adventure"],
     queryFn: () => stagiaireQuizService.getStagiaireQuizJoue(),
     staleTime: 5 * 60 * 1000,
@@ -140,16 +172,18 @@ export const StagiaireQuizAdventure: React.FC<{
     enabled: !!localStorage.getItem("token"),
   });
 
+  // IDs des quiz déjà joués
   const playedIds = useMemo(() => {
     if (!participations) return new Set<string>();
-    const s = new Set<string>();
+    const played = new Set<string>();
     participations.forEach((p) => {
       const id = String(p.quizId || p.id || "");
-      if (id) s.add(id);
+      if (id) played.add(id);
     });
-    return s;
+    return played;
   }, [participations]);
 
+  // CORRECTION: Retour à la logique originale qui fonctionnait
   const computed = useMemo(() => {
     if (!quizzes)
       return {
@@ -158,9 +192,9 @@ export const StagiaireQuizAdventure: React.FC<{
         avatarId: undefined as undefined | string,
       };
 
-    // Use shared selection logic
+    // Use shared selection logic - IMPORTANT: utiliser quizzes directement
     const base = buildAvailableQuizzes(
-      quizzes,
+      quizzes, // Utiliser quizzes directement, pas filteredQuizzes
       userPoints,
       selectedFormationId
     );
@@ -172,16 +206,21 @@ export const StagiaireQuizAdventure: React.FC<{
       if (id) byIdCompletedAt.set(id, ts);
     });
 
+    // CORRECTION: Logique d'organisation des quiz joués/non joués
     const playedList = base
       .filter((q) => playedIds.has(String(q.id)))
       .sort((a, b) => {
         const da = byIdCompletedAt.get(String(a.id)) || 0;
         const db = byIdCompletedAt.get(String(b.id)) || 0;
-        return db - da;
+        return db - da; // Tri antéchronologique
       });
+
     const unplayedList = base.filter((q) => !playedIds.has(String(q.id)));
+
+    // Combiner: d'abord les joués (triés), puis les non joués
     const displayListFull = [...playedList, ...unplayedList];
 
+    // Déterminer quels quiz sont jouables
     const playableById = new Map<string, boolean>();
     for (let i = 0; i < displayListFull.length; i++) {
       const q = displayListFull[i];
@@ -190,18 +229,21 @@ export const StagiaireQuizAdventure: React.FC<{
       const hasQuestions = Array.isArray(q.questions)
         ? q.questions.length > 0
         : true;
+
       playableById.set(
         String(q.id),
         (prevPlayed || playedIds.has(String(q.id))) && hasQuestions
       );
     }
 
+    // Déterminer l'avatar (quiz actuel)
     let avatarId: string | undefined = undefined;
     if (displayListFull.length) {
       let lastPlayedIdx = -1;
       for (let k = 0; k < displayListFull.length; k++) {
         if (playedIds.has(String(displayListFull[k].id))) lastPlayedIdx = k;
       }
+
       if (lastPlayedIdx >= 0) {
         avatarId = String(displayListFull[lastPlayedIdx].id);
         if (
@@ -215,45 +257,30 @@ export const StagiaireQuizAdventure: React.FC<{
       }
     }
 
-    const displayList =
-      !selectedFormationId ||
-      showAllForFormation ||
-      displayListFull.length <= 10
-        ? displayListFull
-        : displayListFull.slice(0, 10);
-
     return {
-      list: displayList,
+      list: displayListFull,
       playableById,
       avatarId,
-      canShowMore: !!selectedFormationId && displayListFull.length > 10,
     };
-  }, [
-    quizzes,
-    userPoints,
-    playedIds,
-    selectedFormationId,
-    quizHistory,
-    showAllForFormation,
-  ]);
+  }, [quizzes, userPoints, playedIds, selectedFormationId, quizHistory]);
 
-  // Refs for each quiz card (always called)
+  // Références pour le scroll
   const quizRefs = useMemo(
     () => computed.list.map(() => React.createRef<HTMLDivElement>()),
     [computed.list]
   );
 
   React.useEffect(() => {
-    // Find first unplayed quiz and scroll to it
-    if (!computed.list.length) return;
-    const firstUnplayedIdx = computed.list.findIndex(
-      (q) => !playedIds.has(String(q.id))
-    );
-    if (firstUnplayedIdx !== -1 && quizRefs[firstUnplayedIdx]?.current) {
-      quizRefs[firstUnplayedIdx].current.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
+    if (computed.list.length > 0) {
+      const firstUnplayedIndex = computed.list.findIndex(
+        (q) => !playedIds.has(String(q.id))
+      );
+      if (firstUnplayedIndex !== -1 && quizRefs[firstUnplayedIndex]?.current) {
+        quizRefs[firstUnplayedIndex].current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
     }
   }, [computed.list, playedIds, quizRefs]);
 
@@ -267,67 +294,90 @@ export const StagiaireQuizAdventure: React.FC<{
 
   if (!computed.list.length) {
     return (
-      <>
-        {selectedFormationId && (
-          <div className="mb-2 text-sm text-gray-600">
-            Formation sélectionnée : {selectedFormationId}
+      <div className="text-center py-8">
+        {selectedFormationId ? (
+          <div className="space-y-2">
+            <div className="text-gray-500">
+              Aucun quiz disponible pour cette formation
+            </div>
+            {/* <div className="text-sm text-gray-400">
+              Formation ID: {selectedFormationId}
+            </div> */}
           </div>
+        ) : (
+          <div className="text-gray-500">Aucun quiz disponible</div>
         )}
-        <div className="text-center text-gray-500">Aucun quiz disponible</div>
-      </>
+      </div>
     );
   }
 
   return (
     <div className="relative flex flex-col items-center space-y-8">
-      {/* Timeline fil central pour chaque carte, tous écrans */}
+      <QuizAdventureTutorial />
+
       {computed.list.map((quiz, index) => {
-        const played = playedIds.has(String(quiz.id));
-        const playable = computed.playableById.get(String(quiz.id)) === true;
+        const quizId = String(quiz.id);
+        const played = playedIds.has(quizId);
+        const playable = computed.playableById.get(quizId) === true;
         const categoryConfig = getCategoryConfig(quiz.categorie);
-        const h = quizHistory?.find(
-          (x) => String(x.quizId ?? x.quiz?.id) === String(quiz.id)
+        const history = quizHistory?.find(
+          (x) => String(x.quizId ?? x.quiz?.id) === quizId
         );
         const isLeft = index % 2 === 0;
 
         return (
           <div
             ref={quizRefs[index]}
-            key={quiz.id}
+            key={quizId}
             className="flex flex-col items-center w-full">
-            {/* Timeline fil central au-dessus de la carte */}
+            {/* Timeline */}
             <div className="flex flex-col items-center w-full mb-2">
-              {/* Fil montant si pas le premier */}
               {index > 0 && <div className="w-0.5 h-6 bg-gray-300" />}
               <div
                 className={`relative w-8 h-8 rounded-full border-2 border-white ${categoryConfig.color} z-10 flex items-center justify-center`}>
                 {computed.avatarId && String(quiz.id) === computed.avatarId && (
                   <img
-                    src="/assets/logo.png"
+                    src="./favicon.ico"
                     alt="avatar"
                     className="w-8 h-8 object-contain absolute -top-8 left-1/2 -translate-x-1/2"
                   />
                 )}
               </div>
-
-              {index < computed.list.length && (
+              {index < computed.list.length - 1 && (
                 <div className="w-0.5 h-6 bg-gray-300" />
               )}
             </div>
-            {/* Effet gauche/droite sur mobile: responsive width et alternance alignement */}
+
+            {/* Carte du quiz */}
             <div
               className={`w-full flex ${
                 isLeft ? "justify-start" : "justify-end"
               }`}>
               <div className="w-full max-w-xs sm:max-w-sm md:max-w-xl">
-                <QuizStepCard
-                  quiz={quiz}
-                  playable={playable}
-                  played={played}
-                  history={h}
-                  quizHistory={quizHistory ?? []}
-                  categoryConfig={categoryConfig}
-                />
+                <div className="relative">
+                  {/* Indicateur de verrouillage */}
+                  {!playable && !played && (
+                    <div className="absolute inset-0 bg-gray-100 bg-opacity-80 rounded-lg z-10 flex items-center justify-center">
+                      <div className="text-center p-4">
+                        <Lock className="w-8 h-8 text-gray-500 mx-auto mb-2" />
+                        <p className="text-gray-600 font-medium">
+                          Quiz verrouillé
+                        </p>
+                        <p className="text-gray-500 text-sm">
+                          Terminez les quiz précédents pour débloquer
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* CORRECTION: Utilisation correcte de QuizCard */}
+                  <QuizCard
+                    quiz={quiz}
+                    categories={[]}
+                    history={history ? [history] : []}
+                    // Pas besoin de onStartQuiz car QuizCard gère déjà la navigation via Link
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -337,122 +387,17 @@ export const StagiaireQuizAdventure: React.FC<{
   );
 };
 
-type QuizHistoryItemMinimal = {
-  totalQuestions?: number;
-  correctAnswers?: number;
-  completedAt?: string;
-};
-
-type QuizStepCardProps = {
-  quiz: Quiz;
-  playable: boolean;
-  played: boolean;
-  history?: QuizHistoryItemMinimal;
-  quizHistory: QuizHistory[];
-  categoryConfig: Record<string, string>;
-};
-
-function QuizStepCard({
-  quiz,
-  playable,
-  played,
-  history,
-  quizHistory,
-  categoryConfig,
-}: QuizStepCardProps) {
-  const total = history?.totalQuestions || quiz.questions?.length || 0;
-
-  const levelConfig = getLevelConfig(quiz.niveau);
-  return (
-    <div
-      className={`p-6 sm:p-4 md:p-6 border rounded-md shadow-md hover:shadow-lg transition-shadow duration-300 ${categoryConfig.bgColor} ${categoryConfig.borderColor} space-y-2`}>
-      {/* Titre */}
-      <h3
-        className={`font-semibold text-base sm:text-lg md:text-xl ${categoryConfig.textColor} break-words whitespace-pre-line`}>
-        {quiz.titre}
-      </h3>
-
-      {/* Description */}
-      <div
-        className="text-sm text-gray-600 line-clamp-2"
-        dangerouslySetInnerHTML={{ __html: quiz.description || "" }}
-      />
-      {/* Catégorie et niveau */}
-      <div
-        className={`text-xs sm:text-sm md:text-base ${categoryConfig.textColor} truncate flex items-center gap-2`}>
-        {quiz.categorie}
-        {quiz.niveau && (
-          <span
-            className={`px-2 py-1 rounded ${levelConfig.bgClass} ${levelConfig.textClass} text-xs`}>
-            {quiz.niveau}
-          </span>
-        )}
-      </div>
-
-      {/* Badges */}
-      {/* Barre de progression */}
-      {/* {played && (
-                <div className="hidden sm:block w-full mt-1">
-                    <div className="w-full bg-gray-200 rounded-full h-3 sm:h-4 dark:bg-gray-700">
-                        <div
-                            className={`h-3 sm:h-4 rounded-full text-xs text-white text-center ${categoryConfig.color}`}
-                            style={{ width: `${percent}%` }}
-                        >
-                            {percent}%
-                        </div>
-                    </div>
-                </div>
-            )} */}
-
-      {/* Quiz verrouillé */}
-      {!playable && !played && (
-        <div
-          className={`text-xs sm:text-sm ${categoryConfig.textColor} flex flex-col sm:flex-row gap-1`}>
-          <div className="flex items-center gap-1">
-            <Lock size={14} />
-            Quiz verrouillé
-          </div>
-          <div className="text-gray-400 text-xs sm:text-sm">
-            Terminez les quiz précédents pour débloquer celui-ci.
-          </div>
-        </div>
-      )}
-
-      {/* Boutons Commencer / Rejouer */}
-      {(playable || played) && (
-        <div className="mt-2 flex flex-row gap-2 items-center">
-          <Link
-            to={`/quiz/${quiz.id}`}
-            className={`text-xs sm:text-sm md:text-base text-white px-3 py-2 rounded-md inline-block ${categoryConfig.color} hover:brightness-90 text-center w-auto`}>
-            {played ? "Rejouer" : "Commencer"}
-          </Link>
-          {played && (
-            <div className="w-auto">
-              <QuizHistoryModal
-                quizId={quiz.id}
-                quizHistory={quizHistory}
-                noBorder
-              />
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
+// Modal d'historique (optionnel)
 function QuizHistoryModal({
   quizId,
   quizHistory,
-  noBorder,
 }: {
   quizId: number;
   quizHistory: QuizHistory[];
-  noBorder?: boolean;
 }) {
   const [open, setOpen] = useState(false);
 
-  const last3 = quizHistory
+  const recentAttempts = quizHistory
     ?.filter((h) => String(h.quizId ?? h.quiz?.id) === String(quizId))
     ?.sort(
       (a, b) =>
@@ -469,38 +414,38 @@ function QuizHistoryModal({
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Derniers historiques</DialogTitle>
+          <DialogTitle>Historique des tentatives</DialogTitle>
         </DialogHeader>
-        <div className="space-y-2">
-          {last3 && last3.length > 0 ? (
-            last3.map((h, idx) => (
-              <div
-                key={idx}
-                className={`p-2 rounded-md shadow-sm flex justify-between ${
-                  noBorder ? "" : "border"
-                }`}>
-                <div>
-                  <p className="text-sm">
-                    Temps passé : {h.timeSpent} sec - Score :{h.score * 10}%
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(h.completedAt).toLocaleString()}
-                  </p>
-                </div>
-                <div className="text-sm font-medium">
-                  {h.correctAnswers}/{Math.min(h.totalQuestions || 5, 5)}{" "}
-                  questions
+        <div className="space-y-3">
+          {recentAttempts && recentAttempts.length > 0 ? (
+            recentAttempts.map((attempt, idx) => (
+              <div key={idx} className="p-3 border rounded-lg">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="font-medium">
+                      Score: {Math.round((attempt.score || 0) * 100)}%
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {attempt.correctAnswers}/{attempt.totalQuestions}{" "}
+                      questions
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      {new Date(attempt.completedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {attempt.timeSpent}s
+                  </div>
                 </div>
               </div>
             ))
           ) : (
-            <p className="text-sm text-gray-500 text-center">
-              Aucun historique trouvé.
-            </p>
+            <p className="text-gray-500 text-center">Aucun historique</p>
           )}
         </div>
       </DialogContent>
     </Dialog>
   );
 }
+
 export default StagiaireQuizAdventure;

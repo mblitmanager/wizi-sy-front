@@ -7,7 +7,7 @@ const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/favicon.ico',
+  '/favicon2.ico',
   '/lovable-uploads/e4aa6740-d9f0-40d2-a150-efc75ae46692.png'
 ];
 
@@ -112,8 +112,8 @@ self.addEventListener('push', (event) => {
   const title = notificationData.title || 'Notification';
   const options = {
     body: notificationData.body || 'Vous avez reçu une notification.',
-    icon: notificationData.icon || '/favicon.ico',
-    badge: notificationData.badge || '/favicon.ico',
+    icon: notificationData.icon || '/favicon2.ico',
+    badge: notificationData.badge || '/favicon2.ico',
     data: notificationData.data || {}
   };
 

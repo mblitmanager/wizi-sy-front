@@ -2,23 +2,19 @@ import { useState, useMemo } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Trophy,
-  Medal,
-  Award,
-  User,
   LayoutList,
   Search,
-  ChevronUp,
-  ChevronDown,
-  Users,
   Star,
   Crown,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { LeaderboardEntry } from "@/types/quiz";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { PodiumDisplay } from "./PodiumDisplay";
+import { RankingListItem } from "./RankingListItem";
+import { FormateursTable } from "./FormateursTable";
 
 export interface GlobalRankingProps {
   ranking?: LeaderboardEntry[];
@@ -50,7 +46,8 @@ export function GlobalRanking({
 
   const filteredRanking = useMemo(() => {
     return ranking.filter((entry: LeaderboardEntry) =>
-      entry.name?.toLowerCase().includes(search.toLowerCase())
+      entry.name?.toLowerCase().includes(search.toLowerCase()) ||
+      entry.firstname?.toLowerCase().includes(search.toLowerCase())
     );
   }, [ranking, search]);
 
@@ -73,62 +70,12 @@ export function GlobalRanking({
     });
   }, [filteredRanking, sortKey, sortOrder]);
 
-  // Calcul des totaux
-  const totalPoints = sortedRanking.reduce(
-    (sum, entry) => sum + (entry.score || 0),
-    0
-  );
-  const totalQuizzes = sortedRanking.reduce(
-    (sum, entry) => sum + (entry.quizCount || 0),
-    0
-  );
-  const maxScore = Math.max(
-    ...sortedRanking.map((entry) => entry.score || 0),
-    1
-  );
+  const formatName = (prenom: string, nom: string): string => {
+    if (!nom || nom.trim().length === 0) return prenom || "";
+    if (!prenom || prenom.trim().length === 0) return nom || "";
 
-  const SortIcon = ({ column }: { column: SortKey }) => {
-    if (sortKey !== column) return <ChevronUp className="h-4 w-4 opacity-0" />;
-    return sortOrder === "asc" ? (
-      <ChevronUp className="h-4 w-4" />
-    ) : (
-      <ChevronDown className="h-4 w-4" />
-    );
-  };
-
-  // Composant pour afficher les formateurs du podium
-  const FormateursPodium = ({ entry }: { entry: any }) => {
-    console.log("Formateurs ", entry);
-    if (!entry.formateurs || entry.formateurs.length === 0) {
-      return null;
-    }
-    return (
-      <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-        <div className="flex items-center gap-2 mb-2">
-          <Users className="h-3 w-3 text-blue-500" />
-          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
-            Formateur :
-          </span>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {entry.formateurs.map((formateur: any, index: number) => (
-            <div
-              key={formateur.id}
-              className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-full border border-blue-200 dark:border-blue-800">
-              <div className="w-4 h-4 rounded-full bg-blue-100 dark:bg-blue-800 flex items-center justify-center">
-                <span className="text-xs font-bold text-blue-600 dark:text-blue-300">
-                  {index + 1}
-                </span>
-              </div>
-              <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
-                {formateur.prenom} {formateur.nom.toUpperCase()}
-              </span>
-              {index === 0 && <Crown className="h-3 w-3 text-wizi-accent" />}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
+    const firstLetter = nom.charAt(0).toUpperCase();
+    return `${firstLetter}. ${prenom}`;
   };
 
   if (loading) {
@@ -162,20 +109,8 @@ export function GlobalRanking({
 
   // Podium top 3
   const podium = sortedRanking.slice(0, 3);
-  const podiumOrder = [1, 0, 2];
-  const podiumColors = [
-    "#C0C0C0", // argent
-    "#FFD700", // or
-    "#CD7F32", // bronze
-  ];
 
-  const podiumIcons = [
-    <Medal key="silver" className="h-5 w-5 text-gray-400" />,
-    <Trophy key="gold" className="h-6 w-6 text-wizi-accent" />,
-    <Award key="bronze" className="h-5 w-5 text-orange-600" />,
-  ];
-
-  // Liste sans les 3 premiers (affichés uniquement dans le podium)
+  // Liste sans les 3 premiers (si podium affiché)
   const listRanking = showPodium ? sortedRanking.slice(3) : sortedRanking;
 
   return (
@@ -187,7 +122,7 @@ export function GlobalRanking({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-              <Trophy className="h-6 w-6 text-wizi-accent" />
+              <Trophy className="h-6 w-6 text-yellow-500" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
@@ -223,115 +158,7 @@ export function GlobalRanking({
       {/* Podium */}
       {showPodium && podium.length > 0 && (
         <div className="px-4 pt-6 pb-4">
-          <div className="text-center mb-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-wizi-accent to-orange-500 rounded-full">
-              <Crown className="h-5 w-5 text-white" />
-              <span className="text-white font-bold text-lg">PODIUM</span>
-              <Crown className="h-5 w-5 text-white" />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-            {podiumOrder.map((pos, i) => {
-              const entry = podium[pos];
-              if (!entry) return null;
-
-              const isCurrentUser = entry.id?.toString() === currentUserId;
-              const heightClass = i === 1 ? "h-32" : "h-24";
-              const rankLabels = ["2ème", "1er", "3ème"];
-              const rankColors = [
-                "from-gray-400 to-gray-300",
-                "from-wizi-accent to-orange-300",
-                "from-orange-500 to-orange-400",
-              ];
-
-              return (
-                <div
-                  key={i}
-                  className={`flex flex-col items-center ${
-                    i === 1 ? "order-first md:order-none -mt-4" : ""
-                  }`}>
-                  {/* Badge de rang */}
-                  <div
-                    className={`flex items-center gap-2 mb-3 px-3 py-1 rounded-full bg-gradient-to-r ${rankColors[i]} text-white font-bold text-sm`}>
-                    {podiumIcons[i]}
-                    {rankLabels[i]}
-                  </div>
-
-                  {/* Carte du stagiaire */}
-                  <div
-                    className={`w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg border-2 ${
-                      i === 1
-                        ? "border-wizi-accent"
-                        : i === 0
-                        ? "border-gray-300"
-                        : "border-orange-400"
-                    } overflow-hidden`}>
-                    <div className="p-4">
-                      {/* Avatar et nom */}
-                      <div className="flex flex-col items-center text-center mb-3">
-                        <div className="relative">
-                          <Avatar className="h-16 w-16 border-2 border-white shadow-lg">
-                            <AvatarImage
-                              src={`${
-                                import.meta.env.VITE_API_URL_MEDIA ?? ""
-                              }${"/" + entry.image}`}
-                            />
-                            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold">
-                              {entry.name?.charAt(0) || "U"}
-                            </AvatarFallback>
-                          </Avatar>
-                          {isCurrentUser && (
-                            <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1 border-2 border-white">
-                              <User className="h-3 w-3 text-white" />
-                            </div>
-                          )}
-                        </div>
-                        <h3
-                          className={`mt-2 font-bold ${
-                            isCurrentUser
-                              ? "text-green-600"
-                              : "text-gray-800 dark:text-white"
-                          }`}>
-                          {entry.firstname || ""}{" "}
-                          {entry.name.toUpperCase() || ""}
-                        </h3>
-                        <div className="flex items-center gap-1 mt-1">
-                          <Star className="h-4 w-4 text-wizi-accent" />
-                          <span className="font-bold text-orange-600">
-                            {entry.score} pts
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Stats */}
-                      <div className="grid grid-cols-2 gap-2 text-xs mb-3">
-                        <div className="text-center p-2 bg-gray-50 dark:bg-gray-700 rounded">
-                          <div className="font-semibold text-gray-900 dark:text-white">
-                            {entry.quizCount}
-                          </div>
-                          <div className="text-gray-500 dark:text-gray-400">
-                            Quiz
-                          </div>
-                        </div>
-                        <div className="text-center p-2 bg-gray-50 dark:bg-gray-700 rounded">
-                          <div className="font-semibold text-gray-900 dark:text-white">
-                            {entry.averageScore?.toFixed(1)} pts/quiz
-                          </div>
-                          <div className="text-gray-500 dark:text-gray-400">
-                            Moyenne
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Formateurs */}
-                      <FormateursPodium entry={entry} />
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <PodiumDisplay rankings={podium} currentUserId={currentUserId} />
         </div>
       )}
 
@@ -349,38 +176,18 @@ export function GlobalRanking({
               </Badge>
             </div>
 
-            {/* Mobile View - simplified */}
+            {/* Mobile View - simplified with RankingListItem */}
             <div className="sm:hidden space-y-2">
               {listRanking.slice(0, 10).map((entry, index) => {
                 const isCurrentUser = entry.id?.toString() === currentUserId;
-                const globalIndex = showPodium ? index + 4 : index + 1; // Après le podium
 
                 return (
-                  <div
+                  <RankingListItem
                     key={entry.id || index}
-                    className={`flex items-center justify-between p-3 rounded-lg border ${
-                      isCurrentUser
-                        ? "border-green-300 bg-green-50 dark:bg-green-900/10"
-                        : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-                    }`}>
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold text-sm">
-                        {globalIndex}
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {entry.firstname || ""} {entry.name || ""}
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {entry.quizCount} quiz
-                          {/* • {entry.averageScore?.toFixed(1)} avg */}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-sm font-bold text-orange-600">
-                      {entry.score} pts
-                    </div>
-                  </div>
+                    ranking={entry}
+                    isCurrentUser={isCurrentUser}
+                    isSmallScreen={true}
+                  />
                 );
               })}
               {listRanking.length > 10 && (
@@ -403,7 +210,7 @@ export function GlobalRanking({
                         Stagiaire
                       </th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">
-                        Formateur
+                        Formateur & Formations
                       </th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">
                         Quiz
@@ -429,16 +236,15 @@ export function GlobalRanking({
                           }>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold">
-                              {globalIndex}
+                              {entry.rang || globalIndex}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center gap-3">
                               <Avatar className="h-10 w-10 border-2 border-white shadow-sm">
                                 <AvatarImage
-                                  src={`${
-                                    import.meta.env.VITE_API_URL_MEDIA ?? ""
-                                  }${"/" + entry.image}`}
+                                  src={`${import.meta.env.VITE_API_URL_MEDIA ?? ""
+                                    }${"/" + entry.image}`}
                                 />
                                 <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
                                   {entry.name?.charAt(0) || "U"}
@@ -446,8 +252,10 @@ export function GlobalRanking({
                               </Avatar>
                               <div className="flex items-center gap-2">
                                 <span className="font-semibold text-gray-900 dark:text-white">
-                                  {entry.firstname || ""}{" "}
-                                  {entry.name.toLocaleUpperCase() || ""}
+                                  {formatName(
+                                    entry.firstname || "",
+                                    entry.name || ""
+                                  )}
                                 </span>
                                 {isCurrentUser && (
                                   <Badge
@@ -460,23 +268,9 @@ export function GlobalRanking({
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            {entry.formateurs && entry.formateurs.length > 0 ? (
-                              <div className="flex flex-wrap gap-1">
-                                {entry.formateurs.map((formateur: any) => (
-                                  <Badge
-                                    key={formateur.id}
-                                    variant="secondary"
-                                    className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300">
-                                    {formateur.prenom}{" "}
-                                    {formateur.nom.toUpperCase()}
-                                  </Badge>
-                                ))}
-                              </div>
-                            ) : (
-                              <span className="text-gray-400 dark:text-gray-500 text-sm">
-                                Aucun formateur
-                              </span>
-                            )}
+                            <FormateursTable
+                              formateurs={entry.formateurs || []}
+                            />
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-400">
                             <div className="text-center">
@@ -490,7 +284,7 @@ export function GlobalRanking({
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center gap-2">
-                              <Star className="h-4 w-4 text-wizi-accent" />
+                              <Star className="h-4 w-4 text-yellow-500" />
                               <span className="font-bold text-orange-600 dark:text-orange-400">
                                 {entry.score}
                               </span>

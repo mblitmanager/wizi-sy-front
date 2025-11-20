@@ -11,13 +11,37 @@ export const useQuizPlay = (quizId: string) => {
   // Get quiz data
   const { quiz, isLoading, error } = useQuizData(quizId);
   const [filteredQuestions, setFilteredQuestions] = useState<Question[]>([]);
+  const [isRestored, setIsRestored] = useState(false);
 
   // Setup answers
-  const { answers, submitAnswer, reset: resetAnswers } = useQuizAnswers();
+  const { answers, setAnswers, submitAnswer, reset: resetAnswers } = useQuizAnswers();
 
   // Process questions based on difficulty level
   useEffect(() => {
-    if (!quiz || !quiz.questions) return;
+    if (!quiz || !quiz.questions || isRestored) return;
+
+    const storageKey = `quiz_session_${quizId}`;
+    const savedSession = localStorage.getItem(storageKey);
+
+    if (savedSession) {
+      try {
+        const session = JSON.parse(savedSession);
+        // Restore questions
+        const restoredQuestions = session.questionIds
+          .map((id: string) => quiz.questions.find((q) => q.id === id))
+          .filter((q: Question | undefined): q is Question => !!q);
+
+        if (restoredQuestions.length > 0) {
+          setFilteredQuestions(restoredQuestions);
+          setAnswers(session.answers || {});
+          setIsRestored(true);
+          return;
+        }
+      } catch (e) {
+        console.error("Failed to restore quiz session", e);
+        localStorage.removeItem(storageKey);
+      }
+    }
 
     // Determine number of questions based on difficulty level
     let questionCount = 5; // default
@@ -35,7 +59,7 @@ export const useQuizPlay = (quizId: string) => {
     const selectedQuestions = shuffledQuestions.slice(0, questionCount);
 
     setFilteredQuestions(selectedQuestions);
-  }, [quiz]);
+  }, [quiz, quizId, isRestored, setAnswers]);
 
   // Setup navigation with filtered questions
   const navigation = useQuizNavigation(filteredQuestions);
@@ -50,6 +74,43 @@ export const useQuizPlay = (quizId: string) => {
   // Setup submission
   const { isSubmitting, submitQuiz } = useQuizSubmission(quizId);
 
+  // Restore navigation and timer state once questions are set
+  useEffect(() => {
+    if (isRestored && filteredQuestions.length > 0) {
+      const storageKey = `quiz_session_${quizId}`;
+      const savedSession = localStorage.getItem(storageKey);
+      if (savedSession) {
+        try {
+          const session = JSON.parse(savedSession);
+          if (session.currentIndex !== undefined) {
+            navigation.setCurrentQuestionIndex(session.currentIndex);
+          }
+          if (session.timeSpent !== undefined) {
+            timer.setTimeSpent(session.timeSpent);
+          }
+          // We don't restore timeLeft per question as it resets on navigation
+        } catch (e) {
+          console.error("Failed to restore navigation/timer", e);
+        }
+      }
+    }
+  }, [isRestored, filteredQuestions.length, quizId, navigation.setCurrentQuestionIndex, timer.setTimeSpent]);
+
+  // Save state to localStorage
+  useEffect(() => {
+    if (filteredQuestions.length === 0) return;
+
+    const storageKey = `quiz_session_${quizId}`;
+    const session = {
+      questionIds: filteredQuestions.map(q => q.id),
+      answers,
+      currentIndex: navigation.currentQuestionIndex,
+      timeSpent: timer.timeSpent,
+      lastUpdated: new Date().toISOString()
+    };
+    localStorage.setItem(storageKey, JSON.stringify(session));
+  }, [quizId, filteredQuestions, answers, navigation.currentQuestionIndex, timer.timeSpent]);
+
   // Auto next on timer expire
   useEffect(() => {
     if (timer.timeLeft === 0 && !navigation.isLastQuestion) {
@@ -60,9 +121,9 @@ export const useQuizPlay = (quizId: string) => {
 
   // Reset timer on question change
   useEffect(() => {
-  timer.resetTimeLeft(); // <-- NOUVEAU : Réinitialise seulement timeLeft
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [navigation.currentQuestionIndex]);
+    timer.resetTimeLeft(); // <-- NOUVEAU : Réinitialise seulement timeLeft
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigation.currentQuestionIndex]);
 
   // Reset timer when quiz changes
   useEffect(() => {
@@ -72,11 +133,13 @@ export const useQuizPlay = (quizId: string) => {
   }, [quiz, timer]);
 
   // resetQuiz: resets navigation index, answers and timer
-const resetQuiz = () => {
-  timer.reset(); // Utiliser le VRAI reset ici (remet timeSpent à 0 pour le nouveau quiz)
-  navigation.goToQuestion(0);
-  resetAnswers();
-};
+  const resetQuiz = () => {
+    localStorage.removeItem(`quiz_session_${quizId}`);
+    timer.reset(); // Utiliser le VRAI reset ici (remet timeSpent à 0 pour le nouveau quiz)
+    navigation.goToQuestion(0);
+    resetAnswers();
+    setIsRestored(false); // Allow re-randomization if needed
+  };
 
   const isCurrentQuestionAnswered = () => {
     if (!quiz || filteredQuestions.length === 0) return false;
@@ -91,6 +154,7 @@ const resetQuiz = () => {
   };
 
   const handleFinish = () => {
+    localStorage.removeItem(`quiz_session_${quizId}`);
     submitQuiz(answers, timer.timeSpent);
   };
 
@@ -99,10 +163,10 @@ const resetQuiz = () => {
   return {
     quiz: quiz
       ? {
-          ...quiz,
-          questions: filteredQuestions,
-          points: calculateTotalPoints(),
-        }
+        ...quiz,
+        questions: filteredQuestions,
+        points: calculateTotalPoints(),
+      }
       : null,
     isLoading: isLoading || isSubmitting,
     error,

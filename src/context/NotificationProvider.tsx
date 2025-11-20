@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState, useRef } from 'react';
 import { notificationService, Notification as ServiceNotification } from '@/services/NotificationService';
 
 export interface AppNotification extends ServiceNotification {
@@ -77,6 +77,10 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   }, []);
 
+  // Debounce timer for server refreshes after incoming push notifications
+  const refreshTimer = useRef<number | null>(null);
+  const REFRESH_DEBOUNCE_MS = 2000;
+
   useEffect(() => {
     // initial load: only refresh if we have a token (avoid 401 on public pages)
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -143,7 +147,23 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setNotifications(prev => [notif, ...prev]);
     if (notif.serverId) setSeenServerIds(s => new Set(s).add(notif.serverId!));
     setUnreadCount(c => c + (notif.read ? 0 : 1));
-  }, [seenServerIds]);
+
+    // Schedule a debounced refresh from the server to ensure canonical state
+    if (refreshTimer.current) {
+      window.clearTimeout(refreshTimer.current);
+    }
+    refreshTimer.current = window.setTimeout(() => {
+      refresh().catch(err => console.error('Refresh after push failed', err));
+      refreshTimer.current = null;
+    }, REFRESH_DEBOUNCE_MS);
+  }, [seenServerIds, refresh]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (refreshTimer.current) window.clearTimeout(refreshTimer.current);
+    };
+  }, []);
 
   return (
     <NotificationContext.Provider value={{ notifications, unreadCount, refresh, markAsRead, markAllAsRead, remove, pushLocal }}>

@@ -1,38 +1,50 @@
 import { Layout } from "@/components/layout/Layout";
-import apiClient from "@/lib/api-client";
-import { useUser } from "@/hooks/useAuth";
-import { Megaphone } from "lucide-react";
+
+import { HowToPlay } from "@/components/FeatureHomePage/HowToPlay";
 import { ProgressCard } from "@/components/dashboard/ProgressCard";
-import { categoryService } from "@/services/quiz/CategoryService";
+import ContactsSection from "@/components/FeatureHomePage/ContactSection";
+import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
+import FormationCard from "@/components/catalogueFormation/FormationCard";
+import { StagiaireQuizGrid } from "@/components/quiz/StagiaireQuizGrid";
+import LandingPage from "./LandingPage";
+
+import { useUser } from "@/hooks/useAuth";
+import { useStreakModal } from "@/hooks/useStreakModal";
+import useOnlineStatus from "@/hooks/useOnlineStatus";
+import { useResumeQuiz } from "@/hooks/useResumeQuiz";
+
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios"; // déjà importé ailleurs
+import { Card, CardContent, useMediaQuery } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+
+import apiClient from "@/lib/api-client";
+import axios from "axios";
 import { toast } from "@/hooks/use-toast";
 
-import { Contact } from "@/types/contact";
-import ContactsSection from "@/components/FeatureHomePage/ContactSection";
-import useOnlineStatus from "@/hooks/useOnlineStatus";
-import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
+import { categoryService } from "@/services/quiz/CategoryService";
 import { catalogueFormationApi } from "@/services/api";
-import { Card, CardContent, useMediaQuery } from "@mui/material";
 import { stagiaireQuizService } from "@/services/quiz/StagiaireQuizService";
-import LandingPage from "./LandingPage";
-import { DECOUVRIR_NOS_FORMATIONS } from "@/utils/constants";
+
+import { Contact } from "@/types/contact";
 import { CatalogueFormation } from "@/types/stagiaire";
+import { Quiz } from "@/types/quiz";
+
+import { DECOUVRIR_NOS_FORMATIONS } from "@/utils/constants";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import { StagiaireQuizGrid } from "@/components/quiz/StagiaireQuizGrid";
-import type { Quiz as QuizType } from "@/types/quiz";
-import { HowToPlay } from "@/components/FeatureHomePage/HowToPlay";
-import FormationCard from "@/components/catalogueFormation/FormationCard";
+import { useQuizFiltering } from "@/hooks/quiz/useQuizFiltering";
+import { WelcomeBanner } from "@/components/FeatureHomePage/WelcomeBanner";
+import { StreakModal } from "@/components/FeatureHomePage/StreakModal";
+import { ResumeQuizModal } from "@/components/quiz/ResumeQuizModal";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-// Runtime-safe helpers used across the page
+// Runtime-safe helpers
 const asRecord = (v: unknown) => (v as Record<string, unknown> | null) ?? null;
 const getHistoryQuizId = (h: unknown): string | null => {
   const r = asRecord(h);
@@ -44,34 +56,11 @@ const getHistoryQuizId = (h: unknown): string | null => {
     | null;
   return val != null ? String(val) : null;
 };
-const getQuizId = (q: unknown): string | null => {
-  const r = asRecord(q);
-  if (!r) return null;
-  const val = (r["id"] ?? r["_id"] ?? null) as string | number | null;
-  return val != null ? String(val) : null;
-};
-const getQuizFormationId = (q: unknown): number | null => {
-  const r = asRecord(q);
-  if (!r) return null;
-  const formation = asRecord(r["formation"]);
-  if (formation && formation["id"]) return Number(formation["id"]);
-  if (r["formation_id"]) return Number(r["formation_id"]);
-  if (r["formationId"]) return Number(r["formationId"]);
-  const formations = r["formations"] as unknown;
-  if (Array.isArray(formations) && formations.length > 0) {
-    const f0 = asRecord(formations[0]);
-    if (f0 && f0["id"]) return Number(f0["id"]);
-  }
-  return null;
-};
 
 const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
   try {
     const token = localStorage.getItem("token");
-    if (!token) {
-      console.log("No token found, skipping contacts fetch");
-      return [];
-    }
+    if (!token) return [];
 
     const response = await axios.get(
       `${API_URL}/stagiaire/contacts/${endpoint}`,
@@ -89,40 +78,180 @@ const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
   }
 };
 
-// Seeded RNG helpers (mulberry32) for deterministic shuffle per session
-const getSessionSeed = (): number => {
-  try {
-    const key = "wizi_shuffle_seed";
-    const existing = sessionStorage.getItem(key);
-    if (existing) return Number(existing) || 0;
-    const seed = Math.floor(Math.random() * 0xffffffff);
-    sessionStorage.setItem(key, String(seed));
-    return seed;
-  } catch {
-    return Math.floor(Math.random() * 0xffffffff);
-  }
+// 🔥 Vérification SYNCHRONE immédiate du token
+const hasToken = () => {
+  return !!localStorage.getItem("token");
 };
 
-const mulberry32 = (a: number) => () => {
-  let t = (a += 0x6d2b79f5);
-  t = Math.imul(t ^ (t >>> 15), t | 1);
-  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-};
+// 🔥 Composant de loading fullscreen
+function FullScreenLoader() {
+  return (
+    <div className="fixed inset-0 bg-white z-50 flex justify-center items-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-yellow-400 border-solid mx-auto mb-4"></div>
+        <p className="text-gray-600">Chargement...</p>
+      </div>
+    </div>
+  );
+}
 
-export function Index() {
-  // Detect iOS device
+function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
+  const isOnline = useOnlineStatus();
+  const isTablet = useMediaQuery("(min-width: 769px) and (max-width: 1024px)");
   const isIOS =
     typeof window !== "undefined" &&
     /iPad|iPhone|iPod/.test(window.navigator.userAgent);
-  const { user } = useUser();
-  const isOnline = useOnlineStatus();
-  
+  const navigate = useNavigate();
+
+  // Resume quiz functionality
+  const { unfinishedQuiz, dismissQuiz } = useResumeQuiz();
+
+  const handleResumeQuiz = () => {
+    if (unfinishedQuiz) {
+      navigate(`/quiz/${unfinishedQuiz.quizId}`);
+    }
+  };
+
+  const handleDismissQuiz = () => {
+    if (unfinishedQuiz) {
+      dismissQuiz(unfinishedQuiz.quizId);
+    }
+  };
+
+  // States
   const [showInstallHint, setShowInstallHint] = useState(false);
   const [showApkBlock, setShowApkBlock] = useState(true);
   const [adFormations, setAdFormations] = useState<CatalogueFormation[]>([]);
-const [adLoading, setAdLoading] = useState(false);
-useEffect(() => {
+  const [adLoading, setAdLoading] = useState(false);
+  const [hidePresentationBlock, setHidePresentationBlock] = useState(() => {
+    return localStorage.getItem("hidePresentationBlock") === "true";
+  });
+  const [userPoints, setUserPoints] = useState(0);
+  const [notPlayedCurrentPage, setNotPlayedCurrentPage] = useState(1);
+  const [playedCurrentPage, setPlayedCurrentPage] = useState(1);
+
+  // Login streak
+  const [loginStreak, setLoginStreak] = useState<number>(() => {
+    try {
+      const stagiaire = user?.stagiaire as unknown as
+        | Record<string, unknown>
+        | undefined;
+      const fromUser =
+        typeof stagiaire?.["login_streak"] === "number"
+          ? (stagiaire["login_streak"] as number)
+          : typeof stagiaire?.["loginStreak"] === "number"
+            ? (stagiaire["loginStreak"] as number)
+            : 0;
+      return fromUser;
+    } catch (e) {
+      return 0;
+    }
+  });
+
+  // Streak modal
+  const {
+    showStreakModal,
+    hideStreakFor7Days,
+    setHideStreakFor7Days,
+    closeStreakModal,
+  } = useStreakModal(user, loginStreak);
+
+  // Data fetching
+  const { data: catalogueData = [], isLoading: isLoadingCatalogue } = useQuery({
+    queryKey: ["catalogueFormations"],
+    queryFn: async () => {
+      const response = await catalogueFormationApi.getAllCatalogueFormation();
+      const resp = response as unknown;
+      if (Array.isArray(resp)) return resp as CatalogueFormation[];
+      if (resp && typeof resp === "object") {
+        const respObj = resp as Record<string, unknown>;
+        const member = respObj["member"];
+        const data = respObj["data"];
+        if (Array.isArray(member)) return member as CatalogueFormation[];
+        if (Array.isArray(data)) return data as CatalogueFormation[];
+      }
+      return [] as CatalogueFormation[];
+    },
+    enabled: !!user && !!localStorage.getItem("token"),
+    retry: 1,
+  });
+
+  const [stagiaireCatalogues, setStagiaireCatalogues] = useState<
+    CatalogueFormation[]
+  >([]);
+
+  const { data: commerciaux } = useQuery<Contact[]>({
+    queryKey: ["contacts", "commerciaux"],
+    queryFn: () => fetchContacts("commerciaux"),
+    enabled: !!localStorage.getItem("token"),
+  });
+
+  const { data: formateurs } = useQuery<Contact[]>({
+    queryKey: ["contacts", "formateurs"],
+    queryFn: () => fetchContacts("formateurs"),
+    enabled: !!localStorage.getItem("token"),
+  });
+
+  const { data: poleRelation } = useQuery<Contact[]>({
+    queryKey: ["contacts", "pole-relation"],
+    queryFn: () => fetchContacts("pole-relation"),
+    enabled: !!localStorage.getItem("token"),
+  });
+
+  const { data: poleSav } = useQuery<Contact[]>({
+    queryKey: ["contacts", "pole-save"],
+    queryFn: () => fetchContacts("pole-save"),
+    enabled: !!localStorage.getItem("token"),
+  });
+
+  const { data: quizzes = [] } = useQuery<unknown[]>({
+    queryKey: ["stagiaire-quizzes-home"],
+    queryFn: async () => {
+      try {
+        const res = await axios.get(`${API_URL}/stagiaire/quizzes`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        return res.data?.data || [];
+      } catch {
+        return [];
+      }
+    },
+    enabled: !!localStorage.getItem("token"),
+  });
+
+  const { data: history = [] } = useQuery({
+    queryKey: ["stagiaire-history-home"],
+    queryFn: async () => {
+      try {
+        const res = await axios.get(`${API_URL}/quiz/history`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        return res.data || [];
+      } catch {
+        return [];
+      }
+    },
+    enabled: !!localStorage.getItem("token"),
+  });
+
+  const { data: participations } = useQuery<unknown[]>({
+    queryKey: ["stagiaire-participations"],
+    queryFn: () => stagiaireQuizService.getStagiaireQuizJoue(),
+    enabled: !!localStorage.getItem("token"),
+  });
+
+  const { data: categories, isLoading: categoriesLoading } = useQuery({
+    queryKey: ["quiz-categories"],
+    queryFn: () => categoryService.getCategories(),
+    enabled: !!localStorage.getItem("token"),
+  });
+
+  // Effects
+  useEffect(() => {
     let mounted = true;
     setAdLoading(true);
     apiClient
@@ -140,53 +269,8 @@ useEffect(() => {
       mounted = false;
     };
   }, []);
-  const [hidePresentationBlock, setHidePresentationBlock] = useState(() => {
-    return localStorage.getItem("hidePresentationBlock") === "true";
-  });
-  // Série de connexions (login streak)
-  const [loginStreak, setLoginStreak] = useState<number>(() => {
-    try {
-      // Some APIs return snake_case, others camelCase
-  const stagiaire = (user?.stagiaire as unknown) as Record<string, unknown> | undefined;
-      const fromUser =
-        typeof stagiaire?.["login_streak"] === "number"
-          ? (stagiaire["login_streak"] as number)
-          : typeof stagiaire?.["loginStreak"] === "number"
-          ? (stagiaire["loginStreak"] as number)
-          : 0;
-      return fromUser;
-    } catch (e) {
-      return 0;
-    }
-  });
-
-  // === Catalogues formations ===
-  const { data: catalogueData = [], isLoading: isLoadingCatalogue } = useQuery({
-    queryKey: ["catalogueFormations"],
-    queryFn: async () => {
-      const response = await catalogueFormationApi.getAllCatalogueFormation();
-      const resp = response as unknown;
-      // If API returns an array directly
-      if (Array.isArray(resp)) return resp as CatalogueFormation[];
-      if (resp && typeof resp === "object") {
-        const respObj = resp as Record<string, unknown>;
-        const member = respObj["member"];
-        const data = respObj["data"];
-        if (Array.isArray(member)) return member as CatalogueFormation[];
-        if (Array.isArray(data)) return data as CatalogueFormation[];
-      }
-      return [] as CatalogueFormation[];
-    },
-    enabled: !!user && !!localStorage.getItem("token"), // ← AJOUT IMPORTANT
-    retry: 1, // Éviter les tentatives répétées en cas d'erreur 401
-  });
-
-  const [stagiaireCatalogues, setStagiaireCatalogues] = useState<
-    CatalogueFormation[]
-  >([]);
 
   useEffect(() => {
-    // Ne pas faire l'appel si pas connecté
     if (!user || !localStorage.getItem("token")) {
       setStagiaireCatalogues([]);
       return;
@@ -205,7 +289,6 @@ useEffect(() => {
         setStagiaireCatalogues(res.data.catalogues || []);
       } catch (error) {
         if (axios.isAxiosError(error) && error.response?.status === 401) {
-          // Ne pas setter d'état si déconnecté
           return;
         }
         setStagiaireCatalogues([]);
@@ -215,7 +298,6 @@ useEffect(() => {
     fetchStagiaireCatalogues();
   }, [user]);
 
-  // Ensure we have the latest login streak: prefer user.stagiaire but fallback to a lightweight profile call
   useEffect(() => {
     if (!localStorage.getItem("token")) return;
     axios
@@ -227,153 +309,10 @@ useEffect(() => {
           res?.data?.stagiaire?.login_streak ?? res?.data?.login_streak;
         if (typeof val === "number") setLoginStreak(val);
       })
-      .catch(() => {
-        // ignore
-      });
+      .catch(() => { });
   }, [user]);
 
-  // Streak modal: show large blocking modal once per day when user has a login streak
-  const [showStreakModal, setShowStreakModal] = useState<boolean>(false);
-  const [hideStreakFor7Days, setHideStreakFor7Days] = useState<boolean>(false);
   useEffect(() => {
-    try {
-      if (!user || !localStorage.getItem("token")) return;
-      const hideUntil = localStorage.getItem("streakModalHideUntil");
-      if (hideUntil) {
-        const today = dayjs().tz("Europe/Paris");
-        const hideDate = dayjs(hideUntil);
-        if (today.isBefore(hideDate)) {
-          return;
-        }
-      }
-      const today = dayjs().tz("Europe/Paris").format("YYYY-MM-DD");
-      const lastShown = localStorage.getItem("lastStreakModalDate");
-      // If already shown today, don't show again
-      if (lastShown === today) return;
-      // Only show if user has a positive streak
-      if (typeof loginStreak === "number" && loginStreak > 0) {
-        setShowStreakModal(true);
-      }
-    } catch (e) {
-      // ignore localStorage/dayjs errors
-    }
-  }, [user, loginStreak]);
-
-  const closeStreakModal = () => {
-    try {
-      const today = dayjs().tz("Europe/Paris").format("YYYY-MM-DD");
-      localStorage.setItem("lastStreakModalDate", today);
-      if (hideStreakFor7Days) {
-        const hideUntil = dayjs()
-          .tz("Europe/Paris")
-          .add(7, "day")
-          .format("YYYY-MM-DD");
-        localStorage.setItem("streakModalHideUntil", hideUntil);
-      } else {
-        localStorage.removeItem("streakModalHideUntil");
-      }
-    } catch (e) {
-      // ignore localStorage errors
-    }
-    setShowStreakModal(false);
-  };
-
-  const filteredFormations = useMemo(() => {
-    if (!stagiaireCatalogues.length) return catalogueData;
-    const ids = new Set(
-      stagiaireCatalogues.flatMap((f) => (f && f.id != null ? [String(f.id)] : []))
-    );
-    return catalogueData.filter((f) => !ids.has(String(f.id)));
-  }, [catalogueData, stagiaireCatalogues]);
-
-  // Deterministic shuffle per session for formations
-  const shuffledFormations = useMemo(() => {
-    const arr = Array.isArray(filteredFormations) ? [...filteredFormations] : [];
-    const seed = getSessionSeed();
-    const rng = mulberry32(seed);
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(rng() * (i + 1));
-      const tmp = arr[i];
-      arr[i] = arr[j];
-      arr[j] = tmp;
-    }
-    return arr as CatalogueFormation[];
-  }, [filteredFormations]);
-
-  // === Récupération des contacts ===
-  const { data: commerciaux, isLoading: loadingCommerciaux } = useQuery<
-    Contact[]
-  >({
-    queryKey: ["contacts", "commerciaux"],
-    queryFn: () => fetchContacts("commerciaux"),
-  });
-
-  const { data: formateurs, isLoading: loadingFormateurs } = useQuery<
-    Contact[]
-  >({
-    queryKey: ["contacts", "formateurs"],
-    queryFn: () => fetchContacts("formateurs"),
-  });
-
-  const { data: poleRelation, isLoading: loadingPoleRelation } = useQuery<
-    Contact[]
-  >({
-    queryKey: ["contacts", "pole-relation"],
-    queryFn: () => fetchContacts("pole-relation"),
-  });
-
-  const { data: poleSav, isLoading: loadingPoleSav } = useQuery<Contact[]>({
-    queryKey: ["contacts", "pole-save"],
-    queryFn: () => fetchContacts("pole-save"),
-  });
-
-  // === Quiz stagiaire ===
-  const { data: quizzes = [], isLoading: isLoadingQuizzes } = useQuery<unknown[]>({
-    queryKey: ["stagiaire-quizzes-home"],
-    queryFn: async () => {
-      try {
-        const res = await axios.get(`${API_URL}/stagiaire/quizzes`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        return res.data?.data || [];
-      } catch {
-        return [];
-      }
-    },
-    enabled: !!localStorage.getItem("token"),
-  });
-
-  // Récupérer les participations pour filtrer les quiz déjà joués
-  // Récupérer l'historique pour filtrer les quiz déjà joués
-  const { data: history = [] } = useQuery({
-    queryKey: ["stagiaire-history-home"],
-    queryFn: async () => {
-      try {
-        const res = await axios.get(`${API_URL}/quiz/history`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        return res.data || [];
-      } catch {
-        return [];
-      }
-    },
-    enabled: !!localStorage.getItem("token"),
-  });
-
-    // ...existing code...
-
-  // Filtrage des quiz à découvrir selon le nombre de points utilisateur
-  // Récupérer les points utilisateur depuis le classement global
-  const [userPoints, setUserPoints] = useState(0);
-  useEffect(() => {
-    // Récupérer les points depuis l'API ou le classement global
-    // Si vous avez un hook useClassementPoints, utilisez-le ici
-    // Sinon, adapter selon votre logique métier
-    // Exemple :
     axios
       .get(`${API_URL}/classement/points`, {
         headers: {
@@ -384,105 +323,6 @@ useEffect(() => {
       .catch(() => setUserPoints(0));
   }, []);
 
-  const filteredQuizzes = useMemo<QuizType[]>(() => {
-    if (!quizzes.length) return [];
-
-    // Runtime helpers to safely extract fields from unknown shapes
-    const asRecord = (v: unknown) => (v as Record<string, unknown> | null) ?? null;
-    const getHistoryQuizId = (h: unknown): string | null => {
-      const r = asRecord(h);
-      if (!r) return null;
-      const quiz = asRecord(r["quiz"]);
-      const raw = (quiz?.["id"] ?? r["quizId"] ?? r["id"] ?? null) as string | number | null;
-      return raw != null ? String(raw) : null;
-    };
-    const getQuizId = (q: unknown): string | null => {
-      const r = asRecord(q);
-      if (!r) return null;
-      const raw = (r["id"] ?? r["_id"] ?? null) as string | number | null;
-      return raw != null ? String(raw) : null;
-    };
-    const getQuizFormationId = (q: unknown): number | null => {
-      const r = asRecord(q);
-      if (!r) return null;
-      // possible shapes: formation?.id, formation_id, formationId, formations[0]?.id
-      const formation = asRecord(r["formation"]);
-      if (formation && formation["id"]) return Number(formation["id"]);
-      if (r["formation_id"]) return Number(r["formation_id"]);
-      if (r["formationId"]) return Number(r["formationId"]);
-      const formations = r["formations"] as unknown;
-      if (Array.isArray(formations) && formations.length > 0) {
-        const f0 = asRecord(formations[0]);
-        if (f0 && f0["id"]) return Number(f0["id"]);
-      }
-      return null;
-    };
-
-    // Filter out quizzes that are in user's history
-    const notPlayedQuizzes = (quizzes as unknown[]).filter((q) => {
-      const qid = getQuizId(q);
-      if (!qid) return true;
-      return !history.some((h) => String(getHistoryQuizId(h)) === String(qid));
-    });
-
-    // Collect unique formation IDs from user catalogues (if any)
-    const formationIds = Array.from(
-      new Set(
-        stagiaireCatalogues
-          .map((item) => item.formation_id)
-          .filter((id) => id != null)
-          .map((id) => Number(id))
-      )
-    ).filter(Boolean) as number[];
-
-    // Group quizzes by formation ID
-    const quizzesByFormation = (notPlayedQuizzes as unknown[]).reduce((acc, q) => {
-      const formationId = getQuizFormationId(q);
-      if (formationId && formationIds.includes(formationId)) {
-        if (!acc[formationId]) acc[formationId] = [];
-        (acc[formationId] as unknown[]).push(q);
-      }
-      return acc;
-    }, {} as Record<number, unknown[]>);
-
-    const shuffle = <T,>(arr: T[]) => {
-      const a = arr.slice();
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        const tmp = a[i];
-        a[i] = a[j];
-        a[j] = tmp;
-      }
-      return a;
-    };
-
-    // If user has formationIds, prefer quizzes from one chosen formation rotating by day
-    if (formationIds.length) {
-      const dayIndex = dayjs().tz("Europe/Paris").diff(dayjs("1970-01-01"), "day");
-      const chosenIndex = Math.abs(dayIndex) % formationIds.length;
-      const chosenFormationId = formationIds[chosenIndex];
-
-      const chosenQuizzes = (quizzesByFormation[chosenFormationId] || []) as unknown[];
-      const shuffledChosen = shuffle(chosenQuizzes);
-      const selected = shuffledChosen.slice(0, 3);
-
-      if (selected.length >= 3) return selected.map((s) => s as QuizType);
-
-      const remainingNeeded = 3 - selected.length;
-      const otherFormationIds = formationIds.filter((id) => id !== chosenFormationId);
-      const pool = otherFormationIds.flatMap((id) => (quizzesByFormation[id] || []) as unknown[]);
-      const shuffledPool = shuffle(pool);
-      const fillers = shuffledPool.slice(0, remainingNeeded);
-
-      return [...selected, ...fillers].slice(0, 3).map((s) => s as QuizType);
-    }
-
-    // Fallback: user has no catalogues — take 3 random not-yet-played quizzes from the global pool
-    const globalPool = shuffle(notPlayedQuizzes as unknown[]).slice(0, 3);
-    return globalPool.map((s) => s as QuizType);
-  }, [quizzes, history, stagiaireCatalogues]);
-
-  // === Notification automatique à 9h ===
   useEffect(() => {
     const nowParis = dayjs().tz("Europe/Paris");
     const hour = nowParis.hour();
@@ -498,16 +338,12 @@ useEffect(() => {
       });
     }
   }, []);
-  const isTablet = useMediaQuery("(min-width: 769px) and (max-width: 1024px)");
 
-  // === Redirection si non connecté ===
   useEffect(() => {
-    // Déclenche le badge première connexion/série de connexions (une fois par jour)
     if (user && localStorage.getItem("token")) {
       try {
         const lastCheck = localStorage.getItem("lastAchievementsCheckDate");
         const today = dayjs().tz("Europe/Paris").format("YYYY-MM-DD");
-        // Ne rien faire si on a déjà vérifié aujourd'hui
         if (lastCheck === today) return;
 
         axios
@@ -521,7 +357,6 @@ useEffect(() => {
             }
           )
           .then((res) => {
-            // On attend un tableau d'achievements débloqués dans res.data.new_achievements
             const unlocked = res.data?.new_achievements || [];
             if (Array.isArray(unlocked) && unlocked.length > 0) {
               unlocked.forEach((ach) => {
@@ -535,270 +370,171 @@ useEffect(() => {
                 });
               });
             }
-            // Mémoriser la vérification réussie pour aujourd'hui
             localStorage.setItem("lastAchievementsCheckDate", today);
           })
-          .catch(() => {
-            // En cas d'erreur réseau, on ne marque pas la vérification pour permettre une nouvelle tentative
-          });
+          .catch(() => { });
       } catch (e) {
-        // ignore localStorage/dayjs errors
+        // ignore errors
       }
     }
   }, [user]);
-  const { data: participations } = useQuery<unknown[]>({
-      queryKey: ["stagiaire-participations"],
-      queryFn: () => stagiaireQuizService.getStagiaireQuizJoue(),
-      enabled: !!localStorage.getItem("token"),
+
+  // Memoized computations
+  const filteredFormations = useMemo(() => {
+    if (!stagiaireCatalogues.length) return catalogueData;
+    const ids = new Set(
+      stagiaireCatalogues.flatMap((f) =>
+        f && f.id != null ? [String(f.id)] : []
+      )
+    );
+    return catalogueData.filter((f) => !ids.has(String(f.id)));
+  }, [catalogueData, stagiaireCatalogues]);
+
+  const filteredQuizzes = useQuizFiltering(
+    quizzes,
+    history,
+    stagiaireCatalogues
+  );
+
+  console.log("Filtered quizzes:", filteredQuizzes);
+
+  const notPlayedQuizzes = useMemo<Quiz[]>(() => {
+    if (!quizzes || !participations) return [];
+    return filteredQuizzes.filter((q) => {
+      const qid = String(q.id ?? q.titre ?? "");
+      return !participations.some((p) => {
+        const hid = getHistoryQuizId(p);
+        return hid ? String(hid) === String(qid) : false;
+      });
     });
-
-    const { data: categories, isLoading: categoriesLoading } = useQuery({
-        queryKey: ["quiz-categories"],
-        queryFn: () => categoryService.getCategories(),
-        enabled: !!localStorage.getItem("token"),
-      });
-  // debug logs removed
-  const notPlayedQuizzes = useMemo<QuizType[]>(() => {
-      if (!quizzes || !participations) return [];
-
-      const result = filteredQuizzes.filter((q) => {
-        const qid = String(q.id ?? q.titre ?? "");
-        return !participations.some((p) => {
-          const hid = getHistoryQuizId(p);
-          return hid ? String(hid) === String(qid) : false;
-        });
-      });
-
-      return result as QuizType[];
   }, [filteredQuizzes, quizzes, participations]);
-  const [notPlayedCurrentPage, setNotPlayedCurrentPage] = useState(1);
-    const [playedCurrentPage, setPlayedCurrentPage] = useState(1);
-    const quizzesPerPage = 6;
-    // console.log("notPlayedQuizzes", filteredQuizzes);
-  const notPlayedPaginatedQuizzes = useMemo(() => {
-      const startIndex = (notPlayedCurrentPage - 1) * quizzesPerPage;
-      return notPlayedQuizzes.slice(startIndex, startIndex + quizzesPerPage);
-    }, [notPlayedQuizzes, notPlayedCurrentPage]);
 
-  if (!user || !localStorage.getItem("token")) {
-    return <LandingPage />;
-  }
-  
+  const quizzesPerPage = 6;
+  const notPlayedPaginatedQuizzes = useMemo(() => {
+    const startIndex = (notPlayedCurrentPage - 1) * quizzesPerPage;
+    return notPlayedQuizzes.slice(startIndex, startIndex + quizzesPerPage);
+  }, [notPlayedQuizzes, notPlayedCurrentPage]);
 
   return (
     <Layout>
       <div className="px-2 md:px-6">
-        {/* Présentation interactive de la plateforme */}
-        {!hidePresentationBlock && isTablet && (
-          <div
-            className="group relative bg-wizi-muted rounded-xl shadow-lg border border-yellow-200 p-6 pb-16 mb-6 transition-transform duration-300 hover:scale-105"
-            aria-label="Découvrir la plateforme Wizi Learn">
-            {/* Bouton X pour fermer */}
-            <button
-              className="absolute top-3 right-3 text-wizi-muted hover:text-wizi-muted text-xl bg-transparent border-none p-0 z-10"
-              onClick={(e) => {
-                e.stopPropagation();
-                setHidePresentationBlock(true);
-                localStorage.setItem("hidePresentationBlock", "true");
-              }}
-              aria-label="Fermer">
-              ×
-            </button>
-            <div className="flex items-center gap-3 mb-2">
-              <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-wizi-muted text-wizi-muted group-hover:bg-wizi-accent/20 transition-colors">
-                <Megaphone size={28} />
-              </span>
-              <h2 className="text-lg md:text-2xl font-bold text-brown-shade">
-                Bienvenue sur Wizi Learn
-              </h2>
-            </div>
-            <p className="text-gray-700 text-base mb-3">
-              Wizi Learn est une plateforme d'apprentissage interactive dédiée à
-              la montée en compétences.
-            </p>
-              <button
-              className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-wizi-accent text-white font-semibold px-4 py-2 rounded-lg shadow hover:bg-wizi-accent/90 transition-colors"
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open("/manuel", "_blank");
-              }}>
-              Découvrir la plateforme
-            </button>
-          </div>
-        )}
-        {showInstallHint && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 animate-fade-in">
-            <div className="bg-white border-l-4 border-yellow-200 rounded shadow-xl max-w-md w-full p-6 relative">
-              <button
-                className="absolute top-2 right-2 text-wizi-muted hover:text-wizi-muted text-lg"
-                onClick={() => setShowInstallHint(false)}
-                aria-label="Fermer">
-                ×
-              </button>
-              <h3 className="text-lg font-bold text-wizi-muted mb-2">
-                Comment installer l'application Android ?
-              </h3>
-              <div className="text-sm text-wizi-muted">
-                <strong>Astuce :</strong> Pour installer l'application, il se
-                peut que votre téléphone affiche un message "Installation
-                bloquée" ou "Source inconnue".
-                <br />
-                <span className="font-medium">Voici comment faire :</span>
-                <ul className="list-disc pl-5 mt-1 mb-2">
-                  <li>Ouvrez le fichier téléchargé (APK).</li>
-                  <li>
-                    Si un avertissement apparaît, cliquez sur{" "}
-                    <span className="font-semibold">Paramètres</span> ou{" "}
-                    <span className="font-semibold">Autoriser</span>.
-                  </li>
-                  <li>
-                    Activez l'option{" "}
-                    <span className="font-semibold">
-                      Autoriser l'installation depuis cette source
-                    </span>
-                    .
-                  </li>
-                  <li>Revenez à l'installation et validez.</li>
-                </ul>
-                <span className="text-xs text-wizi-muted">
-                  L'application est sûre et ne collecte aucune donnée
-                  personnelle en dehors de votre usage sur Wizi Learn.
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-        {/* Série de connexions - modal affichée une fois par jour */}
-        {showStreakModal ? (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 p-6"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Série de connexions">
-            <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 text-center">
-              <div className="flex items-center justify-center mb-4">
-                <div className="flex flex-col items-center px-6 py-4 rounded bg-orange-50 border border-orange-100">
-                  {/* <span className="text-sm font-medium text-orange-600">7 jours</span> */}
-                  <span className="text-5xl font-extrabold text-orange-600">
-                    🔥
-                  </span>
-                </div>
-              </div>
-              <h3 className="text-2xl md:text-3xl font-extrabold text-gray-800 mb-2">
-                Série de connexions
-              </h3>
-              <p className="text-lg font-bold text-gray-900 mb-4">
-                {loginStreak} jour{loginStreak > 1 ? "s" : ""} d'affilée
-              </p>
-              {/* <p className="text-sm text-gray-600 mb-4">
-                Continuez comme ça pour débloquer des récompenses 🎉
-              </p> */}
-              <div className="flex items-center justify-center mb-4">
-                <input
-                  type="checkbox"
-                  id="hide-streak"
-                  checked={hideStreakFor7Days}
-                  onChange={(e) => setHideStreakFor7Days(e.target.checked)}
-                  className="h-4 w-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                />
-                <label
-                  htmlFor="hide-streak"
-                  className="ml-2 block text-sm text-gray-900">
-                  Ne plus montrer pendant 7 jours
-                </label>
-              </div>
-              <div className="flex justify-center gap-3">
-                <button
-                  className="px-4 py-2 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600"
-                  onClick={closeStreakModal}>
-                  Continuer
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="mt-4 mb-4 flex justify-center"></div>
-        )}
+        {/* Bannière de bienvenue */}
+        <WelcomeBanner
+          onHide={() => {
+            setHidePresentationBlock(true);
+            localStorage.setItem("hidePresentationBlock", "true");
+          }}
+        />
+
+        {/* Modal série de connexions */}
+        <StreakModal
+          isOpen={showStreakModal}
+          onClose={closeStreakModal}
+          loginStreak={loginStreak}
+          hideFor7Days={hideStreakFor7Days}
+          onHideFor7DaysChange={setHideStreakFor7Days}
+        />
+
+        {/* Modal reprise de quiz */}
+        <ResumeQuizModal
+          open={!!unfinishedQuiz}
+          quizTitle={unfinishedQuiz?.quizTitle || ""}
+          questionCount={unfinishedQuiz?.questionIds?.length || 0}
+          currentProgress={unfinishedQuiz?.currentIndex || 0}
+          onResume={handleResumeQuiz}
+          onDismiss={handleDismissQuiz}
+        />
+
+        {/* Comment jouer */}
         <HowToPlay />
-                {filteredQuizzes.length > 0 && (
-          <Card className="border-yellow-200">
+
+        {/* Quiz à découvrir */}
+        {/* {filteredQuizzes.length > 0 && (
+          <Card className="border-yellow-100">
             <CardContent className="p-3 md:p-6">
               <div className="flex items-center mb-2 md:mb-3">
                 <h2 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-600">
                   Quiz à découvrir
                 </h2>
               </div>
-              {/* <StagiaireQuizGrid
-                quizzes={filteredQuizzes}
-                categories={Array.from(
-                  new Set(
-                    filteredQuizzes
-                      .map((q) => q.formation?.categorie)
-                      .filter(Boolean)
-                  )
-                )}/> */}
-                <StagiaireQuizGrid
-                                quizzes={notPlayedPaginatedQuizzes}
-                                categories={categories || []}
-                              />
-              
+              <StagiaireQuizGrid
+                quizzes={notPlayedPaginatedQuizzes}
+                categories={categories || []}
+              />
             </CardContent>
           </Card>
-        )}
-        
+        )} */}
+
+        {/* Formations */}
         {isLoadingCatalogue ? (
           <div className="flex justify-center items-center py-16">
-            <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-wizi-accent border-solid"></div>
+            <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-yellow-400 border-solid"></div>
           </div>
         ) : filteredFormations.length > 0 ? (
-          <>
-            {/* <h1 className="text-2xl md:text-2xl text-orange-400 font-bold mb-4 md:mb-2 text-center mt-4 py-6 relative">
-              {DECOUVRIR_NOS_FORMATIONS}
-              <span className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-orange-400 rounded-full"></span>
-            </h1> */}
-            <h2 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-600">
-              Boostez vos compétences dès aujourd'hui !
-            </h2>
-            <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 px-2 py-6 md:py-3 bg-white rounded-xl">
-              <div className="flex-1">
-                {!adLoading && adFormations.length > 0 ? (
-                  <AdCatalogueBlock formations={adFormations.slice(0, 6)} />
-                 ) : (
-                  shuffledFormations.slice(0, 3).map((formation: CatalogueFormation) => (
-                      <FormationCard
-                        key={`available-${(formation as any).formation?.id || (formation as any).id}-${(formation as any).id}`}
-                        formation={formation as unknown as import("@/types/Formation").FormationCardData}
-                      />
-                  ))
-                )} 
+          <Card className="border-yellow-100 mt-6">
+            <CardContent className="p-3 md:p-6">
+              <div className="flex items-center mb-2 md:mb-3">
+                <h2 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-600">
+                  Boostez vos compétences dès aujourd'hui !
+                </h2>
               </div>
-            </div>
-          </>
+              <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 px-2 py-6 md:py-3 bg-white rounded-xl">
+                <div className="flex-1">
+                  {!adLoading && adFormations.length > 0 ? (
+                    <AdCatalogueBlock formations={adFormations.slice(0, 6)} />
+                  ) : (
+                    filteredFormations
+                      .slice(0, 3)
+                      .map((formation: CatalogueFormation) => (
+                        <FormationCard
+                          key={`available-${formation.formation?.id || formation.id
+                            }-${formation.id}`}
+                          formation={{
+                            ...(formation.formation ?? formation),
+                            prerequis:
+                              (formation.formation?.prerequis ??
+                                formation.prerequis) ||
+                              "",
+                            deleted_at:
+                              (formation.formation?.deleted_at ??
+                                formation.deleted_at) ||
+                              null,
+                            cursus_pdf:
+                              (formation.formation?.cursus_pdf ??
+                                formation.cursus_pdf) ||
+                              "",
+                          }}
+                        />
+                      ))
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         ) : (
           <div className="col-span-full text-center text-muted-foreground">
             Aucune formation disponible.
           </div>
         )}
 
-        {/* <hr /> */}
-        
-        <div className="bg-white md:p-4 rounded-lg mt-2">
-          <ContactsSection
-            commerciaux={commerciaux}
-            formateurs={formateurs}
-            poleRelation={poleRelation}
-            poleSav={poleSav}
-            showFormations={false}
-          />
+        {/* Contacts */}
+        <Card className="bg-white md:p-4 rounded-lg mt-6">
+          <CardContent className="p-3 md:p-6">
+            <ContactsSection
+              commerciaux={commerciaux}
+              formateurs={formateurs}
+              poleRelation={poleRelation}
+              poleSav={poleSav}
+              showFormations={false}
+            />
+          </CardContent>
+        </Card>
 
-
-        </div>
-        
-        {/* Bloc téléchargement application Android ou instruction PWA pour iOS */}
+        {/* Téléchargement application */}
         {showApkBlock &&
           (isIOS ? (
             <div
-              className="group relative  rounded-xl shadow-lg border border-yellow-200/30 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105"
+              className="group relative  rounded-xl shadow-lg border border-yellow-500/30 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105"
               aria-label="Télécharger l'application iOS sur l'App Store">
               <button
                 className="absolute top-3 right-3 text-gray-500 hover:text-white text-xl bg-transparent border-none p-0 z-10"
@@ -826,13 +562,51 @@ useEffect(() => {
               <p className="text-gray-400 text-s mb-3">
                 Accédez à Wizi Learn partout grâce à notre application iOS.
               </p>
-              <button className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-wizi-accent text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-orange-700 transition-colors">
+              <button
+                className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-yellow-400 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-orange-700 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(
+                    "https://apps.apple.com/mg/app/wizi-learn/id6752468866",
+                    "_blank"
+                  );
+                  if (user && localStorage.getItem("token")) {
+                    axios
+                      .post(
+                        `${API_URL}/stagiaire/achievements/check`,
+                        { code: "ios_download" },
+                        {
+                          headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                          },
+                        }
+                      )
+                      .then((res) => {
+                        const unlocked = res.data?.new_achievements || [];
+                        if (Array.isArray(unlocked) && unlocked.length > 0) {
+                          unlocked.forEach((ach) => {
+                            toast({
+                              title: `🎉 Succès débloqué`,
+                              description:
+                                (ach.name || ach.titre || ach.title || "Achievement") +
+                                " !",
+                              duration: 4000,
+                              variant: "default",
+                              className: "bg-orange-600 text-white",
+                            });
+                          });
+                        }
+                      })
+                      .catch(() => { });
+                  }
+                }}
+              >
                 Télécharger
               </button>
             </div>
           ) : (
             <div
-              className="group relative rounded-xl shadow-lg border border-orange-500/30 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105"
+              className="group relative rounded-xl shadow-lg border border-orange-500/30 mt-6 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105"
               aria-label="Télécharger l'application Android Wizi Learn">
               <button
                 className="absolute top-3 right-3 text-gray-500 hover:text-white text-xl bg-transparent border-none p-0 z-10"
@@ -844,7 +618,7 @@ useEffect(() => {
                 ×
               </button>
               <div className="flex items-center gap-3 mb-2">
-                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-wizi-accent text-wizi-accent group-hover:opacity-90 transition-colors">
+                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-yellow-400/10 text-orange-400 group-hover:bg-orange-500/20 transition-colors">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -869,7 +643,7 @@ useEffect(() => {
                 et suivez les instructions d'installation.
               </p>
               <button
-                className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-wizi-accent text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-orange-700 transition-colors"
+                className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-yellow-400 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-orange-700 transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
                   window.open(
@@ -912,20 +686,37 @@ useEffect(() => {
                 }}>
                 Télécharger
               </button>
-              <button
-                className="mt-6 text-orange-500 font-medium text-sm cursor-pointer hover:text-orange-400 bg-transparent border-none p-0"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowInstallHint(true);
-                }}>
-                💡 Astuce : Comment installer l'application ?
-              </button>
             </div>
           ))}
+
+        {/* Progress cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
           <ProgressCard user={user} />
         </div>
       </div>
     </Layout>
   );
+}
+
+// 🔥 COMPOSANT PRINCIPAL FORCÉ
+export function Index() {
+  const { user, isLoading } = useUser();
+
+  // 🔥 FORCER le loading si token existe (même pendant le chargement)
+  const hasToken = localStorage.getItem("token");
+
+  // 🔥 TOUJOURS afficher le loading si:
+  // 1. Chargement en cours OU
+  // 2. Token existe mais user pas encore chargé
+  if (isLoading || (hasToken && !user)) {
+    return <FullScreenLoader />;
+  }
+
+  // 🔥 SEULEMENT afficher LandingPage si PAS de token ET user null
+  if (!hasToken && !user) {
+    return <LandingPage />;
+  }
+
+  // 🔥 Rendre l'app authentifiée
+  return <AuthenticatedApp user={user!} />;
 }

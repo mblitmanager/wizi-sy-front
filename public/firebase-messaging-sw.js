@@ -18,8 +18,8 @@ messaging.onBackgroundMessage(function(payload) {
   const notificationTitle = payload.notification?.title || 'Notification';
   const notificationOptions = {
     body: payload.notification?.body || '',
-    icon: '/favicon.ico',
-    badge: '/favicon.ico',
+    icon: '/favicon2.ico',
+    badge: '/favicon2.ico',
     image: payload.data?.image || payload.notification?.image || undefined,
     data: Object.assign({}, payload.data || {}, {
       // ensure a link is available for click handling; prefer explicit data.link,
@@ -28,7 +28,7 @@ messaging.onBackgroundMessage(function(payload) {
     }),
     actions: [
       // Example action: open app
-      { action: 'open', title: 'Ouvrir', icon: '/favicon.ico' }
+      { action: 'open', title: 'Ouvrir', icon: '/favicon2.ico' }
     ],
   };
 
