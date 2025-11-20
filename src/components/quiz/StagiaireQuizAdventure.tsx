@@ -337,7 +337,7 @@ export const StagiaireQuizAdventure: React.FC<{
                 className={`relative w-8 h-8 rounded-full border-2 border-white ${categoryConfig.color} z-10 flex items-center justify-center`}>
                 {computed.avatarId && String(quiz.id) === computed.avatarId && (
                   <img
-                    src="/logons.png"
+                    src="./favicon.ico"
                     alt="avatar"
                     className="w-8 h-8 object-contain absolute -top-8 left-1/2 -translate-x-1/2"
                   />

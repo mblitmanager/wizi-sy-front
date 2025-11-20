@@ -11,10 +11,12 @@ import LandingPage from "./LandingPage";
 import { useUser } from "@/hooks/useAuth";
 import { useStreakModal } from "@/hooks/useStreakModal";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
+import { useResumeQuiz } from "@/hooks/useResumeQuiz";
 
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, useMediaQuery } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 import apiClient from "@/lib/api-client";
 import axios from "axios";
@@ -35,6 +37,7 @@ import timezone from "dayjs/plugin/timezone";
 import { useQuizFiltering } from "@/hooks/quiz/useQuizFiltering";
 import { WelcomeBanner } from "@/components/FeatureHomePage/WelcomeBanner";
 import { StreakModal } from "@/components/FeatureHomePage/StreakModal";
+import { ResumeQuizModal } from "@/components/quiz/ResumeQuizModal";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -98,6 +101,22 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
   const isIOS =
     typeof window !== "undefined" &&
     /iPad|iPhone|iPod/.test(window.navigator.userAgent);
+  const navigate = useNavigate();
+
+  // Resume quiz functionality
+  const { unfinishedQuiz, dismissQuiz } = useResumeQuiz();
+
+  const handleResumeQuiz = () => {
+    if (unfinishedQuiz) {
+      navigate(`/quiz/${unfinishedQuiz.quizId}`);
+    }
+  };
+
+  const handleDismissQuiz = () => {
+    if (unfinishedQuiz) {
+      dismissQuiz(unfinishedQuiz.quizId);
+    }
+  };
 
   // States
   const [showInstallHint, setShowInstallHint] = useState(false);
@@ -121,8 +140,8 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
         typeof stagiaire?.["login_streak"] === "number"
           ? (stagiaire["login_streak"] as number)
           : typeof stagiaire?.["loginStreak"] === "number"
-          ? (stagiaire["loginStreak"] as number)
-          : 0;
+            ? (stagiaire["loginStreak"] as number)
+            : 0;
       return fromUser;
     } catch (e) {
       return 0;
@@ -290,7 +309,7 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
           res?.data?.stagiaire?.login_streak ?? res?.data?.login_streak;
         if (typeof val === "number") setLoginStreak(val);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [user]);
 
   useEffect(() => {
@@ -343,9 +362,8 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
               unlocked.forEach((ach) => {
                 toast({
                   title: `🎉 Succès débloqué`,
-                  description: `${
-                    ach.name || ach.titre || ach.title || "Achievement"
-                  } !`,
+                  description: `${ach.name || ach.titre || ach.title || "Achievement"
+                    } !`,
                   duration: 4000,
                   variant: "default",
                   className: "bg-orange-600 text-white",
@@ -354,7 +372,7 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
             }
             localStorage.setItem("lastAchievementsCheckDate", today);
           })
-          .catch(() => {});
+          .catch(() => { });
       } catch (e) {
         // ignore errors
       }
@@ -417,6 +435,16 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
           onHideFor7DaysChange={setHideStreakFor7Days}
         />
 
+        {/* Modal reprise de quiz */}
+        <ResumeQuizModal
+          open={!!unfinishedQuiz}
+          quizTitle={unfinishedQuiz?.quizTitle || ""}
+          questionCount={unfinishedQuiz?.questionIds?.length || 0}
+          currentProgress={unfinishedQuiz?.currentIndex || 0}
+          onResume={handleResumeQuiz}
+          onDismiss={handleDismissQuiz}
+        />
+
         {/* Comment jouer */}
         <HowToPlay />
 
@@ -459,9 +487,8 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
                       .slice(0, 3)
                       .map((formation: CatalogueFormation) => (
                         <FormationCard
-                          key={`available-${
-                            formation.formation?.id || formation.id
-                          }-${formation.id}`}
+                          key={`available-${formation.formation?.id || formation.id
+                            }-${formation.id}`}
                           formation={{
                             ...(formation.formation ?? formation),
                             prerequis:
@@ -570,7 +597,7 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
                           });
                         }
                       })
-                      .catch(() => {});
+                      .catch(() => { });
                   }
                 }}
               >
@@ -654,7 +681,7 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
                           });
                         }
                       })
-                      .catch(() => {});
+                      .catch(() => { });
                   }
                 }}>
                 Télécharger
