@@ -208,7 +208,7 @@ export function GlobalRanking({
             size="sm"
             className="text-xs bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700 hover:text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300 dark:hover:text-blue-200 transition-all duration-200">
             <BookOpen className="h-3 w-3 mr-1" />
-            Voir formations
+            Voir formation
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden p-0 border border-gray-200 dark:border-gray-700 shadow-xl">
@@ -311,8 +311,8 @@ export function GlobalRanking({
                             </span>
                           </div> */}
 
-                          <div className="flex items-center gap-2 text-sm">
-                            <div
+                          {/* <div className="flex items-center gap-2 text-sm">
+                            {/* <div
                               className={`w-3 h-3 rounded-full ${
                                 formation.statut === 1
                                   ? "bg-green-500"
@@ -320,8 +320,8 @@ export function GlobalRanking({
                                   ? "bg-yellow-500"
                                   : "bg-gray-500"
                               }`}
-                            />
-                            <span
+                            /> */}
+                            {/* <span
                               className={
                                 formation.statut === 1
                                   ? "text-green-600 dark:text-green-400"
@@ -334,8 +334,8 @@ export function GlobalRanking({
                                 : formation.statut === 0
                                 ? "Désactivée"
                                 : "Statut inconnu"}
-                            </span>
-                          </div>
+                            </span> 
+                          </div> */}
                         </div>
 
                         <Button

@@ -117,7 +117,7 @@ export const HowToPlay = () => {
 
       {/* Version tablette - grille compacte */}
       <div className="hidden md:block lg:hidden">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto">
           {steps.map((step, index) => (
             <HowToPlayStep
               key={step.number}
