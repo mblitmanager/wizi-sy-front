@@ -235,11 +235,11 @@ export default function Quizzes() {
             </div>
 
             {/* Indicateur de mode actuel */}
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-lg">
+            {/* <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-lg">
               <span className="text-sm font-medium text-gray-700">
                 Mode {activeToggle === "adventure" ? "Aventure" : "Liste"}
               </span>
-            </div>
+            </div> */}
 
             {/* Toggle Vue Quiz */}
             <div className="flex items-center gap-3 top-1 right-4 absolute">

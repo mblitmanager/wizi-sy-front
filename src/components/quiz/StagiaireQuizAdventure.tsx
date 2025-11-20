@@ -300,9 +300,9 @@ export const StagiaireQuizAdventure: React.FC<{
             <div className="text-gray-500">
               Aucun quiz disponible pour cette formation
             </div>
-            <div className="text-sm text-gray-400">
+            {/* <div className="text-sm text-gray-400">
               Formation ID: {selectedFormationId}
-            </div>
+            </div> */}
           </div>
         ) : (
           <div className="text-gray-500">Aucun quiz disponible</div>
