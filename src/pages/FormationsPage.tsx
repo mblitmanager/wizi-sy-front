@@ -12,12 +12,13 @@ import { Formation, CatalogueFormationWithFormation } from "@/types/stagiaire";
 import { mapCatalogueToFormation } from "@/utils/mapCatalogueToFormation";
 
 const FormationsPage = () => {
-  const [formationsDisponibles, setFormationsDisponibles] = useState([]);
+  const [formationsDisponibles, setFormationsDisponibles] = useState<Formation[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [nextPageUrl, setNextPageUrl] = useState<string | null>(null);
   const [prevPageUrl, setPrevPageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState("Tous");
 
   const fetchPage = async (page = 1) => {
     setIsLoading(true);
@@ -39,7 +40,10 @@ const FormationsPage = () => {
       const { data, current_page, last_page, next_page_url, prev_page_url } =
         catalogueResponse.data as CatalogueResponse;
 
-      setFormationsDisponibles(Object.values(data));
+      // Map and set formations
+      const mappedFormations = Object.values(data).map(mapCatalogueToFormation);
+      setFormationsDisponibles(mappedFormations);
+      
       setLastPage(last_page);
       setCurrentPage(current_page);
       setNextPageUrl(next_page_url);
@@ -62,16 +66,27 @@ const FormationsPage = () => {
     fetchPage(currentPage);
   }, [currentPage]);
 
-  const formationsRender = useMemo(() => {
-    return formationsDisponibles
-      .map(mapCatalogueToFormation)
-      .map((formation: Formation) => (
-        <FormationCard
-          key={`available-${formation.catalogue_formation.id}-${formation.id}`}
-          formation={formation}
-        />
-      ));
+  // Extract unique categories
+  const categories = useMemo(() => {
+    const cats = new Set(formationsDisponibles.map((f) => f.categorie || "Autre"));
+    return ["Tous", ...Array.from(cats)];
   }, [formationsDisponibles]);
+
+  const filteredFormations = useMemo(() => {
+    if (selectedCategory === "Tous") return formationsDisponibles;
+    return formationsDisponibles.filter(
+      (f) => (f.categorie || "Autre") === selectedCategory
+    );
+  }, [formationsDisponibles, selectedCategory]);
+
+  const formationsRender = useMemo(() => {
+    return filteredFormations.map((formation: Formation) => (
+      <FormationCard
+        key={`available-${formation.catalogue_formation.id}-${formation.id}`}
+        formation={formation}
+      />
+    ));
+  }, [filteredFormations]);
 
   return (
     <div className="container mx-auto px-4 py-8  bg-white ">
@@ -86,6 +101,23 @@ const FormationsPage = () => {
         </p>
       </div>
       <hr className="mb-4" />
+
+      {/* Filtres par catégorie */}
+      <div className="mb-6">
+        <Tabs defaultValue="Tous" value={selectedCategory} onValueChange={setSelectedCategory}>
+          <TabsList className="flex flex-wrap h-auto gap-2 bg-transparent justify-start p-0">
+            {categories.map((category) => (
+              <TabsTrigger
+                key={category}
+                value={category}
+                className="data-[state=active]:bg-brown-shade data-[state=active]:text-white border border-gray-200 rounded-full px-4 py-2"
+              >
+                {category}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      </div>
 
       {/* Grille des formations */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

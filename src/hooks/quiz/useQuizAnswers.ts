@@ -15,6 +15,7 @@ export const useQuizAnswers = () => {
 
   return {
     answers,
+    setAnswers,
     submitAnswer,
     reset,
   };
