@@ -144,6 +144,17 @@ export function QuizSummary() {
     setShowCountdown(true);
   };
 
+  // Auto-start the countdown after 60 seconds when result and nextQuiz are available
+  useEffect(() => {
+    if (!result || !nextQuiz || showCountdown) return;
+
+    const timer = setTimeout(() => {
+      handleShowCountdown();
+    }, 60000); // 60000ms = 60s
+
+    return () => clearTimeout(timer);
+  }, [result, nextQuiz, showCountdown]);
+
   // Format data for QuizSummary component - Memoized to avoid recalculation
   // MUST be called before any early returns to follow React's Rules of Hooks
   const { questionsWithFlag, formattedUserAnswers } = useMemo(() => {
@@ -397,12 +408,12 @@ export function QuizSummary() {
                 <ArrowRight className="w-4 h-4" />
               </Button>
 
-              <Button
+              {/* <Button
                 onClick={handleShowCountdown}
                 variant="outline"
                 className="text-gray-600 border-gray-300 hover:bg-gray-50">
                 Voir l'animation
-              </Button>
+              </Button> */}
             </div>
           )}
         </div>
