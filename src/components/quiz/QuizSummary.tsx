@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { quizSubmissionService } from "@/services/quiz/QuizSubmissionService";
 import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, memo, lazy, Suspense } from "react";
 import { Loader2, ArrowRight, Play } from "lucide-react";
 import { useNotifications } from "@/hooks/useNotifications";
 import { Clock, CheckCircle, Calendar, TrendingUp } from "lucide-react";
@@ -14,7 +14,8 @@ import QuizSummaryFooter from "../Summary/QuizSummaryFooter";
 import { Question } from "@/types/quiz";
 import quizimg from "../../assets/loading_img.png";
 import { useNextQuiz } from "@/hooks/quiz/useNextQuiz";
-import { CountdownAnimation } from "./CountdownAnimation";
+// Lazy load CountdownAnimation car affiché conditionnellement
+const CountdownAnimation = lazy(() => import("./CountdownAnimation").then(m => ({ default: m.CountdownAnimation })));
 
 interface QuizSummaryProps {
   quiz?: {
@@ -143,6 +144,73 @@ export function QuizSummary() {
     setShowCountdown(true);
   };
 
+  // Format data for QuizSummary component - Memoized to avoid recalculation
+  // MUST be called before any early returns to follow React's Rules of Hooks
+  const { questionsWithFlag, formattedUserAnswers } = useMemo(() => {
+    if (!result) {
+      return { questionsWithFlag: [], formattedUserAnswers: {} };
+    }
+
+    const formattedAnswers: Record<string, any> = {};
+
+    const questionsWithPlayedFlag = result.questions.map((q: any) => {
+      let isPlayed = false;
+      if (q.selectedAnswers !== null && q.selectedAnswers !== undefined) {
+        if (Array.isArray(q.selectedAnswers)) {
+          isPlayed = q.selectedAnswers.length > 0;
+        } else if (typeof q.selectedAnswers === "object") {
+          isPlayed = Object.keys(q.selectedAnswers).length > 0;
+        } else if (typeof q.selectedAnswers === "string") {
+          isPlayed = q.selectedAnswers.trim() !== "";
+        } else {
+          isPlayed = true;
+        }
+      }
+
+      if (q.selectedAnswers) {
+        if (Array.isArray(q.selectedAnswers)) {
+          formattedAnswers[q.id] = q.selectedAnswers;
+        } else if (typeof q.selectedAnswers === "object") {
+          if (q.type === "correspondance") {
+            const answersById: Record<string, string> = {};
+            q.answers.forEach((a: { id: string; text: string }) => {
+              answersById[a.id] = a.text;
+            });
+            const mapped: Record<string, string> = {};
+            Object.entries(q.selectedAnswers).forEach(([leftId, rightVal]) => {
+              const leftText = answersById[leftId] || leftId;
+              const rightText =
+                answersById[rightVal as string] || (rightVal as string);
+              mapped[leftText] = rightText;
+            });
+            formattedAnswers[q.id] = mapped;
+          } else {
+            formattedAnswers[q.id] = q.selectedAnswers;
+          }
+        } else {
+          formattedAnswers[q.id] = q.selectedAnswers;
+        }
+      } else {
+        formattedAnswers[q.id] = null;
+      }
+
+      return { ...q, isPlayed };
+    });
+
+    return {
+      questionsWithFlag: questionsWithPlayedFlag,
+      formattedUserAnswers: formattedAnswers,
+    };
+  }, [result]);
+
+  // Filtrer les questions jouées - Memoized
+  // MUST be called before any early returns to follow React's Rules of Hooks
+  const playedQuestions = useMemo(
+    () => questionsWithFlag.filter((q: any) => q.isPlayed),
+    [questionsWithFlag]
+  );
+
+  // Early returns AFTER all hooks
   if (isLoading || (!result && !error)) {
     return (
       <Layout>
@@ -171,57 +239,6 @@ export function QuizSummary() {
       </Layout>
     );
   }
-
-  // Format data for QuizSummary component
-  const formattedUserAnswers: Record<string, any> = {};
-
-  // Ajout du flag isPlayed à chaque question
-  const questionsWithFlag = result.questions.map((q: any) => {
-    let isPlayed = false;
-    if (q.selectedAnswers !== null && q.selectedAnswers !== undefined) {
-      if (Array.isArray(q.selectedAnswers)) {
-        isPlayed = q.selectedAnswers.length > 0;
-      } else if (typeof q.selectedAnswers === "object") {
-        isPlayed = Object.keys(q.selectedAnswers).length > 0;
-      } else if (typeof q.selectedAnswers === "string") {
-        isPlayed = q.selectedAnswers.trim() !== "";
-      } else {
-        isPlayed = true;
-      }
-    }
-
-    if (q.selectedAnswers) {
-      if (Array.isArray(q.selectedAnswers)) {
-        formattedUserAnswers[q.id] = q.selectedAnswers;
-      } else if (typeof q.selectedAnswers === "object") {
-        if (q.type === "correspondance") {
-          const answersById: Record<string, string> = {};
-          q.answers.forEach((a: { id: string; text: string }) => {
-            answersById[a.id] = a.text;
-          });
-          const mapped: Record<string, string> = {};
-          Object.entries(q.selectedAnswers).forEach(([leftId, rightVal]) => {
-            const leftText = answersById[leftId] || leftId;
-            const rightText =
-              answersById[rightVal as string] || (rightVal as string);
-            mapped[leftText] = rightText;
-          });
-          formattedUserAnswers[q.id] = mapped;
-        } else {
-          formattedUserAnswers[q.id] = q.selectedAnswers;
-        }
-      } else {
-        formattedUserAnswers[q.id] = q.selectedAnswers;
-      }
-    } else {
-      formattedUserAnswers[q.id] = null;
-    }
-
-    return { ...q, isPlayed };
-  });
-
-  // Filtrer les questions jouées
-  const playedQuestions = questionsWithFlag.filter((q: any) => q.isPlayed);
 
   return (
     <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-2 space-y-6 sm:space-y-8">
@@ -415,12 +432,14 @@ export function QuizSummary() {
 
       {/* Countdown optionnel */}
       {showCountdown && (
-        <CountdownAnimation
-          currentQuizId={quizId || ""}
-          nextQuiz={nextQuiz}
-          delay={5}
-          onCountdownEnd={() => setShowCountdown(false)}
-        />
+        <Suspense fallback={<div className="text-center py-4">Chargement...</div>}>
+          <CountdownAnimation
+            currentQuizId={quizId || ""}
+            nextQuiz={nextQuiz}
+            delay={5}
+            onCountdownEnd={() => setShowCountdown(false)}
+          />
+        </Suspense>
       )}
     </div>
 
