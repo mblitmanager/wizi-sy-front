@@ -3,8 +3,8 @@ import axios, { AxiosError } from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-const logo = '/logons.png';
-const logonsImg = "/assets/ns.png"; // public asset
+const logo = "/logons.png";
+import logonsImg from "@/assets/NS.png";
 import wiziLogo from "@/assets/logo.png";
 
 interface ApiResponse {
@@ -37,12 +37,12 @@ const ForgotPassword = () => {
   return (
     <div
       className="min-h-screen flex flex-col justify-center items-center"
-      style={{ background: `linear-gradient(to top, white 0%, var(--brand-primary) 0%, rgba(255,255,255,0) 100%)` }}>
+      style={{
+        background: `linear-gradient(to top, white 0%, var(--brand-primary) 0%, rgba(255,255,255,0) 100%)`,
+      }}>
       {/* Logo en haut */}
       <div className="flex flex-col items-center mb-8">
-        
         <div className="flex items-center gap-6">
-          
           <img
             src={logonsImg}
             alt="NS Conseil"
@@ -59,9 +59,13 @@ const ForgotPassword = () => {
         </p>
       </div>
       <div className="w-full max-w-md px-4">
-  <div className="shadow-xl bg-white/90 backdrop-blur-md rounded-lg p-6" style={{ border: '2px solid rgba(254,184,35,0.18)' }}>
+        <div
+          className="shadow-xl bg-white/90 backdrop-blur-md rounded-lg p-6"
+          style={{ border: "2px solid rgba(254,184,35,0.18)" }}>
           <div className="space-y-1 mb-6">
-            <h2 className="text-center font-semibold text-lg" style={{ color: 'var(--brand-primary)' }}>
+            <h2
+              className="text-center font-semibold text-lg"
+              style={{ color: "var(--brand-primary)" }}>
               Réinitialisation du mot de passe
             </h2>
             <p className="text-center text-sm text-gray-600">
@@ -84,8 +88,7 @@ const ForgotPassword = () => {
             <div className="space-y-2">
               <label
                 htmlFor="email"
-                className="text-sm font-medium text-brand-secondary"
-              >
+                className="text-sm font-medium text-brand-secondary">
                 Adresse Email
               </label>
               <Input
@@ -97,14 +100,13 @@ const ForgotPassword = () => {
                 required
                 autoComplete="email"
                 className="focus:outline-none"
-                style={{ borderColor: 'transparent' }}
+                style={{ borderColor: "transparent" }}
               />
             </div>
 
             <Button
               type="submit"
-              className="w-full bg-black text-white font-semibold shadow-md transition hover:bg-[color:var(--brand-primary-dark)]"
-            >
+              className="w-full bg-black text-white font-semibold shadow-md transition hover:bg-[color:var(--brand-primary-dark)]">
               Envoyer le lien de réinitialisation
             </Button>
           </form>
@@ -112,8 +114,7 @@ const ForgotPassword = () => {
           <div className="mt-4 text-center text-sm">
             <Link
               to="/login"
-              className="hover:underline font-medium text-brand-secondary"
-            >
+              className="hover:underline font-medium text-brand-secondary">
               Retour à la connexion
             </Link>
           </div>

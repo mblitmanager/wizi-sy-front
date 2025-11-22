@@ -11,10 +11,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Link, Navigate } from "react-router-dom";
 import { useUser } from "@/hooks/useAuth";
-const logo = '/logons.png';
+const logo = "/logons.png";
 import { messaging, getToken } from "@/firebase-fcm";
 import { api } from "@/services";
-const logonsImg = "/assets/ns.png"; // public asset
+import logonsImg from "@/assets/NS.png";
 import wiziLogo from "@/assets/logo.png";
 
 const Login = () => {
@@ -83,8 +83,7 @@ const Login = () => {
       }}>
       {/* Logo en haut */}
       <div className="flex flex-col items-center mb-8">
-       <div className="flex items-center gap-6">
-          
+        <div className="flex items-center gap-6">
           <img
             src={logonsImg}
             alt="NS Conseil"
@@ -97,17 +96,17 @@ const Login = () => {
           />
         </div>
         <p className="text-black font-bold text-center max-w-xs">
-          La plateforme de quiz éducatifs 
+          La plateforme de quiz éducatifs
         </p>
       </div>
       <div className="w-full max-w-md px-4">
         <Card
           className="shadow-xl bg-white/90 backdrop-blur-md"
-          style={{ border: '2px solid rgba(254,184,35,0.18)' }}>
+          style={{ border: "2px solid rgba(254,184,35,0.18)" }}>
           <CardHeader className="space-y-1">
             <CardDescription
               className="text-center font-semibold text-lg"
-              style={{ color: 'var(--brand-primary)' }}>
+              style={{ color: "var(--brand-primary)" }}>
               Entrez vos identifiants pour accéder à votre compte
             </CardDescription>
           </CardHeader>
@@ -133,14 +132,15 @@ const Login = () => {
                   required
                   autoComplete="email"
                   className="focus:outline-none"
-                  style={{ borderColor: 'transparent' }}
+                  style={{ borderColor: "transparent" }}
                 />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label
                     htmlFor="password"
-                    className="text-sm font-medium" style={{ color: 'var(--brand-secondary)' }}>
+                    className="text-sm font-medium"
+                    style={{ color: "var(--brand-secondary)" }}>
                     Mot de passe
                   </label>
                   <Link
