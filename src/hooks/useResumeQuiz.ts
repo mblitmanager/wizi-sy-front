@@ -66,6 +66,13 @@ export const useResumeQuiz = () => {
     const dismissQuiz = (quizId: string) => {
         localStorage.removeItem(`quiz_session_${quizId}`);
         setUnfinishedQuiz(null);
+        setIsModalHidden(false); // Reset modal visibility when quiz is dismissed
+    };
+
+    const [isModalHidden, setIsModalHidden] = useState(false);
+
+    const hideModal = () => {
+        setIsModalHidden(true);
     };
 
     return {
@@ -73,5 +80,7 @@ export const useResumeQuiz = () => {
             ? { ...unfinishedQuiz, quizTitle: quizDetails?.titre || unfinishedQuiz.quizTitle }
             : null,
         dismissQuiz,
+        isModalHidden,
+        hideModal,
     };
 };
