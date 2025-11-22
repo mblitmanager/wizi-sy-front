@@ -52,7 +52,7 @@ export function ProfileStats({
   }
 
   return (
-    <div className="container mx-auto mb-4 p-3 sm:p-4 bg-wizi-muted rounded-lg ring-1 ring-gray-100 dark:ring-0">
+    <div className="container mx-auto mb-4 p-3 sm:p-4 bg-transparent rounded-lg ring-1 ring-gray-100 dark:ring-0">
       {/* Titre */}
       <div className="mb-3 text-center md:text-left">
   <h3 className="text-2xl font-extrabold text-brown-shade dark:text-wizi-muted flex items-center gap-2 justify-center md:justify-start">
