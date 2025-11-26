@@ -67,7 +67,7 @@ export default function OnboardingCarousel() {
     <div className="py-8 px-4 lg:px-12">
       <div className="flex items-center justify-center mb-4 mt-10">
         <div className="flex items-center gap-6">
-          
+
           <img
             src={logonsImg}
             alt="NS Conseil"
@@ -109,10 +109,27 @@ export default function OnboardingCarousel() {
           ))}
         </div>
 
-        <div className="mt-6 flex justify-center">
-          <button onClick={goNext} className="bg-black text-white px-6 py-3 rounded-lg font-semibold shadow">
-            {current === slides.length - 1 ? "Commencer" : "Suivant"}
+        <div className="mt-6 flex justify-center gap-4">
+
+          <button onClick={goNext} className="bg-black text-white px-6 py-3 rounded-lg font-semibold shadow hover:bg-gray-800 transition-colors">
+            {current === slides.length - 1 ? "Se connecter" : "Suivant"}
           </button>
+          {
+            current === slides.length - 1 ? "" : (
+              // <button
+              //   onClick={finishOnboarding}
+              //   className="bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold shadow hover:bg-orange-700 transition-colors"
+              // >
+              //   Commencer
+              // </button>
+              <button
+                onClick={() => navigate("/login")}
+                className="bg-white text-orange-600 border-2 border-orange-600 px-6 py-3 rounded-lg font-semibold shadow hover:bg-orange-50 transition-colors"
+              >
+                Se connecter
+              </button>
+            )
+          }
         </div>
       </div>
     </div>
