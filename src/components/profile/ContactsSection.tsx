@@ -150,7 +150,7 @@ const ContactsSection = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-6">
         {/* Formateurs - Premier */}
         <div>
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
