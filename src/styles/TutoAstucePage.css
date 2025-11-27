@@ -45,8 +45,8 @@
   overflow: hidden;
 }
 
-/* Mobile Portrait: 320px - 767px */
-@media (max-width: 767px) and (orientation: portrait) {
+/* Mobile & Tablet Portrait: up to 1023px */
+@media (max-width: 1023px) and (orientation: portrait) {
   .tuto-header {
     padding: 0.75rem 1rem;
   }
@@ -128,8 +128,8 @@
   }
 }
 
-/* Mobile Landscape: 481px - 896px */
-@media (min-width: 481px) and (max-width: 896px) and (orientation: landscape) {
+/* Mobile & Tablet Landscape: up to 1023px */
+@media (max-width: 1023px) and (orientation: landscape) {
   .tuto-header {
     padding: 0.5rem 1rem;
   }
@@ -219,72 +219,7 @@
   }
 }
 
-/* Tablet Portrait: 768px - 1023px */
-@media (min-width: 768px) and (max-width: 1023px) and (orientation: portrait) {
-  .tuto-main-container {
-    padding: 1.5rem;
-  }
-
-  .tuto-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-
-  /* Player at top */
-  .tuto-player-section {
-    order: 1;
-  }
-
-  /* Media list in 2-column grid */
-  .tuto-media-list {
-    order: 2;
-  }
-
-  .media-items-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-  }
-
-  .media-item {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .media-item-icon {
-    margin: 0 auto 0.5rem;
-  }
-
-  /* Larger video player on tablet */
-  .video-container {
-    max-height: 60vh;
-  }
-}
-
-/* Tablet Landscape: 768px - 1023px */
-@media (min-width: 768px) and (max-width: 1023px) and (orientation: landscape) {
-  .tuto-grid {
-    grid-template-columns: 2fr 1fr; /* Player (Big) Left, List (Small) Right */
-    gap: 1.5rem;
-  }
-
-  /* Ensure natural source order (Player -> List) is respected */
-  .tuto-media-list {
-    order: 2;
-    max-height: calc(100vh - 100px);
-    overflow-y: auto;
-  }
-
-  .tuto-player-section {
-    order: 1;
-    position: sticky;
-    top: 80px;
-  }
-
-  .video-container {
-    max-height: 70vh;
-  }
-}
+/* Tablet specific styles removed to unify with mobile */
 
 /* Desktop and larger tablets */
 @media (min-width: 1024px) {

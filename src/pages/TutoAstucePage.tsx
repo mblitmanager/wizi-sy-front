@@ -185,9 +185,10 @@ export default function TutoAstucePage() {
     refetch,
   } = useMediaByFormation(selectedFormationId);
 
-  // Detect if we're in landscape mobile mode
+  // Detect if we're in landscape mobile/tablet mode
+  const isMobileOrTablet = orientation.isMobile || orientation.isTablet;
   const isLandscapeMobile =
-    orientation.isMobile && orientation.isLandscape;
+    isMobileOrTablet && orientation.isLandscape;
 
   // Données dérivées
   const formationsWithTutos = useMemo(
@@ -252,9 +253,9 @@ export default function TutoAstucePage() {
     }
   }, [formationsWithTutos, selectedFormationId]);
 
-  // Auto-hide header on scroll (mobile only)
+  // Auto-hide header on scroll (mobile/tablet only)
   useEffect(() => {
-    if (!orientation.isMobile) return;
+    if (!isMobileOrTablet) return;
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
@@ -336,33 +337,33 @@ export default function TutoAstucePage() {
           <div className="tuto-grid">
             {/* Lecteur de média - Order changes based on screen size */}
             <div
-              className={`tuto-player-section ${isLandscapeMobile && isPlaylistOpen ? "with-playlist" : ""} ${orientation.isMobile && orientation.isPortrait ? "order-1" : ""}`}>
+              className={`tuto-player-section ${isLandscapeMobile && isPlaylistOpen ? "with-playlist" : ""} ${isMobileOrTablet && orientation.isPortrait ? "order-1" : ""}`}>
               {selectedMedia ? (
                 <>
                   <div className="aspect-video bg-black">
                     <MediaPlayer
                       key={selectedMedia.id}
                       media={selectedMedia}
-                      showDescription={!orientation.isMobile || viewMode === "description"}
+                      showDescription={!isMobileOrTablet || viewMode === "description"}
                     />
                   </div>
 
-                  {/* Mobile Portrait Toggle Control */}
-                  {orientation.isMobile && orientation.isPortrait && (
+                  {/* Mobile/Tablet Portrait Toggle Control */}
+                  {isMobileOrTablet && orientation.isPortrait && (
                     <div className="flex border-b border-gray-200 bg-white">
                       <button
                         onClick={() => setViewMode("list")}
                         className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${viewMode === "list"
-                            ? "border-blue-500 text-blue-600"
-                            : "border-transparent text-gray-500 hover:text-gray-700"
+                          ? "border-blue-500 text-blue-600"
+                          : "border-transparent text-gray-500 hover:text-gray-700"
                           }`}>
                         Liste des épisodes
                       </button>
                       <button
                         onClick={() => setViewMode("description")}
                         className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${viewMode === "description"
-                            ? "border-blue-500 text-blue-600"
-                            : "border-transparent text-gray-500 hover:text-gray-700"
+                          ? "border-blue-500 text-blue-600"
+                          : "border-transparent text-gray-500 hover:text-gray-700"
                           }`}>
                         Description
                       </button>
@@ -370,7 +371,7 @@ export default function TutoAstucePage() {
                   )}
 
                   {/* Media info - shown differently in landscape mode */}
-                  {!isLandscapeMobile && (!orientation.isMobile || viewMode === "description") && (
+                  {!isLandscapeMobile && (!isMobileOrTablet || viewMode === "description") && (
                     <div className="media-info p-4 border-t border-gray-100">
                       <h3 className="font-semibold text-gray-900 mb-2">
                         {selectedMedia.titre}
@@ -392,9 +393,9 @@ export default function TutoAstucePage() {
             </div>
 
             {/* Liste des médias */}
-            {(!orientation.isMobile || (!orientation.isPortrait || viewMode === "list")) && (
+            {(!isMobileOrTablet || (!orientation.isPortrait || viewMode === "list")) && (
               <div
-                className={`tuto-media-list ${orientation.isMobile && orientation.isPortrait ? "order-2" : ""} ${isLandscapeMobile ? (isPlaylistOpen ? "tuto-playlist-drawer open" : "tuto-playlist-drawer") : ""}`}>
+                className={`tuto-media-list ${isMobileOrTablet && orientation.isPortrait ? "order-2" : ""} ${isLandscapeMobile ? (isPlaylistOpen ? "tuto-playlist-drawer open" : "tuto-playlist-drawer") : ""}`}>
                 {/* Close button for landscape playlist */}
                 {isLandscapeMobile && isPlaylistOpen && (
                   <div className="flex items-center justify-between p-4 border-b border-gray-200">
@@ -442,7 +443,7 @@ export default function TutoAstucePage() {
                           onSelectMedia={(media) => {
                             setSelectedMedia(media);
                             if (isLandscapeMobile) setIsPlaylistOpen(false);
-                            if (orientation.isMobile && orientation.isPortrait) {
+                            if (isMobileOrTablet && orientation.isPortrait) {
                               // Optional: switch to description view when selecting a video on mobile
                               // setViewMode("description"); 
                             }
