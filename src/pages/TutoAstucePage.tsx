@@ -15,6 +15,9 @@ import {
   BookOpen,
   Sparkles,
   Clock,
+  ChevronRight,
+  ChevronLeft,
+  X,
 } from "lucide-react";
 import axios from "axios";
 import { useMediaByFormation } from "@/use-case/hooks/media/useMediaByFormation";
@@ -23,6 +26,8 @@ import { Layout } from "@/components/layout/Layout";
 import { Media } from "@/types/media";
 import { useUser } from "@/hooks/useAuth";
 import { useFormationStagiaire } from "@/use-case/hooks/stagiaire/useFormationStagiaire";
+import { useOrientation } from "@/hooks/useOrientation";
+import "@/styles/TutoAstucePage.css";
 
 // Skeleton simplifié
 const MediaSkeleton = () => (
@@ -74,11 +79,10 @@ const MediaItem = ({
   return (
     <div
       onClick={onClick}
-      className={`p-3 cursor-pointer transition-all duration-200 rounded-lg border ${
-        isSelected
-          ? "bg-blue-50 border-blue-200 shadow-sm"
-          : "bg-white border-gray-200 hover:border-blue-300 hover:shadow-sm"
-      }`}>
+      className={`p-3 cursor-pointer transition-all duration-200 rounded-lg border ${isSelected
+        ? "bg-blue-50 border-blue-200 shadow-sm"
+        : "bg-white border-gray-200 hover:border-blue-300 hover:shadow-sm"
+        }`}>
       <div className="flex items-center gap-3">
         <div
           className={`w-10 h-10 rounded-lg flex items-center justify-center ${getTypeColor(
@@ -90,9 +94,8 @@ const MediaItem = ({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <h3
-              className={`text-sm font-medium truncate ${
-                isWatched ? "text-green-600" : "text-gray-900"
-              }`}>
+              className={`text-sm font-medium truncate ${isWatched ? "text-green-600" : "text-gray-900"
+                }`}>
               {media.titre}
             </h3>
             {isWatched && (
@@ -108,9 +111,8 @@ const MediaItem = ({
         </div>
 
         <PlayCircle
-          className={`w-5 h-5 ${
-            isSelected ? "text-blue-600" : "text-gray-400"
-          }`}
+          className={`w-5 h-5 ${isSelected ? "text-blue-600" : "text-gray-400"
+            }`}
         />
       </div>
     </div>
@@ -151,24 +153,6 @@ const MediaCategorySection = ({
   );
 };
 
-// MediaPlayerSection épuré
-const MediaPlayerSection = ({ media }: { media: Media | null }) => (
-  <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-    {media ? (
-      <>
-        <div className="aspect-video bg-black">
-          <MediaPlayer key={media.id} media={media} />
-        </div>
-      </>
-    ) : (
-      <div className="flex flex-col items-center justify-center h-64 text-gray-400">
-        <PlayCircle className="w-12 h-12 mb-3" />
-        <p className="text-sm">Sélectionnez un média</p>
-      </div>
-    )}
-  </div>
-);
-
 // Page principale simplifiée
 export default function TutoAstucePage() {
   // États
@@ -183,9 +167,14 @@ export default function TutoAstucePage() {
     tutoriels: Media[];
     astuces: Media[];
   } | null>(null);
+  const [isPlaylistOpen, setIsPlaylistOpen] = useState(false);
+  const [headerVisible, setHeaderVisible] = useState(true);
+  const [viewMode, setViewMode] = useState<"list" | "description">("list");
+  const lastScrollY = useRef(0);
 
   // Hooks
   const { user } = useUser();
+  const orientation = useOrientation();
   const { data: formations = [] } = useFormationStagiaire(
     user?.stagiaire.id ?? null
   );
@@ -195,6 +184,10 @@ export default function TutoAstucePage() {
     isFetching,
     refetch,
   } = useMediaByFormation(selectedFormationId);
+
+  // Detect if we're in landscape mobile mode
+  const isLandscapeMobile =
+    orientation.isMobile && orientation.isLandscape;
 
   // Données dérivées
   const formationsWithTutos = useMemo(
@@ -259,75 +252,181 @@ export default function TutoAstucePage() {
     }
   }, [formationsWithTutos, selectedFormationId]);
 
+  // Auto-hide header on scroll (mobile only)
+  useEffect(() => {
+    if (!orientation.isMobile) return;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+        setHeaderVisible(false);
+      } else {
+        setHeaderVisible(true);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [orientation.isMobile]);
+
+  // Close playlist when orientation changes
+  useEffect(() => {
+    setIsPlaylistOpen(false);
+  }, [orientation.isLandscape, orientation.isPortrait]);
+
   return (
     <Layout>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header simple */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <h1 className="text-xl font-semibold text-gray-900">
-                  Tutoriels & Astuces
-                </h1>
-                <p className="text-gray-600 text-sm mt-1">
-                  Apprenez à votre rythme
-                </p>
-              </div>
+      <div className="tuto-page">
+        {/* Header - Hidden in landscape mobile */}
+        {!isLandscapeMobile && (
+          <div
+            className={`tuto-header ${headerVisible ? "" : "hidden"}`}>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+              <div className="tuto-header-content flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="tuto-header-title">
+                  <h1 className="text-xl font-semibold text-gray-900">
+                    Tutoriels & Astuces
+                  </h1>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Apprenez à votre rythme
+                  </p>
+                </div>
 
-              <div className="flex items-center gap-3">
-                <MediaTabs
-                  active={activeCategory}
-                  onChange={setActiveCategory}
-                />
-
-                <select
-                  value={selectedFormationId ?? ""}
-                  onChange={(e) =>
-                    setSelectedFormationId(e.target.value || null)
-                  }
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                  {formationsWithTutos.map((formation) => (
-                    <option key={formation.id} value={formation.id}>
-                      {formation.titre}
-                    </option>
-                  ))}
-                </select>
-
-                <button
-                  onClick={() => refetch()}
-                  disabled={isFetching}
-                  className="p-2 text-gray-600 hover:text-gray-800 disabled:opacity-50"
-                  title="Rafraîchir">
-                  <RefreshCw
-                    className={`w-5 h-5 ${isFetching ? "animate-spin" : ""}`}
+                <div className="tuto-header-controls flex items-center gap-3">
+                  <MediaTabs
+                    active={activeCategory}
+                    onChange={setActiveCategory}
                   />
-                </button>
+
+                  {formationsWithTutos.length > 1 && (
+                    <select
+                      value={selectedFormationId ?? ""}
+                      onChange={(e) =>
+                        setSelectedFormationId(e.target.value || null)
+                      }
+                      title="Sélectionner une formation"
+                      aria-label="Sélectionner une formation"
+                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                      {formationsWithTutos.map((formation) => (
+                        <option key={formation.id} value={formation.id}>
+                          {formation.titre}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+
+                  <button
+                    onClick={() => refetch()}
+                    disabled={isFetching}
+                    title="Rafraîchir"
+                    className="hidden lg:inline-flex p-2 text-gray-600 hover:text-gray-800 disabled:opacity-50">
+                    <RefreshCw
+                      className={`w-5 h-5 ${isFetching ? "animate-spin" : ""}`}
+                    />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Contenu principal */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Liste des médias - Version simplifiée */}
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-xl border border-gray-200 p-4">
-                <div className="mb-4">
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    Liste des médias
-                  </h2>
-                  <p className="text-gray-500 text-sm mt-1">
-                    {medias.length} média{medias.length > 1 ? "s" : ""}{" "}
-                    disponible{medias.length > 1 ? "s" : ""}
-                  </p>
+        <div className="tuto-main-container">
+          <div className="tuto-grid">
+            {/* Lecteur de média - Order changes based on screen size */}
+            <div
+              className={`tuto-player-section ${isLandscapeMobile && isPlaylistOpen ? "with-playlist" : ""} ${orientation.isMobile && orientation.isPortrait ? "order-1" : ""}`}>
+              {selectedMedia ? (
+                <>
+                  <div className="aspect-video bg-black">
+                    <MediaPlayer
+                      key={selectedMedia.id}
+                      media={selectedMedia}
+                      showDescription={!orientation.isMobile || viewMode === "description"}
+                    />
+                  </div>
+
+                  {/* Mobile Portrait Toggle Control */}
+                  {orientation.isMobile && orientation.isPortrait && (
+                    <div className="flex border-b border-gray-200 bg-white">
+                      <button
+                        onClick={() => setViewMode("list")}
+                        className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${viewMode === "list"
+                            ? "border-blue-500 text-blue-600"
+                            : "border-transparent text-gray-500 hover:text-gray-700"
+                          }`}>
+                        Liste des épisodes
+                      </button>
+                      <button
+                        onClick={() => setViewMode("description")}
+                        className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${viewMode === "description"
+                            ? "border-blue-500 text-blue-600"
+                            : "border-transparent text-gray-500 hover:text-gray-700"
+                          }`}>
+                        Description
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Media info - shown differently in landscape mode */}
+                  {!isLandscapeMobile && (!orientation.isMobile || viewMode === "description") && (
+                    <div className="media-info p-4 border-t border-gray-100">
+                      <h3 className="font-semibold text-gray-900 mb-2">
+                        {selectedMedia.titre}
+                      </h3>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <span className="capitalize">{selectedMedia.type}</span>
+                        <span>•</span>
+                        <span>{selectedMedia.categorie}</span>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-64 text-gray-400">
+                  <PlayCircle className="w-12 h-12 mb-3" />
+                  <p className="text-sm">Sélectionnez un média</p>
                 </div>
+              )}
+            </div>
+
+            {/* Liste des médias */}
+            {(!orientation.isMobile || (!orientation.isPortrait || viewMode === "list")) && (
+              <div
+                className={`tuto-media-list ${orientation.isMobile && orientation.isPortrait ? "order-2" : ""} ${isLandscapeMobile ? (isPlaylistOpen ? "tuto-playlist-drawer open" : "tuto-playlist-drawer") : ""}`}>
+                {/* Close button for landscape playlist */}
+                {isLandscapeMobile && isPlaylistOpen && (
+                  <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Liste des médias
+                    </h2>
+                    <button
+                      onClick={() => setIsPlaylistOpen(false)}
+                      title="Fermer la liste"
+                      aria-label="Fermer la liste de médias"
+                      className="p-2 hover:bg-gray-100 rounded-lg">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                )}
+
+                {!isLandscapeMobile && (
+                  <div className="mb-4">
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Liste des médias
+                    </h2>
+                    <p className="text-gray-500 text-sm mt-1">
+                      {medias.length} média{medias.length > 1 ? "s" : ""}{" "}
+                      disponible{medias.length > 1 ? "s" : ""}
+                    </p>
+                  </div>
+                )}
 
                 {isLoading ? (
                   <MediaSkeleton />
                 ) : medias.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
+                  <div className="empty-state text-center py-8 text-gray-500">
                     <Sparkles className="w-8 h-8 mx-auto mb-2 opacity-50" />
                     <p className="text-sm">Aucun média disponible</p>
                   </div>
@@ -340,27 +439,45 @@ export default function TutoAstucePage() {
                           title={category}
                           medias={categoryMedias}
                           selectedMedia={selectedMedia}
-                          onSelectMedia={setSelectedMedia}
+                          onSelectMedia={(media) => {
+                            setSelectedMedia(media);
+                            if (isLandscapeMobile) setIsPlaylistOpen(false);
+                            if (orientation.isMobile && orientation.isPortrait) {
+                              // Optional: switch to description view when selecting a video on mobile
+                              // setViewMode("description"); 
+                            }
+                          }}
                         />
                       )
                     )}
                   </div>
                 )}
               </div>
-            </div>
-
-            {/* Lecteur de média */}
-            <div className="lg:col-span-2">
-              <MediaPlayerSection media={selectedMedia} />
-            </div>
+            )}
           </div>
 
-          {/* Catalogue de formations */}
-          {!adLoading && adFormations.length > 0 && (
-            <div className="mt-8">
-              <AdCatalogueBlock formations={adFormations.slice(0, 6)} />
-            </div>
+          {/* Playlist toggle button for landscape mobile */}
+          {isLandscapeMobile && (
+            <button
+              onClick={() => setIsPlaylistOpen(!isPlaylistOpen)}
+              className="playlist-toggle"
+              aria-label="Toggle playlist">
+              {isPlaylistOpen ? (
+                <ChevronRight className="w-6 h-6" />
+              ) : (
+                <ChevronLeft className="w-6 h-6" />
+              )}
+            </button>
           )}
+
+          {/* Catalogue de formations - Hidden in landscape mode */}
+          {!isLandscapeMobile &&
+            !adLoading &&
+            adFormations.length > 0 && (
+              <div className="mt-8">
+                <AdCatalogueBlock formations={adFormations.slice(0, 6)} />
+              </div>
+            )}
         </div>
       </div>
     </Layout>

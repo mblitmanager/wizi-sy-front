@@ -1,0 +1,372 @@
+/* TutoAstucePage Responsive Styles - YouTube-inspired */
+
+/* Base styles */
+.tuto-page {
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+.tuto-header {
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  transition: transform 0.3s ease-in-out;
+}
+
+.tuto-header.hidden {
+  transform: translateY(-100%);
+}
+
+.tuto-main-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+.tuto-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.tuto-media-list {
+  background-color: white;
+  border-radius: 1rem;
+  border: 1px solid #e5e7eb;
+  padding: 1rem;
+}
+
+.tuto-player-section {
+  background-color: white;
+  border-radius: 1rem;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+/* Mobile Portrait: 320px - 767px */
+@media (max-width: 767px) and (orientation: portrait) {
+  .tuto-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .tuto-header-content {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .tuto-header-title h1 {
+    font-size: 1.125rem;
+  }
+
+  .tuto-header-title p {
+    font-size: 0.75rem;
+  }
+
+  .tuto-header-controls {
+    width: 100%;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .tuto-header-controls select {
+    width: 100%;
+  }
+
+  .tuto-main-container {
+    padding: 1rem 0.75rem;
+  }
+
+  .tuto-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* Player comes first on mobile portrait */
+  .tuto-player-section {
+    order: 1;
+    border-radius: 0;
+    margin: 0 -0.75rem;
+  }
+
+  .tuto-media-list {
+    order: 2;
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+
+  /* Optimize touch targets */
+  .media-item {
+    min-height: 60px;
+    padding: 0.75rem;
+  }
+
+  .media-item-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  /* Video player optimization for mobile */
+  .video-container {
+    aspect-ratio: 16 / 9;
+    width: 100%;
+  }
+
+  /* Compact media info */
+  .media-info {
+    padding: 0.75rem;
+  }
+
+  .media-info h3 {
+    font-size: 0.875rem;
+  }
+
+  /* Hide some elements on mobile to save space */
+  .formation-selector-label {
+    display: none;
+  }
+}
+
+/* Mobile Landscape: 481px - 896px */
+@media (min-width: 481px) and (max-width: 896px) and (orientation: landscape) {
+  .tuto-header {
+    padding: 0.5rem 1rem;
+  }
+
+  .tuto-header-title p {
+    display: none;
+  }
+
+  .tuto-main-container {
+    padding: 0;
+    max-width: 100%;
+  }
+
+  .tuto-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  /* Full-screen video in landscape */
+  .tuto-player-section {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    border-radius: 0;
+    background-color: black;
+  }
+
+  .tuto-player-section.with-playlist {
+    right: 320px;
+  }
+
+  /* Floating playlist drawer */
+  .tuto-playlist-drawer {
+    position: fixed;
+    top: 0;
+    right: -320px;
+    bottom: 0;
+    width: 320px;
+    background-color: white;
+    z-index: 51;
+    transition: right 0.3s ease-in-out;
+    overflow-y: auto;
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .tuto-playlist-drawer.open {
+    right: 0;
+  }
+
+  /* Toggle playlist button */
+  .playlist-toggle {
+    position: fixed;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    z-index: 52;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 0.75rem;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+
+  .playlist-toggle:hover {
+    background-color: rgba(0, 0, 0, 0.85);
+  }
+
+  /* Hide header in landscape mode */
+  .tuto-header {
+    display: none;
+  }
+
+  /* Minimize controls */
+  .media-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+    color: white;
+    padding: 1rem;
+  }
+}
+
+/* Tablet Portrait: 768px - 1023px */
+@media (min-width: 768px) and (max-width: 1023px) and (orientation: portrait) {
+  .tuto-main-container {
+    padding: 1.5rem;
+  }
+
+  .tuto-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  /* Player at top */
+  .tuto-player-section {
+    order: 1;
+  }
+
+  /* Media list in 2-column grid */
+  .tuto-media-list {
+    order: 2;
+  }
+
+  .media-items-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .media-item {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .media-item-icon {
+    margin: 0 auto 0.5rem;
+  }
+
+  /* Larger video player on tablet */
+  .video-container {
+    max-height: 60vh;
+  }
+}
+
+/* Tablet Landscape: 768px - 1023px */
+@media (min-width: 768px) and (max-width: 1023px) and (orientation: landscape) {
+  .tuto-grid {
+    grid-template-columns: 2fr 1fr; /* Player (Big) Left, List (Small) Right */
+    gap: 1.5rem;
+  }
+
+  /* Ensure natural source order (Player -> List) is respected */
+  .tuto-media-list {
+    order: 2;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+  }
+
+  .tuto-player-section {
+    order: 1;
+    position: sticky;
+    top: 80px;
+  }
+
+  .video-container {
+    max-height: 70vh;
+  }
+}
+
+/* Desktop and larger tablets */
+@media (min-width: 1024px) {
+  .tuto-main-container {
+    max-width: 1600px; /* Wider container for desktop */
+    padding: 2rem;
+  }
+
+  .tuto-grid {
+    grid-template-columns: 3fr 1fr; /* Player (Big) Left, List (Small) Right */
+    gap: 2rem;
+  }
+
+  .tuto-media-list {
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+  }
+
+  .tuto-player-section {
+    position: sticky;
+    top: 90px; /* Slightly more offset */
+  }
+}
+
+/* Smooth orientation transitions */
+@media (prefers-reduced-motion: no-preference) {
+  .tuto-grid,
+  .tuto-player-section,
+  .tuto-media-list,
+  .tuto-playlist-drawer {
+    transition: all 0.3s ease-in-out;
+  }
+}
+
+/* Custom scrollbar for media list */
+.tuto-media-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.tuto-media-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.tuto-media-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.tuto-media-list::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Accessibility - Ensure touch targets are at least 44px */
+@media (hover: none) and (pointer: coarse) {
+  button,
+  .media-item,
+  select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Loading skeleton responsive */
+.media-skeleton {
+  padding: 0.75rem;
+}
+
+@media (max-width: 767px) {
+  .media-skeleton {
+    padding: 0.5rem;
+  }
+}
+
+/* Empty state */
+.empty-state {
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+@media (max-width: 767px) {
+  .empty-state {
+    padding: 2rem 1rem;
+  }
+}

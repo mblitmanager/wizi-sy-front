@@ -9,12 +9,14 @@ const VITE_API_URL = import.meta.env.VITE_API_URL;
 interface Props {
   media: Media | null;
   className?: string;
+  showDescription?: boolean;
 }
 
 export default function MediaPlayer({
   media,
   className = "",
-}: Props & { className?: string }) {
+  showDescription = true,
+}: Props) {
   if (!media) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 p-8 text-center">
@@ -50,11 +52,10 @@ export default function MediaPlayer({
 
         return (
           <div
-            className={`relative bg-black rounded-t-2xl overflow-hidden w-full ${
-              isShort
-                ? "aspect-[9/16] max-h-[70vh]"
-                : "aspect-video max-h-[60vh]"
-            }`}>
+            className={`relative bg-black rounded-t-2xl overflow-hidden w-full ${isShort
+              ? "aspect-[9/16] max-h-[70vh]"
+              : "aspect-video max-h-[60vh]"
+              }`}>
             <VideoPlayer
               key={media.id}
               url={media.url}
@@ -156,7 +157,7 @@ export default function MediaPlayer({
         </div>
 
         {/* Description */}
-        {media.description && (
+        {showDescription && media.description && (
           <div className="mt-4 pt-4 border-t border-gray-100">
             <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
               {stripHtmlTags(media.description)}
