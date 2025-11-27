@@ -68,9 +68,8 @@ const NotificationItem = ({
 
   return (
     <Card
-      className={`p-3 sm:p-4 border border-gray-100 shadow-none transition-colors flex flex-col gap-3 ${
-        notification.read ? "bg-gray-50" : "bg-white"
-      }`}
+      className={`p-3 sm:p-4 border border-gray-100 shadow-none transition-colors flex flex-col gap-3 ${notification.read ? "bg-gray-50" : "bg-white"
+        }`}
       onClick={handleClick}
       style={{ cursor: "pointer" }}
     >
@@ -81,10 +80,12 @@ const NotificationItem = ({
         <div className="flex-1">
           <p className="text-sm text-gray-700 mb-1">{notification.message}</p>
           <p className="text-xs text-gray-400">
-            {new Date(notification.created_at).toLocaleString("fr-FR", {
-              dateStyle: "short",
-              timeStyle: "short",
-            })}
+            {(() => {
+              const raw = notification.created_at ?? notification.timestamp ?? notification.createdAt ?? Date.now();
+              const date = typeof raw === 'number' ? new Date(raw) : new Date(String(raw));
+              if (Number.isNaN(date.getTime())) return '—';
+              return date.toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
+            })()}
           </p>
         </div>
       </div>
@@ -123,14 +124,14 @@ function loadNotificationsFromSession() {
   try {
     const data = sessionStorage.getItem('notifications');
     if (data) return JSON.parse(data);
-  } catch {}
+  } catch { }
   return [];
 }
 // Helper to save notifications to sessionStorage
 function saveNotificationsToSession(notifs: any[]) {
   try {
     sessionStorage.setItem('notifications', JSON.stringify(notifs));
-  } catch {}
+  } catch { }
 }
 
 // Page principale
@@ -140,7 +141,7 @@ export default function NotificationsPage() {
     notifications: notificationsFromHook,
     markAsRead,
     markAllAsRead,
-    deleteNotification,
+    remove,
   } = useNotifications();
 
   // Load notifications from sessionStorage or from hook
@@ -160,8 +161,14 @@ export default function NotificationsPage() {
     [...notificationsFromHook, ...notifications].forEach((n) => {
       map.set(n.id, { ...n });
     });
-    // Sort by created_at descending
-    return Array.from(map.values()).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    // Sort by timestamp/created_at descending (handle different shapes)
+    return Array.from(map.values()).sort((a, b) => {
+      const aTime = a.created_at ?? a.timestamp ?? a.createdAt ?? 0;
+      const bTime = b.created_at ?? b.timestamp ?? b.createdAt ?? 0;
+      const aMs = typeof aTime === 'number' ? aTime : Date.parse(String(aTime) || '') || 0;
+      const bMs = typeof bTime === 'number' ? bTime : Date.parse(String(bTime) || '') || 0;
+      return bMs - aMs;
+    });
   }, [notificationsFromHook, notifications]);
 
   // Compute unread count from merged notifications
@@ -188,16 +195,24 @@ export default function NotificationsPage() {
   const handleDelete = useCallback(
     (id: string) => {
       setNotifications((prev) => prev.filter((n) => n.id !== id));
-      deleteNotification(id);
+      // call provider remove method
+      remove(id);
     },
-    [deleteNotification]
+    [remove]
   );
 
   // Tout supprimer
   const handleDeleteAll = useCallback(() => {
+    // Delete all from local state first
+    const idsToDelete = mergedNotifications.map((n) => n.id);
     setNotifications([]);
-    mergedNotifications.forEach((n) => deleteNotification(n.id));
-  }, [deleteNotification, mergedNotifications]);
+    // Then delete from backend
+    idsToDelete.forEach((id) => {
+      if (remove) {
+        remove(id);
+      }
+    });
+  }, [remove, mergedNotifications]);
 
   // Marquer comme lu lors du scroll (IntersectionObserver)
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -273,7 +288,7 @@ export default function NotificationsPage() {
       </div>,
       { duration: 5000 }
     );
-      if ("Notification" in window && Notification.permission === "granted") {
+    if ("Notification" in window && Notification.permission === "granted") {
       new Notification("Nouvelle notification", {
         body: notif.message,
         icon: "/favicon2.ico",

@@ -429,14 +429,14 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
         />
 
         {/* Modal reprise de quiz - Afficher seulement si modal n'est pas cachée */}
-        <ResumeQuizModal
+        {/* <ResumeQuizModal
           open={!!unfinishedQuiz && !isModalHidden}
           quizTitle={unfinishedQuiz?.quizTitle || ""}
           questionCount={unfinishedQuiz?.questionIds?.length || 0}
           currentProgress={unfinishedQuiz?.currentIndex || 0}
           onResume={handleResumeQuiz}
           onDismiss={hideModal}
-        />
+        /> */}
 
         {/* Comment jouer */}
         <HowToPlay />

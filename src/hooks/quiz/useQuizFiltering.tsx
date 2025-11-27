@@ -1,12 +1,12 @@
 import { useMemo } from "react";
-import dayjs from "dayjs";
 import { Quiz } from "@/types/quiz";
 import { CatalogueFormation } from "@/types/stagiaire";
 
 export const useQuizFiltering = (
   quizzes: unknown[],
   history: unknown[],
-  stagiaireCatalogues: CatalogueFormation[]
+  stagiaireCatalogues: CatalogueFormation[],
+  userPoints: number = 0 // Add user points parameter
 ) => {
   return useMemo(() => {
     if (!quizzes.length) return [];
@@ -47,6 +47,27 @@ export const useQuizFiltering = (
       return null;
     };
 
+    const getQuizLevel = (q: unknown): string | null => {
+      const r = asRecord(q);
+      if (!r) return null;
+      return (r["niveau"] ?? r["level"] ?? null) as string | null;
+    };
+
+    const getQuizTitle = (q: unknown): string => {
+      const r = asRecord(q);
+      if (!r) return "";
+      return (r["titre"] ?? r["title"] ?? "") as string;
+    };
+
+    // Normalize level function (same as Flutter)
+    const normalizeLevel = (level: string | null): string => {
+      if (!level) return "débutant";
+      const lvl = level.toLowerCase().trim();
+      if (lvl.includes("inter") || lvl.includes("moyen")) return "intermédiaire";
+      if (lvl.includes("avancé") || lvl.includes("expert")) return "avancé";
+      return "débutant";
+    };
+
     // Filter out played quizzes
     const notPlayedQuizzes = (quizzes as unknown[]).filter((q) => {
       const qid = getQuizId(q);
@@ -64,61 +85,62 @@ export const useQuizFiltering = (
       )
     ).filter(Boolean) as number[];
 
-    // Group quizzes by formation
-    const quizzesByFormation = (notPlayedQuizzes as unknown[]).reduce(
-      (acc, q) => {
-        const formationId = getQuizFormationId(q);
-        if (formationId && formationIds.includes(formationId)) {
-          if (!acc[formationId]) acc[formationId] = [];
-          (acc[formationId] as unknown[]).push(q);
-        }
-        return acc;
-      },
-      {} as Record<number, unknown[]>
+    // Filter by formation
+    const quizzesForFormations = (notPlayedQuizzes as unknown[]).filter((q) => {
+      const formationId = getQuizFormationId(q);
+      return formationId && formationIds.includes(formationId);
+    });
+
+    // Categorize quizzes by level
+    const debutant = quizzesForFormations.filter(
+      (q) => normalizeLevel(getQuizLevel(q)) === "débutant"
+    );
+    const intermediaire = quizzesForFormations.filter(
+      (q) => normalizeLevel(getQuizLevel(q)) === "intermédiaire"
+    );
+    const avance = quizzesForFormations.filter(
+      (q) => normalizeLevel(getQuizLevel(q)) === "avancé"
     );
 
-    // Shuffle helper
-    const shuffle = <T,>(arr: T[]) => {
-      const a = arr.slice();
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        const tmp = a[i];
-        a[i] = a[j];
-        a[j] = tmp;
-      }
-      return a;
-    };
-
-    // Logic for selecting quizzes
-    if (formationIds.length) {
-      const dayIndex = dayjs()
-        .tz("Europe/Paris")
-        .diff(dayjs("1970-01-01"), "day");
-      const chosenIndex = Math.abs(dayIndex) % formationIds.length;
-      const chosenFormationId = formationIds[chosenIndex];
-
-      const chosenQuizzes = (quizzesByFormation[chosenFormationId] ||
-        []) as unknown[];
-      const shuffledChosen = shuffle(chosenQuizzes);
-      const selected = shuffledChosen.slice(0, 3);
-
-      if (selected.length >= 3) return selected.map((s) => s as Quiz);
-
-      const remainingNeeded = 3 - selected.length;
-      const otherFormationIds = formationIds.filter(
-        (id) => id !== chosenFormationId
-      );
-      const pool = otherFormationIds.flatMap(
-        (id) => (quizzesByFormation[id] || []) as unknown[]
-      );
-      const shuffledPool = shuffle(pool);
-      const fillers = shuffledPool.slice(0, remainingNeeded);
-
-      return [...selected, ...fillers].slice(0, 3).map((s) => s as Quiz);
+    // Apply standardized filtering rules based on points
+    let filtered: unknown[] = [];
+    if (userPoints < 50) {
+      // 0-49 points: Only beginner quizzes
+      filtered = debutant;
+    } else if (userPoints < 100) {
+      // 50-99 points: Beginner + intermediate quizzes
+      filtered = [...debutant, ...intermediaire];
+    } else {
+      // 100+ points: All levels
+      filtered = [...debutant, ...intermediaire, ...avance];
     }
 
-    // Fallback
-    const globalPool = shuffle(notPlayedQuizzes as unknown[]).slice(0, 3);
-    return globalPool.map((s) => s as Quiz);
-  }, [quizzes, history, stagiaireCatalogues]);
+    // Fallback: if no quizzes after filtering but original list is not empty
+    if (filtered.length === 0 && quizzesForFormations.length > 0) {
+      filtered = quizzesForFormations;
+    }
+
+    // Sort by level (débutant → intermédiaire → avancé), then alphabetically by title
+    filtered.sort((a, b) => {
+      const levelOrder: Record<string, number> = {
+        "débutant": 1,
+        "intermédiaire": 2,
+        "avancé": 3,
+      };
+
+      const levelA = levelOrder[normalizeLevel(getQuizLevel(a))] ?? 999;
+      const levelB = levelOrder[normalizeLevel(getQuizLevel(b))] ?? 999;
+
+      if (levelA !== levelB) {
+        return levelA - levelB;
+      }
+
+      // Same level: sort alphabetically by title 
+      const titleA = getQuizTitle(a).toLowerCase();
+      const titleB = getQuizTitle(b).toLowerCase();
+      return titleA.localeCompare(titleB);
+    });
+
+    return filtered.map((s) => s as Quiz);
+  }, [quizzes, history, stagiaireCatalogues, userPoints]);
 };
