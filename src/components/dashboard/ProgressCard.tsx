@@ -4,13 +4,29 @@ import { Progress } from "@/components/ui/progress";
 import { User } from "@/types";
 
 interface ProgressCardProps {
-  user: User;
+  user: User | null;
 }
 
 export function ProgressCard({ user }: ProgressCardProps) {
-  if (!user.progress) return null;
+  // Return early if user or progress doesn't exist
+  if (!user || !user.progress) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Mon Niveau</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            <div className="text-sm text-muted-foreground">
+              Chargement de vos progrès...
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
-  const { level, streak, totalPoints, completedQuizzes } = user.progress;
+  const { level = 1, streak = 0, totalPoints = 0, completedQuizzes = 0 } = user.progress;
 
   return (
     <Card>

@@ -186,8 +186,27 @@ const HomePage: React.FC = () => {
 
         //✅ Vérification du type de 'data' dans la réponse
         if (response && Array.isArray(response.data.data)) {
-          const firstThreeFormations = response.data.data.slice(0, 3);
-          setCatalogueData(firstThreeFormations);
+          // Daily rotation: select 3 formations that change each day
+          const allFormations = response.data.data;
+
+          if (allFormations.length <= 3) {
+            setCatalogueData(allFormations);
+          } else {
+            // Calculate day index for rotation
+            const now = new Date();
+            const startOfYear = new Date(now.getFullYear(), 0, 0);
+            const diff = now.getTime() - startOfYear.getTime();
+            const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+            // Rotate formations based on day
+            const rotationIndex = dayOfYear % allFormations.length;
+            const rotated = [
+              ...allFormations.slice(rotationIndex),
+              ...allFormations.slice(0, rotationIndex)
+            ];
+
+            setCatalogueData(rotated.slice(0, 3));
+          }
         } else {
           console.error(
             "Les données récupérées ne sont pas un tableau:",
@@ -260,11 +279,11 @@ const HomePage: React.FC = () => {
       </div>
       {/* En-tête avec bienvenue et progression */}
       <div className="mb-8">
-          <img
-            src="/logons.png"
-            alt="Wizi Learn Logo"
-            className="w-32 mb-6"
-          />
+        <img
+          src="/logons.png"
+          alt="Wizi Learn Logo"
+          className="w-32 mb-6"
+        />
         <h1 className="text-3xl font-bold mb-2">Bienvenue sur Wizi-Learn</h1>
         <p className="text-muted-foreground mb-4">
           Votre plateforme d'apprentissage personnalisée
