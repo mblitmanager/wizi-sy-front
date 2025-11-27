@@ -26,7 +26,7 @@ export const ResumeQuizButton = memo(({
         : 0;
 
     return (
-        <div className="fixed bottom-20 sm:bottom-4 left-1/2 transform -translate-x-1/2 z-[9999] w-full max-w-md px-4">
+        <div className="fixed bottom-20 md:bottom-4 left-1/2 transform -translate-x-1/2 z-[9999] w-full max-w-md px-4">
             <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-xl shadow-2xl p-4">
                 <div className="flex items-start justify-between gap-3">
                     <div className="flex-1">
