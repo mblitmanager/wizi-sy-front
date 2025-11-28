@@ -15,6 +15,8 @@ export interface Media {
   updated_at: string;
   formation_id?: string;
   stagiaires?: { is_watched: boolean }[];
+  video_platform?: 'youtube' | 'dailymotion' | 'server';
+  video_file_path?: string;
 }
 
 export interface MediaCategory {
