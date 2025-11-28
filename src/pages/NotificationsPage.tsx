@@ -8,6 +8,7 @@ import { useUser } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import NotificationListener from "@/components/notifications/NotificationListener";
 import { useNavigate } from "react-router-dom";
+import { AppNotification } from "@/context/NotificationProvider";
 
 // Icône par type de notification
 const getNotificationIcon = (type: string) => {
@@ -41,7 +42,11 @@ const NotificationItem = ({
   notification,
   markAsRead,
   deleteNotification,
-}: any) => {
+}: {
+  notification: AppNotification;
+  markAsRead: (id: number | string) => void;
+  deleteNotification: (id: number | string) => void;
+}) => {
   const navigate = useNavigate();
 
   // Redirection logic based on notification type
@@ -81,8 +86,7 @@ const NotificationItem = ({
           <p className="text-sm text-gray-700 mb-1">{notification.message}</p>
           <p className="text-xs text-gray-400">
             {(() => {
-              const raw = notification.created_at ?? notification.timestamp ?? notification.createdAt ?? Date.now();
-              const date = typeof raw === 'number' ? new Date(raw) : new Date(String(raw));
+              const date = new Date(notification.created_at);
               if (Number.isNaN(date.getTime())) return '—';
               return date.toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
             })()}
@@ -120,7 +124,7 @@ const NotificationItem = ({
 };
 
 // Helper to load notifications from sessionStorage
-function loadNotificationsFromSession() {
+function loadNotificationsFromSession(): AppNotification[] {
   try {
     const data = sessionStorage.getItem('notifications');
     if (data) return JSON.parse(data);
@@ -128,7 +132,7 @@ function loadNotificationsFromSession() {
   return [];
 }
 // Helper to save notifications to sessionStorage
-function saveNotificationsToSession(notifs: any[]) {
+function saveNotificationsToSession(notifs: AppNotification[]) {
   try {
     sessionStorage.setItem('notifications', JSON.stringify(notifs));
   } catch { }
@@ -145,7 +149,7 @@ export default function NotificationsPage() {
   } = useNotifications();
 
   // Load notifications from sessionStorage or from hook
-  const [notifications, setNotifications] = useState(() => {
+  const [notifications, setNotifications] = useState<AppNotification[]>(() => {
     const sessionNotifs = loadNotificationsFromSession();
     return sessionNotifs.length > 0 ? sessionNotifs : notificationsFromHook;
   });
@@ -161,13 +165,11 @@ export default function NotificationsPage() {
     [...notificationsFromHook, ...notifications].forEach((n) => {
       map.set(n.id, { ...n });
     });
-    // Sort by timestamp/created_at descending (handle different shapes)
+    // Sort by created_at descending
     return Array.from(map.values()).sort((a, b) => {
-      const aTime = a.created_at ?? a.timestamp ?? a.createdAt ?? 0;
-      const bTime = b.created_at ?? b.timestamp ?? b.createdAt ?? 0;
-      const aMs = typeof aTime === 'number' ? aTime : Date.parse(String(aTime) || '') || 0;
-      const bMs = typeof bTime === 'number' ? bTime : Date.parse(String(bTime) || '') || 0;
-      return bMs - aMs;
+      const aTime = new Date(a.created_at).getTime();
+      const bTime = new Date(b.created_at).getTime();
+      return bTime - aTime;
     });
   }, [notificationsFromHook, notifications]);
 
@@ -176,7 +178,7 @@ export default function NotificationsPage() {
 
   // Marquer une notification comme lue
   const handleMarkAsRead = useCallback(
-    (id: string) => {
+    (id: number | string) => {
       setNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, read: true } : n))
       );
@@ -193,7 +195,7 @@ export default function NotificationsPage() {
 
   // Suppression instantanée
   const handleDelete = useCallback(
-    (id: string) => {
+    (id: number | string) => {
       setNotifications((prev) => prev.filter((n) => n.id !== id));
       // call provider remove method
       remove(id);
@@ -222,7 +224,8 @@ export default function NotificationsPage() {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const notifId = entry.target.getAttribute("data-id");
-            const notif = notifications.find((n) => n.id === notifId);
+            // Handle both string and number IDs
+            const notif = notifications.find((n) => String(n.id) === notifId);
             if (notif && !notif.read) {
               markAsRead(notif.id);
             }
@@ -339,7 +342,7 @@ export default function NotificationsPage() {
               <div
                 key={notification.id}
                 data-id={notification.id}
-                ref={(el) => (itemRefs.current[notification.id] = el)}>
+                ref={(el) => (itemRefs.current[String(notification.id)] = el)}>
                 <NotificationItem
                   notification={notification}
                   markAsRead={handleMarkAsRead}

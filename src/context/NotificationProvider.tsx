@@ -1,19 +1,17 @@
 import React, { createContext, useCallback, useContext, useEffect, useState, useRef } from 'react';
-import { notificationService, Notification as ServiceNotification } from '@/services/NotificationService';
+import { notificationService, ApiNotification } from '@/services/NotificationService';
 
-export interface AppNotification extends ServiceNotification {
-  // keep extensible shape for UI
-  data?: Record<string, unknown>;
-  serverId?: string; // canonical server id (if available)
+export interface AppNotification extends ApiNotification {
+  // UI helper fields if needed, but we try to stick to ApiNotification
 }
 
 interface NotificationContextValue {
   notifications: AppNotification[];
   unreadCount: number;
   refresh: () => Promise<void>;
-  markAsRead: (id: string) => Promise<void>;
+  markAsRead: (id: string | number) => Promise<void>;
   markAllAsRead: () => Promise<void>;
-  remove: (id: string) => Promise<void>;
+  remove: (id: string | number) => Promise<void>;
   pushLocal: (n: Partial<AppNotification>) => void;
 }
 
@@ -29,46 +27,30 @@ export function useNotificationContext(): NotificationContextValue {
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
-  const [seenServerIds, setSeenServerIds] = useState<Set<string>>(new Set());
+  const [seenIds, setSeenIds] = useState<Set<number | string>>(new Set());
 
   const refresh = useCallback(async () => {
     try {
       const list = await notificationService.getNotifications();
-      // normalize data shape if needed
-      const normalized: AppNotification[] = (list || []).map((item: unknown) => {
-        const obj = (item || {}) as Record<string, unknown>;
-        const serverIdRaw = obj['id'] ?? obj['_id'] ?? obj['uuid'] ?? obj['key'] ?? '';
-        const serverId = serverIdRaw != null ? String(serverIdRaw) : '';
-        const message = String(obj['message'] ?? obj['body'] ?? obj['title'] ?? '');
-        const tsRaw = obj['timestamp'] ?? obj['created_at'];
-        const timestamp = tsRaw != null ? Number(tsRaw) : Date.now();
-        const read = Boolean(obj['read']);
-        const type = typeof obj['type'] === 'string' ? String(obj['type']) : 'system';
-        const data = ((obj['data'] ?? obj['payload']) as Record<string, unknown> | undefined) ?? {};
-        const typedType = (typeof obj['type'] === 'string' ? String(obj['type']) : 'system') as ServiceNotification['type'];
-        return {
-          id: serverId || String(Date.now()),
-          serverId: serverId || undefined,
-          message,
-          timestamp,
-          read,
-          type: typedType,
-          data,
-        } as AppNotification;
-      });
 
-      // Merge server notifications with any local-only notifications (without serverId)
-      setNotifications(prev => {
-        const localOnly = (prev || []).filter(p => !p.serverId);
-        // Server list should be canonical; keep local-only appended if they are not duplicates
-        return [...normalized, ...localOnly];
-      });
+      // No complex normalization needed anymore as we aligned types
+      const normalized: AppNotification[] = list.map(item => ({
+        ...item,
+        // Ensure data is at least an empty object if null
+        data: item.data || {},
+      }));
+
+      // Merge server notifications with any local-only notifications
+      // For now, we trust the server list as canonical
+      setNotifications(normalized);
+
       // update seen IDs
-      setSeenServerIds(new Set(normalized.map(n => (n.serverId || n.id))));
+      setSeenIds(new Set(normalized.map(n => n.id)));
+
       // try to get unread count from API if available
       try {
         const count = await notificationService.getUnreadCount();
-        setUnreadCount(Number(count) || normalized.filter(n => !n.read).length);
+        setUnreadCount(Number(count));
       } catch (e) {
         setUnreadCount(normalized.filter(n => !n.read).length);
       }
@@ -93,7 +75,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     refresh();
   }, [refresh]);
 
-  const markAsRead = useCallback(async (id: string) => {
+  const markAsRead = useCallback(async (id: string | number) => {
     try {
       await notificationService.markAsRead(id);
       setNotifications(prev => prev.map(n => (n.id === id ? { ...n, read: true } : n)));
@@ -115,7 +97,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   }, []);
 
-  const remove = useCallback(async (id: string) => {
+  const remove = useCallback(async (id: string | number) => {
     try {
       await notificationService.deleteNotification(id);
       setNotifications(prev => prev.filter(n => n.id !== id));
@@ -126,26 +108,23 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, []);
 
   const pushLocal = useCallback((n: Partial<AppNotification>) => {
-    const serverId = n.serverId || n.data?.server_id || n.data?.id || undefined;
-    // If we already saw this server id, don't insert duplicate
-    if (serverId && seenServerIds.has(String(serverId))) return;
+    // If we already saw this id, don't insert duplicate
+    if (n.id && seenIds.has(n.id)) return;
 
-    const obj = n as Partial<AppNotification>;
-    const dataRec = obj.data as Record<string, unknown> | undefined;
-    const messageFromData = dataRec ? (String(dataRec['body'] ?? dataRec['message'] ?? '')) : '';
-    const message = obj.message ?? messageFromData ?? '';
+    // Construct a temporary AppNotification
     const notif: AppNotification = {
-      id: String(obj.id ?? serverId ?? Date.now()),
-      serverId: serverId ? String(serverId) : undefined,
-      message,
-      timestamp: obj.timestamp ?? Date.now(),
-      read: !!obj.read,
-      type: (obj.type as ServiceNotification['type']) ?? 'system',
-      data: obj.data ?? {},
-    } as AppNotification;
+      id: n.id || Date.now(), // Use timestamp as temp ID if missing
+      user_id: n.user_id || 0,
+      type: n.type || 'system',
+      message: n.message || '',
+      data: n.data || {},
+      read: !!n.read,
+      created_at: n.created_at || new Date().toISOString(),
+      updated_at: n.updated_at || new Date().toISOString(),
+    };
 
     setNotifications(prev => [notif, ...prev]);
-    if (notif.serverId) setSeenServerIds(s => new Set(s).add(notif.serverId!));
+    if (notif.id) setSeenIds(s => new Set(s).add(notif.id));
     setUnreadCount(c => c + (notif.read ? 0 : 1));
 
     // Schedule a debounced refresh from the server to ensure canonical state
@@ -156,7 +135,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       refresh().catch(err => console.error('Refresh after push failed', err));
       refreshTimer.current = null;
     }, REFRESH_DEBOUNCE_MS);
-  }, [seenServerIds, refresh]);
+  }, [seenIds, refresh]);
 
   // Cleanup timer on unmount
   useEffect(() => {
