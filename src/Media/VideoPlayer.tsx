@@ -109,7 +109,15 @@ export default function VideoPlayer({
       });
 
       // Load the video source
-      video.src = `${VITE_API_URL}/media/stream/${url}`;
+      // If URL already contains the API path, use it directly with base URL
+      // Otherwise, construct the streaming URL
+      if (url.startsWith('/api/')) {
+        video.src = `${VITE_API_URL}${url}`;
+      } else if (url.startsWith('http')) {
+        video.src = url;
+      } else {
+        video.src = `${VITE_API_URL}/api/media/stream/${url}`;
+      }
 
       // Add subtitle track if available
       if (subtitleUrl) {
@@ -117,7 +125,14 @@ export default function VideoPlayer({
         track.kind = 'captions';
         track.label = subtitleLanguage === 'fr' ? 'Français' : subtitleLanguage;
         track.srclang = subtitleLanguage;
-        track.src = subtitleUrl;
+        // Handle subtitle URL similarly to video URL
+        if (subtitleUrl.startsWith('/api/')) {
+          track.src = `${VITE_API_URL}${subtitleUrl}`;
+        } else if (subtitleUrl.startsWith('http')) {
+          track.src = subtitleUrl;
+        } else {
+          track.src = `${VITE_API_URL}/api/media/subtitle/${subtitleUrl}`;
+        }
         track.default = true;
         video.appendChild(track);
       }
