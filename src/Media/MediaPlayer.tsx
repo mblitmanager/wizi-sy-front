@@ -44,23 +44,15 @@ export default function MediaPlayer({
 
     switch (media.type) {
       case "video": {
-        const isShort =
-          typeof media.url === "string" &&
-          (/youtube\.com\/shorts\//.test(media.url) ||
-            (/youtu\.be\/.{11,}/.test(media.url) &&
-              media.url.includes("shorts")));
-
         return (
-          <div
-            className={`relative bg-black rounded-t-2xl overflow-hidden w-full ${isShort
-              ? "aspect-[9/16] max-h-[70vh]"
-              : "aspect-video max-h-[60vh]"
-              }`}>
+          <div className="relative bg-black rounded-t-2xl overflow-hidden w-full aspect-video max-h-[60vh]">
             <VideoPlayer
               key={media.id}
               url={media.url}
               mediaId={media.id}
               stagiaireId={0}
+              subtitleUrl={media.subtitle_url}
+              subtitleLanguage={media.subtitle_language || 'fr'}
             />
           </div>
         );

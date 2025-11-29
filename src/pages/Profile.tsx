@@ -23,6 +23,7 @@ import { useQuery } from "@tanstack/react-query";
 import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
 import apiClient from "@/lib/api-client";
 import type { CatalogueFormation } from "@/types/stagiaire";
+import VideoUploader from "@/components/common/VideoUploader";
 
 const API_URL = import.meta.env.VITE_API_URL as string;
 
@@ -447,6 +448,14 @@ const ProfilePage = () => {
 
           {/* Badges */}
           <AchievementsSection />
+
+          {/* Video uploader (visible to admins only) */}
+          {(user?.is_admin || user?.role === 'admin') && (
+            <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
+              <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">Uploader une vidéo</h3>
+              <VideoUploader apiBase={API_URL} onUploaded={(m) => console.log('uploaded', m)} />
+            </div>
+          )}
 
           {/* <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
             <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">

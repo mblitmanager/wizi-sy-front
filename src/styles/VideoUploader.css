@@ -1,0 +1,5 @@
+.video-uploader { display:flex; gap:8px; flex-direction:column; max-width:640px }
+.video-uploader-row { display:flex; gap:8px }
+.video-uploader-error { color: #dc2626 }
+.video-uploader-preview { margin-top: 16px }
+.video-uploader label { font-size: 0.9rem }
