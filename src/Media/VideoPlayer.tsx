@@ -112,11 +112,17 @@ export default function VideoPlayer({
       // If URL already contains the API path, use it directly with base URL
       // Otherwise, construct the streaming URL
       if (url.startsWith('/api/')) {
+        // URL from accesseur like /api/media/stream/filename.mp4
         video.src = `${VITE_API_URL}${url}`;
+      } else if (url.startsWith('/uploads/')) {
+        // Direct public path like /uploads/medias/filename.mp4
+        video.src = `${VITE_API_URL_MEDIA}${url}`;
       } else if (url.startsWith('http')) {
+        // Already full URL (YouTube, external, etc.)
         video.src = url;
       } else {
-        video.src = `${VITE_API_URL}/api/media/stream/${url}`;
+        // Filename only - use streaming endpoint
+        video.src = `${VITE_API_URL}/media/stream/${url}`;
       }
 
       // Add subtitle track if available
