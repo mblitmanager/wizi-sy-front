@@ -48,7 +48,7 @@ export default function MediaPlayer({
           <div className="relative bg-black rounded-t-2xl overflow-hidden w-full aspect-video max-h-[60vh]">
             <VideoPlayer
               key={media.id}
-              url={media.url}
+              url={media.video_url || media.url}
               mediaId={media.id}
               stagiaireId={0}
               subtitleUrl={media.subtitle_url}

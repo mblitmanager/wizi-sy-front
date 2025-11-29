@@ -5,17 +5,18 @@ export type MediaType = "video" | "image" | "audio" | "document";
 export interface Media {
   id: string;
   titre: string;
-  description: string;
+  description?: string;
   url: string;
+  video_url?: string; // Virtual attribute from backend
   type: MediaType;
   categorie: string;
-  duree?: string;
+  duree?: number;
   ordre?: number;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
   formation_id?: string;
-  stagiaires?: { is_watched: boolean }[];
-  video_platform?: 'youtube' | 'dailymotion' | 'server';
+  stagiaires?: any[];
+  video_platform?: string;
   video_file_path?: string;
   subtitle_url?: string;
   subtitle_language?: string;
