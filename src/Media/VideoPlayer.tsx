@@ -215,7 +215,7 @@ export default function VideoPlayer({
   return (
     <div className="relative max-w-full">
       {/* Zoom Controls */}
-      {zoomLevel > 1 && (
+      {/* {zoomLevel > 1 && (
         <div className="absolute top-2 right-2 z-50 flex gap-2 bg-black/70 rounded-lg p-2">
           <button
             onClick={handleZoomOut}
@@ -240,7 +240,7 @@ export default function VideoPlayer({
             <ZoomIn className="w-5 h-5" />
           </button>
         </div>
-      )}
+      )} */}
 
       {/* Zoom Controls - Always Visible */}
       {/* <div className="absolute bottom-16 right-2 z-40 flex flex-col gap-1 bg-black/50 rounded-lg p-1">
