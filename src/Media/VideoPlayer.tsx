@@ -70,7 +70,7 @@ export default function VideoPlayer({
         playerRef.current.destroy();
       }
 
-      // Initialize Plyr with enhanced configuration
+      // Initialize Plyr with enhanced configuration (include i18n labels)
       playerRef.current = new Plyr(video, {
         controls: [
           "play-large",
@@ -86,6 +86,14 @@ export default function VideoPlayer({
           "airplay",
           "fullscreen",
         ],
+        // Provide localized labels for built-in controls
+        i18n: {
+          play: t('video.controls.play'),
+          pause: t('video.controls.pause'),
+          mute: t('video.controls.mute'),
+          unmute: t('video.controls.unmute'),
+          speed: t('video.controls.speed')
+        },
         settings: ["captions", "quality", "speed", "loop"],
         speed: {
           selected: 1,
@@ -235,7 +243,7 @@ export default function VideoPlayer({
       )}
 
       {/* Zoom Controls - Always Visible */}
-      <div className="absolute bottom-16 right-2 z-40 flex flex-col gap-1 bg-black/50 rounded-lg p-1">
+      {/* <div className="absolute bottom-16 right-2 z-40 flex flex-col gap-1 bg-black/50 rounded-lg p-1">
         <button
           onClick={handleZoomIn}
           className="p-1.5 bg-white/10 hover:bg-white/20 rounded text-white transition-colors disabled:opacity-50"
@@ -252,7 +260,7 @@ export default function VideoPlayer({
         >
           <ZoomOut className="w-4 h-4" />
         </button>
-      </div>
+      </div> */}
 
       {/* Video Container with Zoom */}
       <div

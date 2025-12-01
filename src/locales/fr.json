@@ -40,6 +40,13 @@
     "zoom_in": "Zoom avant",
     "zoom_out": "Zoom arrière",
     "reset_zoom": "Réinitialiser le zoom",
+    "controls": {
+      "play": "Lire",
+      "pause": "Pause",
+      "mute": "Couper le son",
+      "unmute": "Activer le son",
+      "speed": "Vitesse"
+    },
     "browser_not_supported": "Votre navigateur ne supporte pas la lecture de vidéos HTML5.",
     "shortcuts": "Raccourcis : Espace (play/pause) • ← → (reculer/avancer) • ↑ ↓ (volume) • F (plein écran) • M (muet)",
     "loading_prefs_error": "Erreur lors du chargement des préférences du lecteur :",
