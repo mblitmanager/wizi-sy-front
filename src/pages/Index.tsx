@@ -1,9 +1,12 @@
+import { useEffect, useMemo, useState, lazy, Suspense, useCallback, memo } from "react";
 import { Layout } from "@/components/layout/Layout";
 
 import { HowToPlay } from "@/components/FeatureHomePage/HowToPlay";
+// Lazy load des composants non-critiques
+const ContactsSection = lazy(() => import("@/components/FeatureHomePage/ContactSection").then(m => ({ default: m.default })));
+const AdCatalogueBlock = lazy(() => import("@/components/FeatureHomePage/AdCatalogueBlock"));
+
 import { ProgressCard } from "@/components/dashboard/ProgressCard";
-import ContactsSection from "@/components/FeatureHomePage/ContactSection";
-import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
 import FormationCard from "@/components/catalogueFormation/FormationCard";
 import { StagiaireQuizGrid } from "@/components/quiz/StagiaireQuizGrid";
 import LandingPage from "./LandingPage";
@@ -14,7 +17,6 @@ import useOnlineStatus from "@/hooks/useOnlineStatus";
 import { useResumeQuiz } from "@/hooks/useResumeQuiz";
 
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, useMediaQuery } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
@@ -38,6 +40,7 @@ import { useQuizFiltering } from "@/hooks/quiz/useQuizFiltering";
 import { WelcomeBanner } from "@/components/FeatureHomePage/WelcomeBanner";
 import { StreakModal } from "@/components/FeatureHomePage/StreakModal";
 import { ResumeQuizModal } from "@/components/quiz/ResumeQuizModal";
+import { ResumeQuizButton } from "@/components/quiz/ResumeQuizButton";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -83,17 +86,7 @@ const hasToken = () => {
   return !!localStorage.getItem("token");
 };
 
-// 🔥 Composant de loading fullscreen
-function FullScreenLoader() {
-  return (
-    <div className="fixed inset-0 bg-white z-50 flex justify-center items-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-yellow-400 border-solid mx-auto mb-4"></div>
-        <p className="text-gray-600">Chargement...</p>
-      </div>
-    </div>
-  );
-}
+// import { OptimizedFullScreenLoader } from "@/components/common/OptimizedLoadingState";
 
 function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
   const isOnline = useOnlineStatus();
@@ -104,7 +97,7 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
   const navigate = useNavigate();
 
   // Resume quiz functionality
-  const { unfinishedQuiz, dismissQuiz } = useResumeQuiz();
+  const { unfinishedQuiz, dismissQuiz, hideModal, isModalHidden } = useResumeQuiz();
 
   const handleResumeQuiz = () => {
     if (unfinishedQuiz) {
@@ -435,14 +428,14 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
           onHideFor7DaysChange={setHideStreakFor7Days}
         />
 
-        {/* Modal reprise de quiz */}
+        {/* Modal reprise de quiz - Afficher seulement si modal n'est pas cachée */}
         <ResumeQuizModal
-          open={!!unfinishedQuiz}
+          open={!!unfinishedQuiz && !isModalHidden}
           quizTitle={unfinishedQuiz?.quizTitle || ""}
           questionCount={unfinishedQuiz?.questionIds?.length || 0}
           currentProgress={unfinishedQuiz?.currentIndex || 0}
           onResume={handleResumeQuiz}
-          onDismiss={handleDismissQuiz}
+          onDismiss={hideModal}
         />
 
         {/* Comment jouer */}
@@ -480,33 +473,7 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
               </div>
               <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 px-2 py-6 md:py-3 bg-white rounded-xl">
                 <div className="flex-1">
-                  {!adLoading && adFormations.length > 0 ? (
-                    <AdCatalogueBlock formations={adFormations.slice(0, 6)} />
-                  ) : (
-                    filteredFormations
-                      .slice(0, 3)
-                      .map((formation: CatalogueFormation) => (
-                        <FormationCard
-                          key={`available-${formation.formation?.id || formation.id
-                            }-${formation.id}`}
-                          formation={{
-                            ...(formation.formation ?? formation),
-                            prerequis:
-                              (formation.formation?.prerequis ??
-                                formation.prerequis) ||
-                              "",
-                            deleted_at:
-                              (formation.formation?.deleted_at ??
-                                formation.deleted_at) ||
-                              null,
-                            cursus_pdf:
-                              (formation.formation?.cursus_pdf ??
-                                formation.cursus_pdf) ||
-                              "",
-                          }}
-                        />
-                      ))
-                  )}
+                  <AdCatalogueBlock formations={adFormations.slice(0, 6)} />
                 </div>
               </div>
             </CardContent>
@@ -529,6 +496,17 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
             />
           </CardContent>
         </Card>
+
+        {/* Bouton reprise quiz en bas de page si modal ignorée */}
+        {unfinishedQuiz && isModalHidden && (
+          <ResumeQuizButton
+            quizTitle={unfinishedQuiz.quizTitle}
+            questionCount={unfinishedQuiz.questionIds?.length || 0}
+            currentProgress={unfinishedQuiz.currentIndex || 0}
+            onResume={handleResumeQuiz}
+            onDismiss={handleDismissQuiz}
+          />
+        )}
 
         {/* Téléchargement application */}
         {showApkBlock &&
@@ -708,9 +686,9 @@ export function Index() {
   // 🔥 TOUJOURS afficher le loading si:
   // 1. Chargement en cours OU
   // 2. Token existe mais user pas encore chargé
-  if (isLoading || (hasToken && !user)) {
-    return <FullScreenLoader />;
-  }
+  // if (isLoading || (hasToken && !user)) {
+  //   return <OptimizedFullScreenLoader />;
+  // }
 
   // 🔥 SEULEMENT afficher LandingPage si PAS de token ET user null
   if (!hasToken && !user) {

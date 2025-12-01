@@ -20,16 +20,31 @@ if ("Notification" in window && navigator.serviceWorker) {
   });
 }
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Garder les données fraîches pendant 5 minutes
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      // Garder les données en cache pendant 10 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (anciennement cacheTime)
+      // Ne pas refetch automatiquement au focus de la fenêtre
+      refetchOnWindowFocus: false,
+      // Retry une seule fois en cas d'erreur
+      retry: 1,
+      // Refetch en arrière-plan pour les données stale
+      refetchOnMount: true,
+    },
+  },
+});
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <NotificationProvider>
       <DisplaySettingsProvider>
-      <QueryClientProvider client={queryClient}>
-        <UserProvider>
-          <App />
-        </UserProvider>
-      </QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+          <UserProvider>
+            <App />
+          </UserProvider>
+        </QueryClientProvider>
       </DisplaySettingsProvider>
     </NotificationProvider>
   </React.StrictMode>

@@ -31,6 +31,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useQuizPreferences } from "@/hooks/useQuizPreferences";
 import { QuizViewManager } from "@/components/quiz/QuizViewManager";
+import { useResumeQuiz } from "@/hooks/useResumeQuiz";
+import { ResumeQuizModal } from "@/components/quiz/ResumeQuizModal";
+import { ResumeQuizButton } from "@/components/quiz/ResumeQuizButton";
 
 function ToggleContentSkeleton() {
   return (
@@ -92,6 +95,21 @@ export default function Quizzes() {
     () => new URLSearchParams(location.search),
     [location.search]
   );
+
+  // Resume quiz functionality
+  const { unfinishedQuiz, dismissQuiz, hideModal, isModalHidden } = useResumeQuiz();
+
+  const handleResumeQuiz = () => {
+    if (unfinishedQuiz) {
+      navigate(`/quiz/${unfinishedQuiz.quizId}`);
+    }
+  };
+
+  const handleDismissQuiz = () => {
+    if (unfinishedQuiz) {
+      dismissQuiz(unfinishedQuiz.quizId);
+    }
+  };
 
   // Phrase d'accroche aléatoire
   const [randomAccroche, setRandomAccroche] = useState(ACCROCHE_PHRASES[0]);
@@ -187,6 +205,27 @@ export default function Quizzes() {
   return (
     <Layout>
       <QuizViewManager>
+        {/* Modal reprise de quiz - Afficher seulement si modal n'est pas cachée */}
+        <ResumeQuizModal
+          open={!!unfinishedQuiz && !isModalHidden}
+          quizTitle={unfinishedQuiz?.quizTitle || ""}
+          questionCount={unfinishedQuiz?.questionIds?.length || 0}
+          currentProgress={unfinishedQuiz?.currentIndex || 0}
+          onResume={handleResumeQuiz}
+          onDismiss={hideModal}
+        />
+
+        {/* Bouton reprise quiz en bas de page si modal ignorée */}
+        {unfinishedQuiz && isModalHidden && (
+          <ResumeQuizButton
+            quizTitle={unfinishedQuiz.quizTitle}
+            questionCount={unfinishedQuiz.questionIds?.length || 0}
+            currentProgress={unfinishedQuiz.currentIndex || 0}
+            onResume={handleResumeQuiz}
+            onDismiss={handleDismissQuiz}
+          />
+        )}
+
         {/* Bannière d'accroche */}
         <div className="mb-6">
           <div
@@ -244,11 +283,10 @@ export default function Quizzes() {
             {/* Toggle Vue Quiz */}
             <div className="flex items-center gap-3 top-1 right-4 absolute">
               <List
-                className={`h-7 w-7 transition-colors ${
-                  activeToggle === "adventure"
-                    ? "text-brown-shade"
-                    : "text-gray-400"
-                }`}
+                className={`h-7 w-7 transition-colors ${activeToggle === "adventure"
+                  ? "text-brown-shade"
+                  : "text-gray-400"
+                  }`}
               />
 
               <button
@@ -283,11 +321,10 @@ export default function Quizzes() {
               </button>
 
               <Grid3X3
-                className={`h-7 w-7 transition-colors ${
-                  activeToggle === "mes-quizzes"
-                    ? "text-brown-shade"
-                    : "text-gray-400"
-                }`}
+                className={`h-7 w-7 transition-colors ${activeToggle === "mes-quizzes"
+                  ? "text-brown-shade"
+                  : "text-gray-400"
+                  }`}
               />
             </div>
           </div>
