@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import BadgesDisplay from "./BadgesDisplay";
 import axios from "axios";
 import { useUser } from "@/hooks/useAuth";
@@ -151,6 +153,8 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress, achieveme
     [VITE_API_URL, user, refetchUser]
   );
 
+  const { t } = useTranslation();
+
   const getInitials = useCallback(() => {
     if (!user || !user.stagiaire?.prenom) return "U";
     const first = user.stagiaire.prenom.charAt(0).toUpperCase();
@@ -180,7 +184,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress, achieveme
     const ville = user?.stagiaire?.ville || "";
     const cp = user?.stagiaire?.code_postal || "";
     const parts = [addr, cp, ville].filter(Boolean);
-    return parts.length ? parts.join(", ") : "Adresse non renseignée";
+    return parts.length ? parts.join(", ") : t("common.address_not_provided");
   }, [user?.stagiaire, user?.user?.adresse]);
 
   const renderImage = (className: string) => {
@@ -216,7 +220,7 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress, achieveme
   };
 
   const formatDate = (value?: string) => {
-    if (!value) return "Non renseignée";
+    if (!value) return t("common.date_not_provided");
     const d = new Date(value);
     if (isNaN(d.getTime())) return "Non renseignée";
     return new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" }).format(d);
@@ -283,12 +287,15 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress, achieveme
           <div className="flex-1 w-full">
             {/* Informations utilisateur détaillées (desktop) */}
             <div className="hidden md:block mb-6">
-              <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-                {user?.user?.name || user?.stagiaire?.prenom || "Utilisateur"}
-                {user?.stagiaire?.prenom && user?.user?.name
-                  ? ` (${user.stagiaire.prenom})`
-                  : ""}
-              </h1>
+              <div className="flex items-start justify-between">
+                <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+                  {user?.user?.name || user?.stagiaire?.prenom || t("common.user_default")}
+                  {user?.stagiaire?.prenom && user?.user?.name ? ` (${user.stagiaire.prenom})` : ""}
+                </h1>
+                <div className="ml-4">
+                  <LanguageSwitcher />
+                </div>
+              </div>
             </div>
 
             {/* Bloc d'informations détaillées du stagiaire */}

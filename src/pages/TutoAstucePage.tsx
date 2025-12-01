@@ -18,6 +18,9 @@ import {
   ChevronRight,
   ChevronLeft,
   X,
+  Menu,
+  Pause,
+  Play,
 } from "lucide-react";
 import axios from "axios";
 import { useMediaByFormation } from "@/use-case/hooks/media/useMediaByFormation";
@@ -168,8 +171,9 @@ export default function TutoAstucePage() {
     astuces: Media[];
   } | null>(null);
   const [isPlaylistOpen, setIsPlaylistOpen] = useState(false);
-  const [headerVisible, setHeaderVisible] = useState(true);
-  const [viewMode, setViewMode] = useState<"list" | "description">("list");
+  const [showMiniPlayer, setShowMiniPlayer] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const lastScrollY = useRef(0);
 
   // Hooks
@@ -253,23 +257,23 @@ export default function TutoAstucePage() {
     }
   }, [formationsWithTutos, selectedFormationId]);
 
-  // Auto-hide header on scroll (mobile/tablet only)
+  // Show mini player on scroll (mobile portrait only)
   useEffect(() => {
-    if (!isMobileOrTablet) return;
+    if (!isMobileOrTablet || !orientation.isPortrait) {
+      setShowMiniPlayer(false);
+      return;
+    }
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-        setHeaderVisible(false);
-      } else {
-        setHeaderVisible(true);
-      }
+      // Show mini player when scrolled past video (approximately 300px)
+      setShowMiniPlayer(currentScrollY > 300);
       lastScrollY.current = currentScrollY;
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [orientation.isMobile]);
+  }, [isMobileOrTablet, orientation.isPortrait]);
 
   // Close playlist when orientation changes
   useEffect(() => {
@@ -279,25 +283,56 @@ export default function TutoAstucePage() {
   return (
     <Layout>
       <div className="tuto-page">
-        {/* Header - Hidden in landscape mobile */}
+        {/* Mobile Sticky Mini Player - Portrait Only */}
+        {showMiniPlayer && isMobileOrTablet && orientation.isPortrait && selectedMedia && (
+          <div className="mini-player-bar">
+            <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-200 shadow-sm">
+              <button
+                onClick={() => {
+                  setIsPlaying(!isPlaying);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="flex-shrink-0 w-10 h-10 rounded-full bg-wizi text-white flex items-center justify-center hover:bg-wizi/90 active:scale-95 transition-all"
+                aria-label={isPlaying ? "Pause" : "Play"}>
+                {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
+              </button>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-medium text-gray-900 truncate">
+                  {selectedMedia.titre}
+                </h3>
+                <p className="text-xs text-gray-500 truncate">
+                  {selectedMedia.categorie}
+                </p>
+              </div>
+              <button
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="flex-shrink-0 p-2 text-gray-500 hover:text-gray-700 active:bg-gray-100 rounded-lg transition-all"
+                aria-label="Retour au lecteur">
+                <ChevronDown className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Compact Header - Hidden in landscape mobile */}
         {!isLandscapeMobile && (
-          <div
-            className={`tuto-header ${headerVisible ? "" : "hidden"}`}>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-              <div className="tuto-header-content flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="tuto-header">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+              <div className="tuto-header-content">
                 <div className="tuto-header-title">
-                  <h1 className="text-xl font-semibold text-gray-900">
+                  <h1 className="text-lg sm:text-xl font-semibold text-gray-900">
                     Tutoriels & Astuces
                   </h1>
-                  <p className="text-gray-600 text-sm mt-1">
+                  <p className="hidden sm:block text-gray-600 text-sm mt-0.5">
                     Apprenez à votre rythme
                   </p>
                 </div>
 
-                <div className="tuto-header-controls flex items-center gap-3">
+                <div className="tuto-header-controls">
                   <MediaTabs
                     active={activeCategory}
                     onChange={setActiveCategory}
+                    compact={isMobileOrTablet}
                   />
 
                   {formationsWithTutos.length > 1 && (
@@ -308,10 +343,12 @@ export default function TutoAstucePage() {
                       }
                       title="Sélectionner une formation"
                       aria-label="Sélectionner une formation"
-                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                      className="mobile-selector">
                       {formationsWithTutos.map((formation) => (
                         <option key={formation.id} value={formation.id}>
-                          {formation.titre}
+                          {formation.titre.length > 30 && isMobileOrTablet
+                            ? formation.titre.substring(0, 30) + '...'
+                            : formation.titre}
                         </option>
                       ))}
                     </select>
@@ -321,13 +358,51 @@ export default function TutoAstucePage() {
                     onClick={() => refetch()}
                     disabled={isFetching}
                     title="Rafraîchir"
-                    className="hidden lg:inline-flex p-2 text-gray-600 hover:text-gray-800 disabled:opacity-50">
+                    aria-label="Rafraîchir la liste"
+                    className="refresh-btn">
                     <RefreshCw
                       className={`w-5 h-5 ${isFetching ? "animate-spin" : ""}`}
                     />
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Landscape Mode Compact Header */}
+        {isLandscapeMobile && (
+          <div className="landscape-header">
+            <div className="flex items-center justify-between px-4 py-2 bg-black/80 backdrop-blur-md text-white">
+              <div className="flex items-center gap-3">
+                <MediaTabs
+                  active={activeCategory}
+                  onChange={setActiveCategory}
+                  compact
+                />
+                {formationsWithTutos.length > 1 && (
+                  <select
+                    value={selectedFormationId ?? ""}
+                    onChange={(e) => setSelectedFormationId(e.target.value || null)}
+                    aria-label="Sélectionner une formation"
+                    title="Sélectionner une formation"
+                    className="landscape-selector">
+                    {formationsWithTutos.map((formation) => (
+                      <option key={formation.id} value={formation.id}>
+                        {formation.titre.substring(0, 20)}...
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+              <button
+                onClick={() => {
+                  window.history.back();
+                }}
+                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                aria-label="Fermer">
+                <X className="w-5 h-5" />
+              </button>
             </div>
           </div>
         )}
@@ -344,34 +419,12 @@ export default function TutoAstucePage() {
                     <MediaPlayer
                       key={selectedMedia.id}
                       media={selectedMedia}
-                      showDescription={!isMobileOrTablet || viewMode === "description"}
+                      showDescription={!isMobileOrTablet}
                     />
                   </div>
 
-                  {/* Mobile/Tablet Portrait Toggle Control */}
-                  {isMobileOrTablet && orientation.isPortrait && (
-                    <div className="flex border-b border-gray-200 bg-white">
-                      <button
-                        onClick={() => setViewMode("list")}
-                        className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${viewMode === "list"
-                          ? "border-blue-500 text-blue-600"
-                          : "border-transparent text-gray-500 hover:text-gray-700"
-                          }`}>
-                        Liste des épisodes
-                      </button>
-                      <button
-                        onClick={() => setViewMode("description")}
-                        className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${viewMode === "description"
-                          ? "border-blue-500 text-blue-600"
-                          : "border-transparent text-gray-500 hover:text-gray-700"
-                          }`}>
-                        Description
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Media info - shown differently in landscape mode */}
-                  {!isLandscapeMobile && (!isMobileOrTablet || viewMode === "description") && (
+                  {/* Media info for desktop/tablet landscape */}
+                  {!isMobileOrTablet && !orientation.isPortrait && (
                     <div className="media-info p-4 border-t border-gray-100">
                       <h3 className="font-semibold text-gray-900 mb-2">
                         {selectedMedia.titre}
@@ -393,20 +446,20 @@ export default function TutoAstucePage() {
             </div>
 
             {/* Liste des médias */}
-            {(!isMobileOrTablet || (!orientation.isPortrait || viewMode === "list")) && (
+            {(!isMobileOrTablet || !orientation.isPortrait) && (
               <div
-                className={`tuto-media-list ${isMobileOrTablet && orientation.isPortrait ? "order-2" : ""} ${isLandscapeMobile ? (isPlaylistOpen ? "tuto-playlist-drawer open" : "tuto-playlist-drawer") : ""}`}>
+                className={`tuto-media-list ${isLandscapeMobile ? (isPlaylistOpen ? "tuto-playlist-drawer open" : "tuto-playlist-drawer") : ""}`}>
                 {/* Close button for landscape playlist */}
                 {isLandscapeMobile && isPlaylistOpen && (
                   <div className="flex items-center justify-between p-4 border-b border-gray-200">
                     <h2 className="text-lg font-semibold text-gray-900">
-                      Liste des médias
+                      {activeCategory === "tutoriel" ? "Tutoriels" : "Astuces"}
                     </h2>
                     <button
                       onClick={() => setIsPlaylistOpen(false)}
                       title="Fermer la liste"
                       aria-label="Fermer la liste de médias"
-                      className="p-2 hover:bg-gray-100 rounded-lg">
+                      className="min-w-[44px] min-h-[44px] p-2 hover:bg-gray-100 rounded-lg transition-colors active:bg-gray-200">
                       <X className="w-5 h-5" />
                     </button>
                   </div>
@@ -415,7 +468,7 @@ export default function TutoAstucePage() {
                 {!isLandscapeMobile && (
                   <div className="mb-4">
                     <h2 className="text-lg font-semibold text-gray-900">
-                      Liste des médias
+                      {activeCategory === "tutoriel" ? "Tutoriels" : "Astuces"}
                     </h2>
                     <p className="text-gray-500 text-sm mt-1">
                       {medias.length} média{medias.length > 1 ? "s" : ""}{" "}
@@ -432,7 +485,7 @@ export default function TutoAstucePage() {
                     <p className="text-sm">Aucun média disponible</p>
                   </div>
                 ) : (
-                  <div className="space-y-1 max-h-[600px] overflow-y-auto">
+                  <div className="media-list-scroll">
                     {Object.entries(groupedMedias).map(
                       ([category, categoryMedias]) => (
                         <MediaCategorySection
@@ -444,8 +497,7 @@ export default function TutoAstucePage() {
                             setSelectedMedia(media);
                             if (isLandscapeMobile) setIsPlaylistOpen(false);
                             if (isMobileOrTablet && orientation.isPortrait) {
-                              // Optional: switch to description view when selecting a video on mobile
-                              // setViewMode("description"); 
+                              window.scrollTo({ top: 0, behavior: 'smooth' });
                             }
                           }}
                         />
@@ -455,18 +507,59 @@ export default function TutoAstucePage() {
                 )}
               </div>
             )}
+
+            {/* Mobile Portrait: Bottom media list */}
+            {isMobileOrTablet && orientation.isPortrait && (
+              <div className="mobile-media-list-section">
+                <div className="p-4 bg-white rounded-t-2xl">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      {activeCategory === "tutoriel" ? "Tutoriels" : "Astuces"}
+                    </h2>
+                    <span className="text-sm text-gray-500">
+                      {medias.length} média{medias.length > 1 ? "s" : ""}
+                    </span>
+                  </div>
+
+                  {isLoading ? (
+                    <MediaSkeleton />
+                  ) : medias.length === 0 ? (
+                    <div className="empty-state text-center py-8 text-gray-500">
+                      <Sparkles className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Aucun média disponible</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      {Object.entries(groupedMedias).map(
+                        ([category, categoryMedias]) => (
+                          <MediaCategorySection
+                            key={category}
+                            title={category}
+                            medias={categoryMedias}
+                            selectedMedia={selectedMedia}
+                            onSelectMedia={(media) => {
+                              setSelectedMedia(media);
+                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
+                          />
+                        )
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Playlist toggle button for landscape mobile */}
+          {/* Playlist toggle button for landscape mobile - Repositioned to top-left */}
           {isLandscapeMobile && (
             <button
               onClick={() => setIsPlaylistOpen(!isPlaylistOpen)}
-              className="playlist-toggle"
-              aria-label="Toggle playlist">
-              {isPlaylistOpen ? (
-                <ChevronRight className="w-6 h-6" />
-              ) : (
-                <ChevronLeft className="w-6 h-6" />
+              className="playlist-toggle-landscape"
+              aria-label={isPlaylistOpen ? "Fermer la liste" : "Ouvrir la liste"}>
+              <Menu className="w-6 h-6" />
+              {!isPlaylistOpen && medias.length > 0 && (
+                <span className="playlist-badge">{medias.length}</span>
               )}
             </button>
           )}
@@ -481,6 +574,6 @@ export default function TutoAstucePage() {
             )}
         </div>
       </div>
-    </Layout>
+    </Layout >
   );
 }

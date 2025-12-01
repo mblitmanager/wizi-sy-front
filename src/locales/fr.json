@@ -1,0 +1,52 @@
+{
+  "welcome": {
+    "title": "Bienvenue sur votre espace Wizi Learn",
+    "subtitle": "Votre plateforme d'apprentissage intelligente",
+    "description": "Wizi Learn est une plateforme d'apprentissage interactive dédiée à la montée en compétences. Découvrez nos formations, testez vos connaissances avec nos quiz et progressez à votre rythme.",
+    "discover": "Découvrir",
+    "discover_platform": "Découvrir la plateforme",
+    "explore": "Explorer",
+    "explore_myself": "Explorer par moi-même",
+    "features": {
+      "formations": "Formations interactives",
+      "quiz": "Quiz évaluatifs",
+      "progress": "Suivi de progression"
+    },
+    "new": "Nouveau !",
+    "ignore": "Ignorer"
+  }
+  ,
+  "common": {
+    "home": "Accueil",
+    "catalogue": "Catalogue",
+    "profile": "Profil",
+    "dashboard": "Tableau de bord",
+    "contact": "Contact",
+    "login": "Se connecter",
+    "logout": "Se déconnecter",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "search": "Rechercher",
+    "points": "points",
+    "see_more": "Voir plus",
+    "see_less": "Voir moins",
+    "user_default": "Utilisateur",
+    "email_unavailable": "Email non disponible",
+    "address_not_provided": "Adresse non renseignée",
+    "date_not_provided": "Non renseignée"
+  }
+  ,
+  "video": {
+    "zoom_in": "Zoom avant",
+    "zoom_out": "Zoom arrière",
+    "reset_zoom": "Réinitialiser le zoom",
+    "browser_not_supported": "Votre navigateur ne supporte pas la lecture de vidéos HTML5.",
+    "shortcuts": "Raccourcis : Espace (play/pause) • ← → (reculer/avancer) • ↑ ↓ (volume) • F (plein écran) • M (muet)",
+    "loading_prefs_error": "Erreur lors du chargement des préférences du lecteur :",
+    "saving_volume_error": "Erreur lors de l'enregistrement du volume :",
+    "saving_speed_error": "Erreur lors de l'enregistrement de la vitesse :",
+    "subtitle_fr_label": "Français"
+    ,
+    "mark_watched_error": "Erreur lors du marquage de la vidéo comme regardée:"
+  }
+}

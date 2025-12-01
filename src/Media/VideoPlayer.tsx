@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import Plyr from "plyr";
 import "plyr/dist/plyr.css";
 import { mediaService } from "@/services/MediaService";
@@ -14,6 +15,7 @@ interface Props {
 }
 
 const VITE_API_URL = import.meta.env.VITE_API_URL;
+const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
 
 export default function VideoPlayer({
   url,
@@ -23,13 +25,14 @@ export default function VideoPlayer({
   subtitleUrl,
   subtitleLanguage = 'fr',
 }: Props) {
+  const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<Plyr | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const hasMarkedAsWatched = useRef(false);
   const [zoomLevel, setZoomLevel] = useState(1);
 
-  const markAsWatched = async () => {
+  const markAsWatched = useCallback(async () => {
     if (hasMarkedAsWatched.current) return;
 
     try {
@@ -40,11 +43,11 @@ export default function VideoPlayer({
       );
     } catch (error) {
       console.error(
-        "Erreur lors du marquage de la vidéo comme regardée:",
+        t("video.mark_watched_error", { defaultValue: "Erreur lors du marquage de la vidéo comme regardée:" }),
         error
       );
     }
-  };
+  }, [mediaId, stagiaireId, t]);
 
   const handleZoomIn = () => {
     setZoomLevel((prev) => Math.min(prev + 0.25, 2));
@@ -129,7 +132,7 @@ export default function VideoPlayer({
       if (subtitleUrl) {
         const track = document.createElement('track');
         track.kind = 'captions';
-        track.label = subtitleLanguage === 'fr' ? 'Français' : subtitleLanguage;
+        track.label = subtitleLanguage === 'fr' ? t('video.subtitle_fr_label') : subtitleLanguage;
         track.srclang = subtitleLanguage;
         // Handle subtitle URL similarly to video URL
         if (subtitleUrl.startsWith('/api/')) {
@@ -171,7 +174,7 @@ export default function VideoPlayer({
           player.speed = parseFloat(savedSpeed);
         }
       } catch (error) {
-        console.error("Error loading player preferences:", error);
+        console.error(t("video.loading_prefs_error"), error);
       }
 
       // Save player preferences to localStorage
@@ -179,7 +182,7 @@ export default function VideoPlayer({
         try {
           localStorage.setItem("player-volume", player.volume.toString());
         } catch (error) {
-          console.error("Error saving volume:", error);
+          console.error(t("video.saving_volume_error"), error);
         }
       });
 
@@ -187,7 +190,7 @@ export default function VideoPlayer({
         try {
           localStorage.setItem("player-speed", player.speed.toString());
         } catch (error) {
-          console.error("Error saving speed:", error);
+          console.error(t("video.saving_speed_error"), error);
         }
       });
 
@@ -199,7 +202,7 @@ export default function VideoPlayer({
         }
       };
     }
-  }, [url, mediaId, stagiaireId, watchedThreshold, subtitleUrl, subtitleLanguage]);
+  }, [url, mediaId, stagiaireId, watchedThreshold, subtitleUrl, subtitleLanguage, markAsWatched, t]);
 
   return (
     <div className="relative max-w-full">
@@ -209,21 +212,21 @@ export default function VideoPlayer({
           <button
             onClick={handleZoomOut}
             className="p-2 bg-white/20 hover:bg-white/30 rounded text-white transition-colors"
-            title="Zoom arrière"
+            title={t('video.zoom_out')}
           >
             <ZoomOut className="w-5 h-5" />
           </button>
           <button
             onClick={handleResetZoom}
             className="px-3 py-2 bg-white/20 hover:bg-white/30 rounded text-white text-sm font-medium transition-colors"
-            title="Réinitialiser le zoom"
+            title={t('video.reset_zoom')}
           >
             {Math.round(zoomLevel * 100)}%
           </button>
           <button
             onClick={handleZoomIn}
             className="p-2 bg-white/20 hover:bg-white/30 rounded text-white transition-colors"
-            title="Zoom avant"
+            title={t('video.zoom_in')}
             disabled={zoomLevel >= 2}
           >
             <ZoomIn className="w-5 h-5" />
@@ -236,7 +239,7 @@ export default function VideoPlayer({
         <button
           onClick={handleZoomIn}
           className="p-1.5 bg-white/10 hover:bg-white/20 rounded text-white transition-colors disabled:opacity-50"
-          title="Zoom avant"
+          title={t('video.zoom_in')}
           disabled={zoomLevel >= 2}
         >
           <ZoomIn className="w-4 h-4" />
@@ -244,7 +247,7 @@ export default function VideoPlayer({
         <button
           onClick={handleZoomOut}
           className="p-1.5 bg-white/10 hover:bg-white/20 rounded text-white transition-colors disabled:opacity-50"
-          title="Zoom arrière"
+          title={t('video.zoom_out')}
           disabled={zoomLevel <= 1}
         >
           <ZoomOut className="w-4 h-4" />
@@ -269,14 +272,14 @@ export default function VideoPlayer({
           preload="metadata"
         >
           <source src={`${VITE_API_URL}/media/stream/${url}`} type="video/mp4" />
-          Votre navigateur ne supporte pas la lecture de vidéos HTML5.
+          {t('video.browser_not_supported')}
         </video>
       </div>
 
       {/* Keyboard Shortcuts Info */}
       <div className="mt-2 text-xs text-gray-500 text-center">
         <span className="inline-block">
-          Raccourcis : Espace (play/pause) • ← → (reculer/avancer) • ↑ ↓ (volume) • F (plein écran) • M (muet)
+          {t('video.shortcuts')}
         </span>
       </div>
     </div>

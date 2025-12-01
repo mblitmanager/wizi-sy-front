@@ -1,5 +1,6 @@
 import { Megaphone, X, ArrowRight, BookOpen, Star, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -36,6 +37,7 @@ export const WelcomeBanner = ({
   showDismissOption = true,
   variant = "default",
 }: WelcomeBannerProps) => {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -76,11 +78,11 @@ export const WelcomeBanner = ({
   const features = [
     {
       icon: BookOpen,
-      text: "Formations interactives",
+      text: t("welcome.features.formations"),
       color: colors.primaryBlue,
     },
-    { icon: Zap, text: "Quiz évaluatifs", color: colors.successGreen },
-    { icon: Star, text: "Suivi de progression", color: colors.warningOrange },
+    { icon: Zap, text: t("welcome.features.quiz"), color: colors.successGreen },
+    { icon: Star, text: t("welcome.features.progress"), color: colors.warningOrange },
   ];
 
   if (!isVisible) return null;
@@ -112,10 +114,10 @@ export const WelcomeBanner = ({
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="text-base font-semibold text-gray-900 truncate">
-              Bienvenue sur Wizi Learn
+              {t("welcome.title")}
             </h3>
             <p className="text-sm text-gray-600 truncate">
-              Votre plateforme d'apprentissage intelligente
+              {t("welcome.subtitle")}
             </p>
           </div>
         </div>
@@ -129,7 +131,7 @@ export const WelcomeBanner = ({
               background: colors.primaryBlue,
               color: colors.neutralWhite,
             }}>
-            Découvrir
+            {t("welcome.discover")}
           </Button>
           {showDismissOption && (
             <Button
@@ -140,7 +142,7 @@ export const WelcomeBanner = ({
                 borderColor: colors.primaryBlue,
                 color: colors.primaryBlue,
               }}>
-              Ignorer
+              {t("welcome.ignore")}
             </Button>
           )}
         </div>
@@ -214,13 +216,13 @@ export const WelcomeBanner = ({
 
             {/* Badge "Nouveau" pour la version featured */}
             {variant === "featured" && (
-              <Badge
+                <Badge
                 className="absolute -top-1 -right-1 md:-top-2 md:-right-2 px-2 py-0.5 md:px-2 md:py-1 text-xs font-bold border-0 animate-bounce"
                 style={{
                   backgroundColor: colors.warningOrange,
                   color: colors.neutralWhite,
                 }}>
-                Nouveau !
+                {t("welcome.new")}
               </Badge>
             )}
           </div>
@@ -229,21 +231,19 @@ export const WelcomeBanner = ({
           <div className="flex-1 min-w-0">
             <div className="mb-4 md:mb-6">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent leading-tight">
-                Bienvenue sur votre espace Wizi Learn
+                {t("welcome.title")}
               </h1>
 
               <p
                 className="text-base md:text-lg font-medium mb-2 md:mb-3 transition-colors duration-300"
                 style={{ color: colors.primaryBlueDark }}>
-                Votre plateforme d'apprentissage intelligente
+                {t("welcome.subtitle")}
               </p>
 
               <p
                 className="text-sm md:text-base leading-relaxed max-w-3xl transition-colors duration-300"
                 style={{ color: colors.neutralGreyDark }}>
-                Wizi Learn est une plateforme d'apprentissage interactive dédiée
-                à la montée en compétences. Découvrez nos formations, testez vos
-                connaissances avec nos quiz et progressez à votre rythme.
+                {t("welcome.description")}
               </p>
             </div>
 
@@ -281,7 +281,7 @@ export const WelcomeBanner = ({
                 }}>
                 <span className="flex items-center gap-1 md:gap-2 justify-center">
                   <span className="text-sm md:text-base">
-                    {isMobile ? "Découvrir" : "Découvrir la plateforme"}
+                    {isMobile ? t("welcome.discover") : t("welcome.discover_platform")}
                   </span>
                   <ArrowRight
                     size={isMobile ? 14 : 16}
@@ -301,7 +301,7 @@ export const WelcomeBanner = ({
                     backgroundColor: "transparent",
                   }}>
                   <span className="text-sm md:text-base">
-                    {isMobile ? "Explorer" : "Explorer par moi-même"}
+                    {isMobile ? t("welcome.explore") : t("welcome.explore_myself")}
                   </span>
                 </Button>
               )}
