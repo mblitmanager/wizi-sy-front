@@ -78,7 +78,8 @@
   min-height: 44px;
   padding: 0.5rem;
   display: inline-flex;
-  align-items: justify-center;
+  align-items: center;
+  justify-content: center;
   color: #4b5563;
   transition: all 0.2s;
   border-radius: 0.5rem;
