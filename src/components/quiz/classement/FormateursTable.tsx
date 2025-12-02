@@ -37,9 +37,9 @@ export function FormateursTable({ formateurs }: FormateursTableProps) {
                             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                 {formatName(formateur.prenom, formateur.nom)}
                             </span>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {/* <div className="text-xs text-gray-500 dark:text-gray-400">
                                 {formateur.formations?.length ?? 0} formation(s)
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                     <FormateurFormationsModal formateur={formateur} />

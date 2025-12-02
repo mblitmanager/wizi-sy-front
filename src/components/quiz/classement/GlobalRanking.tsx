@@ -210,7 +210,7 @@ export function GlobalRanking({
                         Stagiaire
                       </th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">
-                        Formateur & Formations
+                        Formateur
                       </th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">
                         Quiz

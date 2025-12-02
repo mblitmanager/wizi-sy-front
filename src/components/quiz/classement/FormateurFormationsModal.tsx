@@ -82,9 +82,9 @@ export function FormateurFormationsModal({ formateur }: FormateurFormationsModal
                 <Button
                     variant="outline"
                     size="sm"
-                    className="text-xs bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700 hover:text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300 dark:hover:text-blue-200 transition-all duration-200">
+                    className="text-xs bg-orange-50 hover:bg-orange-100 border-orange-200 text-orange-700 hover:text-orange-800 dark:bg-orange-900/20 dark:border-orange-800 dark:text-orange-300 dark:hover:text-orange-200 transition-all duration-200">
                     <BookOpen className="h-3 w-3 mr-1" />
-                    Voir formations
+                    Voir formation
                 </Button>
             </DialogTrigger>
             <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden p-0 border border-gray-200 dark:border-gray-700 shadow-xl">
@@ -96,12 +96,12 @@ export function FormateurFormationsModal({ formateur }: FormateurFormationsModal
                                 <BookOpen className="h-6 w-6" />
                             </div>
                             <DialogTitle className="text-2xl font-bold">
-                                Formations de {formateur.prenom} {formateur.nom.toUpperCase()}
+                                Formation proposée par {formateur.prenom} {formateur.nom.toUpperCase()}
                             </DialogTitle>
                         </div>
-                        <p className="text-blue-100 text-sm opacity-90">
+                        {/* <p className="text-blue-100 text-sm opacity-90">
                             Découvrez l'ensemble des formations dispensées par ce formateur
-                        </p>
+                        </p> */}
                     </DialogHeader>
                 </div>
 
@@ -183,10 +183,10 @@ export function FormateurFormationsModal({ formateur }: FormateurFormationsModal
                                                 <div className="flex items-center gap-2 text-sm">
                                                     <div
                                                         className={`w-3 h-3 rounded-full ${formation.statut === 1
-                                                                ? "bg-green-500"
-                                                                : formation.statut === 0
-                                                                    ? "bg-yellow-500"
-                                                                    : "bg-gray-500"
+                                                            ? "bg-green-500"
+                                                            : formation.statut === 0
+                                                                ? "bg-yellow-500"
+                                                                : "bg-gray-500"
                                                             }`}
                                                     />
                                                     <span
