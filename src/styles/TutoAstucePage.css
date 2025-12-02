@@ -24,6 +24,7 @@
   from {
     transform: translateY(-100%);
   }
+
   to {
     transform: translateY(0);
   }
@@ -77,8 +78,7 @@
   min-height: 44px;
   padding: 0.5rem;
   display: inline-flex;
-  align-items: center;
-  justify-center;
+  align-items: justify-center;
   color: #4b5563;
   transition: all 0.2s;
   border-radius: 0.5rem;
@@ -424,6 +424,7 @@
    TOUCH OPTIMIZATION
    ======================================== */
 @media (hover: none) and (pointer: coarse) {
+
   /* Ensure all touch targets are minimum 44x44px */
   button,
   select,
