@@ -1,39 +1,55 @@
 import React, { useState } from 'react';
+import { PlayCircle, CheckCircle } from 'lucide-react';
+import { Media } from '@/types/media';
 
 interface LessonTabsProps {
     children?: React.ReactNode;
+    mediaList?: Media[];
+    currentMediaId?: number;
+    onMediaSelect?: (media: Media, index: number) => void;
+    isWebView?: boolean;
 }
 
-export const LessonTabs: React.FC<LessonTabsProps> = ({ children }) => {
-    const [activeTab, setActiveTab] = useState<'notes' | 'resources'>('notes');
+export const LessonTabs: React.FC<LessonTabsProps> = ({
+    children,
+    mediaList = [],
+    currentMediaId,
+    onMediaSelect,
+    isWebView = false
+}) => {
+    const [activeTab, setActiveTab] = useState<'notes' | 'resources'>(
+        isWebView ? 'resources' : 'notes'
+    );
 
     return (
         <div className="space-y-4">
             {/* Tab buttons */}
             <div className="flex border-b border-gray-200">
-                <button
-                    onClick={() => setActiveTab('notes')}
-                    className={`px-4 py-2 text-sm font-medium transition-all relative ${activeTab === 'notes'
-                            ? 'text-[#00D563]'
+                {!isWebView && (
+                    <button
+                        onClick={() => setActiveTab('notes')}
+                        className={`px-4 py-2 text-sm font-medium transition-all relative ${activeTab === 'notes'
+                            ? 'text-orange-500'
                             : 'text-gray-600 hover:text-gray-900'
-                        }`}
-                >
-                    Notes de leçon
-                    {activeTab === 'notes' && (
-                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#00D563]" />
-                    )}
-                </button>
+                            }`}
+                    >
+                        Description
+                        {activeTab === 'notes' && (
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500" />
+                        )}
+                    </button>
+                )}
 
                 <button
                     onClick={() => setActiveTab('resources')}
                     className={`px-4 py-2 text-sm font-medium transition-all relative ${activeTab === 'resources'
-                            ? 'text-[#00D563]'
-                            : 'text-gray-600 hover:text-gray-900'
+                        ? 'text-orange-500'
+                        : 'text-gray-600 hover:text-gray-900'
                         }`}
                 >
-                    Ressources
+                    Liste de lectures
                     {activeTab === 'resources' && (
-                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#00D563]" />
+                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500" />
                     )}
                 </button>
             </div>
@@ -85,10 +101,52 @@ export const LessonTabs: React.FC<LessonTabsProps> = ({ children }) => {
                         )}
                     </div>
                 ) : (
-                    <div className="space-y-3 text-gray-700">
-                        <p className="text-sm">
-                            Les ressources et matériels supplémentaires apparaîtront ici.
-                        </p>
+                    <div className="space-y-2">
+                        {mediaList.length > 0 ? (
+                            <div className="max-h-96 overflow-y-auto space-y-2">
+                                {mediaList.map((media, index) => (
+                                    <div
+                                        key={media.id}
+                                        onClick={() => onMediaSelect?.(media, index)}
+                                        className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${currentMediaId === media.id
+                                            ? 'bg-orange-50 border-2 border-orange-500'
+                                            : 'bg-gray-50 border-2 border-transparent hover:bg-gray-100'
+                                            }`}
+                                    >
+                                        {/* Icon */}
+                                        <div className={`flex-shrink-0 ${currentMediaId === media.id ? 'text-orange-500' : 'text-gray-400'
+                                            }`}>
+                                            {currentMediaId === media.id ? (
+                                                <PlayCircle className="w-6 h-6" />
+                                            ) : (
+                                                <CheckCircle className="w-6 h-6" />
+                                            )}
+                                        </div>
+
+                                        {/* Info */}
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className={`text-sm font-medium truncate ${currentMediaId === media.id ? 'text-orange-600' : 'text-gray-900'
+                                                }`}>
+                                                {media.titre}
+                                            </h4>
+                                            {media.description && (
+                                                <p className="text-xs text-gray-500 truncate mt-0.5">
+                                                    {media.description.replace(/<[^>]*>/g, '').substring(0, 60)}...
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        {/* Number */}
+                                        <div className={`flex-shrink-0 text-xs font-medium ${currentMediaId === media.id ? 'text-orange-500' : 'text-gray-400'
+                                            }`}>
+                                            #{index + 1}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-gray-500">La liste de lectures apparaîtra ici.</p>
+                        )}
                     </div>
                 )}
             </div>

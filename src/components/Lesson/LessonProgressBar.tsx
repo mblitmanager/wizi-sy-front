@@ -14,12 +14,12 @@ export const LessonProgressBar: React.FC<LessonProgressBarProps> = ({
     return (
         <div className="space-y-2">
             {/* Progress label */}
-            <div className="flex items-center justify-between">
+            {/* <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">
                     Vous êtes à la leçon <span className="font-semibold">{current}</span> sur{' '}
                     <span className="font-semibold">{total}</span>
                 </span>
-            </div>
+            </div> */}
 
             {/* Module Progress */}
             <div className="space-y-1">
@@ -31,7 +31,7 @@ export const LessonProgressBar: React.FC<LessonProgressBarProps> = ({
                 {/* Progress bar */}
                 <div className="w-full bg-[#E6F9F0] rounded-full h-2 overflow-hidden">
                     <div
-                        className="bg-[#00D563] h-full rounded-full transition-all duration-500 ease-out"
+                        className="bg-orange-500 h-full rounded-full transition-all duration-500 ease-out"
                         style={{ width: `${percentage}%` }}
                     />
                 </div>

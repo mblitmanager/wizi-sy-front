@@ -2,6 +2,7 @@ import { Media } from "@/types/media";
 import VideoPlayer from "./VideoPlayer";
 import { Bookmark, FileText, Music, Play } from "lucide-react";
 import { stripHtmlTags } from "@/utils/UtilsFunction";
+import DOMPurify from "dompurify";
 
 const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
 const VITE_API_URL = import.meta.env.VITE_API_URL;
@@ -122,9 +123,9 @@ export default function MediaPlayer({
       <div className="p-4 sm:p-6 border-t border-gray-100">
         <div className="flex items-start justify-between gap-4 mb-3">
           <div className="min-w-0 flex-1">
-            <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 break-words">
+            {/* <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 break-words">
               {media.titre}
-            </h3>
+            </h3> */}
 
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
@@ -150,11 +151,12 @@ export default function MediaPlayer({
 
         {/* Description */}
         {showDescription && media.description && (
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
-              {stripHtmlTags(media.description)}
-            </p>
-          </div>
+          <div
+            className="text-sm text-gray-700"
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(media.description),
+            }}
+          />
         )}
       </div>
     </div>

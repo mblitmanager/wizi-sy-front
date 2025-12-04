@@ -4,6 +4,7 @@ import { MediaPlayer } from "@/Media";
 import { Layout } from "@/components/layout/Layout";
 import { Media } from "@/types/media";
 import { useUser } from "@/hooks/useAuth";
+import DOMPurify from "dompurify";
 import { useFormationStagiaire } from "@/use-case/hooks/stagiaire/useFormationStagiaire";
 import { useMediaByFormation } from "@/use-case/hooks/media/useMediaByFormation";
 
@@ -22,11 +23,12 @@ export default function TutoAstucePage() {
   const [activeCategory, setActiveCategory] = useState<"tutoriel" | "astuce">("tutoriel");
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isWebView, setIsWebView] = useState(window.innerWidth >= 1024);
 
   // Hooks
   const { user } = useUser();
   const { data: formations = [] } = useFormationStagiaire(user?.stagiaire.id ?? null);
-  const { data: mediasData, isLoading } = useMediaByFormation(selectedFormationId);
+  const { data: mediasData } = useMediaByFormation(selectedFormationId);
 
   // Derived data
   const formationsWithTutos = useMemo(() => formations.data ?? [], [formations]);
@@ -42,26 +44,37 @@ export default function TutoAstucePage() {
   }, [formationsWithTutos, selectedFormationId]);
 
   useEffect(() => {
-    if (medias.length > 0 && !selectedMedia) {
+    if (medias.length > 0) {
       setSelectedMedia(medias[0]);
       setCurrentIndex(0);
+    } else {
+      setSelectedMedia(null);
+      setCurrentIndex(0);
     }
-  }, [medias, selectedMedia]);
+  }, [medias]);
+
+  // Detect screen size for web/mobile view
+  useEffect(() => {
+    const handleResize = () => {
+      setIsWebView(window.innerWidth >= 1024);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Navigation handlers
   const handlePrevious = () => {
     if (currentIndex > 0) {
-      const newIndex = currentIndex - 1;
-      setCurrentIndex(newIndex);
-      setSelectedMedia(medias[newIndex]);
+      setCurrentIndex(currentIndex - 1);
+      setSelectedMedia(medias[currentIndex - 1]);
     }
   };
 
   const handleNext = () => {
     if (currentIndex < medias.length - 1) {
-      const newIndex = currentIndex + 1;
-      setCurrentIndex(newIndex);
-      setSelectedMedia(medias[newIndex]);
+      setCurrentIndex(currentIndex + 1);
+      setSelectedMedia(medias[currentIndex + 1]);
     }
   };
 
@@ -75,25 +88,55 @@ export default function TutoAstucePage() {
         <header className="lesson-header">
           <div className="lesson-header-content">
             {/* Logo */}
-            <div className="lesson-logo">aopia.fr</div>
+            {/* <div className="lesson-logo">aopia.fr</div> */}
 
-            {/* Breadcrumb */}
+            {/* Formation Selector */}
             <div className="flex-1 px-6">
-              <LessonBreadcrumb
-                courseName={formationsWithTutos[0]?.titre || "Formation"}
-                moduleName={activeCategory === "tutoriel" ? "Tutoriels" : "Astuces"}
-              />
+              <select
+                value={selectedFormationId || ""}
+                onChange={(e) => setSelectedFormationId(e.target.value)}
+                className="px-4 py-2 text-sm font-medium rounded-lg border border-orange-200 bg-white hover:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
+              >
+                <option value="">Sélectionner une formation</option>
+                {formationsWithTutos.map((formation) => (
+                  <option key={formation.id} value={formation.id}>
+                    {formation.titre}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Category Selector */}
+            <div className="flex gap-2 mx-4">
+              <button
+                onClick={() => setActiveCategory("tutoriel")}
+                className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${activeCategory === "tutoriel"
+                  ? "bg-orange-500 text-white shadow-sm"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+              >
+                Tutoriels ({tutoriels.length})
+              </button>
+              <button
+                onClick={() => setActiveCategory("astuce")}
+                className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${activeCategory === "astuce"
+                  ? "bg-amber-500 text-white shadow-sm"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+              >
+                Astuces ({astuces.length})
+              </button>
             </div>
 
             {/* Actions */}
-            <div className="lesson-header-actions">
+            {/* <div className="lesson-header-actions">
               <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                 <Search className="w-5 h-5 text-gray-600" />
               </button>
               <div className="w-8 h-8 bg-orange-400 rounded-full flex items-center justify-center">
                 <User className="w-5 h-5 text-white" />
               </div>
-            </div>
+            </div> */}
           </div>
         </header>
 
@@ -104,7 +147,7 @@ export default function TutoAstucePage() {
             <div className="lesson-video-section">
               {selectedMedia ? (
                 <div className="lesson-video-container">
-                  <MediaPlayer key={selectedMedia.id} media={selectedMedia} showDescription={false} />
+                  <MediaPlayer key={selectedMedia.id} media={selectedMedia} showDescription={isWebView} />
                 </div>
               ) : (
                 <div className="lesson-video-container flex items-center justify-center">
@@ -116,11 +159,11 @@ export default function TutoAstucePage() {
             {/* Right: Sidebar */}
             <div className="lesson-sidebar">
               {/* Progress indicator */}
-              <LessonProgressBar
+              {/* <LessonProgressBar
                 current={currentIndex + 1}
                 total={medias.length}
                 percentage={progress}
-              />
+              /> */}
 
               {/* Lesson title */}
               <h1 className="lesson-title">
@@ -130,11 +173,22 @@ export default function TutoAstucePage() {
               <div className="lesson-divider" />
 
               {/* Tabs */}
-              <LessonTabs>
-                {selectedMedia?.description && (
-                  <div className="text-sm text-gray-700">
-                    <p>{selectedMedia.description}</p>
-                  </div>
+              <LessonTabs
+                mediaList={medias}
+                currentMediaId={selectedMedia?.id}
+                isWebView={isWebView}
+                onMediaSelect={(media, index) => {
+                  setSelectedMedia(media);
+                  setCurrentIndex(index);
+                }}
+              >
+                {!isWebView && selectedMedia?.description && (
+                  <div
+                    className="text-sm text-gray-700"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(selectedMedia.description),
+                    }}
+                  />
                 )}
               </LessonTabs>
 
