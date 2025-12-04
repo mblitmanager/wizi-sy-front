@@ -1,116 +1,108 @@
-import { lazy } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { withSuspense } from "@/utils/withSuspense";
-
-// Routes avec code splitting
-export const routes = {
-  home: {
-    path: "/",
-    component: withSuspense(lazy(() => import("@/pages/LandingPage"))),
-    preload: () => import("@/pages/LandingPage"),
+component: withSuspense(lazy(() => import("@/pages/LandingPage"))),
+  preload: () => import("@/pages/LandingPage"),
   },
-  login: {
-    path: "/login",
+login: {
+  path: "/login",
     component: withSuspense(lazy(() => import("@/pages/Login"))),
-    preload: () => import("@/pages/Login"),
+      preload: () => import("@/pages/Login"),
   },
-  contact: {
-    path: "/contact",
+contact: {
+  path: "/contact",
     component: withSuspense(lazy(() => import("@/pages/Contact"))),
-    preload: () => import("@/pages/Contact"),
+      preload: () => import("@/pages/Contact"),
   },
-  quiz: {
-    path: "/quiz",
+quiz: {
+  path: "/quiz",
     component: withSuspense(lazy(() => import("@/pages/Quiz"))),
-    preload: () => import("@/pages/Quiz"),
+      preload: () => import("@/pages/Quiz"),
   },
-  formations: {
-    path: "/formations",
+formations: {
+  path: "/formations",
     component: withSuspense(lazy(() => import("@/pages/Formations"))),
-    preload: () => import("@/pages/Formations"),
+      preload: () => import("@/pages/Formations"),
   },
-  // NOUVELLES ROUTES DU PROFIL
-  profile: {
-    path: "/profile",
+// NOUVELLES ROUTES DU PROFIL
+profile: {
+  path: "/profile",
     component: withSuspense(lazy(() => import("@/pages/Profile"))),
-    preload: () => import("@/pages/Profile"),
+      preload: () => import("@/pages/Profile"),
   },
-  profileBadges: {
-    path: "/profile/badges",
+profileBadges: {
+  path: "/profile/badges",
     component: withSuspense(lazy(() => import("@/pages/ProfileBadgesPage"))),
-    preload: () => import("@/pages/ProfileBadgesPage"),
+      preload: () => import("@/pages/ProfileBadgesPage"),
   },
-  profileFormations: {
-    path: "/profile/formations",
+profileFormations: {
+  path: "/profile/formations",
     component: withSuspense(
       lazy(() => import("@/pages/ProfileFormationsPage"))
     ),
-    preload: () => import("@/pages/ProfileFormationsPage"),
+      preload: () => import("@/pages/ProfileFormationsPage"),
   },
-  profileStats: {
-    path: "/profile/statistiques",
+profileStats: {
+  path: "/profile/statistiques",
     component: withSuspense(lazy(() => import("@/pages/ProfileStatsPage"))),
-    preload: () => import("@/pages/ProfileStatsPage"),
+      preload: () => import("@/pages/ProfileStatsPage"),
   },
-  // ROUTES EXISTANTES
-  catalogue: {
-    path: "/catalogue",
+// ROUTES EXISTANTES
+catalogue: {
+  path: "/catalogue",
     component: withSuspense(lazy(() => import("@/pages/Catalogue"))),
-    preload: () => import("@/pages/Catalogue"),
+      preload: () => import("@/pages/Catalogue"),
   },
-  quizzes: {
-    // Ajout de la route quizzes manquante
-    path: "/quizzes",
+quizzes: {
+  // Ajout de la route quizzes manquante
+  path: "/quizzes",
     component: withSuspense(lazy(() => import("@/pages/Quizzes"))),
-    preload: () => import("@/pages/Quizzes"),
+      preload: () => import("@/pages/Quizzes"),
   },
-  classement: {
-    path: "/classement",
+classement: {
+  path: "/classement",
     component: withSuspense(lazy(() => import("@/pages/Classement"))),
-    preload: () => import("@/pages/Classement"),
+      preload: () => import("@/pages/Classement"),
   },
-  tutoriels: {
-    path: "/tuto-astuce",
+tutoriels: {
+  path: "/tuto-astuce",
     component: withSuspense(lazy(() => import("@/pages/TutoAstucePage"))),
-    preload: () => import("@/pages/TutoAstucePage"), // Correction: TutoAstucePage au lieu de -TutoAstucePage
+      preload: () => import("@/pages/TutoAstucePage"), // Correction: TutoAstucePage au lieu de -TutoAstucePage
   },
-  parrainage: {
-    path: "/parrainage",
+parrainage: {
+  path: "/parrainage",
     component: withSuspense(lazy(() => import("@/pages/Parrainage"))), // Correction: Parrainage au lieu de Parainage
-    preload: () => import("@/pages/Parrainage"),
+      preload: () => import("@/pages/Parrainage"),
   },
-  // ROUTES RESSOURCES UTILES
-  faq: {
-    path: "/faq",
+// ROUTES RESSOURCES UTILES
+faq: {
+  path: "/faq",
     component: withSuspense(lazy(() => import("@/pages/FAQPage"))),
-    preload: () => import("@/pages/FAQPage"),
+      preload: () => import("@/pages/FAQPage"),
   },
-  cgv: {
-    path: "/cgv",
+cgv: {
+  path: "/cgv",
     component: withSuspense(lazy(() => import("@/pages/CGVPage"))),
-    preload: () => import("@/pages/CGVPage"),
+      preload: () => import("@/pages/CGVPage"),
   },
-  contactSupport: {
-    path: "/contact-support",
+contactSupport: {
+  path: "/contact-support",
     component: withSuspense(lazy(() => import("@/pages/ContactSupportPage"))),
-    preload: () => import("@/pages/ContactSupportPage"),
+      preload: () => import("@/pages/ContactSupportPage"),
   },
-  manuel: {
-    path: "/manuel",
+manuel: {
+  path: "/manuel",
     component: withSuspense(lazy(() => import("@/pages/ManuelPage"))),
-    preload: () => import("@/pages/ManuelPage"),
+      preload: () => import("@/pages/ManuelPage"),
   },
-  remerciements: {
-    path: "/remerciements",
+remerciements: {
+  path: "/remerciements",
     component: withSuspense(lazy(() => import("@/pages/RemerciementsPage"))),
-    preload: () => import("@/pages/RemerciementsPage"),
+      preload: () => import("@/pages/RemerciementsPage"),
   },
-  politiqueConfidentialite: {
-    path: "/politique-confidentialite",
+politiqueConfidentialite: {
+  path: "/politique-confidentialite",
     component: withSuspense(
       lazy(() => import("@/pages/PolitiqueConfidentialitePage"))
     ),
-    preload: () => import("@/pages/PolitiqueConfidentialitePage"),
+      preload: () => import("@/pages/PolitiqueConfidentialitePage"),
   },
 };
 

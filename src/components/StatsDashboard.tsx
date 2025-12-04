@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TrendingUp, Users, DollarSign, Activity, Calendar, Download } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface Stats {
     signups?: number;
@@ -106,7 +107,12 @@ const StatsDashboard: React.FC = () => {
     }
 
     return (
-        <div className="mt-6 space-y-4">
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
+            className="mt-6 space-y-4"
+        >
             {/* Header with filters */}
             <Card className="border-orange-200 shadow-lg">
                 <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-t-lg">
@@ -216,7 +222,7 @@ const StatsDashboard: React.FC = () => {
                     </ResponsiveContainer>
                 </CardContent>
             </Card>
-        </div>
+        </motion.div>
     );
 };
 

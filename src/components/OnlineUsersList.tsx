@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Users, Search, Clock, Circle } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface User {
     id: string;
@@ -110,78 +111,84 @@ const OnlineUsersList: React.FC = () => {
     }
 
     return (
-        <Card className="border-orange-200 shadow-lg bg-gradient-to-br from-white to-orange-50/20 mt-6">
-            <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-t-lg">
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                    <CardTitle className="flex items-center gap-2">
-                        <Users className="w-5 h-5" />
-                        Utilisateurs en ligne
-                    </CardTitle>
-                    <div className="flex items-center gap-2 text-sm bg-white/20 px-3 py-1 rounded-full">
-                        <Circle className="w-2 h-2 fill-green-400 text-green-400 animate-pulse" />
-                        {users.length} en ligne
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+        >
+            <Card className="border-orange-200 shadow-lg bg-gradient-to-br from-white to-orange-50/20 mt-6">
+                <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-t-lg">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                        <CardTitle className="flex items-center gap-2">
+                            <Users className="w-5 h-5" />
+                            Utilisateurs en ligne
+                        </CardTitle>
+                        <div className="flex items-center gap-2 text-sm bg-white/20 px-3 py-1 rounded-full">
+                            <Circle className="w-2 h-2 fill-green-400 text-green-400 animate-pulse" />
+                            {users.length} en ligne
+                        </div>
                     </div>
-                </div>
-            </CardHeader>
-            <CardContent className="p-4">
-                {/* Search bar */}
-                <div className="relative mb-4">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <Input
-                        type="text"
-                        placeholder="Rechercher un utilisateur..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 border-orange-200 focus:border-orange-400"
-                    />
-                </div>
-
-                {/* Users list */}
-                {filteredUsers.length === 0 ? (
-                    <div className="text-center py-8">
-                        <Users className="w-12 h-12 text-gray-300 mx-auto mb-2" />
-                        <p className="text-gray-500">
-                            {searchTerm ? 'Aucun utilisateur trouvé' : 'Aucun utilisateur en ligne'}
-                        </p>
+                </CardHeader>
+                <CardContent className="p-4">
+                    {/* Search bar */}
+                    <div className="relative mb-4">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Input
+                            type="text"
+                            placeholder="Rechercher un utilisateur..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-10 border-orange-200 focus:border-orange-400"
+                        />
                     </div>
-                ) : (
-                    <div className="space-y-2 max-h-96 overflow-y-auto">
-                        {filteredUsers.map((user) => (
-                            <div
-                                key={user.id}
-                                className="flex items-center gap-3 p-3 bg-white hover:bg-orange-50 rounded-lg border border-orange-100 transition-colors cursor-pointer group"
-                            >
-                                {/* Avatar */}
-                                <Avatar className="w-10 h-10 border-2 border-orange-200 group-hover:border-orange-400 transition-colors">
-                                    <AvatarFallback className="bg-gradient-to-br from-orange-400 to-amber-500 text-white font-semibold">
-                                        {getInitials(user.name)}
-                                    </AvatarFallback>
-                                </Avatar>
 
-                                {/* User info */}
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2">
-                                        <p className="font-semibold text-gray-800 truncate">{user.name}</p>
-                                        <Circle className="w-2 h-2 fill-green-500 text-green-500 flex-shrink-0" />
-                                    </div>
-                                    <div className="flex items-center gap-2 mt-0.5">
-                                        {user.role && (
-                                            <Badge variant="outline" className={`text-xs ${getRoleBadgeColor(user.role)}`}>
-                                                {user.role}
-                                            </Badge>
-                                        )}
-                                        <div className="flex items-center gap-1 text-xs text-gray-500">
-                                            <Clock className="w-3 h-3" />
-                                            {formatDuration(user.onlineDuration)}
+                    {/* Users list */}
+                    {filteredUsers.length === 0 ? (
+                        <div className="text-center py-8">
+                            <Users className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                            <p className="text-gray-500">
+                                {searchTerm ? 'Aucun utilisateur trouvé' : 'Aucun utilisateur en ligne'}
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="space-y-2 max-h-96 overflow-y-auto">
+                            {filteredUsers.map((user) => (
+                                <div
+                                    key={user.id}
+                                    className="flex items-center gap-3 p-3 bg-white hover:bg-orange-50 rounded-lg border border-orange-100 transition-colors cursor-pointer group"
+                                >
+                                    {/* Avatar */}
+                                    <Avatar className="w-10 h-10 border-2 border-orange-200 group-hover:border-orange-400 transition-colors">
+                                        <AvatarFallback className="bg-gradient-to-br from-orange-400 to-amber-500 text-white font-semibold">
+                                            {getInitials(user.name)}
+                                        </AvatarFallback>
+                                    </Avatar>
+
+                                    {/* User info */}
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2">
+                                            <p className="font-semibold text-gray-800 truncate">{user.name}</p>
+                                            <Circle className="w-2 h-2 fill-green-500 text-green-500 flex-shrink-0" />
+                                        </div>
+                                        <div className="flex items-center gap-2 mt-0.5">
+                                            {user.role && (
+                                                <Badge variant="outline" className={`text-xs ${getRoleBadgeColor(user.role)}`}>
+                                                    {user.role}
+                                                </Badge>
+                                            )}
+                                            <div className="flex items-center gap-1 text-xs text-gray-500">
+                                                <Clock className="w-3 h-3" />
+                                                {formatDuration(user.onlineDuration)}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </CardContent>
-        </Card>
+                            ))}
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+        </motion.div>
     );
 };
 
