@@ -1,0 +1,31 @@
+/* TutoAstucePage: Correctif responsive 880-1024px */
+
+/* Force tablet (768-1023px) to use mobile single-column layout */
+@media (min-width: 768px) and (max-width: 1023px) {
+
+    /* Force single column grid */
+    .tuto-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+    }
+
+    .tuto-main-container {
+        padding: 1rem;
+    }
+
+    /* Ensure player section is visible and full width */
+    .tuto-player-section {
+        width: 100%;
+        display: block !important;
+    }
+
+    /* Hide desktop sidebar media list on tablet */
+    .tuto-grid>.tuto-media-list {
+        display: none !important;
+    }
+
+    /*Show mobile-style bottom media list */
+    .mobile-media-list-section {
+        display: block !important;
+    }
+}

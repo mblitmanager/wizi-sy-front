@@ -91,81 +91,63 @@ manuel: {
   path: "/manuel",
     component: withSuspense(lazy(() => import("@/pages/ManuelPage"))),
       preload: () => import("@/pages/ManuelPage"),
-  },
-remerciements: {
-  path: "/remerciements",
-    component: withSuspense(lazy(() => import("@/pages/RemerciementsPage"))),
-      preload: () => import("@/pages/RemerciementsPage"),
-  },
-politiqueConfidentialite: {
-  path: "/politique-confidentialite",
-    component: withSuspense(
-      lazy(() => import("@/pages/PolitiqueConfidentialitePage"))
-    ),
-      preload: () => import("@/pages/PolitiqueConfidentialitePage"),
-  },
-};
-
-// Type des routes
-export type RouteKey = keyof typeof routes;
-
 // Hook pour le prefetching des routes
 export function usePrefetch() {
-  const prefetch = (routeKey: RouteKey) => {
-    const route = routes[routeKey];
-    if (route.preload) {
-      route.preload();
-    }
-  };
+    const prefetch = (routeKey: RouteKey) => {
+      const route = routes[routeKey];
+      if (route.preload) {
+        route.preload();
+      }
+    };
 
-  return { prefetch };
-}
-
-// Hook pour la navigation optimisée
-export function useOptimizedNavigate() {
-  const navigate = useNavigate();
-  const { prefetch } = usePrefetch();
-
-  const navigateTo = (routeKey: RouteKey) => {
-    const route = routes[routeKey];
-    // Précharger la route avant la navigation
-    prefetch(routeKey);
-    navigate(route.path);
-  };
-
-  return navigateTo;
-}
-
-// Hook pour le prefetching automatique des routes liées
-export function useAutoPrefetch() {
-  const location = useLocation();
-  const { prefetch } = usePrefetch();
-
-  // Mapping des routes liées qui devraient être préchargées
-  const relatedRoutes: Record<string, RouteKey[]> = {
-    "/": ["login", "contact", "profile", "catalogue"],
-    "/login": ["home", "profile"],
-    "/contact": ["home"],
-    "/quiz": ["formations"],
-    "/formations": ["quiz", "catalogue"],
-    "/profile": [
-      "profileBadges",
-      "profileFormations",
-      "profileStats",
-      "catalogue",
-    ],
-    "/profile/badges": ["profile", "profileFormations", "profileStats"],
-    "/profile/formations": ["profile", "profileBadges", "catalogue"],
-    "/profile/statistiques": ["profile", "profileBadges"],
-    "/catalogue": ["profileFormations", "formations"],
-    "/quizzes": ["profileStats", "quiz"],
-    "/classement": ["profileStats"],
-    "/tuto-astuce": ["formations"],
-    "/parrainage": ["profile"],
-  };
-
-  const currentRelatedRoutes = relatedRoutes[location.pathname];
-  if (currentRelatedRoutes) {
-    currentRelatedRoutes.forEach(prefetch);
+    return { prefetch };
   }
-}
+
+  // Hook pour la navigation optimisée
+  export function useOptimizedNavigate() {
+    const navigate = useNavigate();
+    const { prefetch } = usePrefetch();
+
+    const navigateTo = (routeKey: RouteKey) => {
+      const route = routes[routeKey];
+      // Précharger la route avant la navigation
+      prefetch(routeKey);
+      navigate(route.path);
+    };
+
+    return navigateTo;
+  }
+
+  // Hook pour le prefetching automatique des routes liées
+  export function useAutoPrefetch() {
+    const location = useLocation();
+    const { prefetch } = usePrefetch();
+
+    // Mapping des routes liées qui devraient être préchargées
+    const relatedRoutes: Record<string, RouteKey[]> = {
+      "/": ["login", "contact", "profile", "catalogue"],
+      "/login": ["home", "profile"],
+      "/contact": ["home"],
+      "/quiz": ["formations"],
+      "/formations": ["quiz", "catalogue"],
+      "/profile": [
+        "profileBadges",
+        "profileFormations",
+        "profileStats",
+        "catalogue",
+      ],
+      "/profile/badges": ["profile", "profileFormations", "profileStats"],
+      "/profile/formations": ["profile", "profileBadges", "catalogue"],
+      "/profile/statistiques": ["profile", "profileBadges"],
+      "/catalogue": ["profileFormations", "formations"],
+      "/quizzes": ["profileStats", "quiz"],
+      "/classement": ["profileStats"],
+      "/tuto-astuce": ["formations"],
+      "/parrainage": ["profile"],
+    };
+
+    const currentRelatedRoutes = relatedRoutes[location.pathname];
+    if (currentRelatedRoutes) {
+      currentRelatedRoutes.forEach(prefetch);
+    }
+  }
