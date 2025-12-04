@@ -22,7 +22,13 @@ import { useNavigate } from "react-router-dom";
 
 import apiClient from "@/lib/api-client";
 import axios from "axios";
+import EmailSender from "@/components/EmailSender";
+import NotificationSender from "@/components/NotificationSender";
+import StatsDashboard from "@/components/StatsDashboard";
+import OnlineUsersList from "@/components/OnlineUsersList";
 import { toast } from "@/hooks/use-toast";
+import { getRolePermissions } from "@/utils/rolePermissions";
+import NotificationHistory from "@/components/NotificationHistory";
 
 import { categoryService } from "@/services/quiz/CategoryService";
 import { catalogueFormationApi } from "@/services/api";
@@ -94,6 +100,9 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
   const isIOS =
     typeof window !== "undefined" &&
     /iPad|iPhone|iPod/.test(window.navigator.userAgent);
+
+  // Get user role permissions
+  const permissions = getRolePermissions(user?.role);
   const navigate = useNavigate();
 
   // Resume quiz functionality
@@ -671,6 +680,12 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
           <ProgressCard user={user} />
         </div>
+        {/* New Feature Components - Role-based visibility */}
+        {permissions.canSendEmails && <EmailSender />}
+        {permissions.canSendNotifications && <NotificationSender />}
+        {permissions.canViewStats && <StatsDashboard />}
+        {permissions.canViewOnlineUsers && <OnlineUsersList />}
+        {(permissions.canSendEmails || permissions.canSendNotifications) && <NotificationHistory />}
       </div>
     </Layout>
   );
