@@ -67,6 +67,7 @@ export function Classement() {
   const [infoTitle, setInfoTitle] = useState<string | null>(null);
   const [infoContent, setInfoContent] = useState<React.ReactNode>(null);
   const [hideProfileStats, setHideProfileStats] = useState<boolean>(false);
+  const [period, setPeriod] = useState<'week' | 'month' | 'all'>('all');
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -92,10 +93,10 @@ export function Classement() {
       }
     };
 
-    const fetchGlobalRanking = async () => {
+    const fetchGlobalRanking = async (selectedPeriod: 'week' | 'month' | 'all' = 'all') => {
       try {
         const ranking: GlobalClassementApiItem[] =
-          await quizSubmissionService.getGlobalClassement();
+          await quizSubmissionService.getGlobalClassement(selectedPeriod);
 
         console.log("📊 Données brutes du classement:", ranking); // Pour debug
 
@@ -159,22 +160,22 @@ export function Classement() {
   const statsFallback =
     quizHistory && quizHistory.length > 0
       ? {
-          totalScore: userEntry?.score || 0,
-          totalQuizzes: userEntry?.quizCount || 0,
-          averageScore:
-            quizHistory.reduce((acc: number, q: QuizHistoryType) => {
-              const total = (q as QuizHistoryType).totalQuestions ?? 0;
-              const correct = (q as QuizHistoryType).correctAnswers ?? 0;
-              return (
-                acc + (total > 0 ? Math.round((correct / total) * 100) : 0)
-              );
-            }, 0) / quizHistory.length,
-        }
+        totalScore: userEntry?.score || 0,
+        totalQuizzes: userEntry?.quizCount || 0,
+        averageScore:
+          quizHistory.reduce((acc: number, q: QuizHistoryType) => {
+            const total = (q as QuizHistoryType).totalQuestions ?? 0;
+            const correct = (q as QuizHistoryType).correctAnswers ?? 0;
+            return (
+              acc + (total > 0 ? Math.round((correct / total) * 100) : 0)
+            );
+          }, 0) / quizHistory.length,
+      }
       : {
-          totalScore: 0,
-          totalQuizzes: 0,
-          averageScore: 0,
-        };
+        totalScore: 0,
+        totalQuizzes: 0,
+        averageScore: 0,
+      };
 
   const totalQuizzes =
     quizStats?.totalQuizzes ?? statsFallback.totalQuizzes ?? 0;
@@ -204,11 +205,10 @@ export function Classement() {
       {/* Statistiques synthétiques en tête */}
       {!hideProfileStats ? (
         <div
-          className={`w-full mt-4 md:mt-0 relative overflow-hidden transform transition-all duration-200 ease-in-out ${
-            hideProfileStats
+          className={`w-full mt-4 md:mt-0 relative overflow-hidden transform transition-all duration-200 ease-in-out ${hideProfileStats
               ? "max-h-0 opacity-0 -translate-y-2"
               : "max-h-[800px] opacity-100 translate-y-0"
-          }`}
+            }`}
           aria-hidden={hideProfileStats}>
           <button
             aria-label="Masquer les statistiques"
@@ -254,8 +254,8 @@ export function Classement() {
           tabParam === "history"
             ? "history"
             : tabParam === "stats"
-            ? "stats"
-            : "ranking"
+              ? "stats"
+              : "ranking"
         }
         className="mt-6">
         <TabsList className="grid grid-cols-3 gap-2 rounded-lg bg-gray-100 shadow-sm">
@@ -282,6 +282,12 @@ export function Classement() {
               ranking={globalRanking}
               loading={loading.ranking}
               currentUserId={profile?.stagiaire?.id?.toString()}
+              period={period}
+              onPeriodChange={(newPeriod) => {
+                setPeriod(newPeriod);
+                setLoading((prev) => ({ ...prev, ranking: true }));
+                fetchGlobalRanking(newPeriod);
+              }}
             />
           </div>
         </TabsContent>
@@ -441,8 +447,8 @@ export function Classement() {
                       : 0;
                   const avg =
                     typeof data.averageScore === "number" &&
-                    data.averageScore !== null &&
-                    data.averageScore >= 0
+                      data.averageScore !== null &&
+                      data.averageScore >= 0
                       ? data.averageScore
                       : 0.0;
                   const percentage =
@@ -568,8 +574,8 @@ function StatsCard({
     icon === "assignment_turned_in"
       ? "M19 3H5c-1.1 0-2 .9-2 2v14l4-4h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
       : icon === "star_rate"
-      ? "M12 17.27L18.18 21 16.54 13.97 22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
-      : "M12 2C8.13 2 5 5.13 5 9c0 3.87 7 13 7 13s7-9.13 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z";
+        ? "M12 17.27L18.18 21 16.54 13.97 22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
+        : "M12 2C8.13 2 5 5.13 5 9c0 3.87 7 13 7 13s7-9.13 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z";
   return (
     <button
       onClick={onClick}

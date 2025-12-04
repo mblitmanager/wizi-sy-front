@@ -15,6 +15,9 @@ import {
   ChevronDown,
   Award,
   BarChart3,
+  LayoutDashboard,
+  Users as UsersIcon,
+  Briefcase,
 } from "lucide-react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "@/hooks/useAuth";
@@ -32,7 +35,7 @@ export default function MainNav({
 }: MainNavProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout } = useUser();
+  const { logout, user } = useUser();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   // Navigation principale
@@ -143,23 +146,43 @@ export default function MainNav({
     },
   ];
 
+  // Dashboard navigation (role-based)
+  const dashboardNavItems = [
+    ...(user?.role === 'admin' ? [{
+      title: "Statistiques Admin",
+      href: "/admin/statistics",
+      icon: LayoutDashboard,
+      color: "text-yellow-600",
+    }] : []),
+    ...(user?.role === 'formateur' ? [{
+      title: "Dashboard Formateur",
+      href: "/formateur/dashboard",
+      icon: UsersIcon,
+      color: "text-yellow-600",
+    }] : []),
+    ...(user?.role === 'commercial' ? [{
+      title: "Dashboard Commercial",
+      href: "/commercial/dashboard",
+      icon: Briefcase,
+      color: "text-yellow-600",
+    }] : []),
+  ];
+
   const NavItem = ({ item }: { item: (typeof mainNavItems)[0] }) => (
     <NavLink
       to={item.href}
       onClick={onItemClick}
       className={({ isActive }) =>
-        `group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 border-l-4 ${
-          isActive
-            ? "bg-yellow-50 border-yellow-500 text-yellow-700 font-semibold shadow-sm"
-            : "border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+        `group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 border-l-4 ${isActive
+          ? "bg-yellow-50 border-yellow-500 text-yellow-700 font-semibold shadow-sm"
+          : "border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300"
         }`
       }>
       {({ isActive }) => (
         <>
           <div
-            className={`p-2 rounded-lg ${
-              isActive ? "bg-yellow-100" : "bg-gray-100"
-            }`}>
+            className={`p-2 rounded-lg ${isActive ? "bg-yellow-100" : "bg-gray-100"
+              }`}>
             <item.icon
               className={`w-5 h-5 ${isActive ? "text-yellow-600" : item.color}`}
             />
@@ -178,18 +201,16 @@ export default function MainNav({
       to={item.href}
       onClick={onItemClick}
       className={({ isActive }) =>
-        `group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 border-l-4 ${
-          isActive
-            ? "bg-yellow-50 border-yellow-500 text-yellow-700 font-semibold shadow-sm"
-            : "border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+        `group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 border-l-4 ${isActive
+          ? "bg-yellow-50 border-yellow-500 text-yellow-700 font-semibold shadow-sm"
+          : "border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300"
         }`
       }>
       {({ isActive }) => (
         <>
           <div
-            className={`p-2 rounded-lg ${
-              isActive ? "bg-yellow-100" : "bg-gray-100"
-            }`}>
+            className={`p-2 rounded-lg ${isActive ? "bg-yellow-100" : "bg-gray-100"
+              }`}>
             <item.icon
               className={`w-5 h-5 ${isActive ? "text-yellow-600" : item.color}`}
             />
@@ -208,18 +229,16 @@ export default function MainNav({
       to={item.href}
       onClick={onItemClick}
       className={({ isActive }) =>
-        `group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 border-l-4 ${
-          isActive
-            ? "bg-yellow-50 border-yellow-500 text-yellow-700 font-semibold shadow-sm"
-            : "border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300"
+        `group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 border-l-4 ${isActive
+          ? "bg-yellow-50 border-yellow-500 text-yellow-700 font-semibold shadow-sm"
+          : "border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300"
         }`
       }>
       {({ isActive }) => (
         <>
           <div
-            className={`p-2 rounded-lg ${
-              isActive ? "bg-yellow-100" : "bg-gray-100"
-            }`}>
+            className={`p-2 rounded-lg ${isActive ? "bg-yellow-100" : "bg-gray-100"
+              }`}>
             <item.icon
               className={`w-5 h-5 ${isActive ? "text-yellow-600" : item.color}`}
             />
@@ -239,14 +258,14 @@ export default function MainNav({
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 space-y-6 h-[600px]">
           {/* Navigation principale */}
-            <div className="space-y-1 hidden md:block">
+          <div className="space-y-1 hidden md:block">
             <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
               Navigation
             </h3>
             {mainNavItems.map((item) => (
               <NavItem key={item.href} item={item} />
             ))}
-            </div>
+          </div>
 
           {/* Section Profil - Tous les items au même niveau */}
           <div className="space-y-1">
@@ -257,6 +276,18 @@ export default function MainNav({
               <ProfileNavItem key={item.href} item={item} />
             ))}
           </div>
+
+          {/* Section Dashboard (role-based) */}
+          {dashboardNavItems.length > 0 && (
+            <div className="space-y-1">
+              <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                Dashboard
+              </h3>
+              {dashboardNavItems.map((item) => (
+                <ProfileNavItem key={item.href} item={item} />
+              ))}
+            </div>
+          )}
 
           {/* Section Aide & Information */}
           <div className="space-y-1">

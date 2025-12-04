@@ -676,10 +676,7 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
             </div>
           ))}
 
-        {/* Progress cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
-          <ProgressCard user={user} />
-        </div>
+
         {/* New Feature Components - Role-based visibility */}
         {permissions.canSendEmails && <EmailSender />}
         {permissions.canSendNotifications && <NotificationSender />}

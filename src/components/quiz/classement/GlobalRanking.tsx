@@ -20,6 +20,8 @@ export interface GlobalRankingProps {
   ranking?: LeaderboardEntry[];
   loading?: boolean;
   currentUserId?: string;
+  period?: 'week' | 'month' | 'all';
+  onPeriodChange?: (period: 'week' | 'month' | 'all') => void;
 }
 
 type SortKey = "rang" | "name" | "quizCount" | "averageScore" | "score";
@@ -29,6 +31,8 @@ export function GlobalRanking({
   ranking = [],
   loading = false,
   currentUserId,
+  period = 'all',
+  onPeriodChange,
 }: GlobalRankingProps) {
   const [sortKey, setSortKey] = useState<SortKey>("rang");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
@@ -119,20 +123,61 @@ export function GlobalRanking({
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
       {/* Header */}
       <div className="p-4 sm:p-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-              <Trophy className="h-6 w-6 text-yellow-500" />
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                <Trophy className="h-6 w-6 text-yellow-500" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                  Classement Général
+                </h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Découvrez les meilleurs stagiaires et leurs formateurs
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                Classement Général
-              </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Découvrez les meilleurs stagiaires et leurs formateurs
-              </p>
+
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="podium-switch"
+                checked={showPodium}
+                onCheckedChange={setShowPodium}
+              />
+              <Label htmlFor="podium-switch">Afficher le podium</Label>
             </div>
           </div>
+
+          {/* Period Filter */}
+          {onPeriodChange && (
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => onPeriodChange('week')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${period === 'week'
+                    ? 'bg-orange-500 text-white shadow-md'
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
+                  }`}>
+                Cette semaine
+              </button>
+              <button
+                onClick={() => onPeriodChange('month')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${period === 'month'
+                    ? 'bg-orange-500 text-white shadow-md'
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
+                  }`}>
+                Ce mois
+              </button>
+              <button
+                onClick={() => onPeriodChange('all')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${period === 'all'
+                    ? 'bg-orange-500 text-white shadow-md'
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
+                  }`}>
+                Depuis toujours
+              </button>
+            </div>
+          )}
 
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -144,14 +189,7 @@ export function GlobalRanking({
               className="pl-10 pr-4 py-2 w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white"
             />
           </div>
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="podium-switch"
-              checked={showPodium}
-              onCheckedChange={setShowPodium}
-            />
-            <Label htmlFor="podium-switch">Afficher le podium</Label>
-          </div>
+
         </div>
       </div>
 

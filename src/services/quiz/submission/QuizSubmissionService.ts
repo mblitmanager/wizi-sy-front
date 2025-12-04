@@ -34,8 +34,8 @@ export class QuizSubmissionService {
     return rankingService.getClassement(quizId);
   }
 
-  async getGlobalClassement(): Promise<any> {
-    return rankingService.getGlobalClassement();
+  async getGlobalClassement(period: 'week' | 'month' | 'all' = 'all'): Promise<any> {
+    return rankingService.getGlobalClassement(period);
   }
 
   async getStagiaireProfile(): Promise<any> {

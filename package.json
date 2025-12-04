@@ -81,7 +81,7 @@
     "react-router-dom": "^6.26.2",
     "react-swipeable": "^7.0.2",
     "react-window": "^1.8.11",
-    "recharts": "^2.12.7",
+    "recharts": "^2.15.4",
     "socket.io-client": "^4.8.1",
     "sonner": "^1.5.0",
     "swiper": "^11.2.8",

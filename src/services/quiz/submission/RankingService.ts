@@ -21,8 +21,10 @@ export class RankingService {
     }
   }
 
-  async getGlobalClassement(): Promise<any> {
-    const response = await apiClient.get('/quiz/classement/global');
+  async getGlobalClassement(period: 'week' | 'month' | 'all' = 'all'): Promise<any> {
+    const response = await apiClient.get('/quiz/classement/global', {
+      params: { period }
+    });
     return response.data;
   }
 }
