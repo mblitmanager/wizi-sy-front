@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import { useUser } from "@/hooks/useAuth";
 const logo = "/logons.png";
 import { messaging, getToken } from "@/firebase-fcm";
@@ -19,6 +19,7 @@ import wiziLogo from "@/assets/logo.png";
 
 const Login = () => {
   const { user, login, isLoading } = useUser();
+  const location = useLocation();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
@@ -71,8 +72,11 @@ const Login = () => {
   };
 
   // Redirect if already logged in
+  // Si l'utilisateur vient d'une page protégée, retourner à cette page
+  // Sinon, aller à la page d'accueil
   if (user || localStorage.getItem("token")) {
-    return <Navigate to="/" />;
+    const from = (location.state as any)?.from?.pathname || "/";
+    return <Navigate to={from} replace />;
   }
 
   return (
