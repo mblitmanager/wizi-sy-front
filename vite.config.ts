@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+import fs from "fs";
 
 export default defineConfig(({ mode }) => {
   if (mode === "development") {
@@ -40,7 +41,22 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
-    plugins: [react(), componentTagger()],
+    plugins: [
+      react(),
+      componentTagger(),
+      // Plugin pour copier .htaccess dans dist
+      {
+        name: 'copy-htaccess',
+        closeBundle() {
+          const htaccessPath = path.resolve(__dirname, '.htaccess');
+          const distPath = path.resolve(__dirname, 'dist', '.htaccess');
+          if (fs.existsSync(htaccessPath)) {
+            fs.copyFileSync(htaccessPath, distPath);
+            console.log('✅ .htaccess copied to dist/');
+          }
+        }
+      }
+    ],
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
