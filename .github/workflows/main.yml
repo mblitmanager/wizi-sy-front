@@ -22,12 +22,7 @@ jobs:
 
     - name: Build project
       run: npm run build
-
-    - name: Create views directory structure
-      run: |
-        mkdir -p temp_views
-        cp dist/index.html temp_views/stagiaire.blade.php
-
+      
     - name: Deploy public assets via SSH (rsync)
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -36,13 +31,12 @@ jobs:
       run: |
         echo "$SSH_PRIVATE_KEY" > private_key
         chmod 600 private_key
-
         echo "➤ Cleaning old index assets on server..."
-        echo "ssh -i private_key -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST "rm -f ~/www/public/assets/index-*.css ~/www/public/assets/index-*.js ~/www/public/assets/vendor-*.js""
+        echo "ssh -i private_key -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST "rm -f ~/www/*"
         echo "✓ Old assets cleaned"
 
         echo "➤ Deploying new assets..."
-        rsync -avz --exclude='index.html' -e "ssh -i private_key -o StrictHostKeyChecking=no" ./dist/ $REMOTE_USER@$REMOTE_HOST:./www/public/
+        rsync -avz -e "ssh -i private_key -o StrictHostKeyChecking=no" ./dist/ $REMOTE_USER@$REMOTE_HOST:./www/
         echo "✓ Assets deployed"
 
         rm -f private_key
