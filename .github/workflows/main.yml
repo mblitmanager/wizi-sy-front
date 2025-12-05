@@ -40,18 +40,6 @@ jobs:
         echo "✓ Assets deployed"
 
         rm -f private_key
-
-    - name: Deploy Blade template via SSH (stagiaire.blade.php)
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        REMOTE_HOST: ${{ secrets.SSH_HOST }}
-        REMOTE_USER: ${{ secrets.SSH_USER }}
-      run: |
-        echo "$SSH_PRIVATE_KEY" > private_key
-        chmod 600 private_key
-        rsync -avz -e "ssh -i private_key -o StrictHostKeyChecking=no" ./temp_views/stagiaire.blade.php $REMOTE_USER@$REMOTE_HOST:./www/resources/views/
-        rm -f private_key
-
     
     - name: Clean temporary files
       run: rm -rf temp_views
