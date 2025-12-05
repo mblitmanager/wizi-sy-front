@@ -32,7 +32,7 @@ jobs:
         echo "$SSH_PRIVATE_KEY" > private_key
         chmod 600 private_key
         echo "➤ Cleaning old index assets on server..."
-        echo "ssh -i private_key -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST "rm -f ~/www/*"
+        echo "ssh -i private_key -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST "rm -Rf ~/www/*"
         echo "✓ Old assets cleaned"
 
         echo "➤ Deploying new assets..."
