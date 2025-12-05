@@ -167,6 +167,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       // 🔥 NETTOYAGE SÉLECTIF - supprime seulement vos clés
       const appKeys = [
         "token",
+        "refresh_token", // Add refresh_token cleanup
         "lastAchievementsCheckDate",
         "lastStreakModalDate",
         "wizi_display_settings_v1",
@@ -271,10 +272,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
         }
       );
 
-      const { token: newToken, user: userData } = response.data;
+      const { token: newToken, refresh_token, user: userData } = response.data;
 
       startTransition(() => {
         localStorage.setItem("token", newToken);
+        localStorage.setItem("refresh_token", refresh_token); // Save refresh token
         setUser(userData);
         setToken(newToken);
         setError(null);

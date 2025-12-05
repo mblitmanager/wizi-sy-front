@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfileStats } from "./classement/ProfileStats";
@@ -69,6 +69,38 @@ export function Classement() {
   const [hideProfileStats, setHideProfileStats] = useState<boolean>(false);
   const [period, setPeriod] = useState<'week' | 'month' | 'all'>('all');
 
+  // fetchGlobalRanking extracted with useCallback so it can be used outside useEffect  
+  const fetchGlobalRanking = useCallback(async (selectedPeriod: 'week' | 'month' | 'all' = 'all') => {
+    try {
+      const ranking: GlobalClassementApiItem[] =
+        await quizSubmissionService.getGlobalClassement(selectedPeriod);
+
+      console.log("📊 Données brutes du classement:", ranking); // Pour debug
+
+      const mappedRanking: LeaderboardEntry[] = (ranking || []).map(
+        (item) => ({
+          id: Number(item.stagiaire.id),
+          firstname: item.stagiaire.prenom,
+          name: item.stagiaire.nom,
+          image: item.stagiaire.image || undefined,
+          avatar: item.stagiaire.image || undefined,
+          score: item.totalPoints,
+          quizCount: item.quizCount,
+          averageScore: item.averageScore,
+          rang: item.rang,
+          formateurs: item.formateurs || [],
+        })
+      );
+
+      console.log("🎯 Classement mappé avec formateurs:", mappedRanking); // Pour debug
+      setGlobalRanking(mappedRanking);
+    } catch (error) {
+      console.error("Error fetching global ranking:", error);
+    } finally {
+      setLoading((prev) => ({ ...prev, ranking: false }));
+    }
+  }, []);
+
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
@@ -90,37 +122,6 @@ export function Classement() {
         console.error("Error fetching quiz stats:", error);
       } finally {
         setLoading((prev) => ({ ...prev, stats: false }));
-      }
-    };
-
-    const fetchGlobalRanking = async (selectedPeriod: 'week' | 'month' | 'all' = 'all') => {
-      try {
-        const ranking: GlobalClassementApiItem[] =
-          await quizSubmissionService.getGlobalClassement(selectedPeriod);
-
-        console.log("📊 Données brutes du classement:", ranking); // Pour debug
-
-        const mappedRanking: LeaderboardEntry[] = (ranking || []).map(
-          (item) => ({
-            id: Number(item.stagiaire.id),
-            firstname: item.stagiaire.prenom,
-            name: item.stagiaire.nom,
-            image: item.stagiaire.image || undefined,
-            avatar: item.stagiaire.image || undefined,
-            score: item.totalPoints,
-            quizCount: item.quizCount,
-            averageScore: item.averageScore,
-            rang: item.rang,
-            formateurs: item.formateurs || [],
-          })
-        );
-
-        console.log("🎯 Classement mappé avec formateurs:", mappedRanking); // Pour debug
-        setGlobalRanking(mappedRanking);
-      } catch (error) {
-        console.error("Error fetching global ranking:", error);
-      } finally {
-        setLoading((prev) => ({ ...prev, ranking: false }));
       }
     };
 
@@ -151,7 +152,7 @@ export function Classement() {
       // localStorage may be unavailable (private mode) — keep app usable
       console.warn("Could not read hideProfileStats from localStorage", e);
     }
-  }, []);
+  }, [fetchGlobalRanking]);
 
   // Calcul des stats utilisateur (fallback local)
   const userEntry = globalRanking.find(
@@ -206,8 +207,8 @@ export function Classement() {
       {!hideProfileStats ? (
         <div
           className={`w-full mt-4 md:mt-0 relative overflow-hidden transform transition-all duration-200 ease-in-out ${hideProfileStats
-              ? "max-h-0 opacity-0 -translate-y-2"
-              : "max-h-[800px] opacity-100 translate-y-0"
+            ? "max-h-0 opacity-0 -translate-y-2"
+            : "max-h-[800px] opacity-100 translate-y-0"
             }`}
           aria-hidden={hideProfileStats}>
           <button

@@ -1,168 +1,181 @@
-import { CatalogueFormationResponse } from "@/types/stagiaire";
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
-const VITE_API_URL =
-  import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
+const VITE_API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
 export const api = axios.create({
   baseURL: VITE_API_URL,
   headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
   },
 });
 
-// Optional token provider: a function returning the current auth token (string | null).
-// If not set, we fall back to reading from localStorage to preserve existing behaviour.
+// Token provider for reading tokens
 let tokenProvider: (() => string | null | undefined) | null = null;
 
 export function setTokenProvider(provider: () => string | null | undefined) {
   tokenProvider = provider;
 }
 
-api.interceptors.request.use((config) => {
-  try {
-    const token = tokenProvider
-      ? tokenProvider()
-      : localStorage.getItem("token");
-    if (token) {
-      config.headers = config.headers || {};
-      (config.headers as Record<string, string>)[
-        "Authorization"
-      ] = `Bearer ${token}`;
+// Refresh token state
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (value?: unknown) => void;
+  reject: (reason?: any) => void;
+}> = [];
+
+const processQueue = (error: any = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve();
     }
-  } catch (err) {
-    // If reading token fails, omit Authorization header (safe fallback)
-    console.warn("Error reading auth token for API request interceptor", err);
+  });
+  failedQueue = [];
+};
+
+// Request interceptor - Add Authorization header
+api.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    try {
+      const token = tokenProvider ? tokenProvider() : localStorage.getItem('token');
+      if (token) {
+        config.headers = config.headers || {};
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (err) {
+      console.warn('Error reading auth token for API request interceptor', err);
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response interceptor - Handle token expiration and auto-refresh
+api.interceptors.response.use(
+  (response: AxiosResponse) => response,
+  async (error: AxiosError<{ error?: string; message?: string }>) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
+    // Check if error is 401 and token expired
+    if (
+      error.response?.status === 401 &&
+      error.response?.data?.error === 'token_expired' &&
+      !originalRequest._retry
+    ) {
+      // If already refreshing, queue this request
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(() => api(originalRequest))
+          .catch((err) => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      const refreshToken = localStorage.getItem('refresh_token');
+
+      if (!refreshToken) {
+        // No refresh token available, logout user
+        localStorage.removeItem('token');
+        localStorage.removeItem('refresh_token');
+        window.dispatchEvent(new Event('auth:logout'));
+        window.location.href = '/';
+        return Promise.reject(error);
+      }
+
+      try {
+        // Call refresh endpoint
+        const response = await axios.post(`${VITE_API_URL}/refresh`, {
+          refresh_token: refreshToken,
+        });
+
+        const { access_token } = response.data;
+
+        // Save new access token
+        localStorage.setItem('token', access_token);
+
+        // Update authorization header for the failed request
+        originalRequest.headers.Authorization = `Bearer ${access_token}`;
+
+        // Process all queued requests
+        processQueue();
+
+        // Retry the original request
+        return api(originalRequest);
+      } catch (refreshError) {
+        // Refresh failed, logout user
+        processQueue(refreshError);
+        localStorage.removeItem('token');
+        localStorage.removeItem('refresh_token');
+        window.dispatchEvent(new Event('auth:logout'));
+        window.location.href = '/';
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    // For other errors, just reject
+    return Promise.reject(error);
   }
-  return config;
-});
+);
 
-// Export specific API services for components that import them
+// Export services...
 export const catalogueFormationApi = {
-  getCatalogueFormation: async (
-    stagiaireId: string
-  ): Promise<CatalogueFormationResponse> => {
-    try {
-      // Use the configured api instance instead of axios directly
-      const response = await api.get<CatalogueFormationResponse>(
-        `/catalogueFormations/stagiaire/${stagiaireId}`
-        // Remove the manual headers - the interceptor will handle it
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Erreur lors de la récupération du catalogue:", error);
-      throw error;
-    }
+  getCatalogueFormation: async (stagiaireId: string) => {
+    const response = await api.get(`/catalogueFormations/stagiaire/${stagiaireId}`);
+    return response.data;
   },
 
-  getFormationDetails: async (formationId: string): Promise<any> => {
-    try {
-      const response = await axios.get(
-        `${VITE_API_URL}/catalogueFormations/formations/${formationId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      return response.data;
-    } catch (error) {
-      console.error(
-        "Erreur lors de la récupération des détails de la formation:",
-        error
-      );
-      throw error;
-    }
+  getFormationDetails: async (formationId: string) => {
+    const response = await api.get(`/catalogueFormations/formations/${formationId}`);
+    return response.data;
   },
 
-  getFormationQuizzes: async (formationId: string): Promise<any[]> => {
-    try {
-      const response = await axios.get(
-        `${VITE_API_URL}/formations/${formationId}/quizzes`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      return response.data;
-    } catch (error) {
-      console.error(
-        "Erreur lors de la récupération des quiz de la formation:",
-        error
-      );
-      throw error;
-    }
+  getFormationQuizzes: async (formationId: string) => {
+    const response = await api.get(`/formations/${formationId}/quizzes`);
+    return response.data;
   },
 
-  getAllCatalogueFormation: async (): Promise<CatalogueFormationResponse> => {
-    try {
-      // Vérifier si un token existe
-      const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      const response = await axios.get<CatalogueFormationResponse>(
-        `${VITE_API_URL}/catalogueFormations/with-formations`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      return response.data;
-    } catch (error) {
-      console.error(
-        "Erreur lors de la récupération du catalogue complet:",
-        error
-      );
-
-      // Relancer l'erreur pour que React Query puisse la gérer
-      if (axios.isAxiosError(error) && error.response?.status === 401) {
-        // Optionnel: nettoyer le token invalide
-        localStorage.removeItem("token");
-      }
-      throw error;
-    }
+  getAllCatalogueFormation: async () => {
+    const response = await api.get('/catalogueFormations/with-formations');
+    return response.data;
   },
 };
 
 export const progressAPI = {
-  getUserProgress: () => api.get("/stagiaire/progress"),
+  getUserProgress: () => api.get('/stagiaire/progress'),
 };
 
 export const stagiaireAPI = {
-  getStagiaireData: () => api.get("/stagiaire"),
+  getStagiaireData: () => api.get('/stagiaire'),
 };
 
 export const rankingService = {
-  getGlobalRanking: () => api.get("/quiz/classement/global"),
+  getGlobalRanking: () => api.get('/quiz/classement/global'),
   getQuizRanking: (quizId: string) => api.get(`/quiz/${quizId}/classement`),
-  getUserRankingStats: () => api.get("/stagiaire/ranking-stats"),
+  getUserRankingStats: () => api.get('/stagiaire/ranking-stats'),
 };
 
-// Sponsorship service
 export const sponsorshipService = {
-  getLink: () => api.get("/stagiaire/parrainage/link"),
-  getReferrals: () => api.get("/stagiaire/parrainage/filleuls"),
-  getStats: () => api.get("/stagiaire/parrainage/stats"),
+  getLink: () => api.get('/stagiaire/parrainage/link'),
+  getReferrals: () => api.get('/stagiaire/parrainage/filleuls'),
+  getStats: () => api.get('/stagiaire/parrainage/stats'),
 };
 
-// Notification service API endpoints
 export const notificationAPI = {
-  getSettings: () => api.get("/notifications/settings"),
-  updateSettings: (settings: any) =>
-    api.post("/notifications/settings", settings),
-  registerDevice: (token: string) =>
-    api.post("/notifications/register-device", { token }),
-  unregisterDevice: (token: string) =>
-    api.delete("/notifications/unregister-device", { data: { token } }),
+  getSettings: () => api.get('/notifications/settings'),
+  updateSettings: (settings: any) => api.post('/notifications/settings', settings),
+  registerDevice: (token: string) => api.post('/notifications/register-device', { token }),
+  unregisterDevice: (token: string) => api.delete('/notifications/unregister-device', { data: { token } }),
 };
 
 export const formationApi = {
-  getFormations: () => api.get("formation/listFormation"),
+  getFormations: () => api.get('formation/listFormation'),
 };
 
 export const questionApi = {
