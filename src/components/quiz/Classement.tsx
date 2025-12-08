@@ -82,6 +82,7 @@ export function Classement() {
           id: Number(item.stagiaire.id),
           firstname: item.stagiaire.prenom,
           name: item.stagiaire.nom,
+          lastname: item.stagiaire.nom,
           image: item.stagiaire.image || undefined,
           avatar: item.stagiaire.image || undefined,
           score: item.totalPoints,

@@ -8,11 +8,10 @@ interface FormateursTableProps {
 
 export function FormateursTable({ formateurs }: FormateursTableProps) {
     const formatName = (prenom: string, nom: string): string => {
-        if (!nom || nom.trim().length === 0) return prenom || "";
-        if (!prenom || prenom.trim().length === 0) return nom || "";
-
-        const firstLetter = nom.charAt(0).toUpperCase();
-        return `${firstLetter}. ${prenom}`;
+    if (!prenom && !nom) return "";
+    const initial = nom?.trim().charAt(0);
+    const suffix = initial ? ` ${initial.toUpperCase()}.` : "";
+    return `${prenom || ""}${suffix}`.trim();
     };
 
     if (!formateurs || formateurs.length === 0) {

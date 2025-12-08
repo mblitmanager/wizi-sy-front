@@ -24,7 +24,14 @@ export interface GlobalRankingProps {
   onPeriodChange?: (period: 'week' | 'month' | 'all') => void;
 }
 
-type SortKey = "rang" | "name" | "quizCount" | "averageScore" | "score";
+type SortKey =
+  | "rang"
+  | "name"
+  | "quizCount"
+  | "averageScore"
+  | "score"
+  | "formation"
+  | "formateur";
 type SortOrder = "asc" | "desc";
 
 export function GlobalRanking({
@@ -38,6 +45,8 @@ export function GlobalRanking({
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
   const [search, setSearch] = useState("");
   const [showPodium, setShowPodium] = useState(true);
+  const [formationFilter, setFormationFilter] = useState<string>("");
+  const [formateurFilter, setFormateurFilter] = useState<string>("");
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -48,39 +57,105 @@ export function GlobalRanking({
     }
   };
 
+  const formatName = (prenom: string, nom: string): string => {
+    if (!prenom && !nom) return "";
+    const initial = nom?.trim()?.charAt(0);
+    const suffix = initial ? ` ${initial.toUpperCase()}.` : "";
+    return `${prenom || ""}${suffix}`.trim();
+  };
+
+  const formationOptions = useMemo(() => {
+    const options = new Map<string, string>();
+    ranking.forEach((entry) => {
+      entry.formateurs?.forEach((formateur) => {
+        formateur.formations?.forEach((formation) => {
+          const id = formation.id?.toString();
+          if (id && !options.has(id)) {
+            options.set(id, formation.titre || `Formation ${id}`);
+          }
+        });
+      });
+    });
+    return Array.from(options.entries()).map(([id, label]) => ({ id, label }));
+  }, [ranking]);
+
+  const formateurOptions = useMemo(() => {
+    const options = new Map<string, string>();
+    ranking.forEach((entry) => {
+      entry.formateurs?.forEach((formateur) => {
+        const id = formateur.id?.toString();
+        if (id && !options.has(id)) {
+          options.set(id, formatName(formateur.prenom, formateur.nom));
+        }
+      });
+    });
+    return Array.from(options.entries()).map(([id, label]) => ({ id, label }));
+  }, [ranking]);
+
   const filteredRanking = useMemo(() => {
-    return ranking.filter((entry: LeaderboardEntry) =>
-      entry.name?.toLowerCase().includes(search.toLowerCase()) ||
-      entry.firstname?.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [ranking, search]);
+    const needle = search.toLowerCase();
+    return ranking.filter((entry: LeaderboardEntry) => {
+      const matchesSearch =
+        (entry.name?.toLowerCase().includes(needle) ||
+          entry.firstname?.toLowerCase().includes(needle)) ?? false;
+
+      const matchesFormation =
+        !formationFilter ||
+        entry.formateurs?.some((formateur) =>
+          formateur.formations?.some(
+            (formation) => formation.id?.toString() === formationFilter
+          )
+        );
+
+      const matchesFormateur =
+        !formateurFilter ||
+        entry.formateurs?.some(
+          (formateur) => formateur.id?.toString() === formateurFilter
+        );
+
+      return matchesSearch && matchesFormation && matchesFormateur;
+    });
+  }, [ranking, search, formationFilter, formateurFilter]);
 
   const sortedRanking = useMemo(() => {
-    return [...filteredRanking].sort((a: any, b: any) => {
-      let aValue = (a as any)[sortKey];
-      let bValue = (b as any)[sortKey];
-
-      if (sortKey === "name") {
-        aValue = aValue?.toLowerCase() || "";
-        bValue = bValue?.toLowerCase() || "";
+    const getSortValue = (entry: LeaderboardEntry) => {
+      switch (sortKey) {
+        case "name":
+          return formatName(entry.firstname, entry.name).toLowerCase();
+        case "formation":
+          return (
+            entry.formateurs?.flatMap((f) => f.formations || [])[0]?.titre ||
+            ""
+          ).toLowerCase();
+        case "formateur":
+          return (
+            entry.formateurs?.[0]
+              ? formatName(
+                  entry.formateurs[0].prenom,
+                  entry.formateurs[0].nom
+                ).toLowerCase()
+              : ""
+          );
+        default:
+          return (entry as any)[sortKey];
       }
+    };
+
+    return [...filteredRanking].sort((a: any, b: any) => {
+      const aValue = getSortValue(a);
+      const bValue = getSortValue(b);
 
       if (aValue === undefined) return 1;
       if (bValue === undefined) return -1;
 
       if (aValue < bValue) return sortOrder === "asc" ? -1 : 1;
       if (aValue > bValue) return sortOrder === "asc" ? 1 : -1;
-      return 0;
+
+      const rankA = a.rang ?? Number.POSITIVE_INFINITY;
+      const rankB = b.rang ?? Number.POSITIVE_INFINITY;
+      return rankA - rankB;
     });
   }, [filteredRanking, sortKey, sortOrder]);
-
-  const formatName = (prenom: string, nom: string): string => {
-    if (!nom || nom.trim().length === 0) return prenom || "";
-    if (!prenom || prenom.trim().length === 0) return nom || "";
-
-    const firstLetter = nom.charAt(0).toUpperCase();
-    return `${firstLetter}. ${prenom}`;
-  };
 
   if (loading) {
     return (
@@ -188,6 +263,60 @@ export function GlobalRanking({
               onChange={(e) => setSearch(e.target.value)}
               className="pl-10 pr-4 py-2 w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white"
             />
+          </div>
+
+          {/* Filtres formation / formateur */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <select
+              value={formationFilter}
+              onChange={(e) => setFormationFilter(e.target.value)}
+              className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+            >
+              <option value="">Toutes les formations</option>
+              {formationOptions.map((opt) => (
+                <option key={opt.id} value={opt.id}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={formateurFilter}
+              onChange={(e) => setFormateurFilter(e.target.value)}
+              className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+            >
+              <option value="">Tous les formateurs</option>
+              {formateurOptions.map((opt) => (
+                <option key={opt.id} value={opt.id}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+
+            <div className="flex items-center gap-2">
+              <select
+                value={sortKey}
+                onChange={(e) => setSortKey(e.target.value as SortKey)}
+                className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+              >
+                <option value="rang">Trier par rang</option>
+                <option value="score">Points</option>
+                <option value="quizCount">Quiz</option>
+                <option value="averageScore">Moyenne</option>
+                <option value="name">Nom</option>
+                <option value="formation">Formation</option>
+                <option value="formateur">Formateur</option>
+              </select>
+              <button
+                type="button"
+                onClick={() =>
+                  setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
+                }
+                className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+              >
+                {sortOrder === "asc" ? "Asc" : "Desc"}
+              </button>
+            </div>
           </div>
 
         </div>

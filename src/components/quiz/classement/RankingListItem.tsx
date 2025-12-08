@@ -15,6 +15,13 @@ const getRankColor = (rank?: number) => {
     return 'bg-gray-200 text-gray-700';
 };
 
+const formatName = (prenom?: string, nom?: string) => {
+    if (!prenom && !nom) return '';
+    const initial = nom?.trim().charAt(0);
+    const suffix = initial ? ` ${initial.toUpperCase()}.` : '';
+    return `${prenom || ''}${suffix}`.trim();
+};
+
 export function RankingListItem({
     ranking,
     isCurrentUser = false,
@@ -65,7 +72,7 @@ export function RankingListItem({
                             className={`font-semibold text-sm sm:text-base truncate ${isCurrentUser ? 'text-amber-800' : 'text-gray-900'
                                 }`}
                         >
-                            {ranking.firstname} {ranking.name?.toUpperCase()}
+                            {formatName(ranking.firstname, ranking.name)}
                         </p>
                         {isCurrentUser && (
                             <span className="flex-shrink-0 px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded-full">
@@ -79,7 +86,8 @@ export function RankingListItem({
                         <p className="text-xs text-gray-500 mt-0.5 truncate">
                             {ranking.formateurs.map((f) => {
                                 const initial = f.nom?.charAt(0).toUpperCase() || '';
-                                return `${initial}. ${f.prenom}`;
+                                const suffix = initial ? ` ${initial}.` : '';
+                                return `${f.prenom}${suffix}`;
                             }).join(', ')}
                         </p>
                     )}

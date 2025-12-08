@@ -194,6 +194,11 @@ export interface Formateur {
   nom: string;
   telephone?: string;
   image?: string | null;
+  formations?: {
+    id: number;
+    titre?: string;
+    description?: string;
+  }[];
 }
 // Extend the existing QuizResult type with missing properties
 export interface QuizResult {

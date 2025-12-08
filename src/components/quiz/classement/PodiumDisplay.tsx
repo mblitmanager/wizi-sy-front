@@ -38,9 +38,9 @@ export function PodiumDisplay({ rankings, currentUserId }: PodiumDisplayProps) {
     const colors = [MEDAL_COLORS.silver, MEDAL_COLORS.gold, MEDAL_COLORS.bronze];
 
     const formatName = (entry: LeaderboardEntry) => {
-        if (!entry.name) return entry.firstname || 'Anonyme';
-        const initial = entry.name.charAt(0).toUpperCase();
-        return `${initial}. ${entry.firstname}`;
+        const initial = entry.name?.trim().charAt(0);
+        const suffix = initial ? ` ${initial.toUpperCase()}.` : '';
+        return `${entry.firstname || 'Anonyme'}${suffix}`.trim();
     };
 
     return (
@@ -141,7 +141,8 @@ export function PodiumDisplay({ rankings, currentUserId }: PodiumDisplayProps) {
                                     <p className="text-[10px] text-gray-500 mt-0.5 truncate">
                                         {entry.formateurs.map((f) => {
                                             const initial = f.nom?.charAt(0).toUpperCase() || '';
-                                            return `${initial}. ${f.prenom}`;
+                                            const suffix = initial ? ` ${initial}.` : '';
+                                            return `${f.prenom}${suffix}`;
                                         }).join(', ')}
                                     </p>
                                 )}
