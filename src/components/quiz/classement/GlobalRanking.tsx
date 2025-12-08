@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Trophy,
@@ -47,6 +47,12 @@ export function GlobalRanking({
   const [showPodium, setShowPodium] = useState(true);
   const [formationFilter, setFormationFilter] = useState<string>("");
   const [formateurFilter, setFormateurFilter] = useState<string>("");
+  useEffect(() => {
+    // Harmoniser avec filtres chronologiques : reset des filtres quand la période change
+    setSearch("");
+    setFormationFilter("");
+    setFormateurFilter("");
+  }, [period]);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {

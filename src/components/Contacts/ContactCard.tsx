@@ -317,7 +317,7 @@ export const ContactCard = ({
                       <a
                         href={`mailto:${contact.email}`}
                         className="text-sm text-blue-600 hover:text-blue-800 hover:underline truncate flex-1">
-                        {contact.email}
+                        {/* {contact.email}  */} Envoyer un email 
                       </a>
                     ) : (
                       <span className="text-sm text-gray-400">

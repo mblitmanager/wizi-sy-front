@@ -52,6 +52,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const API_URL = import.meta.env.VITE_API_URL;
+type AuthenticatedUser = NonNullable<ReturnType<typeof useUser>["user"]>;
 
 // Runtime-safe helpers
 const asRecord = (v: unknown) => (v as Record<string, unknown> | null) ?? null;
@@ -94,7 +95,7 @@ const hasToken = () => {
 
 // import { OptimizedFullScreenLoader } from "@/components/common/OptimizedLoadingState";
 
-function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
+function AuthenticatedApp({ user }: { user: AuthenticatedUser }) {
   const isOnline = useOnlineStatus();
   const isTablet = useMediaQuery("(min-width: 769px) and (max-width: 1024px)");
   const isIOS =
@@ -419,7 +420,7 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
 
   return (
     <Layout>
-      <div className="px-2 md:px-6">
+      <div className="px-2 md:px-6 pb-28 sm:pb-16">
         {/* Bannière de bienvenue */}
         <WelcomeBanner
           onHide={() => {
@@ -449,6 +450,171 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
 
         {/* Comment jouer */}
         <HowToPlay />
+
+           {/* Téléchargement application */}
+        {showApkBlock &&
+          (isIOS ? (
+            <div
+              className="group relative rounded-xl shadow-lg border border-yellow-500/30 p-6 pb-10 mb-10 transition-transform duration-300 hover:scale-105"
+              aria-label="Télécharger l'application iOS sur l'App Store"
+              >
+              <button
+                className="absolute top-3 right-3 text-gray-500 hover:text-white text-xl bg-transparent border-none p-0 z-10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowApkBlock(false);
+                }}
+                aria-label="Fermer">
+                ×
+              </button>
+              <div className="flex items-center gap-3 mb-2">
+                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-orange-500/10 text-orange-400 group-hover:bg-orange-500/20 transition-colors">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-7 h-7"
+                    viewBox="0 0 24 24"
+                    fill="currentColor">
+                    <path d="M20.999 6.999a2 2 0 0 0-1.9-1.3h-1.5a5.3 5.3 0 0 0-9.2 0h-1.5a2 2 0 0 0-1.9 1.3l-2.5 9a2 2 0 0 0 1.9 2.7h16.2a2 2 0 0 0 1.9-2.7l-2.5-9zm-10-2.8a3.3 3.3 0 0 1 6.6 0h-6.6zM12 15.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" />
+                  </svg>
+                </span>
+                <h2 className="text-l md:text-2xl font-bold text-orange-400">
+                  Disponible sur l'App Store
+                </h2>
+              </div>
+              <p className="text-gray-400 text-s mb-3">
+                Retrouvez Wizi Learn sur l'App Store via le lien ci-dessous.
+              </p>
+              <div className="mt-4 flex justify-end">
+                <button
+                  className="w-full sm:w-auto bg-yellow-400 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-orange-700 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(
+                      "https://apps.apple.com/mg/app/wizi-learn/id6752468866",
+                      "_blank"
+                    );
+                    if (user && localStorage.getItem("token")) {
+                      axios
+                        .post(
+                          `${API_URL}/stagiaire/achievements/check`,
+                          { code: "ios_download" },
+                          {
+                            headers: {
+                              Authorization: `Bearer ${localStorage.getItem("token")}`,
+                            },
+                          }
+                        )
+                        .then((res) => {
+                          const unlocked = res.data?.new_achievements || [];
+                          if (Array.isArray(unlocked) && unlocked.length > 0) {
+                            unlocked.forEach((ach) => {
+                              toast({
+                                title: `🎉 Succès débloqué`,
+                                description:
+                                  (ach.name || ach.titre || ach.title || "Achievement") +
+                                  " !",
+                                duration: 4000,
+                                variant: "default",
+                                className: "bg-orange-600 text-white",
+                              });
+                            });
+                          }
+                        })
+                        .catch(() => { });
+                    }
+                  }}
+                >
+                  Ouvrir l'App Store
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div
+              className="group relative rounded-xl shadow-lg border border-orange-500/30 mt-6 p-6 pb-20 mb-10 transition-transform duration-300 hover:scale-105"
+              aria-label="Télécharger l'application Android Wizi Learn"
+              style={{ marginTop: "5%" }}>
+              <button
+                className="absolute top-3 right-3 text-gray-500 hover:text-white text-xl bg-transparent border-none p-0 z-10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowApkBlock(false);
+                }}
+                aria-label="Fermer">
+                ×
+              </button>
+              <div className="flex items-center gap-3 mb-2">
+                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-yellow-400/10 text-orange-400 group-hover:bg-orange-500/20 transition-colors">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-7 h-7">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 16v-8m0 8l-4-4m4 4l4-4m-8 8h8a2 2 0 002-2V6a2 2 0 00-2-2H8a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                </span>
+                <h2 className="text-l md:text-2xl font-bold text-orange-400">
+                  Télécharger l'application Android
+                </h2>
+              </div>
+              <p className="text-gray-400 text-s mb-3">
+                Accédez à Wizi Learn partout grâce à notre application Android.
+                Cliquez sur le bouton ci-dessous pour télécharger le fichier
+                et suivez les instructions d'installation.
+              </p>
+              <div className="mt-4 flex justify-end">
+                <button
+                  className="w-full sm:w-auto bg-yellow-400 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-orange-700 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(
+                      "https://www.wizi-learn.com/application/wizi-learn.apk",
+                      "_blank"
+                    );
+                    if (user && localStorage.getItem("token")) {
+                      axios
+                        .post(
+                          `${API_URL}/stagiaire/achievements/check`,
+                          { code: "android_download" },
+                          {
+                            headers: {
+                              Authorization: `Bearer ${localStorage.getItem(
+                                "token"
+                              )}`,
+                            },
+                          }
+                        )
+                        .then((res) => {
+                          const unlocked = res.data?.new_achievements || [];
+                          if (Array.isArray(unlocked) && unlocked.length > 0) {
+                            unlocked.forEach((ach) => {
+                              toast({
+                                title: `🎉 Succès débloqué`,
+                                description:
+                                  (ach.name ||
+                                    ach.titre ||
+                                    ach.title ||
+                                    "Achievement") + " !",
+                                duration: 4000,
+                                variant: "default",
+                                className: "bg-orange-600 text-white",
+                              });
+                            });
+                          }
+                        })
+                        .catch(() => { });
+                    }
+                  }}>
+                  Télécharger
+                </button>
+              </div>
+            </div>
+          ))}
 
         {/* Quiz à découvrir */}
         {/* {filteredQuizzes.length > 0 && (
@@ -507,7 +673,7 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
         </Card>
 
         {/* Bouton reprise quiz en bas de page si modal ignorée */}
-        {unfinishedQuiz && isModalHidden && (
+        {/* {unfinishedQuiz && isModalHidden && (
           <ResumeQuizButton
             quizTitle={unfinishedQuiz.quizTitle}
             questionCount={unfinishedQuiz.questionIds?.length || 0}
@@ -515,166 +681,9 @@ function AuthenticatedApp({ user }: { user: NonNullable<typeof user> }) {
             onResume={handleResumeQuiz}
             onDismiss={handleDismissQuiz}
           />
-        )}
+        )} */}
 
-        {/* Téléchargement application */}
-        {showApkBlock &&
-          (isIOS ? (
-            <div
-              className="group relative  rounded-xl shadow-lg border border-yellow-500/30 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105"
-              aria-label="Télécharger l'application iOS sur l'App Store">
-              <button
-                className="absolute top-3 right-3 text-gray-500 hover:text-white text-xl bg-transparent border-none p-0 z-10"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowApkBlock(false);
-                }}
-                aria-label="Fermer">
-                ×
-              </button>
-              <div className="flex items-center gap-3 mb-2">
-                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-orange-500/10 text-orange-400 group-hover:bg-orange-500/20 transition-colors">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-7 h-7"
-                    viewBox="0 0 24 24"
-                    fill="currentColor">
-                    <path d="M20.999 6.999a2 2 0 0 0-1.9-1.3h-1.5a5.3 5.3 0 0 0-9.2 0h-1.5a2 2 0 0 0-1.9 1.3l-2.5 9a2 2 0 0 0 1.9 2.7h16.2a2 2 0 0 0 1.9-2.7l-2.5-9zm-10-2.8a3.3 3.3 0 0 1 6.6 0h-6.6zM12 15.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" />
-                  </svg>
-                </span>
-                <h2 className="text-l md:text-2xl font-bold text-orange-400">
-                  Télécharger sur l'App Store
-                </h2>
-              </div>
-              <p className="text-gray-400 text-s mb-3">
-                Accédez à Wizi Learn partout grâce à notre application iOS.
-              </p>
-              <button
-                className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-yellow-400 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-orange-700 transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  window.open(
-                    "https://apps.apple.com/mg/app/wizi-learn/id6752468866",
-                    "_blank"
-                  );
-                  if (user && localStorage.getItem("token")) {
-                    axios
-                      .post(
-                        `${API_URL}/stagiaire/achievements/check`,
-                        { code: "ios_download" },
-                        {
-                          headers: {
-                            Authorization: `Bearer ${localStorage.getItem("token")}`,
-                          },
-                        }
-                      )
-                      .then((res) => {
-                        const unlocked = res.data?.new_achievements || [];
-                        if (Array.isArray(unlocked) && unlocked.length > 0) {
-                          unlocked.forEach((ach) => {
-                            toast({
-                              title: `🎉 Succès débloqué`,
-                              description:
-                                (ach.name || ach.titre || ach.title || "Achievement") +
-                                " !",
-                              duration: 4000,
-                              variant: "default",
-                              className: "bg-orange-600 text-white",
-                            });
-                          });
-                        }
-                      })
-                      .catch(() => { });
-                  }
-                }}
-              >
-                Télécharger
-              </button>
-            </div>
-          ) : (
-            <div
-              className="group relative rounded-xl shadow-lg border border-orange-500/30 mt-6 p-6 pb-20 mb-6 transition-transform duration-300 hover:scale-105"
-              aria-label="Télécharger l'application Android Wizi Learn">
-              <button
-                className="absolute top-3 right-3 text-gray-500 hover:text-white text-xl bg-transparent border-none p-0 z-10"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowApkBlock(false);
-                }}
-                aria-label="Fermer">
-                ×
-              </button>
-              <div className="flex items-center gap-3 mb-2">
-                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-yellow-400/10 text-orange-400 group-hover:bg-orange-500/20 transition-colors">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-7 h-7">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 16v-8m0 8l-4-4m4 4l4-4m-8 8h8a2 2 0 002-2V6a2 2 0 00-2-2H8a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                </span>
-                <h2 className="text-l md:text-2xl font-bold text-orange-400">
-                  Télécharger l'application Android
-                </h2>
-              </div>
-              <p className="text-gray-400 text-s mb-3">
-                Accédez à Wizi Learn partout grâce à notre application Android.
-                Cliquez sur le bouton ci-dessous pour télécharger le fichier APK
-                et suivez les instructions d'installation.
-              </p>
-              <button
-                className="fixed md:absolute right-6 bottom-6 md:bottom-6 bg-yellow-400 text-white font-semibold px-4 py-2 rounded-lg shadow group-hover:bg-orange-700 transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  window.open(
-                    "https://www.wizi-learn.com/application/wizi-learn.apk",
-                    "_blank"
-                  );
-                  if (user && localStorage.getItem("token")) {
-                    axios
-                      .post(
-                        `${API_URL}/stagiaire/achievements/check`,
-                        { code: "android_download" },
-                        {
-                          headers: {
-                            Authorization: `Bearer ${localStorage.getItem(
-                              "token"
-                            )}`,
-                          },
-                        }
-                      )
-                      .then((res) => {
-                        const unlocked = res.data?.new_achievements || [];
-                        if (Array.isArray(unlocked) && unlocked.length > 0) {
-                          unlocked.forEach((ach) => {
-                            toast({
-                              title: `🎉 Succès débloqué`,
-                              description:
-                                (ach.name ||
-                                  ach.titre ||
-                                  ach.title ||
-                                  "Achievement") + " !",
-                              duration: 4000,
-                              variant: "default",
-                              className: "bg-orange-600 text-white",
-                            });
-                          });
-                        }
-                      })
-                      .catch(() => { });
-                  }
-                }}>
-                Télécharger
-              </button>
-            </div>
-          ))}
+       
 
 
         {/* New Feature Components - Role-based visibility */}

@@ -31,11 +31,13 @@ const colors = {
 interface WelcomeBannerProps {
   showDismissOption?: boolean;
   variant?: "default" | "minimal" | "featured";
+  onHide?: () => void;
 }
 
 export const WelcomeBanner = ({
   showDismissOption = true,
   variant = "default",
+  onHide,
 }: WelcomeBannerProps) => {
   const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(true);
@@ -68,6 +70,7 @@ export const WelcomeBanner = ({
   const handleClose = () => {
     setIsVisible(false);
     localStorage.setItem("welcomeBannerDismissed", "true");
+    onHide?.();
   };
 
   const handleDiscover = () => {

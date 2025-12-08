@@ -287,6 +287,14 @@ export function Classement() {
               period={period}
               onPeriodChange={(newPeriod) => {
                 setPeriod(newPeriod);
+                // Réinitialiser les filtres locaux quand on change de période
+                try {
+                  // Ces setters vivent dans GlobalRanking via props, on remet à zéro via refetch
+                  // (les états internes seront recréés sur nouveau rendu)
+                  setGlobalRanking([]);
+                } catch (e) {
+                  console.warn("Reset classement après changement de période", e);
+                }
                 setLoading((prev) => ({ ...prev, ranking: true }));
                 fetchGlobalRanking(newPeriod);
               }}
