@@ -139,6 +139,11 @@ export default function Quizzes() {
     () => formations.data ?? [],
     [formations]
   );
+  useEffect(() => {
+    if (formationsWithTutos.length === 1 && !selectedFormationId) {
+      setSelectedFormationId(String(formationsWithTutos[0].id));
+    }
+  }, [formationsWithTutos, selectedFormationId]);
 
   // Choisir une phrase d'accroche aléatoire au chargement
   useEffect(() => {
@@ -265,12 +270,7 @@ export default function Quizzes() {
                     </option>
                   ))}
                 </select>
-              ) : (
-                <span className="px-3 py-2 text-base">
-                  {formationsWithTutos[0]?.label ??
-                    formationsWithTutos[0]?.titre}
-                </span>
-              )}
+              ) : null}
             </div>
 
             {/* Indicateur de mode actuel */}

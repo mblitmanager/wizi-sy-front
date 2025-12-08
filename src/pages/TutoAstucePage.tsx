@@ -24,14 +24,15 @@ export default function TutoAstucePage() {
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isWebView, setIsWebView] = useState(window.innerWidth >= 1024);
+  const isMobile = !isWebView;
 
   // Hooks
   const { user } = useUser();
   const { data: formations = [] } = useFormationStagiaire(user?.stagiaire.id ?? null);
   const { data: mediasData } = useMediaByFormation(selectedFormationId);
+  const formationsWithTutos = useMemo(() => formations.data ?? [], [formations]);
 
   // Derived data
-  const formationsWithTutos = useMemo(() => formations.data ?? [], [formations]);
   const tutoriels = mediasData?.tutoriels ?? [];
   const astuces = mediasData?.astuces ?? [];
   const medias = activeCategory === "tutoriel" ? tutoriels : astuces;
@@ -83,31 +84,29 @@ export default function TutoAstucePage() {
 
   return (
     <Layout>
-      <div className="lesson-page">
+      <div className="lesson-page px-3 sm:px-4 pb-16">
         {/* Header */}
         <header className="lesson-header">
-          <div className="lesson-header-content">
-            {/* Logo */}
-            {/* <div className="lesson-logo">aopia.fr</div> */}
-
+          <div className="lesson-header-content flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-6">
             {/* Formation Selector */}
-            <div className="flex-1 px-6">
-              <select
-                value={selectedFormationId || ""}
-                onChange={(e) => setSelectedFormationId(e.target.value)}
-                className="px-4 py-2 text-sm font-medium rounded-lg border border-orange-200 bg-white hover:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
-              >
-                <option value="">Sélectionner une formation</option>
-                {formationsWithTutos.map((formation) => (
-                  <option key={formation.id} value={formation.id}>
-                    {formation.titre}
-                  </option>
-                ))}
-              </select>
+            <div className="w-full lg:flex-1">
+              {formationsWithTutos.length > 1 ? (
+                <select
+                  value={selectedFormationId || formationsWithTutos[0]?.id || ""}
+                  onChange={(e) => setSelectedFormationId(e.target.value)}
+                  className="w-full px-4 py-2 text-sm font-medium rounded-lg border border-orange-200 bg-white hover:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
+                >
+                  {formationsWithTutos.map((formation) => (
+                    <option key={formation.id} value={formation.id}>
+                      {formation.titre}
+                    </option>
+                  ))}
+                </select>
+              ) : null}
             </div>
 
             {/* Category Selector */}
-            <div className="flex gap-2 mx-4">
+            <div className="flex flex-wrap gap-2 lg:mx-4">
               <button
                 onClick={() => setActiveCategory("tutoriel")}
                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${activeCategory === "tutoriel"
@@ -127,72 +126,102 @@ export default function TutoAstucePage() {
                 Astuces ({astuces.length})
               </button>
             </div>
-
-            {/* Actions */}
-            {/* <div className="lesson-header-actions">
-              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <Search className="w-5 h-5 text-gray-600" />
-              </button>
-              <div className="w-8 h-8 bg-orange-400 rounded-full flex items-center justify-center">
-                <User className="w-5 h-5 text-white" />
-              </div>
-            </div> */}
           </div>
         </header>
 
         {/* Main Content */}
-        <div className="lesson-container">
-          <div className="lesson-grid">
-            {/* Left: Video Player */}
-            <div className="lesson-video-section">
+        {isWebView ? (
+          <div className="lesson-container">
+            <div className="lesson-grid">
+              {/* Left: Video Player */}
+              <div className="lesson-video-section">
+                {selectedMedia ? (
+                  <div className="lesson-video-container">
+                    <MediaPlayer key={selectedMedia.id} media={selectedMedia} showDescription={isWebView} />
+                  </div>
+                ) : (
+                  <div className="lesson-video-container flex items-center justify-center">
+                    <p className="text-white text-sm">Sélectionnez un média</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Right: Sidebar */}
+              <div className="lesson-sidebar">
+                <h1 className="lesson-title">
+                  {selectedMedia?.titre || "Sélectionnez une leçon"}
+                </h1>
+
+                <div className="lesson-divider" />
+
+                <LessonTabs
+                mediaList={medias}
+                currentMediaId={selectedMedia ? Number(selectedMedia.id) : undefined}
+                  isWebView={isWebView}
+                  onMediaSelect={(media, index) => {
+                    setSelectedMedia(media);
+                    setCurrentIndex(index);
+                  }}
+                >
+                  {!isWebView && selectedMedia?.description && (
+                    <div
+                      className="text-sm text-gray-700"
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(selectedMedia.description),
+                      }}
+                    />
+                  )}
+                </LessonTabs>
+
+                <LessonNavigation
+                  onPrevious={handlePrevious}
+                  onNext={handleNext}
+                  hasPrevious={currentIndex > 0}
+                  hasNext={currentIndex < medias.length - 1}
+                />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {/* Video */}
+            <div className="w-full rounded-xl overflow-hidden bg-black">
               {selectedMedia ? (
-                <div className="lesson-video-container">
-                  <MediaPlayer key={selectedMedia.id} media={selectedMedia} showDescription={isWebView} />
-                </div>
+                <MediaPlayer key={selectedMedia.id} media={selectedMedia} showDescription={false} />
               ) : (
-                <div className="lesson-video-container flex items-center justify-center">
-                  <p className="text-white text-sm">Sélectionnez un média</p>
+                <div className="aspect-video flex items-center justify-center text-white text-sm">
+                  Sélectionnez un média
                 </div>
               )}
             </div>
 
-            {/* Right: Sidebar */}
-            <div className="lesson-sidebar">
-              {/* Progress indicator */}
-              {/* <LessonProgressBar
-                current={currentIndex + 1}
-                total={medias.length}
-                percentage={progress}
-              /> */}
+            {/* Title */}
+            <h1 className="text-lg font-semibold text-gray-900">
+              {selectedMedia?.titre || "Sélectionnez une leçon"}
+            </h1>
 
-              {/* Lesson title */}
-              <h1 className="lesson-title">
-                {selectedMedia?.titre || "Sélectionnez une leçon"}
-              </h1>
+          {/* Tabs & list */}
+          <LessonTabs
+            mediaList={medias}
+            currentMediaId={selectedMedia ? Number(selectedMedia.id) : undefined}
+            isWebView={false}
+            onMediaSelect={(media, index) => {
+              setSelectedMedia(media);
+              setCurrentIndex(index);
+            }}
+          >
+              {selectedMedia?.description && (
+                <div
+                  className="text-sm text-gray-700"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(selectedMedia.description),
+                  }}
+                />
+              )}
+            </LessonTabs>
 
-              <div className="lesson-divider" />
-
-              {/* Tabs */}
-              <LessonTabs
-                mediaList={medias}
-                currentMediaId={selectedMedia?.id}
-                isWebView={isWebView}
-                onMediaSelect={(media, index) => {
-                  setSelectedMedia(media);
-                  setCurrentIndex(index);
-                }}
-              >
-                {!isWebView && selectedMedia?.description && (
-                  <div
-                    className="text-sm text-gray-700"
-                    dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(selectedMedia.description),
-                    }}
-                  />
-                )}
-              </LessonTabs>
-
-              {/* Navigation */}
+            {/* Navigation */}
+            <div className="w-full">
               <LessonNavigation
                 onPrevious={handlePrevious}
                 onNext={handleNext}
@@ -201,7 +230,7 @@ export default function TutoAstucePage() {
               />
             </div>
           </div>
-        </div>
+        )}
       </div>
     </Layout>
   );
