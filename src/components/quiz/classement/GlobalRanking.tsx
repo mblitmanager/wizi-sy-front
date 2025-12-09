@@ -249,99 +249,117 @@ export function GlobalRanking({
             </div>
           </div>
 
-          {/* Period Filter */}
-          {onPeriodChange && (
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => onPeriodChange('week')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${period === 'week'
-                  ? 'bg-orange-500 text-white shadow-md'
-                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
-                  }`}>
-                Cette semaine
-              </button>
-              <button
-                onClick={() => onPeriodChange('month')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${period === 'month'
-                  ? 'bg-orange-500 text-white shadow-md'
-                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
-                  }`}>
-                Ce mois
-              </button>
-              <button
-                onClick={() => onPeriodChange('all')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${period === 'all'
-                  ? 'bg-orange-500 text-white shadow-md'
-                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
-                  }`}>
-                Depuis toujours
-              </button>
-            </div>
-          )}
+          {/* Filtres compacts - Ligne 1 : Période + Recherche */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            {/* Filtres temporels */}
+            {onPeriodChange && (
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => onPeriodChange('week')}
+                  className={`px-3 py-2 rounded-lg text-xs font-medium transition ${period === 'week'
+                    ? 'bg-orange-500 text-white shadow-md'
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
+                    }`}>
+                  Semaine
+                </button>
+                <button
+                  onClick={() => onPeriodChange('month')}
+                  className={`px-3 py-2 rounded-lg text-xs font-medium transition ${period === 'month'
+                    ? 'bg-orange-500 text-white shadow-md'
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
+                    }`}>
+                  Mois
+                </button>
+                <button
+                  onClick={() => onPeriodChange('all')}
+                  className={`px-3 py-2 rounded-lg text-xs font-medium transition ${period === 'all'
+                    ? 'bg-orange-500 text-white shadow-md'
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
+                    }`}>
+                  Tout
+                </button>
+              </div>
+            )}
 
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Rechercher un stagiaire..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white"
-            />
+            {/* Recherche */}
+            <div className="relative flex-1 max-w-xs">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Rechercher..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-10 pr-4 py-2 w-full text-xs border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white"
+              />
+            </div>
           </div>
 
-          {/* Filtres formation / formateur */}
-          <div className="flex flex-col sm:flex-row gap-3">
+          {/* Ligne 2 : Formation + Formateur + Tri */}
+          <div className="flex flex-wrap gap-2 items-center">
             <select
               value={formationFilter}
               onChange={(e) => setFormationFilter(e.target.value)}
-              className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+              className="px-3 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
             >
-              <option value="">Toutes les formations</option>
+              <option value="">Toutes formations</option>
               {formationOptions.map((opt) => (
-                <option key={opt.id} value={opt.id}>
-                  {opt.label}
-                </option>
+                <option key={opt.id} value={opt.id}>{opt.label}</option>
               ))}
             </select>
 
             <select
               value={formateurFilter}
               onChange={(e) => setFormateurFilter(e.target.value)}
-              className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+              className="px-3 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
             >
-              <option value="">Tous les formateurs</option>
+              <option value="">Tous formateurs</option>
               {formateurOptions.map((opt) => (
-                <option key={opt.id} value={opt.id}>
-                  {opt.label}
-                </option>
+                <option key={opt.id} value={opt.id}>{opt.label}</option>
               ))}
             </select>
 
-            <div className="flex items-center gap-2">
-              <select
-                value={sortKey}
-                onChange={(e) => setSortKey(e.target.value as SortKey)}
-                className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
-              >
-                <option value="rang">Trier par rang</option>
-                <option value="score">Points</option>
-                <option value="quizCount">Quiz</option>
-                <option value="averageScore">Moyenne</option>
-                <option value="name">Nom</option>
-                <option value="formation">Formation</option>
-                <option value="formateur">Formateur</option>
-              </select>
-              <button
-                type="button"
-                onClick={() =>
-                  setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
-                }
-                className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
-              >
-                {sortOrder === "asc" ? "Asc" : "Desc"}
-              </button>
-            </div>
+            <div className="hidden sm:block w-px h-5 bg-gray-300 dark:bg-gray-600"></div>
+
+            <select
+              value={sortKey}
+              onChange={(e) => setSortKey(e.target.value as SortKey)}
+              className="px-3 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+            >
+              <option value="rang">Rang</option>
+              <option value="score">Points</option>
+              <option value="quizCount">Quiz</option>
+              <option value="name">Nom</option>
+            </select>
+
+            <button
+              type="button"
+              onClick={() => setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))}
+              className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+              title={sortOrder === "asc" ? "Croissant" : "Décroissant"}
+            >
+              {sortOrder === "asc" ? "↑" : "↓"}
+            </button>
+
+            {(search || formationFilter || formateurFilter || sortKey !== 'rang') && (
+              <>
+                <div className="hidden sm:block w-px h-5 bg-gray-300 dark:bg-gray-600"></div>
+                <button
+                  onClick={() => {
+                    setSearch('');
+                    setFormationFilter('');
+                    setFormateurFilter('');
+                    setSortKey('rang');
+                    setSortOrder('asc');
+                  }}
+                  className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  Réinit.
+                </button>
+              </>
+            )}
           </div>
 
         </div>
