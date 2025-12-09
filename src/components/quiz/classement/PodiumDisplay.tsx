@@ -9,20 +9,20 @@ interface PodiumDisplayProps {
 
 const MEDAL_COLORS = {
     gold: {
-        bg: '#FFD700',
-        border: '#FFA500',
+        bg: '#FEB823',
+        border: '#D97706',
         gradient: 'from-yellow-400 to-yellow-600',
         light: 'bg-yellow-50',
     },
     silver: {
-        bg: '#C0C0C0',
-        border: '#A8A8A8',
-        gradient: 'from-gray-300 to-gray-500',
+        bg: '#9CA3AF',
+        border: '#6B7280',
+        gradient: 'from-gray-300 to-gray-400',
         light: 'bg-gray-50',
     },
     bronze: {
-        bg: '#CD7F32',
-        border: '#A0522D',
+        bg: '#F59E0B',
+        border: '#EA580C',
         gradient: 'from-orange-400 to-orange-600',
         light: 'bg-orange-50',
     },
