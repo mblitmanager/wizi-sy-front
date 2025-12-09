@@ -94,7 +94,7 @@ export function StagiaireDetailsModal({ stagiaire, isOpen, onClose }: StagiaireD
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+            <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto" aria-describedby="dialog-description">
                 {loading ? (
                     <div className="flex items-center justify-center py-12">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -122,10 +122,10 @@ export function StagiaireDetailsModal({ stagiaire, isOpen, onClose }: StagiaireD
                                 />
                                 <div className="flex-1">
                                     <DialogTitle className="text-2xl font-bold mb-1">
-                                        {details.firstname} {details.name[0].toLocaleUpperCase()+'.'}
+                                        {details.firstname} {details.name[0].toLocaleUpperCase() + '.'}
                                     </DialogTitle>
                                     <p className="text-gray-600 mb-3">
-                                        Rang #{details.rang} 
+                                        Rang #{details.rang}
                                         {/* • {details.totalPoints} points */}
                                     </p>
                                     <ScoreDisplay score={details.totalPoints} variant="gold" />
@@ -139,7 +139,7 @@ export function StagiaireDetailsModal({ stagiaire, isOpen, onClose }: StagiaireD
                                 <div>
                                     <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
                                         <TrendingUp className="w-5 h-5 text-blue-600" />
-                                        
+
                                         {details.formations.length > 1 ? 'Formations' : 'Formation'}
                                     </h3>
                                     <div className="flex flex-wrap gap-2">
@@ -155,7 +155,7 @@ export function StagiaireDetailsModal({ stagiaire, isOpen, onClose }: StagiaireD
                             {/* Formateurs */}
                             {details.formateurs && details.formateurs.length > 0 && (
                                 <div>
-                                    <h3 className="text-lg font-semibold mb-3">formation proposée par </h3>
+                                    <h3 className="text-lg font-semibold mb-3">avec </h3>
                                     <div className="flex flex-wrap gap-4">
                                         {details.formateurs.map((formateur) => (
                                             <div key={formateur.id} className="flex items-center gap-3 bg-gray-50 rounded-lg p-3">
@@ -201,7 +201,7 @@ export function StagiaireDetailsModal({ stagiaire, isOpen, onClose }: StagiaireD
                                         </p>
                                     </div>
 
-                                    {/* <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
+                                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
                                         <div className="flex items-center gap-2 mb-2">
                                             <TrendingUp className="w-5 h-5 text-purple-600" />
                                             <span className="text-sm font-medium text-gray-600">Taux de Réussite</span>
@@ -209,30 +209,30 @@ export function StagiaireDetailsModal({ stagiaire, isOpen, onClose }: StagiaireD
                                         <p className="text-2xl font-bold text-purple-900">
                                             {details.quizStats.pourcentageReussite}%
                                         </p>
-                                    </div> */}
+                                    </div>
                                 </div>
 
                                 {/* Par niveau */}
-                                    {/* <div className="space-y-3">
-                                        <QuizLevelProgress
-                                            level="Débutant"
-                                            completed={details.quizStats.byLevel.debutant.completed}
-                                            total={details.quizStats.byLevel.debutant.total}
-                                            color="green"
-                                        />
-                                        <QuizLevelProgress
-                                            level="Intermédiaire"
-                                            completed={details.quizStats.byLevel.intermediaire.completed}
-                                            total={details.quizStats.byLevel.intermediaire.total}
-                                            color="orange"
-                                        />
-                                        <QuizLevelProgress
-                                            level="Expert"
-                                            completed={details.quizStats.byLevel.expert.completed}
-                                            total={details.quizStats.byLevel.expert.total}
-                                            color="red"
-                                        />
-                                    </div> */}
+                                <div className="space-y-3">
+                                    <QuizLevelProgress
+                                        level="Débutant"
+                                        completed={details.quizStats.byLevel.debutant.completed}
+                                        total={details.quizStats.byLevel.debutant.total}
+                                        color="green"
+                                    />
+                                    <QuizLevelProgress
+                                        level="Intermédiaire"
+                                        completed={details.quizStats.byLevel.intermediaire.completed}
+                                        total={details.quizStats.byLevel.intermediaire.total}
+                                        color="orange"
+                                    />
+                                    <QuizLevelProgress
+                                        level="Avancé"
+                                        completed={details.quizStats.byLevel.expert.completed}
+                                        total={details.quizStats.byLevel.expert.total}
+                                        color="red"
+                                    />
+                                </div>
 
                                 {/* Dernière activité */}
                                 {details.quizStats.lastActivity && (
@@ -272,7 +272,8 @@ function QuizLevelProgress({ level, completed, total, color }: QuizLevelProgress
             <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-medium text-gray-700">{level}</span>
                 <span className="text-sm text-gray-600">
-                    {completed}/{total}
+                    {completed}
+                    {/* /{total} */}
                 </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2.5">
