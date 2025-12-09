@@ -350,7 +350,14 @@ export function GlobalRanking({
       {/* Podium */}
       {showPodium && podium.length > 0 && (
         <div className="px-4 pt-6 pb-4">
-          <PodiumDisplay rankings={podium} currentUserId={currentUserId} />
+          <PodiumDisplay
+            rankings={podium}
+            currentUserId={currentUserId}
+            onStagiaireClick={(stagiaire) => {
+              setSelectedStagiaire(stagiaire);
+              setIsModalOpen(true);
+            }}
+          />
         </div>
       )}
 

@@ -5,6 +5,7 @@ import type { LeaderboardEntry } from '@/types/quiz';
 interface PodiumDisplayProps {
     rankings: LeaderboardEntry[];
     currentUserId?: string;
+    onStagiaireClick?: (stagiaire: LeaderboardEntry) => void;
 }
 
 const MEDAL_COLORS = {
@@ -28,7 +29,7 @@ const MEDAL_COLORS = {
     },
 };
 
-export function PodiumDisplay({ rankings, currentUserId }: PodiumDisplayProps) {
+export function PodiumDisplay({ rankings, currentUserId, onStagiaireClick }: PodiumDisplayProps) {
     if (rankings.length === 0) return null;
 
     // Ordre d'affichage : 2ème, 1er, 3ème
@@ -67,7 +68,8 @@ export function PodiumDisplay({ rankings, currentUserId }: PodiumDisplayProps) {
                     return (
                         <div
                             key={entry.id}
-                            className="flex-1 max-w-[120px] flex flex-col items-center"
+                            onClick={() => onStagiaireClick?.(entry)}
+                            className={`flex-1 max-w-[120px] flex flex-col items-center ${onStagiaireClick ? 'cursor-pointer hover:scale-105 transition-transform duration-200' : ''}`}
                         >
                             {/* Badge de position */}
                             <div
