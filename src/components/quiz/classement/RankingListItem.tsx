@@ -6,6 +6,7 @@ interface RankingListItemProps {
     isCurrentUser?: boolean;
     highlight?: boolean;
     isSmallScreen?: boolean;
+    onClick?: () => void;
 }
 
 const getRankColor = (rank?: number) => {
@@ -32,6 +33,7 @@ export const RankingListItem = React.memo(function RankingListItem({
     isCurrentUser = false,
     highlight = false,
     isSmallScreen = false,
+    onClick,
 }: RankingListItemProps) {
     const isTopRank = ranking.rang && ranking.rang <= 5;
 
@@ -41,10 +43,12 @@ export const RankingListItem = React.memo(function RankingListItem({
             aria-label={`Position ${ranking.rang}: ${formatName(ranking.firstname, ranking.name)}, ${ranking.score} points`}
             aria-current={isCurrentUser ? "true" : undefined}
             tabIndex={0}
+            onClick={onClick}
             className={`
         flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl 
         transition-all duration-300 ease-in-out
         hover:scale-[1.02] hover:-translate-y-1
+        ${onClick ? 'cursor-pointer' : ''}
         ${isCurrentUser ? 'bg-blue-50 border-2 border-blue-400 shadow-md animate-pulse-subtle' : 'bg-white border border-gray-200'}
         ${highlight ? 'shadow-lg ring-2 ring-blue-300 animate-bounce-subtle' : 'hover:shadow-xl'}
         ${isTopRank ? 'shadow-md' : ''}

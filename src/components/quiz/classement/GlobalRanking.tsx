@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { PodiumDisplay } from "./PodiumDisplay";
 import { RankingListItem } from "./RankingListItem";
 import { FormateursTable } from "./FormateursTable";
+import { StagiaireDetailsModal } from "./StagiaireDetailsModal";
 
 export interface GlobalRankingProps {
   ranking?: LeaderboardEntry[];
@@ -47,6 +48,9 @@ export function GlobalRanking({
   const [showPodium, setShowPodium] = useState(true);
   const [formationFilter, setFormationFilter] = useState<string>("");
   const [formateurFilter, setFormateurFilter] = useState<string>("");
+  const [selectedStagiaire, setSelectedStagiaire] = useState<LeaderboardEntry | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   useEffect(() => {
     // Harmoniser avec filtres chronologiques : reset des filtres quand la période change
     setSearch("");
@@ -68,6 +72,21 @@ export function GlobalRanking({
     const initial = nom?.trim()?.charAt(0);
     const suffix = initial ? ` ${initial.toUpperCase()}.` : "";
     return `${prenom || ""}${suffix}`.trim();
+  };
+
+  const getRankBadgeColor = (rang: number): string => {
+    switch (rang) {
+      case 1: return 'bg-gradient-to-br from-yellow-400 to-yellow-600';
+      case 2: return 'bg-gradient-to-br from-gray-300 to-gray-400';
+      case 3: return 'bg-gradient-to-br from-orange-400 to-orange-600';
+      case 4: return 'bg-gradient-to-br from-gray-400 to-gray-500';
+      case 5: return 'bg-gradient-to-br from-blue-400 to-blue-600';
+      default: return 'bg-gradient-to-br from-gray-200 to-gray-300';
+    }
+  };
+
+  const getRankBadgeText = (rang: number): string => {
+    return rang.toString();
   };
 
   const formationOptions = useMemo(() => {
@@ -137,9 +156,9 @@ export function GlobalRanking({
           return (
             entry.formateurs?.[0]
               ? formatName(
-                  entry.formateurs[0].prenom,
-                  entry.formateurs[0].nom
-                ).toLowerCase()
+                entry.formateurs[0].prenom,
+                entry.formateurs[0].nom
+              ).toLowerCase()
               : ""
           );
         default:
@@ -236,24 +255,24 @@ export function GlobalRanking({
               <button
                 onClick={() => onPeriodChange('week')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition ${period === 'week'
-                    ? 'bg-orange-500 text-white shadow-md'
-                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
+                  ? 'bg-orange-500 text-white shadow-md'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
                   }`}>
                 Cette semaine
               </button>
               <button
                 onClick={() => onPeriodChange('month')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition ${period === 'month'
-                    ? 'bg-orange-500 text-white shadow-md'
-                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
+                  ? 'bg-orange-500 text-white shadow-md'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
                   }`}>
                 Ce mois
               </button>
               <button
                 onClick={() => onPeriodChange('all')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition ${period === 'all'
-                    ? 'bg-orange-500 text-white shadow-md'
-                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
+                  ? 'bg-orange-500 text-white shadow-md'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
                   }`}>
                 Depuis toujours
               </button>
@@ -360,6 +379,10 @@ export function GlobalRanking({
                     ranking={entry}
                     isCurrentUser={isCurrentUser}
                     isSmallScreen={true}
+                    onClick={() => {
+                      setSelectedStagiaire(entry);
+                      setIsModalOpen(true);
+                    }}
                   />
                 );
               })}
@@ -402,14 +425,17 @@ export function GlobalRanking({
                       return (
                         <tr
                           key={entry.id || index}
-                          className={
-                            isCurrentUser
-                              ? "bg-green-50 dark:bg-green-900/20"
-                              : "hover:bg-gray-50 dark:hover:bg-gray-800"
-                          }>
+                          onClick={() => {
+                            setSelectedStagiaire(entry);
+                            setIsModalOpen(true);
+                          }}
+                          className={`cursor-pointer ${isCurrentUser
+                            ? "bg-green-50 dark:bg-green-900/20"
+                            : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                            }`}>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold">
-                              {entry.rang || globalIndex}
+                            <div className={`flex items-center justify-center h-12 w-12 rounded-full ${getRankBadgeColor(entry.rang)} text-white font-bold shadow-lg text-lg transition-all duration-300 hover:scale-110 hover:shadow-2xl`}>
+                              {getRankBadgeText(entry.rang || globalIndex)}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -458,7 +484,7 @@ export function GlobalRanking({
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center gap-2">
                               <Star className="h-4 w-4 text-yellow-500" />
-                              <span className="font-bold text-orange-600 dark:text-orange-400">
+                              <span className="font-bold text-yellow-600 dark:text-yellow-500 text-lg">
                                 {entry.score}
                               </span>
                               <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -476,6 +502,13 @@ export function GlobalRanking({
           </>
         )}
       </div>
+
+      {/* Modal détails stagiaire */}
+      <StagiaireDetailsModal
+        stagiaire={selectedStagiaire}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }
