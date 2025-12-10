@@ -109,6 +109,29 @@ function AuthenticatedApp({ user }: { user: AuthenticatedUser }) {
   // Resume quiz functionality
   const { unfinishedQuiz, dismissQuiz, hideModal, isModalHidden } = useResumeQuiz();
 
+  // Redirection basée sur le rôle - uniquement sur la page racine "/"
+  useEffect(() => {
+    // Ne rediriger que si on est sur la page racine
+    if (window.location.pathname !== "/") return;
+    if (!user?.role) return;
+
+    const roleRoutes: Record<string, string> = {
+      formateur: "/formateur/dashboard",
+      formatrice: "/formateur/dashboard", // Rôle féminin
+      commercial: "/commercial/dashboard",
+      commerciale: "/commercial/dashboard", // Rôle féminin
+      admin: "/admin/statistics",
+    };
+
+    const targetRoute = roleRoutes[user.role.toLowerCase()];
+
+    // Rediriger si l'utilisateur a un rôle spécifique (pas stagiaire)
+    if (targetRoute) {
+      console.log(`🔄 Redirection utilisateur ${user.role} vers ${targetRoute}`);
+      navigate(targetRoute, { replace: true });
+    }
+  }, [user?.role, navigate]);
+
   const handleResumeQuiz = () => {
     if (unfinishedQuiz) {
       navigate(`/quiz/${unfinishedQuiz.quizId}`);
@@ -451,13 +474,13 @@ function AuthenticatedApp({ user }: { user: AuthenticatedUser }) {
         {/* Comment jouer */}
         <HowToPlay />
 
-           {/* Téléchargement application */}
+        {/* Téléchargement application */}
         {showApkBlock &&
           (isIOS ? (
             <div
               className="group relative rounded-xl shadow-lg border border-yellow-500/30 p-6 pb-10 mb-10 transition-transform duration-300 hover:scale-105"
               aria-label="Télécharger l'application iOS sur l'App Store"
-              >
+            >
               <button
                 className="absolute top-3 right-3 text-gray-500 hover:text-white text-xl bg-transparent border-none p-0 z-10"
                 onClick={(e) => {
@@ -683,7 +706,7 @@ function AuthenticatedApp({ user }: { user: AuthenticatedUser }) {
           />
         )} */}
 
-       
+
 
 
         {/* New Feature Components - Role-based visibility */}

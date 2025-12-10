@@ -154,13 +154,13 @@ export default function MainNav({
       icon: LayoutDashboard,
       color: "text-yellow-600",
     }] : []),
-    ...(user?.role === 'formateur' ? [{
+    ...(['formateur', 'formatrice'].includes(user?.role || '') ? [{
       title: "Dashboard Formateur",
       href: "/formateur/dashboard",
       icon: UsersIcon,
       color: "text-yellow-600",
     }] : []),
-    ...(user?.role === 'commercial' ? [{
+    ...(['commercial', 'commerciale'].includes(user?.role || '') ? [{
       title: "Dashboard Commercial",
       href: "/commercial/dashboard",
       icon: Briefcase,
