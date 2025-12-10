@@ -320,7 +320,7 @@ export function GlobalRanking({
 
             <div className="hidden sm:block w-px h-5 bg-gray-300 dark:bg-gray-600"></div>
 
-            <select
+            {/* <select
               value={sortKey}
               onChange={(e) => setSortKey(e.target.value as SortKey)}
               className="px-3 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
@@ -329,16 +329,16 @@ export function GlobalRanking({
               <option value="score">Points</option>
               <option value="quizCount">Quiz</option>
               <option value="name">Nom</option>
-            </select>
+            </select> */}
 
-            <button
+            {/* <button
               type="button"
               onClick={() => setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))}
               className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
               title={sortOrder === "asc" ? "Croissant" : "Décroissant"}
             >
               {sortOrder === "asc" ? "↑" : "↓"}
-            </button>
+            </button> */}
 
             {(search || formationFilter || formateurFilter || sortKey !== 'rang') && (
               <>
