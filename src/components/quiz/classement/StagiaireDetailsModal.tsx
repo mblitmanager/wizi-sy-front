@@ -6,12 +6,13 @@ import { Badge } from '@/components/ui/badge';
 import { Star, CheckCircle, TrendingUp, Clock } from 'lucide-react';
 import type { LeaderboardEntry } from '@/types/quiz';
 
+
 interface StagiaireDetailsModalProps {
     stagiaire: LeaderboardEntry | null;
     isOpen: boolean;
     onClose: () => void;
 }
-
+const apiUrl = import.meta.env.VITE_API_URL_MEDIA
 interface StagiaireDetails {
     id: number;
     firstname: string;
@@ -115,7 +116,7 @@ export function StagiaireDetailsModal({ stagiaire, isOpen, onClose }: StagiaireD
                         <DialogHeader>
                             <div className="flex items-start gap-6">
                                 <UserAvatar
-                                    imageUrl={details.avatar}
+                                    imageUrl={apiUrl + '/' + details.avatar}
                                     name={details.firstname}
                                     size="xl"
                                     variant={details.rang === 1 ? 'gold' : details.rang === 2 ? 'silver' : details.rang === 3 ? 'bronze' : 'default'}
@@ -160,12 +161,12 @@ export function StagiaireDetailsModal({ stagiaire, isOpen, onClose }: StagiaireD
                                         {details.formateurs.map((formateur) => (
                                             <div key={formateur.id} className="flex items-center gap-3 bg-gray-50 rounded-lg p-3">
                                                 <UserAvatar
-                                                    imageUrl={formateur.image}
+                                                    imageUrl={apiUrl + '/' + formateur.image}
                                                     name={formateur.prenom}
                                                     size="sm"
                                                 />
                                                 <span className="text-sm font-medium">
-                                                    {formateur.prenom} {formateur.nom}
+                                                    {formateur.prenom} {formateur.nom[0].toLocaleUpperCase() + '.'}
                                                 </span>
                                             </div>
                                         ))}
