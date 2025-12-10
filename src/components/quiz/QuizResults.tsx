@@ -1,4 +1,4 @@
-import { useLocation, useParams, Link } from "react-router-dom";
+import { useLocation, useParams, Link, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -10,12 +10,18 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { isRearrangementCorrect } from "@/utils/UtilsFunction";
 import { QuizSummary } from "./QuizSummary";
 import quizimg from "../../assets/loading_img.png";
+import { BadgeUnlockModal } from "@/components/profile/BadgeUnlockModal";
+import { useNewBadges } from "@/hooks/useNewBadges";
 
 export function QuizResults() {
   const { quizId } = useParams<{ quizId: string }>();
   const location = useLocation();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const notificationsContext = useNotifications();
+
+  // Badge unlock modal
+  const { currentBadge, showModal, setShowModal, checkForNewBadges } = useNewBadges();
 
   // Store result state locally to avoid triggering re-renders
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -45,13 +51,14 @@ export function QuizResults() {
     }
   }, [resultFromState, resultFromApi]);
 
-  // Handle notifications for quiz results
+  // Handle notifications for quiz results and check for new badges
   useEffect(() => {
     if (result && !notificationSent) {
-      // You can implement your notification logic here if needed
+      // Check for newly unlocked badges after quiz completion
+      checkForNewBadges();
       setNotificationSent(true);
     }
-  }, [result, notificationSent]);
+  }, [result, notificationSent, checkForNewBadges]);
 
   // Handle API errors
   useEffect(() => {
@@ -164,6 +171,19 @@ export function QuizResults() {
           score={result.score}
           totalQuestions={result.totalQuestions}
         />
+
+        {/* Badge unlock modal */}
+        {currentBadge && (
+          <BadgeUnlockModal
+            badge={currentBadge}
+            isOpen={showModal}
+            onClose={setShowModal}
+            onViewAll={() => {
+              setShowModal();
+              navigate("/profile/badges");
+            }}
+          />
+        )}
       </Layout>
     </div>
   );

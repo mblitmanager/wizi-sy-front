@@ -13,9 +13,12 @@ import { Contact } from "@/types/contact";
 import { agendaEvents } from "@/data/mockData";
 import { catalogueFormationApi } from "@/services/api";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
 import illustration from "../assets/Information tab-bro.png";
 import { DASHBOARD, FORMATIONMETADATA } from "@/utils/constants";
+import { BadgeUnlockModal } from "@/components/profile/BadgeUnlockModal";
+import { useNewBadges } from "@/hooks/useNewBadges";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -31,7 +34,12 @@ const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
 
 export default function DashboardPage() {
   const { user } = useUser();
+  const navigate = useNavigate();
   const isOnline = useOnlineStatus();
+
+  // Badge unlock modal
+  const { currentBadge, showModal, setShowModal, checkForNewBadges } = useNewBadges();
+
   const { data: commerciaux } = useQuery<Contact[]>({
     queryKey: ["contacts", "commerciaux"],
     queryFn: () => fetchContacts("commerciaux"),
@@ -45,6 +53,11 @@ export default function DashboardPage() {
     queryFn: () => fetchContacts("pole-relation"),
   });
   const [catalogueData, setCatalogueData] = useState([]);
+
+  // Check for new badges on mount
+  useEffect(() => {
+    checkForNewBadges();
+  }, [checkForNewBadges]);
   useEffect(() => {
     catalogueFormationApi.getAllCatalogueFormation().then((response) => {
       let formations = [];
@@ -140,6 +153,19 @@ export default function DashboardPage() {
           <ProgressCard user={user} />
           <AgendaCard events={agendaEvents} />
         </div>
+
+        {/* Badge unlock modal */}
+        {currentBadge && (
+          <BadgeUnlockModal
+            badge={currentBadge}
+            isOpen={showModal}
+            onClose={setShowModal}
+            onViewAll={() => {
+              setShowModal();
+              navigate("/profile/badges");
+            }}
+          />
+        )}
       </div>
     </Layout>
   );
