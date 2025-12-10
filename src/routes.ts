@@ -37,6 +37,7 @@ const ResetPassword = lazy(() => import("./components/auth/ResetPassword"));
 const ProfileBadgesPage = lazy(() => import("@/pages/ProfileBadgesPage"));
 const ProfileFormationsPage = lazy(() => import("@/pages/ProfileFormationsPage"));
 const ProfileStatsPage = lazy(() => import("@/pages/ProfileStatsPage"));
+const ProfileEditPage = lazy(() => import("@/pages/ProfileEditPage"));
 const StatisticsDashboard = lazy(() => import("@/pages/admin/StatisticsDashboard").then(module => ({ default: module.StatisticsDashboard })));
 const FormateurDashboard = lazy(() => import("@/pages/formateur/FormateurDashboard").then(module => ({ default: module.FormateurDashboard })));
 const CommercialDashboard = lazy(() => import("@/pages/commercial/CommercialDashboard").then(module => ({ default: module.CommercialDashboard })));
@@ -193,6 +194,14 @@ export const routes = [
       ProtectedRoute,
       undefined,
       Loadable(ProfileStatsPage)
+    ),
+  },
+  {
+    path: "/profile/edit",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(ProfileEditPage)
     ),
   },
   {

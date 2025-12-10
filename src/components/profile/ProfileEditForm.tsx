@@ -47,7 +47,7 @@ export function ProfileEditForm({ onSuccess, onCancel }: ProfileEditFormProps) {
         try {
             setFetching(true);
             const token = localStorage.getItem('token');
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/stagiaires/profile`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/stagiaire/profile`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -108,7 +108,7 @@ export function ProfileEditForm({ onSuccess, onCancel }: ProfileEditFormProps) {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/stagiaires/profile`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/stagiaire/profile`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export function ProfileEditPage() {
+export default function ProfileEditPage() {
     const navigate = useNavigate();
 
     return (
@@ -23,7 +23,7 @@ export function ProfileEditPage() {
                 <ProfileEditForm
                     onSuccess={() => {
                         // Redirect to dashboard or profile page
-                        navigate('/dashboard');
+                        navigate('/profile');
                     }}
                     onCancel={() => {
                         navigate(-1);
