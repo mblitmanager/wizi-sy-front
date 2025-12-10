@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 const logo = "/logons.png";
-import logonsImg from "@/assets/ns.png";
+import logonsImg from "@/assets/NS.png";
 import wiziLogo from "@/assets/logo.png";
 
 interface ApiResponse {

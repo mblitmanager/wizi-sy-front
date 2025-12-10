@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 const splash1 = "/assets/splash1.jpeg";
 const splash2 = "/assets/splash2.jpeg";
 const splash3 = "/assets/splash3.jpeg";
-const logonsImg = "/assets/ns.png"; // public asset
+const logonsImg = "/assets/NS.png"; // public asset
 import wiziLogo from "@/assets/logo.png";
 
 export default function OnboardingCarousel() {

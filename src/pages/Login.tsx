@@ -14,7 +14,7 @@ import { useUser } from "@/hooks/useAuth";
 const logo = "/logons.png";
 import { messaging, getToken } from "@/firebase-fcm";
 import { api } from "@/services";
-import logonsImg from "@/assets/ns.png";
+import logonsImg from "@/assets/NS.png";
 import wiziLogo from "@/assets/logo.png";
 
 const Login = () => {
