@@ -50,12 +50,23 @@ export default defineConfig(({ mode }) => {
         closeBundle() {
           const htaccessPath = path.resolve(__dirname, '.htaccess');
           const distPath = path.resolve(__dirname, 'dist', '.htaccess');
-          if (fs.existsSync(htaccessPath)) {
-            fs.copyFileSync(htaccessPath, distPath);
-            console.log('✅ .htaccess copied to dist/');
+
+          if (!fs.existsSync(htaccessPath)) {
+            console.warn('⚠️  .htaccess not found, skipping copy.');
+            return;
           }
+
+          // Crée dist/ si absent
+          const distDir = path.dirname(distPath);
+          if (!fs.existsSync(distDir)) {
+            fs.mkdirSync(distDir, { recursive: true });
+          }
+
+          fs.copyFileSync(htaccessPath, distPath);
+          console.log('✅ .htaccess copied to dist/');
         }
       }
+
     ],
     resolve: {
       alias: {
