@@ -290,7 +290,8 @@ export function QuizSummary() {
                       {result.correctAnswers}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      / {playedQuestions.length}
+                      {/* / {playedQuestions.length} */}
+                      / 5
                     </p>
                   </div>
                 </div>
