@@ -292,9 +292,9 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress, achieveme
                   {user?.user?.name || user?.stagiaire?.prenom || t("common.user_default")}
                   {user?.stagiaire?.prenom && user?.user?.name ? ` (${user.stagiaire.prenom})` : ""}
                 </h1>
-                <div className="ml-4">
+                {/* <div className="ml-4">
                   <LanguageSwitcher />
-                </div>
+                </div> */}
               </div>
             </div>
 

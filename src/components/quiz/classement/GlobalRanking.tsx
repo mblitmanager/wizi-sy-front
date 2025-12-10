@@ -24,7 +24,7 @@ export interface GlobalRankingProps {
   period?: 'week' | 'month' | 'all';
   onPeriodChange?: (period: 'week' | 'month' | 'all') => void;
 }
-
+const apiUrl = import.meta.env.VITE_API_URL_MEDIA
 type SortKey =
   | "rang"
   | "name"
@@ -446,7 +446,7 @@ export function GlobalRanking({
                       const isCurrentUser =
                         entry.id?.toString() === currentUserId;
                       const globalIndex = showPodium ? index + 4 : index + 1;
-
+                      
                       return (
                         <tr
                           key={entry.id || index}
@@ -467,9 +467,9 @@ export function GlobalRanking({
                             <div className="flex items-center gap-3">
                               <Avatar className="h-10 w-10 border-2 border-white shadow-sm">
                                 <AvatarImage
-                                  src={`${import.meta.env.VITE_API_URL_MEDIA ?? ""
-                                    }${"/" + entry.image}`}
+                                  src={apiUrl + '/' + entry.image}
                                 />
+                                
                                 <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
                                   {entry.name?.charAt(0) || "U"}
                                 </AvatarFallback>

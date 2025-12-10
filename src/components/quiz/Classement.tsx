@@ -205,7 +205,7 @@ export function Classement() {
         paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 3rem)",
       }}>
       {/* Statistiques synthétiques en tête */}
-      {!hideProfileStats ? (
+      {/* {!hideProfileStats ? (
         <div
           className={`w-full mt-4 md:mt-0 relative overflow-hidden transform transition-all duration-200 ease-in-out ${hideProfileStats
             ? "max-h-0 opacity-0 -translate-y-2"
@@ -249,7 +249,7 @@ export function Classement() {
           </button>
         </div>
       )}
-      <hr className="mn-2" />
+      <hr className="mn-2" /> */}
 
       <Tabs
         defaultValue={

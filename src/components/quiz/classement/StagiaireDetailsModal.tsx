@@ -126,7 +126,7 @@ export function StagiaireDetailsModal({ stagiaire, isOpen, onClose }: StagiaireD
                                         {details.firstname} {details.name[0].toLocaleUpperCase() + '.'}
                                     </DialogTitle>
                                     <p className="text-gray-600 mb-3">
-                                        Rang #{details.rang}
+                                        Position #{details.rang}
                                         {/* • {details.totalPoints} points */}
                                     </p>
                                     <ScoreDisplay score={details.totalPoints} variant="gold" />
