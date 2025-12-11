@@ -30,6 +30,29 @@ import { toast } from "@/hooks/use-toast";
 import { getRolePermissions } from "@/utils/rolePermissions";
 import NotificationHistory from "@/components/NotificationHistory";
 
+// Composant de redirection pour formateurs et commerciaux
+function RoleRedirect() {
+  const { user } = useUser();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user?.role) {
+      const userRole = (user as any).user?.role || user.role;
+
+      // Redirection automatique pour formateurs et commerciaux
+      if (['formateur', 'formatrice'].includes(userRole)) {
+        console.log('🔄 Redirection formateur vers dashboard');
+        navigate('/formateur/dashboard', { replace: true });
+      } else if (['commercial', 'commerciale'].includes(userRole)) {
+        console.log('🔄 Redirection commercial vers dashboard');
+        navigate('/commercial/dashboard', { replace: true });
+      }
+    }
+  }, [user, navigate]);
+
+  return null;
+}
+
 import { categoryService } from "@/services/quiz/CategoryService";
 import { catalogueFormationApi } from "@/services/api";
 import { stagiaireQuizService } from "@/services/quiz/StagiaireQuizService";

@@ -76,6 +76,27 @@ parrainage: {
     component: withSuspense(lazy(() => import("@/pages/Parrainage"))), // Correction: Parrainage au lieu de Parainage
       preload: () => import("@/pages/Parrainage"),
   },
+// ROUTES FORMATEUR
+formateurDashboard: {
+  path: "/formateur/dashboard",
+    component: withSuspense(lazy(() => import("@/pages/formateur/FormateurDashboard"))),
+      preload: () => import("@/pages/formateur/FormateurDashboard"),
+  },
+formateurCommunications: {
+  path: "/formateur/communications",
+    component: withSuspense(lazy(() => import("@/pages/formateur/FormateurCommunicationsPage"))),
+      preload: () => import("@/pages/formateur/FormateurCommunicationsPage"),
+  },
+formateurClassement: {
+  path: "/formateur/classement",
+    component: withSuspense(lazy(() => import("@/pages/formateur/FormateurClassementPage"))),
+      preload: () => import("@/pages/formateur/FormateurClassementPage"),
+  },
+formateurVideos: {
+  path: "/formateur/videos",
+    component: withSuspense(lazy(() => import("@/pages/formateur/FormateurVideosPage"))),
+      preload: () => import("@/pages/formateur/FormateurVideosPage"),
+  },
 // ROUTES RESSOURCES UTILES
 faq: {
   path: "/faq",
