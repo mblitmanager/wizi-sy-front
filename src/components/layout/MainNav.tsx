@@ -1,28 +1,10 @@
-import {
-  Home,
-  GraduationCap,
-  Brain,
-  Video,
-  User,
-  Trophy,
-  Gift,
-  HelpCircle,
-  FileText,
-  Mail,
-  Book,
-  Heart,
-  Shield,
-  ChevronDown,
-  Award,
-  BarChart3,
-  LayoutDashboard,
-  Users as UsersIcon,
-  Briefcase,
-} from "lucide-react";
-import { NavLink, useNavigate, useLocation } from "react-router-dom";
-import { useUser } from "@/hooks/useAuth";
-import { motion, AnimatePresence } from "framer-motion";
+import { LogOut, ChevronDown } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useNavigation } from "@/hooks/useNavigation";
+import { NavSection } from "@/components/navigation/NavSection";
+import { LoadingNav } from "@/components/navigation/LoadingNav";
 
 interface MainNavProps {
   showBottomNav?: boolean;
@@ -35,293 +17,115 @@ export default function MainNav({
 }: MainNavProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout, user } = useUser();
+  const { items, isLoading, user } = useNavigation();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  // Navigation principale
-  const mainNavItems = [
-    {
-      title: "Accueil",
-      href: "/",
-      icon: Home,
-      color: "text-yellow-600",
-    },
-    {
-      title: "Formation",
-      href: "/catalogue",
-      icon: GraduationCap,
-      color: "text-yellow-600",
-    },
-    {
-      title: "Quiz",
-      href: "/quizzes",
-      icon: Brain,
-      color: "text-yellow-600",
-    },
-    {
-      title: "Classement",
-      href: "/classement",
-      icon: Trophy,
-      color: "text-yellow-600",
-    },
-    {
-      title: "Tutoriel",
-      href: "/tuto-astuce",
-      icon: Video,
-      color: "text-yellow-600",
-    },
-    {
-      title: "Parrainage",
-      href: "/parrainage",
-      icon: Gift,
-      color: "text-yellow-600",
-    },
-  ];
+  // Show loading state while user data is being fetched
+  if (isLoading) {
+    return <LoadingNav />;
+  }
 
-  // Sous-navigation du profil
-  const profileNavItems = [
-    {
-      title: "Mes Informations",
-      href: "/profile",
-      icon: User,
-      color: "text-yellow-600",
-    },
-    {
-      title: "Mes Badges",
-      href: "/profile/badges",
-      icon: Award,
-      color: "text-yellow-600",
-    },
-    {
-      title: "Mes Formations",
-      href: "/profile/formations",
-      icon: GraduationCap,
-      color: "text-yellow-600",
-    },
-    {
-      title: "Mes Statistiques",
-      href: "/profile/statistiques",
-      icon: BarChart3,
-      color: "text-yellow-600",
-    },
-  ];
+  const handleLogout = async () => {
+    try {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
 
-  // Navigation Aide & Information
-  const helpNavItems = [
-    {
-      title: "FAQ",
-      href: "/faq",
-      icon: HelpCircle,
-      color: "text-yellow-600",
-    },
-    {
-      title: "CGV",
-      href: "/cgv",
-      icon: FileText,
-      color: "text-yellow-600",
-    },
-    {
-      title: "Contact & Support",
-      href: "/contact-support",
-      icon: Mail,
-      color: "text-yellow-600",
-    },
-    {
-      title: "Manuel d'utilisation",
-      href: "/manuel",
-      icon: Book,
-      color: "text-yellow-600",
-    },
-    {
-      title: "Remerciements",
-      href: "/remerciements",
-      icon: Heart,
-      color: "text-yellow-600",
-    },
-    {
-      title: "Confidentialité",
-      href: "/politique-confidentialite",
-      icon: Shield,
-      color: "text-yellow-600",
-    },
-  ];
-
-  // Dashboard navigation (role-based)
-  const dashboardNavItems = [
-    ...(user?.role === 'admin' ? [{
-      title: "Statistiques Admin",
-      href: "/admin/statistics",
-      icon: LayoutDashboard,
-      color: "text-yellow-600",
-    }] : []),
-    ...(['formateur', 'formatrice'].includes(user?.role || '') ? [
-      {
-        title: "Dashboard",
-        href: "/formateur/dashboard",
-        icon: LayoutDashboard,
-        color: "text-blue-600",
-      },
-      {
-        title: "Communications",
-        href: "/formateur/communications",
-        icon: Mail,
-        color: "text-green-600",
-      },
-      {
-        title: "Classement",
-        href: "/formateur/classement",
-        icon: Trophy,
-        color: "text-amber-600",
-      },
-      {
-        title: "Vidéos",
-        href: "/formateur/videos",
-        icon: Video,
-        color: "text-purple-600",
-      },
-    ] : []),
-    ...(['commercial', 'commerciale'].includes(user?.role || '') ? [{
-      title: "Dashboard Commercial",
-      href: "/commercial/dashboard",
-      icon: Briefcase,
-      color: "text-yellow-600",
-    }] : []),
-  ];
-
-  const NavItem = ({ item }: { item: (typeof mainNavItems)[0] }) => (
-    <NavLink
-      to={item.href}
-      onClick={onItemClick}
-      className={({ isActive }) =>
-        `group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 border-l-4 ${isActive
-          ? "bg-yellow-50 border-yellow-500 text-yellow-700 font-semibold shadow-sm"
-          : "border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300"
-        }`
-      }>
-      {({ isActive }) => (
-        <>
-          <div
-            className={`p-2 rounded-lg ${isActive ? "bg-yellow-100" : "bg-gray-100"
-              }`}>
-            <item.icon
-              className={`w-5 h-5 ${isActive ? "text-yellow-600" : item.color}`}
-            />
-          </div>
-          <span className="text-sm">{item.title}</span>
-          {isActive && (
-            <div className="ml-auto w-2 h-2 bg-yellow-500 rounded-full" />
-          )}
-        </>
-      )}
-    </NavLink>
-  );
-
-  const ProfileNavItem = ({ item }: { item: (typeof profileNavItems)[0] }) => (
-    <NavLink
-      to={item.href}
-      onClick={onItemClick}
-      className={({ isActive }) =>
-        `group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 border-l-4 ${isActive
-          ? "bg-yellow-50 border-yellow-500 text-yellow-700 font-semibold shadow-sm"
-          : "border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300"
-        }`
-      }>
-      {({ isActive }) => (
-        <>
-          <div
-            className={`p-2 rounded-lg ${isActive ? "bg-yellow-100" : "bg-gray-100"
-              }`}>
-            <item.icon
-              className={`w-5 h-5 ${isActive ? "text-yellow-600" : item.color}`}
-            />
-          </div>
-          <span className="text-sm">{item.title}</span>
-          {isActive && (
-            <div className="ml-auto w-2 h-2 bg-yellow-500 rounded-full" />
-          )}
-        </>
-      )}
-    </NavLink>
-  );
-
-  const HelpNavItem = ({ item }: { item: (typeof helpNavItems)[0] }) => (
-    <NavLink
-      to={item.href}
-      onClick={onItemClick}
-      className={({ isActive }) =>
-        `group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 border-l-4 ${isActive
-          ? "bg-yellow-50 border-yellow-500 text-yellow-700 font-semibold shadow-sm"
-          : "border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300"
-        }`
-      }>
-      {({ isActive }) => (
-        <>
-          <div
-            className={`p-2 rounded-lg ${isActive ? "bg-yellow-100" : "bg-gray-100"
-              }`}>
-            <item.icon
-              className={`w-5 h-5 ${isActive ? "text-yellow-600" : item.color}`}
-            />
-          </div>
-          <span className="text-sm">{item.title}</span>
-          {isActive && (
-            <div className="ml-auto w-2 h-2 bg-yellow-500 rounded-full" />
-          )}
-        </>
-      )}
-    </NavLink>
-  );
+  const toggleProfileMenu = () => {
+    setIsProfileOpen(!isProfileOpen);
+  };
 
   return (
     <div className="flex flex-col h-full bg-white border-r border-gray-200">
+      {/* Logo et utilisateur */}
+      <div className="p-4 border-b border-gray-200">
+        <div className="flex items-center gap-3 mb-4">
+          <img src="/logo.png" alt="Wizi Learn" className="h-10" />
+        </div>
+
+        {user && (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white font-bold">
+                {user.name?.charAt(0).toUpperCase()}
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-gray-900">{user.name}</p>
+                <p className="text-xs text-gray-500 capitalize">{user.role}</p>
+              </div>
+            </div>
+            <button
+              onClick={toggleProfileMenu}
+              className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <ChevronDown
+                className={`h-5 w-5 text-gray-400 transition-transform ${isProfileOpen ? "rotate-180" : ""
+                  }`}
+              />
+            </button>
+          </div>
+        )}
+
+        <AnimatePresence>
+          {isProfileOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-2 pt-2 border-t border-gray-200"
+            >
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              >
+                <LogOut className="h-4 w-4" />
+                Déconnexion
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
       {/* Navigation avec scroll */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-4 space-y-6 h-[600px]">
-          {/* Navigation principale - Masquée pour formateurs et commerciaux */}
-          {!['formateur', 'formatrice', 'commercial', 'commerciale', 'admin'].includes(user?.role || '') && (
-            <div className="space-y-1 hidden md:block">
-              <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                Navigation
-              </h3>
-              {mainNavItems.map((item) => (
-                <NavItem key={item.href} item={item} />
-              ))}
-            </div>
+        <div className="p-4 space-y-6">
+          {/* Main Navigation Section */}
+          {items.main.length > 0 && (
+            <NavSection
+              title="Navigation"
+              items={items.main}
+              onItemClick={onItemClick}
+            />
           )}
 
-          {/* Section Profil - Tous les items au même niveau */}
-          <div className="space-y-1">
-            <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-              Mon Profil
-            </h3>
-            {profileNavItems.map((item) => (
-              <ProfileNavItem key={item.href} item={item} />
-            ))}
-          </div>
+          {/* Profile Navigation Section */}
+          <NavSection
+            title="Mon Profil"
+            items={items.profile}
+            onItemClick={onItemClick}
+          />
 
-          {/* Section Dashboard (role-based) */}
-          {dashboardNavItems.length > 0 && (
-            <div className="space-y-1">
-              <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                Dashboard
-              </h3>
-              {dashboardNavItems.map((item) => (
-                <ProfileNavItem key={item.href} item={item} />
-              ))}
-            </div>
-          )}
-
-          {/* Section Aide & Information */}
-          <div className="space-y-1">
-            <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-              Aide & Information
-            </h3>
-            {helpNavItems.map((item) => (
-              <HelpNavItem key={item.href} item={item} />
-            ))}
-          </div>
+          {/* Help Navigation Section */}
+          <NavSection
+            title="Aide & Information"
+            items={items.help}
+            onItemClick={onItemClick}
+          />
         </div>
       </div>
+
+      {/* User info in footer (optional) */}
+      {user && (
+        <div className="p-4 border-t border-gray-200 bg-gray-50">
+          <p className="text-xs text-gray-500 text-center">
+            Connecté en tant que <span className="font-medium">{user.email}</span>
+          </p>
+        </div>
+      )}
     </div>
   );
 }
