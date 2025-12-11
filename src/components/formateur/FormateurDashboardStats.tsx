@@ -13,6 +13,19 @@ interface DashboardStats {
     never_connected: number;
     avg_quiz_score: number;
     total_video_hours: number;
+    formations: Array<{
+        id: number;
+        nom: string;
+        total_stagiaires: number;
+        stagiaires_actifs: number;
+        score_moyen: number;
+    }>;
+    formateurs: Array<{
+        id: number;
+        prenom: string;
+        nom: string;
+        total_stagiaires: number;
+    }>;
 }
 
 export function FormateurDashboardStats() {

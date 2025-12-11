@@ -154,12 +154,32 @@ export default function MainNav({
       icon: LayoutDashboard,
       color: "text-yellow-600",
     }] : []),
-    ...(['formateur', 'formatrice'].includes(user?.role || '') ? [{
-      title: "Dashboard Formateur",
-      href: "/formateur/dashboard",
-      icon: UsersIcon,
-      color: "text-yellow-600",
-    }] : []),
+    ...(['formateur', 'formatrice'].includes(user?.role || '') ? [
+      {
+        title: "Dashboard",
+        href: "/formateur/dashboard",
+        icon: LayoutDashboard,
+        color: "text-blue-600",
+      },
+      {
+        title: "Communications",
+        href: "/formateur/communications",
+        icon: Mail,
+        color: "text-green-600",
+      },
+      {
+        title: "Classement",
+        href: "/formateur/classement",
+        icon: Trophy,
+        color: "text-amber-600",
+      },
+      {
+        title: "Vidéos",
+        href: "/formateur/videos",
+        icon: Video,
+        color: "text-purple-600",
+      },
+    ] : []),
     ...(['commercial', 'commerciale'].includes(user?.role || '') ? [{
       title: "Dashboard Commercial",
       href: "/commercial/dashboard",
@@ -257,15 +277,17 @@ export default function MainNav({
       {/* Navigation avec scroll */}
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 space-y-6 h-[600px]">
-          {/* Navigation principale */}
-          <div className="space-y-1 hidden md:block">
-            <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-              Navigation
-            </h3>
-            {mainNavItems.map((item) => (
-              <NavItem key={item.href} item={item} />
-            ))}
-          </div>
+          {/* Navigation principale - Masquée pour formateurs et commerciaux */}
+          {!['formateur', 'formatrice', 'commercial', 'commerciale', 'admin'].includes(user?.role || '') && (
+            <div className="space-y-1 hidden md:block">
+              <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                Navigation
+              </h3>
+              {mainNavItems.map((item) => (
+                <NavItem key={item.href} item={item} />
+              ))}
+            </div>
+          )}
 
           {/* Section Profil - Tous les items au même niveau */}
           <div className="space-y-1">

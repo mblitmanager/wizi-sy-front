@@ -2,6 +2,9 @@ import React from 'react';
 import { Layout } from '@/components/layout/Layout';
 import FormateurDashboardStats from '@/components/formateur/FormateurDashboardStats';
 import InactiveStagiairesTable from '@/components/formateur/InactiveStagiairesTable';
+import FormateurStatsFormations from '@/components/formateur/FormateurStatsFormations';
+import FormateurStatsFormateurs from '@/components/formateur/FormateurStatsFormateurs';
+import OnlineStagiairesCard from '@/components/formateur/OnlineStagiairesCard';
 
 export function FormateurDashboard() {
     return (
@@ -19,6 +22,13 @@ export function FormateurDashboard() {
 
                 {/* Stats Cards */}
                 <FormateurDashboardStats />
+
+                {/* Stagiaires en ligne + Stats par Formation/Formateurs */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+                    <OnlineStagiairesCard />
+                    <FormateurStatsFormations />
+                    <FormateurStatsFormateurs />
+                </div>
 
                 {/* Alertes Stagiaires Inactifs */}
                 <div className="mt-8">

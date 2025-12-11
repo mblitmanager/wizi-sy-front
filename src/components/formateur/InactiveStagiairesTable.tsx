@@ -30,26 +30,43 @@ export function InactiveStagiairesTable() {
     const [inactiveStagiaires, setInactiveStagiaires] = useState<InactiveStagiaire[]>([]);
     const [loading, setLoading] = useState(true);
     const [days, setDays] = useState(7);
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const [totalCount, setTotalCount] = useState(0);
 
     useEffect(() => {
+        // fetch when the `days` filter changes (we paginate locally)
+        setLoading(true);
         fetchInactiveStagiaires();
     }, [days]);
 
     const fetchInactiveStagiaires = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`${API_URL}/formateur/stagiaires/inactive?days=${days}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            setInactiveStagiaires(response.data.inactive_stagiaires);
+            setLoading(true);
+            const response = await axios.get(
+                `${API_URL}/formateur/stagiaires/inactive?days=${days}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            // API responses vary; try common fields for items
+            const items = response.data.inactive_stagiaires || response.data.items || response.data.data || [];
+
+            // client-side pagination: derive total from the fetched items
+            setInactiveStagiaires(items);
+            setTotalCount(items.length);
         } catch (err) {
             console.error('Erreur chargement stagiaires inactifs:', err);
         } finally {
             setLoading(false);
         }
     };
+
+    // page is reset to 1 where appropriate (days buttons and pageSize selector)
 
     const getClientIcon = (client: string | null) => {
         switch (client) {
@@ -64,6 +81,8 @@ export function InactiveStagiairesTable() {
         }
     };
 
+    const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+
     if (loading) {
         return (
             <Card>
@@ -73,6 +92,9 @@ export function InactiveStagiairesTable() {
             </Card>
         );
     }
+
+    const start = (page - 1) * pageSize;
+    const paginated = inactiveStagiaires.slice(start, start + pageSize);
 
     return (
         <Card>
@@ -86,21 +108,33 @@ export function InactiveStagiairesTable() {
                         <Button
                             size="sm"
                             variant={days === 7 ? 'default' : 'outline'}
-                            onClick={() => setDays(7)}
+                            onClick={() => {
+                                setDays(7);
+                                setPage(1);
+                                setLoading(true);
+                            }}
                         >
                             7 jours
                         </Button>
                         <Button
                             size="sm"
                             variant={days === 14 ? 'default' : 'outline'}
-                            onClick={() => setDays(14)}
+                            onClick={() => {
+                                setDays(14);
+                                setPage(1);
+                                setLoading(true);
+                            }}
                         >
                             14 jours
                         </Button>
                         <Button
                             size="sm"
                             variant={days === 30 ? 'default' : 'outline'}
-                            onClick={() => setDays(30)}
+                            onClick={() => {
+                                setDays(30);
+                                setPage(1);
+                                setLoading(true);
+                            }}
                         >
                             30 jours
                         </Button>
@@ -108,6 +142,74 @@ export function InactiveStagiairesTable() {
                 </div>
             </CardHeader>
             <CardContent>
+                <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">Afficher</span>
+                        <select
+                            value={pageSize}
+                            onChange={(e) => {
+                                setPageSize(Number(e.target.value));
+                                setPage(1);
+                            }}
+                            className="rounded-md border px-2 py-1 text-sm"
+                        >
+                            <option value={10}>10</option>
+                            <option value={25}>25</option>
+                            <option value={50}>50</option>
+                        </select>
+                        <span className="text-sm text-muted-foreground">/ {totalCount} résultats</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                                if (page > 1) {
+                                    setPage((p) => p - 1);
+                                }
+                            }}
+                            disabled={page <= 1}
+                        >
+                            Préc
+                        </Button>
+
+                        {/* simple page number buttons, cap to a window */}
+                        {Array.from({ length: Math.min(7, totalPages) }).map((_, i) => {
+                            // center current page in the window when possible
+                            const half = Math.floor(Math.min(7, totalPages) / 2);
+                            let start = Math.max(1, page - half);
+                            if (start + Math.min(7, totalPages) - 1 > totalPages) {
+                                start = Math.max(1, totalPages - Math.min(7, totalPages) + 1);
+                            }
+                            const pageNumber = start + i;
+                            if (pageNumber > totalPages) return null;
+                            return (
+                                <Button
+                                    key={pageNumber}
+                                    size="sm"
+                                    variant={pageNumber === page ? 'default' : 'ghost'}
+                                    onClick={() => setPage(pageNumber)}
+                                >
+                                    {pageNumber}
+                                </Button>
+                            );
+                        })}
+
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                                if (page < totalPages) {
+                                    setPage((p) => p + 1);
+                                }
+                            }}
+                            disabled={page >= totalPages}
+                        >
+                            Suiv
+                        </Button>
+                    </div>
+                </div>
                 {inactiveStagiaires.length === 0 ? (
                     <p className="text-center py-8 text-muted-foreground">
                         Aucun stagiaire inactif trouvé 🎉
@@ -124,7 +226,7 @@ export function InactiveStagiairesTable() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {inactiveStagiaires.map((stagiaire) => (
+                            {paginated.map((stagiaire) => (
                                 <TableRow key={stagiaire.id}>
                                     <TableCell>
                                         <div className="font-medium">
@@ -140,9 +242,9 @@ export function InactiveStagiairesTable() {
                                         {stagiaire.email}
                                     </TableCell>
                                     <TableCell>
-                                        {stagiaire.days_since_activity ? (
+                                        {typeof stagiaire.days_since_activity === 'number' && stagiaire.days_since_activity > 0 ? (
                                             <Badge variant="outline" className="bg-orange-50">
-                                                Il y a {stagiaire.days_since_activity} jours
+                                                Il y a {parseInt(stagiaire.days_since_activity)} jours
                                             </Badge>
                                         ) : (
                                             <Badge variant="secondary">Jamais</Badge>
