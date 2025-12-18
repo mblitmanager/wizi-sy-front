@@ -27,8 +27,11 @@ export const AnnouncementHistory = ({ refreshTrigger }: { refreshTrigger?: numbe
 
     const loadHistory = async () => {
         try {
-            const data = await AnnouncementService.getHistory();
-            setHistory(data.data as Announcement[]);
+            const response = await AnnouncementService.getHistory();
+            // Laravel pagination returns: { data: [...], current_page: 1, ... }
+            // Axios returns: response.data = { data: [...], ... }
+            // So we need response.data.data
+            setHistory(response.data.data as Announcement[]);
         } catch (error) {
             console.error("Failed to load history", error);
         } finally {

@@ -35,7 +35,7 @@ export const getFormateurNavigation = () => ({
         },
         {
             title: "Annonces",
-            href: "/admin/announcements",
+            href: "/formateur/announcements",
             icon: Megaphone,
             color: "text-orange-600",
         },

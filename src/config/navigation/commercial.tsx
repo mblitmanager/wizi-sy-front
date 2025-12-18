@@ -22,7 +22,7 @@ export const getCommercialNavigation = () => ({
         },
         {
             title: "Annonces",
-            href: "/admin/announcements",
+            href: "/commercial/announcements",
             icon: Megaphone,
             color: "text-red-600",
         },

@@ -40,6 +40,9 @@ const ProfileStatsPage = lazy(() => import("@/pages/ProfileStatsPage"));
 const ProfileEditPage = lazy(() => import("@/pages/ProfileEditPage"));
 const StatisticsDashboard = lazy(() => import("@/pages/admin/StatisticsDashboard").then(module => ({ default: module.StatisticsDashboard })));
 const FormateurDashboard = lazy(() => import("@/pages/formateur/FormateurDashboard").then(module => ({ default: module.FormateurDashboard })));
+const FormateurCommunicationsPage = lazy(() => import("@/pages/formateur/FormateurCommunicationsPage").then(module => ({ default: module.FormateurCommunicationsPage })));
+const FormateurClassementPage = lazy(() => import("@/pages/formateur/FormateurClassementPage").then(module => ({ default: module.FormateurClassementPage })));
+const FormateurVideosPage = lazy(() => import("@/pages/formateur/FormateurVideosPage").then(module => ({ default: module.FormateurVideosPage })));
 const CommercialDashboard = lazy(() => import("@/pages/commercial/CommercialDashboard").then(module => ({ default: module.CommercialDashboard })));
 const AnnouncementsPage = lazy(() => import("@/pages/admin/AnnouncementsPage").then(module => ({ default: module.AnnouncementsPage })));
 
@@ -270,11 +273,51 @@ export const routes = [
     ),
   },
   {
+    path: "/formateur/announcements",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(AnnouncementsPage)
+    ),
+  },
+  {
+    path: "/commercial/announcements",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(AnnouncementsPage)
+    ),
+  },
+  {
     path: "/formateur/dashboard",
     element: React.createElement(
       ProtectedRoute,
       undefined,
       Loadable(FormateurDashboard)
+    ),
+  },
+  {
+    path: "/formateur/communications",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(FormateurCommunicationsPage)
+    ),
+  },
+  {
+    path: "/formateur/classement",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(FormateurClassementPage)
+    ),
+  },
+  {
+    path: "/formateur/videos",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(FormateurVideosPage)
     ),
   },
   {
