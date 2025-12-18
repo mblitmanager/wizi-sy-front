@@ -38,8 +38,13 @@ export const AnnouncementService = {
    */
   getRecipients: async (): Promise<Recipient[]> => {
       const response = await api.get('/announcements/recipients');
-      return response.data; // Assuming axios returns data in data property, and Laravel returns json array directly or inside data key.
-      // Laravel `response()->json($collection)` returns array.
-      // If using `api.ts` interceptor, it might return data directly. Let's assume standard.
+      return response.data; 
+  },
+
+  /**
+   * Delete an announcement
+   */
+  deleteAnnouncement: async (id: string) => {
+    return api.delete(`/announcements/${id}`);
   }
 };

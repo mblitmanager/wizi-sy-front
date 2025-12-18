@@ -4,9 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Megaphone, Send, Users, Check } from "lucide-react";
+import { Megaphone, Send, Users, Check, Clock, Calendar as CalendarIcon, X } from "lucide-react";
 import { toast } from "sonner";
 import { AnnouncementService, Recipient } from "@/services/AnnouncementService";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar"; // Assuming you have a calendar component
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
 interface ComposeAnnouncementProps {
     onSuccess: () => void;
@@ -16,22 +20,24 @@ export const ComposeAnnouncement: React.FC<ComposeAnnouncementProps> = ({ onSucc
     const [title, setTitle] = useState('');
     const [message, setMessage] = useState('');
     const [targetAudience, setTargetAudience] = useState<'all' | 'stagiaires' | 'formateurs' | 'autres' | 'specific_users'>('stagiaires');
-    const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]); // Store IDs as strings for Select value handling
+    const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
     const [availableRecipients, setAvailableRecipients] = useState<Recipient[]>([]);
     const [loading, setLoading] = useState(false);
     const [loadingRecipients, setLoadingRecipients] = useState(false);
+    
+    // Scheduling state
+    const [scheduledDate, setScheduledDate] = useState<Date | undefined>(undefined);
+    const [scheduledTime, setScheduledTime] = useState<string>("09:00");
+    const [isScheduling, setIsScheduling] = useState(false);
 
-    // Fetch recipients when component mounts or audience changes to specific
     useEffect(() => {
         const fetchRecipients = async () => {
             setLoadingRecipients(true);
             try {
                 const data = await AnnouncementService.getRecipients();
-                // Ensure data is an array
                 if (Array.isArray(data)) {
                     setAvailableRecipients(data);
                 } else if ((data as any).data && Array.isArray((data as any).data)) { 
-                     // Handle pagination or wrapper case just in case
                      setAvailableRecipients((data as any).data);
                 } else {
                     setAvailableRecipients([]);
@@ -43,8 +49,6 @@ export const ComposeAnnouncement: React.FC<ComposeAnnouncementProps> = ({ onSucc
                 setLoadingRecipients(false);
             }
         };
-
-        // Pre-fetch recipients for user convenience or on demand
         fetchRecipients();
     }, []);
 
@@ -59,6 +63,19 @@ export const ComposeAnnouncement: React.FC<ComposeAnnouncementProps> = ({ onSucc
             return;
         }
 
+        let scheduledAtIso = undefined;
+        if (scheduledDate) {
+            const [hours, minutes] = scheduledTime.split(':').map(Number);
+            const date = new Date(scheduledDate);
+            date.setHours(hours, minutes, 0);
+            
+            if (date <= new Date()) {
+                 toast.error("La date de programmation doit être dans le futur");
+                 return;
+            }
+            scheduledAtIso = date.toISOString(); // or format properly for Laravel: YYYY-MM-DD HH:mm:ss
+        }
+
         setLoading(true);
         try {
             await AnnouncementService.sendAnnouncement({
@@ -66,16 +83,22 @@ export const ComposeAnnouncement: React.FC<ComposeAnnouncementProps> = ({ onSucc
                 message,
                 target_audience: targetAudience,
                 recipient_ids: targetAudience === 'specific_users' ? selectedRecipients.map(Number) : undefined,
+                scheduled_at: scheduledAtIso,
             });
-            toast.success("Annonce envoyée avec succès !");
+            toast.success(scheduledDate ? "Annonce programmée avec succès !" : "Annonce envoyée avec succès !");
+            
+            // Reset form
             setTitle('');
             setMessage('');
             setTargetAudience('stagiaires');
             setSelectedRecipients([]);
+            setScheduledDate(undefined);
+            setIsScheduling(false);
+            
             onSuccess();
         } catch (error) {
             console.error(error);
-            toast.error("Erreur lors de l'envoi de l'annonce");
+            toast.error("Erreur lors de l'envoi");
         } finally {
             setLoading(false);
         }
@@ -110,33 +133,95 @@ export const ComposeAnnouncement: React.FC<ComposeAnnouncementProps> = ({ onSucc
                     />
                 </div>
 
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-400 flex items-center gap-2">
-                        <Users className="w-4 h-4" />
-                        Audience Cible
-                    </label>
-                    <Select 
-                        value={targetAudience} 
-                        onValueChange={(val: any) => {
-                            setTargetAudience(val);
-                            // Reset selection if switching away from specific_users
-                            if (val !== 'specific_users') setSelectedRecipients([]);
-                        }}
-                    >
-                        <SelectTrigger className="bg-[#0a0a0a] border-[#333] text-white">
-                            <SelectValue placeholder="Sélectionner une audience" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-[#1a1a1a] border-[#333] text-white">
-                            <SelectItem value="all">Tous les utilisateurs (Admin)</SelectItem>
-                            <SelectItem value="stagiaires">Mes Stagiaires</SelectItem>
-                            <SelectItem value="formateurs">Formateurs (Admin)</SelectItem>
-                            <SelectItem value="autres">Autres</SelectItem>
-                            <SelectItem value="specific_users">Utilisateurs spécifiques</SelectItem>
-                        </SelectContent>
-                    </Select>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-400 flex items-center gap-2">
+                            <Users className="w-4 h-4" />
+                            Audience Cible
+                        </label>
+                        <Select 
+                            value={targetAudience} 
+                            onValueChange={(val: any) => {
+                                setTargetAudience(val);
+                                if (val !== 'specific_users') setSelectedRecipients([]);
+                            }}
+                        >
+                            <SelectTrigger className="bg-[#0a0a0a] border-[#333] text-white">
+                                <SelectValue placeholder="Sélectionner une audience" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-[#1a1a1a] border-[#333] text-white">
+                                <SelectItem value="all">Tous les utilisateurs (Admin)</SelectItem>
+                                <SelectItem value="stagiaires">Mes Stagiaires</SelectItem>
+                                <SelectItem value="formateurs">Formateurs (Admin)</SelectItem>
+                                <SelectItem value="autres">Autres</SelectItem>
+                                <SelectItem value="specific_users">Utilisateurs spécifiques</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                         <label className="text-sm font-medium text-gray-400 flex items-center gap-2">
+                            <Clock className="w-4 h-4" />
+                            Programmation (Optionnel)
+                        </label>
+                        <Popover open={isScheduling} onOpenChange={setIsScheduling}>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    className={`w-full justify-start text-left font-normal border-[#333] ${!scheduledDate ? "text-gray-400 bg-[#0a0a0a]" : "text-yellow-500 border-yellow-500/50 bg-[#0a0a0a]"}`}
+                                >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {scheduledDate ? (
+                                         <span>{format(scheduledDate, "PPP", { locale: fr })} à {scheduledTime}</span>
+                                    ) : (
+                                        <span>Envoyer maintenant</span>
+                                    )}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0 bg-[#1a1a1a] border-[#333] text-white" align="start">
+                                <Calendar
+                                    mode="single"
+                                    selected={scheduledDate}
+                                    onSelect={setScheduledDate}
+                                    initialFocus
+                                    className="p-3 pointer-events-auto"
+                                />
+                                <div className="p-3 border-t border-[#333] space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <Clock className="w-4 h-4 text-gray-400" />
+                                        <Input 
+                                            type="time" 
+                                            value={scheduledTime}
+                                            onChange={(e) => setScheduledTime(e.target.value)}
+                                            className="bg-[#0a0a0a] border-[#333] text-white h-8"
+                                        />
+                                    </div>
+                                    <div className="flex justify-between gap-2">
+                                         <Button 
+                                            variant="ghost" 
+                                            size="sm" 
+                                            onClick={() => {
+                                                setScheduledDate(undefined);
+                                                setIsScheduling(false);
+                                            }}
+                                            className="text-gray-400 hover:text-white"
+                                        >
+                                            Effacer
+                                        </Button>
+                                        <Button 
+                                            size="sm" 
+                                            onClick={() => setIsScheduling(false)}
+                                            className="bg-yellow-600 hover:bg-yellow-500 text-black"
+                                        >
+                                            Valider
+                                        </Button>
+                                    </div>
+                                </div>
+                            </PopoverContent>
+                        </Popover>
+                    </div>
                 </div>
 
-                {/* Specific User Selection - Simple Multi-select simulation using native select for simplicity or list */}
                 {targetAudience === 'specific_users' && (
                      <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
                         <label className="text-sm font-medium text-gray-400">
@@ -147,7 +232,7 @@ export const ComposeAnnouncement: React.FC<ComposeAnnouncementProps> = ({ onSucc
                         ) : (
                             <div className="max-h-48 overflow-y-auto bg-[#0a0a0a] border border-[#333] rounded-md p-2">
                                 {availableRecipients.length === 0 ? (
-                                    <div className="text-sm text-gray-500 p-2">Aucun utilisateur trouvé dans votre réseau.</div>
+                                    <div className="text-sm text-gray-500 p-2">Aucun utilisateur trouvé.</div>
                                 ) : (
                                     availableRecipients.map((user) => (
                                         <div 
@@ -169,7 +254,6 @@ export const ComposeAnnouncement: React.FC<ComposeAnnouncementProps> = ({ onSucc
                                 )}
                             </div>
                         )}
-                        <p className="text-xs text-gray-500">Cliquez pour sélectionner/désélectionner</p>
                     </div>
                 )}
 
@@ -177,12 +261,12 @@ export const ComposeAnnouncement: React.FC<ComposeAnnouncementProps> = ({ onSucc
                      <Button 
                         onClick={handleSend} 
                         disabled={loading}
-                        className="bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-black font-semibold"
+                        className={`font-semibold ${scheduledDate ? 'bg-green-600 hover:bg-green-500' : 'bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400'} text-black`}
                     >
-                        {loading ? 'Envoi...' : (
+                        {loading ? 'Traitement...' : (
                             <>
-                                <Send className="w-4 h-4 mr-2" />
-                                Envoyer
+                                {scheduledDate ? <Clock className="w-4 h-4 mr-2" /> : <Send className="w-4 h-4 mr-2" />}
+                                {scheduledDate ? 'Programmer l\'envoi' : 'Envoyer maintenant'}
                             </>
                         )}
                     </Button>
