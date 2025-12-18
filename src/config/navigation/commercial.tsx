@@ -2,6 +2,7 @@ import {
     Briefcase,
     Users,
     LayoutDashboard,
+    Megaphone,
 } from "lucide-react";
 import { NavItem } from "./stagiaire";
 
@@ -18,6 +19,12 @@ export const getCommercialNavigation = () => ({
             href: "/commercial/stagiaires",
             icon: Users,
             color: "text-green-600",
+        },
+        {
+            title: "Annonces",
+            href: "/admin/announcements",
+            icon: Megaphone,
+            color: "text-red-600",
         },
     ] as NavItem[],
 });

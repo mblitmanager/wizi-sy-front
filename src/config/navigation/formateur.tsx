@@ -3,6 +3,7 @@ import {
     Mail,
     Trophy,
     Video,
+    Megaphone,
 } from "lucide-react";
 import { NavItem } from "./stagiaire";
 
@@ -31,6 +32,12 @@ export const getFormateurNavigation = () => ({
             href: "/formateur/videos",
             icon: Video,
             color: "text-purple-600",
+        },
+        {
+            title: "Annonces",
+            href: "/admin/announcements",
+            icon: Megaphone,
+            color: "text-orange-600",
         },
     ] as NavItem[],
 });

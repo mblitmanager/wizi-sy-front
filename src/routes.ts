@@ -41,6 +41,7 @@ const ProfileEditPage = lazy(() => import("@/pages/ProfileEditPage"));
 const StatisticsDashboard = lazy(() => import("@/pages/admin/StatisticsDashboard").then(module => ({ default: module.StatisticsDashboard })));
 const FormateurDashboard = lazy(() => import("@/pages/formateur/FormateurDashboard").then(module => ({ default: module.FormateurDashboard })));
 const CommercialDashboard = lazy(() => import("@/pages/commercial/CommercialDashboard").then(module => ({ default: module.CommercialDashboard })));
+const AnnouncementsPage = lazy(() => import("@/pages/admin/AnnouncementsPage").then(module => ({ default: module.AnnouncementsPage })));
 
 // Helper to wrap components in Suspense
 const Loadable = (Component: React.LazyExoticComponent<any>) =>
@@ -258,6 +259,14 @@ export const routes = [
       ProtectedRoute,
       undefined,
       Loadable(StatisticsDashboard)
+    ),
+  },
+  {
+    path: "/admin/announcements",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(AnnouncementsPage)
     ),
   },
   {
