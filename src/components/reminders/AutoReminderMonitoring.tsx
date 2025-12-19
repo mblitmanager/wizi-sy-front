@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AutoReminderService, { ReminderStats, ReminderHistoryItem } from "@/services/AutoReminderService";
+import AutoReminderService, { ReminderStats, ReminderHistoryItem, TargetedUser } from "@/services/AutoReminderService";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
@@ -25,16 +25,15 @@ import { useToast } from "@/hooks/use-toast";
 const AutoReminderMonitoring: React.FC = () => {
   const [stats, setStats] = useState<ReminderStats | null>(null);
   const [history, setHistory] = useState<ReminderHistoryItem[]>([]);
+  const [targeted, setTargeted] = useState<TargetedUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingTargeted, setLoadingTargeted] = useState(false);
+  const [runningManual, setRunningManual] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadData();
-  }, [page]);
-
-  const loadData = async () => {
+  const loadData = React.useCallback(async () => {
     try {
       setLoading(true);
       const [statsData, historyData] = await Promise.all([
@@ -45,7 +44,7 @@ const AutoReminderMonitoring: React.FC = () => {
       setHistory(historyData.data);
       setTotalPages(historyData.last_page);
     } catch (error) {
-           console.error("Failed to load reminder data", error);
+      console.error("Failed to load reminder data", error);
       toast({
         title: "Erreur",
         description: "Impossible de charger les données de monitoring.",
@@ -53,6 +52,45 @@ const AutoReminderMonitoring: React.FC = () => {
       });
     } finally {
       setLoading(false);
+    }
+  }, [page, toast]);
+
+  useEffect(() => {
+    loadData();
+  }, [page, loadData]);
+
+  const loadTargeted = async () => {
+    try {
+      setLoadingTargeted(true);
+      const data = await AutoReminderService.getTargeted();
+      setTargeted(data);
+    } catch (error) {
+      console.error("Failed to load targeted users", error);
+    } finally {
+      setLoadingTargeted(false);
+    }
+  };
+
+  const handleRunManual = async () => {
+    try {
+      setRunningManual(true);
+      const response = await AutoReminderService.runManualReminders();
+      toast({
+        title: "Succès",
+        description: response.message || "Rappels déclenchés manuellement.",
+      });
+      loadData(); // Refresh stats after run
+      if (targeted.length > 0) loadTargeted();
+    } catch (error: unknown) {
+      console.error("Failed to run manual reminders", error);
+      const errorMessage = error instanceof Error ? error.message : "Erreur lors du déclenchement des rappels.";
+      toast({
+        title: "Erreur",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setRunningManual(false);
     }
   };
 
@@ -73,11 +111,27 @@ const AutoReminderMonitoring: React.FC = () => {
             Suivi des notifications envoyées automatiquement par le système.
           </p>
         </div>
-        <div className="flex items-center gap-2 bg-muted/50 px-3 py-1 rounded-full border border-border shadow-sm">
-          <Clock size={14} className="text-primary" />
-          <span className="text-xs font-medium">
-            Prochain passage : {stats?.last_run ? format(new Date(stats.last_run), "HH:00", { locale: fr }) : "--:--"} (Quotidien)
-          </span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 bg-muted/50 px-3 py-2 rounded-full border border-border shadow-sm">
+            <Clock size={14} className="text-primary" />
+            <span className="text-xs font-medium">
+              Prochain passage : {stats?.last_run ? format(new Date(stats.last_run), "HH:00", { locale: fr }) : "--:--"}
+            </span>
+          </div>
+          <Button 
+            variant="default" 
+            size="sm" 
+            className="rounded-full bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 gap-2"
+            onClick={handleRunManual}
+            disabled={runningManual}
+          >
+            {runningManual ? (
+              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary"></div>
+            ) : (
+              <BellRing size={14} />
+            )}
+            Déclencher maintenant
+          </Button>
         </div>
       </div>
 
@@ -90,7 +144,7 @@ const AutoReminderMonitoring: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {Object.values(stats?.recent_sends || {}).reduce((a, b) => a + b, 0)}
+              {Object.values(stats?.recent_sends || {}).reduce((a, b: number) => a + b, 0)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Notifications distribuées aujourd'hui
@@ -107,16 +161,14 @@ const AutoReminderMonitoring: React.FC = () => {
           <CardContent>
             <div className="space-y-2">
               <div className="flex justify-between text-xs">
-                <span>J-7</span>
-                <span className="font-bold">{stats?.formation["j-7"] || 0}</span>
+                <span>Début J-7/4/1</span>
+                <span className="font-bold">
+                  {(stats?.formation["j-7"] || 0) + (stats?.formation["j-4"] || 0) + (stats?.formation["j-1"] || 0)}
+                </span>
               </div>
-              <div className="flex justify-between text-xs">
-                <span>J-4</span>
-                <span className="font-bold">{stats?.formation["j-4"] || 0}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span>J-1</span>
-                <span className="font-bold">{stats?.formation["j-1"] || 0}</span>
+              <div className="flex justify-between text-xs text-orange-400">
+                <span>Fin J-3</span>
+                <span className="font-bold">{stats?.formation["end-j-3"] || 0}</span>
               </div>
             </div>
           </CardContent>
@@ -172,15 +224,18 @@ const AutoReminderMonitoring: React.FC = () => {
       </div>
 
       <Tabs defaultValue="history" className="w-full">
-        <TabsList className="grid w-full max-w-[400px] grid-cols-2">
-          <TabsTrigger value="history" className="flex items-center gap-2">
+        <TabsList className="bg-background/50 border border-border shadow-sm overflow-x-auto h-auto p-1 flex-wrap sm:flex-nowrap">
+          <TabsTrigger value="history" className="flex items-center gap-2 px-6">
             <History size={16} /> Historique
           </TabsTrigger>
-          <TabsTrigger value="info" className="flex items-center gap-2">
+          <TabsTrigger value="targeted" onClick={() => targeted.length === 0 && loadTargeted()} className="flex items-center gap-2 px-6">
+            <Users size={16} /> Destinataires Cibles
+          </TabsTrigger>
+          <TabsTrigger value="info" className="flex items-center gap-2 px-6">
             <Info size={16} /> Fonctionnement
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="history" className="mt-4">
+        <TabsContent value="history" className="mt-4 animate-in fade-in duration-300">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
@@ -218,11 +273,11 @@ const AutoReminderMonitoring: React.FC = () => {
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                   </div>
                 ) : history.length > 0 ? (
-                  <div className="space-y-4">
+                  <div className="grid gap-3">
                     {history.map((item) => (
-                      <div key={item.id} className="flex items-start gap-4 p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors">
-                        <div className={`p-2 rounded-full ${
-                          item.type === 'formation' ? 'bg-orange-100 text-orange-600' :
+                      <div key={item.id} className="flex items-start gap-4 p-3 rounded-xl border border-border/50 bg-card/30 hover:bg-muted/30 transition-all group shadow-sm">
+                        <div className={`p-2.5 rounded-full shadow-sm group-hover:scale-110 transition-transform ${
+                          item.type === 'formation' || item.type === 'formation_end' ? 'bg-orange-100 text-orange-600' :
                           item.type === 'inactivity_quiz' ? 'bg-yellow-100 text-yellow-600' :
                           'bg-blue-100 text-blue-600'
                         }`}>
@@ -230,20 +285,28 @@ const AutoReminderMonitoring: React.FC = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2">
-                            <p className="text-sm font-semibold truncate">{item.user?.name || "Utilisateur inconnu"}</p>
-                            <Badge variant="secondary" className="text-[10px] shrink-0">
-                              {item.type === 'formation' ? 'Rappel Formation' : 
+                            <p className="text-sm font-semibold truncate text-foreground/90">{item.user?.name || "Utilisateur inconnu"}</p>
+                            <Badge variant="outline" className={`text-[10px] shrink-0 border-primary/20 ${
+                              item.type === 'formation' || item.type === 'formation_end' ? 'text-orange-500 bg-orange-500/5' :
+                              item.type === 'inactivity_quiz' ? 'text-yellow-500 bg-yellow-500/5' :
+                              'text-blue-500 bg-blue-500/5'
+                            }`}>
+                              {item.type === 'formation' ? 'Lancement Formation' : 
+                               item.type === 'formation_end' ? 'Fin Formation' :
                                item.type === 'inactivity_quiz' ? 'Inactivité Quiz' : 
                                'Nouveau Stagiaire'}
                             </Badge>
                           </div>
-                          <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{item.message}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-[10px] text-muted-foreground">
-                              {format(new Date(item.created_at), "d MMMM yyyy HH:mm", { locale: fr })}
-                            </span>
-                            <span className="text-[10px] text-muted-foreground">•</span>
-                            <span className="text-[10px] text-muted-foreground">{item.user?.email}</span>
+                          <p className="text-xs text-muted-foreground line-clamp-1 mt-1 leading-relaxed">{item.message}</p>
+                          <div className="flex items-center gap-3 mt-2">
+                             <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-medium">
+                                <Clock size={10} />
+                                {format(new Date(item.created_at), "d MMM yyyy HH:mm", { locale: fr })}
+                             </div>
+                             <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-medium">
+                                <Users size={10} />
+                                {item.user?.email}
+                             </div>
                           </div>
                         </div>
                       </div>
@@ -253,6 +316,66 @@ const AutoReminderMonitoring: React.FC = () => {
                   <div className="flex flex-col items-center justify-center h-[300px] text-muted-foreground">
                     <Bell size={48} className="mb-4 opacity-20" />
                     <p>Aucun rappel envoyé récemment.</p>
+                  </div>
+                )}
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="targeted" className="mt-4 animate-in fade-in duration-300">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Utilisateurs ciblés pour le prochain run</CardTitle>
+                <CardDescription>
+                  Ces {targeted.length} utilisateurs recevront une notification lors du prochain passage automatique à 08:00.
+                </CardDescription>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="gap-2"
+                onClick={loadTargeted}
+                disabled={loadingTargeted}
+              >
+                {loadingTargeted ? (
+                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary"></div>
+                ) : (
+                  <TrendingUp size={14} />
+                )}
+                Actualiser
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[400px]">
+                {loadingTargeted ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  </div>
+                ) : targeted.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {targeted.map((item, idx) => (
+                      <div key={idx} className="flex items-center gap-3 p-3 rounded-xl border border-border/50 bg-card/30 hover:bg-muted/30 transition-all shadow-sm">
+                        <div className={`p-2 rounded-full ${
+                          item.type === 'formation' || item.type === 'formation_end' ? 'bg-orange-100 text-orange-600' :
+                          'bg-yellow-100 text-yellow-600'
+                        }`}>
+                          <Users size={16} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold truncate leading-none mb-1">{item.user?.name}</p>
+                          <p className="text-[10px] text-muted-foreground truncate mb-1.5">{item.user?.email}</p>
+                          <Badge variant="secondary" className="text-[9px] font-bold px-1.5 py-0 h-4 bg-muted text-muted-foreground uppercase tracking-wider">
+                            {item.reason}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-[300px] text-muted-foreground">
+                    <CheckCircle size={48} className="mb-4 opacity-20 text-primary" />
+                    <p>Aucun utilisateur ciblé pour le moment.</p>
                   </div>
                 )}
               </ScrollArea>

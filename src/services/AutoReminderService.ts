@@ -30,6 +30,16 @@ export interface PaginatedResponse<T> {
     per_page: number;
 }
 
+export interface TargetedUser {
+    user: {
+        id: number;
+        name: string;
+        email: string;
+    };
+    reason: string;
+    type: string;
+}
+
 const AutoReminderService = {
     getStats: async (): Promise<ReminderStats> => {
         const response = await axios.get(`${API_URL}/auto-reminders/stats`, {
@@ -42,6 +52,24 @@ const AutoReminderService = {
 
     getHistory: async (page = 1): Promise<PaginatedResponse<ReminderHistoryItem>> => {
         const response = await axios.get(`${API_URL}/auto-reminders/history?page=${page}`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        });
+        return response.data;
+    },
+
+    runManualReminders: async (): Promise<{ message: string; output: string }> => {
+        const response = await axios.post(`${API_URL}/auto-reminders/run`, {}, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        });
+        return response.data;
+    },
+
+    getTargeted: async (): Promise<TargetedUser[]> => {
+        const response = await axios.get(`${API_URL}/auto-reminders/targeted`, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
