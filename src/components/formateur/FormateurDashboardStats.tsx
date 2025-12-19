@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, TrendingUp, TrendingDown, AlertTriangle, Video, Trophy } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 interface DashboardStats {
     total_stagiaires: number;
+    total_formations: number;
+    total_quizzes_taken: number;
     active_this_week: number;
     inactive_count: number;
     never_connected: number;
@@ -84,49 +87,51 @@ export function FormateurDashboardStats() {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Total Stagiaires */}
-            <Card>
+            <Card className="border-l-4 border-l-blue-500 shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Stagiaires</CardTitle>
+                    <CardTitle className="text-sm font-medium">Stagiaires</CardTitle>
                     <Users className="h-4 w-4 text-blue-600" />
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">{stats.total_stagiaires}</div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                        Stagiaires inscrits
-                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="secondary" className="bg-green-100 text-green-700 text-[10px]">
+                            {stats.active_this_week} actifs
+                        </Badge>
+                    </div>
                 </CardContent>
             </Card>
 
-            {/* Actifs cette semaine */}
-            <Card>
+            {/* Total Formations */}
+            <Card className="border-l-4 border-l-purple-500 shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Actifs cette semaine</CardTitle>
-                    <TrendingUp className="h-4 w-4 text-green-600" />
+                    <CardTitle className="text-sm font-medium">Formations</CardTitle>
+                    <Video className="h-4 w-4 text-purple-600" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold text-green-600">{stats.active_this_week}</div>
+                    <div className="text-2xl font-bold">{stats.total_formations}</div>
                     <p className="text-xs text-muted-foreground mt-1">
-                        {Math.round((stats.active_this_week / stats.total_stagiaires) * 100)}% des stagiaires
+                        Catalogues assignés
                     </p>
                 </CardContent>
             </Card>
 
-            {/* Score Moyen Quiz */}
-            <Card>
+            {/* Total Quiz Taken */}
+            <Card className="border-l-4 border-l-amber-500 shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Score Moyen Quiz</CardTitle>
+                    <CardTitle className="text-sm font-medium">Quiz Complétés</CardTitle>
                     <Trophy className="h-4 w-4 text-amber-600" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold text-amber-600">{stats.avg_quiz_score}%</div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                        Performance globale
-                    </p>
+                    <div className="text-2xl font-bold">{stats.total_quizzes_taken}</div>
+                    <div className="flex items-center gap-2 mt-1 text-xs text-amber-600 font-medium">
+                        Moyenne : {stats.avg_quiz_score}%
+                    </div>
                 </CardContent>
             </Card>
 
             {/* Stagiaires Inactifs */}
-            <Card>
+            <Card className="border-l-4 border-l-orange-500 shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Stagiaires Inactifs</CardTitle>
                     <TrendingDown className="h-4 w-4 text-orange-600" />
@@ -140,7 +145,7 @@ export function FormateurDashboardStats() {
             </Card>
 
             {/* Jamais Connectés */}
-            <Card>
+            <Card className="border-l-4 border-l-red-500 shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Jamais Connectés</CardTitle>
                     <AlertTriangle className="h-4 w-4 text-red-600" />
@@ -154,7 +159,7 @@ export function FormateurDashboardStats() {
             </Card>
 
             {/* Heures Vidéos */}
-            <Card>
+            <Card className="border-l-4 border-l-purple-400 shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Heures Vidéos</CardTitle>
                     <Video className="h-4 w-4 text-purple-600" />

@@ -5,6 +5,7 @@ import InactiveStagiairesTable from '@/components/formateur/InactiveStagiairesTa
 import FormateurStatsFormations from '@/components/formateur/FormateurStatsFormations';
 import FormateurStatsFormateurs from '@/components/formateur/FormateurStatsFormateurs';
 import OnlineStagiairesCard from '@/components/formateur/OnlineStagiairesCard';
+import TrainerPerformanceStats from '@/components/formateur/TrainerPerformanceStats';
 
 export function FormateurDashboard() {
     return (
@@ -28,6 +29,14 @@ export function FormateurDashboard() {
                     <OnlineStagiairesCard />
                     <FormateurStatsFormations />
                     <FormateurStatsFormateurs />
+                </div>
+
+                {/* Performance et Classements Personnalisés */}
+                <div className="mt-8">
+                    <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
+                        Performance & Classements
+                    </h2>
+                    <TrainerPerformanceStats />
                 </div>
 
                 {/* Alertes Stagiaires Inactifs */}

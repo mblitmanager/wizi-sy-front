@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, Mail, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -30,22 +31,23 @@ export function InactiveStagiairesTable() {
     const [inactiveStagiaires, setInactiveStagiaires] = useState<InactiveStagiaire[]>([]);
     const [loading, setLoading] = useState(true);
     const [days, setDays] = useState(7);
+    const [scope, setScope] = useState<'mine' | 'all'>('mine');
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [totalCount, setTotalCount] = useState(0);
 
     useEffect(() => {
-        // fetch when the `days` filter changes (we paginate locally)
+        // fetch when the `days` filter or `scope` changes (we paginate locally)
         setLoading(true);
         fetchInactiveStagiaires();
-    }, [days]);
+    }, [days, scope]);
 
     const fetchInactiveStagiaires = async () => {
         try {
             const token = localStorage.getItem('token');
             setLoading(true);
             const response = await axios.get(
-                `${API_URL}/formateur/stagiaires/inactive?days=${days}`,
+                `${API_URL}/formateur/stagiaires/inactive?days=${days}&scope=${scope}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -98,12 +100,18 @@ export function InactiveStagiairesTable() {
 
     return (
         <Card>
-            <CardHeader>
-                <div className="flex items-center justify-between">
+            <CardHeader className="space-y-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <CardTitle className="flex items-center gap-2">
                         <AlertTriangle className="h-5 w-5 text-orange-600" />
                         Stagiaires Inactifs ({inactiveStagiaires.length})
                     </CardTitle>
+                    <Tabs value={scope} onValueChange={(v) => setScope(v as 'mine' | 'all')} className="w-full md:w-auto">
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="mine">Mes stagiaires</TabsTrigger>
+                            <TabsTrigger value="all">Tous les stagiaires</TabsTrigger>
+                        </TabsList>
+                    </Tabs>
                     <div className="flex gap-2">
                         <Button
                             size="sm"
