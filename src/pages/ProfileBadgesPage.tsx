@@ -47,7 +47,7 @@ const ProfileBadgesPage = () => {
 
         // Tous les badges
         try {
-          const allResp = await axios.get(`${API_URL}/admin/achievements`, {
+          const allResp = await axios.get(`${API_URL}/stagiaire/achievements/all`, {
             headers,
           });
           const all: Achievement[] =
@@ -105,11 +105,10 @@ const ProfileBadgesPage = () => {
   }) => {
     return (
       <div
-        className={`p-4 rounded-xl border shadow-sm flex flex-col items-center text-center transition-all duration-300 ${
-          unlocked
+        className={`p-4 rounded-xl border shadow-sm flex flex-col items-center text-center transition-all duration-300 ${unlocked
             ? "bg-white dark:bg-gray-800 border-amber-200 hover:shadow-md"
             : "bg-gray-50 dark:bg-gray-700 opacity-70"
-        }`}
+          }`}
         style={!unlocked ? { filter: "grayscale(100%)" } : undefined}>
         <div className="w-16 h-16 rounded-full flex items-center justify-center bg-amber-100 text-amber-700 mb-3">
           <span className="text-2xl">🏅</span>
@@ -150,8 +149,11 @@ const ProfileBadgesPage = () => {
             Mes Badges
           </h1>
           <p className="text-gray-600 dark:text-gray-300">
-            {userAchievements.length} badge(s) débloqué(s) sur{" "}
+            {userAchievements.length}{" "}
+            badge{userAchievements.length <= 1 ? "" : "s"} débloqué
+            {userAchievements.length <= 1 ? "" : "s"} sur{" "}
             {allAchievements.length}
+
           </p>
         </div>
 

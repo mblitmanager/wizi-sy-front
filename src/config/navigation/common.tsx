@@ -33,7 +33,7 @@ export const getProfileNavigation = () => [
     },
     {
         title: "Mes Statistiques",
-        href: "/profile/statistics",
+        href: "/profile/statistiques",
         icon: BarChart3,
         color: "text-yellow-600",
     },
@@ -54,7 +54,7 @@ export const getHelpNavigation = () => [
     },
     {
         title: "Contact",
-        href: "/contact",
+        href: "/contact-support",
         icon: Mail,
         color: "text-yellow-600",
     },

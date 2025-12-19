@@ -49,7 +49,7 @@ export function Footer({ className }: FooterProps) {
             <h4 className="font-semibold mb-4">Support</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/contact" className="text-gray-600 hover:text-primary">
+                <Link to="/contact-support" className="text-gray-600 hover:text-primary">
                   Contact
                 </Link>
               </li>

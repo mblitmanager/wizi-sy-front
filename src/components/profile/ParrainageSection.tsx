@@ -120,7 +120,7 @@ const ParrainageSection = () => {
       }));
     }
   }, [user]);
-  console.log("User in ParrainageSection:", user);
+  // console.log("User in ParrainageSection:", user);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -207,7 +207,7 @@ const ParrainageSection = () => {
     setShowSuccessModal(false);
     setFilleulName("");
   };
-  console.log("Rendering ParrainageSection with user:", user);
+  // console.log("Rendering ParrainageSection with user:", user);
   return (
     <>
       <section className="mb-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
