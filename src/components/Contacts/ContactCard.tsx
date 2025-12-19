@@ -81,7 +81,7 @@ export const ContactCard = ({
   showFormations = true,
 }: ContactCardProps) => {
   // Fonction pour déterminer le titre du poste avec civilité - CORRIGÉE
-  console.log("Contact reçu dans ContactCard:", contact);
+  // console.log("Contact reçu dans ContactCard:", contact);
   const getJobTitleWithCivility = (contact: Contact) => {
     // Utiliser le rôle s'il est disponible, sinon le type
     const role = contact.role || contact.type;

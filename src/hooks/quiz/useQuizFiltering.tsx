@@ -68,11 +68,14 @@ export const useQuizFiltering = (
       return "débutant";
     };
 
+    // Safe history array
+    const safeHistory = Array.isArray(history) ? history : [];
+
     // Filter out played quizzes
     const notPlayedQuizzes = (quizzes as unknown[]).filter((q) => {
       const qid = getQuizId(q);
       if (!qid) return true;
-      return !history.some((h) => String(getHistoryQuizId(h)) === String(qid));
+      return !safeHistory.some((h) => String(getHistoryQuizId(h)) === String(qid));
     });
 
     // Get formation IDs

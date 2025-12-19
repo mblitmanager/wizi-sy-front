@@ -172,6 +172,11 @@ export const StagiaireQuizAdventure: React.FC<{
     enabled: !!localStorage.getItem("token"),
   });
 
+  // Ensure quizHistory is always an array
+  const safeQuizHistory = useMemo(() => {
+    return Array.isArray(quizHistory) ? quizHistory : [];
+  }, [quizHistory]);
+
   // IDs des quiz déjà joués
   const playedIds = useMemo(() => {
     if (!participations) return new Set<string>();
@@ -200,7 +205,7 @@ export const StagiaireQuizAdventure: React.FC<{
     );
 
     const byIdCompletedAt = new Map<string, number>();
-    (quizHistory || []).forEach((h: QuizHistory) => {
+    safeQuizHistory.forEach((h: QuizHistory) => {
       const id = String(h.quizId ?? h.quiz?.id ?? "");
       const ts = h.completedAt ? Date.parse(String(h.completedAt)) : 0;
       if (id) byIdCompletedAt.set(id, ts);
@@ -262,7 +267,7 @@ export const StagiaireQuizAdventure: React.FC<{
       playableById,
       avatarId,
     };
-  }, [quizzes, userPoints, playedIds, selectedFormationId, quizHistory]);
+  }, [quizzes, userPoints, playedIds, selectedFormationId, safeQuizHistory]);
 
   // Références pour le scroll
   const quizRefs = useMemo(
@@ -320,7 +325,7 @@ export const StagiaireQuizAdventure: React.FC<{
         const played = playedIds.has(quizId);
         const playable = computed.playableById.get(quizId) === true;
         const categoryConfig = getCategoryConfig(quiz.categorie);
-        const history = quizHistory?.find(
+        const history = safeQuizHistory.find(
           (x) => String(x.quizId ?? x.quiz?.id) === quizId
         );
         const isLeft = index % 2 === 0;

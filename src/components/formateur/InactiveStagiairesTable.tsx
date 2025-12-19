@@ -36,13 +36,7 @@ export function InactiveStagiairesTable() {
     const [pageSize, setPageSize] = useState(10);
     const [totalCount, setTotalCount] = useState(0);
 
-    useEffect(() => {
-        // fetch when the `days` filter or `scope` changes (we paginate locally)
-        setLoading(true);
-        fetchInactiveStagiaires();
-    }, [days, scope]);
-
-    const fetchInactiveStagiaires = async () => {
+    const fetchInactiveStagiaires = React.useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
             setLoading(true);
@@ -66,7 +60,11 @@ export function InactiveStagiairesTable() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [days, scope]);
+
+    useEffect(() => {
+        fetchInactiveStagiaires();
+    }, [fetchInactiveStagiaires]);
 
     // page is reset to 1 where appropriate (days buttons and pageSize selector)
 
@@ -252,7 +250,7 @@ export function InactiveStagiairesTable() {
                                     <TableCell>
                                         {typeof stagiaire.days_since_activity === 'number' && stagiaire.days_since_activity > 0 ? (
                                             <Badge variant="outline" className="bg-orange-50">
-                                                Il y a {parseInt(stagiaire.days_since_activity)} jours
+                                                Il y a {stagiaire.days_since_activity} jours
                                             </Badge>
                                         ) : (
                                             <Badge variant="secondary">Jamais</Badge>

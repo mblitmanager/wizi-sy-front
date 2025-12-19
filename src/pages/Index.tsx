@@ -445,7 +445,7 @@ function AuthenticatedApp({ user }: { user: AuthenticatedUser }) {
     stagiaireCatalogues
   );
 
-  console.log("Filtered quizzes:", filteredQuizzes);
+  // console.log("Filtered quizzes:", filteredQuizzes);
 
   const notPlayedQuizzes = useMemo<Quiz[]>(() => {
     if (!quizzes || !participations) return [];

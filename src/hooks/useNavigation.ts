@@ -27,12 +27,12 @@ export function useNavigation() {
         }
 
         // Debug: Log the current user role
-        console.log('🔍 [useNavigation] Current user role:', user.role);
-        console.log('🔍 [useNavigation] User object:', user);
+        // console.log('🔍 [useNavigation] Current user role:', user.role);
+        // console.log('🔍 [useNavigation] User object:', user);
 
         // L'API retourne {user: {...}, stagiaire: null}, donc on accède à user.user.role
         const userRole = (user as any).user?.role || user.role;
-        console.log('🔍 [useNavigation] Extracted role:', userRole);
+        // console.log('🔍 [useNavigation] Extracted role:', userRole);
 
         // Role-based navigation configurations
         const roleNavigations: Record<string, () => { main: NavItem[] }> = {
@@ -47,7 +47,7 @@ export function useNavigation() {
         const getMainNav = roleNavigations[userRole] || getStagiaireNavigation;
         const mainNav = getMainNav();
 
-        console.log('✅ [useNavigation] Navigation selected for role:', userRole, '- Items:', mainNav.main.length);
+        // console.log('✅ [useNavigation] Navigation selected for role:', userRole, '- Items:', mainNav.main.length);
 
         return {
             main: mainNav.main,

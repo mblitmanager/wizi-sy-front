@@ -420,7 +420,7 @@ export function GlobalRanking({
 
             {/* Desktop Table */}
             <div className="hidden sm:block">
-              <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                   <thead className="bg-gray-50 dark:bg-gray-800">
                     <tr>
