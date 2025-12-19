@@ -49,7 +49,7 @@ export function useParrainageEvents() {
         setError(null);
 
         const response = await axiosInstance.get("/parrainage-events");
-        console.log("Réponse API:", response.data);
+        // console.log("Réponse API:", response.data);
 
         if (response.data.success) {
           const newEvents = response.data.data || [];

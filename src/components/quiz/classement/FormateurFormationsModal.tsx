@@ -78,7 +78,7 @@ export function FormateurFormationsModal({ formateur }: FormateurFormationsModal
 
     return (
         <Dialog>
-            <DialogTrigger asChild>
+            {/* <DialogTrigger asChild>
                 <Button
                     variant="outline"
                     size="sm"
@@ -86,7 +86,7 @@ export function FormateurFormationsModal({ formateur }: FormateurFormationsModal
                     <BookOpen className="h-3 w-3 mr-1" />
                     Voir formation
                 </Button>
-            </DialogTrigger>
+            </DialogTrigger> */}
             <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden p-0 border border-gray-200 dark:border-gray-700 shadow-xl">
                 {/* En-tête avec fond simple */}
                 <div className="bg-blue-600 text-white p-6">

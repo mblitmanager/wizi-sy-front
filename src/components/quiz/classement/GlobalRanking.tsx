@@ -393,8 +393,8 @@ export function GlobalRanking({
               </Badge>
             </div>
 
-            {/* Mobile View - simplified with RankingListItem */}
-            <div className="sm:hidden space-y-2">
+            {/* Mobile/Tablet View - simplified with RankingListItem */}
+            <div className="lg:hidden space-y-2">
               {listRanking.slice(0, 10).map((entry, index) => {
                 const isCurrentUser = entry.id?.toString() === currentUserId;
 
@@ -419,7 +419,7 @@ export function GlobalRanking({
             </div>
 
             {/* Desktop Table */}
-            <div className="hidden sm:block">
+            <div className="hidden lg:block">
             <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                   <thead className="bg-gray-50 dark:bg-gray-800">

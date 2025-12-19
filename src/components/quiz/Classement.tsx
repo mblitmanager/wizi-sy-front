@@ -75,7 +75,7 @@ export function Classement() {
       const ranking: GlobalClassementApiItem[] =
         await quizSubmissionService.getGlobalClassement(selectedPeriod);
 
-      console.log("📊 Données brutes du classement:", ranking); // Pour debug
+      // console.log("📊 Données brutes du classement:", ranking); // Pour debug
 
       const mappedRanking: LeaderboardEntry[] = (ranking || []).map(
         (item) => ({
@@ -93,7 +93,7 @@ export function Classement() {
         })
       );
 
-      console.log("🎯 Classement mappé avec formateurs:", mappedRanking); // Pour debug
+      // console.log("🎯 Classement mappé avec formateurs:", mappedRanking); // Pour debug
       setGlobalRanking(mappedRanking);
     } catch (error) {
       console.error("Error fetching global ranking:", error);
@@ -126,7 +126,7 @@ export function Classement() {
       }
     };
 
-    console.log("globalRanking", globalRanking);
+    // console.log("globalRanking", globalRanking);
 
     const fetchQuizHistory = async () => {
       try {

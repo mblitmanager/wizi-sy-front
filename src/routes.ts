@@ -4,9 +4,19 @@ import { LoadingState } from "@/components/quiz/quiz-play/LoadingState";
 
 // Lazy load components
 // Named exports
-const Index = lazy(() => import("@/pages/Index").then(module => ({ default: module.Index })));
-const QuizDetail = lazy(() => import("@/components/quiz/QuizDetail").then(module => ({ default: module.QuizDetail })));
-const QuizResults = lazy(() => import("@/components/quiz/QuizResults").then(module => ({ default: module.QuizResults })));
+const Index = lazy(() =>
+  import("@/pages/Index").then((module) => ({ default: module.Index }))
+);
+const QuizDetail = lazy(() =>
+  import("@/components/quiz/QuizDetail").then((module) => ({
+    default: module.QuizDetail,
+  }))
+);
+const QuizResults = lazy(() =>
+  import("@/components/quiz/QuizResults").then((module) => ({
+    default: module.QuizResults,
+  }))
+);
 
 // Default exports
 const Login = lazy(() => import("@/pages/Login"));
@@ -23,28 +33,65 @@ const Classement = lazy(() => import("@/pages/Classement"));
 const TutoAstucePage = lazy(() => import("@/pages/TutoAstucePage"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const Parainage = lazy(() => import("@/pages/Parainage"));
-const ParrainageInscriptionPage = lazy(() => import("@/pages/ParrainageInscriptionPage"));
-const CatalogueFormationDetails = lazy(() => import("@/components/catalogueFormation/CatalogueFormationDetails"));
+const ParrainageInscriptionPage = lazy(
+  () => import("@/pages/ParrainageInscriptionPage")
+);
+const CatalogueFormationDetails = lazy(
+  () => import("@/components/catalogueFormation/CatalogueFormationDetails")
+);
 const NotificationsPage = lazy(() => import("@/pages/NotificationsPage"));
 const FAQPage = lazy(() => import("@/pages/FAQPage"));
 const CGVPage = lazy(() => import("@/pages/CGVPage"));
 const ManuelPage = lazy(() => import("@/pages/ManuelPage"));
 const RemerciementsPage = lazy(() => import("@/pages/RemerciementsPage"));
-const PolitiqueConfidentialitePage = lazy(() => import("@/pages/PolitiqueConfidentialitePage"));
+const PolitiqueConfidentialitePage = lazy(
+  () => import("@/pages/PolitiqueConfidentialitePage")
+);
 const ContactSupportPage = lazy(() => import("@/pages/ContactSupportPage"));
 const ForgotPassword = lazy(() => import("./components/auth/ForrgotPassword"));
 const ResetPassword = lazy(() => import("./components/auth/ResetPassword"));
 const ProfileBadgesPage = lazy(() => import("@/pages/ProfileBadgesPage"));
-const ProfileFormationsPage = lazy(() => import("@/pages/ProfileFormationsPage"));
+const ProfileFormationsPage = lazy(
+  () => import("@/pages/ProfileFormationsPage")
+);
 const ProfileStatsPage = lazy(() => import("@/pages/ProfileStatsPage"));
 const ProfileEditPage = lazy(() => import("@/pages/ProfileEditPage"));
-const StatisticsDashboard = lazy(() => import("@/pages/admin/StatisticsDashboard").then(module => ({ default: module.StatisticsDashboard })));
-const FormateurDashboard = lazy(() => import("@/pages/formateur/FormateurDashboard").then(module => ({ default: module.FormateurDashboard })));
-const FormateurCommunicationsPage = lazy(() => import("@/pages/formateur/FormateurCommunicationsPage").then(module => ({ default: module.FormateurCommunicationsPage })));
-const FormateurClassementPage = lazy(() => import("@/pages/formateur/FormateurClassementPage").then(module => ({ default: module.FormateurClassementPage })));
-const FormateurVideosPage = lazy(() => import("@/pages/formateur/FormateurVideosPage").then(module => ({ default: module.FormateurVideosPage })));
-const CommercialDashboard = lazy(() => import("@/pages/commercial/CommercialDashboard").then(module => ({ default: module.CommercialDashboard })));
-const AnnouncementsPage = lazy(() => import("@/pages/admin/AnnouncementsPage").then(module => ({ default: module.AnnouncementsPage })));
+const StatisticsDashboard = lazy(() =>
+  import("@/pages/admin/StatisticsDashboard").then((module) => ({
+    default: module.StatisticsDashboard,
+  }))
+);
+const FormateurDashboard = lazy(() =>
+  import("@/pages/formateur/FormateurDashboard").then((module) => ({
+    default: module.FormateurDashboard,
+  }))
+);
+const FormateurCommunicationsPage = lazy(() =>
+  import("@/pages/formateur/FormateurCommunicationsPage").then((module) => ({
+    default: module.FormateurCommunicationsPage,
+  }))
+);
+const FormateurClassementPage = lazy(() =>
+  import("@/pages/formateur/FormateurClassementPage").then((module) => ({
+    default: module.FormateurClassementPage,
+  }))
+);
+const FormateurVideosPage = lazy(() =>
+  import("@/pages/formateur/FormateurVideosPage").then((module) => ({
+    default: module.FormateurVideosPage,
+  }))
+);
+const CommercialDashboard = lazy(() =>
+  import("@/pages/commercial/CommercialDashboard").then((module) => ({
+    default: module.CommercialDashboard,
+  }))
+);
+const AnnouncementsPage = lazy(() =>
+  import("@/pages/admin/AnnouncementsPage").then((module) => ({
+    default: module.AnnouncementsPage,
+  }))
+);
+const AboutPage = lazy(() => import("@/pages/AboutPage"));
 
 // Helper to wrap components in Suspense
 const Loadable = (Component: React.LazyExoticComponent<any>) =>
@@ -78,6 +125,10 @@ export const routes = [
   {
     path: "/manuel",
     element: Loadable(ManuelPage),
+  },
+  {
+    path: "/a-propos",
+    element: Loadable(AboutPage),
   },
   {
     path: "/",
@@ -129,19 +180,11 @@ export const routes = [
   },
   {
     path: "/quizzes",
-    element: React.createElement(
-      ProtectedRoute,
-      undefined,
-      Loadable(Quizzes)
-    ),
+    element: React.createElement(ProtectedRoute, undefined, Loadable(Quizzes)),
   },
   {
     path: "/quiz",
-    element: React.createElement(
-      ProtectedRoute,
-      undefined,
-      Loadable(Quiz)
-    ),
+    element: React.createElement(ProtectedRoute, undefined, Loadable(Quiz)),
   },
   {
     path: "/quiz/:quizId",
@@ -153,11 +196,7 @@ export const routes = [
   },
   {
     path: "/quiz/:quizId/start",
-    element: React.createElement(
-      ProtectedRoute,
-      undefined,
-      Loadable(Quiz)
-    ),
+    element: React.createElement(ProtectedRoute, undefined, Loadable(Quiz)),
   },
   {
     path: "/quiz/:quizId/results",
@@ -170,11 +209,7 @@ export const routes = [
   // Routes de profil
   {
     path: "/profile",
-    element: React.createElement(
-      ProtectedRoute,
-      undefined,
-      Loadable(Profile)
-    ),
+    element: React.createElement(ProtectedRoute, undefined, Loadable(Profile)),
   },
   {
     path: "/profile/badges",
@@ -210,11 +245,7 @@ export const routes = [
   },
   {
     path: "/settings",
-    element: React.createElement(
-      ProtectedRoute,
-      undefined,
-      Loadable(Settings)
-    ),
+    element: React.createElement(ProtectedRoute, undefined, Loadable(Settings)),
   },
   {
     path: "/classement",
@@ -234,11 +265,7 @@ export const routes = [
   },
   {
     path: "/contacts",
-    element: React.createElement(
-      ProtectedRoute,
-      undefined,
-      Loadable(Contact)
-    ),
+    element: React.createElement(ProtectedRoute, undefined, Loadable(Contact)),
   },
   {
     path: "/parrainage",
