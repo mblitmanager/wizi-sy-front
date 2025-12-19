@@ -108,31 +108,23 @@ export function StagiaireQuizList({
     }
     if (userPoints !== lastUserPoints) {
       if (quizzes) {
-        if (userPoints >= 50 && notifiedLevel !== 2) {
+        if (userPoints >= 100 && notifiedLevel !== 2) {
           toast({
-            title: "Niveau avancé débloqué !",
-            description: "Vous pouvez maintenant participer aux quiz avancés.",
+            title: "Tous les quiz débloqués !",
+            description: "Vous pouvez maintenant participer à tous les quiz, y compris les quiz avancés.",
             variant: "default",
             className: "bg-orange-600 text-white border-0",
           });
           setNotifiedLevel(2);
-        } else if (userPoints >= 20 && userPoints < 50 && notifiedLevel !== 1) {
+        } else if (userPoints >= 50 && userPoints < 100 && notifiedLevel !== 1) {
           toast({
-            title: "Niveau intermédiaire débloqué !",
+            title: "Quiz intermédiaires débloqués !",
             description:
               "Vous pouvez maintenant participer aux quiz intermédiaires.",
             variant: "default",
             className: "bg-orange-600 text-white border-0",
           });
           setNotifiedLevel(1);
-        } else if (userPoints >= 10 && userPoints < 20 && notifiedLevel !== 0) {
-          toast({
-            title: "Nouveaux quiz disponibles !",
-            description: "Vous avez débloqué de nouveaux quiz débutant.",
-            variant: "default",
-            className: "bg-orange-600 text-white border-0",
-          });
-          setNotifiedLevel(0);
         }
       }
       setLastUserPoints(userPoints);
@@ -203,6 +195,8 @@ export function StagiaireQuizList({
     selectedFormationId, // IMPORTANT: utiliser selectedFormationId directement
   ]);
 
+  // Always show all played quizzes, regardless of point-based filtering
+  // This ensures users can see their full quiz history even if their points drop
   const playedQuizzes = useMemo(() => {
     if (!quizzes || !quizHistory) return [] as typeof quizzes;
 
@@ -219,13 +213,25 @@ export function StagiaireQuizList({
         byId.set(String(id), { completedAt: h.completedAt });
     });
 
+    // Use all quizzes (not filteredQuizzes) to ensure played quizzes are always visible
     let list = quizzes.filter((q) => byId.has(String(q.id)));
 
-    // CORRECTION: Filtrer par formation sélectionnée
+    // Only filter by formation if one is selected
     if (selectedFormationId) {
       list = list.filter(
         (q) => String((q as any).formationId) === String(selectedFormationId)
       );
+    }
+
+    // Apply category and level filters if selected
+    if (selectedCategory !== "all") {
+      list = list.filter(
+        (q) => q.categorieId && String(q.categorieId) === String(selectedCategory)
+      );
+    }
+    
+    if (selectedLevel !== "all") {
+      list = list.filter((q) => q.niveau && q.niveau === selectedLevel);
     }
 
     console.log("🎮 DEBUG - Quiz joués après filtrage:", list.length, list);
@@ -240,7 +246,7 @@ export function StagiaireQuizList({
     });
 
     return list;
-  }, [quizzes, quizHistory, selectedFormationId]);
+  }, [quizzes, quizHistory, selectedFormationId, selectedCategory, selectedLevel]);
 
   const notPlayedQuizzes = useMemo(() => {
     if (!quizzes || !participations) return [];
@@ -327,12 +333,11 @@ export function StagiaireQuizList({
           <>
             <p className="mb-2">
               Commencez avec{" "}
-              <span className="font-medium">2 quiz débutants</span> pour vous
-              échauffer.
+              <span className="font-medium">tous les quiz débutants</span> disponibles.
             </p>
             <p>
               Jouez, marquez des points et déverrouillez progressivement de
-              nouveaux quiz !
+              nouveaux niveaux !
             </p>
           </>
         ),
@@ -342,15 +347,15 @@ export function StagiaireQuizList({
         content: (
           <ul className="list-disc pl-5 text-sm text-wizi-muted space-y-1">
             <li>
-              <span className="font-medium">À 20 points :</span> Les quiz
-              intermédiaires s'ouvrent à vous.
+              <span className="font-medium">Moins de 50 points :</span> Quiz
+              débutants uniquement.
             </li>
             <li>
-              <span className="font-medium">À 50 points :</span> Les premiers
-              quiz avancés sont débloqués.
+              <span className="font-medium">À partir de 50 points :</span> Quiz
+              intermédiaires débloqués.
             </li>
             <li>
-              <span className="font-medium">À 100 points :</span> Tous les quiz
+              <span className="font-medium">À partir de 100 points :</span> Tous les quiz
               sont à votre portée !
             </li>
           </ul>
