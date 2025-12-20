@@ -155,17 +155,8 @@ export function StagiaireQuizList({
   const filteredQuizzes = useMemo(() => {
     if (!quizzes) return [];
 
-    // Step 1: Filter by formation (if selected)
-    let filtered = quizzes;
-    if (selectedFormationId) {
-      filtered = quizzes.filter((quiz) => {
-        const quizFormationId = (quiz as any).formationId;
-        return String(quizFormationId) === String(selectedFormationId);
-      });
-    }
-
-    // Step 2: Filter by points (3-tier system)
-    filtered = buildAvailableQuizzes(filtered, userPoints);
+    // Step 1 \u0026 2: Filter by formation and points (3-tier system)
+    let filtered = buildAvailableQuizzes(quizzes, userPoints, selectedFormationId);
 
     // Step 3: Filter by category and level (if selected)
     if (selectedCategory !== "all") {

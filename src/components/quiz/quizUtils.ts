@@ -16,13 +16,28 @@ function normalizeLevel(lvl?: string) {
  */
 export function buildAvailableQuizzes(
   all: Quiz[] | undefined,
-  userPoints: number
+  userPoints: number,
+  formationId?: string | number | null
 ) {
   if (!all) return [] as Quiz[];
 
-  const debutant = all.filter((q) => normalizeLevel(q.niveau) === "débutant");
-  const inter = all.filter((q) => normalizeLevel(q.niveau) === "intermédiaire");
-  const avance = all.filter((q) => normalizeLevel(q.niveau) === "avancé");
+  // Step 1: Filter by formation if provided
+  let filtered = all;
+  if (formationId) {
+    filtered = all.filter((q) => {
+      const qfId = (q as any).formationId || (q as any).formation?.id;
+      return String(qfId) === String(formationId);
+    });
+  }
+
+  // Step 2: Separate by normalized level
+  const debutant = filtered.filter(
+    (q) => normalizeLevel(q.niveau) === "débutant"
+  );
+  const inter = filtered.filter(
+    (q) => normalizeLevel(q.niveau) === "intermédiaire"
+  );
+  const avance = filtered.filter((q) => normalizeLevel(q.niveau) === "avancé");
 
   // Simplified 3-tier quiz filtering system
   if (userPoints < 50) {
