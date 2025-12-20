@@ -151,48 +151,40 @@ export function StagiaireQuizList({
     }
   }, [quizzes]);
 
-  // CORRECTION: Simplifier la logique de formation
+  // Filter quizzes by formation, points, category, and level
   const filteredQuizzes = useMemo(() => {
     if (!quizzes) return [];
 
-    // Étape 1: Filtrer par formation sélectionnée
-    let formationFiltered = quizzes;
+    // Step 1: Filter by formation (if selected)
+    let filtered = quizzes;
     if (selectedFormationId) {
-      formationFiltered = quizzes.filter((quiz) => {
+      filtered = quizzes.filter((quiz) => {
         const quizFormationId = (quiz as any).formationId;
-        const match = String(quizFormationId) === String(selectedFormationId);
-
-        return match;
+        return String(quizFormationId) === String(selectedFormationId);
       });
     }
 
-    // Étape 2: Appliquer buildAvailableQuizzes
-    const base = buildAvailableQuizzes(
-      formationFiltered,
-      userPoints,
-      selectedFormationId
-    );
+    // Step 2: Filter by points (3-tier system)
+    filtered = buildAvailableQuizzes(filtered, userPoints);
 
-    // Étape 3: Filtrer par catégorie et niveau
-    const finalFiltered = base.filter((quiz) => {
-      const categoryMatch =
-        selectedCategory === "all" ||
-        (quiz.categorieId &&
-          String(quiz.categorieId) === String(selectedCategory));
+    // Step 3: Filter by category and level (if selected)
+    if (selectedCategory !== "all") {
+      filtered = filtered.filter(
+        (quiz) => quiz.categorieId && String(quiz.categorieId) === String(selectedCategory)
+      );
+    }
 
-      const levelMatch =
-        selectedLevel === "all" ||
-        (quiz.niveau && quiz.niveau === selectedLevel);
+    if (selectedLevel !== "all") {
+      filtered = filtered.filter((quiz) => quiz.niveau && quiz.niveau === selectedLevel);
+    }
 
-      return categoryMatch && levelMatch;
-    });
-    return finalFiltered;
+    return filtered;
   }, [
     quizzes,
+    selectedFormationId,
+    userPoints,
     selectedCategory,
     selectedLevel,
-    userPoints,
-    selectedFormationId, // IMPORTANT: utiliser selectedFormationId directement
   ]);
 
   // Always show all played quizzes, regardless of point-based filtering

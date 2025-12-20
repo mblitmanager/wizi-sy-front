@@ -8,14 +8,15 @@ function normalizeLevel(lvl?: string) {
   return "débutant";
 }
 
-interface MaybeWithFormation {
-  formationId?: string | number;
-}
-
+/**
+ * Filters quizzes based on user points using simplified 3-tier system
+ * < 50 points: beginner only
+ * 50-99 points: beginner + intermediate
+ * >= 100 points: all levels
+ */
 export function buildAvailableQuizzes(
   all: Quiz[] | undefined,
-  userPoints: number,
-  selectedFormationId?: string | null
+  userPoints: number
 ) {
   if (!all) return [] as Quiz[];
 
@@ -23,26 +24,12 @@ export function buildAvailableQuizzes(
   const inter = all.filter((q) => normalizeLevel(q.niveau) === "intermédiaire");
   const avance = all.filter((q) => normalizeLevel(q.niveau) === "avancé");
 
-  // Simplified 3-tier quiz filtering system:
-  // < 50 points: beginner only
-  // 50-99 points: beginner + intermediate
-  // >= 100 points: all levels
-  let result: Quiz[] = [];
+  // Simplified 3-tier quiz filtering system
   if (userPoints < 50) {
-    result = debutant;
+    return debutant;
   } else if (userPoints < 100) {
-    result = [...debutant, ...inter];
+    return [...debutant, ...inter];
   } else {
-    result = [...debutant, ...inter, ...avance];
+    return [...debutant, ...inter, ...avance];
   }
-
-  if (selectedFormationId) {
-    result = result.filter(
-      (q) =>
-        String((q as MaybeWithFormation).formationId) ===
-        String(selectedFormationId)
-    );
-  }
-
-  return result;
 }
