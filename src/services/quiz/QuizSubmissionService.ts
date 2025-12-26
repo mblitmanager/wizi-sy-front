@@ -1,16 +1,24 @@
-
-import { quizAnswerService } from './submission/QuizAnswerService';
-import { quizHistoryService } from './submission/QuizHistoryService';
-import { rankingService } from './submission/RankingService';
-import { userProfileService } from './submission/UserProfileService';
-import type { Question, QuizHistory, QuizStats, QuizResult } from '@/types/quiz';
+import { quizAnswerService } from "./submission/QuizAnswerService";
+import { quizHistoryService } from "./submission/QuizHistoryService";
+import { rankingService } from "./submission/RankingService";
+import { userProfileService } from "./submission/UserProfileService";
+import type {
+  Question,
+  QuizHistory,
+  QuizStats,
+  QuizResult,
+} from "@/types/quiz";
 
 export class QuizSubmissionService {
   async getQuizQuestions(quizId: number): Promise<Question[]> {
     return quizAnswerService.getQuizQuestions(quizId);
   }
 
-  async submitQuiz(quizId: string, answers: Record<string, string[]>, timeSpent: number): Promise<QuizResult> {
+  async submitQuiz(
+    quizId: string,
+    answers: Record<string, string[]>,
+    timeSpent: number
+  ): Promise<QuizResult> {
     return quizAnswerService.submitQuiz(quizId, answers, timeSpent);
   }
 
@@ -26,7 +34,11 @@ export class QuizSubmissionService {
     return quizHistoryService.getQuizResult(quizId);
   }
 
-  async updateClassement(quizId: string, stagiaireId: string, score: number): Promise<any> {
+  async updateClassement(
+    quizId: string,
+    stagiaireId: string,
+    score: number
+  ): Promise<any> {
     return rankingService.updateClassement(quizId, stagiaireId, score);
   }
 
@@ -34,8 +46,10 @@ export class QuizSubmissionService {
     return rankingService.getClassement(quizId);
   }
 
-  async getGlobalClassement(): Promise<any> {
-    return rankingService.getGlobalClassement();
+  async getGlobalClassement(
+    period: "week" | "month" | "all" = "all"
+  ): Promise<any> {
+    return rankingService.getGlobalClassement(period);
   }
 
   async getStagiaireProfile(): Promise<any> {

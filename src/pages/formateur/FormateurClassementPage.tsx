@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -9,7 +9,8 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Trophy, Medal, Award } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Trophy, Medal, Award, Calendar } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import axios from 'axios';
 
@@ -29,15 +30,14 @@ interface StagiaireRanking {
 export function FormateurClassementPage() {
     const [ranking, setRanking] = useState<StagiaireRanking[]>([]);
     const [loading, setLoading] = useState(true);
+    const [period, setPeriod] = useState<string>('all');
 
-    useEffect(() => {
-        fetchRanking();
-    }, []);
-
-    const fetchRanking = async () => {
+    const fetchRanking = useCallback(async () => {
         try {
+            setLoading(true);
             const token = localStorage.getItem('token');
             const response = await axios.get(`${API_URL}/formateur/classement/mes-stagiaires`, {
+                params: { period },
                 headers: { Authorization: `Bearer ${token}` },
             });
             setRanking(response.data.ranking);
@@ -46,7 +46,11 @@ export function FormateurClassementPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [period]);
+
+    useEffect(() => {
+        fetchRanking();
+    }, [fetchRanking]);
 
     const getRankIcon = (rank: number) => {
         switch (rank) {
@@ -91,17 +95,37 @@ export function FormateurClassementPage() {
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                         Classement des Stagiaires
                     </h1>
-                    <p className="text-gray-600 dark:text-gray-400 mt-2">
-                        Classement général de vos stagiaires par points
-                    </p>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
+                        <p className="text-gray-600 dark:text-gray-400">
+                            Classement de vos stagiaires par points
+                        </p>
+                        
+                        <Tabs value={period} onValueChange={setPeriod} className="w-full md:w-auto">
+                            <TabsList className="grid w-full grid-cols-3 md:w-[300px]">
+                                <TabsTrigger value="all" className="flex items-center gap-2">
+                                    Tout
+                                </TabsTrigger>
+                                <TabsTrigger value="month" className="flex items-center gap-2">
+                                    Mois
+                                </TabsTrigger>
+                                <TabsTrigger value="week" className="flex items-center gap-2">
+                                    Semaine
+                                </TabsTrigger>
+                            </TabsList>
+                        </Tabs>
+                    </div>
                 </div>
 
                 <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                        <CardTitle className="flex items-center gap-2 text-xl">
                             <Trophy className="h-5 w-5 text-amber-600" />
                             Top Stagiaires ({ranking.length})
                         </CardTitle>
+                        <div className="text-sm text-gray-500 flex items-center gap-1">
+                            <Calendar className="h-4 w-4" />
+                            {period === 'week' ? 'Cette semaine' : period === 'month' ? 'Ce mois' : 'Tout temps'}
+                        </div>
                     </CardHeader>
                     <CardContent>
                         <Table>
