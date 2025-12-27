@@ -16,10 +16,11 @@ export class QuizSubmissionService {
 
   async submitQuiz(
     quizId: string,
-    answers: Record<string, string[]>,
-    timeSpent: number
+    answers: Record<string, any>,
+    timeSpent: number,
+    questions?: Question[]
   ): Promise<QuizResult> {
-    return quizAnswerService.submitQuiz(quizId, answers, timeSpent);
+    return quizAnswerService.submitQuiz(quizId, answers, timeSpent, questions);
   }
 
   async getQuizHistory(): Promise<QuizHistory[]> {

@@ -21,24 +21,25 @@ export class QuizAnswerService {
   async submitQuiz(
     quizId: string,
     answers: Record<string, any>,
-    timeSpent: number
+    timeSpent: number,
+    questions?: Question[]
   ): Promise<any> {
     try {
       // Instead of submitting answer IDs, submit the answer text
       const formattedAnswers: Record<string, any> = {};
+
       for (const questionId in answers) {
-        let questionType = null;
         const answer = answers[questionId];
-        try {
-          const response = await questionApi.getQuestionById(questionId);
-          questionType = response.data.data.type || null;
-        } catch (error) {
-          console.error(
-            `Erreur lors de la récupération du type de question pour l'ID ${questionId}`,
-            error
+
+        // Find question type from provided questions array or fallback to null
+        let questionType = null;
+        if (questions) {
+          const question = questions.find(
+            (q) => String(q.id) === String(questionId)
           );
-          continue;
+          questionType = question?.type || null;
         }
+
         if (
           questionType === "correspondance" &&
           typeof answer === "object" &&

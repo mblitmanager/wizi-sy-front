@@ -14,7 +14,12 @@ export const useQuizPlay = (quizId: string) => {
   const [isRestored, setIsRestored] = useState(false);
 
   // Setup answers
-  const { answers, setAnswers, submitAnswer, reset: resetAnswers } = useQuizAnswers();
+  const {
+    answers,
+    setAnswers,
+    submitAnswer,
+    reset: resetAnswers,
+  } = useQuizAnswers();
 
   // Process questions based on difficulty level
   useEffect(() => {
@@ -53,7 +58,9 @@ export const useQuizPlay = (quizId: string) => {
     }
 
     // Shuffle the questions array to get random questions
-    const shuffledQuestions = [...quiz.questions].sort(() => 0.5 - Math.random());
+    const shuffledQuestions = [...quiz.questions].sort(
+      () => 0.5 - Math.random()
+    );
 
     // Take only the required number of questions
     const selectedQuestions = shuffledQuestions.slice(0, questionCount);
@@ -94,7 +101,13 @@ export const useQuizPlay = (quizId: string) => {
         }
       }
     }
-  }, [isRestored, filteredQuestions.length, quizId, navigation.setCurrentQuestionIndex, timer.setTimeSpent]);
+  }, [
+    isRestored,
+    filteredQuestions.length,
+    quizId,
+    navigation.setCurrentQuestionIndex,
+    timer.setTimeSpent,
+  ]);
 
   // Save state to localStorage
   useEffect(() => {
@@ -102,14 +115,20 @@ export const useQuizPlay = (quizId: string) => {
 
     const storageKey = `quiz_session_${quizId}`;
     const session = {
-      questionIds: filteredQuestions.map(q => q.id),
+      questionIds: filteredQuestions.map((q) => q.id),
       answers,
       currentIndex: navigation.currentQuestionIndex,
       timeSpent: timer.timeSpent,
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     };
     localStorage.setItem(storageKey, JSON.stringify(session));
-  }, [quizId, filteredQuestions, answers, navigation.currentQuestionIndex, timer.timeSpent]);
+  }, [
+    quizId,
+    filteredQuestions,
+    answers,
+    navigation.currentQuestionIndex,
+    timer.timeSpent,
+  ]);
 
   // Auto next on timer expire
   useEffect(() => {
@@ -145,7 +164,9 @@ export const useQuizPlay = (quizId: string) => {
     if (!quiz || filteredQuestions.length === 0) return false;
 
     const currentQuestion = filteredQuestions[navigation.currentQuestionIndex];
-    return !!answers[currentQuestion?.id] && answers[currentQuestion?.id].length > 0;
+    return (
+      !!answers[currentQuestion?.id] && answers[currentQuestion?.id].length > 0
+    );
   };
 
   const handleAnswer = (answer: string[]) => {
@@ -155,7 +176,7 @@ export const useQuizPlay = (quizId: string) => {
 
   const handleFinish = () => {
     localStorage.removeItem(`quiz_session_${quizId}`);
-    submitQuiz(answers, timer.timeSpent);
+    submitQuiz(answers, timer.timeSpent, filteredQuestions);
   };
 
   const calculateTotalPoints = () => filteredQuestions.length * 2;
@@ -163,10 +184,10 @@ export const useQuizPlay = (quizId: string) => {
   return {
     quiz: quiz
       ? {
-        ...quiz,
-        questions: filteredQuestions,
-        points: calculateTotalPoints(),
-      }
+          ...quiz,
+          questions: filteredQuestions,
+          points: calculateTotalPoints(),
+        }
       : null,
     isLoading: isLoading || isSubmitting,
     error,
