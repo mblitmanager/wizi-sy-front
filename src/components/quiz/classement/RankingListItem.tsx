@@ -73,7 +73,7 @@ export const RankingListItem = React.memo(function RankingListItem({
                 <div className="flex-shrink-0">
                     {ranking.avatar || ranking.image ? (
                         <img
-                            src={ranking.avatar || ranking.image}
+                            src={`${import.meta.env.VITE_API_URL_MEDIA}/${ranking.avatar || ranking.image}`}
                             alt={ranking.firstname}
                             className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-gray-200 shadow-sm"
                             loading="lazy"

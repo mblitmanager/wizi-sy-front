@@ -95,7 +95,7 @@ export function PodiumDisplay({ rankings, currentUserId, onStagiaireClick }: Pod
                                     >
                                         {entry.avatar || entry.image ? (
                                             <img
-                                                src={entry.avatar || entry.image}
+                                                src={`${import.meta.env.VITE_API_URL_MEDIA}/${entry.avatar || entry.image}`}
                                                 alt={entry.firstname}
                                                 className="w-full h-full rounded-full object-cover bg-white"
                                             />
