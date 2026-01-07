@@ -115,7 +115,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }, [fetchUserData]);
 
-  // Initial auth check with cleanup
+  // Initial auth check - RUNS ONCE
   useEffect(() => {
     let mounted = true;
     const initializeAuth = async () => {
@@ -126,24 +126,31 @@ export function UserProvider({ children }: { children: ReactNode }) {
       if (mounted) setIsLoading(false);
     };
 
-    // register token provider for API interceptor; it reads from state/token with fallback
-    setTokenProvider(() => token ?? localStorage.getItem("token"));
-
     initializeAuth();
-    // Listen for global auth:logout events (dispatched by API interceptors)
+    
+    // Listen for global auth:logout events
     const onAuthLogout = () => {
       localStorage.removeItem("token");
       setUser(null);
       setToken(null);
     };
     window.addEventListener("auth:logout", onAuthLogout as EventListener);
+    
     return () => {
       mounted = false;
-      // clear provider on unmount
-      setTokenProvider(() => localStorage.getItem("token"));
       window.removeEventListener("auth:logout", onAuthLogout as EventListener);
     };
-  }, [fetchUserData, token]);
+  }, [fetchUserData]); // Removed 'token' dependency
+
+  // Sync token provider with state changes
+  useEffect(() => {
+    setTokenProvider(() => token ?? localStorage.getItem("token"));
+    return () => {
+       // Reset to localStorage only on unmount/change? 
+       // Actually setTokenProvider just sets a callback. It's fine to update it.
+       setTokenProvider(() => localStorage.getItem("token"));
+    };
+  }, [token]);
 
   const logout = useCallback(async () => {
     setIsLoading(true);

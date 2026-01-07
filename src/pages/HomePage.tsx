@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { UserProgress } from "@/types/quiz";
-import CategoryCard from "@/components/Home/CategoryCard";
-import ProgressCard from "@/components/Home/ProgressCard";
+import CategoryCard from "@/components/dashboard/CategoryCard";
+import ProgressCard from "@/components/dashboard/ProgressCard";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,8 @@ import {
   CatalogueFormation,
   CatalogueFormationResponse,
 } from "@/types/stagiaire";
-import { catalogueFormationApi } from "@/services/api";
+import { catalogueFormationApi, dashboardApi } from "@/services/api";
+
 import { progressService } from "@/services/progressService";
 import ContactSection from "@/components/FeatureHomePage/ContactSection";
 import {
@@ -41,78 +42,26 @@ import {
 } from "@/components/FeatureHomePage";
 import { FORMATIONMETADATA } from "@/utils/constants";
 
-const API_URL = import.meta.env.VITE_API_URL;
 const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_MEDIA;
 
-interface LocalCategory {
-  id: string;
-  name: string;
-  description: string;
-  color: string;
-  colorClass: string;
-  quizCount: number;
-}
-
-// Temporary mock user object
-const user = { stagiaire: { id: "123" } };
-
-const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
-  const response = await axios.get<Contact[]>(
-    `${API_URL}/stagiaire/contacts/${endpoint}`,
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    }
-  );
-  return response.data;
-};
-
 const HomePage: React.FC = () => {
-  const [categories, setCategories] = useState<LocalCategory[]>([]);
-  const [userProgress, setUserProgress] = useState<UserProgress>({
-    id: "",
-    stagiaire_id: "",
-    total_points: 0,
-    completed_quizzes: 0, // ✅ correct property name
-    average_score: 0,
-    current_streak: 0,
-    longest_streak: 0,
-    last_quiz_date: "",
-    category_progress: {}, // assuming it's okay to start empty
-  });
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
-
   const [catalogueData, setCatalogueData] = useState<
     CatalogueFormation[] | null
   >(null);
 
-  // Récupération des contacts
-  const { data: commerciaux, isLoading: loadingCommerciaux } = useQuery<
-    Contact[]
-  >({
-    queryKey: ["contacts", "commerciaux"],
-    queryFn: () => fetchContacts("commerciaux"),
+  const [userProgress, setUserProgress] = useState<UserProgress>({
+    id: "",
+    stagiaire_id: "",
+    total_points: 0,
+    completed_quizzes: 0,
+    average_score: 0,
+    current_streak: 0,
+    longestStreak: 0,
+    lastQuizDate: "",
+    category_progress: {},
   });
 
-  const { data: formateurs, isLoading: loadingFormateurs } = useQuery<
-    Contact[]
-  >({
-    queryKey: ["contacts", "formateurs"],
-    queryFn: () => fetchContacts("formateurs"),
-  });
-
-  const { data: poleRelation, isLoading: loadingPoleRelation } = useQuery<
-    Contact[]
-  >({
-    queryKey: ["contacts", "pole-relation"],
-    queryFn: () => fetchContacts("pole-relation"),
-  });
-
-  // Données fictives pour les quiz et formations
+  // Données fictives pour les quiz et formations (mock data)
   const [quizLevels] = useState([
     {
       id: 1,
@@ -161,102 +110,47 @@ const HomePage: React.FC = () => {
     },
   ]);
 
-  const fetchData = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      //✅ Get categories
-      try {
-        const fetchedCategories = await quizAPI.getCategories();
-      } catch (categoriesError) {
-        console.error(
-          "Erreur lors de la récupération des catégories:",
-          categoriesError
-        );
-        setError(
-          "Impossible de charger les catégories. Veuillez vérifier votre connexion ou réessayer plus tard."
-        );
-      }
-
-      try {
-        const response =
-          (await catalogueFormationApi.getAllCatalogueFormation()) as {
-            data: { data: CatalogueFormation[] };
-          };
-
-        //✅ Vérification du type de 'data' dans la réponse
-        if (response && Array.isArray(response.data.data)) {
-          // Daily rotation: select 3 formations that change each day
-          const allFormations = response.data.data;
-
-          if (allFormations.length <= 3) {
-            setCatalogueData(allFormations);
-          } else {
-            // Calculate day index for rotation
-            const now = new Date();
-            const startOfYear = new Date(now.getFullYear(), 0, 0);
-            const diff = now.getTime() - startOfYear.getTime();
-            const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-            // Rotate formations based on day
-            const rotationIndex = dayOfYear % allFormations.length;
-            const rotated = [
-              ...allFormations.slice(rotationIndex),
-              ...allFormations.slice(0, rotationIndex)
-            ];
-
-            setCatalogueData(rotated.slice(0, 3));
-          }
-        } else {
-          console.error(
-            "Les données récupérées ne sont pas un tableau:",
-            response
-          );
-          setError(
-            "Impossible de charger les formations. La structure des données est incorrecte."
-          );
-        }
-      } catch (error) {
-        console.error("Erreur lors de la récupération des formations:", error);
-        setError(
-          "Impossible de charger les formations. Veuillez vérifier votre connexion ou réessayer plus tard."
-        );
-      }
-
-      //✅ Étape 3 : Récupération des progrès utilisateur
-      try {
-        const progress = await progressService.getUserProgress();
-        setUserProgress(progress);
-      } catch (progressError) {
-        console.error(
-          "Erreur lors de la récupération des progrès:",
-          progressError
-        );
-        setUserProgress({
-          id: "",
-          stagiaire_id: "",
-          total_points: 0,
-          completed_quizzes: 0,
-          average_score: 0,
-          current_streak: 0,
-          longest_streak: 0,
-          last_quiz_date: "",
-          category_progress: {},
-        });
-      }
-    } catch (error) {
-      console.error("Erreur lors de la récupération des données:", error);
-      setError(
-        "Impossible de charger les données. Veuillez vérifier votre connexion ou réessayer plus tard."
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // ✅ Consolidated Data Query
+  const { data: homeData, isLoading, error } = useQuery({
+    queryKey: ["home-dashboard"],
+    queryFn: async () => {
+      const response = await dashboardApi.getHomeData();
+      return response.data;
+    },
+    // Refetch less frequently to save resources
+    staleTime: 5 * 60 * 1000, 
+  });
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (homeData) {
+      // 1. Set Catalogue Data
+      if (homeData.catalogue_formations) {
+         setCatalogueData(homeData.catalogue_formations);
+      }
+
+      // 2. Set User Progress
+      if (homeData.quiz_stats) {
+        setUserProgress((prev) => ({
+          ...prev,
+          id: homeData.user.id,
+          stagiaire_id: homeData.user.id,
+          total_points: homeData.quiz_stats.total_points,
+          completed_quizzes: homeData.quiz_stats.total_quizzes,
+          average_score: homeData.quiz_stats.average_score,
+          // user info
+          prenom: homeData.user.prenom,
+          image: homeData.user.image
+        }));
+      }
+    }
+  }, [homeData]);
+
+  // Extract contacts from homeData
+  const commerciaux = homeData?.contacts?.commerciaux || [];
+  const formateurs = homeData?.contacts?.formateurs || [];
+  const poleRelation = homeData?.contacts?.pole_relation || [];
+
+  // Loading state handled by useQuery + homeData check
 
   return (
     <div className="container mx-auto px-4 pb-20 md:pb-4 max-w-7xl">

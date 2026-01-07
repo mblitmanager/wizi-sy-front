@@ -1,12 +1,17 @@
-import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import axios, {
+  AxiosError,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from "axios";
 
-const VITE_API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+const VITE_API_URL =
+  import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
 
 export const api = axios.create({
   baseURL: VITE_API_URL,
   headers: {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
+    "Content-Type": "application/json",
+    Accept: "application/json",
   },
 });
 
@@ -39,13 +44,15 @@ const processQueue = (error: any = null) => {
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     try {
-      const token = tokenProvider ? tokenProvider() : localStorage.getItem('token');
+      const token = tokenProvider
+        ? tokenProvider()
+        : localStorage.getItem("token");
       if (token) {
         config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${token}`;
       }
     } catch (err) {
-      console.warn('Error reading auth token for API request interceptor', err);
+      console.warn("Error reading auth token for API request interceptor", err);
     }
     return config;
   },
@@ -56,12 +63,14 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError<{ error?: string; message?: string }>) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
 
     // Check if error is 401 and token expired
     if (
       error.response?.status === 401 &&
-      error.response?.data?.error === 'token_expired' &&
+      error.response?.data?.error === "token_expired" &&
       !originalRequest._retry
     ) {
       // If already refreshing, queue this request
@@ -76,14 +85,14 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = localStorage.getItem('refresh_token');
+      const refreshToken = localStorage.getItem("refresh_token");
 
       if (!refreshToken) {
         // No refresh token available, logout user
-        localStorage.removeItem('token');
-        localStorage.removeItem('refresh_token');
-        window.dispatchEvent(new Event('auth:logout'));
-        window.location.href = '/';
+        localStorage.removeItem("token");
+        localStorage.removeItem("refresh_token");
+        window.dispatchEvent(new Event("auth:logout"));
+        window.location.href = "/";
         return Promise.reject(error);
       }
 
@@ -96,7 +105,7 @@ api.interceptors.response.use(
         const { access_token } = response.data;
 
         // Save new access token
-        localStorage.setItem('token', access_token);
+        localStorage.setItem("token", access_token);
 
         // Update authorization header for the failed request
         originalRequest.headers.Authorization = `Bearer ${access_token}`;
@@ -109,10 +118,10 @@ api.interceptors.response.use(
       } catch (refreshError) {
         // Refresh failed, logout user
         processQueue(refreshError);
-        localStorage.removeItem('token');
-        localStorage.removeItem('refresh_token');
-        window.dispatchEvent(new Event('auth:logout'));
-        window.location.href = '/';
+        localStorage.removeItem("token");
+        localStorage.removeItem("refresh_token");
+        window.dispatchEvent(new Event("auth:logout"));
+        window.location.href = "/";
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
@@ -127,12 +136,16 @@ api.interceptors.response.use(
 // Export services...
 export const catalogueFormationApi = {
   getCatalogueFormation: async (stagiaireId: string) => {
-    const response = await api.get(`/catalogueFormations/stagiaire/${stagiaireId}`);
+    const response = await api.get(
+      `/catalogueFormations/stagiaire/${stagiaireId}`
+    );
     return response.data;
   },
 
   getFormationDetails: async (formationId: string) => {
-    const response = await api.get(`/catalogueFormations/formations/${formationId}`);
+    const response = await api.get(
+      `/catalogueFormations/formations/${formationId}`
+    );
     return response.data;
   },
 
@@ -142,40 +155,47 @@ export const catalogueFormationApi = {
   },
 
   getAllCatalogueFormation: async () => {
-    const response = await api.get('/catalogueFormations/with-formations');
+    const response = await api.get("/catalogueFormations/with-formations");
     return response.data;
   },
 };
 
 export const progressAPI = {
-  getUserProgress: () => api.get('/stagiaire/progress'),
+  getUserProgress: () => api.get("/stagiaire/progress"),
 };
 
 export const stagiaireAPI = {
-  getStagiaireData: () => api.get('/stagiaire'),
+  getStagiaireData: () => api.get("/stagiaire"),
 };
 
 export const rankingService = {
-  getGlobalRanking: () => api.get('/quiz/classement/global'),
+  getGlobalRanking: () => api.get("/quiz/classement/global"),
   getQuizRanking: (quizId: string) => api.get(`/quiz/${quizId}/classement`),
-  getUserRankingStats: () => api.get('/stagiaire/ranking-stats'),
+  getUserRankingStats: () => api.get("/stagiaire/ranking-stats"),
 };
 
 export const sponsorshipService = {
-  getLink: () => api.get('/stagiaire/parrainage/link'),
-  getReferrals: () => api.get('/stagiaire/parrainage/filleuls'),
-  getStats: () => api.get('/stagiaire/parrainage/stats'),
+  getLink: () => api.get("/stagiaire/parrainage/link"),
+  getReferrals: () => api.get("/stagiaire/parrainage/filleuls"),
+  getStats: () => api.get("/stagiaire/parrainage/stats"),
 };
 
 export const notificationAPI = {
-  getSettings: () => api.get('/notifications/settings'),
-  updateSettings: (settings: any) => api.post('/notifications/settings', settings),
-  registerDevice: (token: string) => api.post('/notifications/register-device', { token }),
-  unregisterDevice: (token: string) => api.delete('/notifications/unregister-device', { data: { token } }),
+  getSettings: () => api.get("/notifications/settings"),
+  updateSettings: (settings: any) =>
+    api.post("/notifications/settings", settings),
+  registerDevice: (token: string) =>
+    api.post("/notifications/register-device", { token }),
+  unregisterDevice: (token: string) =>
+    api.delete("/notifications/unregister-device", { data: { token } }),
 };
 
 export const formationApi = {
-  getFormations: () => api.get('formation/listFormation'),
+  getFormations: () => api.get("formation/listFormation"),
+};
+
+export const dashboardApi = {
+  getHomeData: () => api.get("/stagiaire/dashboard/home"),
 };
 
 export const questionApi = {
