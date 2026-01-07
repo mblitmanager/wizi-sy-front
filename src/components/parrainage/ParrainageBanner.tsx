@@ -54,7 +54,7 @@ export function ParrainageBanner({ isMobile = false }: ParrainageBannerProps) {
       <div
         className={`${
           isMobile ? "px-4 py-2" : "container mx-auto px-4 py-3"
-        } h-[60px] flex items-center justify-between rounded-md shadow-md bg-gradient-to-r from-orange-500 to-red-600 relative`}>
+        } h-[60px] flex items-center justify-between rounded-md shadow-md bg-orange-500 relative`}>
         <div className="flex items-center gap-2">
           <img
             src={gift}
