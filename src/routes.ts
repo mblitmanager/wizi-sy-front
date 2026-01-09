@@ -114,6 +114,21 @@ const AdminFormations = lazy(() =>
     default: module.Formations,
   }))
 );
+const AdminCatalogueFormations = lazy(() =>
+  import("@/pages/admin/CatalogueFormations")
+);
+const AdminFormateurs = lazy(() =>
+  import("@/pages/admin/Formateurs")
+);
+const AdminCommerciaux = lazy(() =>
+  import("@/pages/admin/Commerciaux")
+);
+const AdminAchievements = lazy(() =>
+  import("@/pages/admin/Achievements")
+);
+const AdminParametres = lazy(() =>
+  import("@/pages/admin/Parametres")
+);
 
 // Helper to wrap components in Suspense
 const Loadable = (Component: React.LazyExoticComponent<any>) =>
@@ -335,6 +350,46 @@ export const routes = [
       ProtectedRoute,
       undefined,
       Loadable(AdminFormations)
+    ),
+  },
+  {
+    path: "/admin/catalogue-formations",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(AdminCatalogueFormations)
+    ),
+  },
+  {
+    path: "/admin/formateurs",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(AdminFormateurs)
+    ),
+  },
+  {
+    path: "/admin/commerciaux",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(AdminCommerciaux)
+    ),
+  },
+  {
+    path: "/admin/achievements",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(AdminAchievements)
+    ),
+  },
+  {
+    path: "/admin/parametres",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(AdminParametres)
     ),
   },
   {

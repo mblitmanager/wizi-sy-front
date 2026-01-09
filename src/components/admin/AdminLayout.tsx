@@ -46,7 +46,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
     },
     {
       label: "Catalogue",
-      href: "/admin/catalogue",
+      href: "/admin/catalogue-formations",
       icon: ShoppingCart,
     },
     {
@@ -66,7 +66,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
     },
     {
       label: "Statistiques",
-      href: "/admin/stats",
+      href: "/admin/statistics",
       icon: BarChart3,
     },
     {

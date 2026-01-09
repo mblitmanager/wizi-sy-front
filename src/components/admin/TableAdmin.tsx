@@ -27,6 +27,7 @@ interface TableAdminProps {
   currentPage?: number;
   totalPages?: number;
   onPageChange?: (page: number) => void;
+  hideEdit?: boolean;
 }
 
 export const TableAdmin = ({
@@ -40,6 +41,7 @@ export const TableAdmin = ({
   currentPage = 1,
   totalPages = 1,
   onPageChange,
+  hideEdit = false,
 }: TableAdminProps) => {
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
 
@@ -119,7 +121,7 @@ export const TableAdmin = ({
                         <Eye size={16} />
                       </Button>
                     )}
-                    {onEdit && (
+                    {onEdit && !hideEdit && (
                       <Button
                         variant="ghost"
                         size="sm"
