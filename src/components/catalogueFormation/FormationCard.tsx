@@ -11,8 +11,9 @@ import {
   VOIR_LES_DETAILS,
 } from "@/utils/constants";
 import nomedia from "../../assets/nomedia.png";
-import DOMPurify from "dompurify";
-import { FormationCardData } from "@/types/Formation";
+import { ActionTooltip } from "../ui/action-tooltip";
+import { Share2 } from "lucide-react";
+import { toast } from "sonner";
 import { useState } from "react";
 
 const stripHtml = (html: string) => {
@@ -88,10 +89,45 @@ const FormationCard = ({ formation }: { formation: FormationCardData }) => {
   const categoryBadgeClass =
     suffix !== "default" ? `badge-${suffix}` : "bg-gray-200/20 text-gray-600";
 
+  const handleShare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const shareData = {
+      title: formation.titre,
+      text: `Découvrez la formation "${formation.titre}" sur Wizi Learn!\n\n${stripHtml(formation.description || "").substring(0, 100)}...`,
+      url: window.location.origin + `/catalogue-formation/${formation.id}`,
+    };
+
+    if (navigator.share) {
+      navigator.share(shareData).catch((err) => {
+        console.error("Error sharing:", err);
+      });
+    } else {
+      navigator.clipboard.writeText(shareData.url);
+      toast.success("Lien de la formation copié dans le presse-papier !");
+    }
+  };
+
   return (
     <Link
       to={`/catalogue-formation/${formation.id}`}
-      className={`group p-4 border-t-4 rounded-lg  ${categoryBorderClass} shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full overflow-hidden hover:translate-y-[-2px]`}>
+      className={`group relative p-4 border-t-4 rounded-lg  ${categoryBorderClass} shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full overflow-hidden hover:translate-y-[-2px]`}>
+      
+      {/* Share button - Top Right */}
+      <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <ActionTooltip label="Partager cette formation">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white text-gray-600 shadow-sm"
+            onClick={handleShare}
+          >
+            <Share2 className="h-4 w-4" />
+          </Button>
+        </ActionTooltip>
+      </div>
+
       {/* Image container - CORRIGÉ */}
       <div className="flex flex-col items-center justify-center mb-3 gap-3">
         {/* Cercle parfait pour l'image */}

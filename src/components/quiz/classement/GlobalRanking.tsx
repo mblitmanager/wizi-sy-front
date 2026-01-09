@@ -48,6 +48,8 @@ export function GlobalRanking({
   const [showPodium, setShowPodium] = useState(true);
   const [formationFilter, setFormationFilter] = useState<string>("");
   const [formateurFilter, setFormateurFilter] = useState<string>("");
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+  const [selectedQuarter, setSelectedQuarter] = useState<number | null>(null);
   const [selectedStagiaire, setSelectedStagiaire] = useState<LeaderboardEntry | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -56,6 +58,8 @@ export function GlobalRanking({
     setSearch("");
     setFormationFilter("");
     setFormateurFilter("");
+    setSelectedMonth(null);
+    setSelectedQuarter(null);
   }, [period]);
 
   const handleSort = (key: SortKey) => {
@@ -141,6 +145,13 @@ export function GlobalRanking({
       return matchesSearch && matchesFormation && matchesFormateur;
     });
   }, [ranking, search, formationFilter, formateurFilter]);
+
+  const quarterFromMonth = (month: number): number => {
+    if (month >= 1 && month <= 3) return 1;
+    if (month >= 4 && month <= 6) return 2;
+    if (month >= 7 && month <= 9) return 3;
+    return 4;
+  };
 
   const sortedRanking = useMemo(() => {
     const getSortValue = (entry: LeaderboardEntry) => {
@@ -294,7 +305,7 @@ export function GlobalRanking({
             </div>
           </div>
 
-          {/* Ligne 2 : Formation + Formateur + Tri */}
+          {/* Ligne 2 : Formation + Formateur + Mois + Trimestre + Tri */}
           <div className="flex flex-wrap gap-2 items-center">
             <select
               value={formationFilter}
@@ -316,6 +327,38 @@ export function GlobalRanking({
               {formateurOptions.map((opt) => (
                 <option key={opt.id} value={opt.id}>{opt.label}</option>
               ))}
+            </select>
+
+            <select
+              value={selectedMonth ?? ""}
+              onChange={(e) => setSelectedMonth(e.target.value ? parseInt(e.target.value) : null)}
+              className="px-3 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+            >
+              <option value="">Tous mois</option>
+              <option value="1">Janvier</option>
+              <option value="2">Février</option>
+              <option value="3">Mars</option>
+              <option value="4">Avril</option>
+              <option value="5">Mai</option>
+              <option value="6">Juin</option>
+              <option value="7">Juillet</option>
+              <option value="8">Août</option>
+              <option value="9">Septembre</option>
+              <option value="10">Octobre</option>
+              <option value="11">Novembre</option>
+              <option value="12">Décembre</option>
+            </select>
+
+            <select
+              value={selectedQuarter ?? ""}
+              onChange={(e) => setSelectedQuarter(e.target.value ? parseInt(e.target.value) : null)}
+              className="px-3 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+            >
+              <option value="">Tous trimestres</option>
+              <option value="1">T1 (Jan-Mar)</option>
+              <option value="2">T2 (Avr-Jun)</option>
+              <option value="3">T3 (Jul-Sep)</option>
+              <option value="4">T4 (Oct-Déc)</option>
             </select>
 
             <div className="hidden sm:block w-px h-5 bg-gray-300 dark:bg-gray-600"></div>

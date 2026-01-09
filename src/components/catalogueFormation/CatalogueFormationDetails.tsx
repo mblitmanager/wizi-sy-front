@@ -9,7 +9,9 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, AlertTriangle, X, CheckCircle } from "lucide-react";
+import { ActionTooltip } from "../ui/action-tooltip";
+import { toast } from "sonner";
+import { Loader2, AlertTriangle, X, CheckCircle, Share2 } from "lucide-react";
 import { catalogueFormationApi } from "@/services/api";
 import { inscrireAFormation } from "@/services/inscriptionApi";
 import {
@@ -216,6 +218,26 @@ export default function CatalogueFormationDetails() {
     setSuccessMessage("");
   };
 
+  const handleShare = () => {
+    if (!details) return;
+    
+    const formation = details.catalogueFormation;
+    const shareData = {
+      title: formation.titre,
+      text: `Découvrez la formation "${formation.titre}" sur Wizi Learn!\n\n${stripHtmlTags(formation.description || "").substring(0, 150)}...`,
+      url: window.location.origin + `/catalogue-formation/${formation.id}`,
+    };
+
+    if (navigator.share) {
+      navigator.share(shareData).catch((err) => {
+        console.error("Error sharing:", err);
+      });
+    } else {
+      navigator.clipboard.writeText(shareData.url);
+      toast.success("Lien de la formation copié !");
+    }
+  };
+
   const renderMediaElement = () => {
     const url = details?.catalogueFormation.image_url || "";
 
@@ -269,7 +291,19 @@ export default function CatalogueFormationDetails() {
             {/* petite barre décorative en dessous */}
             <span className="absolute left-1/2 -bottom-2 h-1 w-16 -translate-x-1/2 rounded-full bg-gradient-to-r from-orange-400 to-yellow-400"></span>
           </h2>
-          <Button onClick={() => window.history.back()}>{RETOUR}</Button>
+          <div className="flex items-center gap-2">
+            <ActionTooltip label="Partager cette formation">
+              <Button
+                variant="outline"
+                size="icon"
+                className="border-orange-200 text-orange-600 hover:bg-orange-50"
+                onClick={handleShare}
+              >
+                <Share2 className="w-4 h-4" />
+              </Button>
+            </ActionTooltip>
+            <Button onClick={() => window.history.back()}>{RETOUR}</Button>
+          </div>
         </div>
 
         {details.catalogueFormation.formation && (

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Search, User } from "lucide-react";
+import { Search, User, Download } from "lucide-react";
 import { MediaPlayer } from "@/Media";
 import { Layout } from "@/components/layout/Layout";
 import { Media } from "@/types/media";
@@ -148,9 +148,20 @@ export default function TutoAstucePage() {
 
               {/* Right: Sidebar */}
               <div className="lesson-sidebar">
-                <h1 className="lesson-title">
-                  {selectedMedia?.titre || "Sélectionnez une leçon"}
-                </h1>
+                <div className="flex items-center justify-between gap-4 mb-4">
+                  <h1 className="lesson-title flex-1">
+                    {selectedMedia?.titre || "Sélectionnez une leçon"}
+                  </h1>
+                  {selectedMedia && selectedMedia.url && (
+                    <button
+                      onClick={() => window.open(selectedMedia.url, '_blank')}
+                      className="p-2 text-orange-500 hover:bg-orange-50 rounded-full transition-colors flex-shrink-0"
+                      title="Télécharger / Ouvrir"
+                    >
+                      <Download size={20} />
+                    </button>
+                  )}
+                </div>
 
                 <div className="lesson-divider" />
 
@@ -196,9 +207,20 @@ export default function TutoAstucePage() {
             </div>
 
             {/* Title */}
-            <h1 className="text-lg font-semibold text-gray-900">
-              {selectedMedia?.titre || "Sélectionnez une leçon"}
-            </h1>
+            <div className="flex items-center justify-between gap-4">
+              <h1 className="text-lg font-semibold text-gray-900">
+                {selectedMedia?.titre || "Sélectionnez une leçon"}
+              </h1>
+              {selectedMedia && selectedMedia.url && (
+                <button
+                  onClick={() => window.open(selectedMedia.url, '_blank')}
+                  className="p-2 text-orange-500 hover:bg-orange-50 rounded-full transition-colors"
+                  title="Télécharger / Ouvrir"
+                >
+                  <Download size={20} />
+                </button>
+              )}
+            </div>
 
           {/* Tabs & list */}
           <LessonTabs

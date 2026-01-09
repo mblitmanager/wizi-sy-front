@@ -11,6 +11,8 @@ import { catalogueFormationApi, progressAPI, stagiaireAPI } from "@/services/api
 import { Formation, CatalogueFormationWithFormation } from "@/types/stagiaire";
 import { mapCatalogueToFormation } from "@/utils/mapCatalogueToFormation";
 
+const CATEGORIES = ["Tous", "Bureautique", "Langues", "Internet", "Création", "IA"];
+
 const FormationsPage = () => {
   const [formationsDisponibles, setFormationsDisponibles] = useState<Formation[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -19,13 +21,15 @@ const FormationsPage = () => {
   const [prevPageUrl, setPrevPageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("Tous");
+  const [loadedCategories, setLoadedCategories] = useState(new Set(["Tous"]));
+  const [categoryCache, setCategoryCache] = useState<Record<string, Formation[]>>({});
 
-  const fetchPage = async (page = 1) => {
+  const fetchPage = async (page: number, category: string) => {
     setIsLoading(true);
     try {
       const [, catalogueResponse] = await Promise.all([
         progressAPI.getUserProgress(),
-        catalogueFormationApi.getAllCatalogueFormation(page),
+        catalogueFormationApi.getAllCatalogueFormation(page, category),
       ]);
 
       interface CatalogueResponse {
@@ -37,17 +41,29 @@ const FormationsPage = () => {
         prev_page_url: string | null;
       }
 
-      const { data, current_page, last_page, next_page_url, prev_page_url } =
-        catalogueResponse.data as CatalogueResponse;
+      // Check if data is array (old format) or object (new paginated format)
+      // The backend now returns the paginated object directly
+      const responseData = catalogueResponse as unknown as CatalogueResponse;
 
-      // Map and set formations
-      const mappedFormations = Object.values(data).map(mapCatalogueToFormation);
-      setFormationsDisponibles(mappedFormations);
+      let mappedFormations: Formation[] = [];
+      if (Array.isArray(responseData.data)) {
+           mappedFormations = responseData.data.map(mapCatalogueToFormation);
+           setLastPage(responseData.last_page);
+           setCurrentPage(responseData.current_page);
+           setNextPageUrl(responseData.next_page_url);
+           setPrevPageUrl(responseData.prev_page_url);
+      } else {
+          // Fallback if backend structure differs safely
+          console.warn("Unexpected API response structure", responseData);
+      }
       
-      setLastPage(last_page);
-      setCurrentPage(current_page);
-      setNextPageUrl(next_page_url);
-      setPrevPageUrl(prev_page_url);
+      setFormationsDisponibles(mappedFormations);
+      // Cache the formations for this category
+      setCategoryCache(prev => ({
+        ...prev,
+        [category]: mappedFormations
+      }));
+
     } catch (e) {
       console.error("Erreur de récupération :", e);
     } finally {
@@ -58,35 +74,43 @@ const FormationsPage = () => {
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= lastPage) {
       setCurrentPage(page);
-      fetchPage(page);
+      window.scrollTo(0, 0);
     }
   };
 
+  const handleCategoryChange = (category: string) => {
+      setSelectedCategory(category);
+      setCurrentPage(1); // Reset to first page
+      
+      // Load category content on demand if not already loaded
+      if (!loadedCategories.has(category)) {
+        setIsLoading(true);
+        fetchPage(1, category).then(() => {
+          setLoadedCategories(prev => new Set([...prev, category]));
+        });
+      }
+  };
+
+  // Trigger fetch only on page change (category is handled by handleCategoryChange)
   useEffect(() => {
-    fetchPage(currentPage);
+    if (loadedCategories.has(selectedCategory)) {
+      // Retrieve cached formations if already loaded
+      const cached = categoryCache[selectedCategory];
+      if (cached) {
+        setFormationsDisponibles(cached);
+        setIsLoading(false);
+      }
+    }
   }, [currentPage]);
 
-  // Extract unique categories
-  const categories = useMemo(() => {
-    const cats = new Set(formationsDisponibles.map((f) => f.categorie || "Autre"));
-    return ["Tous", ...Array.from(cats)];
-  }, [formationsDisponibles]);
-
-  const filteredFormations = useMemo(() => {
-    if (selectedCategory === "Tous") return formationsDisponibles;
-    return formationsDisponibles.filter(
-      (f) => (f.categorie || "Autre") === selectedCategory
-    );
-  }, [formationsDisponibles, selectedCategory]);
-
   const formationsRender = useMemo(() => {
-    return filteredFormations.map((formation: Formation) => (
+    return formationsDisponibles.map((formation: Formation) => (
       <FormationCard
         key={`available-${formation.catalogue_formation.id}-${formation.id}`}
         formation={formation}
       />
     ));
-  }, [filteredFormations]);
+  }, [formationsDisponibles]);
 
   return (
     <div className="container mx-auto px-4 py-8  bg-white ">
@@ -104,9 +128,9 @@ const FormationsPage = () => {
 
       {/* Filtres par catégorie */}
       <div className="mb-6">
-        <Tabs defaultValue="Tous" value={selectedCategory} onValueChange={setSelectedCategory}>
+        <Tabs defaultValue="Tous" value={selectedCategory} onValueChange={handleCategoryChange}>
           <TabsList className="flex flex-wrap h-auto gap-2 bg-transparent justify-start p-0">
-            {categories.map((category) => (
+            {CATEGORIES.map((category) => (
               <TabsTrigger
                 key={category}
                 value={category}
@@ -125,19 +149,26 @@ const FormationsPage = () => {
           ? Array.from({ length: 6 }).map((_, idx) => (
               <SkeletonCard key={idx} />
             ))
-          : formationsRender}
+          : formationsDisponibles.length > 0 ? formationsRender : (
+            <div className="col-span-full py-10 text-center text-gray-500">
+                Aucune formation trouvée pour cette catégorie.
+            </div>
+          )
+        }
       </div>
 
       {/* Pagination */}
-      <div className="mt-10 flex justify-center">
-        <PaginationControls
-          currentPage={currentPage}
-          lastPage={lastPage}
-          onPageChange={handlePageChange}
-          nextPageUrl={nextPageUrl}
-          prevPageUrl={prevPageUrl}
-        />
-      </div>
+      {!isLoading && formationsDisponibles.length > 0 && (
+        <div className="mt-10 flex justify-center">
+            <PaginationControls
+            currentPage={currentPage}
+            lastPage={lastPage}
+            onPageChange={handlePageChange}
+            nextPageUrl={nextPageUrl}
+            prevPageUrl={prevPageUrl}
+            />
+        </div>
+      )}
     </div>
   );
 };

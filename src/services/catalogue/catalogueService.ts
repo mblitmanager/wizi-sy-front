@@ -11,7 +11,18 @@ const VITE_API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 async function fetchFormations(): Promise<FormationCardData[]> {
   try {
     const response = await axios.get(`${VITE_API_URL}/formationParrainage`);
-    return response.data;
+    // Handle both array and paginated response formats
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+    if (response.data?.data && Array.isArray(response.data.data)) {
+      return response.data.data;
+    }
+    if (response.data?.formations && Array.isArray(response.data.formations)) {
+      return response.data.formations;
+    }
+    console.warn("Unexpected API response format:", response.data);
+    return [];
   } catch (error) {
     console.error("Error fetching formations:", error);
     throw new Error("Failed to fetch formations");
@@ -27,7 +38,18 @@ async function fetchFormations(): Promise<FormationCardData[]> {
 function processCategories(formations: FormationCardData[]): Category[] {
   const categoriesMap = new Map<string, Category>();
 
+  // Ensure formations is an array
+  if (!Array.isArray(formations)) {
+    console.warn("processCategories: formations is not an array", formations);
+    return [];
+  }
+
   formations.forEach((formation) => {
+    // Handle cases where formation might not have expected structure
+    if (!formation || !formation.formation || !formation.formation.categorie) {
+      return;
+    }
+
     const catName = formation.formation.categorie;
     const existing = categoriesMap.get(catName);
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { Timer, Trophy, HelpCircle, Home, X } from "lucide-react";
+import { Timer, Trophy, HelpCircle, Home, X, Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ interface QuizHeaderProps {
   timeLeft: number | null;
   niveau: string;
   points: number;
+  questionText?: string;
   onToggleHint: () => void;
   onToggleHistory: () => void;
   onToggleStats: () => void;
@@ -21,10 +22,30 @@ export function QuizHeader({
   timeLeft,
   niveau,
   points,
+  questionText,
   onToggleHint,
   onToggleHistory,
   onToggleStats,
 }: QuizHeaderProps) {
+  const handleShare = async () => {
+    const shareData = {
+      title: `Quiz: ${title}`,
+      text: questionText || 'Testez vos connaissances !',
+      url: window.location.href,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.log('Share cancelled');
+      }
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
+      alert('Lien copié !');
+    }
+  };
+
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 
@@ -101,6 +122,14 @@ export function QuizHeader({
           <h1 className="text-xl font-semibold">{title}</h1>
         </div>
         <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleShare}
+            className="h-8 w-8"
+            aria-label="Partager la question">
+            <Share2 className="h-4 w-4" />
+          </Button>
           <Button
             variant="ghost"
             size="icon"

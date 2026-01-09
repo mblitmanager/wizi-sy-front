@@ -17,6 +17,26 @@ interface Props {
 const VITE_API_URL = import.meta.env.VITE_API_URL;
 const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
 
+const getSafeUrl = (url: string) => {
+  if (url.startsWith('http')) return url;
+  
+  // Clean paths
+  const cleanPath = url.startsWith('/') ? url.substring(1) : url;
+  const apiRoot = VITE_API_URL.endsWith('/') ? VITE_API_URL.slice(0, -1) : VITE_API_URL;
+  const mediaRoot = VITE_API_URL_MEDIA.endsWith('/') ? VITE_API_URL_MEDIA.slice(0, -1) : VITE_API_URL_MEDIA;
+
+  if (url.startsWith('/api/')) {
+    // Already has /api/ - use mediaRoot to avoid duplicate /api if apiRoot includes it
+    return `${mediaRoot}${url}`;
+  } 
+  
+  if (url.startsWith('/uploads/') || url.startsWith('uploads/')) {
+    return `${mediaRoot}/${cleanPath}`;
+  }
+
+  // Default to stream endpoint
+  return `${apiRoot}/media/stream/${cleanPath}`;
+};
 
 export default function VideoPlayer({
   url,
@@ -28,7 +48,7 @@ export default function VideoPlayer({
 }: Props) {
   const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
-  const playerRef = useRef<any>(null);
+  const playerRef = useRef<Plyr | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const hasMarkedAsWatched = useRef(false);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -109,15 +129,7 @@ export default function VideoPlayer({
     });
 
     // Load the video source
-    if (url.startsWith('/api/')) {
-      video.src = `${VITE_API_URL}${url}`;
-    } else if (url.startsWith('/uploads/')) {
-      video.src = `${VITE_API_URL_MEDIA}${url}`;
-    } else if (url.startsWith('http')) {
-      video.src = url;
-    } else {
-      video.src = `${VITE_API_URL}/media/stream/${url}`;
-    }
+    video.src = getSafeUrl(url);
 
     // Add subtitle track if available
     if (subtitleUrl) {
@@ -126,11 +138,11 @@ export default function VideoPlayer({
       track.label = subtitleLanguage === 'fr' ? t('video.subtitle_fr_label') : subtitleLanguage;
       track.srclang = subtitleLanguage;
       if (subtitleUrl.startsWith('/api/')) {
-        track.src = `${VITE_API_URL}${subtitleUrl}`;
+        track.src = `${VITE_API_URL_MEDIA}${subtitleUrl}`;
       } else if (subtitleUrl.startsWith('http')) {
         track.src = subtitleUrl;
       } else {
-        track.src = `${VITE_API_URL}/api/media/subtitle/${subtitleUrl}`;
+        track.src = `${VITE_API_URL}/api/media/subtitle/${subtitleUrl.startsWith('/') ? subtitleUrl.substring(1) : subtitleUrl}`;
       }
       track.default = true;
       video.appendChild(track);
@@ -260,7 +272,7 @@ export default function VideoPlayer({
           playsInline
           preload="metadata"
         >
-          <source src={`${VITE_API_URL}/media/stream/${url}`} type="video/mp4" />
+          <source src={getSafeUrl(url)} type="video/mp4" />
           {t('video.browser_not_supported')}
         </video>
       </div>

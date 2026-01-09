@@ -154,8 +154,10 @@ export const catalogueFormationApi = {
     return response.data;
   },
 
-  getAllCatalogueFormation: async () => {
-    const response = await api.get("/catalogueFormations/with-formations");
+  getAllCatalogueFormation: async (page = 1, category = "Tous") => {
+    const response = await api.get("/catalogueFormations/with-formations", {
+      params: { page, category },
+    });
     return response.data;
   },
 };
