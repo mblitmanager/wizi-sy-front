@@ -1,4 +1,5 @@
 import { Formation } from "@/types/stagiaire";
+import { FormationCardData } from "@/types/Formation";
 import mp3 from "../../assets/mp3.png";
 import mp4 from "../../assets/mp4.png";
 import { Link, useNavigate } from "react-router-dom";
@@ -15,6 +16,7 @@ import { ActionTooltip } from "../ui/action-tooltip";
 import { Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+import DOMPurify from "dompurify";
 
 const stripHtml = (html: string) => {
   const tmp = document.createElement("div");

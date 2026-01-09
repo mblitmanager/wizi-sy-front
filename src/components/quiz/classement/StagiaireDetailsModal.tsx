@@ -123,7 +123,7 @@ export function StagiaireDetailsModal({ stagiaire, isOpen, onClose }: StagiaireD
                                 />
                                 <div className="flex-1">
                                     <DialogTitle className="text-2xl font-bold mb-1">
-                                        {details.firstname} {details.name[0].toLocaleUpperCase() + '.'}
+                                        {details.firstname} {(details.name?.[0] || "").toLocaleUpperCase() + "."}
                                     </DialogTitle>
                                     <p className="text-gray-600 mb-3">
                                         Position #{details.rang}
@@ -141,7 +141,7 @@ export function StagiaireDetailsModal({ stagiaire, isOpen, onClose }: StagiaireD
                                     <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
                                         <TrendingUp className="w-5 h-5 text-blue-600" />
 
-                                        {details.formations.length > 1 ? 'Formations' : 'Formation'}
+                                        {details.formations.length > 1 ? "Formations" : "Formation"}
                                     </h3>
                                     <div className="flex flex-wrap gap-2">
                                         {details.formations.map((formation) => (
@@ -161,12 +161,12 @@ export function StagiaireDetailsModal({ stagiaire, isOpen, onClose }: StagiaireD
                                         {details.formateurs.map((formateur) => (
                                             <div key={formateur.id} className="flex items-center gap-3 bg-gray-50 rounded-lg p-3">
                                                 <UserAvatar
-                                                    imageUrl={apiUrl + '/' + formateur.image}
+                                                    imageUrl={apiUrl + "/" + formateur.image}
                                                     name={formateur.prenom}
                                                     size="sm"
                                                 />
                                                 <span className="text-sm font-medium">
-                                                    {formateur.prenom} {formateur.nom[0].toLocaleUpperCase() + '.'}
+                                                    {formateur.prenom} {(formateur.nom?.[0] || "").toLocaleUpperCase() + "."}
                                                 </span>
                                             </div>
                                         ))}

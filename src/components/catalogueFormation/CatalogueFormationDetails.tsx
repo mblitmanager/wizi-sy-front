@@ -176,7 +176,11 @@ export default function CatalogueFormationDetails() {
 
     try {
       const response = await catalogueFormationApi.getFormationDetails(id);
-      setDetails(response as CatalogueFormationDetailsType);
+      // API returns the catalogue formation directly, wrap it in the expected format
+      const wrappedData: CatalogueFormationDetailsType = {
+        catalogueFormation: response as any,
+      };
+      setDetails(wrappedData);
     } catch (err) {
       console.error("Error fetching details:", err);
       setError("Une erreur s'est produite lors du chargement des données.");

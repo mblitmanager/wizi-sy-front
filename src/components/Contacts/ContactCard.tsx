@@ -253,7 +253,7 @@ export const ContactCard = ({
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <h3 className="text-base md:text-lg font-bold text-gray-900 dark:text-white truncate">
-                      {getInitials()}. {formattedName}
+                      {formattedName}
                     </h3>
                     <div className="mt-1">
                       <Badge

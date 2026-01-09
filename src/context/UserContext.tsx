@@ -281,9 +281,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       const { token: newToken, refresh_token, user: userData } = response.data;
 
-      startTransition(() => {
+      // Store tokens IMMEDIATELY (outside startTransition) to prevent race conditions
+      if (newToken) {
         localStorage.setItem("token", newToken);
-        localStorage.setItem("refresh_token", refresh_token); // Save refresh token
+      }
+      if (refresh_token) {
+        localStorage.setItem("refresh_token", refresh_token);
+      }
+
+      startTransition(() => {
         setUser(userData);
         setToken(newToken);
         setError(null);

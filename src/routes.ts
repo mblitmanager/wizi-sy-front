@@ -93,6 +93,28 @@ const AnnouncementsPage = lazy(() =>
 );
 const AboutPage = lazy(() => import("@/pages/AboutPage"));
 
+// Admin routes
+const AdminDashboard = lazy(() =>
+  import("@/pages/admin/Dashboard").then((module) => ({
+    default: module.Dashboard,
+  }))
+);
+const AdminStagiaires = lazy(() =>
+  import("@/pages/admin/Stagiaires").then((module) => ({
+    default: module.Stagiaires,
+  }))
+);
+const AdminQuiz = lazy(() =>
+  import("@/pages/admin/Quiz").then((module) => ({
+    default: module.Quiz,
+  }))
+);
+const AdminFormations = lazy(() =>
+  import("@/pages/admin/Formations").then((module) => ({
+    default: module.Formations,
+  }))
+);
+
 // Helper to wrap components in Suspense
 const Loadable = (Component: React.LazyExoticComponent<any>) =>
   React.createElement(
@@ -281,6 +303,38 @@ export const routes = [
       ProtectedRoute,
       undefined,
       Loadable(CatalogueFormationDetails)
+    ),
+  },
+  {
+    path: "/admin/dashboard",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(AdminDashboard)
+    ),
+  },
+  {
+    path: "/admin/stagiaires",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(AdminStagiaires)
+    ),
+  },
+  {
+    path: "/admin/quiz",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(AdminQuiz)
+    ),
+  },
+  {
+    path: "/admin/formations",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(AdminFormations)
     ),
   },
   {
