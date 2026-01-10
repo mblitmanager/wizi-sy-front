@@ -89,7 +89,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const fetchUserData = useCallback(async (authToken: string) => {
     try {
       const response = await api.get("/me");
-      const userData = response.data;
+      const userData = response.data.data || response.data;
 
       startTransition(() => {
         setUser(userData);
@@ -279,7 +279,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
         }
       );
 
-      const { token: newToken, refresh_token, user: userData } = response.data;
+      // Update for the new { data: { ... } } wrapper from Node.js
+      const loginResult = response.data.data || response.data;
+      const { token: newToken, refresh_token, user: userData } = loginResult;
 
       // Store tokens IMMEDIATELY (outside startTransition) to prevent race conditions
       if (newToken) {
