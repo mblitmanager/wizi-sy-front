@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { rankingService } from "@/services/rankingService";
-import { UserProgress } from "@/types/quiz";
+import { UserProgress, LeaderboardEntry } from "@/types/quiz";
 
 export const useLoadRankings = () => {
   const [userProgress, setUserProgress] = useState<UserProgress | null>(null);
@@ -29,16 +29,11 @@ export const useLoadRankings = () => {
       }
 
       setRankings(
-        (rankingsRes || []).map(
-          (entry: {
-            stagiaire: { id: string; prenom: string };
-            totalPoints: number;
-          }) => ({
-            id: entry.stagiaire?.id ? Number(entry.stagiaire.id) : 0,
-            name: entry.stagiaire?.prenom || "Unknown",
-            score: entry.totalPoints || 0,
-          })
-        )
+        (rankingsRes || []).map((entry: LeaderboardEntry) => ({
+          id: entry.id ? Number(entry.id) : 0,
+          name: entry.firstname || entry.name || "Unknown",
+          score: entry.totalPoints || entry.score || 0,
+        }))
       );
     };
 

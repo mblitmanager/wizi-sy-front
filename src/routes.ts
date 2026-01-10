@@ -94,41 +94,17 @@ const AnnouncementsPage = lazy(() =>
 const AboutPage = lazy(() => import("@/pages/AboutPage"));
 
 // Admin routes
-const AdminDashboard = lazy(() =>
-  import("@/pages/admin/Dashboard").then((module) => ({
-    default: module.Dashboard,
-  }))
+const AdminDashboard = lazy(() => import("@/pages/admin/Dashboard"));
+const AdminStagiaires = lazy(() => import("@/pages/admin/Stagiaires"));
+const AdminQuiz = lazy(() => import("@/pages/admin/Quiz"));
+const AdminFormations = lazy(() => import("@/pages/admin/Formations"));
+const AdminCatalogueFormations = lazy(
+  () => import("@/pages/admin/CatalogueFormations")
 );
-const AdminStagiaires = lazy(() =>
-  import("@/pages/admin/Stagiaires").then((module) => ({
-    default: module.Stagiaires,
-  }))
-);
-const AdminQuiz = lazy(() =>
-  import("@/pages/admin/Quiz").then((module) => ({
-    default: module.Quiz,
-  }))
-);
-const AdminFormations = lazy(() =>
-  import("@/pages/admin/Formations").then((module) => ({
-    default: module.Formations,
-  }))
-);
-const AdminCatalogueFormations = lazy(() =>
-  import("@/pages/admin/CatalogueFormations")
-);
-const AdminFormateurs = lazy(() =>
-  import("@/pages/admin/Formateurs")
-);
-const AdminCommerciaux = lazy(() =>
-  import("@/pages/admin/Commerciaux")
-);
-const AdminAchievements = lazy(() =>
-  import("@/pages/admin/Achievements")
-);
-const AdminParametres = lazy(() =>
-  import("@/pages/admin/Parametres")
-);
+const AdminFormateurs = lazy(() => import("@/pages/admin/Formateurs"));
+const AdminCommerciaux = lazy(() => import("@/pages/admin/Commerciaux"));
+const AdminAchievements = lazy(() => import("@/pages/admin/Achievements"));
+const AdminParametres = lazy(() => import("@/pages/admin/Parametres"));
 
 // Helper to wrap components in Suspense
 const Loadable = (Component: React.LazyExoticComponent<any>) =>

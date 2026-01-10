@@ -143,6 +143,7 @@ export interface WordBankItem {
 export interface UserProgress {
   id?: string;
   stagiaire_id?: string;
+  level?: number;
   totalScore?: number;
   completedQuizzes?: number;
   completed_quizzes?: number;
