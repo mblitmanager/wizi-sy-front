@@ -136,7 +136,11 @@ function AuthenticatedApp({ user }: { user: AuthenticatedUser }) {
   useEffect(() => {
     // Ne rediriger que si on est sur la page racine
     if (window.location.pathname !== "/") return;
-    if (!user?.role) return;
+    
+    // Extraction sûre du rôle, compatible avec différentes structures de réponse API
+    const userRole = (user as any)?.user?.role || user?.role;
+    
+    if (!userRole) return;
 
     const roleRoutes: Record<string, string> = {
       formateur: "/formateur/dashboard",
@@ -144,16 +148,18 @@ function AuthenticatedApp({ user }: { user: AuthenticatedUser }) {
       commercial: "/commercial/dashboard",
       commerciale: "/commercial/dashboard", // Rôle féminin
       admin: "/admin/statistics",
+      administrateur: "/admin/statistics", // Cas où le rôle est en français
+      administrator: "/admin/statistics", // Cas où le rôle est en anglais complet
     };
 
-    const targetRoute = roleRoutes[user.role.toLowerCase()];
+    const targetRoute = roleRoutes[userRole.toLowerCase()];
 
     // Rediriger si l'utilisateur a un rôle spécifique (pas stagiaire)
     if (targetRoute) {
       console.log(`🔄 Redirection utilisateur ${user.role} vers ${targetRoute}`);
       navigate(targetRoute, { replace: true });
     }
-  }, [user?.role, navigate]);
+  }, [user, navigate]);
 
   const handleResumeQuiz = () => {
     if (unfinishedQuiz) {

@@ -1,48 +1,48 @@
 import React from "react";
 import { ChartSpline, Lock, Trophy, Clock, Target, X } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+                return (
+                  <div
+                    key={idx}
+                    className="group relative p-3 sm:p-4 border border-gray-100 rounded-2xl bg-gray-50/50 hover:bg-white hover:border-[#FFD700]/30 hover:shadow-md transition-all duration-300 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3"
+                  >
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import type { QuizHistory } from "@/types/quiz";
-import { cn } from "@/lib/utils";
-
+                      <div className={cn(
+                        "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-sm",
+                        isSuccess ? "bg-green-100 text-green-600" : "bg-orange-100 text-orange-600"
+                      )}>
 interface QuizHistoryModalProps {
   quizId: number | null;
   quizTitle?: string;
   quizHistory: QuizHistory[];
   onClose: () => void;
 }
-
-export const QuizHistoryModal: React.FC<QuizHistoryModalProps> = ({
-  quizId,
-  quizTitle,
-  quizHistory,
-  onClose
-}) => {
-  // Ensure we are working with an array
-  const historyArray = Array.isArray(quizHistory) 
+                        <p className="text-[9px] sm:text-[10px] text-gray-400 font-medium uppercase tracking-wider">
+                          {date ? new Date(date).toLocaleString("fr-FR", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit"
+                          }) : "-"}
+                        </p>
     ? quizHistory 
     : (quizHistory as any)?.data || [];
-
-  const recentAttempts = historyArray
+                    
+                    <div className="w-full sm:w-auto text-right space-y-0.5 sm:space-y-1 mt-3 sm:mt-0">
     ?.filter((h: any) => {
       const hId = String(h.quizId || h.quiz_id || h.id_quiz || h.quiz?.id || "");
       return hId === String(quizId);
     })
     ?.sort(
       (a: any, b: any) =>
-        new Date(b.completedAt || b.created_at).getTime() - new Date(a.completedAt || a.created_at).getTime()
+                        <span>{time ? `${Math.floor(time / 60)}m ${time % 60}s` : "-"}</span>
     )
     ?.slice(0, 5);
 
   return (
     <Dialog open={!!quizId} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="w-full max-w-[95vw] sm:max-w-md md:max-w-lg lg:max-w-xl rounded-[24px] p-0 overflow-hidden border-none shadow-2xl mx-auto">
-        <div className="bg-[#B8860B] p-4 sm:p-6 text-white relative">
+        <div className="bg-[#FFB800] p-4 sm:p-6 text-white relative">
           <button 
             onClick={onClose}
             className="absolute right-4 top-4 text-white/80 hover:text-white transition-colors"
@@ -93,7 +93,7 @@ export const QuizHistoryModal: React.FC<QuizHistoryModalProps> = ({
                         <p className="text-[9px] sm:text-[10px] text-gray-400 font-medium uppercase tracking-wider">
                           {date ? new Date(date).toLocaleDateString("fr-FR", {
                             day: "numeric",
-                            month: "short",
+                            month: "long",
                             year: "numeric",
                             hour: "2-digit",
                             minute: "2-digit"

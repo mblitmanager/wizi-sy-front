@@ -159,6 +159,24 @@ export const StagiaireQuizAdventure: React.FC<{
     const unplayedList = base.filter((q) => !playedIds.has(String(q.id)));
     const displayListFull = [...playedList, ...unplayedList];
 
+    // Remove potential duplicates preserving order (defensive)
+    const seen = new Set<string>();
+    const dedupedDisplayList: Quiz[] = [];
+    for (const q of displayListFull) {
+      const id = String(q.id);
+      if (!seen.has(id)) {
+        seen.add(id);
+        dedupedDisplayList.push(q);
+      }
+    }
+
+    if (dedupedDisplayList.length !== displayListFull.length) {
+      console.warn("StagiaireQuizAdventure: duplicated quizzes detected and removed", {
+        originalCount: displayListFull.length,
+        dedupedCount: dedupedDisplayList.length,
+      });
+    }
+
     const playableById = new Map<string, boolean>();
     for (let i = 0; i < displayListFull.length; i++) {
       const q = displayListFull[i];
@@ -175,7 +193,7 @@ export const StagiaireQuizAdventure: React.FC<{
     }
 
     return {
-      list: displayListFull,
+      list: dedupedDisplayList,
       playableById,
     };
   }, [quizzes, userPoints, playedIds, selectedFormationId, safeQuizHistory]);
