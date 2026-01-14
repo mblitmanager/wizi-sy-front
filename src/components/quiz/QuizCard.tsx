@@ -65,8 +65,7 @@ export function QuizCard({
   onHistoryClick,
 }: QuizCardProps) {
   const navigate = useNavigate();
-  const categoryName =
-    quiz.formation?.categorie || quiz.categorie || "Non catégorisé";
+  const categoryName = (quiz as any).formations?.[0]?.categorie || (quiz as any).formation?.categorie || quiz.categorie || "Formation";
   const categoryConfig = getCategoryConfig(categoryName);
   const levelConfig = getLevelConfig(quiz.niveau);
   const estimatedTime = quiz.questions?.length

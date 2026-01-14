@@ -183,31 +183,31 @@ export function StagiaireDetailsModal({ stagiaire, isOpen, onClose }: StagiaireD
 
                                 {/* Cards stats */}
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+                                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
                                         <div className="flex items-center gap-2 mb-2">
                                             <Star className="w-5 h-5 text-blue-600" />
                                             <span className="text-sm font-medium text-gray-600">Total Points</span>
                                         </div>
-                                        <p className="text-2xl font-bold text-blue-900">{details.totalPoints}</p>
+                                        <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{details.totalPoints}</p>
                                     </div>
 
-                                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
+                                    <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 border border-green-200 dark:border-green-800">
                                         <div className="flex items-center gap-2 mb-2">
                                             <CheckCircle className="w-5 h-5 text-green-600" />
                                             <span className="text-sm font-medium text-gray-600">Quiz Complétés</span>
                                         </div>
-                                        <p className="text-2xl font-bold text-green-900">
+                                        <p className="text-2xl font-bold text-green-900 dark:text-green-100">
                                             {details.quizStats.totalCompleted}
                                             {/* /{details.quizStats.totalQuiz} */}
                                         </p>
                                     </div>
 
-                                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
+                                    <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4 border border-purple-200 dark:border-purple-800">
                                         <div className="flex items-center gap-2 mb-2">
                                             <TrendingUp className="w-5 h-5 text-purple-600" />
                                             <span className="text-sm font-medium text-gray-600">Taux de Réussite</span>
                                         </div>
-                                        <p className="text-2xl font-bold text-purple-900">
+                                        <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
                                             {details.quizStats.pourcentageReussite}%
                                         </p>
                                     </div>

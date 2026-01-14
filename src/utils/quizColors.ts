@@ -2,7 +2,6 @@ import bureatique from "../assets/icons/bureautique.png";
 import internet from "../assets/icons/internet.png";
 import creation from "../assets/icons/creation.png";
 import langues from "../assets/icons/langues.png";
-import IA from "../assets/icons/IA.png";
 
 export const CATEGORY_CONFIG = {
   bureautique: {
@@ -33,7 +32,7 @@ export const CATEGORY_CONFIG = {
     buttonColor: "bg-purple-600 hover:bg-purple-700",
   },
   IA: {
-    icon: IA,
+    icon: creation, // Fallback since IA.png is missing
     color: "#ABDA96",
     bgColor: "bg-green-50",
     borderColor: "border-green-200",

@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Quiz } from "@/types/quiz";
+import { getCategoryConfig } from "@/utils/quizColors";
 import { Button } from "../ui/button";
 
 interface AdventureQuizCardProps {
@@ -28,53 +29,62 @@ export const AdventureQuizCard: React.FC<AdventureQuizCardProps> = ({
   onHistoryClick,
 }) => {
   const isLocked = !isPlayable && !isPlayed;
+  const categoryName = (quiz as any).formations?.[0]?.categorie || (quiz as any).formation?.categorie || quiz.categorie || "Formation";
+  const categoryConfig = getCategoryConfig(categoryName);
 
   return (
     <div
       onClick={isPlayable ? onClick : undefined}
       className={cn(
-        "relative flex items-center p-3 sm:p-4 bg-white border rounded-[20px] shadow-sm transition-all duration-300 w-full max-w-[340px] sm:max-w-[400px]",
-        isPlayed ? "border-[#FFD700]/50 shadow-yellow-100/50" : "border-gray-100",
-        isPlayable && !isPlayed ? "border-orange-200 ring-2 ring-orange-50" : "",
+        "relative flex items-center p-3 sm:p-5 bg-white border rounded-[24px] shadow-sm transition-all duration-300 w-full max-w-[360px] sm:max-w-[420px]",
+        isPlayed ? "border-[#FFB800]/30 shadow-yellow-50/50" : "border-gray-100",
+        isPlayable && !isPlayed ? `ring-2 ring-[#FFB800]/10` : "",
         isPlayable && !isLocked ? "hover:shadow-md cursor-pointer hover:translate-y-[-2px]" : "opacity-75 cursor-not-allowed",
         isLocked && "bg-gray-50/50 grayscale-[0.8]"
       )}
+      style={isPlayable && !isPlayed ? { 
+        borderColor: `${categoryConfig.color}40`, 
+        boxShadow: `0 4px 12px ${categoryConfig.color}15` 
+      } : {}}
     >
       {/* Icon Section */}
       <div className={cn(
-        "flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shadow-inner mr-3 sm:mr-4 transition-transform duration-500",
-        isPlayed ? "bg-[#B8860B] scale-105" : 
-        isPlayable ? "bg-blue-600 animate-pulse" : 
+        "flex-shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-full flex items-center justify-center shadow-inner mr-4 sm:mr-6 transition-transform duration-500",
+        isPlayed ? "scale-105 shadow-lg" : 
+        isPlayable ? "animate-pulse" : 
         "bg-gray-200"
-      )}>
+      )}
+      style={{
+        backgroundColor: isPlayed || isPlayable ? categoryConfig.color : '#E5E7EB'
+      }}>
         {isPlayed ? (
-          <Trophy className="w-6 h-6 sm:w-8 sm:h-8 text-white drop-shadow-sm" />
+          <Trophy className="w-7 h-7 sm:w-10 sm:h-10 text-white drop-shadow-sm" />
         ) : isPlayable ? (
-          <Star className="w-6 h-6 sm:w-8 sm:h-8 text-white fill-white" />
+          <Star className="w-7 h-7 sm:w-10 sm:h-10 text-white fill-white" />
         ) : (
-          <Lock className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
+          <Lock className="w-7 h-7 sm:w-10 sm:h-10 text-gray-400" />
         )}
       </div>
 
       {/* Content Section */}
-      <div className="flex-grow min-w-0 pr-6">
-        <div className="flex items-center gap-2 mb-1">
+      <div className="flex-grow min-w-0 pr-8">
+        <div className="flex items-center gap-2 mb-1.5">
           <h3 className={cn(
-            "text-sm sm:text-base font-black italic tracking-tight truncate uppercase",
-            isLocked ? "text-gray-400" : "text-gray-800"
+            "text-base sm:text-lg font-bold tracking-tight leading-tight",
+            isLocked ? "text-gray-400" : "text-gray-900"
           )}>
             {quiz.titre}
           </h3>
-          {isLocked && <Lock className="w-3 h-3 text-gray-400" />}
+          {isLocked && <Lock className="w-4 h-4 text-gray-400" />}
         </div>
         
-        <div className="flex flex-col gap-0.5 mb-2">
-          <div className="flex items-center gap-1.5 text-gray-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider">
-            <GraduationCap className="w-3 h-3" />
-            <span className="truncate">{quiz.categorie || "Formation"}</span>
+        <div className="flex flex-col gap-1 mb-3">
+          <div className="flex items-center gap-1.5 text-gray-500 text-xs sm:text-sm font-medium">
+            <GraduationCap className="w-4 h-4 text-gray-400" />
+            <span className="truncate">{categoryName}</span>
           </div>
-          <div className="flex items-center gap-1.5 text-gray-400 text-[10px] sm:text-xs italic">
-            <TrendingUp className="w-3 h-3" />
+          <div className="flex items-center gap-1.5 text-gray-400 text-[10px] sm:text-xs">
+            <TrendingUp className="w-3.5 h-3.5" />
             <span>{quiz.niveau || "Débutant"}</span>
           </div>
         </div>
@@ -82,21 +92,24 @@ export const AdventureQuizCard: React.FC<AdventureQuizCardProps> = ({
         {/* Historique Button */}
         {isPlayed && (
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            onClick={onHistoryClick}
-            className="h-7 px-3 text-[10px] sm:text-xs rounded-full bg-gray-50 text-[#B8860B] font-black italic uppercase tracking-widest hover:bg-[#FFD700]/10 flex items-center gap-1.5 border border-[#FFD700]/20"
+            onClick={(e) => {
+              e.stopPropagation();
+              onHistoryClick(e);
+            }}
+            className="h-9 px-4 text-xs rounded-xl bg-white text-[#FFB800] border-[#FFB800]/40 font-bold hover:bg-[#FFB800]/5 flex items-center gap-2 transition-colors"
           >
-            <History className="w-3.5 h-3.5" />
+            <History className="w-4 h-4" />
             Historique
           </Button>
         )}
       </div>
 
       {/* Chevron Arrow */}
-      {isPlayable && (
-        <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-[#FFD700]/50">
-          <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+      {(isPlayable || isPlayed) && !isLocked && (
+        <div className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 text-gray-300">
+          <ChevronRight className="w-6 h-6" />
         </div>
       )}
     </div>

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { stagiaireQuizService } from "@/services/quiz/StagiaireQuizService";
 import { quizHistoryService } from "@/services/quiz/submission/QuizHistoryService";
 import type { Quiz, QuizHistory } from "@/types/quiz";
-import { Loader2, Lock, ChartSpline } from "lucide-react";
+import { Loader2, Lock, ChartSpline, Trophy } from "lucide-react";
 import { useClassementPoints } from "@/hooks/useClassementPoints";
 import { buildAvailableQuizzes } from "./quizUtils";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { getCategoryConfig } from "@/utils/quizColors";
 import { AdventureQuizCard } from "./AdventureQuizCard";
 import { cn } from "@/lib/utils";
 
@@ -207,66 +208,108 @@ export const StagiaireQuizAdventure: React.FC<{
   }
 
   return (
-    <div className="relative flex flex-col items-center w-full px-2 sm:px-4 max-w-2xl mx-auto">
-      <QuizAdventureTutorial />
-
-      <div className="relative w-full space-y-12">
-        {/* Timeline Path Line */}
-        <div className="absolute left-[15px] sm:left-1/2 sm:-translate-x-1/2 top-0 bottom-0 w-[2px] bg-gray-100 z-0" />
-
-        {computed.list.map((quiz, index) => {
-          const quizId = String(quiz.id);
-          const played = playedIds.has(quizId);
-          const playable = computed.playableById.get(quizId) === true;
-          const isLeft = index % 2 !== 0; // Flip every other row on larger screens
-
-          return (
-            <div
-              ref={quizRefs[index]}
-              key={quizId}
-              className={cn(
-                "relative z-10 flex w-full items-center",
-                isLeft ? "sm:flex-row-reverse" : "sm:flex-row"
-              )}
-            >
-              {/* Timeline Node */}
-              <div className="absolute left-0 sm:left-1/2 sm:-translate-x-1/2 flex items-center justify-center">
-                <div className={cn(
-                  "w-8 h-8 rounded-full border-2 bg-white flex items-center justify-center shadow-sm transition-colors duration-300",
-                  played ? "border-[#FFD700]" : playable ? "border-yellow-200" : "border-gray-200"
-                )}>
-                  <div className={cn(
-                    "w-3 h-3 rounded-full",
-                    played ? "bg-[#FFD700]" : "bg-transparent"
-                  )} />
-                </div>
+    <div className="relative flex flex-col items-center w-full min-h-screen bg-gray-50/10">
+      {/* Sticky Top Header - Flutter Style */}
+      <div className="sticky top-0 z-50 w-full bg-[#FFB800] text-white shadow-md">
+        <div className="flex items-center justify-between px-4 h-16 max-w-4xl mx-auto w-full">
+          <div className="flex items-center gap-4">
+            <button onClick={() => navigate(-1)} className="p-1 hover:bg-white/10 rounded-full transition-colors">
+              <ArrowUp className="w-6 h-6 -rotate-90" />
+            </button>
+            <h1 className="text-xl font-bold italic tracking-tight uppercase">Quiz</h1>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1.5 bg-white/20 px-3 py-1 rounded-full whitespace-nowrap">
+              <span className="text-sm font-black italic">{userPoints} points</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Trophy className="w-6 h-6" />
+              <div className="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center">
+                <span className="text-xs font-bold font-mono">?</span>
               </div>
-
-              {/* Card Spacer (for desktop zig-zag) */}
-              <div className="hidden sm:block sm:w-1/2" />
-
-              {/* Quiz Card Container */}
-              <div className={cn(
-                "w-full pl-12 sm:pl-0 sm:w-1/2 flex",
-                isLeft ? "sm:justify-end sm:pr-10" : "sm:justify-start sm:pl-10"
-              )}>
-                <AdventureQuizCard
-                  quiz={quiz}
-                  isPlayable={playable}
-                  isPlayed={played}
-                  onClick={() => navigate(`/quiz/${quiz.id}`)}
-                  onHistoryClick={(e) => {
-                    e.stopPropagation();
-                    setHistoryQuizId(Number(quiz.id));
-                  }}
-                />
+              <div className="w-10 h-6 rounded-full bg-black relative cursor-pointer">
+                <div className="absolute right-1 top-1 w-4 h-4 rounded-full bg-white" />
               </div>
             </div>
-          );
-        })}
+          </div>
+        </div>
       </div>
 
-      {/* Modal Historique */}
+      {/* Main Adventure Content */}
+      <div className="relative flex flex-col items-center w-full px-4 sm:px-6 max-w-4xl mx-auto py-12 flex-grow">
+        <div className="relative w-full">
+          {/* Timeline Path Line - Centered */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-[3px] bg-gray-200/50 z-0" />
+
+          {/* Quiz List with Alternating Cards */}
+          <div className="flex flex-col gap-16 sm:gap-24 relative z-10 w-full">
+            {computed.list.map((quiz, index) => {
+              const quizId = String(quiz.id);
+              const played = playedIds.has(quizId);
+              const playable = computed.playableById.get(quizId) === true;
+              const isRight = index % 2 === 0;
+
+              const categoryName = (quiz as any).formations?.[0]?.categorie || (quiz as any).formation?.categorie || quiz.categorie || "Formation";
+              const categoryConfig = getCategoryConfig(categoryName);
+
+              return (
+                <div
+                  ref={quizRefs[index]}
+                  key={quizId}
+                  className={cn(
+                    "relative flex w-full items-center justify-center",
+                    isRight ? "flex-row" : "flex-row-reverse"
+                  )}
+                >
+                  {/* Timeline Node - Centered relative to the container */}
+                  <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center z-20">
+                    <div 
+                      className={cn(
+                        "w-10 h-10 rounded-full border-4 bg-white flex items-center justify-center shadow-md transition-all duration-300",
+                        !played && !playable ? "opacity-50 border-gray-100" : ""
+                      )}
+                      style={{
+                        borderColor: played ? categoryConfig.color : (playable ? '#FFB800' : undefined)
+                      }}
+                    >
+                      <div className={cn(
+                        "w-4 h-4 rounded-full transition-all duration-300",
+                        played || playable ? "" : "bg-transparent"
+                      )} 
+                      style={{
+                        backgroundColor: played ? categoryConfig.color : (playable ? '#FFB800' : undefined)
+                      }} />
+                    </div>
+                  </div>
+
+                  {/* Card Side */}
+                  <div className={cn(
+                    "w-[48%] flex",
+                    isRight ? "justify-start pl-6 sm:pl-10" : "justify-end pr-6 sm:pr-10"
+                  )}>
+                    <AdventureQuizCard
+                      quiz={quiz}
+                      isPlayable={playable}
+                      isPlayed={played}
+                      onClick={() => navigate(`/quiz/${quiz.id}`)}
+                      onHistoryClick={(e) => {
+                        e.stopPropagation();
+                        setHistoryQuizId(Number(quiz.id));
+                      }}
+                    />
+                  </div>
+
+                  {/* Empty Side (Spacer) */}
+                  <div className="w-[45%] hidden sm:block" />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Modals & Overlays */}
       <QuizHistoryModal 
         quizId={historyQuizId} 
         quizTitle={computed.list.find(q => Number(q.id) === historyQuizId)?.titre}
@@ -274,11 +317,11 @@ export const StagiaireQuizAdventure: React.FC<{
         onClose={() => setHistoryQuizId(null)} 
       />
 
-      {/* Back to Top */}
+      {/* Floating Action Button - Back to Top */}
       {showBackToTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-20 right-6 z-50 p-4 bg-[#FFD700] text-white rounded-full shadow-lg hover:bg-[#B8860B] transition-all duration-300 animate-bounce"
+          className="fixed bottom-20 right-6 z-50 p-4 bg-[#FFB800] text-white rounded-full shadow-lg hover:bg-[#B8860B] transition-all duration-300 animate-bounce"
         >
           <ArrowUp className="w-6 h-6" />
         </button>

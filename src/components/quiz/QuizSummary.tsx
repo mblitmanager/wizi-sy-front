@@ -110,7 +110,7 @@ export function QuizSummary() {
           description: "Vous pouvez maintenant participer aux quiz avancés.",
           variant: "default",
           className:
-            "bg-gradient-to-r from-orange-700 to-wizi-accent text-white border-0",
+            "bg-orange-700 text-white border-0",
         });
       } else if (userPoints >= 20) {
         toast({
@@ -119,7 +119,7 @@ export function QuizSummary() {
             "Vous pouvez maintenant participer aux quiz intermédiaires.",
           variant: "default",
           className:
-            "bg-gradient-to-r from-orange-700 to-wizi-accent text-white border-0",
+            "bg-orange-700 text-white border-0",
         });
       } else if (userPoints >= 10) {
         toast({
@@ -127,7 +127,7 @@ export function QuizSummary() {
           description: "Vous avez débloqué de nouveaux quiz débutant.",
           variant: "default",
           className:
-            "bg-gradient-to-r from-orange-700 to-wizi-accent text-white border-0",
+            "bg-orange-700 text-white border-0",
         });
       }
     }
