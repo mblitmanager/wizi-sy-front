@@ -64,10 +64,16 @@ export const useQuizPlay = (quizId: string) => {
     if (token) {
       (async () => {
         try {
-          const resp = await apiClient.get(`/quiz/${quizId}/participation/resume`);
+          const resp = await apiClient.get(
+            `/quiz/${quizId}/participation/resume`
+          );
           const data = resp?.data || resp;
           if (data) {
-            const restoredQuestions = (data.questionIds || data.question_ids || [])
+            const restoredQuestions = (
+              data.questionIds ||
+              data.question_ids ||
+              []
+            )
               .map((id: string) => quiz.questions.find((q) => q.id === id))
               .filter((q: Question | undefined): q is Question => !!q);
 
@@ -196,10 +202,6 @@ export const useQuizPlay = (quizId: string) => {
 
   const handleAnswer = (answer: string[]) => {
     if (!navigation.currentQuestion) return;
-    try {
-      localStorage.removeItem(`quiz_session_${quizId}`);
-      sessionStorage.removeItem(`quiz_session_${quizId}`);
-    } catch {}
     submitAnswer(navigation.currentQuestion.id, answer);
   };
 
@@ -220,11 +222,6 @@ export const useQuizPlay = (quizId: string) => {
       : null,
     isLoading: isLoading || isSubmitting,
     error,
-
-    try {
-      localStorage.removeItem(`quiz_session_${quizId}`);
-      sessionStorage.removeItem(`quiz_session_${quizId}`);
-    } catch {}
     currentQuestion: navigation.currentQuestion,
     currentQuestionIndex: navigation.currentQuestionIndex,
     totalQuestions: navigation.totalQuestions,

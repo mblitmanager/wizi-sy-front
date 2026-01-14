@@ -280,7 +280,7 @@ const QuizHistoryCard = ({
       <div className="mt-3">
         <Progress value={percentage} className="h-2" />
         <div className="mt-1 text-xs text-gray-500">
-          {quiz.correctAnswers} bonnes réponses sur {quiz.totalQuestions}
+          {quiz.correctAnswers} bonnes réponses sur 5
         </div>
       </div>
 

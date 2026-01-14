@@ -102,7 +102,7 @@ export const RecentResults: React.FC<RecentResultsProps> = ({
           result.score !== undefined
             ? result.score
             : totalQuestions > 0
-            ? Math.round((correctAnswers / totalQuestions) * 100)
+            ? Math.round((correctAnswers / 5) * 100)
             : 0;
 
         return (

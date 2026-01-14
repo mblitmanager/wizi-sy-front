@@ -40,7 +40,7 @@ export function QuizResultsDialog({
         <div className="text-center py-6">
           <div className="text-4xl font-bold mb-2">{score} points</div>
           <p className="text-muted-foreground">
-            {answers.filter((a) => a.isCorrect).length} bonnes réponses sur {totalQuestions}
+            {answers.filter((a) => a.isCorrect).length} bonnes réponses sur 5
           </p>
         </div>
         <div className="space-y-4">

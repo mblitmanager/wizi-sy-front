@@ -308,10 +308,10 @@ export function QuizCard({
           {h && (
             <div className="mb-3 text-xs text-gray-700 flex items-center gap-2">
               <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-50 text-blue-700 text-[10px] font-bold">
-                {percent}%
+                {correct/5*100} %
               </span>
               <span>
-                {correct}/{totalQuestions} bonnes réponses
+                {correct}/5 bonnes réponses
               </span>
             </div>
           )}
