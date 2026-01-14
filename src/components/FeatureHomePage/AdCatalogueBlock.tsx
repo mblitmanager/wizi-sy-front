@@ -325,13 +325,25 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
 
                 {/* Bouton principal - Effet "Shine" au hover */}
                 {isOpen && (
-                  <button
-                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                      e.stopPropagation();
-                      handleInscription(idx);
-                    }}
-                    disabled={inscriptionLoading === idx}
-                    className={`
+                  <>
+                    <div className="mb-3">
+                      <button
+                        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                          e.stopPropagation();
+                          navigate(`/catalogue-formation/${formation.id}`);
+                        }}
+                        className="w-full mb-2 text-sm text-orange-600 font-semibold hover:underline text-left">
+                        Voir détails
+                      </button>
+                    </div>
+
+                    <button
+                      onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                        e.stopPropagation();
+                        handleInscription(idx);
+                      }}
+                      disabled={inscriptionLoading === idx}
+                      className={`
                       w-full relative overflow-hidden
                       bg-black
                       text-white font-bold py-3 px-6 rounded-lg
@@ -339,19 +351,20 @@ const AdCatalogueBlock: React.FC<AdCatalogueBlockProps> = ({ formations }) => {
                       hover:brightness-110
                       ${inscriptionLoading === idx ? "opacity-80" : ""}
                     `}>
-                    <span className="relative z-10">
-                      {inscriptionLoading === idx ? (
-                        <span className="flex justify-center">
-                          <Loader2 className="animate-spin mr-2 h-5 w-5" />
-                          Traitement...
-                        </span>
-                      ) : (
-                        "S'inscrire maintenant"
-                      )}
-                    </span>
-                    {/* Effet shine au survol */}
-                    <span className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-0 transition-transform duration-700" />
-                  </button>
+                      <span className="relative z-10">
+                        {inscriptionLoading === idx ? (
+                          <span className="flex justify-center">
+                            <Loader2 className="animate-spin mr-2 h-5 w-5" />
+                            Traitement...
+                          </span>
+                        ) : (
+                          "S'inscrire maintenant"
+                        )}
+                      </span>
+                      {/* Effet shine au survol */}
+                      <span className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-0 transition-transform duration-700" />
+                    </button>
+                  </>
                 )}
               </div>
             </div>
