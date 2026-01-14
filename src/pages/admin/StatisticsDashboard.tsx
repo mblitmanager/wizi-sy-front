@@ -73,6 +73,20 @@ export const StatisticsDashboard = () => {
 
     if (!dashboard) return null;
 
+    const summary = dashboard.summary || {};
+    const activeStudents = summary.activeStudents ?? 0;
+    const totalStudents = summary.totalStudents ?? 0;
+    const totalFormations = summary.totalFormations ?? 0;
+    const avgCompletionRaw = summary.averageCompletionRate;
+    const avgCompletion = (avgCompletionRaw != null && !isNaN(Number(avgCompletionRaw))) ? Number(avgCompletionRaw).toFixed(1) : '0';
+
+    const quizOverview = dashboard.quizOverview || {};
+    const quizTotal = quizOverview.totalQuizzes ?? 0;
+    const quizAvgRaw = quizOverview.averageScore;
+    const quizAvg = (quizAvgRaw != null && !isNaN(Number(quizAvgRaw))) ? Number(quizAvgRaw).toFixed(1) : '0';
+    const quizSuccessRaw = quizOverview.successRate;
+    const quizSuccess = (quizSuccessRaw != null && !isNaN(Number(quizSuccessRaw))) ? Number(quizSuccessRaw).toFixed(1) : '0';
+
     return (
         <div className="statistics-dashboard">
             <header className="dashboard-header">
@@ -104,10 +118,10 @@ export const StatisticsDashboard = () => {
             <div className="stats-grid">
                 <StatCard
                     title="Étudiants Actifs"
-                    value={dashboard.summary.activeStudents || 0}
+                    value={activeStudents}
                     icon={<Users />}
                     color="#ff6b35"
-                    subtitle={`Sur ${dashboard.summary.totalStudents || 0} inscrits`}
+                    subtitle={`Sur ${totalStudents} inscrits`}
                     trend={{
                         value: 12.5,
                         direction: 'up',
@@ -115,13 +129,13 @@ export const StatisticsDashboard = () => {
                 />
                 <StatCard
                     title="Formations Totales"
-                    value={dashboard.summary.totalFormations || 0}
+                    value={totalFormations}
                     icon={<BookOpen />}
                     color="#4ecdc4"
                 />
                 <StatCard
                     title="Taux de Complétion"
-                    value={`${dashboard.summary.averageCompletionRate?.toFixed(1) || 0}%`}
+                    value={`${avgCompletion}%`}
                     icon={<Award />}
                     color="#f7b731"
                     trend={{
@@ -131,7 +145,7 @@ export const StatisticsDashboard = () => {
                 />
                 <StatCard
                     title="Utilisateurs En Ligne"
-                    value={dashboard.onlineUsers || 0}
+                    value={dashboard.onlineUsers ?? 0}
                     icon={<TrendingUp />}
                     color="#5f27cd"
                 />

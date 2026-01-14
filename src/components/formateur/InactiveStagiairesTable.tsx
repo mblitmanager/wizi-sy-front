@@ -12,9 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, Mail, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { api } from '@/lib/api';
 
 interface InactiveStagiaire {
     id: number;
@@ -38,19 +36,13 @@ export function InactiveStagiairesTable() {
 
     const fetchInactiveStagiaires = React.useCallback(async () => {
         try {
-            const token = localStorage.getItem('token');
             setLoading(true);
-            const response = await axios.get(
-                `${API_URL}/formateur/stagiaires/inactive?days=${days}&scope=${scope}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+            const response = await api.get(`/formateur/stagiaires/inactive`, {
+                params: { days, scope },
+            });
 
             // API responses vary; try common fields for items
-            const items = response.data.inactive_stagiaires || response.data.items || response.data.data || [];
+            const items = response.data?.inactive_stagiaires || response.data?.items || response.data?.data || [];
 
             // client-side pagination: derive total from the fetched items
             setInactiveStagiaires(items);

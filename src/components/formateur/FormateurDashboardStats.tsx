@@ -3,9 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, TrendingUp, TrendingDown, AlertTriangle, Video, Trophy } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { api } from '@/lib/api';
 
 interface DashboardStats {
     total_stagiaires: number;
@@ -39,12 +37,7 @@ export function FormateurDashboardStats() {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const response = await axios.get(`${API_URL}/formateur/dashboard/stats`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+                const response = await api.get('/formateur/dashboard/stats');
                 setStats(response.data);
             } catch (err) {
                 console.error('Erreur chargement stats:', err);

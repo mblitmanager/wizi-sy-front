@@ -12,9 +12,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trophy, Medal, Award, Calendar } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { api } from '@/lib/api';
 
 interface StagiaireRanking {
     rank: number;
@@ -35,12 +33,10 @@ export function FormateurClassementPage() {
     const fetchRanking = useCallback(async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('token');
-            const response = await axios.get(`${API_URL}/formateur/classement/mes-stagiaires`, {
+            const response = await api.get(`/formateur/classement/mes-stagiaires`, {
                 params: { period },
-                headers: { Authorization: `Bearer ${token}` },
             });
-            setRanking(response.data.ranking);
+            setRanking(response.data?.ranking || []);
         } catch (err) {
             console.error('Erreur chargement classement:', err);
         } finally {
