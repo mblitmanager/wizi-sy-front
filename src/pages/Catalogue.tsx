@@ -1,24 +1,15 @@
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
-import { ArrowRight, BookOpen, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
   useCategories,
   useFormations,
 } from "@/use-case/hooks/catalogue/useCatalogue";
 import { Layout } from "@/components/layout/Layout";
-import PaginationControls from "@/components/catalogueFormation/PaginationControls";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 import FormationCard from "@/components/catalogueFormation/FormationCard";
-import { stripHtmlTags } from "@/utils/UtilsFunction";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { CategorySelector } from "@/components/catalogueFormation/CategorySelector";
 
 export default function Catalogue() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -87,92 +78,35 @@ export default function Catalogue() {
 
   return (
     <Layout>
-      <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-2 sm:gap-0 mt-[-5%] md:mt-0 sm:mt-0">
-          <h1 className="text-2xl sm:text-xl md:text-2xl text-brown-shade font-bold">
+      <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-8">
+        <div className="flex flex-col items-center justify-center mb-8 gap-4">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl text-[#333] font-bold text-center">
             Notre catalogue de formations
           </h1>
+          
+          {categoriesLoading ? (
+            <div className="flex items-center justify-center min-h-[100px]">
+              <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
+            </div>
+          ) : (
+            <CategorySelector 
+              categories={categories || []} 
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+            />
+          )}
+
           {selectedCategory && (
             <Button
-              variant="outline"
+              variant="link"
               size="sm"
               onClick={() => setSelectedCategory(null)}
-              className="sm:mb-0 bg-yellow-300 hover:bg-yellow-100">
+              className="text-gray-500 hover:text-gray-700 underline"
+            >
               Réinitialiser le filtre
             </Button>
           )}
         </div>
-        <>
-          {categoriesLoading ? (
-            <div className="flex items-center justify-center min-h-[30vh] sm:min-h-[50vh]">
-              <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-amber-500" />
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 sm:gap-4 mb-4 sm:mb-8">
-              {categories?.map((category) => {
-                const categoryStyles = {
-                  Bureautique:
-                    "bg-[#3D9BE9] border-[#3D9BE9]/30 text-[#3D9BE9]",
-                  Langues: "bg-[#A55E6E] border-[#A55E6E]/30 text-[#A55E6E]",
-                  IA: "bg-[#ABDA96] border-[#ABDA96]/30 text-[#ABDA96]",
-                  Internet: "bg-[#FFC533] border-[#FFC533]/30 text-[#FFC533]",
-                  Création: "bg-[#9392BE] border-[#9392BE]/30 text-[#9392BE]",
-                };
-
-                const defaultStyle = "border-gray-200 text-white";
-                const cardStyle =
-                  categoryStyles[
-                    category.name as keyof typeof categoryStyles
-                  ] || defaultStyle;
-
-                return (
-                  <Card
-                    key={category.id}
-                    className={`group relative overflow-hidden border rounded-lg transition-all hover:shadow-lg ${
-                      cardStyle.split(" ")[0]
-                    } ${cardStyle.split(" ")[1]}`}
-                    onClick={() => setSelectedCategory(category.name)}>
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 opacity-20"></div>
-
-                    <CardHeader className="relative z-10 p-2 sm:p-4">
-                      <div className="flex items-center gap-1.5 sm:gap-3">
-                        <div className="flex-1 min-w-0">
-                          <CardTitle className="text-xs sm:text-lg font-bold text-white truncate">
-                            {category.name.toLocaleUpperCase()}
-                          </CardTitle>
-                          <CardDescription className="text-[10px] sm:text-sm whitespace-normal text-white/90">
-                            {stripHtmlTags(category.description)}
-                          </CardDescription>
-                        </div>
-                      </div>
-                    </CardHeader>
-
-                    <CardContent className="relative z-10 p-2 sm:p-4 pt-0">
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-1 text-[10px] sm:text-sm text-white">
-                          <BookOpen className="w-2.5 h-2.5 sm:w-4 sm:h-4" />
-                          <span>{category.count}</span>
-                        </div>
-
-                        <Button
-                          variant="ghost"
-                          className="h-5 sm:h-8 px-1.5 sm:px-3 text-[10px] sm:text-xs font-medium rounded-full hover:bg-opacity-30 border border-white text-white group-hover:bg-white group-hover:text-black transition duration-300 ease-in-out"
-                          onClick={() => {
-                            setSelectedCategory(category.name);
-                          }}>
-                          {/* <span className="hidden sm:inline">
-                            Voir les formations
-                          </span> */}
-                          <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 sm:ml-1 group-hover:translate-x-1 transition-transform" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          )}
-        </>
 
         {/* Afficher les formations seulement quand une catégorie est sélectionnée */}
         {selectedCategory && (
