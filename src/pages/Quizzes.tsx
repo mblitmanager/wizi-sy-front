@@ -120,13 +120,13 @@ export default function Quizzes() {
               <HelpCircle className="w-6 h-6" />
             </button>
 
-            <div className="flex items-center">
+            {/* <div className="flex items-center">
               <Switch 
                 checked={isDarkMode} 
                 onCheckedChange={setIsDarkMode}
                 className="data-[state=checked]:bg-white data-[state=unchecked]:bg-black/20"
               />
-            </div>
+            </div> */}
           </div>
         </div>
 

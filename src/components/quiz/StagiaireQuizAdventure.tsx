@@ -228,7 +228,7 @@ export const StagiaireQuizAdventure: React.FC<{
   return (
     <div className="relative flex flex-col items-center w-full min-h-screen bg-gray-50/10">
       {/* Sticky Top Header - Flutter Style */}
-      <div className="sticky top-0 z-50 w-full bg-[#FFB800] text-white shadow-md">
+      {/* <div className="sticky top-0 z-50 w-full bg-[#FFB800] text-white shadow-md">
         <div className="flex items-center justify-between px-4 h-16 max-w-4xl mx-auto w-full">
           <div className="flex items-center gap-4">
             <button onClick={() => navigate(-1)} className="p-1 hover:bg-white/10 rounded-full transition-colors">
@@ -252,7 +252,7 @@ export const StagiaireQuizAdventure: React.FC<{
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Main Adventure Content */}
       <div className="relative flex flex-col items-center w-full px-4 sm:px-6 max-w-4xl mx-auto py-12 flex-grow">
