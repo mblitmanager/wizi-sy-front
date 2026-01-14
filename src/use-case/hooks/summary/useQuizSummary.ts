@@ -4,7 +4,7 @@ import { Question } from "@/types/quiz";
 export function normalizeString(str: string): string {
   return str
     .normalize("NFD") // décompose les accents
-    .replace(/\u0300-\u036f/g, "") // supprime les diacritiques
+    .replace(/[\u0300-\u036f]/g, "") // supprime les diacritiques
     .toLowerCase()
     .trim();
 }
@@ -139,8 +139,24 @@ export function formatAnswer(
     }
 
     case "vrai/faux": {
-      const answer = question.answers?.find((a) => a.id === String(userAnswer));
-      return answer ? answer.text : String(userAnswer);
+      // Robust handling of object or array formats
+      let actualValue = userAnswer;
+      if (typeof userAnswer === "object" && userAnswer !== null) {
+        if (Array.isArray(userAnswer)) {
+          actualValue = userAnswer[0];
+        } else if ("text" in (userAnswer as any)) {
+          actualValue = (userAnswer as any).text;
+        } else if ("id" in (userAnswer as any)) {
+          actualValue = (userAnswer as any).id;
+        }
+      }
+
+      const answer = question.answers?.find(
+        (a) =>
+          a.id === String(actualValue) ||
+          normalizeString(a.text) === normalizeString(String(actualValue))
+      );
+      return answer ? answer.text : String(actualValue);
     }
 
     case "rearrangement": {
@@ -517,25 +533,45 @@ export function isAnswerCorrect(
     }
 
     case "vrai/faux": {
-      // Vérification que la réponse est un tableau
-      if (!Array.isArray(userAnswerData)) return false;
-
-      // Cas où il n'y a pas de bonnes réponses définies
-      if (!question.correctAnswers || question.correctAnswers.length === 0) {
-        return false;
+      // Robust logic for Vrai/Faux which might come as single value, array or object
+      let actualUserAnswer = userAnswerData;
+      if (typeof userAnswerData === "object" && userAnswerData !== null) {
+        if (Array.isArray(userAnswerData)) {
+          actualUserAnswer = userAnswerData[0];
+        } else if ("id" in (userAnswerData as any)) {
+          actualUserAnswer = (userAnswerData as any).id;
+        } else if ("text" in (userAnswerData as any)) {
+          // If we only have text, find the ID
+          const found = question.answers?.find(
+            (a) =>
+              normalizeString(a.text) ===
+              normalizeString((userAnswerData as any).text)
+          );
+          actualUserAnswer = found ? found.id : (userAnswerData as any).text;
+        }
       }
 
-      // Vérification que toutes les réponses correctes sont sélectionnées
-      // et qu'aucune réponse incorrecte n'est sélectionnée
-      const allCorrectSelected = question.correctAnswers.every((answer) =>
-        userAnswerData.includes(String(answer))
-      );
+      const normalizedUser = normalizeString(String(actualUserAnswer));
 
-      const noIncorrectSelected = userAnswerData.every((answer) =>
-        question.correctAnswers.includes(String(answer))
-      );
+      // Check against correctAnswers if available
+      if (question.correctAnswers && question.correctAnswers.length > 0) {
+        return question.correctAnswers.some(
+          (ca) => normalizeString(String(ca)) === normalizedUser
+        );
+      }
 
-      return allCorrectSelected && noIncorrectSelected;
+      // Fallback to searching answers array
+      const correctAnswer = question.answers?.find(
+        (a) => a.isCorrect || a.is_correct === 1
+      );
+      if (correctAnswer) {
+        return (
+          normalizeString(String(correctAnswer.id)) === normalizedUser ||
+          normalizeString(correctAnswer.text) === normalizedUser
+        );
+      }
+
+      return false;
     }
 
     case "carte flash": {

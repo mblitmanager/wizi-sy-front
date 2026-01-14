@@ -60,6 +60,8 @@ interface CatalogueFormationDetailsType {
       titre: string;
       description: string;
       categorie?: CATEGORIES;
+      image_url?: string;
+      image?: string;
     };
   };
 }
@@ -167,8 +169,14 @@ export default function CatalogueFormationDetails() {
     }
   }, []);
 
-  const getCategoryBadgeText = (category?: CATEGORIES): string => {
-    return category ? `Catégorie : ${category}` : "Catégorie : Non spécifiée";
+  const getCategoryFromFormation = (f: CatalogueFormationDetailsType["catalogueFormation"]): string => {
+    if (!f) return "";
+    return f.formation?.categorie || (f as any).categorie || "";
+  };
+
+  const getCategoryBadgeText = (f: CatalogueFormationDetailsType["catalogueFormation"]): string => {
+    const cat = getCategoryFromFormation(f);
+    return cat ? `Catégorie : ${cat}` : "Catégorie : Non spécifiée";
   };
 
   const fetchFormationDetails = useCallback(async () => {
@@ -176,9 +184,23 @@ export default function CatalogueFormationDetails() {
 
     try {
       const response = await catalogueFormationApi.getFormationDetails(id);
-      // API returns the catalogue formation directly, wrap it in the expected format
+      
+      // Handle Node backend structure where data is wrapped in catalogueFormation
+      let formationData = response;
+      let pdfUrlResponse = null;
+
+      if (response && response.catalogueFormation) {
+        formationData = response.catalogueFormation;
+        pdfUrlResponse = response.cursusPdfUrl;
+      }
+
       const wrappedData: CatalogueFormationDetailsType = {
-        catalogueFormation: response as any,
+        catalogueFormation: {
+          ...formationData,
+          // Ensure we have a valid PDF URL
+          cursusPdfUrl: pdfUrlResponse || formationData.cursusPdfUrl || 
+                        (formationData.cursus_pdf ? `${import.meta.env.VITE_API_URL_IMG}/${formationData.cursus_pdf}` : null)
+        },
       };
       setDetails(wrappedData);
     } catch (err) {
@@ -242,16 +264,45 @@ export default function CatalogueFormationDetails() {
     }
   };
 
+  const getFullUrl = (url: string | undefined, type: 'media' | 'img' = 'media') => {
+    if (!url) return "";
+    if (url.startsWith('http')) return url;
+    
+    // Some URLs might already have storage/ prefix
+    const baseUrl = type === 'img' ? import.meta.env.VITE_API_URL_IMG : import.meta.env.VITE_API_URL_MEDIA;
+    
+    if (url.startsWith('storage/')) {
+        // VITE_API_URL_IMG often includes /storage, so avoid double storage
+        if (type === 'img') {
+            return `${import.meta.env.VITE_API_URL_MEDIA}/${url}`;
+        }
+    }
+    
+    return `${baseUrl}/${url}`;
+  };
+
   const renderMediaElement = () => {
-    const url = details?.catalogueFormation.image_url || "";
+    const formation = details?.catalogueFormation;
+    const url = formation?.image_url || formation?.formation?.image_url || formation?.formation?.image || "";
+
+    if (!url) {
+        return (
+            <div className="h-full w-full bg-gray-100 flex items-center justify-center rounded-lg">
+                <AlertTriangle className="w-12 h-12 text-gray-300" />
+            </div>
+        );
+    }
 
     if (url.endsWith(".mp4")) {
       return (
         <video
-          controls
+          autoPlay
+          muted
+          loop
+          playsInline
           className="h-full w-full object-cover md:col-span-1 rounded-lg">
           <source
-            src={`${import.meta.env.VITE_API_URL_IMG}/${url}`}
+            src={getFullUrl(url, 'img')}
             type="video/mp4"
           />
           Votre navigateur ne supporte pas la lecture de vidéos.
@@ -263,7 +314,7 @@ export default function CatalogueFormationDetails() {
       return (
         <audio controls className="w-full md:col-span-1 rounded-lg">
           <source
-            src={`${import.meta.env.VITE_API_URL_MEDIA}/${url}`}
+            src={getFullUrl(url, 'media')}
             type="audio/mp3"
           />
           Votre navigateur ne supporte pas la lecture d'audios.
@@ -273,9 +324,12 @@ export default function CatalogueFormationDetails() {
 
     return (
       <img
-        src={`${import.meta.env.VITE_API_URL_MEDIA}/${url}`}
+        src={getFullUrl(url, 'media')}
         alt={details?.catalogueFormation.titre}
         className="h-full w-full object-contain md:col-span-1 rounded-lg"
+        onError={(e) => {
+            (e.target as HTMLImageElement).src = "/placeholder-formation.png";
+        }}
       />
     );
   };
@@ -283,6 +337,8 @@ export default function CatalogueFormationDetails() {
   if (loading) return <SkeletonCard />;
   if (error) return <ErrorDisplay message={error} />;
   if (!details) return <NoDataAvailable />;
+
+  const currentCategory = getCategoryFromFormation(details.catalogueFormation) as unknown as CATEGORIES;
 
   return (
     <Layout>
@@ -336,47 +392,19 @@ export default function CatalogueFormationDetails() {
 
               {/* Price badge - overlayed bottom-left */}
               <div className="absolute left-4 bottom-4">
-                {/* determine suffix from category to apply price-badge class */}
-                {/* {(() => {
-                  const rawCat = details.catalogueFormation.formation
-                    ?.categorie as unknown as string | undefined;
-                  const suffix = rawCat ? rawCat.toLowerCase() : "";
-                  const price = details.catalogueFormation.tarif;
-                  return (
-                    <div
-                      className={`inline-block px-3 py-1 font-extrabold drop-shadow-lg rounded-md text-white ${
-                        suffix ? `price-badge-${suffix}` : "bg-gray-700"
-                      }`}>
-                      {price
-                        ? `${Number(price)
-                            .toLocaleString("fr-FR", {
-                              minimumFractionDigits: 0,
-                              maximumFractionDigits: 0,
-                            })
-                            .replace(/\u202F/g, " ")} ${
-                            FORMATIONMETADATA.euros
-                          }`
-                        : "-"}
-                    </div>
-                  );
-                })()} */}
               </div>
 
               {/* Category chip - overlayed top-left */}
               <div className="absolute left-4 top-4">
                 {(() => {
-                  const rawCat = details.catalogueFormation.formation
-                    ?.categorie as unknown as string | undefined;
-                  const suffix = rawCat ? rawCat.toLowerCase() : "";
+                  const catString = getCategoryFromFormation(details.catalogueFormation);
+                  const suffix = catString ? catString.toLowerCase() : "";
                   return (
                     <span
                       className={`inline-block text-sm font-medium px-3 py-1 rounded ${
                         suffix ? `badge-${suffix}` : "bg-gray-200"
                       }`}>
-                      {getCategoryBadgeText(
-                        details.catalogueFormation.formation
-                          ?.categorie as unknown as CATEGORIES
-                      )}
+                      {getCategoryBadgeText(details.catalogueFormation)}
                     </span>
                   );
                 })()}
@@ -386,10 +414,7 @@ export default function CatalogueFormationDetails() {
             {/* Details column */}
             <FormationDetailsContent
               formation={details.catalogueFormation}
-              category={
-                details.catalogueFormation.formation
-                  ?.categorie as unknown as CATEGORIES
-              }
+              category={currentCategory}
               onInscription={handleInscription}
               inscriptionLoading={inscriptionLoading}
               inscriptionSuccess={inscriptionSuccess}
