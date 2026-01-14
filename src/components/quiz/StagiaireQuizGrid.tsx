@@ -32,7 +32,7 @@ export function StagiaireQuizGrid({
   if (!quizzes || !quizzes.length) {
     return (
       <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6 mb-8 text-center">
-        <h2 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-600 italic">
+        <h2 className="text-2xl md:text-3xl font-extrabold text-orange-600 italic">
           QUIZ À DÉCOUVRIR
         </h2>
         <p className="text-gray-500 font-medium italic">Aucun quiz ne correspond à vos filtres</p>

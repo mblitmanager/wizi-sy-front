@@ -82,12 +82,12 @@ export function GlobalRanking({
 
   const getRankBadgeColor = (rang: number): string => {
     switch (rang) {
-      case 1: return 'bg-gradient-to-br from-yellow-400 to-yellow-600';
-      case 2: return 'bg-gradient-to-br from-gray-300 to-gray-400';
-      case 3: return 'bg-gradient-to-br from-orange-400 to-orange-600';
-      case 4: return 'bg-gradient-to-br from-gray-400 to-gray-500';
-      case 5: return 'bg-gradient-to-br from-blue-400 to-blue-600';
-      default: return 'bg-gradient-to-br from-gray-200 to-gray-300';
+      case 1: return 'bg-yellow-500';
+      case 2: return 'bg-gray-400';
+      case 3: return 'bg-orange-500';
+      case 4: return 'bg-gray-500';
+      case 5: return 'bg-blue-500';
+      default: return 'bg-gray-300';
     }
   };
 
@@ -235,7 +235,7 @@ export function GlobalRanking({
       className="mb-4 bg-white dark:bg-gray-900 rounded-lg ring-1 ring-gray-50 dark:ring-gray-800 overflow-hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
       {/* Header */}
-      <div className="p-4 sm:p-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+      <div className="p-4 sm:p-4 border-b bg-blue-50 dark:bg-gray-800/50">
         <div className="flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">

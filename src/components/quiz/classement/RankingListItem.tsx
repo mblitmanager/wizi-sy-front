@@ -12,11 +12,11 @@ interface RankingListItemProps {
 const getRankColor = (rank?: number) => {
     if (!rank) return 'bg-gray-100 text-gray-600';
     switch (rank) {
-        case 1: return 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-white shadow-lg';
-        case 2: return 'bg-gradient-to-br from-gray-300 to-gray-400 text-white shadow-lg';
-        case 3: return 'bg-gradient-to-br from-orange-400 to-orange-600 text-white shadow-lg';
-        case 4: return 'bg-gradient-to-br from-gray-400 to-gray-500 text-white shadow-md';
-        case 5: return 'bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-md';
+        case 1: return 'bg-yellow-500 text-white shadow-lg';
+        case 2: return 'bg-gray-400 text-white shadow-lg';
+        case 3: return 'bg-orange-500 text-white shadow-lg';
+        case 4: return 'bg-gray-500 text-white shadow-md';
+        case 5: return 'bg-blue-500 text-white shadow-md';
         default: return 'bg-gray-200 text-gray-700';
     }
 };

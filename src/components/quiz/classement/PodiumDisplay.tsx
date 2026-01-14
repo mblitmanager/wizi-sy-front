@@ -90,7 +90,7 @@ export function PodiumDisplay({ rankings, currentUserId, onStagiaireClick }: Pod
                                     <div
                                         className={`${avatarSizes[position]} rounded-full p-0.5 shadow-lg`}
                                         style={{
-                                            background: `linear-gradient(135deg, ${color.bg}, ${color.border})`,
+                                            backgroundColor: color.bg,
                                         }}
                                     >
                                         {entry.avatar || entry.image ? (

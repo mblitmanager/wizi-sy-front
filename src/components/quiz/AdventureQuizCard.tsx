@@ -43,8 +43,8 @@ export const AdventureQuizCard: React.FC<AdventureQuizCardProps> = ({
       {/* Icon Section */}
       <div className={cn(
         "flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shadow-inner mr-3 sm:mr-4 transition-transform duration-500",
-        isPlayed ? "bg-gradient-to-br from-[#FFD700] to-[#B8860B] scale-105" : 
-        isPlayable ? "bg-gradient-to-br from-blue-400 to-blue-600 animate-pulse" : 
+        isPlayed ? "bg-[#B8860B] scale-105" : 
+        isPlayable ? "bg-blue-600 animate-pulse" : 
         "bg-gray-200"
       )}>
         {isPlayed ? (
@@ -80,7 +80,7 @@ export const AdventureQuizCard: React.FC<AdventureQuizCardProps> = ({
         </div>
 
         {/* Historique Button */}
-        {(isPlayed || isPlayable) && (
+        {isPlayed && (
           <Button
             variant="ghost"
             size="sm"

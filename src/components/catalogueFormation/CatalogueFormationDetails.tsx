@@ -11,7 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ActionTooltip } from "../ui/action-tooltip";
 import { toast } from "sonner";
-import { Loader2, AlertTriangle, X, CheckCircle, Share2 } from "lucide-react";
+import { Loader2, AlertTriangle, X, CheckCircle, Share2, Clock, GraduationCap, Users, UserCheck } from "lucide-react";
 import { catalogueFormationApi } from "@/services/api";
 import { inscrireAFormation } from "@/services/inscriptionApi";
 import {
@@ -56,6 +56,7 @@ interface CatalogueFormationDetailsType {
     nombre_participants?: number | null;
     cursus_pdf?: string | null;
     cursusPdfUrl?: string | null;
+    categorie?: string | CATEGORIES;
     formation?: {
       titre: string;
       description: string;
@@ -171,7 +172,7 @@ export default function CatalogueFormationDetails() {
 
   const getCategoryFromFormation = (f: CatalogueFormationDetailsType["catalogueFormation"]): string => {
     if (!f) return "";
-    return f.formation?.categorie || (f as any).categorie || "";
+    return f.formation?.categorie || f.categorie || "";
   };
 
   const getCategoryBadgeText = (f: CatalogueFormationDetailsType["catalogueFormation"]): string => {
@@ -520,36 +521,80 @@ const FormationDetailsContent = ({
         />
 
         {/* Info tiles row - mirror Flutter info tiles with category color */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
-          <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
-            <div className="text-xs text-gray-500">Durée</div>
-            <div
-              className="font-semibold"
-              style={{ color: getCategoryColor(category) }}>
-              {formation.duree || "-"} heures
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+          <div className="p-3 rounded-xl bg-gray-50/80 dark:bg-gray-800 border border-gray-100 flex items-center gap-3">
+            <div className="p-2 rounded-full bg-white shadow-sm">
+                <Clock className="w-4 h-4" style={{ color: getCategoryColor(category) }} />
+            </div>
+            <div>
+                <div className="text-[10px] text-gray-400 uppercase font-black tracking-widest">Durée</div>
+                <div
+                className="font-black italic uppercase tracking-tight text-xs"
+                style={{ color: getCategoryColor(category) }}>
+                {formation.duree || "-"} h
+                </div>
             </div>
           </div>
 
-          {/* <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
-            <div className="text-xs text-gray-500">Certification</div>
-            <div
-              className="font-semibold"
-              style={{ color: getCategoryColor(category) }}>
-              {formation.certification || "-"}
+          {formation.niveau && (
+            <div className="p-3 rounded-xl bg-gray-50/80 dark:bg-gray-800 border border-gray-100 flex items-center gap-3">
+              <div className="p-2 rounded-full bg-white shadow-sm">
+                  <GraduationCap className="w-4 h-4" style={{ color: getCategoryColor(category) }} />
+              </div>
+              <div>
+                  <div className="text-[10px] text-gray-400 uppercase font-black tracking-widest">Niveau</div>
+                  <div
+                    className="font-black italic uppercase tracking-tight text-xs"
+                    style={{ color: getCategoryColor(category) }}>
+                    {formation.niveau}
+                  </div>
+              </div>
             </div>
-          </div> */}
+          )}
+
+          {formation.public_cible && (
+            <div className="p-3 rounded-xl bg-gray-50/80 dark:bg-gray-800 border border-gray-100 flex items-center gap-3">
+              <div className="p-2 rounded-full bg-white shadow-sm">
+                  <Users className="w-4 h-4" style={{ color: getCategoryColor(category) }} />
+              </div>
+              <div>
+                  <div className="text-[10px] text-gray-400 uppercase font-black tracking-widest">Public</div>
+                  <div
+                    className="font-black italic uppercase tracking-tight text-xs"
+                    style={{ color: getCategoryColor(category) }}>
+                    {formation.public_cible}
+                  </div>
+              </div>
+            </div>
+          )}
+
+          {(formation.nombre_participants !== undefined && formation.nombre_participants !== null) && (
+            <div className="p-3 rounded-xl bg-gray-50/80 dark:bg-gray-800 border border-gray-100 flex items-center gap-3">
+              <div className="p-2 rounded-full bg-white shadow-sm">
+                  <UserCheck className="w-4 h-4" style={{ color: getCategoryColor(category) }} />
+              </div>
+              <div>
+                  <div className="text-[10px] text-gray-400 uppercase font-black tracking-widest">Places</div>
+                  <div
+                    className="font-black italic uppercase tracking-tight text-xs"
+                    style={{ color: getCategoryColor(category) }}>
+                    {formation.nombre_participants}
+                  </div>
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
 
-      <div className="space-y-4">
+      <div className="space-y-4 px-1">
         {/* Afficher le PDF du cursus si fourni (backend doit exposer cursusPdfUrl) */}
         {formation.cursusPdfUrl ? (
           <a
             href={formation.cursusPdfUrl}
             target="_blank"
             rel="noreferrer"
-            className="inline-block text-sm text-blue-600 underline">
-            Télécharger le programme / cursus (PDF)
+            className="inline-block text-sm font-black italic text-[#B8860B] hover:text-orange-500 uppercase tracking-widest border border-[#FFD700]/30 px-4 py-2 rounded-xl bg-[#FFD700]/5 hover:bg-[#FFD700]/10 transition-all">
+            Télécharger le programme (PDF)
           </a>
         ) : (
           <DownloadPdfButton formationId={formation.id} />
@@ -557,9 +602,9 @@ const FormationDetailsContent = ({
         {/* Objectifs et programme (si présents) */}
         {formation.objectifs && (
           <div className="mt-4">
-            <h3 className="text-lg font-semibold">Objectifs</h3>
+            <h3 className="text-lg font-black italic uppercase tracking-tight text-gray-800">Objectifs</h3>
             <div
-              className="mt-2 text-gray-700"
+              className="mt-2 text-gray-700 leading-relaxed"
               dangerouslySetInnerHTML={{
                 __html: DOMPurify.sanitize(formation.objectifs || ""),
               }}
@@ -569,9 +614,9 @@ const FormationDetailsContent = ({
 
         {formation.programme && (
           <div className="mt-4">
-            <h3 className="text-lg font-semibold">Programme</h3>
+            <h3 className="text-lg font-black italic uppercase tracking-tight text-gray-800">Programme</h3>
             <div
-              className="mt-2 text-gray-700"
+              className="mt-2 text-gray-700 leading-relaxed"
               dangerouslySetInnerHTML={{
                 __html: DOMPurify.sanitize(formation.programme || ""),
               }}
@@ -579,13 +624,13 @@ const FormationDetailsContent = ({
           </div>
         )}
 
-        {/* Détails supplémentaires : modalités, moyens, évaluation, lieu, niveau, public */}
+        {/* Détails supplémentaires : modalités, moyens, évaluation */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {formation.modalites && (
-            <div className="p-3 rounded-lg bg-gray-50">
-              <strong>Modalités</strong>
+            <div className="p-4 rounded-xl border border-gray-100 bg-gray-50/50">
+              <strong className="text-xs font-black italic uppercase tracking-widest text-[#B8860B] block mb-2">Modalités</strong>
               <div
-                className="text-sm mt-1"
+                className="text-sm text-gray-600 italic"
                 dangerouslySetInnerHTML={{
                   __html: DOMPurify.sanitize(formation.modalites || ""),
                 }}
@@ -594,10 +639,10 @@ const FormationDetailsContent = ({
           )}
 
           {formation.modalites_accompagnement && (
-            <div className="p-3 rounded-lg bg-gray-50">
-              <strong>Modalités d'accompagnement</strong>
+            <div className="p-4 rounded-xl border border-gray-100 bg-gray-50/50">
+              <strong className="text-xs font-black italic uppercase tracking-widest text-[#B8860B] block mb-2">Accompagnement</strong>
               <div
-                className="text-sm mt-1"
+                className="text-sm text-gray-600 italic"
                 dangerouslySetInnerHTML={{
                   __html: DOMPurify.sanitize(
                     formation.modalites_accompagnement || ""
@@ -608,10 +653,10 @@ const FormationDetailsContent = ({
           )}
 
           {formation.moyens_pedagogiques && (
-            <div className="p-3 rounded-lg bg-gray-50">
-              <strong>Moyens pédagogiques</strong>
+            <div className="p-4 rounded-xl border border-gray-100 bg-gray-50/50">
+              <strong className="text-xs font-black italic uppercase tracking-widest text-[#B8860B] block mb-2">Moyens pédagogiques</strong>
               <div
-                className="text-sm mt-1"
+                className="text-sm text-gray-600 italic"
                 dangerouslySetInnerHTML={{
                   __html: DOMPurify.sanitize(
                     formation.moyens_pedagogiques || ""
@@ -622,47 +667,16 @@ const FormationDetailsContent = ({
           )}
 
           {formation.evaluation && (
-            <div className="p-3 rounded-lg bg-gray-50">
-              <strong>Évaluation</strong>
+            <div className="p-4 rounded-xl border border-gray-100 bg-gray-50/50">
+              <strong className="text-xs font-black italic uppercase tracking-widest text-[#B8860B] block mb-2">Évaluation</strong>
               <div
-                className="text-sm mt-1"
+                className="text-sm text-gray-600 italic"
                 dangerouslySetInnerHTML={{
                   __html: DOMPurify.sanitize(formation.evaluation || ""),
                 }}
               />
             </div>
           )}
-
-          {formation.lieu && (
-            <div className="p-3 rounded-lg bg-gray-50">
-              <strong>Lieu</strong>
-              <div className="text-sm mt-1">{formation.lieu}</div>
-            </div>
-          )}
-
-          {formation.niveau && (
-            <div className="p-3 rounded-lg bg-gray-50">
-              <strong>Niveau</strong>
-              <div className="text-sm mt-1">{formation.niveau}</div>
-            </div>
-          )}
-
-          {formation.public_cible && (
-            <div className="p-3 rounded-lg bg-gray-50">
-              <strong>Public cible</strong>
-              <div className="text-sm mt-1">{formation.public_cible}</div>
-            </div>
-          )}
-
-          {formation.nombre_participants !== undefined &&
-            formation.nombre_participants !== null && (
-              <div className="p-3 rounded-lg bg-gray-50">
-                <strong>Nombre participants</strong>
-                <div className="text-sm mt-1">
-                  {formation.nombre_participants}
-                </div>
-              </div>
-            )}
         </div>
 
         <InscriptionSection

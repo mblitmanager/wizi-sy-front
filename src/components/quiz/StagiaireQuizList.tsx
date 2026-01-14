@@ -189,11 +189,12 @@ export function StagiaireQuizList({
       completedAt?: string;
     };
 
+    const historyArray = Array.isArray(quizHistory) ? quizHistory : (quizHistory as any)?.data || [];
     const byId = new Map<string, { completedAt?: string }>();
-    (quizHistory as HistoryMinimal[]).forEach((h) => {
-      const id = h.quiz?.id ?? h.quizId;
+    historyArray.forEach((h: any) => {
+      const id = h.quizId || h.quiz_id || h.id_quiz || h.quiz?.id || h.quiz?.id_quiz;
       if (id !== undefined)
-        byId.set(String(id), { completedAt: h.completedAt });
+        byId.set(String(id), { completedAt: h.completedAt || h.completed_at || h.created_at });
     });
 
     // Use all quizzes (not filteredQuizzes) to ensure played quizzes are always visible
