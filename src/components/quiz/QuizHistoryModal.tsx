@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import type { QuizHistory } from "@/types/quiz";
 import { cn } from "@/lib/utils";
 
@@ -40,7 +41,7 @@ export const QuizHistoryModal: React.FC<QuizHistoryModalProps> = ({
 
   return (
     <Dialog open={!!quizId} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-[95vw] sm:max-w-md rounded-[24px] p-0 overflow-hidden border-none shadow-2xl mx-auto">
+      <DialogContent className="w-full max-w-[95vw] sm:max-w-md md:max-w-lg lg:max-w-xl rounded-[24px] p-0 overflow-hidden border-none shadow-2xl mx-auto">
         <div className="bg-[#B8860B] p-4 sm:p-6 text-white relative">
           <button 
             onClick={onClose}
@@ -61,7 +62,7 @@ export const QuizHistoryModal: React.FC<QuizHistoryModalProps> = ({
           </DialogHeader>
         </div>
 
-        <div className="p-4 sm:p-6 bg-white max-h-[70vh] overflow-y-auto">
+        <div className="px-3 py-3 sm:px-4 sm:py-6 bg-white max-h-[70vh] overflow-y-auto">
           {recentAttempts && recentAttempts.length > 0 ? (
             <div className="space-y-3 sm:space-y-4 w-full">
               {recentAttempts.map((attempt, idx) => {
@@ -86,7 +87,7 @@ export const QuizHistoryModal: React.FC<QuizHistoryModalProps> = ({
                         <Trophy className="w-5 h-5 sm:w-6 sm:h-6" />
                       </div>
                       <div>
-                        <p className="font-black text-xl sm:text-2xl text-gray-800 leading-none mb-1">
+                        <p className="font-black text-lg sm:text-xl md:text-2xl text-gray-800 leading-none mb-1">
                           {scorePercent}%
                         </p>
                         <p className="text-[9px] sm:text-[10px] text-gray-400 font-medium uppercase tracking-wider">
@@ -102,7 +103,7 @@ export const QuizHistoryModal: React.FC<QuizHistoryModalProps> = ({
                     </div>
                     
                     <div className="text-right space-y-0.5 sm:space-y-1">
-                      <div className="flex items-center justify-end gap-1.5 text-xs font-bold text-[#B8860B]">
+                      <div className="flex items-center justify-end gap-1.5 text-xs sm:text-xs font-bold text-[#B8860B]">
                         <Target className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                         <span>{correct}/{total}</span>
                       </div>
@@ -134,10 +135,10 @@ export const QuizHistoryModal: React.FC<QuizHistoryModalProps> = ({
           )}
         </div>
 
-        <div className="p-4 sm:p-6 pt-0 bg-white">
+        <div className="px-3 sm:px-6 pt-0 pb-4 bg-white">
           <Button 
             onClick={onClose}
-            className="w-full bg-white text-black border-2 border-black hover:bg-gray-50 h-10 sm:h-12 rounded-xl text-sm sm:text-base font-black italic uppercase tracking-widest transition-all duration-300 active:scale-95"
+            className="box-border w-full bg-white text-black border-2 border-black hover:bg-gray-50 h-9 sm:h-12 rounded-xl text-sm sm:text-base font-black italic uppercase tracking-widest transition-all duration-300 active:scale-95"
           >
             FERMER
           </Button>

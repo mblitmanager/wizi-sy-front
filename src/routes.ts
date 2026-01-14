@@ -1,4 +1,5 @@
-import React, { Suspense, lazy } from "react";
+import * as React from "react";
+import { Suspense, lazy } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { LoadingState } from "@/components/quiz/quiz-play/LoadingState";
 
@@ -89,6 +90,11 @@ const CommercialDashboard = lazy(() =>
 const AnnouncementsPage = lazy(() =>
   import("@/pages/admin/AnnouncementsPage").then((module) => ({
     default: module.AnnouncementsPage,
+  }))
+);
+const ChallengesPage = lazy(() =>
+  import("@/pages/admin/ChallengesPage").then((module) => ({
+    default: module.ChallengesPage,
   }))
 );
 const AboutPage = lazy(() => import("@/pages/AboutPage"));
@@ -377,11 +383,18 @@ export const routes = [
     ),
   },
   {
-    path: "/admin/announcements",
     element: React.createElement(
       ProtectedRoute,
       undefined,
       Loadable(AnnouncementsPage)
+    ),
+  },
+  {
+    path: "/admin/challenges",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(ChallengesPage)
     ),
   },
   {

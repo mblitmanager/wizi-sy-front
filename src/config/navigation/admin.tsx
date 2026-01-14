@@ -2,6 +2,8 @@ import {
     LayoutDashboard,
     Users,
     Megaphone,
+    Target,
+    Medal,
 } from "lucide-react";
 import { NavItem } from "./stagiaire";
 
@@ -21,9 +23,18 @@ export const getAdminNavigation = () => ({
         },
         {
             title: "Annonces",
-            href: "/admin/announcements",
+            url: "/admin/announcements",
             icon: Megaphone,
-            color: "text-yellow-600",
+        },
+        {
+            title: "Défis",
+            url: "/admin/challenges",
+            icon: Target,
+        },
+        {
+            title: "Achèvements",
+            url: "/admin/achievements",
+            icon: Medal,
         },
     ] as NavItem[],
 });
