@@ -186,6 +186,18 @@ export function UserProvider({ children }: { children: ReactNode }) {
         sessionStorage.removeItem(key);
       });
 
+      // Remove any quiz session keys saved in local/session storage
+      try {
+        Object.keys(localStorage)
+          .filter((k) => k.startsWith("quiz_session_"))
+          .forEach((k) => localStorage.removeItem(k));
+        Object.keys(sessionStorage)
+          .filter((k) => k.startsWith("quiz_session_"))
+          .forEach((k) => sessionStorage.removeItem(k));
+      } catch (e) {
+        console.warn("Failed to clean quiz session keys on logout", e);
+      }
+
       // 🔥 Nettoie les cookies de votre domaine
       const domain = window.location.hostname;
       const cookies = document.cookie.split(";");

@@ -6,6 +6,7 @@ import { useQuizAnswers } from "./quiz/useQuizAnswers";
 import { useQuizDialogs } from "./quiz/useQuizDialogs";
 import { useQuizSubmission } from "./quiz/useQuizSubmission";
 import { Question } from "@/types/quiz";
+import apiClient from "@/lib/api-client";
 
 export const useQuizPlay = (quizId: string) => {
   // Get quiz data
@@ -58,6 +59,30 @@ export const useQuizPlay = (quizId: string) => {
     }
 
     // Shuffle the questions array to get random questions
+    // If authenticated, try to restore from server first
+    const token = localStorage.getItem("token");
+    if (token) {
+      (async () => {
+        try {
+          const resp = await apiClient.get(`/quiz/${quizId}/participation/resume`);
+          const data = resp?.data || resp;
+          if (data) {
+            const restoredQuestions = (data.questionIds || data.question_ids || [])
+              .map((id: string) => quiz.questions.find((q) => q.id === id))
+              .filter((q: Question | undefined): q is Question => !!q);
+
+            if (restoredQuestions.length > 0) {
+              setFilteredQuestions(restoredQuestions);
+              setAnswers(data.answers || {});
+              setIsRestored(true);
+              return;
+            }
+          }
+        } catch (e) {
+          // proceed to local fallback
+        }
+      })();
+    }
     const shuffledQuestions = [...quiz.questions].sort(
       () => 0.5 - Math.random()
     );
@@ -171,6 +196,10 @@ export const useQuizPlay = (quizId: string) => {
 
   const handleAnswer = (answer: string[]) => {
     if (!navigation.currentQuestion) return;
+    try {
+      localStorage.removeItem(`quiz_session_${quizId}`);
+      sessionStorage.removeItem(`quiz_session_${quizId}`);
+    } catch {}
     submitAnswer(navigation.currentQuestion.id, answer);
   };
 
@@ -192,6 +221,10 @@ export const useQuizPlay = (quizId: string) => {
     isLoading: isLoading || isSubmitting,
     error,
 
+    try {
+      localStorage.removeItem(`quiz_session_${quizId}`);
+      sessionStorage.removeItem(`quiz_session_${quizId}`);
+    } catch {}
     currentQuestion: navigation.currentQuestion,
     currentQuestionIndex: navigation.currentQuestionIndex,
     totalQuestions: navigation.totalQuestions,

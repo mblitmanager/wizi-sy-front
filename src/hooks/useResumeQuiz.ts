@@ -26,41 +26,109 @@ export const useResumeQuiz = () => {
     });
 
     useEffect(() => {
-        // Scan localStorage for quiz_session_* keys
-        const keys = Object.keys(localStorage);
-        const sessionKeys = keys.filter((k) => k.startsWith("quiz_session_"));
+        (async () => {
+            try {
+                const token = localStorage.getItem("token");
 
-        if (sessionKeys.length === 0) {
-            setUnfinishedQuiz(null);
-            return;
-        }
+                // Collect keys from both storages (local/session)
+                const collectKeys = (storage: Storage) =>
+                    Object.keys(storage).filter((k) => k.startsWith("quiz_session_"));
 
-        // Get the most recent session (last in array)
-        const lastSessionKey = sessionKeys[sessionKeys.length - 1];
+                const localKeys = collectKeys(localStorage);
+                const sessionKeys = collectKeys(sessionStorage);
+                const allKeys = [...new Set([...localKeys, ...sessionKeys])];
 
-        try {
-            const sessionData = localStorage.getItem(lastSessionKey);
-            if (!sessionData) {
-                setUnfinishedQuiz(null);
-                return;
+                if (allKeys.length === 0) {
+                    setUnfinishedQuiz(null);
+                    return;
+                }
+
+                // If authenticated, try to sync local/session sessions to server
+                if (token) {
+                    for (const key of allKeys) {
+                        try {
+                            const raw = localStorage.getItem(key) || sessionStorage.getItem(key);
+                            if (!raw) continue;
+                            const session = JSON.parse(raw);
+                            const quizId = key.replace("quiz_session_", "");
+
+                            // Send progress to API (server will create/update participation)
+                            await apiClient.post(`/quiz/${quizId}/participation/progress`, {
+                                questionIds: session.questionIds || [],
+                                answers: session.answers || {},
+                                currentIndex: session.currentIndex || 0,
+                                timeSpent: session.timeSpent || 0,
+                            });
+
+                            // Remove local copy after successful sync
+                            try {
+                                localStorage.removeItem(key);
+                                sessionStorage.removeItem(key);
+                            } catch {}
+                        } catch (e) {
+                            console.warn("Failed to sync quiz session to server", key, e);
+                        }
+                    }
+
+                    // After syncing, ask server for resume data for the most recent quiz
+                    // We pick the last key from the original combined list as most recent
+                    const lastKey = allKeys[allKeys.length - 1];
+                    const quizId = lastKey.replace("quiz_session_", "");
+
+                    try {
+                        const resp = await apiClient.get(`/quiz/${quizId}/participation/resume`);
+                        const data = resp?.data || resp;
+                        if (data) {
+                            setUnfinishedQuiz({
+                                quizId: String(quizId),
+                                quizTitle: data.quizTitle || data.titre || "Quiz",
+                                questionIds: data.questionIds || data.question_ids || [],
+                                answers: data.answers || {},
+                                currentIndex: data.currentIndex || data.current_index || 0,
+                                timeSpent: data.timeSpent || data.time_spent || 0,
+                            });
+                            return;
+                        }
+                    } catch (e) {
+                        // No server resume or error — fallthrough to local fallback
+                    }
+                }
+
+                // Fallback: read from localStorage (unauthenticated or server unavailable)
+                const fallbackKeys = Object.keys(localStorage).filter((k) => k.startsWith("quiz_session_"));
+                if (fallbackKeys.length === 0) {
+                    setUnfinishedQuiz(null);
+                    return;
+                }
+
+                const lastSessionKey = fallbackKeys[fallbackKeys.length - 1];
+                try {
+                    const sessionData = localStorage.getItem(lastSessionKey);
+                    if (!sessionData) {
+                        setUnfinishedQuiz(null);
+                        return;
+                    }
+
+                    const session = JSON.parse(sessionData);
+                    const quizId = lastSessionKey.replace("quiz_session_", "");
+
+                    setUnfinishedQuiz({
+                        quizId,
+                        quizTitle: session.quizTitle || "Quiz",
+                        questionIds: session.questionIds || [],
+                        answers: session.answers || {},
+                        currentIndex: session.currentIndex || 0,
+                        timeSpent: session.timeSpent || 0,
+                    });
+                } catch (error) {
+                    console.error("Failed to parse quiz session:", error);
+                    localStorage.removeItem(lastSessionKey);
+                    setUnfinishedQuiz(null);
+                }
+            } catch (err) {
+                console.error("useResumeQuiz error:", err);
             }
-
-            const session = JSON.parse(sessionData);
-            const quizId = lastSessionKey.replace("quiz_session_", "");
-
-            setUnfinishedQuiz({
-                quizId,
-                quizTitle: session.quizTitle || "Quiz",
-                questionIds: session.questionIds || [],
-                answers: session.answers || {},
-                currentIndex: session.currentIndex || 0,
-                timeSpent: session.timeSpent || 0,
-            });
-        } catch (error) {
-            console.error("Failed to parse quiz session:", error);
-            localStorage.removeItem(lastSessionKey);
-            setUnfinishedQuiz(null);
-        }
+        })();
     }, []);
 
     const dismissQuiz = (quizId: string) => {
