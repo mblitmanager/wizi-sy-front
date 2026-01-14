@@ -328,7 +328,10 @@ export default function CatalogueFormationDetails() {
         alt={details?.catalogueFormation.titre}
         className="h-full w-full object-contain md:col-span-1 rounded-lg"
         onError={(e) => {
-            (e.target as HTMLImageElement).src = "/placeholder-formation.png";
+            const target = e.target as HTMLImageElement;
+            if (!target.src.endsWith("/placeholder-formation.png")) {
+                target.src = "/placeholder-formation.png";
+            }
         }}
       />
     );

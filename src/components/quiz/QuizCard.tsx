@@ -7,8 +7,8 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Award, Clock, Play } from "lucide-react";
-import type { Quiz, Category } from "@/types/quiz";
+import { BookOpen, Award, Clock, Play, History } from "lucide-react";
+import type { Quiz, Category, QuizHistory } from "@/types/quiz";
 import React from "react";
 import { stripHtmlTags } from "@/utils/UtilsFunction";
 import { useNavigate } from "react-router-dom";
@@ -143,8 +143,9 @@ const getLevelConfig = (level: string) => {
 interface QuizCardProps {
   quiz: Quiz;
   categories: Category[] | undefined;
-  history?: any[];
-  onStartQuiz?: (quiz: Quiz) => void; // Optionnel maintenant
+  history?: QuizHistory[];
+  onStartQuiz?: (quiz: Quiz) => void;
+  onHistoryClick?: (e: React.MouseEvent, quiz: Quiz) => void;
 }
 
 export function QuizCard({
@@ -152,6 +153,7 @@ export function QuizCard({
   categories,
   history,
   onStartQuiz,
+  onHistoryClick,
 }: QuizCardProps) {
   const navigate = useNavigate();
   const categoryName =
@@ -161,7 +163,7 @@ export function QuizCard({
   const estimatedTime = quiz.questions?.length
     ? Math.ceil(quiz.questions.length * 0.5)
     : 5;
-  const h = history?.find?.((x) => String(x.quiz?.id) === String(quiz.id));
+  const h = history?.find?.((x) => String(x.quizId || (x.quiz as any)?.id) === String(quiz.id));
   const timeSpent = h?.timeSpent || 0;
   const totalQuestions = h?.totalQuestions || quiz.questions?.length || 0;
   const correct = h?.correctAnswers || 0;
@@ -316,15 +318,30 @@ export function QuizCard({
             </div>
           )}
 
-          {/* Bouton Commencer (visuel) - clicking card also starts/navigates */}
-          <div className="block w-full">
+          {/* Boutons d'action */}
+          <div className="flex gap-2 w-full mt-2">
             <Button
               onClick={handleStartQuiz}
-              className={`w-full ${categoryConfig.buttonColor} text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md active:scale-95`}
+              className={`flex-1 ${categoryConfig.buttonColor} text-white font-black italic uppercase tracking-widest py-2 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md active:scale-95`}
               size="sm">
               <Play className="w-4 h-4" />
-              {h ? "Refaire le quiz" : "Commencer le quiz"}
+              {h ? "Rejouer" : "Jouer"}
             </Button>
+            
+            {(h || onHistoryClick) && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onHistoryClick?.(e, quiz);
+                }}
+                className="px-3 rounded-xl border-[#FFD700]/30 text-[#B8860B] font-black italic uppercase tracking-widest hover:bg-[#FFD700]/10 flex items-center gap-1.5"
+              >
+                <History className="w-4 h-4" />
+                <span className="hidden sm:inline">Historique</span>
+              </Button>
+            )}
           </div>
         </CardContent>
       </div>

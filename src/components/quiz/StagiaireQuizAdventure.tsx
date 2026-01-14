@@ -68,6 +68,9 @@ function QuizAdventureTutorial() {
   );
 }
 
+import { ArrowUp } from "lucide-react";
+import { QuizHistoryModal } from "./QuizHistoryModal";
+
 // Composant principal
 export const StagiaireQuizAdventure: React.FC<{
   selectedFormationId?: string | null;
@@ -75,6 +78,20 @@ export const StagiaireQuizAdventure: React.FC<{
   const navigate = useNavigate();
   const { points: userPoints } = useClassementPoints();
   const [historyQuizId, setHistoryQuizId] = useState<number | null>(null);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
+  // Scroll to top visibility
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 400);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   // Récupération des données
   const { data: quizzes, isLoading } = useQuery<Quiz[]>({
@@ -252,78 +269,22 @@ export const StagiaireQuizAdventure: React.FC<{
       {/* Modal Historique */}
       <QuizHistoryModal 
         quizId={historyQuizId} 
+        quizTitle={computed.list.find(q => Number(q.id) === historyQuizId)?.titre}
         quizHistory={safeQuizHistory} 
         onClose={() => setHistoryQuizId(null)} 
       />
+
+      {/* Back to Top */}
+      {showBackToTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-20 right-6 z-50 p-4 bg-[#FFD700] text-white rounded-full shadow-lg hover:bg-[#B8860B] transition-all duration-300 animate-bounce"
+        >
+          <ArrowUp className="w-6 h-6" />
+        </button>
+      )}
     </div>
   );
 };
-
-// Modal d'historique
-function QuizHistoryModal({
-  quizId,
-  quizHistory,
-  onClose
-}: {
-  quizId: number | null;
-  quizHistory: QuizHistory[];
-  onClose: () => void;
-}) {
-  const recentAttempts = quizHistory
-    ?.filter((h) => String(h.quizId || "") === String(quizId))
-    ?.sort(
-      (a, b) =>
-        new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime()
-    )
-    ?.slice(0, 5);
-
-  return (
-    <Dialog open={!!quizId} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-md rounded-[20px]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl font-bold text-gray-800">
-            <ChartSpline className="text-[#FFB800]" />
-            Historique des tentatives
-          </DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4 mt-4">
-          {recentAttempts && recentAttempts.length > 0 ? (
-            recentAttempts.map((attempt, idx) => (
-              <div key={idx} className="p-4 border border-gray-100 rounded-2xl bg-gray-50/50 flex justify-between items-center">
-                <div>
-                  <p className="font-bold text-lg text-gray-800">
-                    {Math.round((attempt.score || 0) * 100)}%
-                  </p>
-                  <p className="text-xs text-gray-400">
-                    {new Date(attempt.completedAt).toLocaleDateString("fr-FR", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit"
-                    })}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-[#FFB800]">
-                    {attempt.correctAnswers}/{attempt.totalQuestions} pts
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {Math.floor((attempt.timeSpent || 0) / 60)}m {(attempt.timeSpent || 0) % 60}s
-                  </p>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="py-8 text-center text-gray-400">
-              <Lock className="w-12 h-12 mx-auto mb-2 opacity-20" />
-              <p>Aucune tentative enregistrée</p>
-            </div>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 export default StagiaireQuizAdventure;
