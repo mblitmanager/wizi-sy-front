@@ -12,6 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { LeaderboardEntry } from "@/types/quiz";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Share2 } from "lucide-react";
 import { PodiumDisplay } from "./PodiumDisplay";
 import { RankingListItem } from "./RankingListItem";
 import { FormateursTable } from "./FormateursTable";
@@ -22,7 +24,7 @@ export interface GlobalRankingProps {
   loading?: boolean;
   currentUserId?: string;
   period?: 'week' | 'month' | 'all';
-  onPeriodChange?: (period: 'week' | 'month' | 'all') => void;
+  onPeriodChange?: (period: 'week' | 'month' | 'all', quarter?: number | null) => void;
 }
 const apiUrl = import.meta.env.VITE_API_URL_MEDIA
 type SortKey =
@@ -257,6 +259,50 @@ export function GlobalRanking({
                 onCheckedChange={setShowPodium}
               />
               <Label htmlFor="podium-switch">Afficher le podium</Label>
+              {/* Bouton de partage du classement */}
+              <Button
+                onClick={async () => {
+                  try {
+                    const userIndex = sortedRanking.findIndex((e) => e.id?.toString() === currentUserId);
+                    const podiumEntries = sortedRanking.slice(0, 3);
+
+                    let text = '';
+                    if (userIndex !== -1 && userIndex < 3) {
+                      const medals = ['🥇', '🥈', '🥉'];
+                      text += `Je suis ${medals[userIndex]} sur le podium !\n\n`;
+                      text += 'Podium:\n';
+                      podiumEntries.forEach((p, i) => {
+                        text += `${i + 1}. ${formatName(p.firstname || '', p.name || '')} — ${p.score} pts\n`;
+                      });
+                    } else if (userIndex !== -1) {
+                      const me = sortedRanking[userIndex];
+                      text += `Je suis ${formatName(me.firstname || '', me.name || '')} — #${userIndex + 1} avec ${me.score} pts.`;
+                    } else {
+                      text += 'Découvrez le classement des meilleurs stagiaires sur Wizi Learn.';
+                    }
+
+                    const shareData = {
+                      title: 'Classement Wizi Learn',
+                      text,
+                      url: window.location.href,
+                    };
+
+                    if (navigator.share) {
+                      await navigator.share(shareData as any);
+                    } else {
+                      await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
+                      alert('Message copié dans le presse-papiers');
+                    }
+                  } catch (err) {
+                    console.error('Erreur partage', err);
+                    alert('Impossible de partager');
+                  }
+                }}
+                className="ml-2 px-3 py-1 text-sm rounded-lg"
+              >
+                <Share2 className="w-4 h-4 mr-2 inline-block" />
+                Partager
+              </Button>
             </div>
           </div>
 
@@ -264,9 +310,9 @@ export function GlobalRanking({
           <div className="flex flex-col sm:flex-row gap-3">
             {/* Filtres temporels */}
             {onPeriodChange && (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 items-center">
                 <button
-                  onClick={() => onPeriodChange('week')}
+                  onClick={() => onPeriodChange && onPeriodChange('week', null)}
                   className={`px-3 py-2 rounded-lg text-xs font-medium transition ${period === 'week'
                     ? 'bg-orange-500 text-white shadow-md'
                     : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
@@ -274,15 +320,33 @@ export function GlobalRanking({
                   Semaine
                 </button>
                 <button
-                  onClick={() => onPeriodChange('month')}
+                  onClick={() => onPeriodChange && onPeriodChange('month', null)}
                   className={`px-3 py-2 rounded-lg text-xs font-medium transition ${period === 'month'
                     ? 'bg-orange-500 text-white shadow-md'
                     : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
                     }`}>
                   Mois
                 </button>
+
+                {/* Filtre trimestre déplacé ici, entre Mois et Tout */}
+                <select
+                  value={selectedQuarter ?? ""}
+                  onChange={(e) => {
+                    const q = e.target.value ? parseInt(e.target.value) : null;
+                    setSelectedQuarter(q);
+                    if (onPeriodChange) onPeriodChange(period, q);
+                  }}
+                  className="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+                >
+                  <option value="">Tous trimestres</option>
+                  <option value="1">T1 (Jan-Mar)</option>
+                  <option value="2">T2 (Avr-Jun)</option>
+                  <option value="3">T3 (Jul-Sep)</option>
+                  <option value="4">T4 (Oct-Déc)</option>
+                </select>
+
                 <button
-                  onClick={() => onPeriodChange('all')}
+                  onClick={() => onPeriodChange && onPeriodChange('all', null)}
                   className={`px-3 py-2 rounded-lg text-xs font-medium transition ${period === 'all'
                     ? 'bg-orange-500 text-white shadow-md'
                     : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
@@ -347,18 +411,6 @@ export function GlobalRanking({
               <option value="10">Octobre</option>
               <option value="11">Novembre</option>
               <option value="12">Décembre</option>
-            </select>
-
-            <select
-              value={selectedQuarter ?? ""}
-              onChange={(e) => setSelectedQuarter(e.target.value ? parseInt(e.target.value) : null)}
-              className="px-3 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
-            >
-              <option value="">Tous trimestres</option>
-              <option value="1">T1 (Jan-Mar)</option>
-              <option value="2">T2 (Avr-Jun)</option>
-              <option value="3">T3 (Jul-Sep)</option>
-              <option value="4">T4 (Oct-Déc)</option>
             </select>
 
             <div className="hidden sm:block w-px h-5 bg-gray-300 dark:bg-gray-600"></div>

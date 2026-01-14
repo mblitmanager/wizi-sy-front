@@ -70,10 +70,10 @@ export function Classement() {
   const [period, setPeriod] = useState<'week' | 'month' | 'all'>('all');
 
   // fetchGlobalRanking extracted with useCallback so it can be used outside useEffect  
-  const fetchGlobalRanking = useCallback(async (selectedPeriod: 'week' | 'month' | 'all' = 'all') => {
+  const fetchGlobalRanking = useCallback(async (selectedPeriod: 'week' | 'month' | 'all' = 'all', selectedQuarter?: number | null) => {
     try {
       const ranking: GlobalClassementApiItem[] =
-        await quizSubmissionService.getGlobalClassement(selectedPeriod);
+        await quizSubmissionService.getGlobalClassement(selectedPeriod, selectedQuarter);
 
       // console.log("📊 Données brutes du classement:", ranking); // Pour debug
 
@@ -285,7 +285,7 @@ export function Classement() {
               loading={loading.ranking}
               currentUserId={profile?.stagiaire?.id?.toString()}
               period={period}
-              onPeriodChange={(newPeriod) => {
+                onPeriodChange={(newPeriod, newQuarter) => {
                 setPeriod(newPeriod);
                 // Réinitialiser les filtres locaux quand on change de période
                 try {
@@ -296,7 +296,7 @@ export function Classement() {
                   console.warn("Reset classement après changement de période", e);
                 }
                 setLoading((prev) => ({ ...prev, ranking: true }));
-                fetchGlobalRanking(newPeriod);
+                fetchGlobalRanking(newPeriod, newQuarter ?? null);
               }}
             />
           </div>

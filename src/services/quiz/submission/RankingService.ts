@@ -21,9 +21,11 @@ export class RankingService {
     }
   }
 
-  async getGlobalClassement(period: 'week' | 'month' | 'all' = 'all'): Promise<any> {
+  async getGlobalClassement(period: 'week' | 'month' | 'all' = 'all', quarter?: number | null): Promise<any> {
+    const params: Record<string, any> = { period };
+    if (quarter) params.quarter = quarter;
     const response = await apiClient.get('/quiz/classement/global', {
-      params: { period }
+      params
     });
     return response.data;
   }
