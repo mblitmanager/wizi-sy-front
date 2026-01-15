@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from 'react';
 import { BookOpen, Users, TrendingUp, Trophy, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import axios from 'axios';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -58,105 +58,115 @@ export function FormateurStatsFormations() {
 
     if (loading) {
         return (
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <BookOpen className="h-5 w-5" />
-                        Stats par Formation
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground text-sm">Chargement...</p>
-                </CardContent>
-            </Card>
+            <div className="bg-white/[0.03] backdrop-blur-md rounded-2xl border border-white/5 p-6 h-[400px] flex flex-col items-center justify-center space-y-4">
+                <BookOpen className="h-8 w-8 text-gray-700 animate-pulse" />
+                <p className="text-gray-500 text-sm animate-pulse">Analyse des formations...</p>
+            </div>
         );
     }
 
-    if (!formations || formations.length === 0) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <BookOpen className="h-5 w-5" />
-                        Stats par Formation
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground text-sm">Aucune formation disponible</p>
-                </CardContent>
-            </Card>
-        );
-    }
+    const noFormations = !formations || formations.length === 0;
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="h-5 w-5" />
-                    Stats par Formation ({formations.length})
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="space-y-4">
-                    {formations.map((formation) => (
-                        <div
-                            key={formation.id}
-                            className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-                        >
-                            <div className="flex-1">
-                                <h4 className="font-semibold text-sm mb-2">{formation.nom}</h4>
-                                <div className="flex gap-4 text-xs text-muted-foreground">
-                                    <div className="flex items-center gap-1">
-                                        <Users className="h-3 w-3" />
-                                        <span>{formation.total_stagiaires} stagiaires</span>
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <TrendingUp className="h-3 w-3 text-green-600" />
-                                        <span>{formation.stagiaires_actifs} actifs</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Badge
-                                    variant={formation.score_moyen >= 70 ? "default" : "secondary"}
-                                    className="flex items-center gap-1"
-                                >
-                                    <Trophy className="h-3 w-3" />
-                                    {formation.score_moyen}%
-                                </Badge>
-                            </div>
+        <div className="bg-white/[0.03] backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl flex flex-col h-[600px] overflow-hidden group hover:border-white/20 transition-all duration-500">
+            {/* Header */}
+            <div className="p-6 border-b border-white/5">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                            <BookOpen className="h-5 w-5 text-purple-400" />
                         </div>
-                    ))}
-                </div>
-
-                {/* Pagination Footer */}
-                {lastPage > 1 && (
-                    <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                        <p className="text-sm text-muted-foreground">
-                            Page {currentPage} sur {lastPage} • {total} formation(s)
-                        </p>
-                        <div className="flex gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setCurrentPage(currentPage - 1)}
-                                disabled={currentPage === 1}
-                            >
-                                <ChevronLeft className="h-4 w-4" />
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setCurrentPage(currentPage + 1)}
-                                disabled={currentPage === lastPage}
-                            >
-                                <ChevronRight className="h-4 w-4" />
-                            </Button>
+                        <div>
+                            <h2 className="text-lg font-bold text-white tracking-tight">Vue par Formation</h2>
+                            <p className="text-xs text-gray-500 font-medium">{total} catalogue{total > 1 ? 's' : ''} actif{total > 1 ? 's' : ''}</p>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            {/* List */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
+                {noFormations ? (
+                    <div className="h-full flex flex-col items-center justify-center opacity-40 py-10">
+                        <BookOpen className="h-12 w-12 text-gray-600 mb-4" />
+                        <p className="text-sm font-medium">Aucune formation</p>
+                    </div>
+                ) : (
+                    <AnimatePresence mode="popLayout">
+                        {formations.map((formation, index) => (
+                            <motion.div
+                                key={formation.id}
+                                layout
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                transition={{ duration: 0.2, delay: index * 0.05 }}
+                                className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-white/10 transition-all group/item shadow-sm"
+                            >
+                                <div className="flex-1 min-w-0">
+                                    <h4 className="font-bold text-sm text-gray-200 group-hover/item:text-yellow-500 transition-colors truncate mb-1">
+                                        {formation.nom}
+                                    </h4>
+                                    <div className="flex gap-4 text-[10px] font-medium text-gray-500 uppercase tracking-tighter">
+                                        <div className="flex items-center gap-1.5">
+                                            <Users className="h-3 w-3" />
+                                            <span>{formation.total_stagiaires} inscrits</span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                            <div className="h-1.5 w-1.5 rounded-full bg-green-500/80" />
+                                            <span>{formation.stagiaires_actifs} actifs</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="flex items-center gap-3">
+                                    <div className="text-right flex flex-col items-end">
+                                        <span className="text-[10px] text-gray-600 font-bold uppercase mb-1">Moyenne</span>
+                                        <Badge
+                                            variant="outline"
+                                            className={`bg-transparent border-white/10 text-xs py-0.5 px-2 font-black shadow-none ${
+                                                formation.score_moyen >= 70 ? "text-yellow-500 border-yellow-500/30" : "text-gray-400"
+                                            }`}
+                                        >
+                                            {formation.score_moyen}%
+                                        </Badge>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
                 )}
-            </CardContent>
-        </Card>
+            </div>
+
+            {/* Pagination */}
+            {lastPage > 1 && (
+                <div className="p-4 bg-black/20 border-t border-white/5 flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">
+                        Page {currentPage} / {lastPage}
+                    </span>
+                    <div className="flex gap-1">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-gray-500 hover:text-white hover:bg-white/5 rounded-lg"
+                            onClick={() => setCurrentPage(currentPage - 1)}
+                            disabled={currentPage === 1}
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-gray-500 hover:text-white hover:bg-white/5 rounded-lg"
+                            onClick={() => setCurrentPage(currentPage + 1)}
+                            disabled={currentPage === lastPage}
+                        >
+                            <ChevronRight className="h-4 w-4" />
+                        </Button>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }
 

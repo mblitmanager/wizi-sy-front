@@ -4,6 +4,7 @@ import { Users, TrendingUp, TrendingDown, AlertTriangle, Video, Trophy } from 'l
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { api } from '@/lib/api';
+import { motion } from 'framer-motion';
 
 interface DashboardStats {
     total_stagiaires: number;
@@ -52,16 +53,9 @@ export function FormateurDashboardStats() {
 
     if (loading) {
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, i) => (
-                    <Card key={i}>
-                        <CardHeader>
-                            <Skeleton className="h-4 w-32" />
-                        </CardHeader>
-                        <CardContent>
-                            <Skeleton className="h-8 w-16" />
-                        </CardContent>
-                    </Card>
+                    <div key={i} className="h-32 rounded-2xl bg-white/5 animate-pulse border border-white/5" />
                 ))}
             </div>
         );
@@ -77,93 +71,84 @@ export function FormateurDashboardStats() {
         );
     }
 
+    const statCards = [
+        {
+            title: "Stagiaires",
+            value: stats.total_stagiaires,
+            subValue: `${stats.active_this_week} actifs`,
+            icon: Users,
+            color: "text-blue-400",
+            borderColor: "border-blue-500/20"
+        },
+        {
+            title: "Formations",
+            value: stats.total_formations,
+            subValue: "Catalogues assignés",
+            icon: Video,
+            color: "text-purple-400",
+            borderColor: "border-purple-500/20"
+        },
+        {
+            title: "Quiz Complétés",
+            value: stats.total_quizzes_taken,
+            subValue: `Moyenne : ${stats.avg_quiz_score}%`,
+            icon: Trophy,
+            color: "text-amber-400",
+            borderColor: "border-amber-500/20"
+        },
+        {
+            title: "Inactifs",
+            value: stats.inactive_count,
+            subValue: "7+ jours d'absence",
+            icon: TrendingDown,
+            color: "text-orange-400",
+            borderColor: "border-orange-500/20"
+        },
+        {
+            title: "Jamais Connectés",
+            value: stats.never_connected,
+            subValue: "Comptes en attente",
+            icon: AlertTriangle,
+            color: "text-red-400",
+            borderColor: "border-red-500/20"
+        },
+        {
+            title: "Heures Vidéos",
+            value: `${stats.total_video_hours}h`,
+            subValue: "Temps de visionnage",
+            icon: Video,
+            color: "text-indigo-400",
+            borderColor: "border-indigo-500/20"
+        }
+    ];
+
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Total Stagiaires */}
-            <Card className="border-l-4 border-l-blue-500 shadow-sm">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Stagiaires</CardTitle>
-                    <Users className="h-4 w-4 text-blue-600" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{stats.total_stagiaires}</div>
-                    <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="secondary" className="bg-green-100 text-green-700 text-[10px]">
-                            {stats.active_this_week} actifs
-                        </Badge>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {statCards.map((card, index) => (
+                <motion.div
+                    key={index}
+                    whileHover={{ y: -5, scale: 1.02 }}
+                    className={`relative overflow-hidden group rounded-2xl border ${card.borderColor} bg-white/[0.03] backdrop-blur-md p-6 transition-all hover:bg-white/[0.05] hover:border-white/10`}
+                >
+                    <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white opacity-[0.02] group-hover:opacity-[0.05] transition-opacity" />
+                    
+                    <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">{card.title}</p>
+                            <h3 className="text-3xl font-bold text-white tracking-tight">{card.value}</h3>
+                        </div>
+                        <div className={`p-3 rounded-xl bg-white/5 border border-white/5 ${card.color}`}>
+                            <card.icon className="h-5 w-5" />
+                        </div>
                     </div>
-                </CardContent>
-            </Card>
-
-            {/* Total Formations */}
-            <Card className="border-l-4 border-l-purple-500 shadow-sm">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Formations</CardTitle>
-                    <Video className="h-4 w-4 text-purple-600" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{stats.total_formations}</div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                        Catalogues assignés
-                    </p>
-                </CardContent>
-            </Card>
-
-            {/* Total Quiz Taken */}
-            <Card className="border-l-4 border-l-amber-500 shadow-sm">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Quiz Complétés</CardTitle>
-                    <Trophy className="h-4 w-4 text-amber-600" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{stats.total_quizzes_taken}</div>
-                    <div className="flex items-center gap-2 mt-1 text-xs text-amber-600 font-medium">
-                        Moyenne : {stats.avg_quiz_score}%
+                    
+                    <div className="mt-4 flex items-center gap-2">
+                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full bg-white/5 text-gray-400 border border-white/5 group-hover:border-white/10 transition-colors`}>
+                            {card.subValue}
+                        </span>
                     </div>
-                </CardContent>
-            </Card>
-
-            {/* Stagiaires Inactifs */}
-            <Card className="border-l-4 border-l-orange-500 shadow-sm">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Stagiaires Inactifs</CardTitle>
-                    <TrendingDown className="h-4 w-4 text-orange-600" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold text-orange-600">{stats.inactive_count}</div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                        Inactifs 7+ jours
-                    </p>
-                </CardContent>
-            </Card>
-
-            {/* Jamais Connectés */}
-            <Card className="border-l-4 border-l-red-500 shadow-sm">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Jamais Connectés</CardTitle>
-                    <AlertTriangle className="h-4 w-4 text-red-600" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold text-red-600">{stats.never_connected}</div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                        Comptes non activés
-                    </p>
-                </CardContent>
-            </Card>
-
-            {/* Heures Vidéos */}
-            <Card className="border-l-4 border-l-purple-400 shadow-sm">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Heures Vidéos</CardTitle>
-                    <Video className="h-4 w-4 text-purple-600" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold text-purple-600">{stats.total_video_hours}h</div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                        Total visionnées
-                    </p>
-                </CardContent>
-            </Card>
+                </motion.div>
+            ))}
         </div>
     );
 }
