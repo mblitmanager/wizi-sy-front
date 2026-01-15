@@ -707,7 +707,7 @@ function AuthenticatedApp({ user }: { user: AuthenticatedUser }) {
           </Card>
         ) : (
           <div className="col-span-full text-center text-muted-foreground">
-            Aucune formation disponible.
+            {/* Aucune formation disponible. */}
           </div>
         )}
 
