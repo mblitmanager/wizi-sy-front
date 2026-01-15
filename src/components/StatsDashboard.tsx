@@ -33,7 +33,8 @@ const StatsDashboard: React.FC = () => {
                 setLoading(true);
                 const res = await fetch(`/api/stats?range=${timeRange}&metric=${metric}`);
                 if (!res.ok) throw new Error('Failed to fetch stats');
-                const data = await res.json();
+                const responseData = await res.json();
+                const data = responseData.data || responseData;
                 setStats(data.summary || {});
                 setChartData(data.chartData || []);
             } catch (e) {

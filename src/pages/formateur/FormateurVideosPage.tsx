@@ -49,7 +49,8 @@ export function FormateurVideosPage() {
             const response = await axios.get(`${API_URL}/formateur/videos`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            setVideos(response.data.videos);
+            const data = response.data.data || response.data;
+            setVideos(data.videos || data || []);
         } catch (err) {
             console.error('Erreur chargement vidéos:', err);
         } finally {
@@ -64,7 +65,7 @@ export function FormateurVideosPage() {
             const response = await axios.get(`${API_URL}/formateur/video/${videoId}/stats`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            setVideoStats(response.data);
+            setVideoStats(response.data.data || response.data);
         } catch (err) {
             console.error('Erreur chargement stats:', err);
         } finally {
@@ -100,7 +101,7 @@ export function FormateurVideosPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {videos.map((video) => (
+                    {videos?.map((video) => (
                         <Card key={video.id} className="hover:shadow-lg transition-shadow">
                             <CardHeader>
                                 <div className="flex items-start justify-between">
@@ -194,7 +195,7 @@ export function FormateurVideosPage() {
                                                         </Card>
                                                     </div>
 
-                                                    {videoStats.views_by_stagiaire.length > 0 && (
+                                                    {videoStats?.views_by_stagiaire?.length > 0 && (
                                                         <div>
                                                             <h4 className="font-semibold mb-2">Vues par Stagiaire</h4>
                                                             <div className="space-y-2 max-h-64 overflow-y-auto">

@@ -20,7 +20,8 @@ export const StatisticsDashboard = () => {
         setLoading(true);
         setError(null);
         try {
-            const { data } = await StatisticsService.getAdminDashboard(period);
+            const response = await StatisticsService.getAdminDashboard(period);
+            const data = response.data.data || response.data;
             setDashboard(data);
         } catch (err: any) {
             console.error('Failed to load dashboard:', err);
@@ -73,18 +74,18 @@ export const StatisticsDashboard = () => {
 
     if (!dashboard) return null;
 
-    const summary = dashboard.summary || {};
-    const activeStudents = summary.activeStudents ?? 0;
-    const totalStudents = summary.totalStudents ?? 0;
-    const totalFormations = summary.totalFormations ?? 0;
-    const avgCompletionRaw = summary.averageCompletionRate;
+    const summary = dashboard?.summary || {};
+    const activeStudents = summary?.activeStudents ?? 0;
+    const totalStudents = summary?.totalStudents ?? 0;
+    const totalFormations = summary?.totalFormations ?? 0;
+    const avgCompletionRaw = summary?.averageCompletionRate;
     const avgCompletion = (avgCompletionRaw != null && !isNaN(Number(avgCompletionRaw))) ? Number(avgCompletionRaw).toFixed(1) : '0';
 
-    const quizOverview = dashboard.quizOverview || {};
-    const quizTotal = quizOverview.totalQuizzes ?? 0;
-    const quizAvgRaw = quizOverview.averageScore;
+    const quizOverview = dashboard?.quizOverview || {};
+    const quizTotal = quizOverview?.totalQuizzes ?? 0;
+    const quizAvgRaw = quizOverview?.averageScore;
     const quizAvg = (quizAvgRaw != null && !isNaN(Number(quizAvgRaw))) ? Number(quizAvgRaw).toFixed(1) : '0';
-    const quizSuccessRaw = quizOverview.successRate;
+    const quizSuccessRaw = quizOverview?.successRate;
     const quizSuccess = (quizSuccessRaw != null && !isNaN(Number(quizSuccessRaw))) ? Number(quizSuccessRaw).toFixed(1) : '0';
 
     return (
@@ -145,7 +146,7 @@ export const StatisticsDashboard = () => {
                 />
                 <StatCard
                     title="Utilisateurs En Ligne"
-                    value={dashboard.onlineUsers ?? 0}
+                    value={dashboard?.onlineUsers ?? 0}
                     icon={<TrendingUp />}
                     color="#5f27cd"
                 />
