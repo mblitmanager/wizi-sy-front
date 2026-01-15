@@ -58,7 +58,7 @@ function QuizListByCategory({
   }, [quizzes, selectedLevel]);
 
   // Séparation quiz joués / non joués (si participations disponibles)
-  const { data: participations } = useQuery({
+  const { data: participations, isLoading: isParticipationsLoading } = useQuery({
     queryKey: ["quizlist-participations"],
     queryFn: () => stagiaireQuizService.getStagiaireQuizJoue?.(),
     enabled:
@@ -83,7 +83,7 @@ function QuizListByCategory({
     [filteredQuizzes, playedQuizIds]
   );
 
-  if (isLoading) {
+  if (isLoading || isParticipationsLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="container mx-auto py-8 px-4">

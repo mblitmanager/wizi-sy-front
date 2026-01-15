@@ -65,14 +65,14 @@ export function StagiaireQuizList({
     enabled: !!localStorage.getItem("token"),
   });
 
-  const { data: participations } = useQuery({
+  const { data: participations, isLoading: participationsLoading } = useQuery({
     queryKey: ["stagiaire-participations"],
     queryFn: () => stagiaireQuizService.getStagiaireQuizJoue(),
     enabled: !!localStorage.getItem("token"),
   });
 
   // Dans le useQuery de quizHistory, ajoutez :
-  const { data: quizHistory } = useQuery({
+  const { data: quizHistory, isLoading: historyLoading } = useQuery({
     queryKey: ["quiz-history"],
     queryFn: async () => {
       const history = await quizHistoryService.getQuizHistory();
@@ -84,7 +84,7 @@ export function StagiaireQuizList({
     staleTime: 5 * 60 * 1000,
   });
 
-  const isLoading = quizzesLoading || categoriesLoading;
+  const isLoading = quizzesLoading || categoriesLoading || participationsLoading || historyLoading;
   const error = quizzesError;
 
   const levels = useMemo(() => {
