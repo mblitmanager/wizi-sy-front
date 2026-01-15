@@ -383,6 +383,7 @@ export const routes = [
     ),
   },
   {
+    path: "/admin/announcements",
     element: React.createElement(
       ProtectedRoute,
       undefined,

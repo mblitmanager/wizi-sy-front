@@ -17,24 +17,27 @@ export const getAdminNavigation = () => ({
         },
         {
             title: "Utilisateurs",
-            href: "/admin/users",
+            href: "/admin/stagiaires",
             icon: Users,
             color: "text-yellow-600",
         },
         {
             title: "Annonces",
-            url: "/admin/announcements",
+            href: "/admin/announcements",
             icon: Megaphone,
+            color: "text-yellow-600",
         },
         {
             title: "Défis",
-            url: "/admin/challenges",
+            href: "/admin/challenges",
             icon: Target,
+            color: "text-yellow-600",
         },
         {
             title: "Achèvements",
-            url: "/admin/achievements",
+            href: "/admin/achievements",
             icon: Medal,
+            color: "text-yellow-600",
         },
     ] as NavItem[],
 });
