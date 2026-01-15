@@ -1,4 +1,11 @@
+import React from "react";
 import { motion } from "framer-motion";
+import { Quiz } from "@/types/quiz";
+import { cn } from "@/lib/utils";
+import { getCategoryConfig } from "@/utils/quizColors";
+import { Lock, ChevronRight, Check, History, Trophy, Star, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
 
 interface AdventureQuizCardProps {
   quiz: Quiz;

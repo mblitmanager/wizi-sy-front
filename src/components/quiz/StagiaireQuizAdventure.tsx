@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { stagiaireQuizService } from "@/services/quiz/StagiaireQuizService";
 import { quizHistoryService } from "@/services/quiz/submission/QuizHistoryService";
 import type { Quiz, QuizHistory } from "@/types/quiz";
-import { Loader2, Lock, ChartSpline, Trophy } from "lucide-react";
+import { Loader2, Lock, ChartSpline, Trophy, ArrowUp } from "lucide-react";
 import { useClassementPoints } from "@/hooks/useClassementPoints";
 import { buildAvailableQuizzes } from "./quizUtils";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,9 @@ import {
 } from "@/components/ui/dialog";
 import { getCategoryConfig } from "@/utils/quizColors";
 import { AdventureQuizCard } from "./AdventureQuizCard";
+import { QuizHistoryModal } from "./QuizHistoryModal";
 import { cn } from "@/lib/utils";
+
 
 // Composant Carrousel de conseils
 function QuizAdventureTutorial() {
@@ -359,6 +361,7 @@ export const StagiaireQuizAdventure: React.FC<{
               {playedIds.size} / {computed.list.length} Complétés
             </span>
           </div>
+        </div>
       </div>
 
       {/* Main Adventure Content */}

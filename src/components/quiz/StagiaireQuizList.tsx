@@ -11,6 +11,7 @@ import { useClassementPoints } from "@/hooks/useClassementPoints";
 import { buildAvailableQuizzes } from "./quizUtils";
 import { useToast } from "@/hooks/use-toast";
 import { quizHistoryService } from "@/services/quiz/submission/QuizHistoryService";
+import { LevelUnlockIndicator } from "./LevelUnlockIndicator";
 
 export function StagiaireQuizList({
   selectedFormationId,
@@ -396,6 +397,9 @@ export function StagiaireQuizList({
 
   return (
     <div className="">
+      {/* Level Unlock Indicator */}
+      <LevelUnlockIndicator userPoints={userPoints} className="mb-6" />
+      
       <QuizUnlockTutorial />
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
         <h2 className="text-3xl sm:text-2xl md:text-3xl text-brown-shade font-bold">
