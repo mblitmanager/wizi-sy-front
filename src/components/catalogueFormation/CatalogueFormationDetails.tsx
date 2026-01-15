@@ -249,10 +249,30 @@ export default function CatalogueFormationDetails() {
     if (!details) return;
     
     const formation = details.catalogueFormation;
+    
+    // Construire le message de partage
+    let shareText = `🎓 *Formation : ${formation.titre}*\n\n`;
+    
+    const description = stripHtmlTags(formation.description || "");
+    shareText += `📝 *Description :*\n${description.substring(0, 200)}${description.length > 200 ? "..." : ""}\n\n`;
+    
+    if (formation.objectifs) {
+      const objectifs = stripHtmlTags(formation.objectifs);
+      shareText += `🎯 *Objectifs :*\n${objectifs.substring(0, 150)}${objectifs.length > 150 ? "..." : ""}\n\n`;
+    }
+    
+    if (formation.cursusPdfUrl) {
+      shareText += `📄 *Programme complet (PDF) :*\n${formation.cursusPdfUrl}\n\n`;
+    }
+    
+    shareText += `🔗 *Lien vers la formation :*`;
+    
+    const url = window.location.origin + `/catalogue-formation/${formation.id}`;
+    
     const shareData = {
       title: formation.titre,
-      text: `Découvrez la formation "${formation.titre}" sur Wizi Learn!\n\n${stripHtmlTags(formation.description || "").substring(0, 150)}...`,
-      url: window.location.origin + `/catalogue-formation/${formation.id}`,
+      text: shareText,
+      url: url,
     };
 
     if (navigator.share) {
@@ -260,8 +280,10 @@ export default function CatalogueFormationDetails() {
         console.error("Error sharing:", err);
       });
     } else {
-      navigator.clipboard.writeText(shareData.url);
-      toast.success("Lien de la formation copié !");
+      // Fallback: copier le texte et le lien
+      const fullCopy = `${shareText} ${url}`;
+      navigator.clipboard.writeText(fullCopy);
+      toast.success("Informations de la formation copiées !");
     }
   };
 

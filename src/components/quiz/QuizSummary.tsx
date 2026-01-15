@@ -18,7 +18,7 @@ import confetti from 'canvas-confetti';
 // Lazy load CountdownAnimation car affiché conditionnellement
 const CountdownAnimation = lazy(() => import("./CountdownAnimation").then(m => ({ default: m.CountdownAnimation })));
 
-interface QuizSummaryProps {
+export interface QuizSummaryProps {
   quiz?: {
     id: string;
     titre: string;
@@ -45,7 +45,8 @@ interface QuizSummaryProps {
   correctAnswers: number;
 }
 
-export function QuizSummary() {
+export function QuizSummary(props: Partial<QuizSummaryProps>) {
+  const { quiz: quizProp, questions: questionsProp, userAnswers: userAnswersProp, score: scoreProp, totalQuestions: totalQuestionsProp } = props;
   const { quizId } = useParams<{ quizId: string }>();
   const location = useLocation();
   const navigate = useNavigate();
@@ -59,8 +60,8 @@ export function QuizSummary() {
   // Récupérer le quiz suivant
   const { nextQuiz, loading: nextQuizLoading } = useNextQuiz(quizId);
 
-  // Check if the result was passed through navigation state
-  const resultFromState = location.state?.result;
+  // Check if the result was passed through props OR through navigation state
+  const resultFromState = (props && props.questions) ? props : location.state?.result;
 
   // If we don't have the result from state, fetch it from the API
   const {

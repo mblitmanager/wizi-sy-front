@@ -47,7 +47,7 @@ export interface Question {
   id: string;
   text: string;
   type: QuestionType;
-  meta?: any;
+  meta?: unknown;
   points?: number;
   astuce?: string;
   explication?: string;
@@ -213,6 +213,7 @@ export interface QuizResult {
   total_questions?: number;
   timeSpent: number;
   questions: Question[];
+  quiz?: Quiz;
   quiz_name?: string;
   completed_at?: string;
   quizId?: string;

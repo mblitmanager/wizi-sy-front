@@ -168,6 +168,9 @@ export function QuizResults() {
           userAnswers={formattedUserAnswers}
           score={result.score}
           totalQuestions={result.totalQuestions}
+          timeSpent={result.timeSpent}
+          completedAt={result.completed_at || ""}
+          correctAnswers={result.correctAnswers}
         />
 
         {/* Badge unlock modal */}
