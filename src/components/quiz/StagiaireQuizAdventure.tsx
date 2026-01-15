@@ -348,11 +348,7 @@ export const StagiaireQuizAdventure: React.FC<{
             </div>
             
             <div className="flex items-center gap-3">
-              {/* Points Chip */}
-              <div className="flex items-center gap-1.5 bg-gray-900 text-white px-3 py-1.5 rounded-full shadow-inner">
-                <ChartSpline className="w-3.5 h-3.5 text-[#FFB800]" />
-                <span className="text-xs font-black italic">{userPoints} pts</span>
-              </div>
+
               
               {/* Mode Toggle - Adventure/List Switch */}
               <div className="flex items-center gap-2 bg-gray-100 rounded-full px-2 py-1">
@@ -409,8 +405,8 @@ export const StagiaireQuizAdventure: React.FC<{
           </div>
         ) : (
           <div className="relative w-full">
-            {/* Timeline Path Line - Centered */}
-            <div className="absolute left-1/2 -translate-x-1/2 top-4 bottom-4 w-[4px] bg-gray-100 z-0">
+            {/* Timeline Path Line - Centered on Desktop, Left on Mobile */}
+            <div className="absolute left-[1.5rem] md:left-1/2 -translate-x-1/2 top-4 bottom-4 w-[4px] bg-gray-100 z-0">
                {/* Animated Progress Path */}
                <motion.div 
                  initial={{ height: 0 }}
@@ -441,12 +437,15 @@ export const StagiaireQuizAdventure: React.FC<{
                     viewport={{ once: true, margin: "-50px" }}
                     transition={{ duration: 0.6, delay: 0.1 }}
                     className={cn(
-                      "relative flex w-full items-center justify-center",
-                      isRight ? "flex-row" : "flex-row-reverse"
+                      "relative flex w-full items-center",
+                      // Mobile: always data flow right
+                      "flex-row",
+                      // Desktop: alternate (isRight=true -> row-reverse to put card on Right)
+                      isRight ? "md:flex-row-reverse" : "md:flex-row"
                     )}
                   >
                     {/* Timeline Node - Centered relative to the container */}
-                    <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center z-20">
+                    <div className="absolute left-[1.5rem] md:left-1/2 -translate-x-1/2 flex items-center justify-center z-20">
                       <motion.div 
                         whileHover={{ scale: 1.2 }}
                         className={cn(
@@ -475,8 +474,14 @@ export const StagiaireQuizAdventure: React.FC<{
 
                     {/* Card Side */}
                     <div className={cn(
-                      "w-[48%] flex",
-                      isRight ? "justify-start pl-8 sm:pl-16" : "justify-end pr-8 sm:pr-16"
+                      "flex relative transition-all duration-300",
+                      // Mobile: Full width with minimized padding for line
+                      "w-full pl-[4.5rem] pr-2 justify-start",
+                      // Desktop: 50% width minus line half-width, alternating alignment
+                      "md:w-[50%] md:p-0",
+                      isRight 
+                        ? "md:justify-end md:pl-12" // Right side: content starts after line (reversed row -> justify-end = left)
+                        : "md:justify-end md:pr-12"   // Left side: content ends before line
                     )}>
                       <AdventureQuizCard
                         quiz={quiz}
@@ -491,7 +496,7 @@ export const StagiaireQuizAdventure: React.FC<{
                     </div>
 
                     {/* Empty Side (Spacer) */}
-                    <div className="w-[45%] hidden sm:block" />
+                    <div className="md:w-[48%] hidden md:block" />
                   </motion.div>
                 );
               })}

@@ -33,7 +33,7 @@ export function MobileNav() {
     },
     {
       icon: BookOpen,
-      label: "Formations",
+      label: "Formation",
       href: "/catalogue",
     },
     {
@@ -55,77 +55,64 @@ export function MobileNav() {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-safe z-50">
-      <div className="flex items-center justify-around py-2">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-white pt-2 pb-safe z-50 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
+      <div className="flex items-end justify-around pb-2">
         {items.map((item) => {
           const isActive = location.pathname === item.href;
-          const isQuizActive = isActive && item.gold;
+          const isQuiz = item.gold;
+
+          if (isQuiz) {
+            return (
+              <Link
+                key={item.href}
+                to={item.href}
+                className="relative group flex flex-col items-center justify-center -top-6"
+              >
+                <div
+                  className={cn(
+                    "w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-transform duration-200",
+                    "bg-gradient-to-br from-[#667eea] to-[#764ba2] shadow-purple-500/30",
+                    "ring-4 ring-white",
+                    isActive ? "scale-110" : "scale-100 group-hover:scale-110"
+                  )}
+                >
+                  <item.icon className="h-7 w-7 text-white" />
+                </div>
+                <span
+                  className={cn(
+                    "text-[10px] font-bold mt-1",
+                    isActive ? "text-[#667eea]" : "text-gray-400 group-hover:text-[#667eea]"
+                  )}
+                >
+                  {item.label}
+                </span>
+              </Link>
+            );
+          }
 
           return (
             <Link
               key={item.href}
               to={item.href}
               className={cn(
-                "group flex flex-col items-center gap-1 p-2 relative transition-all duration-300 ease-in-out",
-                "min-w-[60px]"
-              )}>
-              {/* Bulle d'arrière-plan pour l'élément actif */}
-              {isActive && (
-                <div className="absolute -top-1 inset-x-0 flex justify-center">
-                  <div
-                    className={cn(
-                      "w-14 h-14 rounded-full shadow-lg flex items-center justify-center",
-                      isQuizActive
-                        ? "bg-gradient-to-br from-[#667eea] to-[#764ba2] shadow-purple-500/30"
-                        : "bg-gradient-to-br from-yellow-400 to-yellow-500 shadow-yellow-500/30"
-                    )}>
-                    <div
-                      className={cn(
-                        "w-12 h-12 rounded-full flex items-center justify-center",
-                        isQuizActive ? "bg-purple-100" : "bg-yellow-100"
-                      )}>
-                      {/* Légère ombre intérieure */}
-                      <div className="absolute inset-0 rounded-full shadow-inner"></div>
-                    </div>
-                  </div>
-                </div>
+                "group flex flex-col items-center gap-1 p-2 min-w-[60px] transition-colors",
+                isActive ? "text-[#FFB800]" : "text-gray-400 hover:text-gray-600"
               )}
-
-              {/* Conteneur d'icône avec position relative */}
-              <span
+            >
+              <div 
                 className={cn(
-                  "relative flex items-center justify-center transition-all duration-300 z-10",
-                  isActive ? "mt-2" : "mt-0"
-                )}>
+                  "p-1.5 rounded-xl transition-all duration-300",
+                  isActive ? "bg-[#FFB800]/10" : "bg-transparent"
+                )}
+              >
                 <item.icon
                   className={cn(
-                    "transition-all duration-300",
-                    isActive
-                      ? isQuizActive
-                        ? "h-7 w-7 text-[#667eea] drop-shadow-sm"
-                        : "h-7 w-7 text-yellow-600 drop-shadow-sm"
-                      : "h-6 w-6 text-gray-500 group-hover:text-yellow-500"
+                    "h-6 w-6 transition-all duration-300",
+                    isActive ? "stroke-[2.5px]" : "stroke-2"
                   )}
                 />
-                {item.badge !== undefined && (
-                  <Badge
-                    variant="destructive"
-                    className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
-                    {item.badge}
-                  </Badge>
-                )}
-              </span>
-
-              {/* Label */}
-              <span
-                className={cn(
-                  "text-xs font-semibold transition-all duration-300 mt-1",
-                  isActive
-                    ? isQuizActive
-                      ? "text-[#667eea] font-bold"
-                      : "text-yellow-600 font-bold"
-                    : "text-gray-500 group-hover:text-yellow-600"
-                )}>
+              </div>
+              <span className="text-[10px] font-bold">
                 {item.label}
               </span>
             </Link>
