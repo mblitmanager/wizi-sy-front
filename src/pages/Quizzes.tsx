@@ -73,10 +73,20 @@ export default function Quizzes() {
   );
 
   useEffect(() => {
-    if (formationsWithTutos.length === 1 && !selectedFormationId) {
+    // Priority 1: If there is an unfinished quiz, try to select its formation
+    if (unfinishedQuiz?.formationId && !selectedFormationId) {
+      const exists = formationsWithTutos.some(f => String(f.id) === String(unfinishedQuiz.formationId));
+      if (exists) {
+        setSelectedFormationId(String(unfinishedQuiz.formationId));
+        return;
+      }
+    }
+
+    // Priority 2: Default to the first available formation
+    if (!selectedFormationId && formationsWithTutos.length > 0) {
       setSelectedFormationId(String(formationsWithTutos[0].id));
     }
-  }, [formationsWithTutos, selectedFormationId]);
+  }, [formationsWithTutos, selectedFormationId, unfinishedQuiz]);
 
   useEffect(() => {
     if (preferencesLoading || hasInitialized) return;
