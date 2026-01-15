@@ -32,7 +32,11 @@ export const useQuizSubmission = (quizId: string) => {
 
       navigate(`/quiz/${quizId}/results`, {
         state: {
-          result,
+          result: {
+            ...result,
+            timeSpent: timeSpent, // Ensure timeSpent is explicitly passed
+            completedAt: new Date().toISOString(), // Ensure date is passed
+          },
           pointsPerQuestion: 2,
         },
       });

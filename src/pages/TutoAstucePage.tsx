@@ -285,7 +285,7 @@ export default function TutoAstucePage() {
                 >
                   {formationsWithTutos.map((formation) => (
                     <option key={formation.id} value={formation.id}>
-                      📚 {formation.titre}
+                    {formation.titre}
                     </option>
                   ))}
                 </select>

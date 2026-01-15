@@ -347,8 +347,8 @@ export function QuizSummary(props: Partial<QuizSummaryProps>) {
                     Temps passé
                   </p>
                   <p className="text-xl font-bold text-amber-600 dark:text-amber-400">
-                    {Math.floor(result.timeSpent / 60)}:
-                    {(result.timeSpent % 60).toString().padStart(2, "0")}
+                    {Math.floor((result.timeSpent || 0) / 60)}:
+                    {((result.timeSpent || 0) % 60).toString().padStart(2, "0")}
                   </p>
                 </div>
               </div>
@@ -365,10 +365,12 @@ export function QuizSummary(props: Partial<QuizSummaryProps>) {
                     Fait le
                   </p>
                   <p className="text-xl font-bold text-purple-600 dark:text-purple-400">
-                    {new Date(result.completedAt).toLocaleDateString("fr-FR", {
+                    {new Date(result.completedAt || (result as any).timestamp || new Date()).toLocaleDateString("fr-FR", {
                       day: "numeric",
                       month: "long",
                       year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
                     })}
                   </p>
                 </div>
