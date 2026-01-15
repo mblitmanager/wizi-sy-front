@@ -354,24 +354,7 @@ export function QuizSummary(props: Partial<QuizSummaryProps>) {
               </div>
             </div>
 
-            {/* Score */}
-            <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-md bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300">
-                  <TrendingUp size={16} />
-                </div>
-                <div>
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                    Score
-                  </p>
-                  <p className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
-                    {result.score} pts
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Date */}
+                   {/* Date */}
             <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 rounded-md bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300">
