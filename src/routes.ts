@@ -113,7 +113,7 @@ const AdminAchievements = lazy(() => import("@/pages/admin/Achievements"));
 const AdminParametres = lazy(() => import("@/pages/admin/Parametres"));
 
 // Helper to wrap components in Suspense
-const Loadable = (Component: React.LazyExoticComponent<any>) =>
+const Loadable = (Component: React.ComponentType) =>
   React.createElement(
     Suspense,
     { fallback: React.createElement(LoadingState) },

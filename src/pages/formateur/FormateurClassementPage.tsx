@@ -33,7 +33,6 @@ interface StagiaireRanking {
     avg_score: number;
 }
 
-export function FormateurClassementPage() {
 interface Formation {
     id: number;
     nom: string;
@@ -85,50 +84,30 @@ export function FormateurClassementPage() {
             case 1:
                 return <Trophy className="h-5 w-5 text-yellow-500" />;
             case 2:
-                return <Medal className="h-5 w-5 text-gray-400" />;
+                return <Medal className="h-5 w-5 text-slate-400" />;
             case 3:
                 return <Medal className="h-5 w-5 text-orange-600" />;
             default:
-                return <Award className="h-5 w-5 text-gray-300" />;
-        }
-    };
-
-    const getRankColor = (rank: number) => {
-        switch (rank) {
-            case 1:
-                return 'bg-yellow-50 border-yellow-200';
-            case 2:
-                return 'bg-gray-50 border-gray-200';
-            case 3:
-                return 'bg-orange-50 border-orange-200';
-            default:
-                return '';
+                return <Award className="h-5 w-5 text-slate-300" />;
         }
     };
 
     if (loading) {
         return (
             <Layout>
-                <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center p-4 space-y-6">
+                <div className="min-h-screen bg-[#FDFCFB] flex flex-col items-center justify-center p-4 space-y-6">
                     <motion.div 
                         animate={{ 
                             scale: [1, 1.1, 1],
                             opacity: [0.5, 1, 0.5]
                         }}
                         transition={{ duration: 2, repeat: Infinity }}
-                        className="p-4 rounded-3xl bg-yellow-500/10 border border-yellow-500/20 shadow-[0_0_30px_rgba(234,179,8,0.1)]"
+                        className="p-6 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl shadow-slate-200/50"
                     >
                         <Trophy className="h-12 w-12 text-yellow-500" />
                     </motion.div>
                     <div className="flex flex-col items-center space-y-2">
-                        <p className="text-sm font-black text-gray-400 uppercase tracking-[0.3em] animate-pulse">Extraction du classement</p>
-                        <div className="h-1 w-32 bg-white/5 rounded-full overflow-hidden">
-                            <motion.div 
-                                animate={{ x: [-128, 128] }}
-                                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                                className="h-full w-1/2 bg-gradient-to-r from-transparent via-yellow-500 to-transparent"
-                            />
-                        </div>
+                        <p className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] animate-pulse">Extraction du classement...</p>
                     </div>
                 </div>
             </Layout>
@@ -137,78 +116,82 @@ export function FormateurClassementPage() {
 
     return (
         <Layout>
-            <div className="min-h-screen bg-[#050505] pb-20">
+            <div className="min-h-screen bg-[#FDFCFB]">
+                {/* Header Background Pattern */}
+                <div className="absolute top-0 left-0 w-full h-[500px] bg-white border-b border-slate-100/50 -z-10 overflow-hidden">
+                    <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[80%] bg-yellow-500/[0.03] rounded-full blur-[120px]" />
+                    <div className="absolute bottom-0 left-[-5%] w-[40%] h-[50%] bg-blue-500/[0.02] rounded-full blur-[100px]" />
+                </div>
+
                 <div className="max-w-7xl mx-auto py-12 px-6 lg:px-8 space-y-12">
-                    
                     {/* Header Section */}
-                    <div className="relative">
-                        <motion.div 
-                            initial={{ opacity: 0, y: -20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="flex flex-col md:flex-row md:items-end justify-between gap-8"
-                        >
-                            <div className="space-y-4">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 shadow-sm">
-                                    <div className="h-1.5 w-1.5 rounded-full bg-yellow-500 animate-pulse" />
-                                    <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest leading-none">Hall of Fame</span>
-                                </div>
-                                <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">
-                                    Classement <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-yellow-200">Élite</span>
-                                </h1>
-                                <p className="text-gray-500 font-medium max-w-md">
-                                    Suivez l'excellence et la progression de vos stagiaires en temps réel à travers vos différentes formations.
-                                </p>
+                    <motion.div 
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex flex-col md:flex-row md:items-end justify-between gap-8"
+                    >
+                        <div className="space-y-4">
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-yellow-50 border border-yellow-200 shadow-sm shadow-yellow-500/5">
+                                <div className="h-1.5 w-1.5 rounded-full bg-yellow-500 animate-pulse" />
+                                <span className="text-[10px] font-black text-yellow-600 uppercase tracking-widest leading-none">Hall of Fame</span>
                             </div>
+                            <h1 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tight">
+                                Classement <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-200">Élite</span>
+                            </h1>
+                            <p className="text-slate-500 font-medium max-w-lg text-lg leading-relaxed">
+                                Suivez l'excellence et la progression de vos stagiaires en temps réel à travers vos différentes formations.
+                            </p>
+                        </div>
 
-                            <div className="flex flex-wrap items-center gap-3 bg-white/[0.03] p-1.5 rounded-2xl border border-white/5 backdrop-blur-md">
-                                <Tabs value={period} onValueChange={setPeriod} className="w-auto">
-                                    <TabsList className="bg-transparent h-10 border-none p-0 gap-1">
-                                        {[
-                                            { id: 'all', label: 'Global' },
-                                            { id: 'month', label: 'Mensuel' },
-                                            { id: 'week', label: 'Hebdo' }
-                                        ].map(p => (
-                                            <TabsTrigger 
-                                                key={p.id}
-                                                value={p.id} 
-                                                className="data-[state=active]:bg-white/10 data-[state=active]:text-white text-gray-500 text-[10px] font-black uppercase tracking-widest px-4 h-full rounded-xl transition-all"
-                                            >
-                                                {p.label}
-                                            </TabsTrigger>
-                                        ))}
-                                    </TabsList>
-                                </Tabs>
-                            </div>
-                        </motion.div>
-                    </div>
+                        <div className="flex items-center gap-3 bg-white p-2 rounded-[1.5rem] border border-slate-100 shadow-xl shadow-slate-200/30">
+                            <Tabs value={period} onValueChange={setPeriod} className="w-auto">
+                                <TabsList className="bg-slate-50 h-10 p-1 rounded-xl">
+                                    {[
+                                        { id: 'all', label: 'Global' },
+                                        { id: 'month', label: 'Mensuel' },
+                                        { id: 'week', label: 'Hebdo' }
+                                    ].map(p => (
+                                        <TabsTrigger 
+                                            key={p.id}
+                                            value={p.id} 
+                                            className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm text-slate-400 text-[10px] font-black uppercase tracking-widest px-6 h-full rounded-lg transition-all"
+                                        >
+                                            {p.label}
+                                        </TabsTrigger>
+                                    ))}
+                                </TabsList>
+                            </Tabs>
+                        </div>
+                    </motion.div>
 
-                    {/* Stats & Filter Bar */}
+                    {/* Filter Bar */}
                     <motion.div 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="flex flex-col lg:flex-row items-center justify-between gap-6 p-6 rounded-3xl bg-white/[0.03] border border-white/5 backdrop-blur-xl shadow-2xl relative overflow-hidden"
+                        className="flex flex-col lg:flex-row items-center justify-between gap-8 p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group"
                     >
-                        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/[0.02] rounded-full -mr-32 -mt-32 blur-3xl group-hover:bg-yellow-500/[0.04] transition-colors duration-700" />
                         
-                        <div className="flex items-center gap-6">
-                            <div className="flex items-center gap-3">
-                                <div className="p-3 rounded-2xl bg-yellow-500/10 border border-yellow-500/20">
-                                    <Filter className="h-5 w-5 text-yellow-500" />
+                        <div className="flex items-center gap-8 relative z-10 w-full lg:w-auto">
+                            <div className="flex items-center gap-4">
+                                <div className="p-4 rounded-2xl bg-yellow-50 border border-yellow-200 shadow-sm shadow-yellow-500/5">
+                                    <Filter className="h-6 w-6 text-yellow-600" />
                                 </div>
-                                <div>
-                                    <p className="text-[10px] font-black text-gray-600 uppercase tracking-widest mb-1 leading-none">Perspective</p>
+                                <div className="space-y-1.5">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Périmètre d'analyse</p>
                                     <Select value={selectedFormationId} onValueChange={setSelectedFormationId}>
-                                        <SelectTrigger className="w-[260px] h-9 border-none bg-black/40 hover:bg-black/60 text-white font-bold text-sm rounded-xl focus:ring-0 transition-all">
+                                        <SelectTrigger className="w-full sm:w-[320px] h-11 border-slate-100 bg-slate-50/50 hover:bg-white text-slate-900 font-black text-sm rounded-xl focus:ring-yellow-500/20 transition-all shadow-sm">
                                             <SelectValue />
                                         </SelectTrigger>
-                                        <SelectContent className="bg-[#0a0a0a]/95 backdrop-blur-3xl border-white/10 text-white rounded-2xl shadow-2xl">
-                                            <SelectItem value="global" className="hover:bg-white/5 focus:bg-white/5 cursor-pointer font-bold text-sm py-3 transition-colors">
-                                                🌍 Tous mes stagiaires
+                                        <SelectContent className="bg-white border-slate-100 text-slate-900 rounded-2xl shadow-2xl p-2">
+                                            <SelectItem value="global" className="rounded-xl hover:bg-slate-50 focus:bg-slate-50 cursor-pointer font-black text-xs py-3.5 transition-colors">
+                                                🌍 TOUS MES STAGIAIRES
                                             </SelectItem>
+                                            <div className="h-px bg-slate-50 my-1" />
                                             {formations.map((f) => (
-                                                <SelectItem key={f.id} value={String(f.id)} className="hover:bg-white/5 focus:bg-white/5 cursor-pointer font-bold text-sm py-3 transition-colors">
-                                                    🎓 {f.nom}
+                                                <SelectItem key={f.id} value={String(f.id)} className="rounded-xl hover:bg-slate-50 focus:bg-slate-50 cursor-pointer font-black text-xs py-3.5 transition-colors">
+                                                    🎓 {f.nom.toUpperCase()}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -217,14 +200,20 @@ export function FormateurClassementPage() {
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-8 lg:border-l lg:border-white/5 lg:pl-8">
-                            <div className="text-center lg:text-left">
-                                <p className="text-[10px] font-black text-gray-600 uppercase tracking-widest mb-1 leading-none">Compétiteurs</p>
-                                <div className="text-2xl font-black text-white">{ranking.length}</div>
+                        <div className="flex items-center gap-12 relative z-10 w-full lg:w-auto lg:border-l lg:border-slate-100 lg:pl-12 py-2">
+                            <div className="space-y-2">
+                                <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none">Compétiteurs</p>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-4xl font-black text-slate-900">{ranking.length}</span>
+                                    <Users className="h-4 w-4 text-slate-200" />
+                                </div>
                             </div>
-                            <div className="text-center lg:text-left">
-                                <p className="text-[10px] font-black text-gray-600 uppercase tracking-widest mb-1 leading-none">Score Max</p>
-                                <div className="text-2xl font-black text-yellow-500">{ranking[0]?.total_points || 0}</div>
+                            <div className="space-y-2">
+                                <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none">Leaderbord Peak</p>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-4xl font-black text-yellow-600">{ranking[0]?.total_points || 0}</span>
+                                    <Trophy className="h-4 w-4 text-yellow-300" />
+                                </div>
                             </div>
                         </div>
                     </motion.div>
@@ -234,17 +223,17 @@ export function FormateurClassementPage() {
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.2 }}
-                        className="bg-white/[0.03] backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden"
+                        className="bg-white rounded-[3rem] border border-slate-100 shadow-2xl shadow-slate-200/50 overflow-hidden"
                     >
                         <div className="relative overflow-x-auto custom-scrollbar">
                             <Table>
-                                <TableHeader className="bg-white/[0.01]">
-                                    <TableRow className="border-white/5 hover:bg-transparent">
-                                        <TableHead className="text-[10px] font-black uppercase text-gray-600 tracking-[0.2em] pl-10 h-20">Rang</TableHead>
-                                        <TableHead className="text-[10px] font-black uppercase text-gray-600 tracking-[0.2em] h-20">Candidat</TableHead>
-                                        <TableHead className="text-[10px] font-black uppercase text-gray-600 tracking-[0.2em] text-center h-20">Points</TableHead>
-                                        <TableHead className="text-[10px] font-black uppercase text-gray-600 tracking-[0.2em] text-center h-20">Quiz</TableHead>
-                                        <TableHead className="text-[10px] font-black uppercase text-gray-600 tracking-[0.2em] text-right pr-10 h-20">Précision</TableHead>
+                                <TableHeader className="bg-slate-50/50">
+                                    <TableRow className="border-slate-50 hover:bg-transparent">
+                                        <TableHead className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] pl-12 h-20">Rang Mondiale</TableHead>
+                                        <TableHead className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] h-20">Identité Stagiaire</TableHead>
+                                        <TableHead className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] text-center h-20">Points Totaux</TableHead>
+                                        <TableHead className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] text-center h-20">Engagement Quiz</TableHead>
+                                        <TableHead className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] text-right pr-12 h-20">Ratio Précision</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -252,88 +241,95 @@ export function FormateurClassementPage() {
                                         {ranking.map((stagiaire, index) => (
                                             <motion.tr 
                                                 key={stagiaire.id}
-                                                initial={{ opacity: 0, x: -10 }}
-                                                animate={{ opacity: 1, x: 0 }}
+                                                layout
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: index * 0.04 }}
-                                                className={`border-white/5 hover:bg-white/[0.06] transition-all duration-300 group/row relative ${
-                                                    stagiaire.rank <= 3 ? 'bg-yellow-500/[0.02]' : ''
-                                                }`}
+                                                className="border-slate-50 hover:bg-slate-50/40 transition-all duration-400 group/row"
                                             >
-                                                <TableCell className="pl-10 py-6">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className={`h-10 w-10 rounded-2xl flex items-center justify-center relative shadow-lg ${
-                                                            stagiaire.rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600' :
-                                                            stagiaire.rank === 2 ? 'bg-gradient-to-br from-gray-300 to-gray-500' :
-                                                            stagiaire.rank === 3 ? 'bg-gradient-to-br from-orange-400 to-orange-700' :
-                                                            'bg-white/5 border border-white/10'
+                                                <TableCell className="pl-12 py-8">
+                                                    <div className="flex items-center gap-6">
+                                                        <div className={`h-12 w-12 rounded-2xl flex items-center justify-center relative shadow-lg transition-transform group-hover/row:scale-110 duration-500 ${
+                                                            stagiaire.rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-yellow-500/20' :
+                                                            stagiaire.rank === 2 ? 'bg-gradient-to-br from-slate-200 to-slate-400 shadow-slate-400/20' :
+                                                            stagiaire.rank === 3 ? 'bg-gradient-to-br from-orange-400 to-orange-700 shadow-orange-700/20' :
+                                                            'bg-white border border-slate-100 shadow-sm'
                                                         }`}>
                                                             {stagiaire.rank <= 3 && (
-                                                                <div className="absolute -top-1 -right-1 h-3 w-3 bg-white rounded-full flex items-center justify-center border-2 border-black">
-                                                                    <div className="h-1 w-1 bg-black rounded-full" />
+                                                                <div className="absolute -top-2 -right-2 h-5 w-5 bg-white rounded-full flex items-center justify-center border-2 border-slate-100 shadow-sm">
+                                                                    <div className="h-1.5 w-1.5 bg-slate-900 rounded-full" />
                                                                 </div>
                                                             )}
-                                                            <span className={`text-sm font-black tracking-tighter ${
-                                                                stagiaire.rank <= 3 ? 'text-black' : 'text-gray-500 group-hover/row:text-white transition-colors'
+                                                            <span className={`text-base font-black tracking-tighter ${
+                                                                stagiaire.rank <= 3 ? 'text-white' : 'text-slate-400'
                                                             }`}>
-                                                                {stagiaire.rank}
+                                                                #{stagiaire.rank}
                                                             </span>
                                                         </div>
                                                         {stagiaire.rank <= 3 && (
                                                             <div className="hidden sm:block">
-                                                                {stagiaire.rank === 1 && <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest">Champion</span>}
-                                                                {stagiaire.rank === 2 && <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Élite</span>}
-                                                                {stagiaire.rank === 3 && <span className="text-[10px] font-black text-orange-400 uppercase tracking-widest">Expert</span>}
+                                                                <Badge variant="outline" className={`text-[9px] font-black uppercase tracking-widest px-3 h-6 border-none shadow-none ${
+                                                                    stagiaire.rank === 1 ? 'bg-yellow-50 text-yellow-700' :
+                                                                    stagiaire.rank === 2 ? 'bg-slate-50 text-slate-700' :
+                                                                    'bg-orange-50 text-orange-700'
+                                                                }`}>
+                                                                    {stagiaire.rank === 1 ? 'Champion' : stagiaire.rank === 2 ? 'Argente' : 'Bronze'}
+                                                                </Badge>
                                                             </div>
                                                         )}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-white/10 to-transparent border border-white/10 flex items-center justify-center group-hover/row:border-yellow-500/30 transition-colors shadow-inner overflow-hidden">
-                                                            <span className="text-xs font-black text-gray-500 group-hover/row:text-yellow-500 transition-colors">
-                                                                {stagiaire.prenom[0]}{stagiaire.nom[0]}
-                                                            </span>
+                                                    <div className="flex items-center gap-6">
+                                                        <div className="h-14 w-14 rounded-3xl bg-white border border-slate-100 flex items-center justify-center shadow-xl shadow-slate-200/50 group-hover/row:border-yellow-200 group-hover/row:shadow-yellow-500/10 transition-all duration-500 relative overflow-hidden">
+                                                            <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-transparent flex items-center justify-center">
+                                                                <span className="text-sm font-black text-slate-400 group-hover/row:text-yellow-600 transition-colors uppercase">
+                                                                    {stagiaire.prenom[0]}{stagiaire.nom[0]}
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <p className="text-sm font-black text-gray-100 group-hover/row:text-white transition-colors truncate">
+                                                            <p className="text-base font-black text-slate-900 truncate">
                                                                 {stagiaire.prenom} {stagiaire.nom}
                                                             </p>
-                                                            <p className="text-[10px] font-bold text-gray-600 uppercase tracking-tighter truncate group-hover/row:text-gray-500">{stagiaire.email}</p>
+                                                            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-0.5 truncate group-hover/row:text-slate-400 transition-colors">{stagiaire.email}</p>
                                                         </div>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-center">
-                                                    <div className="inline-flex flex-col items-center">
-                                                        <span className="text-lg font-black text-yellow-500/90 group-hover/row:scale-110 transition-transform duration-300">{stagiaire.total_points}</span>
-                                                        <span className="text-[8px] font-black text-gray-700 uppercase tracking-widest">Points</span>
+                                                    <div className="inline-flex flex-col items-center group-hover/row:translate-y-[-2px] transition-transform">
+                                                        <span className="text-2xl font-black text-slate-900">{stagiaire.total_points}</span>
+                                                        <span className="text-[8px] font-black text-yellow-600 uppercase tracking-[0.2em] mt-1">XP Points</span>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-center">
-                                                    <div className="inline-flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full border border-white/5">
-                                                        <Trophy className="h-3 w-3 text-gray-600" />
-                                                        <span className="text-[10px] font-black text-gray-400">{stagiaire.total_quiz}</span>
+                                                    <div className="inline-flex items-center gap-2.5 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100 group-hover/row:bg-white transition-colors">
+                                                        <Award className="h-3.5 w-3.5 text-slate-300" />
+                                                        <span className="text-xs font-black text-slate-700">{stagiaire.total_quiz} SESSION{stagiaire.total_quiz > 1 ? 'S' : ''}</span>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell className="text-right pr-10">
-                                                    <div className="inline-flex items-center gap-3">
-                                                        <div className="h-1 w-12 bg-white/5 rounded-full overflow-hidden hidden md:block">
+                                                <TableCell className="text-right pr-12">
+                                                    <div className="inline-flex items-center gap-4">
+                                                        <div className="h-1.5 w-20 bg-slate-50 rounded-full overflow-hidden hidden md:block border border-slate-100/50">
                                                             <motion.div 
                                                                 initial={{ width: 0 }}
-                                                                animate={{ width: `${stagiaire.avg_score}%` }}
+                                                                whileInView={{ width: `${stagiaire.avg_score}%` }}
+                                                                viewport={{ once: true }}
+                                                                transition={{ delay: 0.5, duration: 1.5, type: "spring" }}
                                                                 className={`h-full ${
-                                                                    stagiaire.avg_score >= 80 ? 'bg-green-500' :
-                                                                    stagiaire.avg_score >= 50 ? 'bg-yellow-500' :
-                                                                    'bg-red-500'
-                                                                } opacity-50`}
+                                                                    stagiaire.avg_score >= 80 ? 'bg-green-400' :
+                                                                    stagiaire.avg_score >= 50 ? 'bg-yellow-400' :
+                                                                    'bg-red-400'
+                                                                }`}
                                                             />
                                                         </div>
-                                                        <Badge className={`text-[10px] font-black rounded-lg border-none px-2 h-7 shadow-none ${
-                                                            stagiaire.avg_score >= 70 ? 'bg-green-500/10 text-green-500' :
-                                                            stagiaire.avg_score >= 40 ? 'bg-yellow-500/10 text-yellow-500' :
-                                                            'bg-red-500/10 text-red-500'
+                                                        <div className={`text-sm font-black w-14 text-right ${
+                                                            stagiaire.avg_score >= 80 ? 'text-green-600' :
+                                                            stagiaire.avg_score >= 50 ? 'text-yellow-600' :
+                                                            'text-red-600'
                                                         }`}>
                                                             {stagiaire.avg_score}%
-                                                        </Badge>
+                                                        </div>
                                                     </div>
                                                 </TableCell>
                                             </motion.tr>
@@ -346,8 +342,6 @@ export function FormateurClassementPage() {
                 </div>
             </div>
         </Layout>
-    );
-}
     );
 }
 

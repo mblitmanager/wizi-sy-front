@@ -62,56 +62,65 @@ const TrainerPerformanceStats = () => {
 
     if (loading || !data) {
         return (
-            <div className="bg-white/[0.03] backdrop-blur-md rounded-2xl border border-white/5 p-12 flex flex-col items-center justify-center space-y-4">
-                <Trophy className="h-10 w-10 text-yellow-500/50 animate-bounce" />
-                <p className="text-gray-500 text-sm font-medium animate-pulse uppercase tracking-widest">Calcul des performances...</p>
+            <div className="bg-white rounded-[2rem] border border-slate-100 p-20 flex flex-col items-center justify-center space-y-6 shadow-sm">
+                <Trophy className="h-10 w-10 text-yellow-500/30 animate-pulse" />
+                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] animate-pulse">Synthèse analytique en cours...</p>
             </div>
         );
     }
 
     return (
-        <div className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-12">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                 {/* Ranking: Most Quizzes */}
                 <motion.div 
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="bg-white/[0.03] backdrop-blur-xl rounded-2xl border border-white/5 p-6 shadow-2xl relative overflow-hidden group hover:border-yellow-500/20 transition-all duration-500"
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-xl shadow-slate-200/40 relative overflow-hidden group"
                 >
-                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                        <Trophy className="h-24 w-24 text-yellow-500" />
+                    <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+                        <Trophy className="h-24 w-24 text-yellow-600" />
                     </div>
                     
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="p-2.5 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
-                            <Trophy className="h-5 w-5 text-yellow-500" />
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-3.5 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 shadow-sm shadow-yellow-500/5">
+                            <Trophy className="h-5 w-5 text-yellow-600" />
                         </div>
-                        <h2 className="text-lg font-bold text-white tracking-tight">Top Quizzers</h2>
+                        <div>
+                            <h2 className="text-xl font-black text-slate-900 tracking-tight">Top Quizzers</h2>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Champions de la révision</p>
+                        </div>
                     </div>
 
-                    <div className="space-y-3 relative z-10">
+                    <div className="grid gap-3 relative z-10">
                         {data.rankings.most_quizzes.map((student, idx) => (
                             <motion.div 
                                 key={student.id} 
                                 initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true }}
                                 transition={{ delay: idx * 0.1 }}
-                                className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-all group/item shadow-sm"
+                                className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-transparent hover:bg-white hover:border-slate-100 hover:shadow-lg hover:shadow-yellow-500/5 transition-all group/item"
                             >
-                                <div className="flex items-center gap-3">
-                                    <div className={`h-8 w-8 rounded-lg flex items-center justify-center font-black text-sm tracking-tighter ${
-                                        idx === 0 ? 'bg-yellow-500 text-black' : 'bg-white/5 text-gray-500'
+                                <div className="flex items-center gap-4 min-w-0">
+                                    <div className={`h-9 w-9 rounded-xl flex items-center justify-center font-black text-sm tracking-tighter shadow-sm transition-transform group-hover/item:scale-110 ${
+                                        idx === 0 ? 'bg-yellow-500 text-white shadow-yellow-500/20' : 
+                                        idx === 1 ? 'bg-slate-200 text-slate-600' :
+                                        idx === 2 ? 'bg-orange-100 text-orange-600' :
+                                        'bg-white text-slate-400 border border-slate-100'
                                     }`}>
                                         {idx + 1}
                                     </div>
                                     <div className="min-w-0">
-                                        <div className="font-bold text-sm text-gray-200 truncate group-hover/item:text-white">{student.name}</div>
-                                        <div className="text-[10px] font-medium text-gray-600 truncate uppercase tracking-tighter">{student.email}</div>
+                                        <div className="font-bold text-sm text-slate-900 truncate">{student.name}</div>
+                                        <div className="text-[10px] font-bold text-slate-400 truncate uppercase mt-0.5">{student.email}</div>
                                     </div>
                                 </div>
-                                <Badge variant="outline" className="bg-transparent border-white/10 text-[10px] font-black shadow-none text-yellow-500/80">
-                                    {student.total_quizzes} QZ
-                                </Badge>
+                                <div className="flex flex-col items-end">
+                                    <span className="text-sm font-black text-yellow-600">{student.total_quizzes}</span>
+                                    <span className="text-[8px] font-black text-slate-300 uppercase leading-none">Modules</span>
+                                </div>
                             </motion.div>
                         ))}
                     </div>
@@ -119,45 +128,52 @@ const TrainerPerformanceStats = () => {
 
                 {/* Ranking: Most Active */}
                 <motion.div 
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
                     transition={{ delay: 0.1 }}
-                    className="bg-white/[0.03] backdrop-blur-xl rounded-2xl border border-white/5 p-6 shadow-2xl relative overflow-hidden group hover:border-blue-500/20 transition-all duration-500"
+                    className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-xl shadow-slate-200/40 relative overflow-hidden group"
                 >
-                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                        <MousePointerClick className="h-24 w-24 text-blue-500" />
+                    <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+                        <MousePointerClick className="h-24 w-24 text-blue-600" />
                     </div>
 
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20">
-                            <MousePointerClick className="h-5 w-5 text-blue-400" />
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/20 shadow-sm shadow-blue-500/5">
+                            <MousePointerClick className="h-5 w-5 text-blue-600" />
                         </div>
-                        <h2 className="text-lg font-bold text-white tracking-tight">Top Actifs</h2>
+                        <div>
+                            <h2 className="text-xl font-black text-slate-900 tracking-tight">Top Actifs</h2>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Assiduité exemplaire</p>
+                        </div>
                     </div>
 
-                    <div className="space-y-3 relative z-10">
+                    <div className="grid gap-3 relative z-10">
                         {data.rankings.most_active.map((student, idx) => (
                             <motion.div 
                                 key={student.id} 
                                 initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true }}
                                 transition={{ delay: idx * 0.1 }}
-                                className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-all group/item shadow-sm"
+                                className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-transparent hover:bg-white hover:border-slate-100 hover:shadow-lg hover:shadow-blue-500/5 transition-all group/item"
                             >
-                                <div className="flex items-center gap-3">
-                                    <div className={`h-8 w-8 rounded-lg flex items-center justify-center font-black text-sm tracking-tighter ${
-                                        idx === 0 ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-500'
+                                <div className="flex items-center gap-4 min-w-0">
+                                    <div className={`h-9 w-9 rounded-xl flex items-center justify-center font-black text-sm tracking-tighter shadow-sm transition-transform group-hover/item:scale-110 ${
+                                        idx === 0 ? 'bg-blue-600 text-white shadow-blue-500/20' : 
+                                        'bg-white text-slate-400 border border-slate-100'
                                     }`}>
                                         {idx + 1}
                                     </div>
                                     <div className="min-w-0">
-                                        <div className="font-bold text-sm text-gray-200 truncate group-hover/item:text-white">{student.name}</div>
-                                        <div className="text-[10px] font-medium text-gray-600 truncate uppercase tracking-tighter">{student.email}</div>
+                                        <div className="font-bold text-sm text-slate-900 truncate">{student.name}</div>
+                                        <div className="text-[10px] font-bold text-slate-400 truncate uppercase mt-0.5">{student.email}</div>
                                     </div>
                                 </div>
-                                <Badge variant="outline" className="bg-transparent border-white/10 text-[10px] font-black shadow-none text-blue-400/80">
-                                    {student.total_logins} LOG
-                                </Badge>
+                                <div className="flex flex-col items-end">
+                                    <span className="text-sm font-black text-blue-600">{student.total_logins}</span>
+                                    <span className="text-[8px] font-black text-slate-300 uppercase leading-none">Sessions</span>
+                                </div>
                             </motion.div>
                         ))}
                     </div>
@@ -165,27 +181,29 @@ const TrainerPerformanceStats = () => {
             </div>
 
             {/* Performance Table */}
-            <div className="bg-white/[0.03] backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden group hover:border-white/20 transition-all duration-500">
-                <div className="p-6 border-b border-white/5">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
-                            <User className="h-5 w-5 text-gray-400" />
+            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/20 overflow-hidden relative">
+                <div className="absolute top-0 left-0 w-1 h-full bg-yellow-500/20" />
+                
+                <div className="p-10 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-white rounded-xl shadow-sm border border-slate-100">
+                            <User className="h-5 w-5 text-slate-400" />
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-white tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500 uppercase tracking-widest text-xs">Performance Détaillée</h2>
-                            <p className="text-xs text-gray-600 font-bold uppercase tracking-tighter mt-1 italic">Mise à jour en temps réel</p>
+                            <h2 className="text-xs font-black uppercase text-slate-400 tracking-[0.2em]">Performance Détaillée</h2>
+                            <p className="text-[10px] text-slate-300 font-bold uppercase tracking-widest mt-1">Audit en temps réel des cohortes</p>
                         </div>
                     </div>
                 </div>
 
                 <div className="relative overflow-x-auto custom-scrollbar">
                     <Table>
-                        <TableHeader className="bg-white/[0.01]">
-                            <TableRow className="border-white/5 hover:bg-transparent">
-                                <TableHead className="text-[10px] font-black uppercase text-gray-600 tracking-widest pl-8">Stagiaire</TableHead>
-                                <TableHead className="text-[10px] font-black uppercase text-gray-600 tracking-widest text-center">Dernier Quiz</TableHead>
-                                <TableHead className="text-[10px] font-black uppercase text-gray-600 tracking-widest text-center">Engagment</TableHead>
-                                <TableHead className="text-[10px] font-black uppercase text-gray-600 tracking-widest text-right pr-8">Actions</TableHead>
+                        <TableHeader className="bg-slate-50/50">
+                            <TableRow className="border-slate-100 hover:bg-transparent">
+                                <TableHead className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-10 h-14">Stagiaire</TableHead>
+                                <TableHead className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-center h-14 whitespace-nowrap px-8">Dernière Activité</TableHead>
+                                <TableHead className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-center h-14 whitespace-nowrap px-8">Indicateurs</TableHead>
+                                <TableHead className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-right pr-10 h-14">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -193,62 +211,63 @@ const TrainerPerformanceStats = () => {
                                 <motion.tr 
                                     key={student.id}
                                     initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
                                     transition={{ delay: index * 0.05 }}
-                                    className="border-white/5 hover:bg-white/[0.04] transition-colors group/row"
+                                    className="border-slate-50 hover:bg-slate-50/40 transition-colors group"
                                 >
-                                    <TableCell className="pl-8 py-5">
-                                        <div className="flex items-center gap-3">
-                                            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-white/10 to-transparent border border-white/5 flex items-center justify-center group-hover/row:border-yellow-500/30 transition-colors shadow-inner">
-                                                <span className="text-xs font-black text-gray-500 group-hover/row:text-yellow-500 uppercase">
+                                    <TableCell className="pl-10 py-6">
+                                        <div className="flex items-center gap-4">
+                                            <div className="h-11 w-11 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shadow-sm group-hover:border-yellow-200 transition-colors">
+                                                <span className="text-xs font-black text-slate-400 group-hover:text-yellow-600 uppercase">
                                                     {student.name.charAt(0)}
                                                 </span>
                                             </div>
                                             <div className="min-w-0">
-                                                <p className="text-sm font-bold text-gray-200 truncate group-hover/row:text-white">
+                                                <p className="text-sm font-bold text-slate-900 truncate">
                                                     {student.name}
                                                 </p>
-                                                <p className="text-[10px] font-medium text-gray-600 truncate uppercase tracking-tighter">{student.email}</p>
+                                                <p className="text-[10px] font-bold text-slate-400 truncate uppercase mt-0.5 tracking-tight">{student.email}</p>
                                             </div>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="text-center">
+                                    <TableCell className="text-center px-8">
                                         {student.last_quiz_at ? (
-                                            <div className="flex flex-col items-center gap-1">
-                                                <div className="flex items-center gap-1.5 text-[10px] font-black text-gray-400 bg-white/5 px-2 py-0.5 rounded-full border border-white/5 shadow-sm">
+                                            <div className="inline-flex flex-col items-center group/date">
+                                                <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 px-3 py-1 rounded-xl bg-slate-100 group-hover:bg-yellow-50 group-hover:text-yellow-700 transition-colors">
                                                     <Calendar className="h-3 w-3" />
                                                     {format(new Date(student.last_quiz_at), 'dd MMM yyyy', { locale: fr })}
                                                 </div>
-                                                <span className="text-[10px] font-bold text-gray-600 uppercase">
+                                                <span className="text-[9px] font-bold text-slate-300 uppercase mt-1 tracking-tighter">
                                                     {format(new Date(student.last_quiz_at), 'HH:mm')}
                                                 </span>
                                             </div>
                                         ) : (
-                                            <Badge variant="ghost" className="text-[10px] font-bold text-gray-700 uppercase italic opacity-50">Aucun quiz</Badge>
+                                            <Badge variant="outline" className="text-[9px] font-black text-slate-300 uppercase border-slate-100 bg-slate-50 rounded-lg h-6">Inactif</Badge>
                                         )}
                                     </TableCell>
-                                    <TableCell className="text-center">
-                                        <div className="flex items-center justify-center gap-3">
+                                    <TableCell className="text-center px-8">
+                                        <div className="flex items-center justify-center gap-4">
                                             <div className="flex flex-col items-center">
-                                                <span className="text-[10px] font-black text-yellow-500/80 mb-0.5">{student.total_quizzes}</span>
-                                                <span className="text-[8px] font-bold text-gray-700 uppercase">QUIZ</span>
+                                                <span className="text-xs font-black text-yellow-600">{student.total_quizzes}</span>
+                                                <span className="text-[8px] font-black text-slate-300 uppercase">Quiz</span>
                                             </div>
-                                            <div className="w-[1px] h-4 bg-white/5" />
+                                            <div className="w-[1px] h-6 bg-slate-100" />
                                             <div className="flex flex-col items-center">
-                                                <span className="text-[10px] font-black text-blue-400/80 mb-0.5">{student.total_logins}</span>
-                                                <span className="text-[8px] font-bold text-gray-700 uppercase">LOGINS</span>
+                                                <span className="text-xs font-black text-blue-600">{student.total_logins}</span>
+                                                <span className="text-[8px] font-black text-slate-300 uppercase">Logs</span>
                                             </div>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="text-right pr-8">
+                                    <TableCell className="text-right pr-10">
                                         <Button
                                             size="sm"
                                             variant="ghost"
-                                            className="h-8 pl-3 pr-2 text-[10px] font-black uppercase text-gray-500 hover:text-yellow-500 hover:bg-yellow-500/10 rounded-lg group/btn transition-all"
+                                            className="h-10 px-4 text-[10px] font-black uppercase text-slate-400 hover:text-yellow-600 hover:bg-yellow-50 rounded-2xl group/btn transition-all"
                                             onClick={() => handleViewDetails(student.id)}
                                         >
-                                            Exploration
-                                            <ChevronRight className="h-3.5 w-3.5 ml-1.5 group-hover/btn:translate-x-0.5 transition-transform" />
+                                            Détails
+                                            <ChevronRight className="h-4 w-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
                                         </Button>
                                     </TableCell>
                                 </motion.tr>
@@ -260,70 +279,73 @@ const TrainerPerformanceStats = () => {
 
             {/* Details Modal */}
             <Dialog open={selectedStudentId !== null} onOpenChange={(open) => !open && closeDetails()}>
-                <DialogContent className="max-w-md bg-black/90 backdrop-blur-3xl border-white/10 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] p-0 overflow-hidden">
-                    <DialogHeader className="p-8 pb-4 border-b border-white/5 relative bg-white/[0.01]">
-                        <DialogTitle className="text-lg font-black uppercase text-gray-200 tracking-widest text-center">Profil Performance</DialogTitle>
+                <DialogContent className="max-w-md bg-white border-slate-100 rounded-[2.5rem] shadow-2xl p-0 overflow-hidden ring-1 ring-black/5">
+                    <DialogHeader className="p-8 pb-4 border-b border-slate-50 relative bg-slate-50/50">
+                        <DialogTitle className="text-xs font-black uppercase text-slate-400 tracking-[0.3em] text-center">Filiation Analytique</DialogTitle>
                     </DialogHeader>
                     {loadingDetails ? (
-                        <div className="py-24 flex flex-col items-center justify-center space-y-4">
+                        <div className="py-24 flex flex-col items-center justify-center space-y-6">
                             <motion.div 
                                 animate={{ rotate: 360 }}
-                                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                                className="h-8 w-8 border-2 border-yellow-500/20 border-t-yellow-500 rounded-full shadow-[0_0_15px_rgba(234,179,8,0.2)]"
+                                transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                                className="h-12 w-12 border-4 border-yellow-500/10 border-t-yellow-500 rounded-full"
                             />
-                            <p className="text-[10px] font-black text-gray-600 uppercase tracking-widest animate-pulse">Extraction des données...</p>
+                            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest animate-pulse">Extraction de données...</p>
                         </div>
                     ) : details ? (
-                        <div className="p-8 space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                        <div className="p-10 space-y-10 max-h-[75vh] overflow-y-auto custom-scrollbar">
                             {/* Student Info */}
-                            <div className="flex items-center gap-5 p-5 rounded-2xl bg-white/[0.03] border border-white/5 shadow-inner">
-                                <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-transparent border border-yellow-500/10 flex items-center justify-center text-yellow-500 font-black text-2xl shadow-[0_8px_16px_rgba(0,0,0,0.2)]">
+                            <div className="flex items-center gap-6 p-6 rounded-3xl bg-slate-50 border border-slate-100 shadow-inner">
+                                <div className="h-16 w-16 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-yellow-600 font-black text-2xl shadow-sm">
                                     {details.stagiaire.prenom[0]}{details.stagiaire.nom[0]}
                                 </div>
                                 <div className="min-w-0">
-                                    <div className="text-lg font-black text-white leading-tight truncate">{details.stagiaire.prenom} {details.stagiaire.nom}</div>
-                                    <div className="text-xs font-medium text-gray-500 truncate uppercase mt-1 tracking-tighter">{details.stagiaire.email}</div>
+                                    <div className="text-xl font-black text-slate-900 truncate leading-tight">{details.stagiaire.prenom} {details.stagiaire.nom}</div>
+                                    <div className="text-[11px] font-bold text-slate-400 truncate uppercase mt-1 tracking-tight">{details.stagiaire.email}</div>
                                 </div>
                             </div>
 
                             {/* Quiz Stats */}
                             <div className="grid grid-cols-2 gap-4">
                                 {[
-                                    { label: 'Quiz Totaux', value: details.quiz_stats.total_quiz, icon: <Trophy className="h-3 w-3" />, color: 'yellow' },
-                                    { label: 'Score Moyen', value: `${details.quiz_stats.avg_score}%`, icon: <CheckCircle2 className="h-3 w-3" />, color: 'green' },
-                                    { label: 'Réponses', value: `${details.quiz_stats.total_correct}/${details.quiz_stats.total_questions}`, icon: <CheckCircle2 className="h-3 w-3" />, color: 'blue' },
-                                    { label: 'Record', value: `${details.quiz_stats.best_score}%`, icon: <Trophy className="h-3 w-3" />, color: 'purple' }
+                                    { label: 'Quiz Totaux', value: details.quiz_stats.total_quiz, icon: <Trophy className="h-4 w-4" />, color: 'yellow' },
+                                    { label: 'Score Moyen', value: `${details.quiz_stats.avg_score}%`, icon: <CheckCircle2 className="h-4 w-4" />, color: 'green' },
+                                    { label: 'Précision', value: `${details.quiz_stats.total_correct}/${details.quiz_stats.total_questions}`, icon: <Smartphone className="h-4 w-4" />, color: 'blue' },
+                                    { label: 'Record personnel', value: `${details.quiz_stats.best_score}%`, icon: <Trophy className="h-4 w-4" />, color: 'orange' }
                                 ].map((stat, i) => (
-                                    <div key={i} className="p-4 rounded-xl bg-white/[0.02] border border-white/5 relative overflow-hidden group/stat hover:bg-white/[0.04] transition-all">
-                                        <div className={`text-[8px] font-black uppercase text-gray-600 mb-1 flex items-center gap-1.5`}>
-                                            <span className={`text-${stat.color}-500/50`}>{stat.icon}</span>
-                                            {stat.label}
+                                    <div key={i} className="p-5 rounded-2xl bg-white border border-slate-100 relative overflow-hidden group/stat hover:shadow-lg hover:shadow-slate-200/40 transition-all">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <div className={`text-slate-300 group-hover/stat:text-${stat.color}-500 transition-colors`}>{stat.icon}</div>
+                                            <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider font-sans">{stat.label}</span>
                                         </div>
-                                        <div className="text-xl font-black text-gray-100">{stat.value}</div>
+                                        <div className="text-2xl font-black text-slate-900 tracking-tighter">{stat.value}</div>
                                     </div>
                                 ))}
                             </div>
 
                             {/* Activity Info */}
-                            <div className="space-y-4 pt-4 border-t border-white/5">
-                                <h4 className="text-[10px] font-black text-gray-600 uppercase tracking-[0.2em]">Journal d'activité</h4>
-                                <div className="space-y-1">
+                            <div className="space-y-6 pt-6 border-t border-slate-100">
+                                <div className="flex items-center justify-between">
+                                    <h4 className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">Journal système</h4>
+                                    <div className="h-[1px] flex-1 mx-4 bg-slate-50" />
+                                </div>
+                                <div className="grid gap-4">
                                     {[
-                                        { label: 'Dernier signal', value: details.activity.last_activity, icon: <Clock className="h-3.5 w-3.5" /> },
-                                        { label: 'Statut global', value: details.activity.is_online ? "ACTIF MAINTENANT" : "HORS LIGNE", icon: <Globe className="h-3.5 w-3.5" />, badge: true, online: details.activity.is_online },
-                                        { label: 'Canal utilisé', value: details.activity.last_client || 'Inconnu', icon: <Smartphone className="h-3.5 w-3.5" />, capitalize: true }
+                                        { label: 'Dernier signal', value: details.activity.last_activity, icon: <Clock className="h-4 w-4" /> },
+                                        { label: 'Canal', value: details.activity.last_client || 'Web', icon: <Globe className="h-4 w-4" /> },
+                                        { label: 'Statut LIVE', value: details.activity.is_online ? "ACTIF" : "OFFLINE", icon: <Circle className={`h-4 w-4 ${details.activity.is_online ? 'fill-green-500 text-green-500' : 'text-slate-300'}`} />, isBadge: true, active: details.activity.is_online }
                                     ].map((item, i) => (
-                                        <div key={i} className="flex items-center justify-between text-[11px] py-3 border-b border-white/[0.03]">
-                                            <span className="text-gray-500 font-bold uppercase flex items-center gap-2">
-                                                <span className="text-gray-700">{item.icon}</span>
-                                                {item.label}
-                                            </span>
-                                            {item.badge ? (
-                                                <Badge className={`text-[8px] font-black rounded-full border-none px-2 h-5 shadow-none ${item.online ? 'bg-green-500/10 text-green-500' : 'bg-gray-800 text-gray-500'}`}>
+                                        <div key={i} className="flex items-center justify-between py-1">
+                                            <div className="flex items-center gap-3">
+                                                <div className="text-slate-400">{item.icon}</div>
+                                                <span className="text-[11px] font-bold text-slate-500 tracking-tight">{item.label}</span>
+                                            </div>
+                                            {item.isBadge ? (
+                                                <Badge className={`text-[9px] font-black rounded-lg ${item.active ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-slate-50 text-slate-400 border border-slate-100'} shadow-none h-6`}>
                                                     {item.value}
                                                 </Badge>
                                             ) : (
-                                                <span className={`font-black text-gray-200 ${item.capitalize ? 'capitalize' : ''}`}>{item.value}</span>
+                                                <span className="text-[11px] font-black text-slate-900">{item.value}</span>
                                             )}
                                         </div>
                                     ))}
@@ -332,8 +354,8 @@ const TrainerPerformanceStats = () => {
                         </div>
                     ) : (
                         <div className="py-24 text-center">
-                            <XCircle className="h-10 w-10 text-red-500/20 mx-auto mb-4" />
-                            <p className="text-xs font-bold text-gray-600 uppercase">Échec de la synchronisation</p>
+                            <XCircle className="h-12 w-12 text-slate-100 mx-auto mb-6" />
+                            <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Incident réseau détecté</p>
                         </div>
                     )}
                 </DialogContent>

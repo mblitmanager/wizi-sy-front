@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, TrendingUp, TrendingDown, AlertTriangle, Video, Trophy } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -55,7 +56,7 @@ export function FormateurDashboardStats() {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, i) => (
-                    <div key={i} className="h-32 rounded-2xl bg-white/5 animate-pulse border border-white/5" />
+                    <div key={i} className="h-32 rounded-[2rem] bg-slate-100 animate-pulse border border-slate-200" />
                 ))}
             </div>
         );
@@ -63,11 +64,10 @@ export function FormateurDashboardStats() {
 
     if (error || !stats) {
         return (
-            <Card className="border-red-200 bg-red-50">
-                <CardContent className="pt-6">
-                    <p className="text-red-600">{error || 'Erreur de chargement'}</p>
-                </CardContent>
-            </Card>
+            <div className="p-10 text-center rounded-[2rem] bg-red-50 border border-red-100">
+                <AlertTriangle className="h-10 w-10 text-red-400 mx-auto mb-4" />
+                <p className="text-red-900 font-black uppercase text-xs tracking-widest">{error || 'Erreur critique'}</p>
+            </div>
         );
     }
 
@@ -77,75 +77,92 @@ export function FormateurDashboardStats() {
             value: stats.total_stagiaires,
             subValue: `${stats.active_this_week} actifs`,
             icon: Users,
-            color: "text-blue-400",
-            borderColor: "border-blue-500/20"
+            color: "text-blue-600",
+            bg: "bg-blue-500/5",
+            border: "border-blue-500/10"
         },
         {
             title: "Formations",
             value: stats.total_formations,
-            subValue: "Catalogues assignés",
+            subValue: "Programmes actifs",
             icon: Video,
-            color: "text-purple-400",
-            borderColor: "border-purple-500/20"
+            color: "text-purple-600",
+            bg: "bg-purple-500/5",
+            border: "border-purple-500/10"
         },
         {
             title: "Quiz Complétés",
             value: stats.total_quizzes_taken,
             subValue: `Moyenne : ${stats.avg_quiz_score}%`,
             icon: Trophy,
-            color: "text-amber-400",
-            borderColor: "border-amber-500/20"
+            color: "text-yellow-600",
+            bg: "bg-yellow-500/5",
+            border: "border-yellow-500/20"
         },
         {
             title: "Inactifs",
             value: stats.inactive_count,
             subValue: "7+ jours d'absence",
             icon: TrendingDown,
-            color: "text-orange-400",
-            borderColor: "border-orange-500/20"
+            color: "text-orange-600",
+            bg: "bg-orange-500/5",
+            border: "border-orange-500/10"
         },
         {
             title: "Jamais Connectés",
             value: stats.never_connected,
-            subValue: "Comptes en attente",
+            subValue: "En attente",
             icon: AlertTriangle,
-            color: "text-red-400",
-            borderColor: "border-red-500/20"
+            color: "text-red-600",
+            bg: "bg-red-500/5",
+            border: "border-red-500/10"
         },
         {
             title: "Heures Vidéos",
             value: `${stats.total_video_hours}h`,
-            subValue: "Temps de visionnage",
+            subValue: "Visionnage cumulé",
             icon: Video,
-            color: "text-indigo-400",
-            borderColor: "border-indigo-500/20"
+            color: "text-indigo-600",
+            bg: "bg-indigo-500/5",
+            border: "border-indigo-500/10"
         }
     ];
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {statCards.map((card, index) => (
                 <motion.div
                     key={index}
-                    whileHover={{ y: -5, scale: 1.02 }}
-                    className={`relative overflow-hidden group rounded-2xl border ${card.borderColor} bg-white/[0.03] backdrop-blur-md p-6 transition-all hover:bg-white/[0.05] hover:border-white/10`}
+                    whileHover={{ y: -8, scale: 1.02 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                    className={`relative overflow-hidden group rounded-[2.5rem] border ${card.border} bg-white p-8 shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-yellow-500/10 transition-all duration-500`}
                 >
-                    <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white opacity-[0.02] group-hover:opacity-[0.05] transition-opacity" />
+                    <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+                        <card.icon className="h-24 w-24" />
+                    </div>
                     
-                    <div className="flex items-start justify-between">
-                        <div className="space-y-1">
-                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">{card.title}</p>
-                            <h3 className="text-3xl font-bold text-white tracking-tight">{card.value}</h3>
+                    <div className="flex items-start justify-between relative z-10">
+                        <div className="space-y-2">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{card.title}</p>
+                            <h3 className="text-4xl font-black text-slate-900 tracking-tighter">{card.value}</h3>
                         </div>
-                        <div className={`p-3 rounded-xl bg-white/5 border border-white/5 ${card.color}`}>
-                            <card.icon className="h-5 w-5" />
+                        <div className={`p-4 rounded-2xl ${card.bg} border border-transparent group-hover:border-current/10 transition-colors ${card.color}`}>
+                            <card.icon className="h-6 w-6" />
                         </div>
                     </div>
                     
-                    <div className="mt-4 flex items-center gap-2">
-                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full bg-white/5 text-gray-400 border border-white/5 group-hover:border-white/10 transition-colors`}>
+                    <div className="mt-8 flex items-center justify-between relative z-10">
+                        <span className={`text-[10px] font-bold px-3 py-1 rounded-full bg-slate-50 text-slate-500 border border-slate-100 group-hover:bg-white group-hover:border-slate-200 transition-all`}>
                             {card.subValue}
                         </span>
+                        <div className="h-1 w-12 bg-slate-100 rounded-full overflow-hidden">
+                            <motion.div 
+                                initial={{ width: 0 }}
+                                animate={{ width: '60%' }}
+                                transition={{ delay: index * 0.1 + 0.5, duration: 1 }}
+                                className={`h-full ${card.color.replace('text', 'bg')} opacity-40`}
+                            />
+                        </div>
                     </div>
                 </motion.div>
             ))}
