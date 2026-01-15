@@ -1,17 +1,4 @@
-import React from "react";
-import { 
-  Trophy, 
-  History, 
-  ChevronRight, 
-  GraduationCap, 
-  TrendingUp,
-  Lock,
-  Star
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Quiz } from "@/types/quiz";
-import { getCategoryConfig } from "@/utils/quizColors";
-import { Button } from "../ui/button";
+import { motion } from "framer-motion";
 
 interface AdventureQuizCardProps {
   quiz: Quiz;
@@ -33,85 +20,110 @@ export const AdventureQuizCard: React.FC<AdventureQuizCardProps> = ({
   const categoryConfig = getCategoryConfig(categoryName);
 
   return (
-    <div
+    <motion.div
+      whileHover={isPlayable ? { y: -5, scale: 1.02 } : {}}
+      whileTap={isPlayable ? { scale: 0.98 } : {}}
       onClick={isPlayable ? onClick : undefined}
       className={cn(
-        "relative flex items-center p-3 sm:p-5 bg-white border rounded-[24px] shadow-sm transition-all duration-300 w-full max-w-[360px] sm:max-w-[420px]",
-        isPlayed ? "border-[#FFB800]/30 shadow-yellow-50/50" : "border-gray-100",
-        isPlayable && !isPlayed ? `ring-2 ring-[#FFB800]/10` : "",
-        isPlayable && !isLocked ? "hover:shadow-md cursor-pointer hover:translate-y-[-2px]" : "opacity-75 cursor-not-allowed",
-        isLocked && "bg-gray-50/50 grayscale-[0.8]"
+        "relative flex items-center p-4 sm:p-6 bg-white border rounded-[32px] shadow-sm transition-all duration-300 w-full max-w-[400px]",
+        isPlayed ? "border-[#FFB800]/20 shadow-xl shadow-yellow-50/50" : "border-gray-100",
+        isPlayable && !isPlayed ? `ring-4 ring-[#FFB800]/5 border-[#FFB800]/20` : "",
+        isPlayable && !isLocked ? "cursor-pointer" : "opacity-80 cursor-not-allowed",
+        isLocked && "bg-gray-50/30 grayscale-[1]"
       )}
-      style={isPlayable && !isPlayed ? { 
-        borderColor: `${categoryConfig.color}40`, 
-        boxShadow: `0 4px 12px ${categoryConfig.color}15` 
-      } : {}}
     >
+      {/* Dynamic Background Pattern */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none overflow-hidden rounded-[32px]">
+        <svg width="100%" height="100%">
+          <pattern id="pattern-quiz" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="1" fill="currentColor" />
+          </pattern>
+          <rect width="100%" height="100%" fill="url(#pattern-quiz)" />
+        </svg>
+      </div>
+
       {/* Icon Section */}
       <div className={cn(
-        "flex-shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-full flex items-center justify-center shadow-inner mr-4 sm:mr-6 transition-transform duration-500",
-        isPlayed ? "scale-105 shadow-lg" : 
-        isPlayable ? "animate-pulse" : 
-        "bg-gray-200"
+        "flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center shadow-lg mr-4 sm:mr-6 relative overflow-hidden group",
+        isPlayed ? "shadow-yellow-100" : isPlayable ? "shadow-blue-50" : "bg-gray-100"
       )}
       style={{
-        backgroundColor: isPlayed || isPlayable ? categoryConfig.color : '#E5E7EB'
+        background: isPlayed || isPlayable 
+          ? `linear-gradient(135deg, ${categoryConfig.color}, ${categoryConfig.color}dd)` 
+          : '#f3f4f6'
       }}>
+        {/* Shine Effect */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+        
         {isPlayed ? (
-          <Trophy className="w-7 h-7 sm:w-10 sm:h-10 text-white drop-shadow-sm" />
+          <Trophy className="w-8 h-8 sm:w-10 sm:h-10 text-white drop-shadow-md" />
         ) : isPlayable ? (
-          <Star className="w-7 h-7 sm:w-10 sm:h-10 text-white fill-white" />
+          <Star className="w-8 h-8 sm:w-10 sm:h-10 text-white fill-white animate-pulse" />
         ) : (
-          <Lock className="w-7 h-7 sm:w-10 sm:h-10 text-gray-400" />
+          <Lock className="w-8 h-8 sm:w-10 sm:h-10 text-gray-300" />
         )}
       </div>
 
       {/* Content Section */}
-      <div className="flex-grow min-w-0 pr-8">
+      <div className="flex-grow min-w-0 pr-6 relative">
         <div className="flex items-center gap-2 mb-1.5">
           <h3 className={cn(
-            "text-base sm:text-lg font-bold tracking-tight leading-tight",
-            isLocked ? "text-gray-400" : "text-gray-900"
+            "text-base sm:text-xl font-black tracking-tight leading-tight uppercase italic",
+            isLocked ? "text-gray-300" : "text-gray-900"
           )}>
             {quiz.titre}
           </h3>
-          {isLocked && <Lock className="w-4 h-4 text-gray-400" />}
         </div>
         
-        <div className="flex flex-col gap-1 mb-3">
-          <div className="flex items-center gap-1.5 text-gray-500 text-xs sm:text-sm font-medium">
-            <GraduationCap className="w-4 h-4 text-gray-400" />
-            <span className="truncate">{categoryName}</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-gray-400 text-[10px] sm:text-xs">
-            <TrendingUp className="w-3.5 h-3.5" />
-            <span>{quiz.niveau || "Débutant"}</span>
+        <div className="flex flex-col gap-2 mb-4">
+          <div className="flex items-center gap-2">
+            <div 
+              className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter text-white italic"
+              style={{ backgroundColor: isLocked ? '#d1d5db' : categoryConfig.color }}
+            >
+              {categoryName}
+            </div>
+            <div className="flex items-center gap-1 text-gray-400 text-[10px] uppercase font-black italic">
+              <TrendingUp className="w-3 h-3" />
+              <span>{quiz.niveau || "Débutant"}</span>
+            </div>
           </div>
         </div>
 
         {/* Historique Button */}
         {isPlayed && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              onHistoryClick(e);
-            }}
-            className="h-9 px-4 text-xs rounded-xl bg-white text-[#FFB800] border-[#FFB800]/40 font-bold hover:bg-[#FFB800]/5 flex items-center gap-2 transition-colors"
-          >
-            <History className="w-4 h-4" />
-            Historique
-          </Button>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onHistoryClick(e);
+              }}
+              className="h-8 px-3 text-[10px] rounded-full bg-white text-gray-900 border-gray-200 font-black uppercase italic hover:bg-gray-50 flex items-center gap-1.5 transition-all shadow-sm"
+            >
+              <History className="w-3 h-3" />
+              Historique
+            </Button>
+          </motion.div>
         )}
       </div>
 
-      {/* Chevron Arrow */}
-      {(isPlayable || isPlayed) && !isLocked && (
-        <div className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 text-gray-300">
-          <ChevronRight className="w-6 h-6" />
-        </div>
-      )}
-    </div>
+      {/* Chevron Arrow / Status Indicator */}
+      <div className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 flex flex-col items-center">
+        {(isPlayable || isPlayed) && !isLocked ? (
+           <div className={cn(
+             "w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center bg-gray-50/50 group-hover:bg-white transition-colors",
+             isPlayed ? "text-[#FFB800]" : "text-gray-300"
+           )}>
+             <ChevronRight className="w-5 h-5" />
+           </div>
+        ) : (
+          <div className="w-8 h-8 rounded-full border border-gray-50 flex items-center justify-center bg-gray-50/30">
+             <Lock className="w-4 h-4 text-gray-200" />
+          </div>
+        )}
+      </div>
+    </motion.div>
   );
 };
