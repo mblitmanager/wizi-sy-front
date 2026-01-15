@@ -324,62 +324,7 @@ export const StagiaireQuizAdventure: React.FC<{
   return (
     <div className="relative flex flex-col items-center w-full min-h-screen bg-[#fafafa]">
       {/* Premium Header - Adventure Styled */}
-      <div className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
-        <div className="flex flex-col max-w-4xl mx-auto w-full px-4 sm:px-6 py-3">
-          <div className="flex items-center justify-between h-10">
-            <div className="flex items-center gap-3">
-              {/* Home Button */}
-              <button
-                onClick={() => navigate('/')}
-                className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center transition-colors"
-                title="Accueil"
-              >
-                <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-              </button>
-              <div className="w-10 h-10 bg-[#FFB800] rounded-xl flex items-center justify-center shadow-lg shadow-yellow-200 rotate-12">
-                <Trophy className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-black text-gray-900 tracking-tight italic uppercase leading-none">Aventure</h1>
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Quiz Express</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3">
-
-              
-              {/* Mode Toggle - Adventure/List Switch */}
-              <div className="flex items-center gap-2 bg-gray-100 rounded-full px-2 py-1">
-                <span className="text-[10px] font-bold text-gray-500 uppercase hidden sm:block">Liste</span>
-                <button
-                  onClick={() => navigate('/quiz')}
-                  className="relative w-12 h-6 bg-gray-900 rounded-full transition-colors"
-                  title="Basculer vers mode Liste"
-                >
-                  <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-all" />
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          {/* Progress Bar in Header */}
-          <div className="mt-4 flex items-center gap-3">
-            <div className="flex-grow h-2 bg-gray-100 rounded-full overflow-hidden">
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: `${progressPercentage}%` }}
-                transition={{ duration: 1, ease: "easeOut" }}
-                className="h-full bg-gradient-to-r from-[#FFB800] to-[#FFD700]"
-              />
-            </div>
-            {/* <span className="text-[10px] font-bold text-gray-500 whitespace-nowrap uppercase">
-              {playedIds.size} / {computed.list.length} Complétés
-            </span> */}
-          </div>
-        </div>
-      </div>
+      
 
 
       {/* Main Adventure Content */}
@@ -406,7 +351,7 @@ export const StagiaireQuizAdventure: React.FC<{
         ) : (
           <div className="relative w-full">
             {/* Timeline Path Line - Centered on Desktop, Left on Mobile */}
-            <div className="absolute left-[1.5rem] md:left-1/2 -translate-x-1/2 top-4 bottom-4 w-[4px] bg-gray-100 z-0">
+            <div className="absolute left-[1.5rem] md:left-1/2 md:-translate-x-1/2 top-4 bottom-4 w-[3px] sm:w-[4px] bg-gray-100 z-0">
                {/* Animated Progress Path */}
                <motion.div 
                  initial={{ height: 0 }}
@@ -418,7 +363,7 @@ export const StagiaireQuizAdventure: React.FC<{
             </div>
 
             {/* Quiz List with Alternating Cards */}
-            <div className="flex flex-col gap-24 sm:gap-32 relative z-10 w-full">
+            <div className="flex flex-col gap-16 sm:gap-24 md:gap-32 relative z-10 w-full">
               {computed.list.map((quiz, index) => {
                 const quizId = String(quiz.id);
                 const played = playedIds.has(quizId);
@@ -438,8 +383,8 @@ export const StagiaireQuizAdventure: React.FC<{
                     transition={{ duration: 0.6, delay: 0.1 }}
                     className={cn(
                       "relative flex w-full items-center",
-                      // Mobile: always data flow right
-                      "flex-row",
+                      // Mobile: alternate left/right
+                      isRight ? "flex-row" : "flex-row-reverse",
                       // Desktop: alternate (isRight=true -> row-reverse to put card on Right)
                       isRight ? "md:flex-row-reverse" : "md:flex-row"
                     )}
@@ -449,7 +394,7 @@ export const StagiaireQuizAdventure: React.FC<{
                       <motion.div 
                         whileHover={{ scale: 1.2 }}
                         className={cn(
-                          "w-12 h-12 rounded-full border-4 bg-white flex items-center justify-center shadow-lg transition-all duration-300",
+                          "w-10 h-10 sm:w-12 sm:h-12 rounded-full border-4 bg-white flex items-center justify-center shadow-lg transition-all duration-300",
                           !played && !playable ? "opacity-30 border-gray-100 scale-90" : "scale-100"
                         )}
                         style={{
@@ -458,7 +403,7 @@ export const StagiaireQuizAdventure: React.FC<{
                         }}
                       >
                         <div className={cn(
-                          "w-5 h-5 rounded-full transition-all duration-300",
+                          "w-4 h-4 sm:w-5 sm:h-5 rounded-full transition-all duration-300",
                           played || playable ? "animate-pulse" : "bg-transparent scale-0"
                         )} 
                         style={{
@@ -466,17 +411,19 @@ export const StagiaireQuizAdventure: React.FC<{
                         }} />
                         
                         {/* Number Indicator */}
-                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-white px-2 py-0.5 rounded-full border border-gray-100 shadow-sm">
-                          <span className="text-[10px] font-black italic text-gray-400">#{(index + 1).toString().padStart(2, '0')}</span>
+                        <div className="absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2 bg-white px-1.5 sm:px-2 py-0.5 rounded-full border border-gray-100 shadow-sm">
+                          <span className="text-[9px] sm:text-[10px] font-black italic text-gray-400">#{(index + 1).toString().padStart(2, '0')}</span>
                         </div>
                       </motion.div>
                     </div>
 
-                    {/* Card Side */}
+                    {/* Card Side - Mobile: Alternating left/right, Desktop: 50% width */}
                     <div className={cn(
                       "flex relative transition-all duration-300",
-                      // Mobile: Full width with minimized padding for line
-                      "w-full pl-[4.5rem] pr-2 justify-start",
+                      // Mobile: Alternating alignment with proper padding
+                      isRight 
+                        ? "w-full pl-[3.5rem] pr-2 sm:pl-[4.5rem] justify-start" // Right side (index pair): card on left
+                        : "w-full pr-[3.5rem] pl-2 sm:pr-[4.5rem] justify-end", // Left side (index impair): card on right
                       // Desktop: 50% width minus line half-width, alternating alignment
                       "md:w-[50%] md:p-0",
                       isRight 
@@ -495,7 +442,7 @@ export const StagiaireQuizAdventure: React.FC<{
                       />
                     </div>
 
-                    {/* Empty Side (Spacer) */}
+                    {/* Empty Side (Spacer) - Only on Desktop */}
                     <div className="md:w-[48%] hidden md:block" />
                   </motion.div>
                 );
