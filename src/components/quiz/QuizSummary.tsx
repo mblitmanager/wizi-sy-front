@@ -14,6 +14,7 @@ import QuizSummaryFooter from "../Summary/QuizSummaryFooter";
 import { Question } from "@/types/quiz";
 import quizimg from "../../assets/loading_img.png";
 import { useNextQuiz } from "@/hooks/quiz/useNextQuiz";
+import confetti from 'canvas-confetti';
 // Lazy load CountdownAnimation car affiché conditionnellement
 const CountdownAnimation = lazy(() => import("./CountdownAnimation").then(m => ({ default: m.CountdownAnimation })));
 
@@ -80,6 +81,42 @@ export function QuizSummary() {
       setResult(resultFromApi);
     }
   }, [resultFromState, resultFromApi]);
+
+  // Fonction pour déclencher les confettis
+  const triggerConfetti = () => {
+    const duration = 3 * 1000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+    function randomInRange(min: number, max: number) {
+      return Math.random() * (max - min) + min;
+    }
+
+    const interval = setInterval(function() {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+      // since particles fall down, start a bit higher than random
+      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+    }, 250);
+  };
+
+  // Déclencher les confettis sur réussite
+  useEffect(() => {
+    if (result && !notificationSent) {
+      const successThreshold = 80; // 80%
+      const percentage = (result.score / result.totalQuestions) * 100;
+
+      if (percentage >= successThreshold) {
+        triggerConfetti();
+      }
+    }
+  }, [result, notificationSent]);
 
   // Handle notifications for quiz results
   useEffect(() => {
@@ -162,9 +199,9 @@ export function QuizSummary() {
       return { questionsWithFlag: [], formattedUserAnswers: {} };
     }
 
-    const formattedAnswers: Record<string, any> = {};
+    const formattedAnswers: Record<string, string | number | Record<string, string | number> | (string | number)[] | null> = {};
 
-    const questionsWithPlayedFlag = result.questions.map((q: any) => {
+    const questionsWithPlayedFlag = result.questions.map((q: Question) => {
       let isPlayed = false;
       if (q.selectedAnswers !== null && q.selectedAnswers !== undefined) {
         if (Array.isArray(q.selectedAnswers)) {
@@ -217,7 +254,7 @@ export function QuizSummary() {
   // Filtrer les questions jouées - Memoized
   // MUST be called before any early returns to follow React's Rules of Hooks
   const playedQuestions = useMemo(
-    () => questionsWithFlag.filter((q: any) => q.isPlayed),
+    () => questionsWithFlag.filter((q: Question & { isPlayed: boolean }) => q.isPlayed),
     [questionsWithFlag]
   );
 

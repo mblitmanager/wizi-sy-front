@@ -123,6 +123,23 @@ export default function QuizAnswerCard({
           {isCorrect ? "✓ Bonne réponse" : "✗ Mauvaise réponse"}
         </span>
       </div>
+
+      {/* Explication - NOUVEAU */}
+      {question.explication && (
+        <div className="mt-4 p-4 rounded-lg bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 flex items-start gap-3">
+          <div className="w-6 h-6 rounded-md bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <span className="text-blue-600 dark:text-blue-400 font-bold text-xs">i</span>
+          </div>
+          <div className="space-y-1">
+            <h4 className="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase tracking-wider">
+              Le saviez-vous ?
+            </h4>
+            <p className="text-sm text-blue-700 dark:text-blue-400 italic">
+              {question.explication}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

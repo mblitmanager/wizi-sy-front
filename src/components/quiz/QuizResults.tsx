@@ -12,6 +12,7 @@ import { QuizSummary } from "./QuizSummary";
 import quizimg from "../../assets/loading_img.png";
 import { BadgeUnlockModal } from "@/components/profile/BadgeUnlockModal";
 import { useNewBadges } from "@/hooks/useNewBadges";
+import { Question, QuizResult } from "@/types/quiz";
 
 export function QuizResults() {
   const { quizId } = useParams<{ quizId: string }>();
@@ -24,8 +25,7 @@ export function QuizResults() {
   const { currentBadge, showModal, setShowModal, checkForNewBadges } = useNewBadges();
 
   // Store result state locally to avoid triggering re-renders
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<QuizResult | null>(null);
   const [notificationSent, setNotificationSent] = useState(false);
 
   // Check if the result was passed through navigation state
@@ -101,10 +101,8 @@ export function QuizResults() {
   }
 
   // Format data for QuizSummary component
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const formattedUserAnswers: Record<string, any> = {};
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  result.questions.forEach((q: any) => {
+  const formattedUserAnswers: Record<string, string | number | Record<string, string | number> | (string | number)[] | null> = {};
+  result.questions.forEach((q: Question) => {
     if (q.type === "rearrangement") {
       const isCorrect = isRearrangementCorrect(
         q.selectedAnswers,
