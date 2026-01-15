@@ -25,7 +25,14 @@ export function buildAvailableQuizzes(
   let filtered = all;
   if (formationId) {
     filtered = all.filter((q) => {
-      const qfId = (q as any).formationId || (q as any).formation?.id;
+      // Try multiple ways to get formation ID
+      const qfId = (q as any).formationId || 
+                   (q as any).formation?.id || 
+                   ((q as any).formations && Array.isArray((q as any).formations) && (q as any).formations[0]?.id) ||
+                   ((q as any).formations && (q as any).formations.id);
+      
+      // Only include if formation ID matches (exclude null/undefined/empty string)
+      if (!qfId) return false;
       return String(qfId) === String(formationId);
     });
   }

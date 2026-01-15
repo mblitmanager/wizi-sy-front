@@ -43,11 +43,12 @@ export class QuizFormatterService {
       id: quiz.id,
       titre: quiz.titre || quiz.title || '',
       description: quiz.description || '',
-      categorie: quiz.formation.categorie || quiz.category || '',
-      categorieId: quiz.formation.categorieId || quiz.category_id || quiz.categoryId || '',
+      categorie: quiz.formation?.categorie || quiz.category || '',
+      categorieId: quiz.formation?.categorieId || quiz.category_id || quiz.categoryId || '',
       niveau: quiz.niveau || quiz.level || '',
-      formations: quiz.formation || formations || [],
-      formationId: quiz.formationId || quiz.formation_id || quiz.formationId || '',
+      formations: quiz.formation ? [quiz.formation] : (formations || []),
+      formationId: quiz.formation?.id || quiz.formationId || quiz.formation_id || null,
+      formation: quiz.formation || null,
       questions: this.formatQuestions(quiz.questions || []),
       points: quiz.points || 0
     };

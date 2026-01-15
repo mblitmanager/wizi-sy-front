@@ -33,9 +33,7 @@ export function LevelUnlockIndicator({ userPoints, className }: LevelUnlockIndic
           <TrendingUp className="w-4 h-4 text-[#FFB800]" />
           <span className="text-xs font-bold uppercase text-gray-600">Niveaux Débloqués</span>
         </div>
-        <div className="text-[10px] font-bold text-gray-400 uppercase">
-          {unlockedCount} / 3
-        </div>
+  
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
