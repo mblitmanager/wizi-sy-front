@@ -328,7 +328,17 @@ export const StagiaireQuizAdventure: React.FC<{
         <div className="flex flex-col max-w-4xl mx-auto w-full px-4 sm:px-6 py-3">
           <div className="flex items-center justify-between h-10">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#FFB800] rounded-xl flex items-center justify-center shadow-lg shadow-yellow-200 rotation-12">
+              {/* Home Button */}
+              <button
+                onClick={() => navigate('/')}
+                className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center transition-colors"
+                title="Accueil"
+              >
+                <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+              </button>
+              <div className="w-10 h-10 bg-[#FFB800] rounded-xl flex items-center justify-center shadow-lg shadow-yellow-200 rotate-12">
                 <Trophy className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -337,12 +347,23 @@ export const StagiaireQuizAdventure: React.FC<{
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
-              <div className="flex flex-col items-end">
-                <div className="flex items-center gap-1.5 bg-gray-900 text-white px-3 py-1.5 rounded-full shadow-inner">
-                  <ChartSpline className="w-3.5 h-3.5 text-[#FFB800]" />
-                  <span className="text-xs font-black italic">{userPoints} pts</span>
-                </div>
+            <div className="flex items-center gap-3">
+              {/* Points Chip */}
+              <div className="flex items-center gap-1.5 bg-gray-900 text-white px-3 py-1.5 rounded-full shadow-inner">
+                <ChartSpline className="w-3.5 h-3.5 text-[#FFB800]" />
+                <span className="text-xs font-black italic">{userPoints} pts</span>
+              </div>
+              
+              {/* Mode Toggle - Adventure/List Switch */}
+              <div className="flex items-center gap-2 bg-gray-100 rounded-full px-2 py-1">
+                <span className="text-[10px] font-bold text-gray-500 uppercase hidden sm:block">Liste</span>
+                <button
+                  onClick={() => navigate('/quiz')}
+                  className="relative w-12 h-6 bg-gray-900 rounded-full transition-colors"
+                  title="Basculer vers mode Liste"
+                >
+                  <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-all" />
+                </button>
               </div>
             </div>
           </div>
@@ -357,12 +378,13 @@ export const StagiaireQuizAdventure: React.FC<{
                 className="h-full bg-gradient-to-r from-[#FFB800] to-[#FFD700]"
               />
             </div>
-            <span className="text-[10px] font-bold text-gray-500 whitespace-nowrap uppercase">
+            {/* <span className="text-[10px] font-bold text-gray-500 whitespace-nowrap uppercase">
               {playedIds.size} / {computed.list.length} Complétés
-            </span>
+            </span> */}
           </div>
         </div>
       </div>
+
 
       {/* Main Adventure Content */}
       <div className="relative flex flex-col items-center w-full px-4 sm:px-6 max-w-4xl mx-auto py-8 sm:py-16 flex-grow overflow-x-hidden">
