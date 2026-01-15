@@ -69,7 +69,7 @@ export const AnnouncementHistory = ({ refreshTrigger }: { refreshTrigger?: numbe
                     <div className="text-gray-500 text-sm">Aucune annonce trouvée.</div>
                 ) : (
                     history.map((item) => (
-                        <Card key={item.id} className="p-4 bg-[#1a1a1a] border-[#333] hover:bg-[#222] transition-colors relative group">
+                        <Card key={item.id} className="p-4     transition-colors relative group">
                             <div className="flex justify-between items-start mb-2">
                                 <h3 className="font-semibold text-white">{item.title}</h3>
                                 <div className="flex items-center gap-2">
@@ -95,7 +95,7 @@ export const AnnouncementHistory = ({ refreshTrigger }: { refreshTrigger?: numbe
                                                 <Trash2 size={14} />
                                             </Button>
                                         </AlertDialogTrigger>
-                                        <AlertDialogContent className="bg-[#1a1a1a] border-[#333] text-white">
+                                        <AlertDialogContent className="  ">
                                             <AlertDialogHeader>
                                                 <AlertDialogTitle>Supprimer l'annonce ?</AlertDialogTitle>
                                                 <AlertDialogDescription className="text-gray-400">
@@ -105,7 +105,7 @@ export const AnnouncementHistory = ({ refreshTrigger }: { refreshTrigger?: numbe
                                                 </AlertDialogDescription>
                                             </AlertDialogHeader>
                                             <AlertDialogFooter>
-                                                <AlertDialogCancel className="bg-[#0a0a0a] text-white border-[#333] hover:bg-[#222]">Annuler</AlertDialogCancel>
+                                                <AlertDialogCancel className=" text-white  ">Annuler</AlertDialogCancel>
                                                 <AlertDialogAction 
                                                     className="bg-red-600 hover:bg-red-700 text-white"
                                                     onClick={(e) => handleDelete(item.id, e)}

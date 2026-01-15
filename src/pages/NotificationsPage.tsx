@@ -42,28 +42,40 @@ const NotificationItem = ({
   notification,
   markAsRead,
   deleteNotification,
+  user,
 }: {
   notification: AppNotification;
   markAsRead: (id: number | string) => void;
   deleteNotification: (id: number | string) => void;
+  user: any;
 }) => {
   const navigate = useNavigate();
 
-  // Redirection logic based on notification type
+  // Redirection logic based on notification type and user role
   const handleClick = () => {
     if (!notification.read) markAsRead(notification.id);
+    
+    // Role-aware redirection
+    const userRole = (user as any)?.user?.role || user?.role;
+    const isFormateur = userRole === 'formateur' || userRole === 'formatrice';
+    const isAdmin = userRole === 'admin';
+
     switch (notification.type) {
       case "quiz":
-        navigate("/quiz");
+        navigate(isFormateur ? "/formateur/dashboard" : "/quizzes");
         break;
       case "formation":
-        navigate("/formations");
+        navigate(isFormateur ? "/formateur/dashboard" : "/formations");
         break;
       case "badge":
-        navigate("/badges");
+        navigate(isFormateur ? "/formateur/dashboard" : "/profile/badges");
         break;
       case "media":
-        navigate("/tuto-astuce");
+        navigate(isFormateur ? "/formateur/videos" : "/tuto-astuce");
+        break;
+      case "announcement":
+        if (isAdmin) navigate("/admin/announcements");
+        else if (isFormateur) navigate("/formateur/announcements");
         break;
       default:
         // No redirection for unknown types
@@ -128,14 +140,18 @@ function loadNotificationsFromSession(): AppNotification[] {
   try {
     const data = sessionStorage.getItem('notifications');
     if (data) return JSON.parse(data);
-  } catch { }
+  } catch (error) {
+    console.error('Error loading notifications from session:', error);
+  }
   return [];
 }
 // Helper to save notifications to sessionStorage
 function saveNotificationsToSession(notifs: AppNotification[]) {
   try {
     sessionStorage.setItem('notifications', JSON.stringify(notifs));
-  } catch { }
+  } catch (error) {
+    console.error('Error saving notifications to session:', error);
+  }
 }
 
 // Page principale
@@ -347,6 +363,7 @@ export default function NotificationsPage() {
                   notification={notification}
                   markAsRead={handleMarkAsRead}
                   deleteNotification={handleDelete}
+                  user={user}
                 />
               </div>
             ))}

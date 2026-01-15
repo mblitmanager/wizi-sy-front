@@ -4,6 +4,7 @@ import {
     Trophy,
     Video,
     Megaphone,
+    Bell,
 } from "lucide-react";
 import { NavItem } from "./stagiaire";
 
@@ -18,8 +19,8 @@ export const getFormateurNavigation = () => ({
         {
             title: "Communications",
             href: "/formateur/communications",
-            icon: Mail,
-            color: "text-green-600",
+            icon: Megaphone,
+            color: "text-orange-600",
         },
         {
             title: "Classement",
@@ -34,10 +35,10 @@ export const getFormateurNavigation = () => ({
             color: "text-purple-600",
         },
         {
-            title: "Annonces",
-            href: "/formateur/announcements",
-            icon: Megaphone,
-            color: "text-orange-600",
+            title: "Notifications",
+            href: "/notifications",
+            icon: Bell,
+            color: "text-yellow-600",
         },
     ] as NavItem[],
 });

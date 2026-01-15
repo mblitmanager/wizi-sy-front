@@ -427,7 +427,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(FormateurCommunicationsPage)
+      Loadable(AnnouncementsPage)
     ),
   },
   {

@@ -7,7 +7,7 @@ export interface User {
   points: number;
   level: number;
   stagiaire: Stagiaire;
-  role?: "stagiaire" | "admin";
+  role?: "stagiaire" | "admin" | "formateur" | "formatrice" | "commercial";
   avatar?: string;
   progress?: Progress;
   user: {
