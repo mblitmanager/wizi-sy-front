@@ -230,6 +230,7 @@ export const ContactCard = ({
                         }`}
                         alt={formattedName}
                       />
+                        
                       <AvatarFallback
                         className="text-white font-semibold"
                         style={{ backgroundColor: roleColor.main }}>
