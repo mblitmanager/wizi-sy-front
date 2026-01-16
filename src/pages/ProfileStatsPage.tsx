@@ -121,6 +121,8 @@ const ProfileStatsPage = () => {
   // Fonction pour calculer les performances détaillées
   const detailedStats = useMemo(() => {
     if (quizHistory.length === 0) return null;
+    
+    const validHistory = Array.isArray(quizHistory) ? quizHistory : [];
 
     const percentages = recentResultsData
       .map((r) => r.percentage || 0)
@@ -137,10 +139,38 @@ const ProfileStatsPage = () => {
       return percentage >= 80;
     }).length;
 
+    // Calcul des statistiques par niveau
+    const statsByLevel = validHistory.reduce((acc, quiz) => {
+      // Normaliser le niveau (gestion des cas null/undefined et majuscules/minuscules)
+      const rawLevel = quiz.quiz?.level || quiz.quiz?.niveau || "Non défini";
+      // Capitalize first letter
+      const level = rawLevel.charAt(0).toUpperCase() + rawLevel.slice(1).toLowerCase();
+
+      if (!acc[level]) {
+        acc[level] = {
+          count: 0,
+          totalPercentage: 0,
+          averageScore: 0
+        };
+      }
+
+      const totalQuestions = quiz.totalQuestions || 0;
+      const correctAnswers = quiz.correctAnswers || 0;
+      const percentage =
+        totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
+
+      acc[level].count += 1;
+      acc[level].totalPercentage += percentage;
+      acc[level].averageScore = Math.round(acc[level].totalPercentage / acc[level].count);
+
+      return acc;
+    }, {} as Record<string, { count: number; totalPercentage: number; averageScore: number }>);
+
     return {
       bestScore,
       minScore,
       successfulQuizzes,
+      statsByLevel,
     };
   }, [quizHistory, recentResultsData]);
 
@@ -291,6 +321,40 @@ const ProfileStatsPage = () => {
               </div>
             </div>
           </div>
+
+          {/* Statistiques par Niveau */}
+          {detailedStats?.statsByLevel && Object.keys(detailedStats.statsByLevel).length > 0 && (
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm lg:col-span-2">
+              <h3 className="text-lg font-semibold mb-4 font-montserrat dark:text-white">
+                Statistiques par Niveau
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {Object.entries(detailedStats.statsByLevel).map(([level, data]) => (
+                  <div key={level} className="text-center p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
+                    <h4 className="font-semibold text-indigo-800 dark:text-indigo-300 mb-2">{level}</h4>
+                    <div className="flex justify-around items-center">
+                      <div>
+                        <div className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
+                          {data.count}
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          Quiz joués
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
+                          {data.averageScore}%
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          Score moyen
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Détails supplémentaires */}
           {detailedStats && (

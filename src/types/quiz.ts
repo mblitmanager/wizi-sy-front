@@ -112,10 +112,13 @@ export interface QuizHistory {
   id: string;
   quizId: string;
   quiz?: {
+    id?: string;
     title: string;
+    titre?: string;
     category: string;
     totalPoints?: number;
     level?: string;
+    niveau?: string;
   };
   score: number;
   completedAt: string;
