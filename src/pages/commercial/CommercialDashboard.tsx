@@ -13,28 +13,56 @@ import {
 } from 'lucide-react';
 import './CommercialDashboard.css';
 
+import { commercialService, CommercialDashboardStats } from '@/services/commercial/CommercialService';
+import { Loader2 } from 'lucide-react';
+
 export const CommercialDashboard = () => {
     const [activeTab, setActiveTab] = useState('overview');
+    const [stats, setStats] = useState<CommercialDashboardStats | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    // Mock data
-    const stats = {
-        totalTrainees: 84,
-        completion: 76,
-        avgScore: 88,
-    };
+    React.useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                setLoading(true);
+                const data = await commercialService.getDashboardStats();
+                setStats(data);
+                setError(null);
+            } catch (err) {
+                console.error('Error fetching commercial stats:', err);
+                setError('Erreur lors du chargement des données. Veuillez réessayer.');
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    const formationScores = [
-        { name: 'Onboard', value: 65 },
-        { name: 'AOPIA', value: 88 },
-        { name: 'Sales', value: 70 },
-        { name: 'Advanced', value: 72 },
-    ];
+        fetchStats();
+    }, []);
 
-    const completionData = [
-        { status: 'Completed', value: 76, color: '#10b981' },
-        { status: 'In Progress', value: 19, color: '#f59e0b' },
-        { status: 'Not Started', value: 5, color: '#ef4444' },
-    ];
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <Loader2 className="w-8 h-8 animate-spin text-[#f7931e]" />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="p-8 text-center text-red-500">
+                <p>{error}</p>
+                <button 
+                    onClick={() => window.location.reload()}
+                    className="mt-4 px-4 py-2 bg-[#f7931e] text-white rounded-md"
+                >
+                    Réessayer
+                </button>
+            </div>
+        );
+    }
+
+    const { summary, recentSignups, topFormations, signupTrends } = stats!;
 
     return (
         <div className="commercial-dashboard">
@@ -54,20 +82,20 @@ export const CommercialDashboard = () => {
                     {/* Stats Cards */}
                     <div className="stats-grid">
                         <StatCard
-                            title="Total Trainees"
-                            value={stats.totalTrainees}
+                            title="Inscriptions Totales"
+                            value={summary.totalSignups}
                             icon={<Users />}
                             color="#ff6b35"
                         />
                         <StatCard
-                            title="Completion"
-                            value={`${stats.completion}%`}
-                            icon={<Award />}
+                            title="Ce Mois"
+                            value={summary.signupsThisMonth}
+                            icon={<UserPlus />}
                             color="#10b981"
                         />
                         <StatCard
-                            title="Avg. Score"
-                            value={`${stats.avgScore}%`}
+                            title="Taux de Conversion"
+                            value={`${summary.conversionRate}%`}
                             icon={<TrendingUp />}
                             color="#f7931e"
                         />
@@ -77,13 +105,13 @@ export const CommercialDashboard = () => {
                     <div className="charts-row">
                         <div className="chart-card">
                             <div className="chart-header">
-                                <h3>Average Scores by Formation</h3>
-                                <p className="chart-subtitle">Last updated: 2 mins ago</p>
+                                <h3>Inscriptions (30j)</h3>
+                                <p className="chart-subtitle">Évolution quotidienne</p>
                             </div>
                             <BarChart
-                                data={formationScores}
+                                data={signupTrends}
                                 dataKey="value"
-                                xAxisKey="name"
+                                xAxisKey="date"
                                 color="#4ecdc4"
                                 height={250}
                             />
@@ -91,40 +119,25 @@ export const CommercialDashboard = () => {
 
                         <div className="chart-card">
                             <div className="chart-header">
-                                <h3>Training Completion Status</h3>
-                                <p className="chart-subtitle">All assigned trainees</p>
+                                <h3>Top Formations</h3>
+                                <p className="chart-subtitle">Par nombre d'inscriptions</p>
                             </div>
-                            <div className="completion-chart">
-                                <div className="donut-wrapper">
-                                    <svg viewBox="0 0 100 100" className="donut-svg">
-                                        <circle
-                                            cx="50"
-                                            cy="50"
-                                            r="40"
-                                            fill="none"
-                                            stroke="#10b981"
-                                            strokeWidth="20"
-                                            strokeDasharray="189 251"
-                                            transform="rotate(-90 50 50)"
-                                        />
-                                    </svg>
-                                    <div className="donut-center">
-                                        <span className="donut-value">{stats.completion}%</span>
-                                        <span className="donut-label">Done</span>
-                                    </div>
-                                </div>
-                                <div className="completion-legend">
-                                    {completionData.map((item, index) => (
-                                        <div key={index} className="legend-item">
-                                            <span
-                                                className="legend-dot"
-                                                style={{ backgroundColor: item.color }}
-                                            />
-                                            <span className="legend-label">{item.status}</span>
-                                            <span className="legend-value">({item.value}%)</span>
+                            <div className="top-formations-list">
+                                {topFormations.map((formation, index) => (
+                                    <div key={index} className="formation-item">
+                                        <div className="formation-info">
+                                            <span className="formation-name">{formation.name}</span>
+                                            <span className="formation-price">{formation.price > 0 ? `${formation.price}€` : 'Gratuit'}</span>
                                         </div>
-                                    ))}
-                                </div>
+                                        <div className="formation-meter">
+                                            <div 
+                                                className="meter-fill" 
+                                                style={{ width: `${(formation.enrollments / topFormations[0].enrollments) * 100}%` }}
+                                            />
+                                            <span className="meter-value">{formation.enrollments} s.</span>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -152,17 +165,59 @@ export const CommercialDashboard = () => {
                     </div>
                 </TabsContent>
 
-                <TabsContent value="engagement" className="tab-content">
-                    <div className="placeholder-content">
-                        <h3>Engagement Metrics</h3>
-                        <p>Statistiques d'engagement à venir...</p>
+                 <TabsContent value="engagement" className="tab-content">
+                    <div className="engagement-overview">
+                        <div className="chart-card full-width">
+                            <h3>Engagement des Stagiaires</h3>
+                            <BarChart
+                                data={signupTrends} // Fallback or dedicated metric
+                                dataKey="value"
+                                xAxisKey="date"
+                                color="#f7931e"
+                                height={300}
+                            />
+                        </div>
                     </div>
                 </TabsContent>
 
                 <TabsContent value="individual" className="tab-content">
-                    <div className="placeholder-content">
-                        <h3>Individual Tracking</h3>
-                        <p>Suivi individuel des stagiaires à venir...</p>
+                    <div className="trainees-table-card">
+                        <div className="card-header">
+                            <h3>Inscriptions Récentes</h3>
+                            <div className="header-actions">
+                                <button className="btn-secondary">Exporter</button>
+                            </div>
+                        </div>
+                        <div className="table-wrapper">
+                            <table className="trainees-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Email</th>
+                                        <th>Rôle</th>
+                                        <th>Date d'inscription</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {recentSignups.map((user) => (
+                                        <tr key={user.id}>
+                                            <td className="font-medium">{user.name}</td>
+                                            <td>{user.email}</td>
+                                            <td>
+                                                <span className={`role-badge ${user.role}`}>
+                                                    {user.role}
+                                                </span>
+                                            </td>
+                                            <td>{new Date(user.created_at).toLocaleDateString()}</td>
+                                            <td>
+                                                <button className="text-[#f7931e] hover:underline">Détails</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </TabsContent>
             </Tabs>
