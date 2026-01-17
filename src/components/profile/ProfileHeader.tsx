@@ -6,7 +6,6 @@ import axios from "axios";
 import { useUser } from "@/hooks/useAuth";
 import { UserProgress } from "@/types/quiz";
 import { toast } from "sonner";
-import { CameraIcon } from "lucide-react";
 
 // Type utilisateur
 export interface User {
@@ -55,8 +54,6 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress, achieveme
   const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
   const VITE_API_URL = import.meta.env.VITE_API_URL;
   const { logout, refetchUser } = useUser();
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [loading, setLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(true);
 
@@ -97,61 +94,6 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress, achieveme
   const effectiveAchievements = achievements !== undefined ? achievements : localAchievements;
   const effectiveLoading = achievementsLoading !== undefined ? achievementsLoading : localAchievementsLoading;
 
-  const handleImageClick = useCallback(() => {
-    fileInputRef.current?.click();
-  }, []);
-
-  const handleImageChange = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-
-      const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-      const maxSize = 5 * 1024 * 1024;
-
-      if (!validTypes.includes(file.type)) {
-        toast.error(
-          "Type de fichier invalide. Veuillez choisir un JPEG, PNG ou GIF."
-        );
-        return;
-      }
-
-      if (file.size > maxSize) {
-        toast.error("Fichier trop volumineux. Taille maximale : 5MB.");
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("image", file);
-
-      setLoading(true);
-      setImageError(false);
-
-      try {
-        await axios.post(
-          `${VITE_API_URL}/avatar/${user?.user?.id}/update-profile`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        toast.success("Image mise à jour avec succès");
-        await refetchUser();
-      } catch (error) {
-        setImageError(true);
-        toast.error("Erreur lors de la mise à jour de l'image");
-      } finally {
-        setLoading(false);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
-      }
-    },
-    [VITE_API_URL, user, refetchUser]
-  );
 
   const { t } = useTranslation();
 
@@ -188,15 +130,6 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress, achieveme
   }, [user?.stagiaire, user?.user?.adresse]);
 
   const renderImage = (className: string) => {
-    if (loading) {
-      return (
-        <div
-          className={`${className} bg-gray-200 dark:bg-gray-700 flex items-center justify-center`}
-        >
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brown-shade"></div>
-        </div>
-      );
-    }
 
     if (imageUrl && !imageError) {
       return (
@@ -246,20 +179,6 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress, achieveme
               <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden shadow-lg">
                 {renderImage("w-full h-full")}
               </div>
-              <button
-                onClick={handleImageClick}
-                className="absolute bottom-2 right-2 bg-white dark:bg-gray-700 p-2 rounded-full shadow-md hover:scale-110 transition-transform"
-                aria-label="Changer la photo de profil"
-              >
-                <CameraIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              </button>
-              <input
-                type="file"
-                ref={fileInputRef}
-                className="hidden"
-                accept="image/*"
-                onChange={handleImageChange}
-              />
             </div>
 
             {/* Informations utilisateur compactes */}
@@ -291,19 +210,8 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress, achieveme
                 <div>
                   <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
                     {user?.user?.name || user?.stagiaire?.prenom || t("common.user_default")}
-                    {user?.stagiaire?.prenom && user?.user?.name ? ` (${user.stagiaire.prenom})` : ""}
                   </h1>
                 </div>
-                <button
-                  onClick={() => window.location.href = '/profile/edit'}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium shadow-sm"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                  </svg>
-                  Modifier mon profil
-                </button>
               </div>
             </div>
 

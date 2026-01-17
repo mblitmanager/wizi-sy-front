@@ -56,7 +56,6 @@ const ProfileFormationsPage = lazy(
   () => import("@/pages/ProfileFormationsPage")
 );
 const ProfileStatsPage = lazy(() => import("@/pages/ProfileStatsPage"));
-const ProfileEditPage = lazy(() => import("@/pages/ProfileEditPage"));
 const StatisticsDashboard = lazy(() =>
   import("@/pages/admin/StatisticsDashboard").then((module) => ({
     default: module.StatisticsDashboard,
@@ -252,14 +251,6 @@ export const routes = [
       ProtectedRoute,
       undefined,
       Loadable(ProfileStatsPage)
-    ),
-  },
-  {
-    path: "/profile/edit",
-    element: React.createElement(
-      ProtectedRoute,
-      undefined,
-      Loadable(ProfileEditPage)
     ),
   },
   {

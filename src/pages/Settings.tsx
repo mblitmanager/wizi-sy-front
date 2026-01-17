@@ -3,13 +3,12 @@ import { Layout } from "@/components/layout/Layout";
 import useDisplaySettings from "@/hooks/useDisplaySettings";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import ProfileSettings from "@/components/profile/ProfileSettings";
 import { ErrorState } from "@/components/quiz/quiz-play/ErrorState";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/hooks/useAuth";
 
 const Settings = () => {
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState("display");
   const { user } = useUser();
   const { settings, setInterfaceChoice, setShowTutorials, reset } =
     useDisplaySettings();
@@ -32,15 +31,11 @@ const Settings = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-8">
-            <TabsTrigger value="profile">Profil</TabsTrigger>
             <TabsTrigger value="display">Affichage</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
             <TabsTrigger value="security">Sécurité</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="profile">
-            <ProfileSettings />
-          </TabsContent>
 
           <TabsContent value="display">
             <Card className="p-6">

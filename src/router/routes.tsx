@@ -27,11 +27,6 @@ profile: {
     component: withSuspense(lazy(() => import("@/pages/Profile"))),
       preload: () => import("@/pages/Profile"),
   },
-profileEdit: {
-  path: "/profile/edit",
-    component: withSuspense(lazy(() => import("@/pages/ProfileEditPage"))),
-      preload: () => import("@/pages/ProfileEditPage"),
-  },
 profileBadges: {
   path: "/profile/badges",
     component: withSuspense(lazy(() => import("@/pages/ProfileBadgesPage"))),
