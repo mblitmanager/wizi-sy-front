@@ -136,9 +136,12 @@ export default function TutoAstucePage() {
 
   // Hooks
   const { user } = useUser();
-  const { data: formations = [] } = useFormationStagiaire(user?.stagiaire.id ?? null);
-  const { data: mediasData } = useMediaByFormation(selectedFormationId);
-  const formationsWithTutos = useMemo(() => formations.data ?? [], [formations]);
+  const { data: formations } = useFormationStagiaire(user?.stagiaire?.id ?? null);
+  const formationsWithTutos = useMemo(() => {
+    if (!formations) return [];
+    const rawData = Array.isArray(formations) ? formations : (formations.data ?? []);
+    return rawData;
+  }, [formations]);
 
   // Derived data
   const tutoriels = mediasData?.tutoriels ?? [];
@@ -156,7 +159,8 @@ export default function TutoAstucePage() {
   // Initialize
   useEffect(() => {
     if (!selectedFormationId && formationsWithTutos.length > 0) {
-      setSelectedFormationId(formationsWithTutos[0].id.toString());
+      const firstId = formationsWithTutos[0]?.id;
+      if (firstId) setSelectedFormationId(firstId.toString());
     }
   }, [formationsWithTutos, selectedFormationId]);
 
