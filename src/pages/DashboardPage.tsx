@@ -19,6 +19,7 @@ import illustration from "../assets/Information tab-bro.png";
 import { DASHBOARD, FORMATIONMETADATA } from "@/utils/constants";
 import { BadgeUnlockModal } from "@/components/profile/BadgeUnlockModal";
 import { useNewBadges } from "@/hooks/useNewBadges";
+import AlertsWidget from "@/components/formateur/AlertsWidget";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -102,6 +103,12 @@ export default function DashboardPage() {
             {DASHBOARD}
           </h1>
         </div>
+        
+        {/* Alerts Widget for Formateurs */}
+        {(user?.role === 'formateur' || user?.role === 'formatrice') && (
+          <AlertsWidget />
+        )}
+
         <div className="mt-2 space-y-6 md:space-y-12 mb-3">
           <Card className="border-blue-100">
             <CardContent className="p-3 md:p-6">

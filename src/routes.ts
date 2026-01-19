@@ -96,6 +96,21 @@ const ChallengesPage = lazy(() =>
     default: module.ChallengesPage,
   }))
 );
+const GestionFormations = lazy(() =>
+  import("@/pages/formateur/GestionFormations").then((module) => ({
+    default: module.default,
+  }))
+);
+const Analytiques = lazy(() =>
+  import("@/pages/formateur/Analytiques").then((module) => ({
+    default: module.default,
+  }))
+);
+const QuizCreator = lazy(() =>
+  import("@/pages/formateur/QuizCreator").then((module) => ({
+    default: module.default,
+  }))
+);
 const AboutPage = lazy(() => import("@/pages/AboutPage"));
 
 // Admin routes

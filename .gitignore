@@ -25,3 +25,9 @@ dist-ssr
 # Dependency directories
 .vite
 
+src/components/Contacts/Parrain1-aopia.txt
+src/components/Contacts/Parrain1-Like.txt
+src/components/Contacts/Parrain2-aopia.txt
+src/components/Contacts/Parrain2-Like.txt
+src/components/Contacts/parrain3-aopia.txt
+src/components/Contacts/parrain3-Like.txt
