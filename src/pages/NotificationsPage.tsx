@@ -95,6 +95,11 @@ const NotificationItem = ({
           {getNotificationIcon(notification.type)}
         </span>
         <div className="flex-1">
+          {notification.title && (
+            <h4 className="text-sm font-semibold text-gray-900 mb-0.5">
+              {notification.title}
+            </h4>
+          )}
           <p className="text-sm text-gray-700 mb-1">{notification.message}</p>
           <p className="text-xs text-gray-400">
             {(() => {

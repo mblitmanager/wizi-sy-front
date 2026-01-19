@@ -77,7 +77,12 @@ export function NotificationDropdown() {
               >
                 <span className="text-lg">{getNotificationIcon(notification.type)}</span>
                 <div className="flex-1 space-y-1">
-                  <p className="text-sm font-medium leading-none">
+                  {notification.title && (
+                    <p className="text-sm font-semibold leading-none text-gray-900">
+                      {notification.title}
+                    </p>
+                  )}
+                  <p className="text-sm font-medium leading-none text-muted-foreground">
                     {notification.message}
                   </p>
                   <p className="text-xs text-muted-foreground">

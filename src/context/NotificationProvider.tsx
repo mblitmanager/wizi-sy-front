@@ -116,6 +116,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       id: n.id || Date.now(), // Use timestamp as temp ID if missing
       user_id: n.user_id || 0,
       type: n.type || 'system',
+      title: n.title,
       message: n.message || '',
       data: n.data || {},
       read: !!n.read,

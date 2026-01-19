@@ -1,10 +1,11 @@
-import { api } from './api';
-import { BookOpen, Trophy, FileText } from 'lucide-react';
+import { api } from "./api";
+import { BookOpen, Trophy, FileText } from "lucide-react";
 
 export interface ApiNotification {
   id: number;
   user_id: number;
   type: string;
+  title?: string;
   message: string;
   data: Record<string, any> | null;
   read: boolean;
@@ -15,18 +16,24 @@ export interface ApiNotification {
 class NotificationService {
   // Browser Notification API helpers
   isNotificationSupported(): boolean {
-    return 'Notification' in window;
+    return "Notification" in window;
   }
 
   async requestPermission(): Promise<NotificationPermission> {
     if (!this.isNotificationSupported()) {
-      return 'denied';
+      return "denied";
     }
     return await Notification.requestPermission();
   }
 
-  async sendBrowserNotification(title: string, options?: NotificationOptions): Promise<Notification | null> {
-    if (!this.isNotificationSupported() || Notification.permission !== 'granted') {
+  async sendBrowserNotification(
+    title: string,
+    options?: NotificationOptions
+  ): Promise<Notification | null> {
+    if (
+      !this.isNotificationSupported() ||
+      Notification.permission !== "granted"
+    ) {
       return null;
     }
     return new Notification(title, options);
@@ -35,12 +42,12 @@ class NotificationService {
   // API Methods
   async getNotifications(): Promise<ApiNotification[]> {
     try {
-      const response = await api.get('/notifications');
+      const response = await api.get("/notifications");
       // Laravel returns { data: [...] }
       const notifications = response.data?.data || [];
       return Array.isArray(notifications) ? notifications : [];
     } catch (error) {
-      console.error('Erreur lors de la récupération des notifications:', error);
+      console.error("Erreur lors de la récupération des notifications:", error);
       return [];
     }
   }
@@ -49,16 +56,22 @@ class NotificationService {
     try {
       await api.post(`/notifications/${notificationId}/read`);
     } catch (error) {
-      console.error('Erreur lors du marquage de la notification comme lue:', error);
+      console.error(
+        "Erreur lors du marquage de la notification comme lue:",
+        error
+      );
       throw error;
     }
   }
 
   async markAllAsRead(): Promise<void> {
     try {
-      await api.post('/notifications/mark-all-read');
+      await api.post("/notifications/mark-all-read");
     } catch (error) {
-      console.error('Erreur lors du marquage de toutes les notifications comme lues:', error);
+      console.error(
+        "Erreur lors du marquage de toutes les notifications comme lues:",
+        error
+      );
       throw error;
     }
   }
@@ -71,17 +84,20 @@ class NotificationService {
       if (error.response && error.response.status === 404) {
         return;
       }
-      console.error('Erreur lors de la suppression de la notification:', error);
+      console.error("Erreur lors de la suppression de la notification:", error);
       throw error;
     }
   }
 
   async getUnreadCount(): Promise<number> {
     try {
-      const response = await api.get('/notifications/unread-count');
+      const response = await api.get("/notifications/unread-count");
       return response.data.count;
     } catch (error) {
-      console.error('Erreur lors de la récupération du nombre de notifications non lues:', error);
+      console.error(
+        "Erreur lors de la récupération du nombre de notifications non lues:",
+        error
+      );
       return 0;
     }
   }
