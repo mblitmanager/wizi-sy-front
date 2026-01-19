@@ -137,6 +137,8 @@ export default function TutoAstucePage() {
   // Hooks
   const { user } = useUser();
   const { data: formations } = useFormationStagiaire(user?.stagiaire?.id ?? null);
+  const { data: mediasData } = useMediaByFormation(selectedFormationId);
+
   const formationsWithTutos = useMemo(() => {
     if (!formations) return [];
     const rawData = Array.isArray(formations) ? formations : (formations.data ?? []);

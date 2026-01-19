@@ -85,9 +85,9 @@ export const ResumeQuizModal = ({
                 >
                     {quizTitle}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
+                {/* <Typography variant="body2" color="text.secondary" gutterBottom>
                     Progression : {currentProgress} / {questionCount} questions ({progressPercentage}%)
-                </Typography>
+                </Typography> */}
                 <Typography variant="body1" sx={{ mt: 2 }}>
                     Voulez-vous reprendre où vous vous étiez arrêté ?
                 </Typography>

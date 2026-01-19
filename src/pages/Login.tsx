@@ -32,11 +32,11 @@ const Login = () => {
 
     try {
       console.log("1. Début de la connexion");
-      await login(email, password);
+      const token = await login(email, password);
       console.log("2. Connexion réussie");
 
       // 🔍 Vérifier si le token est bien présent après login
-      const tokenAfterLogin = localStorage.getItem("token");
+      const tokenAfterLogin = token || localStorage.getItem("token");
       console.log(
         "3. Token après login:",
         tokenAfterLogin ? "PRÉSENT" : "ABSENT"
@@ -55,9 +55,12 @@ const Login = () => {
           const currentToken = await getToken(messaging, { vapidKey });
           console.log("8. Token FCM:", currentToken ? "OBTENU" : "NON OBTENU");
 
-          if (currentToken) {
+          if (currentToken && tokenAfterLogin) {
             console.log("9. Envoi du token FCM au backend");
-            await api.post("/fcm-token", { token: currentToken });
+            await api.post("/fcm-token", 
+              { token: currentToken },
+              { headers: { Authorization: `Bearer ${tokenAfterLogin}` } }
+            );
             console.log("10. Token FCM envoyé avec succès");
           }
         }
@@ -73,14 +76,14 @@ const Login = () => {
 
   // Redirect if already logged in
   if (user || localStorage.getItem("token")) {
-    const from = (location.state as any)?.from?.pathname;
+    const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
     
     if (from) {
       return <Navigate to={from} replace />;
     }
 
     // Default redirects based on role
-    const role = user?.role || (user as any)?.user?.role; // Handle potential nested user structure
+    const role = user?.role || user?.user?.role; // Typesafe access
     if (role === 'formateur' || role === 'formatrice') {
          return <Navigate to="/formateur/dashboard" replace />;
     }

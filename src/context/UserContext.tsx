@@ -16,7 +16,7 @@ interface UserContextType {
   user: User | null;
   token: string | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<string | null>;
   logout: () => Promise<void>;
   updateUser: (updatedUser: Partial<User>) => void;
   refetchUser: () => Promise<void>;
@@ -171,31 +171,24 @@ export function UserProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      // 🔥 NETTOYAGE SÉLECTIF - supprime seulement vos clés
-      const appKeys = [
-        "token",
-        "refresh_token", // Add refresh_token cleanup
-        "lastAchievementsCheckDate",
-        "lastStreakModalDate",
-        "wizi_display_settings_v1",
-        // Ajoutez ici toutes les clés de votre app
-      ];
-
-      appKeys.forEach((key) => {
-        localStorage.removeItem(key);
-        sessionStorage.removeItem(key);
-      });
-
-      // Remove any quiz session keys saved in local/session storage
+      // 🔥 NETTOYAGE RADICAL - Efface tout le stockage local et session
       try {
-        Object.keys(localStorage)
-          .filter((k) => k.startsWith("quiz_session_"))
-          .forEach((k) => localStorage.removeItem(k));
-        Object.keys(sessionStorage)
-          .filter((k) => k.startsWith("quiz_session_"))
-          .forEach((k) => sessionStorage.removeItem(k));
+        localStorage.clear();
+        sessionStorage.clear();
+        console.log("Storage cleared successfully");
       } catch (e) {
-        console.warn("Failed to clean quiz session keys on logout", e);
+        console.warn("Failed to clear storage completely", e);
+      }
+
+      // 🔥 NETTOYAGE DU CACHE NAVIGATEUR (Service Worker / Assets)
+      try {
+        if ("caches" in window) {
+          const cacheKeys = await caches.keys();
+          await Promise.all(cacheKeys.map((key) => caches.delete(key)));
+          console.log("All caches cleared successfully");
+        }
+      } catch (e) {
+        console.warn("Failed to clear browser cache", e);
       }
 
       // 🔥 Nettoie les cookies de votre domaine
@@ -218,6 +211,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       window.dispatchEvent(new Event("auth:logout"));
       toast.success("Déconnexion réussie", TOAST_STYLE);
+
+      // Forcer le rechargement pour tout remettre à zéro
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 500);
     } catch (error) {
       handleApiError(error, "Erreur lors de la déconnexion");
     } finally {
@@ -292,15 +290,22 @@ export function UserProvider({ children }: { children: ReactNode }) {
       );
 
       // Update for the new { data: { ... } } wrapper from Node.js
+      console.log("Login Response Data:", response.data);
       const loginResult = response.data.data || response.data;
-      const { token: newToken, refresh_token, user: userData } = loginResult;
+      
+      const newToken = loginResult.token || loginResult.access_token;
+      const refreshToken = loginResult.refresh_token || loginResult.refreshToken;
+      const userData = loginResult.user || loginResult.userData;
+
+      console.log("Extracted Token:", newToken ? "PRÉSENT" : "ABSENT");
 
       // Store tokens IMMEDIATELY (outside startTransition) to prevent race conditions
       if (newToken) {
         localStorage.setItem("token", newToken);
+        console.log("Token stored in localStorage");
       }
-      if (refresh_token) {
-        localStorage.setItem("refresh_token", refresh_token);
+      if (refreshToken) {
+        localStorage.setItem("refresh_token", refreshToken);
       }
 
       startTransition(() => {
@@ -310,9 +315,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
       });
 
       toast.success("Connexion réussie", TOAST_STYLE);
+      return newToken;
     } catch (error) {
       const message = handleApiError(error, "Erreur lors de la connexion");
       startTransition(() => setError(message));
+      return null;
     } finally {
       startTransition(() => setIsLoading(false));
     }

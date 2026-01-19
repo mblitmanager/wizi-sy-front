@@ -54,6 +54,10 @@ export default function VideoPlayer({
   const [zoomLevel, setZoomLevel] = useState(1);
   const [isBuffering, setIsBuffering] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fitMode, setFitMode] = useState<'contain' | 'cover'>('contain');
+  const [isVideoPortrait, setIsVideoPortrait] = useState(false);
+
+  const toggleFitMode = () => setFitMode(prev => prev === 'contain' ? 'cover' : 'contain');
 
   const markAsWatched = useCallback(async () => {
     if (hasMarkedAsWatched.current) return;
@@ -72,6 +76,20 @@ export default function VideoPlayer({
   const handleZoomIn = () => setZoomLevel((prev) => Math.min(prev + 0.25, 2));
   const handleZoomOut = () => setZoomLevel((prev) => Math.max(prev - 0.25, 1));
   const handleResetZoom = () => setZoomLevel(1);
+
+  useEffect(() => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+
+    const handleLoadedMetadata = () => {
+      setIsVideoPortrait(video.videoHeight > video.videoWidth);
+    };
+    video.addEventListener('loadedmetadata', handleLoadedMetadata);
+    
+    return () => {
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+    };
+  }, []);
 
   useEffect(() => {
     if (!videoRef.current) return;
@@ -253,21 +271,32 @@ export default function VideoPlayer({
         >
           {Math.round(zoomLevel * 100)}%
         </button>
+        <button
+          onClick={toggleFitMode}
+          className={`p-1.5 rounded transition-colors mt-1 ${
+            fitMode === 'cover' ? 'bg-[#FFB800] text-black' : 'bg-white/10 text-white hover:bg-white/20'
+          }`}
+          title={fitMode === 'cover' ? t('video.fit') : t('video.fill')}
+        >
+          <div className="text-[10px] font-bold">{fitMode === 'cover' ? 'FIT' : 'FILL'}</div>
+        </button>
       </div>
 
       {/* Video Container with Zoom */}
       <div
         ref={containerRef}
-        className="aspect-video rounded-xl overflow-hidden bg-black shadow-lg border border-gray-900"
+        className={`rounded-xl overflow-hidden bg-black shadow-lg border border-gray-900 transition-all duration-300 ${
+           isVideoPortrait ? 'aspect-[9/16] max-h-[70vh] mx-auto' : 'aspect-video'
+        }`}
         style={{
           transform: `scale(${zoomLevel})`,
           transformOrigin: "center center",
-          transition: "transform 0.3s cubic-bezier(.4,0,.2,1)",
         }}
       >
         <video
           ref={videoRef}
           className="w-full h-full"
+          style={{ objectFit: fitMode }}
           controls={false}
           playsInline
           preload="metadata"
