@@ -278,7 +278,7 @@ export default function VideoPlayer({
           }`}
           title={fitMode === 'cover' ? t('video.fit') : t('video.fill')}
         >
-          <div className="text-[10px] font-bold">{fitMode === 'cover' ? 'FIT' : 'FILL'}</div>
+          <div className="text-[10px] font-bold">{fitMode === 'cover' ? 'ADAPTER' : 'REMPLIR'}</div>
         </button>
       </div>
 

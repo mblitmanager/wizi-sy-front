@@ -52,8 +52,11 @@
     "loading_prefs_error": "Erreur lors du chargement des préférences du lecteur :",
     "saving_volume_error": "Erreur lors de l'enregistrement du volume :",
     "saving_speed_error": "Erreur lors de l'enregistrement de la vitesse :",
-    "subtitle_fr_label": "Français"
-    ,
-    "mark_watched_error": "Erreur lors du marquage de la vidéo comme regardée:"
+    "subtitle_fr_label": "Français",
+    "mark_watched_error": "Erreur lors du marquage de la vidéo comme regardée:",
+    "fill": "Remplir l'écran",
+    "fit": "Adapter à l'écran",
+    "error": "Erreur",
+    "loading_error": "Erreur de chargement du flux vidéo."
   }
 }
