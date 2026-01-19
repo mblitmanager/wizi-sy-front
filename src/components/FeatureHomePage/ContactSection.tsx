@@ -10,11 +10,13 @@ import { ContactCard } from "@/components/Contacts/ContactCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface ContactsSectionProps {
-  commerciaux: Contact[];
-  formateurs: Contact[];
-  poleRelation: Contact[];
+  commerciaux?: Contact[];
+  formateurs?: Contact[];
+  poleRelation?: Contact[];
   poleSav?: Contact[];
+  contacts?: Contact[]; // New prop to pass pre-fetched/mapped contacts
   showFormations?: boolean;
+  title?: string;
 }
 
 const ContactSection = ({
@@ -22,21 +24,21 @@ const ContactSection = ({
   formateurs,
   poleRelation,
   poleSav,
+  contacts: initialContacts,
   showFormations = true,
+  title,
 }: ContactsSectionProps) => {
   const [showAllContacts, setShowAllContacts] = useState(false);
   const isMobile = useIsMobile();
 
   const {
-    data: contacts,
+    data: fetchedContacts,
     isLoading,
     error,
   } = useQuery<Contact[]>({
     queryKey: ["contacts"],
     queryFn: async () => {
       const data = await contactService.getContacts();
-      // Fusionne tous les contacts dans un seul tableau pour l'affichage
-      // Prendre un seul contact par groupe (si présent)
       const allContacts: Contact[] = [];
       if (data.formateurs && data.formateurs.length > 0)
         allContacts.push(data.formateurs[0]);
@@ -48,9 +50,12 @@ const ContactSection = ({
         allContacts.push(data.pole_sav[0]);
       return allContacts;
     },
+    enabled: !initialContacts, // Skip query if contacts are provided
     staleTime: 5 * 60 * 1000,
     retry: 2,
   });
+
+  const contacts = initialContacts || fetchedContacts;
 
   const ContactCardSkeleton = () => (
     <div className="bg-white shadow-md rounded-2xl p-5 border">
@@ -88,7 +93,7 @@ const ContactSection = ({
       <div className="">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-600">
-            {CONTACTEZ_NOUS}
+            {title || CONTACTEZ_NOUS}
           </h1>
           <Link
             to="/contacts"

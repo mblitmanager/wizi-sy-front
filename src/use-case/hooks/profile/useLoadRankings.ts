@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { rankingService } from "@/services/rankingService";
 import { UserProgress, LeaderboardEntry } from "@/types/quiz";
+import { useUser } from "@/hooks/useAuth";
 
 export const useLoadRankings = () => {
   const [userProgress, setUserProgress] = useState<UserProgress | null>(null);
+  const { user } = useUser();
   interface Ranking {
     id: number;
     name: string;
@@ -13,32 +15,42 @@ export const useLoadRankings = () => {
   const [rankings, setRankings] = useState<Ranking[]>([]);
 
   useEffect(() => {
+    // Skip if user is formateur/formatrice
+    const role = user?.role || (user as any)?.user?.role;
+    if (role === "formateur" || role === "formatrice") {
+      return;
+    }
+
     const fetchProgressAndRankings = async () => {
-      const [progressRes, rankingsRes] = await Promise.all([
-        rankingService.getUserProgress(),
-        rankingService.getGlobalRanking(),
-      ]);
+      try {
+        const [progressRes, rankingsRes] = await Promise.all([
+          rankingService.getUserProgress(),
+          rankingService.getGlobalRanking(),
+        ]);
 
-      if (progressRes?.total) {
-        setUserProgress({
-          totalScore: progressRes.total.points || 0,
-          completedQuizzes: progressRes.total.completed_quizzes || 0,
-          averageScore: progressRes.total.average_score || 0,
-          level: progressRes.total.level || 1,
-        });
+        if (progressRes?.total) {
+          setUserProgress({
+            totalScore: progressRes.total.points || 0,
+            completedQuizzes: progressRes.total.completed_quizzes || 0,
+            averageScore: progressRes.total.average_score || 0,
+            level: progressRes.total.level || 1,
+          });
+        }
+
+        setRankings(
+          (rankingsRes || []).map((entry: LeaderboardEntry) => ({
+            id: entry.id ? Number(entry.id) : 0,
+            name: entry.firstname || entry.name || "Unknown",
+            score: entry.totalPoints || entry.score || 0,
+          }))
+        );
+      } catch (error) {
+        console.error("Error fetching progress and rankings:", error);
       }
-
-      setRankings(
-        (rankingsRes || []).map((entry: LeaderboardEntry) => ({
-          id: entry.id ? Number(entry.id) : 0,
-          name: entry.firstname || entry.name || "Unknown",
-          score: entry.totalPoints || entry.score || 0,
-        }))
-      );
     };
 
     fetchProgressAndRankings();
-  }, []);
+  }, [user]);
 
   return { userProgress, rankings };
 };

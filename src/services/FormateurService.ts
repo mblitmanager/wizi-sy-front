@@ -1,4 +1,5 @@
 import api from "./api";
+import { Contact } from "@/types/contact";
 
 export interface StudentPerformance {
   id: number;
@@ -40,6 +41,25 @@ export interface StudentDetails {
   };
 }
 
+export interface FormationPerformance {
+  id: number;
+  titre: string;
+  image_url: string | null;
+  student_count: number;
+  avg_score: number;
+  total_completions: number;
+}
+
+export interface StagiaireFormationPerformance {
+  id: number;
+  titre: string;
+  image_url: string | null;
+  avg_score: number;
+  best_score: number;
+  completions: number;
+  last_activity: string | null;
+}
+
 const FormateurService = {
   getStudentsPerformance: async (): Promise<TrainerPerformanceResponse> => {
     const response = await api.get("/formateur/analytics/performance");
@@ -48,6 +68,33 @@ const FormateurService = {
   getStagiaireStats: async (id: number): Promise<StudentDetails> => {
     const response = await api.get(`/formateur/stagiaire/${id}/stats`);
     return response.data;
+  },
+  getFormationsPerformance: async (): Promise<FormationPerformance[]> => {
+    const response = await api.get(
+      "/formateur/analytics/formations/performance"
+    );
+    return response.data;
+  },
+  getStagiaireFormations: async (
+    id: number
+  ): Promise<StagiaireFormationPerformance[]> => {
+    const response = await api.get(
+      `/formateur/analytics/stagiaire/${id}/formations`
+    );
+    return response.data;
+  },
+  getTraineesAsContacts: async (): Promise<Contact[]> => {
+    const response = await api.get("/formateur/analytics/performance");
+    const trainees = response.data.performance || [];
+    return trainees.map((t: StudentPerformance) => ({
+      id: t.id,
+      name: t.name,
+      email: t.email,
+      image: t.image || undefined,
+      avatar: t.image || undefined,
+      role: "Apprenant",
+      type: "stagiaire",
+    }));
   },
 };
 

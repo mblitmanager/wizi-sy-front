@@ -10,9 +10,13 @@ import { useEffect, useState, useMemo } from "react";
 import { quizSubmissionService } from "@/services/quiz/QuizSubmissionService";
 import type { QuizHistory as QuizHistoryType, QuizResult } from "@/types/quiz";
 import { useToast } from "@/hooks/use-toast";
+import TrainerPerformanceStats from "@/components/formateur/TrainerPerformanceStats";
 
+const isTrainer = (role: string | undefined) => role === 'formateur' || role === 'formatrice';
 const ProfileStatsPage = () => {
   const { user } = useUser();
+  const rawRole = user?.role || (user as any)?.user?.role;
+  const isUserTrainer = isTrainer(rawRole);
   const { results, categories } = useLoadQuizData();
   const { userProgress, rankings } = useLoadRankings();
   const { toast } = useToast();
@@ -243,6 +247,30 @@ const ProfileStatsPage = () => {
               </div>
             </div>
           </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Si l'utilisateur est un formateur ou formatrice, afficher les statistiques de ses stagiaires
+  if (isUserTrainer) {
+    return (
+      <Layout>
+        <div className="container mx-auto py-6 px-4">
+          <div className="mb-6">
+            <Link
+              to="/profile"
+              className="inline-flex items-center text-sm text-amber-600 hover:text-amber-700 mb-4">
+              ← Retour au profil
+            </Link>
+            <h1 className="text-2xl font-bold font-montserrat dark:text-white">
+              Performances Stagiaires
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300">
+              Suivi détaillé de l'avancement de vos apprenants
+            </p>
+          </div>
+          <TrainerPerformanceStats />
         </div>
       </Layout>
     );

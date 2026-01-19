@@ -24,6 +24,7 @@ import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
 import apiClient from "@/lib/api-client";
 import type { CatalogueFormation } from "@/types/stagiaire";
 import VideoUploader from "@/components/common/VideoUploader";
+import FormateurService from "@/services/FormateurService";
 
 const API_URL = import.meta.env.VITE_API_URL as string;
 
@@ -46,6 +47,8 @@ const ProfilePage = () => {
   const { toast } = useToast();
 
   const { user } = useUser();
+  const isTrainer = user?.role === "formateur" || user?.role === "formatrice";
+
   const { results, categories } = useLoadQuizData();
   const { userProgress, rankings } = useLoadRankings();
   const formations = useLoadFormations(user?.stagiaire?.id ?? null);
@@ -64,14 +67,23 @@ const ProfilePage = () => {
   const { data: commerciaux } = useQuery<Contact[]>({
     queryKey: ["contacts", "commerciaux"],
     queryFn: () => fetchContacts("commerciaux"),
+    enabled: !!user && !isTrainer,
   });
   const { data: formateurs } = useQuery<Contact[]>({
     queryKey: ["contacts", "formateurs"],
     queryFn: () => fetchContacts("formateurs"),
+    enabled: !!user && !isTrainer,
   });
   const { data: poleRelation } = useQuery<Contact[]>({
     queryKey: ["contacts", "pole-relation"],
     queryFn: () => fetchContacts("pole-relation"),
+    enabled: !!user && !isTrainer,
+  });
+
+  const { data: trainees } = useQuery<Contact[]>({
+    queryKey: ["contacts", "trainees"],
+    queryFn: () => FormateurService.getTraineesAsContacts(),
+    enabled: !!user && isTrainer,
   });
 
   // Achievements state
@@ -190,7 +202,10 @@ const ProfilePage = () => {
   // Chargement des achievements (tous + utilisateur)
   useEffect(() => {
     const fetchAchievements = async () => {
-      if (!user) return;
+      if (!user || isTrainer) {
+        setAchvLoading(false);
+        return;
+      }
       setAchvLoading(true);
       try {
         const token = localStorage.getItem("token");
@@ -232,7 +247,7 @@ const ProfilePage = () => {
       }
     };
     fetchAchievements();
-  }, [user, toast]);
+  }, [user, toast, isTrainer]);
 
   // Re-synchronisation manuelle des achievements
   const handleResyncAchievements = async () => {
@@ -430,46 +445,32 @@ const ProfilePage = () => {
               {MemoizedProfileHeader}
             </div>
 
-            {/* Sidebar stats */}
-            <div className="dark:bg-gray-700 p-6 lg:w-2/4 lg:order-1">
-              {MemoizedUserStats}
-            </div>
+            {/* Sidebar stats - Hidden for Formateurs */}
+            {user?.role !== 'formateur' && user?.role !== 'formatrice' && (
+              <div className="dark:bg-gray-700 p-6 lg:w-2/4 lg:order-1">
+                {MemoizedUserStats}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Contenu principal avec composants mémoïsés */}
         <div className="space-y-4 px-2 sm:px-0">
-          {/* <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
-            <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
-              Votre progression
-            </h3>
-            <div className="overflow-x-auto">{MemoizedCategoryProgress}</div>
-          </div> */}
+          
+          {/* Badges - Hidden for Formateurs */}
+          {user?.role !== 'formateur' && user?.role !== 'formatrice' && <AchievementsSection />}
 
-          {/* Badges */}
-          <AchievementsSection />
-
-          {/* Video uploader (visible to admins only) */}
-          {(user?.is_admin || user?.role === 'admin') && (
+          {(user?.is_admin || user?.role === "admin") && (
             <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">Uploader une vidéo</h3>
-              <VideoUploader apiBase={API_URL} onUploaded={(m) => console.log('uploaded', m)} />
+              <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
+                Uploader une vidéo
+              </h3>
+              <VideoUploader
+                apiBase={API_URL}
+                onUploaded={(m) => console.log("uploaded", m)}
+              />
             </div>
           )}
-
-          {/* <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
-            <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
-              Résultats récents
-            </h3>
-            <div className="overflow-x-auto">{MemoizedRecentResults}</div>
-          </div> */}
-
-          {/* <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
-            <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
-              Mes formations
-            </h3>
-            {MemoizedFormationCatalogue}
-          </div> */}
         </div>
 
         {/* Section contacts (comme HomePage) */}
@@ -477,11 +478,13 @@ const ProfilePage = () => {
           commerciaux={commerciaux}
           formateurs={formateurs}
           poleRelation={poleRelation}
+          contacts={trainees}
+          title={isTrainer ? "Mes Apprenants" : undefined}
           showFormations={true}
         />
 
-        {/* Ad catalogue block */}
-        {!adLoading && adFormations.length > 0 && (
+        {/* Ad catalogue block - Hidden for Formateurs */}
+        {!adLoading && adFormations.length > 0 && user?.role !== 'formateur' && user?.role !== 'formatrice' && (
           <div className="mt-6">
             <AdCatalogueBlock formations={adFormations.slice(0, 4)} />
           </div>

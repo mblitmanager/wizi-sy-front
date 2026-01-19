@@ -8,6 +8,7 @@ export interface User {
   level: number;
   stagiaire: Stagiaire;
   role?: "stagiaire" | "admin" | "formateur" | "formatrice" | "commercial";
+  is_admin?: boolean;
   avatar?: string;
   progress?: Progress;
   user: {

@@ -23,6 +23,12 @@ export function useFcmToken(userToken: string | null) {
     async function registerFcmToken() {
       if (!userToken) return;
 
+      // Check if browser supports notifications
+      if (!("Notification" in window)) {
+        console.warn("Notifications are not supported by this browser.");
+        return;
+      }
+
       try {
         const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
         const fcmToken = await getToken(messaging, { vapidKey });
@@ -35,7 +41,13 @@ export function useFcmToken(userToken: string | null) {
           console.log("FCM Token registration response:", response.data);
         }
       } catch (err) {
-        console.error("Erreur FCM", err);
+        if (err instanceof Error && err.name === "AbortError") {
+          console.warn(
+            "FCM registration aborted: push service error (check browser settings or SSL)."
+          );
+        } else {
+          console.error("Erreur FCM", err);
+        }
       }
     }
     registerFcmToken();

@@ -15,24 +15,31 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import FormateurService, { TrainerPerformanceResponse, StudentDetails } from '@/services/FormateurService';
+import FormateurService, { TrainerPerformanceResponse, StudentDetails, FormationPerformance, StagiaireFormationPerformance } from '@/services/FormateurService';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { BookOpen, TrendingUp, Award, Circle } from 'lucide-react';
 
 const TrainerPerformanceStats = () => {
     const [data, setData] = useState<TrainerPerformanceResponse | null>(null);
+    const [formations, setFormations] = useState<FormationPerformance[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
     const [details, setDetails] = useState<StudentDetails | null>(null);
+    const [stagiaireFormations, setStagiaireFormations] = useState<StagiaireFormationPerformance[]>([]);
     const [loadingDetails, setLoadingDetails] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await FormateurService.getStudentsPerformance();
-                setData(res);
+                const [perfRes, formRes] = await Promise.all([
+                    FormateurService.getStudentsPerformance(),
+                    FormateurService.getFormationsPerformance()
+                ]);
+                setData(perfRes);
+                setFormations(formRes);
             } catch (err) {
                 console.error('Error fetching trainer performance:', err);
             } finally {
@@ -46,8 +53,12 @@ const TrainerPerformanceStats = () => {
         setSelectedStudentId(id);
         setLoadingDetails(true);
         try {
-            const res = await FormateurService.getStagiaireStats(id);
-            setDetails(res);
+            const [statsRes, formRes] = await Promise.all([
+                FormateurService.getStagiaireStats(id),
+                FormateurService.getStagiaireFormations(id)
+            ]);
+            setDetails(statsRes);
+            setStagiaireFormations(formRes);
         } catch (err) {
             console.error('Error fetching student details:', err);
         } finally {
@@ -58,6 +69,7 @@ const TrainerPerformanceStats = () => {
     const closeDetails = () => {
         setSelectedStudentId(null);
         setDetails(null);
+        setStagiaireFormations([]);
     };
 
     if (loading || !data) {
@@ -178,6 +190,75 @@ const TrainerPerformanceStats = () => {
                         ))}
                     </div>
                 </motion.div>
+            </div>
+
+            {/* Performance per Formation */}
+            <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-white rounded-xl shadow-sm border border-slate-100">
+                        <BookOpen className="h-5 w-5 text-indigo-500" />
+                    </div>
+                    <div>
+                        <h2 className="text-xs font-black uppercase text-slate-400 tracking-[0.2em]">Performance par Formation</h2>
+                        <p className="text-[10px] text-slate-300 font-bold uppercase tracking-widest mt-1">Analyse cohorte par thématique</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {formations.map((formation, idx) => (
+                        <motion.div
+                            key={formation.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: idx * 0.1 }}
+                            className="bg-white rounded-[2rem] border border-slate-100 p-6 shadow-lg shadow-slate-200/20 group hover:border-indigo-100 transition-all relative overflow-hidden"
+                        >
+                            <div className="flex items-start justify-between mb-4">
+                                <div className="min-w-0 flex-1 mr-3">
+                                    <h3 className="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors truncate">
+                                        {formation.titre}
+                                    </h3>
+                                    <span className="text-[10px] font-bold text-slate-300 uppercase tracking-tighter">
+                                        {formation.student_count} Apprenants
+                                    </span>
+                                </div>
+                                <div className={`h-10 w-10 min-w-[2.5rem] rounded-xl flex items-center justify-center font-black text-xs ${
+                                    formation.avg_score >= 80 ? 'bg-green-50 text-green-600 border border-green-100' :
+                                    formation.avg_score >= 50 ? 'bg-yellow-50 text-yellow-600 border border-yellow-100' :
+                                    'bg-red-50 text-red-600 border border-red-100'
+                                }`}>
+                                    {formation.avg_score}%
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                    <p className="text-[8px] font-black text-slate-300 uppercase leading-none mt-1">Moyenne</p>
+                                    <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                        <motion.div 
+                                            initial={{ width: 0 }}
+                                            whileInView={{ width: `${formation.avg_score}%` }}
+                                            transition={{ duration: 1, delay: 0.5 }}
+                                            className={`h-full rounded-full ${
+                                                formation.avg_score >= 80 ? 'bg-green-500' :
+                                                formation.avg_score >= 50 ? 'bg-yellow-500' :
+                                                'bg-red-500'
+                                            }`}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-[8px] font-black text-slate-300 uppercase leading-none mb-1">Completions</p>
+                                    <div className="text-sm font-black text-slate-900">
+                                        {formation.total_completions}
+                                        <span className="text-[10px] text-slate-300 font-bold ml-1">Quiz</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
             </div>
 
             {/* Performance Table */}
@@ -321,6 +402,50 @@ const TrainerPerformanceStats = () => {
                                         <div className="text-2xl font-black text-slate-900 tracking-tighter">{stat.value}</div>
                                     </div>
                                 ))}
+                            </div>
+
+                            {/* Par Formation Breakdown */}
+                            <div className="space-y-6 pt-6 border-t border-slate-100">
+                                <div className="flex items-center justify-between">
+                                    <h4 className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">Par Formation</h4>
+                                    <div className="h-[1px] flex-1 mx-4 bg-slate-50" />
+                                </div>
+                                <div className="space-y-3">
+                                    {stagiaireFormations.length > 0 ? stagiaireFormations.map((sf) => (
+                                        <div key={sf.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 group/fcoll">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="text-[11px] font-black text-slate-900 truncate max-w-[60%]">{sf.titre}</span>
+                                                <Badge className={`text-[8px] font-black h-5 ${
+                                                    sf.avg_score >= 80 ? 'bg-green-100 text-green-700 border-green-200' :
+                                                    sf.avg_score >= 50 ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
+                                                    'bg-red-100 text-red-700 border-red-200'
+                                                }`}>
+                                                    {sf.avg_score}%
+                                                </Badge>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex gap-4">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[8px] font-black text-slate-300 uppercase">Quiz</span>
+                                                        <span className="text-[10px] font-bold text-slate-600">{sf.completions}</span>
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[8px] font-black text-slate-300 uppercase">Best</span>
+                                                        <span className="text-[10px] font-bold text-slate-600">{sf.best_score}%</span>
+                                                    </div>
+                                                </div>
+                                                {sf.last_activity && (
+                                                    <div className="text-right">
+                                                        <span className="text-[8px] font-black text-slate-300 uppercase">Activité</span>
+                                                        <p className="text-[9px] font-bold text-slate-500">{format(new Date(sf.last_activity), 'dd/MM/yy', { locale: fr })}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )) : (
+                                        <p className="text-[10px] font-bold text-slate-400 text-center py-4 italic">Aucune formation active</p>
+                                    )}
+                                </div>
                             </div>
 
                             {/* Activity Info */}

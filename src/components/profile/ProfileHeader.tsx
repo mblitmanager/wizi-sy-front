@@ -182,51 +182,57 @@ const ProfileHeader: React.FC<UserStatsProps> = ({ user, userProgress, achieveme
             </div>
 
             {/* Informations utilisateur compactes */}
-            <div className="mt-4 text-center md:hidden w-full">
-              <h2 className="text-xl font-bold text-gray-800 dark:text-white">
-                {user?.user?.name || user?.stagiaire?.prenom || "Utilisateur"}
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                {user?.user?.email || user?.email || "Email non disponible"}
-              </p>
-              <div className="mt-2 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full inline-block">
-                {totalPoints} points
-              </div>
-              <div className="mt-2">
-                <button
-                  onClick={() => setShowMoreMobile((v) => !v)}
-                  className="text-blue-600 dark:text-blue-400 text-sm underline">
-                  {showMoreMobile ? "Voir moins" : "Voir plus"}
-                </button>
-              </div>
-            </div>
-          </div>
+              <div className="mt-2 text-center md:hidden w-full">
+               <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+                 {user?.user?.name || user?.stagiaire?.prenom || "Utilisateur"}
+               </h2>
+               <p className="text-gray-600 dark:text-gray-300">
+                 {user?.user?.email || user?.email || "Email non disponible"}
+               </p>
+               {user?.role !== 'formateur' && user?.role !== 'formatrice' && (
+                 <div className="mt-2 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full inline-block">
+                   {totalPoints} points
+                 </div>
+               )}
+               <div className="mt-2">
+                 <button
+                   onClick={() => setShowMoreMobile((v) => !v)}
+                   className="text-blue-600 dark:text-blue-400 text-sm underline">
+                   {showMoreMobile ? "Voir moins" : "Voir plus"}
+                 </button>
+               </div>
+             </div>
+           </div>
 
-          {/* Section Principale - Informations + Badges */}
-          <div className="flex-1 w-full">
-            {/* Informations utilisateur détaillées (desktop) */}
-            <div className="hidden md:block mb-6">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-                    {user?.user?.name || user?.stagiaire?.prenom || t("common.user_default")}
-                  </h1>
-                </div>
-              </div>
-            </div>
+           {/* Section Principale - Informations + Badges */}
+           <div className="flex-1 w-full">
+             {/* Informations utilisateur détaillées (desktop) */}
+             <div className="hidden md:block mb-6">
+               <div className="flex items-start justify-between">
+                 <div>
+                   <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+                     {user?.user?.name || user?.stagiaire?.prenom || t("common.user_default")}
+                   </h1>
+                 </div>
+               </div>
+             </div>
 
-            {/* Bloc d'informations détaillées du stagiaire */}
-            <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4 ${showMoreMobile ? "mt-3" : "hidden"} md:grid`}>
-              <InfoRow label="Nom" value={user?.user?.name} />
-              <InfoRow label="Prénom" value={user?.stagiaire?.prenom} />
-              <InfoRow label="Email" value={user?.user?.email || user?.email} />
-              <InfoRow label="Téléphone" value={user?.stagiaire?.telephone} />
-              <InfoRow label="Ville" value={user?.stagiaire?.ville} />
-              <InfoRow label="Code postal" value={user?.stagiaire?.code_postal} />
-              <InfoRow label="Adresse" value={userAddress} />
-              <InfoRow label="Date de lancement" value={formatDate(user?.stagiaire?.date_debut_formation)} />
-              <InfoRow label="Date de vente" value={formatDate(user?.stagiaire?.date_inscription)} />
-            </div>
+             {/* Bloc d'informations détaillées du stagiaire */}
+             <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4 ${showMoreMobile ? "mt-3" : "hidden"} md:grid`}>
+               <InfoRow label="Nom" value={user?.user?.name} />
+               <InfoRow label="Prénom" value={user?.stagiaire?.prenom} />
+               <InfoRow label="Email" value={user?.user?.email || user?.email} />
+               <InfoRow label="Téléphone" value={user?.stagiaire?.telephone} />
+               <InfoRow label="Ville" value={user?.stagiaire?.ville} />
+               <InfoRow label="Code postal" value={user?.stagiaire?.code_postal} />
+               <InfoRow label="Adresse" value={userAddress} />
+               {user?.role !== 'formateur' && user?.role !== 'formatrice' && (
+                 <>
+                   <InfoRow label="Date de lancement" value={formatDate(user?.stagiaire?.date_debut_formation)} />
+                   <InfoRow label="Date de vente" value={formatDate(user?.stagiaire?.date_inscription)} />
+                 </>
+               )}
+             </div>
 
             {/* Badges avec titre réduit et disposition compacte (peut être réactivé si besoin) */}
             {/* <div className="mt-4 md:mt-0">

@@ -12,6 +12,7 @@ import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useUser } from "@/hooks/useAuth";
+import { useNavigation } from "@/hooks/useNavigation";
 
 interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
@@ -25,34 +26,16 @@ export function MobileNav() {
   const location = useLocation();
   const { user } = useUser();
 
-  const items: NavItem[] = [
-    {
-      icon: Home,
-      label: "Accueil",
-      href: "/",
-    },
-    {
-      icon: BookOpen,
-      label: "Formation",
-      href: "/catalogue",
-    },
-    {
-      icon: Brain,
-      label: "Quiz",
-      href: "/quizzes",
-      gold: true,
-    },
-    {
-      icon: Trophy,
-      label: "Classement",
-      href: "/classement",
-    },
-    {
-      label: "Tutoriel",
-      href: "/tuto-astuce",
-      icon: Video,
-    },
-  ];
+  const { items: navItems } = useNavigation();
+  // Flatten items for mobile: prioritize main items.
+  // Mobile nav usually needs limited items (max 5).
+  // We can take the first 4-5 items from main.
+  const items: NavItem[] = navItems.main.slice(0, 5).map(item => ({
+      icon: item.icon as any,
+      label: item.title,
+      href: item.href || '',
+      gold: item.variant === 'gold',
+  }));
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-white pt-2 pb-safe z-50 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">

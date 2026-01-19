@@ -72,11 +72,20 @@ const Login = () => {
   };
 
   // Redirect if already logged in
-  // Si l'utilisateur vient d'une page protégée, retourner à cette page
-  // Sinon, aller à la page d'accueil
   if (user || localStorage.getItem("token")) {
-    const from = (location.state as any)?.from?.pathname || "/";
-    return <Navigate to={from} replace />;
+    const from = (location.state as any)?.from?.pathname;
+    
+    if (from) {
+      return <Navigate to={from} replace />;
+    }
+
+    // Default redirects based on role
+    const role = user?.role || (user as any)?.user?.role; // Handle potential nested user structure
+    if (role === 'formateur' || role === 'formatrice') {
+         return <Navigate to="/formateur/dashboard" replace />;
+    }
+
+    return <Navigate to="/" replace />;
   }
 
   return (
