@@ -39,7 +39,13 @@ export function FormateurDashboardStats() {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const response = await api.get('/formateur/dashboard/stats');
+                const response = await api.get('/formateur/dashboard/stats', {
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0',
+                    }
+                });
                 setStats(response.data);
             } catch (err) {
                 console.error('Erreur chargement stats:', err);

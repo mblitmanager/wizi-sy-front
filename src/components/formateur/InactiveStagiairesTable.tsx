@@ -32,6 +32,11 @@ export function InactiveStagiairesTable() {
             setLoading(true);
             const response = await api.get(`/formateur/stagiaires/inactive`, {
                 params: { days, scope },
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0',
+                }
             });
 
             // API responses vary; try common fields for items

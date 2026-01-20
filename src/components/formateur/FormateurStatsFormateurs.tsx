@@ -34,7 +34,12 @@ export function FormateurStatsFormateurs() {
             try {
                 const token = localStorage.getItem('token');
                 const response = await axios.get(`${API_URL}/formateur/dashboard/stats`, {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0',
+                    },
                     params: {
                         formateurs_page: currentPage,
                         formateurs_per_page: 5

@@ -61,7 +61,12 @@ export function FormateurClassementPage() {
                 }
             });
             const data = response.data;
-            setRanking(Array.isArray(data) ? data : data?.ranking || []);
+            console.log('Classement Data Received:', data);
+            const finalRanking = Array.isArray(data) 
+                ? data 
+                : (data?.ranking || data?.data || []);
+            console.log('Processed Ranking:', finalRanking);
+            setRanking(finalRanking);
         } catch (err) {
             console.error('Erreur chargement classement:', err);
         } finally {

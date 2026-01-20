@@ -63,7 +63,12 @@ export default function Analytiques() {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      };
       const fQuery = formationId ? `&formation_id=${formationId}` : '';
 
       const [summaryRes, successRes, activityRes, dropoutRes, performanceRes, comparisonRes] = await Promise.all([
