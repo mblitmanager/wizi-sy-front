@@ -205,7 +205,7 @@ const TrainerPerformanceStats = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {formations.map((formation, idx) => (
+                    {(formations || []).map((formation, idx) => (
                         <motion.div
                             key={formation.id}
                             initial={{ opacity: 0, y: 20 }}
@@ -288,7 +288,7 @@ const TrainerPerformanceStats = () => {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {data.performance.map((student, index) => (
+                            {(data?.performance || []).map((student, index) => (
                                 <motion.tr 
                                     key={student.id}
                                     initial={{ opacity: 0, y: 10 }}
