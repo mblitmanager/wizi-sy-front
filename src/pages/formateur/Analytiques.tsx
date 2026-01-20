@@ -34,28 +34,53 @@ export default function Analytiques() {
   const [successStats, setSuccessStats] = useState([]);
   const [activityByDay, setActivityByDay] = useState([]);
   const [dropoutStats, setDropoutStats] = useState([]);
+  const [formations, setFormations] = useState([]);
+  const [formationId, setFormationId] = useState('');
+  const [formationsPerformance, setFormationsPerformance] = useState([]);
+  const [studentsComparison, setStudentsComparison] = useState([]);
+
+  useEffect(() => {
+    loadFormations();
+  }, []);
 
   useEffect(() => {
     loadData();
-  }, [period]);
+  }, [period, formationId]);
+
+  const loadFormations = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get(`${API_URL}/formateur/formations`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setFormations(res.data.formations || []);
+    } catch (error) {
+      console.error('Error loading formations:', error);
+    }
+  };
 
   const loadData = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
       const headers = { Authorization: `Bearer ${token}` };
+      const fQuery = formationId ? `&formation_id=${formationId}` : '';
 
-      const [summaryRes, successRes, activityRes, dropoutRes] = await Promise.all([
-        axios.get(`${API_URL}/formateur/analytics/dashboard?period=${period}`, { headers }),
-        axios.get(`${API_URL}/formateur/analytics/quiz-success-rate?period=${period}`, { headers }),
-        axios.get(`${API_URL}/formateur/analytics/activity-heatmap?period=${period}`, { headers }),
-        axios.get(`${API_URL}/formateur/analytics/dropout-rate`, { headers }),
+      const [summaryRes, successRes, activityRes, dropoutRes, performanceRes, comparisonRes] = await Promise.all([
+        axios.get(`${API_URL}/formateur/analytics/dashboard?period=${period}${fQuery}`, { headers }),
+        axios.get(`${API_URL}/formateur/analytics/quiz-success-rate?period=${period}${fQuery}`, { headers }),
+        axios.get(`${API_URL}/formateur/analytics/activity-heatmap?period=${period}${fQuery}`, { headers }),
+        axios.get(`${API_URL}/formateur/analytics/dropout-rate?${fQuery}`, { headers }),
+        axios.get(`${API_URL}/formateur/analytics/formations-performance`, { headers }),
+        axios.get(`${API_URL}/formateur/analytics/students-comparison?${fQuery}`, { headers }),
       ]);
 
       setSummary(summaryRes.data.summary);
       setSuccessStats(successRes.data.quiz_stats || []);
       setActivityByDay(activityRes.data.activity_by_day || []);
       setDropoutStats(dropoutRes.data.quiz_dropout || []);
+      setFormationsPerformance(performanceRes.data || []);
+      setStudentsComparison(comparisonRes.data || []);
     } catch (error) {
       console.error('Error loading analytics:', error);
     } finally {
@@ -69,10 +94,32 @@ export default function Analytiques() {
         Analytiques & Rapports
       </Typography>
 
-      <Box sx={{ mb: 3, display: 'flex', gap: 1 }}>
-        <Chip label="30j" color={period === 30 ? 'primary' : 'default'} onClick={() => setPeriod(30)} />
-        <Chip label="60j" color={period === 60 ? 'primary' : 'default'} onClick={() => setPeriod(60)} />
-        <Chip label="90j" color={period === 90 ? 'primary' : 'default'} onClick={() => setPeriod(90)} />
+      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Chip label="30j" color={period === 30 ? 'primary' : 'default'} onClick={() => setPeriod(30)} />
+          <Chip label="60j" color={period === 60 ? 'primary' : 'default'} onClick={() => setPeriod(60)} />
+          <Chip label="90j" color={period === 90 ? 'primary' : 'default'} onClick={() => setPeriod(90)} />
+        </Box>
+
+        <Box sx={{ minWidth: 250 }}>
+          <select 
+            value={formationId} 
+            onChange={(e) => setFormationId(e.target.value)}
+            style={{ 
+              width: '100%', 
+              padding: '8px', 
+              borderRadius: '4px', 
+              border: '1px solid #ccc',
+              backgroundColor: '#fff',
+              fontSize: '1rem'
+            }}
+          >
+            <option value="">Toutes les formations</option>
+            {formations.map((f: any) => (
+              <option key={f.id} value={f.id}>{f.titre}</option>
+            ))}
+          </select>
+        </Box>
       </Box>
 
       {loading ? (
@@ -81,8 +128,10 @@ export default function Analytiques() {
         <>
           <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} sx={{ mb: 3 }}>
             <Tab label="Vue d'ensemble" />
+            <Tab label="Formations" />
             <Tab label="Taux de réussite" />
             <Tab label="Activité" />
+            <Tab label="Stagiaires" />
           </Tabs>
 
           {/* Tab 1: Overview */}
@@ -169,8 +218,47 @@ export default function Analytiques() {
             </Grid>
           )}
 
-          {/* Tab 2: Success Rates */}
+          {/* Tab 2: Formations Performance */}
           {tabValue === 1 && (
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>PERFORMANCE DES FORMATIONS</Typography>
+                    <ResponsiveContainer width="100%" height={350}>
+                      <BarChart data={formationsPerformance} layout="vertical" margin={{ left: 50 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis type="number" domain={[0, 100]} />
+                        <YAxis dataKey="nom" type="category" width={100} />
+                        <Tooltip />
+                        <Bar name="Taux complétion (%)" dataKey="completion_rate" fill="#F7931E" />
+                        <Bar name="Score moyen (%)" dataKey="average_score" fill="#ffc107" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                 <Card>
+                    <CardContent>
+                       <Typography variant="h6" gutterBottom>RÉPARTITION STAGIAIRES</Typography>
+                       <ResponsiveContainer width="100%" height={300}>
+                          <BarChart data={formationsPerformance}>
+                             <CartesianGrid strokeDasharray="3 3" />
+                             <XAxis dataKey="nom" />
+                             <YAxis />
+                             <Tooltip />
+                             <Bar name="Nombre de stagiaires" dataKey="total_stagiaires" fill="#4caf50" />
+                          </BarChart>
+                       </ResponsiveContainer>
+                    </CardContent>
+                 </Card>
+              </Grid>
+            </Grid>
+          )}
+
+          {/* Tab 3: Success Rates */}
+          {tabValue === 2 && (
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
@@ -206,8 +294,8 @@ export default function Analytiques() {
             </Card>
           )}
 
-          {/* Tab 3: Activity */}
-          {tabValue === 2 && (
+          {/* Tab 4: Activity */}
+          {tabValue === 3 && (
             <>
               <Card sx={{ mb: 3 }}>
                 <CardContent>
@@ -248,6 +336,59 @@ export default function Analytiques() {
                 </CardContent>
               </Card>
             </>
+          )}
+
+          {/* Tab 5: Students Comparison */}
+          {tabValue === 4 && (
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>COMPARAISON DES STAGIAIRES</Typography>
+                <Box sx={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '2px solid #eee', textAlign: 'left' }}>
+                        <th style={{ padding: '12px' }}>Stagiaire</th>
+                        <th style={{ padding: '12px' }}>Points</th>
+                        <th style={{ padding: '12px' }}>Quiz Complétés</th>
+                        <th style={{ padding: '12px' }}>Taux de Complétion</th>
+                        <th style={{ padding: '12px' }}>Score Moyen</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {studentsComparison.map((s: any) => (
+                        <tr key={s.id} style={{ borderBottom: '1px solid #f9f9f9' }}>
+                          <td style={{ padding: '12px' }}>
+                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                {s.image ? (
+                                   <img src={s.image} alt={s.name} style={{ width: 32, height: 32, borderRadius: '50%', marginRight: 8 }} />
+                                ) : (
+                                   <Box sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', mr: 1 }}>
+                                      {s.name?.charAt(0)}
+                                   </Box>
+                                )}
+                                {s.name}
+                             </Box>
+                          </td>
+                          <td style={{ padding: '12px' }}>{s.total_points}</td>
+                          <td style={{ padding: '12px' }}>{s.completed_quizzes}/{s.total_quizzes}</td>
+                          <td style={{ padding: '12px' }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                              <LinearProgress 
+                                variant="determinate" 
+                                value={s.completion_rate} 
+                                sx={{ width: 60, mr: 1, height: 6, borderRadius: 3 }}
+                              />
+                              {s.completion_rate}%
+                            </Box>
+                          </td>
+                          <td style={{ padding: '12px' }}>{s.avg_score}%</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Box>
+              </CardContent>
+            </Card>
           )}
         </>
       )}
