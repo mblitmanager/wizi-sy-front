@@ -54,6 +54,11 @@ export function FormateurClassementPage() {
             
             const response = await api.get(endpoint, {
                 params: { period },
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0',
+                }
             });
             setRanking(response.data?.ranking || []);
         } catch (err) {
@@ -66,7 +71,13 @@ export function FormateurClassementPage() {
     useEffect(() => {
         const fetchFormations = async () => {
             try {
-                const response = await api.get('/formateur/formations');
+                const response = await api.get('/formateur/formations', {
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0',
+                    }
+                });
                 setFormations(response.data?.formations || []);
             } catch (err) {
                 console.error('Erreur chargement formations:', err);

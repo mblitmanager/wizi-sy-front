@@ -167,14 +167,20 @@ export function TrainerArenaPage() {
                     {/* Filters Row */}
                     <div className="flex flex-col sm:flex-row gap-3 mb-8">
                         <div className="flex-1">
-                            <Select value={selectedFormationId} onValueChange={setSelectedFormationId}>
+                            <Select 
+                                value={selectedFormationId} 
+                                onValueChange={(val) => {
+                                    setSelectedFormationId(val);
+                                    setSelectedFormateurId('all'); // Reset formateur filter when formation changes
+                                }}
+                            >
                                 <SelectTrigger className="w-full bg-white border-slate-200 h-12 rounded-2xl focus:ring-yellow-500/20 text-slate-700 font-bold text-sm shadow-sm">
                                     <SelectValue placeholder="Toutes les Formations" />
                                 </SelectTrigger>
                                 <SelectContent className="bg-white border-slate-200 text-slate-900 rounded-2xl">
                                     <SelectItem value="all">Toutes les Formations</SelectItem>
                                     {formations.map((f) => (
-                                        <SelectItem key={f.id} value={String(f.id)}>{f.nom}</SelectItem>
+                                        <SelectItem key={f.id} value={String(f.id)}>{f.titre}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
