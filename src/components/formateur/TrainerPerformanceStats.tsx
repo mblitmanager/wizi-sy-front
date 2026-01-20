@@ -106,7 +106,7 @@ const TrainerPerformanceStats = () => {
                     </div>
 
                     <div className="grid gap-3 relative z-10">
-                        {data.rankings.most_quizzes.map((student, idx) => (
+                        {(data?.rankings?.most_quizzes || []).map((student, idx) => (
                             <motion.div 
                                 key={student.id} 
                                 initial={{ opacity: 0, x: -10 }}
@@ -161,7 +161,7 @@ const TrainerPerformanceStats = () => {
                     </div>
 
                     <div className="grid gap-3 relative z-10">
-                        {data.rankings.most_active.map((student, idx) => (
+                        {(data?.rankings?.most_active || []).map((student, idx) => (
                             <motion.div 
                                 key={student.id} 
                                 initial={{ opacity: 0, x: -10 }}
