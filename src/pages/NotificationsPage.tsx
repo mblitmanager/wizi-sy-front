@@ -47,96 +47,94 @@ const NotificationItem = ({
   notification: AppNotification;
   markAsRead: (id: number | string) => void;
   deleteNotification: (id: number | string) => void;
-  user: any;
+  user: {
+    user?: { role?: string };
+    role?: string;
+  } | null;
 }) => {
   const navigate = useNavigate();
 
-  // Redirection logic based on notification type and user role
   const handleClick = () => {
     if (!notification.read) markAsRead(notification.id);
-    
-    // Role-aware redirection
-    const userRole = (user as any)?.user?.role || user?.role;
+    const userRole = user?.user?.role || user?.role;
     const isFormateur = userRole === 'formateur' || userRole === 'formatrice';
-    const isAdmin = userRole === 'admin';
 
     switch (notification.type) {
-      case "quiz":
-        navigate(isFormateur ? "/formateur/dashboard" : "/quizzes");
-        break;
-      case "formation":
-        navigate(isFormateur ? "/formateur/dashboard" : "/formations");
-        break;
-      case "badge":
-        navigate(isFormateur ? "/formateur/dashboard" : "/profile/badges");
-        break;
-      case "media":
-        navigate(isFormateur ? "/formateur/videos" : "/tuto-astuce");
-        break;
-      case "announcement":
-        if (isAdmin) navigate("/admin/announcements");
-        else if (isFormateur) navigate("/formateur/announcements");
-        break;
-      default:
-        // No redirection for unknown types
-        break;
+      case "quiz": navigate(isFormateur ? "/formateur/dashboard" : "/quizzes"); break;
+      case "formation": navigate(isFormateur ? "/formateur/dashboard" : "/formations"); break;
+      case "badge": navigate(isFormateur ? "/formateur/dashboard" : "/profile/badges"); break;
+      case "media": navigate(isFormateur ? "/formateur/videos" : "/tuto-astuce"); break;
+      default: break;
     }
   };
 
   return (
-    <Card
-      className={`p-3 sm:p-4 border border-gray-100 shadow-none transition-colors flex flex-col gap-3 ${notification.read ? "bg-gray-50" : "bg-white"
+    <div
+      className={`p-4 rounded-2xl border transition-all duration-300 flex flex-col gap-3 group relative overflow-hidden ${notification.read
+        ? "bg-gray-50/50 dark:bg-gray-800/40 border-gray-100 dark:border-gray-700/50"
+        : "bg-white dark:bg-gray-800 border-blue-100 dark:border-blue-900/30 shadow-sm hover:shadow-md"
         }`}
       onClick={handleClick}
       style={{ cursor: "pointer" }}
     >
-      <div className="flex items-start gap-3">
-        <span className="text-2xl mt-1">
-          {getNotificationIcon(notification.type)}
-        </span>
-        <div className="flex-1">
-          {notification.title && (
-            <h4 className="text-sm font-semibold text-gray-900 mb-0.5">
-              {notification.title}
-            </h4>
-          )}
-          <p className="text-sm text-gray-700 mb-1">{notification.message}</p>
-          <p className="text-xs text-gray-400">
-            {(() => {
-              const date = new Date(notification.created_at);
-              if (Number.isNaN(date.getTime())) return '—';
-              return date.toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
-            })()}
+      {!notification.read && (
+        <div className="absolute top-0 left-0 w-1 h-full bg-blue-500" />
+      )}
+      
+      <div className="flex items-start gap-4">
+        <div className={`p-3 rounded-xl ${notification.read ? 'bg-gray-100 dark:bg-gray-700' : 'bg-blue-50 dark:bg-blue-900/20'}`}>
+          <span className="text-xl">
+            {getNotificationIcon(notification.type)}
+          </span>
+        </div>
+        
+        <div className="flex-1 min-w-0">
+          <div className="flex justify-between items-start gap-2">
+            {notification.title && (
+              <h4 className={`text-sm font-bold truncate ${notification.read ? 'text-gray-600 dark:text-gray-400' : 'text-gray-900 dark:text-white'}`}>
+                {notification.title}
+              </h4>
+            )}
+            <span className="text-[10px] font-medium text-gray-400 whitespace-nowrap bg-gray-100 dark:bg-gray-700/50 px-2 py-0.5 rounded-full">
+              {(() => {
+                const date = new Date(notification.created_at);
+                if (Number.isNaN(date.getTime())) return '—';
+                return date.toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+              })()}
+            </span>
+          </div>
+          <p className={`text-sm mt-1 leading-relaxed ${notification.read ? 'text-gray-500 dark:text-gray-500' : 'text-gray-700 dark:text-gray-300'}`}>
+            {notification.message}
           </p>
         </div>
       </div>
-      <div className="flex justify-end gap-1">
+
+      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
         {!notification.read && (
           <Button
             variant="ghost"
-            size="icon"
-            aria-label="Marquer comme lu"
+            size="sm"
             onClick={(e) => {
               e.stopPropagation();
               markAsRead(notification.id);
             }}
-            className="text-gray-400 hover:text-green-600">
-            <Check className="h-4 w-4" />
+            className="h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+            <Check className="h-4 w-4 mr-1" />
+            Lu
           </Button>
         )}
         <Button
           variant="ghost"
-          size="icon"
-          aria-label="Supprimer"
+          size="sm"
           onClick={(e) => {
             e.stopPropagation();
             deleteNotification(notification.id);
           }}
-          className="text-gray-400 hover:text-red-500">
+          className="h-8 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20">
           <Trash2 className="h-4 w-4" />
         </Button>
       </div>
-    </Card>
+    </div>
   );
 };
 
@@ -299,7 +297,7 @@ export default function NotificationsPage() {
   }, [notifications]);
 
   // Handler to add Pusher notifications to local state (display once, deduplicate with backend)
-  const handlePushNotification = (notif: any) => {
+  const handlePushNotification = (notif: AppNotification) => {
     // Check if notification already exists in local or backend/hook notifications
     const exists = notifications.some((n) => n.id === notif.id) ||
       notificationsFromHook.some((n) => n.id === notif.id);

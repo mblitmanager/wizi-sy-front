@@ -20,6 +20,8 @@ const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
 import { rankingService } from "@/services/rankingService";
 import { parrainageService } from "@/services/parrainageService";
 
+import { NotificationDropdown } from "@/components/notifications/NotificationDropdown";
+
 /* ---------------------- Sous-composants ---------------------- */
 
 // Avatar utilisateur
@@ -138,7 +140,7 @@ export function Navbar({ onMenuToggle }: { onMenuToggle?: () => void }) {
         (e: any) =>
           e.stagiaire?.id?.toString() === user.stagiaire.id?.toString()
       );
-      setUserScore(entry?.totalPoints ?? 0);
+      setUserScore(entry?.score ?? 0);
     } catch (error) {
       console.error("Failed to fetch user score:", error);
       setUserScore(null);
@@ -206,7 +208,7 @@ export function Navbar({ onMenuToggle }: { onMenuToggle?: () => void }) {
           {/* right: points + notifications + user menu */}
           <div className="flex items-center gap-4">
             <UserScore score={userScore} />
-            <NotificationBadge count={unreadCount} />
+            <NotificationDropdown />
 
             {/* <DropdownMenu>
               <DropdownMenuTrigger asChild>

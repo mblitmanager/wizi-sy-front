@@ -175,11 +175,11 @@ export function GlobalRanking({
               : ""
           );
         default:
-          return (entry as any)[sortKey];
+          return (entry as Record<string, any>)[sortKey];
       }
     };
 
-    return [...filteredRanking].sort((a: any, b: any) => {
+    return [...filteredRanking].sort((a, b) => {
       const aValue = getSortValue(a);
       const bValue = getSortValue(b);
 
@@ -288,7 +288,7 @@ export function GlobalRanking({
                     };
 
                     if (navigator.share) {
-                      await navigator.share(shareData as any);
+                      await navigator.share(shareData);
                     } else {
                       await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
                       alert('Message copié dans le presse-papiers');
@@ -319,52 +319,62 @@ export function GlobalRanking({
 
           {/* Filtres compacts - Période */}
           <div className="flex flex-col sm:flex-row gap-3">
-            {/* Filtres temporels */}
+            {/* Filtres temporels - Style Segmented Control (Pill) */}
             {onPeriodChange && (
-              <div className="flex flex-wrap gap-2 items-center">
+              <div className="flex p-1 bg-gray-100 dark:bg-gray-800 rounded-xl w-fit border border-gray-200 dark:border-gray-700">
                 <button
-                  onClick={() => onPeriodChange && onPeriodChange('week', null)}
-                  className={`px-3 py-2 rounded-lg text-xs font-medium transition ${period === 'week'
-                    ? 'bg-orange-500 text-white shadow-md'
-                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
+                  onClick={() => onPeriodChange('week', null)}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${period === 'week'
+                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                     }`}>
-                  Semaine
+                  Cette semaine
                 </button>
                 <button
-                  onClick={() => onPeriodChange && onPeriodChange('month', null)}
-                  className={`px-3 py-2 rounded-lg text-xs font-medium transition ${period === 'month'
-                    ? 'bg-orange-500 text-white shadow-md'
-                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
+                  onClick={() => onPeriodChange('month', null)}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${period === 'month'
+                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                     }`}>
-                  Mois
+                  Ce mois
                 </button>
-
-                {/* Filtre trimestre déplacé ici, entre Mois et Tout */}
-                <select
-                  value={selectedQuarter ?? ""}
-                  onChange={(e) => {
-                    const q = e.target.value ? parseInt(e.target.value) : null;
-                    setSelectedQuarter(q);
-                    if (onPeriodChange) onPeriodChange(period, q);
-                  }}
-                  className="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200">
-                  <option value="">Tous trimestres</option>
-                  <option value="1">T1 (Jan-Mar)</option>
-                  <option value="2">T2 (Avr-Jun)</option>
-                  <option value="3">T3 (Jul-Sep)</option>
-                  <option value="4">T4 (Oct-Déc)</option>
-                </select>
-
                 <button
-                  onClick={() => onPeriodChange && onPeriodChange('all', null)}
-                  className={`px-3 py-2 rounded-lg text-xs font-medium transition ${period === 'all'
-                    ? 'bg-orange-500 text-white shadow-md'
-                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
+                  onClick={() => onPeriodChange('trimestre', null)}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${period === 'trimestre'
+                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                    }`}>
+                  Trimestre
+                </button>
+                <button
+                  onClick={() => onPeriodChange('all', null)}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${period === 'all'
+                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                     }`}>
                   Tout
                 </button>
               </div>
             )}
+
+            {/* Filtre trimestre - Séparé ou optionnel */}
+            {onPeriodChange && period === 'all' && (
+              <select
+                value={selectedQuarter ?? ""}
+                onChange={(e) => {
+                  const q = e.target.value ? parseInt(e.target.value) : null;
+                  setSelectedQuarter(q);
+                  onPeriodChange(period, q);
+                }}
+                className="px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 transition-all">
+                <option value="">Tous trimestres</option>
+                <option value="1">T1 (Jan-Mar)</option>
+                <option value="2">T2 (Avr-Jun)</option>
+                <option value="3">T3 (Jul-Sep)</option>
+                <option value="4">T4 (Oct-Déc)</option>
+              </select>
+            )}
+
           </div>
 
           {/* Ligne 2 : Formation + Formateur + Mois + Tri */}
