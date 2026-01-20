@@ -35,7 +35,7 @@ interface StagiaireRanking {
 
 interface Formation {
     id: number;
-    nom: string;
+    titre: string;
 }
 
 export function FormateurClassementPage() {
@@ -60,7 +60,8 @@ export function FormateurClassementPage() {
                     'Expires': '0',
                 }
             });
-            setRanking(response.data?.ranking || []);
+            const data = response.data;
+            setRanking(Array.isArray(data) ? data : data?.ranking || []);
         } catch (err) {
             console.error('Erreur chargement classement:', err);
         } finally {
@@ -78,7 +79,8 @@ export function FormateurClassementPage() {
                         'Expires': '0',
                     }
                 });
-                setFormations(response.data?.formations || []);
+                const data = response.data;
+                setFormations(Array.isArray(data) ? data : data?.formations || []);
             } catch (err) {
                 console.error('Erreur chargement formations:', err);
             }
@@ -202,7 +204,7 @@ export function FormateurClassementPage() {
                                             <div className="h-px bg-slate-50 my-1" />
                                             {formations.map((f) => (
                                                 <SelectItem key={f.id} value={String(f.id)} className="rounded-xl hover:bg-slate-50 focus:bg-slate-50 cursor-pointer font-black text-xs py-3.5 transition-colors">
-                                                    🎓 {f.nom.toUpperCase()}
+                                                    🎓 {f.titre?.toUpperCase()}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>

@@ -38,7 +38,12 @@ export function OnlineStagiairesCard() {
         try {
             const token = localStorage.getItem('token');
             const response = await axios.get(`${API_URL}/formateur/stagiaires/online`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0',
+                },
             });
             setStagiaires(response.data.stagiaires || []);
             setTotal(response.data.total || 0);

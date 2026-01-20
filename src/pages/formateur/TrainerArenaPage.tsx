@@ -63,6 +63,11 @@ export function TrainerArenaPage() {
                     period,
                     formation_id: selectedFormationId === 'all' ? undefined : selectedFormationId
                 },
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0',
+                }
             });
             setRanking(response.data || []);
             // Auto-expand the current user's card if found
@@ -80,7 +85,13 @@ export function TrainerArenaPage() {
     useEffect(() => {
         const fetchFormations = async () => {
             try {
-                const response = await api.get('/formateur/formations');
+                const response = await api.get('/formateur/formations', {
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0',
+                    }
+                });
                 setFormations(response.data?.formations || []);
             } catch (err) {
                 console.error('Erreur chargement formations:', err);
