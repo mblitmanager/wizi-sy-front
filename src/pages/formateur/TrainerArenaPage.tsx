@@ -48,6 +48,9 @@ export function TrainerArenaPage() {
     const [ranking, setRanking] = useState<FormateurRanking[]>([]);
     const [formations, setFormations] = useState<Formation[]>([]);
     const [selectedFormationId, setSelectedFormationId] = useState<string>('all');
+    const [selectedFormateurId, setSelectedFormateurId] = useState<string>('all');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [showSearch, setShowSearch] = useState(false);
     const [loading, setLoading] = useState(true);
     const [period, setPeriod] = useState<string>('all');
     const [expandedFormateur, setExpandedFormateur] = useState<number | null>(null);
@@ -113,16 +116,31 @@ export function TrainerArenaPage() {
         <Layout>
             <div className="min-h-screen bg-slate-50/50 text-slate-900 font-sans selection:bg-yellow-500/30">
                 <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 relative z-10">
-
                     {/* Top Navigation */}
                     <div className="flex items-center justify-between mb-8">
                         <h1 className="text-2xl font-black tracking-tight flex items-center gap-3 text-slate-900">
                             <Gamepad2 className="w-8 h-8 text-yellow-500" />
                             Arène des Formateurs
                         </h1>
-                        <button className="p-2 bg-slate-200/50 hover:bg-slate-200 rounded-full transition-colors text-slate-500">
-                            <Search className="w-5 h-5" />
-                        </button>
+                        <div className="flex items-center gap-2">
+                            {showSearch && (
+                                <motion.input
+                                    initial={{ width: 0, opacity: 0 }}
+                                    animate={{ width: 200, opacity: 1 }}
+                                    type="text"
+                                    placeholder="Rechercher..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="bg-slate-100 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500/20"
+                                />
+                            )}
+                            <button 
+                                onClick={() => setShowSearch(!showSearch)}
+                                className={`p-2 rounded-full transition-colors ${showSearch ? 'bg-yellow-500 text-black' : 'bg-slate-200/50 text-slate-500 hover:bg-slate-200'}`}
+                            >
+                                <Search className="w-5 h-5" />
+                            </button>
+                        </div>
                     </div>
 
                     {/* Period Switcher */}
@@ -162,12 +180,15 @@ export function TrainerArenaPage() {
                             </Select>
                         </div>
                         <div className="flex-1">
-                            <Select defaultValue="all">
+                            <Select value={selectedFormateurId} onValueChange={setSelectedFormateurId}>
                                 <SelectTrigger className="w-full bg-white border-slate-200 h-12 rounded-2xl focus:ring-yellow-500/20 text-slate-700 font-bold text-sm shadow-sm">
                                     <SelectValue placeholder="Tous les Formateurs" />
                                 </SelectTrigger>
                                 <SelectContent className="bg-white border-slate-200 text-slate-900 rounded-2xl">
                                     <SelectItem value="all">Tous les Formateurs</SelectItem>
+                                    {ranking.map((f) => (
+                                        <SelectItem key={f.id} value={String(f.id)}>{f.prenom} {f.nom}</SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                         </div>
@@ -176,7 +197,13 @@ export function TrainerArenaPage() {
                     {/* Leaderboard */}
                     <div className="space-y-4">
                         <AnimatePresence>
-                            {ranking.map((formateur, index) => {
+                            {ranking
+                                .filter(f => {
+                                    const matchesName = `${f.prenom} ${f.nom}`.toLowerCase().includes(searchQuery.toLowerCase());
+                                    const matchesFormateur = selectedFormateurId === 'all' || String(f.id) === selectedFormateurId;
+                                    return matchesName && matchesFormateur;
+                                })
+                                .map((formateur, index) => {
                                 const isExpanded = expandedFormateur === formateur.id;
                                 const isMe = user?.name === formateur.nom;
 
@@ -258,7 +285,7 @@ export function TrainerArenaPage() {
                                                                             {stagiaire.image ? (
                                                                                 <img src={stagiaire.image} alt="" className="w-full h-full object-cover" />
                                                                             ) : (
-                                                                                <span className="text-xs font-black text-white/20">
+                                                                                <span className="text-xs font-black text-slate-300">
                                                                                     {stagiaire.prenom[0]}{stagiaire.nom[0]}
                                                                                 </span>
                                                                             )}
