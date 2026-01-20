@@ -111,6 +111,11 @@ const QuizCreator = lazy(() =>
     default: module.default,
   }))
 );
+const TrainerArenaPage = lazy(() =>
+  import("@/pages/formateur/TrainerArenaPage").then((module) => ({
+    default: module.TrainerArenaPage,
+  }))
+);
 const AboutPage = lazy(() => import("@/pages/AboutPage"));
 
 // Admin routes
@@ -442,6 +447,14 @@ export const routes = [
       ProtectedRoute,
       undefined,
       Loadable(FormateurClassementPage)
+    ),
+  },
+  {
+    path: "/formateur/arena",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(TrainerArenaPage)
     ),
   },
   {

@@ -5,6 +5,7 @@ import {
     Video,
     Megaphone,
     Bell,
+    Gamepad2
 } from "lucide-react";
 import { NavItem } from "./stagiaire";
 
@@ -27,6 +28,12 @@ export const getFormateurNavigation = () => ({
             href: "/formateur/classement",
             icon: Trophy,
             color: "text-amber-600",
+        },
+        {
+            title: "L'Arène",
+            href: "/formateur/arena",
+            icon: Gamepad2,
+            color: "text-yellow-600",
         },
         {
             title: "Vidéos",
