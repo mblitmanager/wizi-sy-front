@@ -73,7 +73,7 @@ export function InactiveStagiairesTable() {
     if (loading) {
         return (
             <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 p-10 h-[400px] flex flex-col items-center justify-center space-y-6">
-                <AlertTriangle className="h-10 w-10 text-orange-500/20 animate-pulse" />
+                <AlertTriangle className="h-10 w-10 text-brand-primary/20 animate-pulse" />
                 <p className="text-slate-400 text-xs font-black uppercase tracking-widest animate-pulse">Audit d'assiduité...</p>
             </div>
         );
@@ -83,15 +83,15 @@ export function InactiveStagiairesTable() {
     const paginated = inactiveStagiaires.slice(start, start + pageSize);
 
     return (
-        <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden group hover:shadow-2xl hover:shadow-orange-500/5 transition-all duration-700">
+        <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden group hover:shadow-2xl hover:shadow-brand-primary/5 transition-all duration-700">
             {/* Header Section */}
             <div className="p-8 border-b border-slate-50 space-y-8 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/[0.02] rounded-full -mr-32 -mt-32 blur-3xl" />
+                <div className="absolute top-0 right-0 w-64 h-64 bg-brand-primary/[0.02] rounded-full -mr-32 -mt-32 blur-3xl" />
                 
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 relative z-10">
                     <div className="flex items-center gap-4">
-                        <div className="p-3.5 rounded-2xl bg-orange-500/10 border border-orange-500/20 shadow-sm shadow-orange-500/5">
-                            <UserX className="h-5 w-5 text-orange-600" />
+                        <div className="p-3.5 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 shadow-sm shadow-brand-primary/5">
+                            <UserX className="h-5 w-5 text-brand-primary-dark" />
                         </div>
                         <div>
                             <h2 className="text-xl font-black text-slate-900 tracking-tight">Stagiaires en Sommeil</h2>
@@ -125,7 +125,7 @@ export function InactiveStagiairesTable() {
                                     variant="ghost"
                                     className={`h-9 px-4 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${
                                         days === d 
-                                            ? 'bg-orange-100 text-orange-700 shadow-sm' 
+                                            ? 'bg-brand-primary/20 text-brand-primary-dark shadow-sm' 
                                             : 'text-slate-400 hover:text-slate-900 hover:bg-white'
                                     }`}
                                     onClick={() => {
@@ -174,13 +174,13 @@ export function InactiveStagiairesTable() {
                                     >
                                         <TableCell className="pl-10 py-5">
                                             <div className="flex items-center gap-4">
-                                                <div className="h-11 w-11 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shadow-sm group-hover/row:border-orange-200 transition-colors">
-                                                    <span className="text-xs font-black text-slate-400 group-hover/row:text-orange-600 uppercase">
+                                                <div className="h-11 w-11 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shadow-sm group-hover/row:border-brand-primary/30 transition-colors">
+                                                    <span className="text-xs font-black text-slate-400 group-hover/row:text-brand-primary-dark uppercase">
                                                         {stagiaire.prenom.charAt(0)}{stagiaire.nom.charAt(0)}
                                                     </span>
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className="text-sm font-bold text-slate-900 truncate group-hover/row:text-orange-950">
+                                                    <p className="text-sm font-bold text-slate-900 truncate group-hover/row:text-brand-primary-dark">
                                                         {stagiaire.prenom} {stagiaire.nom}
                                                     </p>
                                                     <p className="text-[10px] font-bold text-slate-400 truncate uppercase mt-0.5 tracking-tight">{stagiaire.email}</p>

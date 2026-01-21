@@ -62,7 +62,7 @@ export function FormateurDashboardStats() {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, i) => (
-                    <div key={i} className="h-32 rounded-[2rem] bg-slate-100 animate-pulse border border-slate-200" />
+                    <div key={i} className="h-32 rounded-[2rem] bg-background animate-pulse border border-border" />
                 ))}
             </div>
         );
@@ -70,9 +70,9 @@ export function FormateurDashboardStats() {
 
     if (error || !stats) {
         return (
-            <div className="p-10 text-center rounded-[2rem] bg-red-50 border border-red-100">
-                <AlertTriangle className="h-10 w-10 text-red-400 mx-auto mb-4" />
-                <p className="text-red-900 font-black uppercase text-xs tracking-widest">{error || 'Erreur critique'}</p>
+            <div className="p-10 text-center rounded-[2rem] bg-destructive/10 border border-destructive/20">
+                <AlertTriangle className="h-10 w-10 text-destructive-foreground mx-auto mb-4" />
+                <p className="text-destructive-foreground font-black uppercase text-xs tracking-widest">{error || 'Erreur critique'}</p>
             </div>
         );
     }
@@ -83,7 +83,7 @@ export function FormateurDashboardStats() {
             value: stats.total_stagiaires,
             subValue: `${stats.active_this_week} actifs`,
             icon: Users,
-            color: "text-blue-600",
+            color: "text-blue-600", // Ces couleurs devront être mappées à des variables Tailwind ou CSS si elles ne le sont pas déjà
             bg: "bg-blue-500/5",
             border: "border-blue-500/10"
         },
@@ -101,9 +101,9 @@ export function FormateurDashboardStats() {
             value: stats.total_quizzes_taken,
             subValue: `Moyenne : ${stats.avg_quiz_score}%`,
             icon: Trophy,
-            color: "text-yellow-600",
-            bg: "bg-yellow-500/5",
-            border: "border-yellow-500/20"
+            color: "text-brand-primary-dark",
+            bg: "bg-brand-primary/5",
+            border: "border-brand-primary/20"
         },
         {
             title: "Inactifs",
@@ -119,9 +119,9 @@ export function FormateurDashboardStats() {
             value: stats.never_connected,
             subValue: "En attente",
             icon: AlertTriangle,
-            color: "text-red-600",
-            bg: "bg-red-500/5",
-            border: "border-red-500/10"
+            color: "text-destructive", // Utilisation de la couleur destructive
+            bg: "bg-destructive/5",
+            border: "border-destructive/10"
         },
         {
             title: "Heures Vidéos",
@@ -141,7 +141,7 @@ export function FormateurDashboardStats() {
                     key={index}
                     whileHover={{ y: -8, scale: 1.02 }}
                     transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                    className={`relative overflow-hidden group rounded-[2.5rem] border ${card.border} bg-white p-8 shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-yellow-500/10 transition-all duration-500`}
+                    className={`relative overflow-hidden group rounded-[2.5rem] border ${card.border} bg-card p-8 shadow-xl shadow-background hover:shadow-2xl hover:shadow-brand-primary/10 transition-all duration-500`}
                 >
                     <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
                         <card.icon className="h-24 w-24" />
@@ -149,8 +149,8 @@ export function FormateurDashboardStats() {
                     
                     <div className="flex items-start justify-between relative z-10">
                         <div className="space-y-2">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{card.title}</p>
-                            <h3 className="text-4xl font-black text-slate-900 tracking-tighter">{card.value}</h3>
+                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">{card.title}</p>
+                            <h3 className="text-4xl font-black text-foreground tracking-tighter">{card.value}</h3>
                         </div>
                         <div className={`p-4 rounded-2xl ${card.bg} border border-transparent group-hover:border-current/10 transition-colors ${card.color}`}>
                             <card.icon className="h-6 w-6" />
@@ -158,10 +158,10 @@ export function FormateurDashboardStats() {
                     </div>
                     
                     <div className="mt-8 flex items-center justify-between relative z-10">
-                        <span className={`text-[10px] font-bold px-3 py-1 rounded-full bg-slate-50 text-slate-500 border border-slate-100 group-hover:bg-white group-hover:border-slate-200 transition-all`}>
+                        <span className={`text-[10px] font-bold px-3 py-1 rounded-full bg-background text-muted-foreground border border-border group-hover:bg-card group-hover:border-border transition-all`}>
                             {card.subValue}
                         </span>
-                        <div className="h-1 w-12 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-1 w-12 bg-secondary rounded-full overflow-hidden">
                             <motion.div 
                                 initial={{ width: 0 }}
                                 animate={{ width: '60%' }}

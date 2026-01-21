@@ -58,7 +58,7 @@ export function AgendaCard({ events }: AgendaCardProps) {
   return (
     <Card className="mt-3">
       <CardHeader>
-        <CardTitle className="text-2xl md:text-2xl text-orange-400 font-bold">Agenda</CardTitle>
+        <CardTitle className="text-2xl md:text-2xl text-brand-primary font-bold">Agenda</CardTitle>
       </CardHeader>
       <CardContent>
         {upcomingEvents.length > 0 ? (

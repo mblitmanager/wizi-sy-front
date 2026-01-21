@@ -121,8 +121,8 @@ export function OnlineStagiairesCard() {
         return (
             <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 p-8 h-[600px] flex flex-col items-center justify-center space-y-6">
                 <div className="relative">
-                    <div className="h-16 w-16 bg-yellow-500/10 rounded-2xl flex items-center justify-center animate-pulse">
-                        <Users className="h-8 w-8 text-yellow-600/50" />
+                    <div className="h-16 w-16 bg-brand-primary/10 rounded-2xl flex items-center justify-center animate-pulse">
+                        <Users className="h-8 w-8 text-brand-primary/50" />
                     </div>
                 </div>
                 <p className="text-slate-400 text-xs font-black uppercase tracking-widest animate-pulse">Synchronisation...</p>
@@ -136,8 +136,8 @@ export function OnlineStagiairesCard() {
             <div className="p-8 border-b border-slate-50 space-y-6 relative overflow-hidden">
                 <div className="flex items-center justify-between relative z-10">
                     <div className="flex items-center gap-4">
-                        <div className="p-3.5 rounded-2xl bg-yellow-500/10 border border-yellow-500/20">
-                            <Users className="h-5 w-5 text-yellow-600" />
+                        <div className="p-3.5 rounded-2xl bg-brand-primary/10 border border-brand-primary/20">
+                            <Users className="h-5 w-5 text-brand-primary-dark" />
                         </div>
                         <div>
                             <h2 className="text-xl font-black text-slate-900 tracking-tight">Stagiaires Actifs</h2>
@@ -147,12 +147,12 @@ export function OnlineStagiairesCard() {
                 </div>
 
                 <div className="relative group/search z-10">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 group-focus-within/search:text-yellow-600 transition-colors" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 group-focus-within/search:text-brand-primary-dark transition-colors" />
                     <Input 
                         placeholder="Filtrer les connexions..." 
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-11 h-12 bg-slate-50 border-none focus-visible:ring-yellow-500/20 focus-visible:bg-white focus-visible:shadow-inner text-sm font-medium placeholder:text-slate-300 rounded-2xl transition-all"
+                        className="pl-11 h-12 bg-slate-50 border-none focus-visible:ring-brand-primary/20 focus-visible:bg-white focus-visible:shadow-inner text-sm font-medium placeholder:text-slate-300 rounded-2xl transition-all"
                     />
                 </div>
 
@@ -213,7 +213,7 @@ export function OnlineStagiairesCard() {
                                     <Checkbox
                                         checked={selectedIds.includes(stagiaire.id)}
                                         onCheckedChange={() => toggleSelection(stagiaire.id)}
-                                        className="h-5 w-5 rounded-lg border-slate-200 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500 shadow-sm"
+                                        className="h-5 w-5 rounded-lg border-slate-200 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary shadow-sm"
                                     />
                                 </div>
                                 
@@ -252,7 +252,7 @@ export function OnlineStagiairesCard() {
                                             </Badge>
                                         ))}
                                         {stagiaire.formations.length > 1 && (
-                                            <Badge variant="outline" className="bg-yellow-50 border-yellow-200/50 text-[9px] py-0 px-2 h-5 font-bold text-yellow-700 rounded-lg">
+                                            <Badge variant="outline" className="bg-brand-primary/10 border-brand-primary/20 text-[9px] py-0 px-2 h-5 font-bold text-brand-primary-dark rounded-lg">
                                                 +{stagiaire.formations.length - 1}
                                             </Badge>
                                         )}

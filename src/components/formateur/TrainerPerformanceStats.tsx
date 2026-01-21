@@ -75,7 +75,7 @@ const TrainerPerformanceStats = () => {
     if (loading || !data) {
         return (
             <div className="bg-white rounded-[2rem] border border-slate-100 p-20 flex flex-col items-center justify-center space-y-6 shadow-sm">
-                <Trophy className="h-10 w-10 text-yellow-500/30 animate-pulse" />
+                <Trophy className="h-10 w-10 text-brand-primary/30 animate-pulse" />
                 <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] animate-pulse">Synthèse analytique en cours...</p>
             </div>
         );
@@ -92,12 +92,12 @@ const TrainerPerformanceStats = () => {
                     className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-xl shadow-slate-200/40 relative overflow-hidden group"
                 >
                     <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
-                        <Trophy className="h-24 w-24 text-yellow-600" />
+                        <Trophy className="h-24 w-24 text-brand-primary-dark" />
                     </div>
                     
                     <div className="flex items-center gap-4 mb-8">
-                        <div className="p-3.5 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 shadow-sm shadow-yellow-500/5">
-                            <Trophy className="h-5 w-5 text-yellow-600" />
+                        <div className="p-3.5 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 shadow-sm shadow-brand-primary/5">
+                            <Trophy className="h-5 w-5 text-brand-primary-dark" />
                         </div>
                         <div>
                             <h2 className="text-xl font-black text-slate-900 tracking-tight">Top Quizzers</h2>
@@ -113,11 +113,11 @@ const TrainerPerformanceStats = () => {
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: idx * 0.1 }}
-                                className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-transparent hover:bg-white hover:border-slate-100 hover:shadow-lg hover:shadow-yellow-500/5 transition-all group/item"
+                                className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-transparent hover:bg-white hover:border-slate-100 hover:shadow-lg hover:shadow-brand-primary/5 transition-all group/item"
                             >
                                 <div className="flex items-center gap-4 min-w-0">
                                     <div className={`h-9 w-9 rounded-xl flex items-center justify-center font-black text-sm tracking-tighter shadow-sm transition-transform group-hover/item:scale-110 ${
-                                        idx === 0 ? 'bg-yellow-500 text-white shadow-yellow-500/20' : 
+                                        idx === 0 ? 'bg-brand-primary text-slate-900 shadow-brand-primary/20' : 
                                         idx === 1 ? 'bg-slate-200 text-slate-600' :
                                         idx === 2 ? 'bg-orange-100 text-orange-600' :
                                         'bg-white text-slate-400 border border-slate-100'
@@ -130,7 +130,7 @@ const TrainerPerformanceStats = () => {
                                     </div>
                                 </div>
                                 <div className="flex flex-col items-end">
-                                    <span className="text-sm font-black text-yellow-600">{student.total_quizzes}</span>
+                                    <span className="text-sm font-black text-brand-primary-dark">{student.total_quizzes}</span>
                                     <span className="text-[8px] font-black text-slate-300 uppercase leading-none">Modules</span>
                                 </div>
                             </motion.div>
@@ -225,7 +225,7 @@ const TrainerPerformanceStats = () => {
                                 </div>
                                 <div className={`h-10 w-10 min-w-[2.5rem] rounded-xl flex items-center justify-center font-black text-xs ${
                                     formation.avg_score >= 80 ? 'bg-green-50 text-green-600 border border-green-100' :
-                                    formation.avg_score >= 50 ? 'bg-yellow-50 text-yellow-600 border border-yellow-100' :
+                                    formation.avg_score >= 50 ? 'bg-brand-primary/10 text-brand-primary-dark border border-brand-primary/20' :
                                     'bg-red-50 text-red-600 border border-red-100'
                                 }`}>
                                     {formation.avg_score}%
@@ -242,7 +242,7 @@ const TrainerPerformanceStats = () => {
                                             transition={{ duration: 1, delay: 0.5 }}
                                             className={`h-full rounded-full ${
                                                 formation.avg_score >= 80 ? 'bg-green-500' :
-                                                formation.avg_score >= 50 ? 'bg-yellow-500' :
+                                                formation.avg_score >= 50 ? 'bg-brand-primary' :
                                                 'bg-red-500'
                                             }`}
                                         />
@@ -263,7 +263,7 @@ const TrainerPerformanceStats = () => {
 
             {/* Performance Table */}
             <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/20 overflow-hidden relative">
-                <div className="absolute top-0 left-0 w-1 h-full bg-yellow-500/20" />
+                <div className="absolute top-0 left-0 w-1 h-full bg-brand-primary/20" />
                 
                 <div className="p-10 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
                     <div className="flex items-center gap-4">
@@ -299,8 +299,8 @@ const TrainerPerformanceStats = () => {
                                 >
                                     <TableCell className="pl-10 py-6">
                                         <div className="flex items-center gap-4">
-                                            <div className="h-11 w-11 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shadow-sm group-hover:border-yellow-200 transition-colors">
-                                                <span className="text-xs font-black text-slate-400 group-hover:text-yellow-600 uppercase">
+                                            <div className="h-11 w-11 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shadow-sm group-hover:border-brand-primary/30 transition-colors">
+                                                <span className="text-xs font-black text-slate-400 group-hover:text-brand-primary-dark uppercase">
                                                     {student.name.charAt(0)}
                                                 </span>
                                             </div>
@@ -315,7 +315,7 @@ const TrainerPerformanceStats = () => {
                                     <TableCell className="text-center px-8">
                                         {student.last_quiz_at ? (
                                             <div className="inline-flex flex-col items-center group/date">
-                                                <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 px-3 py-1 rounded-xl bg-slate-100 group-hover:bg-yellow-50 group-hover:text-yellow-700 transition-colors">
+                                                <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 px-3 py-1 rounded-xl bg-slate-100 group-hover:bg-brand-primary/10 group-hover:text-brand-primary-dark transition-colors">
                                                     <Calendar className="h-3 w-3" />
                                                     {format(new Date(student.last_quiz_at), 'dd MMM yyyy', { locale: fr })}
                                                 </div>
@@ -330,7 +330,7 @@ const TrainerPerformanceStats = () => {
                                     <TableCell className="text-center px-8">
                                         <div className="flex items-center justify-center gap-4">
                                             <div className="flex flex-col items-center">
-                                                <span className="text-xs font-black text-yellow-600">{student.total_quizzes}</span>
+                                                <span className="text-xs font-black text-brand-primary-dark">{student.total_quizzes}</span>
                                                 <span className="text-[8px] font-black text-slate-300 uppercase">Quiz</span>
                                             </div>
                                             <div className="w-[1px] h-6 bg-slate-100" />
@@ -344,7 +344,7 @@ const TrainerPerformanceStats = () => {
                                         <Button
                                             size="sm"
                                             variant="ghost"
-                                            className="h-10 px-4 text-[10px] font-black uppercase text-slate-400 hover:text-yellow-600 hover:bg-yellow-50 rounded-2xl group/btn transition-all"
+                                            className="h-10 px-4 text-[10px] font-black uppercase text-slate-400 hover:text-brand-primary-dark hover:bg-brand-primary/10 rounded-2xl group/btn transition-all"
                                             onClick={() => handleViewDetails(student.id)}
                                         >
                                             Détails
@@ -369,7 +369,7 @@ const TrainerPerformanceStats = () => {
                             <motion.div 
                                 animate={{ rotate: 360 }}
                                 transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
-                                className="h-12 w-12 border-4 border-yellow-500/10 border-t-yellow-500 rounded-full"
+                                className="h-12 w-12 border-4 border-brand-primary/10 border-t-brand-primary rounded-full"
                             />
                             <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest animate-pulse">Extraction de données...</p>
                         </div>
@@ -377,7 +377,7 @@ const TrainerPerformanceStats = () => {
                         <div className="p-10 space-y-10 max-h-[75vh] overflow-y-auto custom-scrollbar">
                             {/* Student Info */}
                             <div className="flex items-center gap-6 p-6 rounded-3xl bg-slate-50 border border-slate-100 shadow-inner">
-                                <div className="h-16 w-16 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-yellow-600 font-black text-2xl shadow-sm">
+                                <div className="h-16 w-16 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-brand-primary-dark font-black text-2xl shadow-sm">
                                     {details.stagiaire.prenom[0]}{details.stagiaire.nom[0]}
                                 </div>
                                 <div className="min-w-0">
@@ -389,7 +389,7 @@ const TrainerPerformanceStats = () => {
                             {/* Quiz Stats */}
                             <div className="grid grid-cols-2 gap-4">
                                 {[
-                                    { label: 'Quiz Totaux', value: details.quiz_stats.total_quiz, icon: <Trophy className="h-4 w-4" />, color: 'yellow' },
+                                    { label: 'Quiz Totaux', value: details.quiz_stats.total_quiz, icon: <Trophy className="h-4 w-4" />, color: 'brand-primary' },
                                     { label: 'Score Moyen', value: `${details.quiz_stats.avg_score}%`, icon: <CheckCircle2 className="h-4 w-4" />, color: 'green' },
                                     { label: 'Précision', value: `${details.quiz_stats.total_correct}/${details.quiz_stats.total_questions}`, icon: <Smartphone className="h-4 w-4" />, color: 'blue' },
                                     { label: 'Record personnel', value: `${details.quiz_stats.best_score}%`, icon: <Trophy className="h-4 w-4" />, color: 'orange' }
@@ -417,7 +417,7 @@ const TrainerPerformanceStats = () => {
                                                 <span className="text-[11px] font-black text-slate-900 truncate max-w-[60%]">{sf.titre}</span>
                                                 <Badge className={`text-[8px] font-black h-5 ${
                                                     sf.avg_score >= 80 ? 'bg-green-100 text-green-700 border-green-200' :
-                                                    sf.avg_score >= 50 ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
+                                                    sf.avg_score >= 50 ? 'bg-brand-primary/10 text-brand-primary-dark border-brand-primary/20' :
                                                     'bg-red-100 text-red-700 border-red-200'
                                                 }`}>
                                                     {sf.avg_score}%
