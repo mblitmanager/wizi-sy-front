@@ -38,7 +38,7 @@ export function FormateurDashboard() {
 
     return (
         <Layout>
-            <div className="min-h-screen bg-[#FDFCFB] text-slate-900 selection:bg-yellow-200">
+            <div className="min-h-screen bg-brand-background text-slate-900 selection:bg-brand-primary/20">
                 <motion.div 
                     className="container mx-auto py-12 px-6 lg:px-8 space-y-16"
                     variants={containerVariants}
@@ -48,16 +48,16 @@ export function FormateurDashboard() {
                     {/* Header Section */}
                     <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-slate-200/60 pb-10 relative">
                         <div className="space-y-4">
-                            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 shadow-sm">
-                                <span className="h-1.5 w-1.5 rounded-full bg-yellow-600 animate-pulse" />
-                                <span className="text-[10px] font-black text-yellow-700 uppercase tracking-widest leading-none">Perspective Formateur</span>
+                            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/20 shadow-sm">
+                                <span className="h-1.5 w-1.5 rounded-full bg-brand-primary animate-pulse" />
+                                <span className="text-[10px] font-black text-brand-primary-dark uppercase tracking-widest leading-none">Perspective Formateur</span>
                             </motion.div>
                             
                             <motion.h1 
                                 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900"
                                 variants={itemVariants}
                             >
-                                Dashboard <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-yellow-400">Analytique</span>
+                                Dashboard <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary-dark to-brand-primary">Analytique</span>
                             </motion.h1>
                             
                             <motion.p 
@@ -69,11 +69,11 @@ export function FormateurDashboard() {
                         </div>
 
                         <motion.div variants={itemVariants} className="mt-8 md:mt-0">
-                            <div className="bg-white rounded-2xl p-4 shadow-xl shadow-yellow-500/5 border border-slate-100 flex items-center gap-4 transition-transform hover:scale-105 duration-300">
-                                <div className="p-3 bg-yellow-500/10 rounded-xl">
+                            <div className="bg-white rounded-2xl p-4 shadow-xl shadow-brand-primary/5 border border-slate-100 flex items-center gap-4 transition-transform hover:scale-105 duration-300">
+                                <div className="p-3 bg-brand-primary/10 rounded-xl">
                                     <span className="relative flex h-3 w-3">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
-                                        <span className="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"></span>
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-primary-accent opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-primary"></span>
                                     </span>
                                 </div>
                                 <div>
@@ -89,7 +89,7 @@ export function FormateurDashboard() {
                         <motion.div variants={itemVariants} className="relative z-10">
                             <FormateurDashboardStats />
                         </motion.div>
-                        <div className="absolute -top-24 -left-24 w-96 h-96 bg-yellow-500/5 rounded-full blur-[100px] -z-0 pointer-events-none" />
+                        <div className="absolute -top-24 -left-24 w-96 h-96 bg-brand-primary/5 rounded-full blur-[100px] -z-0 pointer-events-none" />
                     </section>
 
                     {/* Middle Section: Insights & Online Presence */}
@@ -107,12 +107,12 @@ export function FormateurDashboard() {
 
                     {/* Performance Section */}
                     <section className="relative group">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-yellow-200 to-yellow-100 rounded-[2.5rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
-                        <div className="relative bg-white rounded-[2rem] p-8 md:p-12 shadow-2xl shadow-yellow-500/5 border border-slate-100 space-y-10">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-brand-primary-accent/30 to-brand-primary/10 rounded-[2.5rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+                        <div className="relative bg-white rounded-[2rem] p-8 md:p-12 shadow-2xl shadow-brand-primary/5 border border-slate-100 space-y-10">
                             <motion.div className="flex flex-col md:flex-row md:items-center justify-between gap-4" variants={itemVariants}>
                                 <div>
                                     <h2 className="text-3xl font-black text-slate-900 tracking-tight">
-                                        Performance & <span className="text-yellow-600">Engagement</span>
+                                        Performance & <span className="text-brand-primary-dark">Engagement</span>
                                     </h2>
                                     <p className="text-slate-500 font-medium mt-2">Corrélation entre temps de connexion et réussite aux examens.</p>
                                 </div>
