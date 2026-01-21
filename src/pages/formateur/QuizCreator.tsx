@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Grid,
@@ -15,60 +15,69 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemSecondaryAction,
   Switch,
   FormControlLabel,
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Alert,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
   ExpandMore as ExpandMoreIcon,
   Publish as PublishIcon,
-  Quiz as QuizIcon,
-} from '@mui/icons-material';
-import axios from 'axios';
+} from "@mui/icons-material";
+import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-interface Quiz {
+type QuizListItem = {
   id: number;
   titre: string;
-  description: string;
-  duree: number;
-  niveau: string;
-  status: string;
-  nb_questions: number;
-}
+  description?: string;
+  duree?: number | string;
+  niveau?: string;
+  status?: string;
+  nb_questions?: number;
+};
+
+type QuizQuestion = {
+  id: number;
+  question: string;
+  type: string;
+  reponses: { id?: number; reponse: string; correct: boolean }[];
+};
+
+type QuizDetail = {
+  quiz: QuizListItem;
+  questions: QuizQuestion[];
+};
 
 export default function QuizCreator() {
-  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [quizzes, setQuizzes] = useState<QuizListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [selectedQuiz, setSelectedQuiz] = useState<any>(null); // Full quiz details
+  const [selectedQuiz, setSelectedQuiz] = useState<QuizDetail | null>(null); // Full quiz details
   const [viewQuestionsOpen, setViewQuestionsOpen] = useState(false);
   const [formations, setFormations] = useState([]);
   
   // New Quiz Form State
   const [newQuizData, setNewQuizData] = useState({
-    titre: '',
-    description: '',
+    titre: "",
+    description: "",
     duree: 30,
-    niveau: 'debutant',
-    formation_id: '',
+    niveau: "debutant",
+    formation_id: "",
   });
 
   // Question Form State
   const [questionDialogOpen, setQuestionDialogOpen] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState({
-    text: '',
+    text: "",
     reponses: [
-      { reponse: '', correct: false },
-      { reponse: '', correct: false },
+      { reponse: "", correct: false },
+      { reponse: "", correct: false },
     ],
   });
 
@@ -79,13 +88,14 @@ export default function QuizCreator() {
 
   const loadQuizzes = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const res = await axios.get(`${API_URL}/formateur/quizzes`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setQuizzes(res.data.quizzes || []);
+      const payload = res.data?.data || res.data;
+      setQuizzes(payload?.quizzes || payload || []);
     } catch (error) {
-      console.error('Error loading quizzes:', error);
+      console.error("Error loading quizzes:", error);
     } finally {
       setLoading(false);
     }
@@ -93,19 +103,20 @@ export default function QuizCreator() {
 
   const loadFormations = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_URL}/formateur/formations-list`, {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${API_URL}/formateur/formations`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setFormations(res.data.formations || []);
+      const payload = res.data?.data || res.data;
+      setFormations(payload?.formations || payload?.data || payload || []);
     } catch (error) {
-      console.error('Error loading formations:', error);
+      console.error("Error loading formations:", error);
     }
   };
 
   const handleCreateQuiz = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       await axios.post(`${API_URL}/formateur/quizzes`, newQuizData, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -113,67 +124,74 @@ export default function QuizCreator() {
       loadQuizzes();
       // Reset form
       setNewQuizData({
-        titre: '',
-        description: '',
+        titre: "",
+        description: "",
         duree: 30,
-        niveau: 'debutant',
-        formation_id: '',
+        niveau: "debutant",
+        formation_id: "",
       });
     } catch (error) {
-      console.error('Error creating quiz:', error);
+      console.error("Error creating quiz:", error);
     }
   };
 
   const handleOpenQuiz = async (id: number) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const res = await axios.get(`${API_URL}/formateur/quizzes/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setSelectedQuiz(res.data);
+      const payload = res.data?.data || res.data;
+      const quiz = payload?.quiz || payload;
+      const questions = payload?.questions || quiz?.questions || [];
+      setSelectedQuiz({ quiz, questions });
       setViewQuestionsOpen(true);
     } catch (error) {
-      console.error('Error loading quiz details:', error);
+      console.error("Error loading quiz details:", error);
     }
   };
 
   const handleDeleteQuiz = async (id: number) => {
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce quiz ?')) return;
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce quiz ?")) return;
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       await axios.delete(`${API_URL}/formateur/quizzes/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       loadQuizzes();
     } catch (error) {
-      alert('Impossible de supprimer ce quiz (peut-être a-t-il des participations ?)');
+      alert("Impossible de supprimer ce quiz (peut-être a-t-il des participations ?)");
     }
   };
 
   const handlePublishQuiz = async () => {
     if (!selectedQuiz) return;
     try {
-      const token = localStorage.getItem('token');
-      await axios.post(`${API_URL}/formateur/quizzes/${selectedQuiz.quiz.id}/publish`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${API_URL}/formateur/quizzes/${selectedQuiz.quiz.id}/publish`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setViewQuestionsOpen(false);
       loadQuizzes();
-      alert('Quiz publié avec succès !');
+      alert("Quiz publié avec succès !");
     } catch (error) {
-      alert('Erreur lors de la publication (vérifiez qu\'il y a des questions)');
+      alert("Erreur lors de la publication (vérifiez qu'il y a des questions)");
     }
   };
 
   const handleAddQuestion = async () => {
     if (!selectedQuiz) return;
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       await axios.post(
         `${API_URL}/formateur/quizzes/${selectedQuiz.quiz.id}/questions`,
         {
           question: currentQuestion.text,
-          type: 'qcm',
+          type: "banque de mots", // aligné sur la payload Laravel existante
           reponses: currentQuestion.reponses,
         },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -182,14 +200,14 @@ export default function QuizCreator() {
       handleOpenQuiz(selectedQuiz.quiz.id); // Reload questions
       // Reset question form
       setCurrentQuestion({
-        text: '',
+        text: "",
         reponses: [
-          { reponse: '', correct: false },
-          { reponse: '', correct: false },
+          { reponse: "", correct: false },
+          { reponse: "", correct: false },
         ],
       });
     } catch (error) {
-      console.error('Error adding question:', error);
+      console.error("Error adding question:", error);
     }
   };
 
@@ -203,19 +221,19 @@ export default function QuizCreator() {
   const addReponseOption = () => {
     setCurrentQuestion({
       ...currentQuestion,
-      reponses: [...currentQuestion.reponses, { reponse: '', correct: false }],
+      reponses: [...currentQuestion.reponses, { reponse: "", correct: false }],
     });
   };
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
         <Typography variant="h4">Gestion des Quiz</Typography>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => setCreateDialogOpen(true)}
-          sx={{ bgcolor: '#F7931E' }}
+          sx={{ bgcolor: "#F7931E" }}
         >
           Nouveau Quiz
         </Button>
@@ -236,9 +254,9 @@ export default function QuizCreator() {
                   sx={{ mb: 1 }}
                 />
                 <Typography variant="body2" color="text.secondary">
-                  {quiz.nb_questions} questions • {quiz.niveau} • {quiz.duree} min
+                  {(quiz.nb_questions ?? 0)} questions • {quiz.niveau} • {quiz.duree} min
                 </Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
+                <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 2 }}>
                   <IconButton onClick={() => handleOpenQuiz(quiz.id)} color="primary">
                     <EditIcon />
                   </IconButton>
@@ -312,7 +330,7 @@ export default function QuizCreator() {
               </MenuItem>
             ))}
           </TextField>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 1 }}>
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 1 }}>
             <Button onClick={() => setCreateDialogOpen(false)}>Annuler</Button>
             <Button onClick={handleCreateQuiz} variant="contained" disabled={!newQuizData.titre}>
               Créer
@@ -331,9 +349,9 @@ export default function QuizCreator() {
       >
         {selectedQuiz && (
           <Box p={3}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
               <Typography variant="h5">{selectedQuiz.quiz.titre}</Typography>
-              {selectedQuiz.quiz.status !== 'actif' && (
+              {selectedQuiz.quiz.status !== "actif" && (
                 <Button
                   variant="contained"
                   color="success"
@@ -346,7 +364,7 @@ export default function QuizCreator() {
             </Box>
 
             <List>
-              {selectedQuiz.questions?.map((q: any, index: number) => (
+              {selectedQuiz.questions?.map((q: QuizQuestion, index: number) => (
                 <Accordion key={q.id}>
                   <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                     <Typography>
@@ -359,19 +377,28 @@ export default function QuizCreator() {
                         <ListItem key={r.id}>
                           <ListItemText
                             primary={r.reponse}
-                            sx={{ color: r.correct ? 'success.main' : 'text.primary' }}
+                            sx={{ color: r.correct ? "success.main" : "text.primary" }}
                           />
                           {r.correct && <Chip label="Correct" size="small" color="success" />}
                         </ListItem>
                       ))}
                     </List>
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                       <Button
                         color="error"
                         startIcon={<DeleteIcon />}
                         onClick={async () => {
-                          if (confirm('Supprimer cette question ?')) {
-                            // Call delete API
+                          if (confirm("Supprimer cette question ?")) {
+                            try {
+                              const token = localStorage.getItem("token");
+                              await axios.delete(
+                                `${API_URL}/formateur/quizzes/${selectedQuiz.quiz.id}/questions/${q.id}`,
+                                { headers: { Authorization: `Bearer ${token}` } }
+                              );
+                            } catch (err) {
+                              console.error("Error deleting question:", err);
+                              alert("Suppression impossible");
+                            }
                             handleOpenQuiz(selectedQuiz.quiz.id); // Reload
                           }
                         }}
@@ -415,7 +442,7 @@ export default function QuizCreator() {
             Réponses
           </Typography>
           {currentQuestion.reponses.map((reponse, index) => (
-            <Box key={index} sx={{ display: 'flex', gap: 1, mb: 1, alignItems: 'center' }}>
+            <Box key={index} sx={{ display: "flex", gap: 1, mb: 1, alignItems: "center" }}>
               <TextField
                 fullWidth
                 size="small"
@@ -438,7 +465,7 @@ export default function QuizCreator() {
             + Ajouter une option
           </Button>
 
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 1 }}>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 1 }}>
             <Button onClick={() => setQuestionDialogOpen(false)}>Annuler</Button>
             <Button onClick={handleAddQuestion} variant="contained">
               Enregistrer

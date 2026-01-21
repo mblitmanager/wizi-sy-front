@@ -111,6 +111,11 @@ const QuizCreator = lazy(() =>
     default: module.default,
   }))
 );
+const FormateurQuizManagementPage = lazy(() =>
+  import("@/pages/formateur/FormateurQuizManagementPage").then((module) => ({
+    default: module.default,
+  }))
+);
 const TrainerArenaPage = lazy(() =>
   import("@/pages/formateur/TrainerArenaPage").then((module) => ({
     default: module.TrainerArenaPage,
@@ -463,6 +468,14 @@ export const routes = [
       ProtectedRoute,
       undefined,
       Loadable(FormateurVideosPage)
+    ),
+  },
+  {
+    path: "/formateur/quizzes",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(FormateurQuizManagementPage)
     ),
   },
   {
