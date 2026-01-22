@@ -181,13 +181,39 @@ export default function VideoPlayer({
 
     // Listen to playback events
     const player = playerRef.current;
+    
+    // Progress tracking throttling
+    let lastUpdate = 0;
+    const UPDATE_INTERVAL = 10000; // 10 seconds
+
     const handleTimeUpdate = () => {
       if (!video.duration) return;
+      const now = Date.now();
       const percentWatched = (video.currentTime / video.duration) * 100;
+      
+      // Mark as watched
       if (percentWatched >= watchedThreshold && !hasMarkedAsWatched.current) {
         markAsWatched();
       }
+
+      // Send progress update periodically or on significant events
+      if (now - lastUpdate > UPDATE_INTERVAL && !video.paused) {
+        mediaService.updateProgress(mediaId, Math.floor(video.currentTime), Math.floor(video.duration));
+        lastUpdate = now;
+      }
     };
+    
+    // Also update on pause/end to capture final state
+    player.on("pause", () => {
+        if (video.currentTime > 0) {
+            mediaService.updateProgress(mediaId, Math.floor(video.currentTime), Math.floor(video.duration));
+        }
+    });
+
+    player.on("ended", () => {
+        mediaService.updateProgress(mediaId, Math.floor(video.duration), Math.floor(video.duration));
+    });
+
     player.on("timeupdate", handleTimeUpdate);
 
     // Load player preferences from localStorage

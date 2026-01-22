@@ -71,15 +71,18 @@ const FormateurService = {
   },
   getFormationsPerformance: async (): Promise<FormationPerformance[]> => {
     const response = await api.get(
-      "/formateur/analytics/formations/performance"
+      "/formateur/analytics/formations/performance",
     );
-    return response.data;
+    // Handle both new structured response and potential array
+    return Array.isArray(response.data)
+      ? response.data
+      : response.data.performance || [];
   },
   getStagiaireFormations: async (
-    id: number
+    id: number,
   ): Promise<StagiaireFormationPerformance[]> => {
     const response = await api.get(
-      `/formateur/analytics/stagiaire/${id}/formations`
+      `/formateur/analytics/stagiaire/${id}/formations`,
     );
     return response.data;
   },

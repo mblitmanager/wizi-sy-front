@@ -75,8 +75,8 @@ function getAdContent(formation: CatalogueFormation) {
   const titles = [titre];
   const descriptions = [
     desc,
-    "Développez vos compétences avec des modules interactifs et concrets.",
-    "Rejoignez une communauté d'apprenants motivés et bénéficiez d'un accompagnement personnalisé.",
+    "Développez vos compétences avec des formations interactives et concrètes.",
+    "Rejoignez une communauté de stagiaires motivés et bénéficiez d'un accompagnement personnalisé.",
   ];
   const ctas = ["Découvrez maintenant", "Commencer la formation"];
   return {

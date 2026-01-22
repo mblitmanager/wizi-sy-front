@@ -173,8 +173,8 @@ const sections = [
       <>
         <h2 className="text-xl font-semibold mb-2">Formation</h2>
         <p>
-          Sélectionnez une formation dans le catalogue et suivez les modules
-          proposés. Votre progression est enregistrée automatiquement.
+          Sélectionnez une formation dans le catalogue et suivez les formations
+          proposées. Votre progression est enregistrée automatiquement.
         </p>
       </>
     ),

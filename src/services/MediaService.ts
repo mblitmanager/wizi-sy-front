@@ -11,4 +11,22 @@ export const mediaService = {
       stagiaire_id: stagiaireId,
       media_id: mediaId,
     }),
+  async updateProgress(
+    mediaId: string,
+    currentTime: number,
+    duration: number,
+  ): Promise<any> {
+    try {
+      const response = await api.post("/medias/updateProgress", {
+        media_id: mediaId,
+        current_time: currentTime,
+        duration: duration,
+      });
+      return response.data;
+    } catch (error) {
+      // Fail silently to avoid interrupting playback
+      console.error("Error updating video progress:", error);
+      return null;
+    }
+  },
 };

@@ -131,7 +131,7 @@ const TrainerPerformanceStats = () => {
                                 </div>
                                 <div className="flex flex-col items-end">
                                     <span className="text-sm font-black text-brand-primary-dark">{student.total_quizzes}</span>
-                                    <span className="text-[8px] font-black text-slate-300 uppercase leading-none">Modules</span>
+                                    <span className="text-[8px] font-black text-slate-300 uppercase leading-none">Quiz</span>
                                 </div>
                             </motion.div>
                         ))}
@@ -220,7 +220,7 @@ const TrainerPerformanceStats = () => {
                                         {formation.titre}
                                     </h3>
                                     <span className="text-[10px] font-bold text-slate-300 uppercase tracking-tighter">
-                                        {formation.student_count} Apprenants
+                                        {formation.student_count} Stagiaires
                                     </span>
                                 </div>
                                 <div className={`h-10 w-10 min-w-[2.5rem] rounded-xl flex items-center justify-center font-black text-xs ${

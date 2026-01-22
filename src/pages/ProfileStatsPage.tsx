@@ -267,7 +267,7 @@ const ProfileStatsPage = () => {
               Performances Stagiaires
             </h1>
             <p className="text-gray-600 dark:text-gray-300">
-              Suivi détaillé de l'avancement de vos apprenants
+              Suivi détaillé de l'avancement de vos stagiaires
             </p>
           </div>
           <TrainerPerformanceStats />

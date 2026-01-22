@@ -136,7 +136,7 @@ export function FormateurVideosPage() {
                                     Bibliothèque <span className="text-[#FEB823]">Vidéos</span>
                                 </h1>
                                 <p className="text-gray-500 text-lg max-w-2xl mb-8 leading-relaxed font-medium">
-                                    Analysez l'engagement de vos apprenants et gérez votre contenu pédagogique en toute simplicité.
+                                    Analysez l'engagement de vos stagiaires et gérez votre contenu pédagogique en toute simplicité.
                                 </p>
 
                                 <div className="flex flex-wrap gap-4 mb-8">
@@ -155,7 +155,7 @@ export function FormateurVideosPage() {
                                         </div>
                                         <div>
                                             <p className="text-3xl font-black text-gray-900">{formationsWithVideos.length}</p>
-                                            <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Modules actifs</p>
+                                            <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Formations actives</p>
                                         </div>
                                     </div>
                                 </div>

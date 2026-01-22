@@ -36,7 +36,7 @@ const AboutPage = () => {
                             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Notre Vision</h3>
                             <p>
                                 Nous croyons que la formation continue est la clé du succès professionnel.
-                                C'est pourquoi nous avons développé une solution qui s'adapte aux besoins des formateurs et des apprenants.
+                                C'est pourquoi nous avons développé une solution qui s'adapte aux besoins des formateurs et des stagiaires.
                             </p>
                         </section>
 
