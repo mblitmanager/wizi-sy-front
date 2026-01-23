@@ -6,17 +6,17 @@ import { LoadingState } from "@/components/quiz/quiz-play/LoadingState";
 // Lazy load components
 // Named exports
 const Index = lazy(() =>
-  import("@/pages/Index").then((module) => ({ default: module.Index }))
+  import("@/pages/Index").then((module) => ({ default: module.Index })),
 );
 const QuizDetail = lazy(() =>
   import("@/components/quiz/QuizDetail").then((module) => ({
     default: module.QuizDetail,
-  }))
+  })),
 );
 const QuizResults = lazy(() =>
   import("@/components/quiz/QuizResults").then((module) => ({
     default: module.QuizResults,
-  }))
+  })),
 );
 
 // Default exports
@@ -35,10 +35,10 @@ const TutoAstucePage = lazy(() => import("@/pages/TutoAstucePage"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const Parainage = lazy(() => import("@/pages/Parainage"));
 const ParrainageInscriptionPage = lazy(
-  () => import("@/pages/ParrainageInscriptionPage")
+  () => import("@/pages/ParrainageInscriptionPage"),
 );
 const CatalogueFormationDetails = lazy(
-  () => import("@/components/catalogueFormation/CatalogueFormationDetails")
+  () => import("@/components/catalogueFormation/CatalogueFormationDetails"),
 );
 const NotificationsPage = lazy(() => import("@/pages/NotificationsPage"));
 const FAQPage = lazy(() => import("@/pages/FAQPage"));
@@ -46,80 +46,90 @@ const CGVPage = lazy(() => import("@/pages/CGVPage"));
 const ManuelPage = lazy(() => import("@/pages/ManuelPage"));
 const RemerciementsPage = lazy(() => import("@/pages/RemerciementsPage"));
 const PolitiqueConfidentialitePage = lazy(
-  () => import("@/pages/PolitiqueConfidentialitePage")
+  () => import("@/pages/PolitiqueConfidentialitePage"),
 );
 const ContactSupportPage = lazy(() => import("@/pages/ContactSupportPage"));
 const ForgotPassword = lazy(() => import("./components/auth/ForrgotPassword"));
 const ResetPassword = lazy(() => import("./components/auth/ResetPassword"));
 const ProfileBadgesPage = lazy(() => import("@/pages/ProfileBadgesPage"));
 const ProfileFormationsPage = lazy(
-  () => import("@/pages/ProfileFormationsPage")
+  () => import("@/pages/ProfileFormationsPage"),
 );
 const ProfileStatsPage = lazy(() => import("@/pages/ProfileStatsPage"));
 const StatisticsDashboard = lazy(() =>
   import("@/pages/admin/StatisticsDashboard").then((module) => ({
     default: module.StatisticsDashboard,
-  }))
+  })),
 );
 const FormateurDashboard = lazy(() =>
   import("@/pages/formateur/FormateurDashboard").then((module) => ({
     default: module.FormateurDashboard,
-  }))
+  })),
 );
 const FormateurCommunicationsPage = lazy(() =>
   import("@/pages/formateur/FormateurCommunicationsPage").then((module) => ({
     default: module.FormateurCommunicationsPage,
-  }))
+  })),
 );
 const FormateurClassementPage = lazy(() =>
   import("@/pages/formateur/FormateurClassementPage").then((module) => ({
     default: module.FormateurClassementPage,
-  }))
+  })),
 );
 const FormateurVideosPage = lazy(() =>
   import("@/pages/formateur/FormateurVideosPage").then((module) => ({
     default: module.FormateurVideosPage,
-  }))
+  })),
 );
 const CommercialDashboard = lazy(() =>
   import("@/pages/commercial/CommercialDashboard").then((module) => ({
     default: module.CommercialDashboard,
-  }))
+  })),
 );
 const AnnouncementsPage = lazy(() =>
   import("@/pages/admin/AnnouncementsPage").then((module) => ({
     default: module.AnnouncementsPage,
-  }))
+  })),
 );
 const ChallengesPage = lazy(() =>
   import("@/pages/admin/ChallengesPage").then((module) => ({
     default: module.ChallengesPage,
-  }))
+  })),
 );
 const GestionFormations = lazy(() =>
   import("@/pages/formateur/GestionFormations").then((module) => ({
     default: module.default,
-  }))
+  })),
 );
 const Analytiques = lazy(() =>
   import("@/pages/formateur/Analytiques").then((module) => ({
     default: module.default,
-  }))
+  })),
 );
 const QuizCreator = lazy(() =>
   import("@/pages/formateur/QuizCreator").then((module) => ({
     default: module.default,
-  }))
+  })),
+);
+const MesStagiairesPage = lazy(() =>
+  import("@/pages/formateur/MesStagiairesPage").then((module) => ({
+    default: module.default,
+  })),
+);
+const StagiaireProfilePage = lazy(() =>
+  import("@/pages/formateur/StagiaireProfilePage").then((module) => ({
+    default: module.default,
+  })),
 );
 const FormateurQuizManagementPage = lazy(() =>
   import("@/pages/formateur/FormateurQuizManagementPage").then((module) => ({
     default: module.default,
-  }))
+  })),
 );
 const TrainerArenaPage = lazy(() =>
   import("@/pages/formateur/TrainerArenaPage").then((module) => ({
     default: module.TrainerArenaPage,
-  }))
+  })),
 );
 const AboutPage = lazy(() => import("@/pages/AboutPage"));
 
@@ -129,7 +139,7 @@ const AdminStagiaires = lazy(() => import("@/pages/admin/Stagiaires"));
 const AdminQuiz = lazy(() => import("@/pages/admin/Quiz"));
 const AdminFormations = lazy(() => import("@/pages/admin/Formations"));
 const AdminCatalogueFormations = lazy(
-  () => import("@/pages/admin/CatalogueFormations")
+  () => import("@/pages/admin/CatalogueFormations"),
 );
 const AdminFormateurs = lazy(() => import("@/pages/admin/Formateurs"));
 const AdminCommerciaux = lazy(() => import("@/pages/admin/Commerciaux"));
@@ -141,7 +151,7 @@ const Loadable = (Component: React.ComponentType) =>
   React.createElement(
     Suspense,
     { fallback: React.createElement(LoadingState) },
-    React.createElement(Component)
+    React.createElement(Component),
   );
 
 export const routes = [
@@ -202,7 +212,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(Catalogue)
+      Loadable(Catalogue),
     ),
   },
   {
@@ -210,7 +220,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(CategoryFormations)
+      Loadable(CategoryFormations),
     ),
   },
   {
@@ -218,7 +228,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(Formation)
+      Loadable(Formation),
     ),
   },
   {
@@ -234,7 +244,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(QuizDetail)
+      Loadable(QuizDetail),
     ),
   },
   {
@@ -246,7 +256,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(QuizResults)
+      Loadable(QuizResults),
     ),
   },
   // Routes de profil
@@ -259,7 +269,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(ProfileBadgesPage)
+      Loadable(ProfileBadgesPage),
     ),
   },
   {
@@ -267,7 +277,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(ProfileFormationsPage)
+      Loadable(ProfileFormationsPage),
     ),
   },
   {
@@ -275,7 +285,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(ProfileStatsPage)
+      Loadable(ProfileStatsPage),
     ),
   },
   {
@@ -287,7 +297,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(Classement)
+      Loadable(Classement),
     ),
   },
   {
@@ -295,7 +305,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(TutoAstucePage)
+      Loadable(TutoAstucePage),
     ),
   },
   {
@@ -307,7 +317,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(Parainage)
+      Loadable(Parainage),
     ),
   },
   {
@@ -315,7 +325,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(CatalogueFormationDetails)
+      Loadable(CatalogueFormationDetails),
     ),
   },
   {
@@ -323,7 +333,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(AdminDashboard)
+      Loadable(AdminDashboard),
     ),
   },
   {
@@ -331,7 +341,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(AdminStagiaires)
+      Loadable(AdminStagiaires),
     ),
   },
   {
@@ -339,7 +349,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(AdminQuiz)
+      Loadable(AdminQuiz),
     ),
   },
   {
@@ -347,7 +357,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(AdminFormations)
+      Loadable(AdminFormations),
     ),
   },
   {
@@ -355,7 +365,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(AdminCatalogueFormations)
+      Loadable(AdminCatalogueFormations),
     ),
   },
   {
@@ -363,7 +373,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(AdminFormateurs)
+      Loadable(AdminFormateurs),
     ),
   },
   {
@@ -371,7 +381,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(AdminCommerciaux)
+      Loadable(AdminCommerciaux),
     ),
   },
   {
@@ -379,7 +389,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(AdminAchievements)
+      Loadable(AdminAchievements),
     ),
   },
   {
@@ -387,7 +397,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(AdminParametres)
+      Loadable(AdminParametres),
     ),
   },
   {
@@ -395,7 +405,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(StatisticsDashboard)
+      Loadable(StatisticsDashboard),
     ),
   },
   {
@@ -403,7 +413,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(AnnouncementsPage)
+      Loadable(AnnouncementsPage),
     ),
   },
   {
@@ -411,7 +421,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(ChallengesPage)
+      Loadable(ChallengesPage),
     ),
   },
   {
@@ -419,7 +429,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(AnnouncementsPage)
+      Loadable(AnnouncementsPage),
     ),
   },
   {
@@ -427,7 +437,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(AnnouncementsPage)
+      Loadable(AnnouncementsPage),
     ),
   },
   {
@@ -435,7 +445,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(FormateurDashboard)
+      Loadable(FormateurDashboard),
     ),
   },
   {
@@ -443,7 +453,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(AnnouncementsPage)
+      Loadable(AnnouncementsPage),
     ),
   },
   {
@@ -451,7 +461,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(FormateurClassementPage)
+      Loadable(FormateurClassementPage),
     ),
   },
   {
@@ -459,7 +469,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(TrainerArenaPage)
+      Loadable(TrainerArenaPage),
     ),
   },
   {
@@ -467,7 +477,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(FormateurVideosPage)
+      Loadable(FormateurVideosPage),
     ),
   },
   {
@@ -475,7 +485,23 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(FormateurQuizManagementPage)
+      Loadable(FormateurQuizManagementPage),
+    ),
+  },
+  {
+    path: "/formateur/mes-stagiaires",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(MesStagiairesPage),
+    ),
+  },
+  {
+    path: "/formateur/stagiaire/:id",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(StagiaireProfilePage),
     ),
   },
   {
@@ -483,7 +509,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(CommercialDashboard)
+      Loadable(CommercialDashboard),
     ),
   },
   {
@@ -491,7 +517,7 @@ export const routes = [
     element: React.createElement(
       ProtectedRoute,
       undefined,
-      Loadable(NotificationsPage)
+      Loadable(NotificationsPage),
     ),
   },
   {

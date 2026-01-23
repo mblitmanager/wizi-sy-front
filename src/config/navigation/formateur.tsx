@@ -6,8 +6,10 @@ import {
     Megaphone,
     Bell,
     Gamepad2,
-    ClipboardList
+    ClipboardList,
+    Users
 } from "lucide-react";
+
 import { NavItem } from "./stagiaire";
 
 export const getFormateurNavigation = () => ({
@@ -24,6 +26,13 @@ export const getFormateurNavigation = () => ({
             icon: Megaphone,
             color: "text-orange-600",
         },
+        {
+            title: "Mes Stagiaires",
+            href: "/formateur/mes-stagiaires",
+            icon: Users,
+            color: "text-pink-600",
+        },
+
         {
             title: "Classement",
             href: "/formateur/classement",

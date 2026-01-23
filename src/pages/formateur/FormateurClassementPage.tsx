@@ -149,12 +149,13 @@ export function FormateurClassementPage() {
                         className="flex flex-col md:flex-row md:items-end justify-between gap-8"
                     >
                         <div className="space-y-4">
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-primary/5 border border-brand-primary/20 shadow-sm shadow-brand-primary/5">
+                            {/* <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-primary/5 border border-brand-primary/20 shadow-sm shadow-brand-primary/5">
                                 <div className="h-1.5 w-1.5 rounded-full bg-brand-primary animate-pulse" />
                                 <span className="text-[10px] font-black text-brand-primary-dark uppercase tracking-widest leading-none">Hall of Fame</span>
-                            </div>
+                            </div> */}
                             <h1 className="text-4xl md:text-6xl font-black text-foreground tracking-tight">
-                                Classement <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary-dark via-brand-primary to-brand-primary-accent">Élite</span>
+                                Classement 
+                                {/* <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary-dark via-brand-primary to-brand-primary-accent">Élite</span> */}
                             </h1>
                             <p className="text-muted-foreground font-medium max-w-lg text-lg leading-relaxed">
                                 Suivez l'excellence et la progression de vos stagiaires en temps réel à travers vos différentes formations.
