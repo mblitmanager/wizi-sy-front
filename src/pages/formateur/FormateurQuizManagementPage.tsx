@@ -15,9 +15,17 @@ import {
 import { Label } from "@/components/ui/label";
 import { api } from "@/lib/api";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   CheckCircle2,
   Download,
   Eye,
+  MoreVertical,
   Plus,
   Search,
   Trash2,

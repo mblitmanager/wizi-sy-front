@@ -262,7 +262,7 @@ export function TrainerArenaPage() {
                                                 </div>
                                                 <div className="space-y-1">
                                                     <h3 className="font-black text-lg flex items-center gap-2 text-slate-900">
-                                                        Formateur {formateur.prenom} {formateur.nom}
+                                                        {formateur.prenom} {formateur.nom}
                                                         {isMe && <span className="text-[10px] bg-yellow-500 text-black px-1.5 py-0.5 rounded font-black uppercase">Vous</span>}
                                                     </h3>
                                                     <div className="flex items-center gap-2 text-slate-500 text-xs font-bold">
