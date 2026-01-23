@@ -60,10 +60,17 @@ export default function Quizzes() {
   const [activeToggle, setActiveToggle] = useState<string>(initialToggle);
   const [hasInitialized, setHasInitialized] = useState(false);
 
-  // Filtre formation
-  const [selectedFormationId, setSelectedFormationId] = useState<string | null>(
-    null
-  );
+  const [selectedFormationId, setSelectedFormationId] = useState<string | null>(() => {
+    return localStorage.getItem("last_selected_formation_id");
+  });
+
+  // Persister le choix de formation
+  useEffect(() => {
+    if (selectedFormationId) {
+      localStorage.setItem("last_selected_formation_id", selectedFormationId);
+    }
+  }, [selectedFormationId]);
+
   const { data: formations = [] } = useFormationStagiaire(
     user?.stagiaire?.id ?? null
   );

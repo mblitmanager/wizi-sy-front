@@ -68,7 +68,7 @@ export function FormateurDashboard() {
                             </motion.p>
                         </div>
 
-                        <motion.div variants={itemVariants} className="mt-8 md:mt-0">
+                        {/* <motion.div variants={itemVariants} className="mt-8 md:mt-0">
                             <div className="bg-white rounded-2xl p-4 shadow-xl shadow-brand-primary/5 border border-slate-100 flex items-center gap-4 transition-transform hover:scale-105 duration-300">
                                 <div className="p-3 bg-brand-primary/10 rounded-xl">
                                     <span className="relative flex h-3 w-3">
@@ -81,7 +81,7 @@ export function FormateurDashboard() {
                                     <p className="text-xs font-bold text-slate-700">Flux de données synchronisé</p>
                                 </div>
                             </div>
-                        </motion.div>
+                        </motion.div> */}
                     </div>
 
                     {/* Principal Stats Section */}

@@ -65,7 +65,7 @@ export const useQuizPlay = (quizId: string) => {
       (async () => {
         try {
           const resp = await apiClient.get(
-            `/quiz/${quizId}/participation/resume`
+            `/quiz/${quizId}/participation/resume`,
           );
           const data = resp?.data || resp;
           if (data) {
@@ -90,7 +90,7 @@ export const useQuizPlay = (quizId: string) => {
       })();
     }
     const shuffledQuestions = [...quiz.questions].sort(
-      () => 0.5 - Math.random()
+      () => 0.5 - Math.random(),
     );
 
     // Take only the required number of questions
@@ -180,7 +180,8 @@ export const useQuizPlay = (quizId: string) => {
     if (quiz?.duree) {
       timer.setTimeLeft(quiz.duree);
     }
-  }, [quiz, timer]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quiz?.id]);
 
   // resetQuiz: resets navigation index, answers and timer
   const resetQuiz = () => {

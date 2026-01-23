@@ -19,6 +19,11 @@ export interface Participation {
   deja_jouer: boolean;
 }
 
+export interface PlayedQuestion {
+  question_id: number | string;
+  selectedAnswers: Array<number | string>;
+}
+
 export interface Quiz {
   id: string;
   titre: string;
@@ -41,6 +46,7 @@ export interface Quiz {
     lien?: string;
     url?: string;
   }>;
+  playedQuestions?: PlayedQuestion[];
 }
 
 export interface Question {

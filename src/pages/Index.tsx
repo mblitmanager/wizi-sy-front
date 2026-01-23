@@ -369,7 +369,7 @@ function AuthenticatedApp({ user }: { user: AuthenticatedUser }) {
 
   useEffect(() => {
     axios
-      .get(`${API_URL}/classement/points`, {
+      .get(`${API_URL}/users/me/points`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

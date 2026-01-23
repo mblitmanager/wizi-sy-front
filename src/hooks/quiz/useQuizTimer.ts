@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 // useQuizTimer.ts
 export const useQuizTimer = (initialTime: number = 30 * 60) => {
   const [timeLeft, setTimeLeft] = useState(initialTime);
@@ -10,8 +10,8 @@ export const useQuizTimer = (initialTime: number = 30 * 60) => {
 
     if (timeLeft > 0 && !isPaused) {
       timer = window.setInterval(() => {
-        setTimeLeft(prev => prev - 1);
-        setTimeSpent(prev => prev + 1); // Toujours incrémenter le temps total
+        setTimeLeft((prev) => prev - 1);
+        setTimeSpent((prev) => prev + 1); // Toujours incrémenter le temps total
       }, 1000);
     }
 
@@ -23,26 +23,29 @@ export const useQuizTimer = (initialTime: number = 30 * 60) => {
   }, [timeLeft, isPaused]);
 
   // Fonction pour réinitialiser les deux pour un nouveau quiz
-  const reset = () => {
+  const reset = React.useCallback(() => {
     setTimeLeft(initialTime);
     setTimeSpent(0);
     setIsPaused(false);
-  };
+  }, [initialTime]);
 
   // NOUVELLE FONCTION : Réinitialiser seulement le temps restant pour la question
-  const resetTimeLeft = () => {
+  const resetTimeLeft = React.useCallback(() => {
     setTimeLeft(initialTime); // Réinitialiser le temps imparti pour la question
     // Laissez timeSpent tel quel pour qu'il continue d'accumuler
-  }
+  }, [initialTime]);
 
-  return {
-    timeLeft,
-    timeSpent, // Ce sera maintenant le temps total
-    isPaused,
-    setIsPaused,
-    setTimeLeft,
-    setTimeSpent,
-    reset,
-    resetTimeLeft // Exposer la nouvelle fonction
-  };
+  return React.useMemo(
+    () => ({
+      timeLeft,
+      timeSpent,
+      isPaused,
+      setIsPaused,
+      setTimeLeft,
+      setTimeSpent,
+      reset,
+      resetTimeLeft,
+    }),
+    [timeLeft, timeSpent, isPaused, reset, resetTimeLeft],
+  );
 };

@@ -105,11 +105,15 @@ const UserScore = ({ score }: { score: number | null }) => {
   if (score === null) return null;
 
   return (
-    <span className="ml-2 text-sm font-semibold text-gray-700 flex items-center">
-      <Trophy className="inline h-4 w-4 mr-1" style={{ color: 'var(--brand-primary)' }} />
-      {score} pts
-    </span>
+    <>
+      {console.log("Score affiché dans la Navbar :", score)}
+      <span className="ml-2 text-sm font-semibold text-gray-700 flex items-center">
+        <Trophy className="inline h-4 w-4 mr-1" style={{ color: 'var(--brand-primary)' }} />
+        {score} pts
+      </span>
+    </>
   );
+
 };
 
 /* ---------------------- Navbar principale ---------------------- */
