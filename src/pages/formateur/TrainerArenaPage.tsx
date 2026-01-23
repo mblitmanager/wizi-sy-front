@@ -41,7 +41,9 @@ interface FormateurRanking {
 interface Formation {
     id: number;
     nom: string;
+    titre?: string;
 }
+
 
 export function TrainerArenaPage() {
     const { user } = useUser();
@@ -190,10 +192,12 @@ export function TrainerArenaPage() {
                                 </SelectTrigger>
                                 <SelectContent className="bg-white border-slate-200 text-slate-900 rounded-2xl">
                                     <SelectItem value="all">Toutes les Formations</SelectItem>
+
                                     {formations.map((f) => (
-                                        <SelectItem key={f.id} value={String(f.id)}>{f.titre}</SelectItem>
+                                        <SelectItem key={f.id} value={String(f.id)}>{f.titre || f.nom}</SelectItem>
                                     ))}
                                 </SelectContent>
+
                             </Select>
                         </div>
                         <div className="flex-1">

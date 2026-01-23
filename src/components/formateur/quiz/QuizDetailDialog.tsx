@@ -8,7 +8,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, Plus, Trash2 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
+import { CheckCircle2, Inbox, Plus, Trash2 } from "lucide-react";
 
 type QuizQuestion = {
   id: number;
@@ -76,8 +77,9 @@ export function QuizDetailDialog({
         </DialogHeader>
 
         {loading || !selectedQuiz ? (
-          <div className="py-10 text-center text-muted-foreground">
-            Chargement…
+          <div className="flex flex-col items-center justify-center gap-4 py-16">
+            <Spinner className="h-8 w-8 text-muted-foreground" />
+            <p className="text-muted-foreground">Chargement du quiz...</p>
           </div>
         ) : (
           <div className="space-y-5">
@@ -123,8 +125,12 @@ export function QuizDetailDialog({
             </div>
 
             {selectedQuiz.questions.length === 0 ? (
-              <div className="py-10 text-center text-muted-foreground border border-dashed border-border rounded-lg">
-                Aucune question ajoutée
+              <div className="flex flex-col items-center justify-center gap-2 py-12 text-center text-muted-foreground border border-dashed border-border rounded-lg">
+                <Inbox className="h-10 w-10 text-muted-foreground/80" />
+                <h3 className="text-lg font-semibold">Aucune question</h3>
+                <p className="text-sm text-muted-foreground">
+                  Ajoutez votre première question à ce quiz.
+                </p>
               </div>
             ) : (
               <div className="space-y-3">

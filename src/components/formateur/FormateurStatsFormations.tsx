@@ -133,7 +133,8 @@ export function FormateurStatsFormations() {
                                                 formation.score_moyen >= 70 ? "text-yellow-500 border-yellow-500/30" : "text-gray-400"
                                             }`}
                                         >
-                                            {formation.score_moyen}%
+                                            {Number(formation.score_moyen).toFixed(2)}%
+
                                         </Badge>
                                     </div>
                                 </div>

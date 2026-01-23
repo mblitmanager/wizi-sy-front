@@ -125,13 +125,14 @@ const TrainerPerformanceStats = () => {
                                         {idx + 1}
                                     </div>
                                     <div className="min-w-0">
-                                        <div className="font-bold text-sm text-slate-900 truncate">{student.name}</div>
-                                        <div className="text-[10px] font-bold text-slate-400 truncate uppercase mt-0.5">{student.email}</div>
+                                        <div className="font-bold text-sm text-slate-900 truncate">{student.prenom} {student.name}</div>
+
+                                        <div className="text-[10px] font-bold text-slate-400 truncate  mt-0.5">{student.email}</div>
                                     </div>
                                 </div>
                                 <div className="flex flex-col items-end">
                                     <span className="text-sm font-black text-brand-primary-dark">{student.total_quizzes}</span>
-                                    <span className="text-[8px] font-black text-slate-300 uppercase leading-none">Quiz</span>
+                                    <span className="text-[8px] font-black text-slate-300  leading-none">Quiz</span>
                                 </div>
                             </motion.div>
                         ))}
@@ -178,13 +179,14 @@ const TrainerPerformanceStats = () => {
                                         {idx + 1}
                                     </div>
                                     <div className="min-w-0">
-                                        <div className="font-bold text-sm text-slate-900 truncate">{student.name}</div>
-                                        <div className="text-[10px] font-bold text-slate-400 truncate uppercase mt-0.5">{student.email}</div>
+                                        <div className="font-bold text-sm text-slate-900 truncate">{student.prenom} {student.name}</div>
+
+                                        <div className="text-[10px] font-bold text-slate-400 truncate  mt-0.5">{student.email}</div>
                                     </div>
                                 </div>
                                 <div className="flex flex-col items-end">
                                     <span className="text-sm font-black text-blue-600">{student.total_logins}</span>
-                                    <span className="text-[8px] font-black text-slate-300 uppercase leading-none">Sessions</span>
+                                    <span className="text-[8px] font-black text-slate-300  leading-none">Sessions</span>
                                 </div>
                             </motion.div>
                         ))}
@@ -306,9 +308,9 @@ const TrainerPerformanceStats = () => {
                                             </div>
                                             <div className="min-w-0">
                                                 <p className="text-sm font-bold text-slate-900 truncate">
-                                                    {student.name}
+                                                    {student.prenom} {student.name}
                                                 </p>
-                                                <p className="text-[10px] font-bold text-slate-400 truncate uppercase mt-0.5 tracking-tight">{student.email}</p>
+                                                <p className="text-[10px] font-bold text-slate-400 truncate mt-0.5 tracking-tight">{student.email}</p>
                                             </div>
                                         </div>
                                     </TableCell>

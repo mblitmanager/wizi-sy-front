@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,10 +21,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Spinner } from "@/components/ui/spinner";
 import {
   CheckCircle2,
   Download,
   Eye,
+  Inbox,
   MoreVertical,
   Plus,
   Search,
@@ -269,33 +271,12 @@ export default function FormateurQuizManagementPage() {
   return (
     <Layout>
       <div className="min-h-screen bg-background text-foreground">
-        <div className="container mx-auto py-8 px-4 space-y-6">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-            <div className="space-y-1">
-              <h1 className="text-3xl font-black tracking-tight">
-                Gestion des Quiz
-              </h1>
-              {/* <p className="text-muted-foreground">
-                Inspiré des pages Laravel admin (index / create / edit / show).
-              </p> */}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant="outline"
-                className="border-border"
-                onClick={() => alert("À brancher: export")}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Exporter
-              </Button>
-              <Button
-                variant="outline"
-                className="border-border"
-                onClick={() => alert("À brancher: import")}
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Importer
-              </Button>
+        <div className="container mx-auto py-8 px-4 space-y-8">
+          <div className="flex items-center justify-between gap-4">
+            <h1 className="text-2xl font-bold tracking-tight">
+              Gestion des Quiz
+            </h1>
+            <div className="flex items-center gap-2">
               <Button
                 className="bg-brand-primary text-brand-primary-foreground hover:bg-brand-primary/90"
                 onClick={() => setCreateOpen(true)}
@@ -303,15 +284,32 @@ export default function FormateurQuizManagementPage() {
                 <Plus className="h-4 w-4 mr-2" />
                 Nouveau quiz
               </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" className="border-border">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => alert("À brancher: export")}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Exporter
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => alert("À brancher: import")}>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Importer
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
 
           <Card className="bg-card border-border">
-            <CardHeader className="pb-2">
+            <CardHeader>
               <CardTitle className="text-base">Filtres</CardTitle>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-3">
-              <div className="relative md:col-span-2">
+            <CardContent className="flex flex-col gap-4">
+              <div className="relative">
                 <Search className="h-4 w-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
                 <Input
                   value={search}
@@ -320,6 +318,7 @@ export default function FormateurQuizManagementPage() {
                   className="pl-9 bg-background border-border"
                 />
               </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <select
                 className="h-10 rounded-md border border-border bg-background px-3 text-sm"
                 value={filterFormationId}
@@ -328,11 +327,10 @@ export default function FormateurQuizManagementPage() {
                 <option value="">Toutes les formations</option>
                 {formations.map((f) => (
                   <option key={f.id} value={String(f.id)}>
-                    {f.titre || `Formation #${f.id}`}
+                    {f.nom || `Formation #${f.id}`}
                   </option>
                 ))}
               </select>
-              <div className="grid grid-cols-2 gap-2">
                 <select
                   className="h-10 rounded-md border border-border bg-background px-3 text-sm"
                   value={filterNiveau}
@@ -368,26 +366,31 @@ export default function FormateurQuizManagementPage() {
                 {total} quiz(s)
               </Badge>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
               {loading ? (
-                <div className="py-10 text-center text-muted-foreground">
-                  Chargement…
+                <div className="flex flex-col items-center justify-center gap-4 py-16">
+                  <Spinner className="h-8 w-8 text-muted-foreground" />
+                  <p className="text-muted-foreground">Chargement des quiz...</p>
                 </div>
               ) : displayedQuizzes.length === 0 ? (
-                <div className="py-12 text-center text-muted-foreground">
-                  Aucun quiz trouvé
+                <div className="flex flex-col items-center justify-center gap-2 py-16">
+                  <Inbox className="h-10 w-10 text-muted-foreground/80" />
+                  <h3 className="text-lg font-semibold">Aucun quiz trouvé</h3>
+                  <p className="text-sm text-muted-foreground text-center">
+                    Commencez par créer votre premier quiz pour le voir apparaître ici.
+                  </p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="text-left text-muted-foreground border-b border-border">
-                        <th className="py-3 pr-4 font-semibold">Titre</th>
-                        <th className="py-3 pr-4 font-semibold">Niveau</th>
-                        <th className="py-3 pr-4 font-semibold">Statut</th>
-                        <th className="py-3 pr-4 font-semibold">Durée</th>
-                        <th className="py-3 pr-4 font-semibold">Questions</th>
-                        <th className="py-3 text-right font-semibold">
+                        <th className="py-3 px-4 font-semibold">Titre</th>
+                        <th className="py-3 px-4 font-semibold">Niveau</th>
+                        <th className="py-3 px-4 font-semibold">Statut</th>
+                        <th className="py-3 px-4 font-semibold">Durée</th>
+                        <th className="py-3 px-4 font-semibold">Questions</th>
+                        <th className="py-3 px-4 text-right font-semibold">
                           Actions
                         </th>
                       </tr>
@@ -398,7 +401,7 @@ export default function FormateurQuizManagementPage() {
                           key={q.id}
                           className="border-b border-border/60 hover:bg-muted/40"
                         >
-                          <td className="py-3 pr-4">
+                          <td className="py-3 px-4">
                             <div className="font-semibold text-foreground">
                               {q.titre}
                             </div>
@@ -408,18 +411,19 @@ export default function FormateurQuizManagementPage() {
                               </div>
                             ) : null}
                           </td>
-                          <td className="py-3 pr-4">{q.niveau || "-"}</td>
-                          <td className="py-3 pr-4">
+                          <td className="py-3 px-4">{q.niveau || "-"}</td>
+                          <td className="py-3 px-4">
                             <Badge variant={statusBadgeVariant(q.status)}>
                               {(q.status || "brouillon").toUpperCase()}
                             </Badge>
                           </td>
-                          <td className="py-3 pr-4">{q.duree ?? "-"} min</td>
-                          <td className="py-3 pr-4">{q.nb_questions ?? 0}</td>
-                          <td className="py-3 text-right">
+                          <td className="py-3 px-4">{q.duree ?? "-"} min</td>
+                          <td className="py-3 px-4">{q.nb_questions ?? 0}</td>
+                          <td className="py-3 px-4 text-right">
                             <div className="inline-flex gap-2">
                               <Button
                                 variant="outline"
+                                size="sm"
                                 className="border-border"
                                 onClick={() => openDetail(q.id)}
                               >
@@ -427,8 +431,8 @@ export default function FormateurQuizManagementPage() {
                                 Détails
                               </Button>
                               <Button
-                                variant="outline"
-                                className="border-border text-destructive hover:text-destructive"
+                                variant="destructive"
+                                size="sm"
                                 onClick={() => handleDeleteQuiz(q.id)}
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -443,10 +447,10 @@ export default function FormateurQuizManagementPage() {
               )}
 
               {/* Pagination Controls */}
-              {lastPage > 1 && (
-                <div className="flex items-center justify-between mt-4 border-t pt-4">
+              {lastPage > 1 && !loading && displayedQuizzes.length > 0 && (
+                <div className="flex items-center justify-between mt-4 border-t p-4">
                    <div className="text-sm text-muted-foreground">
-                      Page {page} sur {lastPage}
+                      Page {page} sur {lastPage} ({total} résultats)
                    </div>
                    <div className="flex gap-2">
                       <Button 

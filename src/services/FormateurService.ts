@@ -4,7 +4,9 @@ import { Contact } from "@/types/contact";
 export interface StudentPerformance {
   id: number;
   name: string;
+  prenom?: string;
   email: string;
+
   image: string | null;
   last_quiz_at: string | null;
   total_quizzes: number;

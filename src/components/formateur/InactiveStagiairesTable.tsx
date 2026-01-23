@@ -183,7 +183,7 @@ export function InactiveStagiairesTable() {
                                                     <p className="text-sm font-bold text-slate-900 truncate group-hover/row:text-brand-primary-dark">
                                                         {stagiaire.prenom} {stagiaire.nom}
                                                     </p>
-                                                    <p className="text-[10px] font-bold text-slate-400 truncate uppercase mt-0.5 tracking-tight">{stagiaire.email}</p>
+                                                    <p className="text-[10px] font-bold text-slate-400 truncate mt-0.5 tracking-tight">{stagiaire.email}</p>
                                                 </div>
                                             </div>
                                         </TableCell>
@@ -204,7 +204,8 @@ export function InactiveStagiairesTable() {
                                             <div className="flex justify-end gap-3 items-center">
                                                 {stagiaire.days_since_activity ? (
                                                     <Badge className="bg-red-50 text-red-600 border border-red-100 text-[9px] font-black shadow-none px-3 h-6 rounded-lg uppercase tracking-wider">
-                                                        +{stagiaire.days_since_activity} jours
+                                                        {/* +{stagiaire.days_since_activity} jours */}
+                                                        +{Number(stagiaire.days_since_activity).toFixed(0)} jours
                                                     </Badge>
                                                 ) : (
                                                     <Badge className="bg-slate-50 text-slate-400 border border-slate-100 text-[9px] font-black shadow-none px-3 h-6 rounded-lg uppercase tracking-wider">
