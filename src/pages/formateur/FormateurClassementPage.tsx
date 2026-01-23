@@ -286,12 +286,12 @@ export function FormateurClassementPage() {
                                                         </div>
                                                         {stagiaire.rank <= 3 && (
                                                             <div className="hidden sm:block">
-                                                                <Badge variant="outline" className={`text-[9px] font-black uppercase tracking-widest px-3 h-6 border-none shadow-none ${
+                                                                <Badge variant="outline" className={`text-[9px] font-black tracking-widest px-3 h-6 border-none shadow-none ${
                                                                     stagiaire.rank === 1 ? 'bg-brand-primary/5 text-brand-primary-dark' :
                                                                     stagiaire.rank === 2 ? 'bg-background text-foreground' :
                                                                     'bg-brand-primary/5 text-brand-primary-dark'
                                                                 }`}>
-                                                                    {stagiaire.rank === 1 ? 'Champion' : stagiaire.rank === 2 ? 'Argente' : 'Bronze'}
+                                                                    {stagiaire.rank === 1 ? 'Champion' : stagiaire.rank === 2 ? 'Argent' : 'Bronze'}
                                                                 </Badge>
                                                             </div>
                                                         )}
@@ -310,7 +310,7 @@ export function FormateurClassementPage() {
                                                             <p className="text-base font-black text-foreground truncate">
                                                                 {stagiaire.prenom} {stagiaire.nom}
                                                             </p>
-                                                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-0.5 truncate group-hover/row:text-muted-foreground transition-colors">{stagiaire.email}</p>
+                                                            <p className="text-[10px] font-black text-muted-foreground  tracking-widest mt-0.5 truncate group-hover/row:text-muted-foreground transition-colors">{stagiaire.email}</p>
                                                         </div>
                                                     </div>
                                                 </TableCell>
