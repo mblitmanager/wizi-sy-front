@@ -6,8 +6,9 @@ import { api } from '@/lib/api';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, Mail, Phone, Calendar, Clock, Trophy, 
-  BookOpen, Star, Activity, Award 
+  BookOpen, Star, Activity, Award, Users 
 } from 'lucide-react';
+
 import { Badge } from '@/components/ui/badge';
 
 interface StagiaireProfile {

@@ -20,10 +20,12 @@ import {
     ShieldCheck,
     ChevronRight,
     ArrowUpRight,
-    Filter
+    Filter as LuFilter
 } from 'lucide-react';
 
+import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
+
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/context/UserContext';
 import axios from 'axios';
@@ -41,15 +43,19 @@ interface Parrainage {
         name: string;
     } | null;
     filleul: {
+        id: number;
         name: string;
         prenom: string;
         statut: string;
     } | null;
+
 }
 
 const SuiviParrainagePage = () => {
     const { user } = useUser();
+    const navigate = useNavigate();
     const [parrainages, setParrainages] = useState<Parrainage[]>([]);
+
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -151,8 +157,9 @@ const SuiviParrainagePage = () => {
                             />
                         </div>
                         <Button className="rounded-[2rem] px-8 h-[64px] bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-500/20 font-black uppercase tracking-widest text-[10px] border-4 border-white transition-all">
-                            <Filter className="w-4 h-4 mr-2" /> Filtrer
+                            <LuFilter className="w-4 h-4 mr-2" /> Filtrer
                         </Button>
+
                     </div>
 
                     {/* Table */}
@@ -215,10 +222,16 @@ const SuiviParrainagePage = () => {
                                                     {getStatusBadge(p.filleul?.statut || 'en_attente')}
                                                 </TableCell>
                                                 <TableCell className="py-8 pr-10 text-right">
-                                                    <Button size="icon" variant="ghost" className="h-10 w-10 rounded-2xl bg-slate-50 hover:bg-blue-600 hover:text-white transition-all border border-slate-100 group/btn shadow-sm">
+                                                    <Button 
+                                                        size="icon" 
+                                                        variant="ghost" 
+                                                        className="h-10 w-10 rounded-2xl bg-slate-50 hover:bg-blue-600 hover:text-white transition-all border border-slate-100 group/btn shadow-sm"
+                                                        onClick={() => p.filleul?.id && navigate(`/formateur/stagiaire/${p.filleul.id}`)}
+                                                    >
                                                         <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-0.5 transition-transform" />
                                                     </Button>
                                                 </TableCell>
+
                                             </TableRow>
                                         ))
                                     ) : (

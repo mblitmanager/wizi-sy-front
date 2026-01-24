@@ -24,8 +24,11 @@ import {
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/context/UserContext';
 import axios from 'axios';
+
+
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -37,15 +40,19 @@ interface Demande {
     statut: string;
     formation: string;
     stagiaire: {
+        id: number;
         name: string;
         prenom: string;
     } | null;
+
     motif: string;
 }
 
 const SuiviDemandesPage = () => {
     const { user } = useUser();
+    const navigate = useNavigate();
     const [demandes, setDemandes] = useState<Demande[]>([]);
+
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -89,6 +96,18 @@ const SuiviDemandesPage = () => {
         (d.motif?.toLowerCase().includes(searchQuery.toLowerCase()))
     );
 
+    const groupedDemandes = filteredDemandes.reduce((acc, current) => {
+        const studentId = current.stagiaire?.id || 0;
+        if (!acc[studentId]) {
+            acc[studentId] = {
+                stagiaire: current.stagiaire,
+                items: []
+            };
+        }
+        acc[studentId].items.push(current);
+        return acc;
+    }, {} as Record<number, { stagiaire: any, items: Demande[] }>);
+
     if (loading) {
         return (
             <Layout>
@@ -116,7 +135,7 @@ const SuiviDemandesPage = () => {
                                     Demandes de <span className="text-[#FEB823]">Formation</span>
                                 </h1>
                                 <p className="text-gray-500 font-medium max-w-2xl text-lg leading-relaxed">
-                                    Consultez l'état d'avancement des inscriptions de vos stagiaires en temps réel.
+                                    Consultez l'état d'avancement des inscriptions de vos stagiaires regroupées par élève.
                                 </p>
                             </div>
 
@@ -135,68 +154,97 @@ const SuiviDemandesPage = () => {
                     </div>
                 </div>
 
-                {/* Table Section */}
+                {/* Main Content */}
                 <div className="max-w-7xl mx-auto px-6">
-                    <Card className="border-none shadow-2xl shadow-slate-200/50 rounded-[2.5rem] overflow-hidden">
-                        <CardContent className="p-0">
-                            <div className="overflow-x-auto">
-                                <Table>
-                                    <TableHeader className="bg-slate-50/80">
-                                        <TableRow className="border-slate-100">
-                                            <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-400 py-6 pl-10">Date Demande</TableHead>
-                                            <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-400 py-6 whitespace-nowrap">Stagiaire</TableHead>
-                                            <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-400 py-6">Formation</TableHead>
-                                            <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-400 py-6">Statut</TableHead>
-                                            <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-400 py-6 pr-10 text-right">Action</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {filteredDemandes.length > 0 ? (
-                                            filteredDemandes.map((demande) => (
-                                                <TableRow key={demande.id} className="border-slate-50 hover:bg-slate-50/50 transition-colors group">
-                                                    <TableCell className="py-6 pl-10 text-sm font-bold text-slate-500">
-                                                        {format(new Date(demande.date), 'dd MMMM yyyy', { locale: fr })}
-                                                    </TableCell>
-                                                    <TableCell className="py-6">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 shadow-sm flex items-center justify-center font-black text-[#FEB823] text-sm group-hover:bg-[#FEB823] group-hover:text-white transition-all duration-300">
-                                                                {demande.stagiaire?.prenom?.[0] || 'S'}
-                                                            </div>
-                                                            <div>
-                                                                <p className="font-black text-slate-900 text-sm">{demande.stagiaire?.prenom} {demande.stagiaire?.name}</p>
-                                                                <p className="text-[10px] font-bold text-slate-300 uppercase tracking-tighter">Inscrit via plateforme</p>
-                                                            </div>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="py-6">
-                                                        <div className="flex items-center gap-2">
-                                                            <BookOpen className="w-4 h-4 text-[#FEB823]/50" />
-                                                            <span className="font-bold text-sm text-slate-900">{demande.formation}</span>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="py-6">
-                                                        {getStatusBadge(demande.statut)}
-                                                    </TableCell>
-                                                    <TableCell className="py-6 pr-10 text-right">
-                                                        <Button variant="ghost" size="sm" className="rounded-xl px-4 py-2 text-[10px] font-black uppercase text-slate-400 hover:bg-[#FEB823]/10 hover:text-[#FEB823] transition-all">
-                                                            Détails
-                                                        </Button>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))
-                                        ) : (
-                                            <TableRow>
-                                                <TableCell colSpan={5} className="py-20 text-center">
-                                                    <ClipboardList className="w-12 h-12 text-slate-100 mx-auto mb-4" />
-                                                    <p className="text-slate-300 font-bold uppercase tracking-widest text-xs">Aucune demande trouvée</p>
-                                                </TableCell>
-                                            </TableRow>
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        </CardContent>
-                    </Card>
+                    <div className="space-y-8">
+                        {Object.values(groupedDemandes).length > 0 ? (
+                            Object.values(groupedDemandes).map((group) => (
+                                <Card key={group.stagiaire?.id || Math.random()} className="border-none shadow-xl shadow-slate-200/50 rounded-[2.5rem] overflow-hidden bg-white">
+                                    <div className="bg-slate-50/80 px-10 py-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-[1.25rem] bg-white border border-slate-200 shadow-sm flex items-center justify-center font-black text-[#FEB823] text-lg">
+                                                {group.stagiaire?.prenom?.[0] || 'S'}
+                                            </div>
+                                            <div>
+                                                <h3 className="font-black text-slate-900 text-lg leading-none">
+                                                    {group.stagiaire?.prenom} {group.stagiaire?.name}
+                                                </h3>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <Badge variant="outline" className="border-[#FEB823]/20 text-[#FEB823] font-bold text-[9px] uppercase tracking-widest px-2">
+                                                        {group.items.length} {group.items.length > 1 ? 'Demandes' : 'Demande'}
+                                                    </Badge>
+                                                    <span className="text-[10px] font-bold text-slate-300 uppercase tracking-tighter">Inscrit via plateforme</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <Button 
+                                            variant="outline" 
+                                            size="sm" 
+                                            className="rounded-xl px-6 border-slate-200 text-slate-400 hover:bg-[#FEB823] hover:text-white hover:border-[#FEB823] transition-all font-black uppercase text-[10px] tracking-widest shadow-sm"
+                                            onClick={() => group.stagiaire?.id && navigate(`/formateur/stagiaire/${group.stagiaire.id}`)}
+                                        >
+                                            Voir le profil complet
+                                        </Button>
+                                    </div>
+
+                                    <CardContent className="p-0">
+                                        <div className="overflow-x-auto">
+                                            <Table>
+                                                <TableHeader className="bg-white">
+                                                    <TableRow className="border-slate-50">
+                                                        <TableHead className="font-black text-[9px] uppercase tracking-widest text-slate-300 py-6 pl-10">Date</TableHead>
+                                                        <TableHead className="font-black text-[9px] uppercase tracking-widest text-slate-300 py-6">Formation demandée</TableHead>
+                                                        <TableHead className="font-black text-[9px] uppercase tracking-widest text-slate-300 py-6">Statut administratif</TableHead>
+                                                        <TableHead className="font-black text-[9px] uppercase tracking-widest text-slate-300 py-6 text-center">Motif</TableHead>
+                                                        <TableHead className="font-black text-[9px] uppercase tracking-widest text-slate-300 py-6 pr-10 text-right">Détails</TableHead>
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {group.items.map((demande) => (
+                                                        <TableRow key={demande.id} className="border-slate-50 hover:bg-slate-50/30 transition-colors">
+                                                            <TableCell className="py-6 pl-10 text-sm font-bold text-slate-500 whitespace-nowrap">
+                                                                {format(new Date(demande.date), 'dd/MM/yyyy')}
+                                                            </TableCell>
+                                                            <TableCell className="py-6">
+                                                                <div className="flex items-center gap-2">
+                                                                    <BookOpen className="w-3.5 h-3.5 text-[#FEB823]/60" />
+                                                                    <span className="font-black text-sm text-slate-800">{demande.formation}</span>
+                                                                </div>
+                                                            </TableCell>
+                                                            <TableCell className="py-6">
+                                                                {getStatusBadge(demande.statut)}
+                                                            </TableCell>
+                                                            <TableCell className="py-6 text-center">
+                                                                <span className="text-[11px] font-medium text-slate-400 italic">
+                                                                    {demande.motif || 'Aucun motif renseigné'}
+                                                                </span>
+                                                            </TableCell>
+                                                            <TableCell className="py-6 pr-10 text-right">
+                                                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-200 hover:text-[#FEB823] hover:bg-[#FEB823]/5">
+                                                                    <Calendar className="h-4 w-4" />
+                                                                </Button>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))
+                        ) : (
+                            <Card className="border-none shadow-2xl shadow-slate-200/50 rounded-[2.5rem] overflow-hidden bg-white">
+                                <CardContent className="py-32 text-center">
+                                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-slate-50 border border-slate-100 mb-6 group-hover:scale-110 transition-transform duration-500">
+                                        <ClipboardList className="w-10 h-10 text-slate-200" />
+                                    </div>
+                                    <h3 className="text-xl font-black text-slate-900 mb-2">Aucune demande trouvée</h3>
+                                    <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Ajustez vos filtres ou effectuez une nouvelle recherche.</p>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
                 </div>
             </div>
         </Layout>
@@ -204,3 +252,4 @@ const SuiviDemandesPage = () => {
 };
 
 export default SuiviDemandesPage;
+
