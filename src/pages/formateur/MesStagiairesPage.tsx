@@ -140,12 +140,13 @@ export default function MesStagiairesPage() {
                             {stagiaire.name?.charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        
+                        {console.log(stagiaire)}
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-foreground truncate group-hover:text-brand-primary transition-colors">
-                            {stagiaire.prenom && stagiaire.nom 
+                            {/* {stagiaire.prenom && stagiaire.nom 
                               ? `${stagiaire.prenom} ${stagiaire.nom}` 
-                              : stagiaire.name}
+                              : stagiaire.name} */}
+                               {stagiaire.prenom} {stagiaire.name}
                           </h3>
                           <div className="flex flex-col gap-0.5 mt-1">
                              <div className="flex items-center gap-2 text-sm text-muted-foreground">

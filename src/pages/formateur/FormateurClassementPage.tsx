@@ -205,12 +205,12 @@ export function FormateurClassementPage() {
                                         </SelectTrigger>
                                         <SelectContent className="bg-card border-border text-foreground rounded-2xl shadow-2xl p-2">
                                             <SelectItem value="global" className="rounded-xl hover:bg-background focus:bg-background cursor-pointer font-black text-xs py-3.5 transition-colors">
-                                                🌍 TOUS MES STAGIAIRES
+                                             TOUS MES STAGIAIRES
                                             </SelectItem>
                                             <div className="h-px bg-background my-1" />
                                             {formations.map((f) => (
                                                 <SelectItem key={f.id} value={String(f.id)} className="rounded-xl hover:bg-background focus:bg-background cursor-pointer font-black text-xs py-3.5 transition-colors">
-                                                    🎓 {f.titre?.toUpperCase()}
+                                                {f.titre?.toUpperCase()}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
