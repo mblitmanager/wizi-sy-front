@@ -131,6 +131,16 @@ const TrainerArenaPage = lazy(() =>
     default: module.TrainerArenaPage,
   })),
 );
+const SuiviDemandesPage = lazy(() =>
+  import("@/pages/tracking/SuiviDemandesPage").then((module) => ({
+    default: module.default,
+  })),
+);
+const SuiviParrainagePage = lazy(() =>
+  import("@/pages/tracking/SuiviParrainagePage").then((module) => ({
+    default: module.default,
+  })),
+);
 const AboutPage = lazy(() => import("@/pages/AboutPage"));
 
 // Admin routes
@@ -259,6 +269,23 @@ export const routes = [
       Loadable(QuizResults),
     ),
   },
+  {
+    path: "/suivi-demandes",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(SuiviDemandesPage),
+    ),
+  },
+  {
+    path: "/suivi-parrainage",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(SuiviParrainagePage),
+    ),
+  },
+
   // Routes de profil
   {
     path: "/profile",
@@ -504,6 +531,39 @@ export const routes = [
       Loadable(StagiaireProfilePage),
     ),
   },
+  {
+    path: "/formateur/suivi-demandes",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(SuiviDemandesPage),
+    ),
+  },
+  {
+    path: "/formateur/suivi-parrainage",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(SuiviParrainagePage),
+    ),
+  },
+  {
+    path: "/commercial/suivi-demandes",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(SuiviDemandesPage),
+    ),
+  },
+  {
+    path: "/commercial/suivi-parrainage",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(SuiviParrainagePage),
+    ),
+  },
+
   {
     path: "/commercial/dashboard",
     element: React.createElement(

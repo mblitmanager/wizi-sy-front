@@ -358,7 +358,7 @@ export function GlobalRanking({
             )}
 
             {/* Filtre trimestre - Séparé ou optionnel */}
-            {onPeriodChange && period === 'all' && (
+            {/* {onPeriodChange && period === 'all' && (
               <select
                 value={selectedQuarter ?? ""}
                 onChange={(e) => {
@@ -373,7 +373,7 @@ export function GlobalRanking({
                 <option value="3">T3 (Jul-Sep)</option>
                 <option value="4">T4 (Oct-Déc)</option>
               </select>
-            )}
+            )} */}
 
           </div>
 
@@ -399,7 +399,7 @@ export function GlobalRanking({
               ))}
             </select>
 
-            <select
+            {/* <select
               value={selectedMonth ?? ""}
               onChange={(e) => setSelectedMonth(e.target.value ? parseInt(e.target.value) : null)}
               className="px-3 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200">
@@ -416,7 +416,7 @@ export function GlobalRanking({
               <option value="10">Octobre</option>
               <option value="11">Novembre</option>
               <option value="12">Décembre</option>
-            </select>
+            </select> */}
 
             <div className="hidden sm:block w-px h-5 bg-gray-300 dark:bg-gray-600"></div>
 

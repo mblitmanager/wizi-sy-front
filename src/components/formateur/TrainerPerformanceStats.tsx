@@ -179,6 +179,7 @@ const TrainerPerformanceStats = () => {
                                         {idx + 1}
                                     </div>
                                     <div className="min-w-0">
+                                        {console.log(student)}
                                         <div className="font-bold text-sm text-slate-900 truncate">{student.prenom} {student.name}</div>
 
                                         <div className="text-[10px] font-bold text-slate-400 truncate  mt-0.5">{student.email}</div>

@@ -57,7 +57,8 @@ export function FormateurDashboard() {
                                 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900"
                                 variants={itemVariants}
                             >
-                                Dashboard <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary-dark to-brand-primary">Analytique</span>
+                                Tableau de Bord Formateur 
+                                {/* <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary-dark to-brand-primary">Analytique</span> */}
                             </motion.h1>
                             
                             <motion.p 

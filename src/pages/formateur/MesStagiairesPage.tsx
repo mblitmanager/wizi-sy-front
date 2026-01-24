@@ -3,19 +3,24 @@ import { Layout } from '@/components/layout/Layout';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Search, ChevronRight, Users, Inbox } from 'lucide-react';
+import { Search, ChevronRight, Users, Inbox, Mail, Phone } from 'lucide-react';
 import { api } from '@/lib/api';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
 interface Stagiaire {
   id: number;
   name: string;
+  prenom?: string;
+  nom?: string;
   email: string;
+  telephone?: string;
   image?: string;
   total_points: number;
   completion_rate: number;
 }
+
 
 export default function MesStagiairesPage() {
   const [stagiaires, setStagiaires] = useState<Stagiaire[]>([]);
@@ -124,15 +129,9 @@ export default function MesStagiairesPage() {
                     <Card 
                       className="group p-4 hover:shadow-md transition-all duration-200 cursor-pointer border-border hover:border-brand-primary/50"
                       onClick={() => {
-                        // For now, maybe just show a toast or alert if no profile page
-                        // Or navigate to existing profile logic if we found one
-                        // Let's assume we want to eventually link to /formateur/stagiaire/:id
-                        // But since I didn't verify that page exists, I'll check first or just put a placeholder.
-                        // I'll assume we might want to expand this later. 
-                        // For now, consistent with requested "Mes Stagiaires section like flutter"
-                        // Flutter goes to profile.
-                        console.log("Navigate to profile", stagiaire.id);
+                        navigate(`/formateur/stagiaire/${stagiaire.id}`);
                       }}
+
                     >
                       <div className="flex items-center gap-4">
                         <Avatar className="h-12 w-12 border border-border">
@@ -144,12 +143,24 @@ export default function MesStagiairesPage() {
                         
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-foreground truncate group-hover:text-brand-primary transition-colors">
-                            {stagiaire.name}
+                            {stagiaire.prenom && stagiaire.nom 
+                              ? `${stagiaire.prenom} ${stagiaire.nom}` 
+                              : stagiaire.name}
                           </h3>
-                          <p className="text-sm text-muted-foreground truncate">
-                            {stagiaire.email}
-                          </p>
+                          <div className="flex flex-col gap-0.5 mt-1">
+                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Mail className="h-3.5 w-3.5" />
+                                <span className="truncate">{stagiaire.email}</span>
+                             </div>
+                             {stagiaire.telephone && (
+                               <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <Phone className="h-3.5 w-3.5" />
+                                  <span className="truncate">{stagiaire.telephone}</span>
+                               </div>
+                             )}
+                          </div>
                         </div>
+
 
                         <div className="hidden sm:flex flex-col items-end gap-1 mr-4">
                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Points</span>

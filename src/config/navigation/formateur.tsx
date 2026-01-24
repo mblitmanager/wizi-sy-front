@@ -58,6 +58,19 @@ export const getFormateurNavigation = () => ({
             color: "text-emerald-600",
         },
         {
+            title: "Suivi Demandes",
+            href: "/formateur/suivi-demandes",
+            icon: ClipboardList,
+            color: "text-indigo-600",
+        },
+        {
+            title: "Suivi Parrainage",
+            href: "/formateur/suivi-parrainage",
+            icon: Trophy,
+            color: "text-cyan-600",
+        },
+
+        {
             title: "Notifications",
             href: "/notifications",
             icon: Bell,

@@ -65,29 +65,31 @@ export interface StagiaireFormationPerformance {
 const FormateurService = {
   getStudentsPerformance: async (): Promise<TrainerPerformanceResponse> => {
     const response = await api.get("/formateur/analytics/performance");
-    return response.data;
+    return response.data.data || response.data;
   },
+
   getStagiaireStats: async (id: number): Promise<StudentDetails> => {
     const response = await api.get(`/formateur/stagiaire/${id}/stats`);
-    return response.data;
+    return response.data.data || response.data;
   },
+
   getFormationsPerformance: async (): Promise<FormationPerformance[]> => {
     const response = await api.get(
       "/formateur/analytics/formations/performance",
     );
-    // Handle both new structured response and potential array
-    return Array.isArray(response.data)
-      ? response.data
-      : response.data.performance || [];
+    const data = response.data.data || response.data;
+    return Array.isArray(data) ? data : data.performance || [];
   },
+
   getStagiaireFormations: async (
     id: number,
   ): Promise<StagiaireFormationPerformance[]> => {
     const response = await api.get(
       `/formateur/analytics/stagiaire/${id}/formations`,
     );
-    return response.data;
+    return response.data.data || response.data;
   },
+
   getTraineesAsContacts: async (): Promise<Contact[]> => {
     const response = await api.get("/formateur/analytics/performance");
     const trainees = response.data.performance || [];

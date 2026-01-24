@@ -53,7 +53,9 @@ export function FormateurVideosPage() {
     const [videoStats, setVideoStats] = useState<VideoStats | null>(null);
     const [loading, setLoading] = useState(true);
     const [statsLoading, setStatsLoading] = useState(false);
+    const [selectedFormationId, setSelectedFormationId] = useState<string>('all');
     const [searchQuery, setSearchQuery] = useState('');
+
 
     useEffect(() => {
         fetchVideos();
@@ -94,13 +96,16 @@ export function FormateurVideosPage() {
         fetchVideoStats(video.id);
     };
 
-    const filteredFormations = formationsWithVideos.map(group => ({
-        ...group,
-        videos: group.videos.filter(v => 
-            v.titre.toLowerCase().includes(searchQuery.toLowerCase()) || 
-            v.description.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-    })).filter(group => group.videos.length > 0);
+    const filteredFormations = formationsWithVideos
+        .filter(group => selectedFormationId === 'all' || group.formation_id.toString() === selectedFormationId)
+        .map(group => ({
+            ...group,
+            videos: group.videos.filter(v => 
+                v.titre.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                v.description.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+        })).filter(group => group.videos.length > 0);
+
 
     if (loading) {
         return (
@@ -161,19 +166,34 @@ export function FormateurVideosPage() {
                                 </div>
                             </div>
 
-                            {/* Search Tool */}
-                            <div className="w-full md:w-96 shrink-0 mb-2">
-                                <div className="relative group">
-                                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 group-focus-within:text-[#FEB823] transition-colors" />
+                            {/* Filters Tool */}
+                            <div className="w-full md:w-[450px] shrink-0 mb-2 flex flex-col sm:flex-row gap-4">
+                                <div className="flex-1 relative group">
+                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 group-focus-within:text-[#FEB823] transition-colors" />
                                     <Input 
                                         type="text"
                                         placeholder="Filtrer une leçon..."
-                                        className="pl-14 py-8 bg-gray-50/50 border-gray-100 text-gray-900 placeholder:text-gray-300 rounded-[2rem] focus:ring-[#FEB823]/30 focus:border-[#FEB823] transition-all duration-300 text-lg font-medium shadow-inner"
+                                        className="pl-11 py-6 bg-gray-50/50 border-gray-100 text-gray-900 placeholder:text-gray-300 rounded-2xl focus:ring-[#FEB823]/30 focus:border-[#FEB823] transition-all duration-300 text-sm font-medium shadow-inner"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
                                 </div>
+                                <div className="w-full sm:w-48">
+                                    <select
+                                        value={selectedFormationId}
+                                        onChange={(e) => setSelectedFormationId(e.target.value)}
+                                        className="w-full h-full px-4 py-3 bg-gray-50/50 border border-gray-100 text-gray-900 rounded-2xl focus:ring-[#FEB823]/30 focus:border-[#FEB823] transition-all duration-300 text-sm font-medium outline-none shadow-inner appearance-none cursor-pointer"
+                                    >
+                                        <option value="all">Toutes formations</option>
+                                        {formationsWithVideos.map(group => (
+                                            <option key={group.formation_id} value={group.formation_id}>
+                                                {group.formation_titre}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
