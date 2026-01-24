@@ -327,7 +327,7 @@ export default function FormateurQuizManagementPage() {
                 <option value="">Toutes les formations</option>
                 {formations.map((f) => (
                   <option key={f.id} value={String(f.id)}>
-                    {f.nom || `Formation #${f.id}`}
+                    {f.titre || `Formation #${f.id}`}
                   </option>
                 ))}
               </select>
