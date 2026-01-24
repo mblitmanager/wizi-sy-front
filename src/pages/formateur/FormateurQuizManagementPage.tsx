@@ -10,6 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/lib/api";
 import {
   Table,
@@ -93,8 +95,19 @@ export default function FormateurQuizManagementPage() {
 
   const [createOpen, setCreateOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [questionOpen, setQuestionOpen] = useState(false);
 
   const [selectedQuiz, setSelectedQuiz] = useState<QuizDetail | null>(null);
+
+  const [currentQuestion, setCurrentQuestion] = useState({
+    text: "",
+    type: "banque de mots",
+    astuce: "",
+    reponses: [
+      { reponse: "", correct: false },
+      { reponse: "", correct: false },
+    ],
+  });
 
   const [newQuizData, setNewQuizData] = useState({
     titre: "",
@@ -109,7 +122,7 @@ export default function FormateurQuizManagementPage() {
     try {
       const params = new URLSearchParams();
       params.append("page", String(p));
-      params.append("limit", "50"); // Increased limit as requested
+      params.append("limit", "400"); // Increased limit as requested
       if (search) params.append("search", search);
       if (filterStatus) params.append("status", filterStatus);
       if (filterFormationId) params.append("formation_id", filterFormationId);
@@ -248,6 +261,36 @@ export default function FormateurQuizManagementPage() {
     }
   };
 
+  const updateReponse = (idx: number, patch: Partial<{ reponse: string; correct: boolean }>) => {
+    setCurrentQuestion((prev) => {
+      const copy = [...prev.reponses];
+      copy[idx] = { ...copy[idx], ...patch };
+      return { ...prev, reponses: copy };
+    });
+  };
+
+  const handleAddQuestion = async () => {
+    if (!selectedQuiz) return;
+    try {
+        await api.post(`/formateur/quizzes/${selectedQuiz.quiz.id}/questions`, {
+          question: currentQuestion.text,
+          type: currentQuestion.type,
+          astuce: currentQuestion.astuce,
+          reponses: currentQuestion.reponses,
+        });
+        setQuestionOpen(false);
+        setCurrentQuestion({
+          text: "",
+          type: "banque de mots",
+          astuce: "",
+          reponses: [{ reponse: "", correct: false }, { reponse: "", correct: false }],
+        });
+        openDetail(selectedQuiz.quiz.id);
+    } catch (error) {
+        console.error("Error adding question:", error);
+    }
+  };
+
   return (
     <Layout>
       <div className="min-h-screen bg-[#F8FAFC] pb-20">
@@ -285,7 +328,7 @@ export default function FormateurQuizManagementPage() {
                     >
                         <option value="">Toutes les formations</option>
                         {formations.map(f => (
-                            <option key={f.id} value={String(f.id)}>{f.nom}</option>
+                            <option key={f.id} value={String(f.id)}>{f.titre}</option>
                         ))}
                     </select>
                 </div>
@@ -421,7 +464,7 @@ export default function FormateurQuizManagementPage() {
         onOpenChange={setDetailOpen} 
         selectedQuiz={selectedQuiz} 
         onPublish={handlePublishQuiz} 
-        onAddQuestion={() => {}} 
+        onAddQuestion={() => setQuestionOpen(true)} 
         onDeleteQuestion={handleDeleteQuestion} 
       />
       
@@ -464,6 +507,85 @@ export default function FormateurQuizManagementPage() {
                   <Button className="w-full h-16 rounded-[1.5rem] bg-[#FEB823] text-white font-black uppercase shadow-xl shadow-[#FEB823]/20 hover:bg-[#FEB823]/90 transition-all active:scale-[0.98] mt-4" onClick={handleCreateQuiz}>Générer le module</Button>
               </div>
           </DialogContent>
+      </Dialog>
+
+      <Dialog open={questionOpen} onOpenChange={setQuestionOpen}>
+        <DialogContent className="rounded-[3.5rem] p-0 overflow-hidden outline-none bg-white border-0 max-w-2xl shadow-2xl">
+          <div className="bg-[#FEB823] p-10 pt-16 text-white text-center relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+            <DialogTitle className="text-3xl font-black uppercase relative z-10">Nouvelle Question</DialogTitle>
+            <p className="text-white/80 font-bold text-xs uppercase tracking-widest mt-2 relative z-10">Enrichissez votre banque pédagogique</p>
+          </div>
+          
+          <div className="p-10 space-y-6 bg-slate-50/30 max-h-[70vh] overflow-y-auto custom-scrollbar">
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Enoncé de la question</Label>
+              <Textarea 
+                value={currentQuestion.text} 
+                onChange={(e) => setCurrentQuestion(p => ({ ...p, text: e.target.value }))} 
+                placeholder="Saisissez votre question ici..." 
+                className="min-h-[100px] rounded-[1.5rem] font-bold border-slate-100 focus:ring-[#FEB823]/20 px-6 py-4" 
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Note Pédagogique (Astuce)</Label>
+              <Input 
+                value={currentQuestion.astuce} 
+                onChange={(e) => setCurrentQuestion(p => ({ ...p, astuce: e.target.value }))} 
+                placeholder="Un conseil pour aider le stagiaire..." 
+                className="h-14 rounded-[1.25rem] font-bold border-slate-100 focus:ring-[#FEB823]/20 px-6" 
+              />
+            </div>
+
+            <div className="space-y-4">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Réponses possibles</Label>
+              {currentQuestion.reponses.map((r, idx) => (
+                <div key={idx} className="flex gap-3 items-center">
+                  <Input 
+                    value={r.reponse} 
+                    onChange={(e) => updateReponse(idx, { reponse: e.target.value })} 
+                    placeholder={`Option ${idx + 1}`} 
+                    className="h-14 rounded-[1.25rem] font-bold border-slate-100 flex-1 px-6" 
+                  />
+                  <Button 
+                    type="button"
+                    variant={r.correct ? "default" : "outline"}
+                    className={`h-14 w-14 rounded-2xl flex items-center justify-center transition-all ${r.correct ? 'bg-[#FEB823] hover:bg-[#FEB823]/90 border-none' : 'border-slate-100 text-slate-300'}`}
+                    onClick={() => updateReponse(idx, { correct: !r.correct })}
+                  >
+                    <CheckCircle2 className={`w-6 h-6 ${r.correct ? 'text-white' : 'text-slate-200'}`} />
+                  </Button>
+                  {currentQuestion.reponses.length > 2 && (
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-slate-200 hover:text-rose-500"
+                      onClick={() => setCurrentQuestion(p => ({ ...p, reponses: p.reponses.filter((_, i) => i !== idx) }))}
+                    >
+                      <X className="w-5 h-5" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button 
+                variant="outline" 
+                className="w-full h-12 rounded-xl border-dashed border-2 text-slate-400 font-bold uppercase text-[10px] hover:bg-slate-50"
+                onClick={() => setCurrentQuestion(p => ({ ...p, reponses: [...p.reponses, { reponse: "", correct: false }] }))}
+              >
+                + Ajouter une option
+              </Button>
+            </div>
+
+            <Button 
+              className="w-full h-16 rounded-[1.5rem] bg-[#FEB823] text-white font-black uppercase shadow-xl shadow-[#FEB823]/20 hover:bg-[#FEB823]/90 transition-all active:scale-[0.98] mt-6" 
+              onClick={handleAddQuestion}
+              disabled={!currentQuestion.text || currentQuestion.reponses.filter(r => r.correct).length === 0}
+            >
+              Enregistrer la question
+            </Button>
+          </div>
+        </DialogContent>
       </Dialog>
     </Layout>
   );
