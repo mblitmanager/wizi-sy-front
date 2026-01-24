@@ -38,11 +38,24 @@ export const useLoadRankings = () => {
         }
 
         setRankings(
-          (rankingsRes || []).map((entry: LeaderboardEntry) => ({
-            id: entry.id ? Number(entry.id) : 0,
-            name: entry.firstname || entry.name || "Unknown",
-            score: entry.totalPoints || entry.score || 0,
-          }))
+          (rankingsRes || []).map((entry: any) => ({
+            id: entry.stagiaire?.id
+              ? Number(entry.stagiaire.id)
+              : entry.id
+                ? Number(entry.id)
+                : 0,
+            name:
+              entry.stagiaire?.prenom ||
+              entry.firstname ||
+              entry.name ||
+              "Unknown",
+            score:
+              entry.totalPoints ??
+              entry.points ??
+              entry.score ??
+              entry.total_points ??
+              0,
+          })),
         );
       } catch (error) {
         console.error("Error fetching progress and rankings:", error);

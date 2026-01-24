@@ -3,11 +3,10 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, TrendingUp, TrendingDown, AlertTriangle, Video, Trophy } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
-import { api } from '@/lib/api';
-import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 interface DashboardStats {
+
     total_stagiaires: number;
     total_formations: number;
     total_quizzes_taken: number;
@@ -58,6 +57,8 @@ export function FormateurDashboardStats() {
         fetchStats();
     }, []);
 
+    const navigate = useNavigate();
+
     if (loading) {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -83,9 +84,10 @@ export function FormateurDashboardStats() {
             value: stats.total_stagiaires,
             subValue: `${stats.active_this_week} actifs`,
             icon: Users,
-            color: "text-blue-600", // Ces couleurs devront être mappées à des variables Tailwind ou CSS si elles ne le sont pas déjà
+            color: "text-blue-600",
             bg: "bg-blue-500/5",
-            border: "border-blue-500/10"
+            border: "border-blue-500/10",
+            path: "/formateur/mes-stagiaires"
         },
         {
             title: "Formations",
@@ -94,7 +96,8 @@ export function FormateurDashboardStats() {
             icon: Video,
             color: "text-purple-600",
             bg: "bg-purple-500/5",
-            border: "border-purple-500/10"
+            border: "border-purple-500/10",
+            path: "/formateur/videos"
         },
         {
             title: "Quiz Complétés",
@@ -103,7 +106,8 @@ export function FormateurDashboardStats() {
             icon: Trophy,
             color: "text-brand-primary-dark",
             bg: "bg-brand-primary/5",
-            border: "border-brand-primary/20"
+            border: "border-brand-primary/20",
+            path: "/formateur/quizzes"
         },
         {
             title: "Inactifs",
@@ -112,16 +116,18 @@ export function FormateurDashboardStats() {
             icon: TrendingDown,
             color: "text-orange-600",
             bg: "bg-orange-500/5",
-            border: "border-orange-500/10"
+            border: "border-orange-500/10",
+            path: "/formateur/mes-stagiaires?filter=inactive"
         },
         {
             title: "Jamais Connectés",
             value: stats.never_connected,
             subValue: "En attente",
             icon: AlertTriangle,
-            color: "text-destructive", // Utilisation de la couleur destructive
+            color: "text-destructive",
             bg: "bg-destructive/5",
-            border: "border-destructive/10"
+            border: "border-destructive/10",
+            path: "/formateur/mes-stagiaires?filter=never_connected"
         },
         {
             title: "Heures Vidéos",
@@ -130,7 +136,8 @@ export function FormateurDashboardStats() {
             icon: Video,
             color: "text-indigo-600",
             bg: "bg-indigo-500/5",
-            border: "border-indigo-500/10"
+            border: "border-indigo-500/10",
+            path: "/formateur/videos"
         }
     ];
 
@@ -141,8 +148,10 @@ export function FormateurDashboardStats() {
                     key={index}
                     whileHover={{ y: -8, scale: 1.02 }}
                     transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                    className={`relative overflow-hidden group rounded-[2.5rem] border ${card.border} bg-card p-8 shadow-xl shadow-background hover:shadow-2xl hover:shadow-brand-primary/10 transition-all duration-500`}
+                    className={`relative overflow-hidden group rounded-[2.5rem] border ${card.border} bg-card p-8 shadow-xl shadow-background hover:shadow-2xl hover:shadow-brand-primary/10 transition-all duration-500 cursor-pointer`}
+                    onClick={() => navigate(card.path)}
                 >
+
                     <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
                         <card.icon className="h-24 w-24" />
                     </div>

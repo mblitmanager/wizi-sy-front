@@ -221,7 +221,7 @@ export function FormateurClassementPage() {
 
                         <div className="flex items-center gap-12 relative z-10 w-full lg:w-auto lg:border-l lg:border-border lg:pl-12 py-2">
                             <div className="space-y-2">
-                                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none">Compétiteurs</p>
+                                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none">Stagiaires</p>
                                 <div className="flex items-baseline gap-2">
                                     <span className="text-4xl font-black text-foreground">{ranking.length}</span>
                                     <Users className="h-4 w-4 text-muted-foreground" />

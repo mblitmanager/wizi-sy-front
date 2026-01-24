@@ -144,7 +144,7 @@ export function Navbar({ onMenuToggle }: { onMenuToggle?: () => void }) {
         (e: any) =>
           e.stagiaire?.id?.toString() === user.stagiaire.id?.toString()
       );
-      setUserScore(entry?.score ?? 0);
+      setUserScore(entry?.totalPoints ?? entry?.points ?? entry?.score ?? 0);
     } catch (error) {
       console.error("Failed to fetch user score:", error);
       setUserScore(null);

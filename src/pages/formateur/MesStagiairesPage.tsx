@@ -140,7 +140,7 @@ export default function MesStagiairesPage() {
                             {stagiaire.name?.charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        {console.log(stagiaire)}
+                        
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-foreground truncate group-hover:text-brand-primary transition-colors">
                             {/* {stagiaire.prenom && stagiaire.nom 
