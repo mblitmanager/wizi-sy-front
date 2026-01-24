@@ -19,8 +19,10 @@ import {
     CircleDollarSign,
     ShieldCheck,
     ChevronRight,
-    ArrowUpRight
+    ArrowUpRight,
+    Filter
 } from 'lucide-react';
+
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/context/UserContext';

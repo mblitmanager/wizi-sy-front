@@ -19,9 +19,40 @@ interface StagiaireProfile {
     telephone: string;
     image?: string;
     created_at: string;
+    date_inscription: string;
+    date_debut_formation: string;
     last_login: string;
   };
+  contacts: {
+    formateurs: Array<{
+      id: number;
+      nom: string;
+      telephone: string;
+      email: string;
+      image?: string;
+    }>;
+    pole_relation: Array<{
+      id: number;
+      nom: string;
+      telephone: string;
+      email: string;
+    }>;
+    commercials: Array<{
+      id: number;
+      nom: string;
+      telephone: string;
+      email: string;
+      image?: string;
+    }>;
+    partenaire?: {
+      id: number;
+      nom: string;
+      email?: string;
+      telephone?: string;
+    } | null;
+  };
   stats: {
+
     total_points: number;
     current_badge: string;
     formations_completed: number;
@@ -40,12 +71,23 @@ interface StagiaireProfile {
     completed_at: string;
   }>;
   quiz_history: Array<{
+    id: number;
     quiz_id: number;
-    title: string;
-    category: string;
+    correctAnswers: number;
+    totalQuestions: number;
     score: number;
-    completed_at: string;
+    completedAt: string;
+    timeSpent: number;
+    quiz: {
+      id: number;
+      titre: string;
+      niveau: string;
+      formation: {
+        categorie: string;
+      };
+    };
   }>;
+
 }
 
 export default function StagiaireProfilePage() {
@@ -129,28 +171,44 @@ export default function StagiaireProfilePage() {
                   {stagiaire.prenom} {stagiaire.nom}
                 </h1>
                 <div className="flex flex-col gap-1 mt-2">
-                  <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                  <a
+                    href={`mailto:${stagiaire.email}`}
+                    className="flex items-center gap-2 text-muted-foreground text-sm hover:text-brand-primary transition-colors"
+                  >
                     <Mail className="h-4 w-4" />
                     {stagiaire.email}
-                  </div>
+                  </a>
                   {stagiaire.telephone && (
-                    <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                    <a
+                      href={`tel:${stagiaire.telephone.replace(/\s/g, "")}`}
+                      className="flex items-center gap-2 text-muted-foreground text-sm hover:text-brand-primary transition-colors"
+                    >
                       <Phone className="h-4 w-4" />
                       {stagiaire.telephone}
+                    </a>
+                  )}
+                  {stagiaire.date_inscription && (
+                    <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                      <Calendar className="h-4 w-4" />
+                      Inscrit le {new Date(stagiaire.date_inscription).toLocaleDateString()}
                     </div>
                   )}
-                  <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                    <Calendar className="h-4 w-4" />
-                    Inscrit le {new Date(stagiaire.created_at).toLocaleDateString()}
-                  </div>
+                  {stagiaire.date_debut_formation && (
+                    <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium text-brand-primary">
+                      <Award className="h-4 w-4" />
+                      Début formation: {new Date(stagiaire.date_debut_formation).toLocaleDateString()}
+                    </div>
+                  )}
                 </div>
+
+
               </div>
               
               <div className="flex flex-col items-end gap-2">
-                 <Badge variant="outline" className={`px-4 py-1 text-sm font-bold shadow-sm ${getBadgeColor(stats.current_badge)}`}>
+                 {/* <Badge variant="outline" className={`px-4 py-1 text-sm font-bold shadow-sm ${getBadgeColor(stats.current_badge)}`}>
                     <Trophy className="h-3.5 w-3.5 mr-2" />
                     {stats.current_badge}
-                 </Badge>
+                 </Badge> */}
                  <span className="text-xs text-muted-foreground">
                    Dernière connexion: {stagiaire.last_login ? new Date(stagiaire.last_login).toLocaleDateString() : 'Jamais'}
                  </span>
@@ -172,7 +230,7 @@ export default function StagiaireProfilePage() {
               icon={BookOpen} 
               label="Formations" 
               value={`${stats.formations_completed}/${stats.formations_completed + stats.formations_in_progress}`} 
-              subtext="Complétées"
+              subtext=""
               color="text-blue-500"
               bg="bg-blue-500/10"
             />
@@ -251,8 +309,8 @@ export default function StagiaireProfilePage() {
                       {quiz_history.slice(0, 5).map((quiz, i) => (
                         <div key={i} className="p-4 hover:bg-muted/50 transition-colors">
                           <div className="flex justify-between items-center mb-1">
-                            <span className="font-medium text-sm truncate max-w-[150px]" title={quiz.title}>
-                              {quiz.title}
+                            <span className="font-medium text-sm " title={quiz.quiz?.titre}>
+                              {quiz.quiz?.titre || 'Quiz'}
                             </span>
                             <span className={`text-sm font-bold ${
                               quiz.score >= 80 ? 'text-green-600' : 
@@ -262,17 +320,64 @@ export default function StagiaireProfilePage() {
                             </span>
                           </div>
                           <div className="text-xs text-muted-foreground flex justify-between">
-                            <span>{quiz.category}</span>
-                            <span>{new Date(quiz.completed_at).toLocaleDateString()}</span>
+                            <span>{quiz.quiz?.formation?.categorie || 'Général'}</span>
+                            <span>{quiz.completedAt ? new Date(quiz.completedAt).toLocaleDateString() : '-'}</span>
                           </div>
                         </div>
+
                       ))}
                     </div>
                   )}
                 </CardContent>
               </Card>
+
+              {/* Contacts info */}
+              <h2 className="text-xl font-bold flex items-center gap-2 pt-4">
+                <Users className="h-5 w-5 text-brand-primary" />
+                Accompagnement
+              </h2>
+              <div className="space-y-3">
+                 {data.contacts.formateurs.map((f) => (
+                    <ContactSmallCard 
+                      key={f.id} 
+                      name={f.nom} 
+                      role="Formateur" 
+                      email={f.email} 
+                      phone={f.telephone} 
+                      image={f.image}
+                    />
+                 ))}
+                 {data.contacts.pole_relation.map((p) => (
+                    <ContactSmallCard 
+                      key={p.id} 
+                      name={p.nom} 
+                      role="Relation Client" 
+                      email={p.email} 
+                      phone={p.telephone} 
+                    />
+                 ))}
+                 {data.contacts.commercials.map((c) => (
+                    <ContactSmallCard 
+                      key={c.id} 
+                      name={c.nom} 
+                      role="Conseiller" 
+                      email={c.email} 
+                      phone={c.telephone} 
+                      image={c.image}
+                    />
+                 ))}
+                 {data.contacts.partenaire && (
+                    <ContactSmallCard 
+                      name={data.contacts.partenaire.nom} 
+                      role="Entreprise/Partenaire" 
+                      email={data.contacts.partenaire.email} 
+                      phone={data.contacts.partenaire.telephone} 
+                    />
+                 )}
+              </div>
             </div>
           </div>
+
 
         </div>
       </div>
@@ -308,3 +413,45 @@ function StatCard({ icon: Icon, label, value, subtext, color, bg }: StatCardProp
     </Card>
   );
 }
+
+function ContactSmallCard({ name, role, email, phone, image }: { 
+  name: string; 
+  role: string; 
+  email?: string; 
+  phone?: string;
+  image?: string;
+}) {
+  return (
+    <Card className="p-3 border-l-4 border-l-brand-primary hover:shadow-md transition-shadow">
+      <div className="flex items-center gap-3">
+        <Avatar className="h-10 w-10">
+          <AvatarImage src={image} />
+          <AvatarFallback className="bg-muted text-xs">
+            {name.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1 min-w-0">
+          <div className="flex justify-between items-start">
+            <h4 className="font-semibold text-sm truncate">{name}</h4>
+            <span className="text-[10px] font-bold text-brand-primary uppercase tracking-tighter bg-brand-primary/5 px-1.5 py-0.5 rounded">
+              {role}
+            </span>
+          </div>
+          <div className="flex gap-3 mt-1">
+            {email && (
+              <a href={`mailto:${email}`} title={email}>
+                <Mail className="h-3 w-3 text-muted-foreground hover:text-brand-primary" />
+              </a>
+            )}
+            {phone && (
+              <a href={`tel:${phone.replace(/\s/g, '')}`} title={phone}>
+                <Phone className="h-3 w-3 text-muted-foreground hover:text-brand-primary" />
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
