@@ -1,46 +1,66 @@
 import React, { useState, useEffect } from 'react';
+import { Layout } from '@/components/layout/Layout';
+import { BookOpen, Users, Clock, Video, Eye, UserPlus, Search, X, Check, TrendingUp, Target, BarChart3 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
-  Container,
-  Grid,
-  Card,
-  CardContent,
-  Typography,
-  TextField,
-  Button,
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  Checkbox,
-  FormControlLabel,
-  IconButton,
-  Chip,
-  LinearProgress,
-  Box,
-} from '@mui/material';
-import {
-  Add as AddIcon,
-  Visibility as VisibilityIcon,
-  Person as PersonIcon,
-  VideoLibrary as VideoIcon,
-  Schedule as ScheduleIcon,
-} from '@mui/icons-material';
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
 import axios from 'axios';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
+interface Formation {
+  id: number;
+  titre: string;
+  description?: string;
+  categorie: string;
+  duree?: string;
+  image_url?: string;
+  nb_stagiaires?: number;
+  nb_videos?: number;
+  duree_estimee?: number;
+}
+
+interface Stagiaire {
+  id: number;
+  prenom: string;
+  nom: string;
+  email: string;
+  progress?: number;
+}
+
+interface FormationStats {
+  student_count?: number;
+  avg_score?: number;
+  total_completions?: number;
+  total_stagiaires?: number;
+  completed?: number;
+  in_progress?: number;
+  not_started?: number;
+}
+
 export default function GestionFormations() {
-  const [formations, setFormations] = useState([]);
-  const [filteredFormations, setFilteredFormations] = useState([]);
+  const [formations, setFormations] = useState<Formation[]>([]);
+  const [filteredFormations, setFilteredFormations] = useState<Formation[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
-  const [selectedFormation, setSelectedFormation] = useState(null);
-  const [unassignedStagiaires, setUnassignedStagiaires] = useState([]);
-  const [selectedStagiaires, setSelectedStagiaires] = useState([]);
-  const [formationStagiaires, setFormationStagiaires] = useState([]);
-  const [formationStats, setFormationStats] = useState(null);
+  const [selectedFormation, setSelectedFormation] = useState<Formation | null>(null);
+  const [unassignedStagiaires, setUnassignedStagiaires] = useState<Stagiaire[]>([]);
+  const [selectedStagiaires, setSelectedStagiaires] = useState<number[]>([]);
+  const [formationStagiaires, setFormationStagiaires] = useState<Stagiaire[]>([]);
+  const [formationStats, setFormationStats] = useState<FormationStats | null>(null);
 
   useEffect(() => {
     loadFormations();
@@ -52,7 +72,7 @@ export default function GestionFormations() {
         formations.filter(
           (f) =>
             f.titre.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            f.categorie.toLowerCase().includes(searchQuery.toLowerCase())
+            f.categorie?.toLowerCase().includes(searchQuery.toLowerCase())
         )
       );
     } else {
@@ -75,7 +95,7 @@ export default function GestionFormations() {
     }
   };
 
-  const handleAssignClick = async (formation) => {
+  const handleAssignClick = async (formation: Formation) => {
     setSelectedFormation(formation);
     try {
       const token = localStorage.getItem('token');
@@ -91,6 +111,7 @@ export default function GestionFormations() {
   };
 
   const handleAssign = async () => {
+    if (!selectedFormation) return;
     try {
       const token = localStorage.getItem('token');
       await axios.post(
@@ -106,7 +127,7 @@ export default function GestionFormations() {
     }
   };
 
-  const handleViewDetails = async (formation) => {
+  const handleViewDetails = async (formation: Formation) => {
     setSelectedFormation(formation);
     try {
       const token = localStorage.getItem('token');
@@ -119,182 +140,265 @@ export default function GestionFormations() {
         }),
       ]);
       setFormationStagiaires(stagRes.data.stagiaires || []);
-      setFormationStats(statsRes.data.stats || null);
+      setFormationStats(statsRes.data || null);
       setDetailsDialogOpen(true);
     } catch (error) {
       console.error('Error loading details:', error);
     }
   };
 
+  const toggleStagiaire = (id: number) => {
+    setSelectedStagiaires((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+    );
+  };
+
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Gestion des Formations
-      </Typography>
+    <Layout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Gestion des Formations</h1>
+            <p className="text-sm text-gray-500 mt-1">Gérez vos catalogues et assignations</p>
+          </div>
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Rechercher une formation..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
 
-      <TextField
-        fullWidth
-        placeholder="Rechercher une formation..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        sx={{ mb: 3 }}
-      />
+        {/* Loading State */}
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="bg-white rounded-xl border border-gray-100 p-5 animate-pulse">
+                <div className="h-5 bg-gray-200 rounded w-3/4 mb-3" />
+                <div className="h-4 bg-gray-100 rounded w-1/2 mb-4" />
+                <div className="flex gap-2">
+                  <div className="h-6 bg-gray-100 rounded-full w-20" />
+                  <div className="h-6 bg-gray-100 rounded-full w-20" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <AnimatePresence mode="popLayout">
+              {filteredFormations.map((formation, index) => (
+                <motion.div
+                  key={formation.id}
+                  layout
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2, delay: index * 0.03 }}
+                  className="bg-white rounded-xl border border-gray-100 hover:border-orange-200 hover:shadow-lg transition-all duration-300 p-5 group"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="p-2 rounded-lg bg-orange-50 group-hover:bg-orange-100 transition-colors">
+                      <BookOpen className="h-5 w-5 text-orange-500" />
+                    </div>
+                    <Badge variant="outline" className="text-xs font-medium text-gray-500 border-gray-200">
+                      {formation.categorie || 'Général'}
+                    </Badge>
+                  </div>
 
-      {loading ? (
-        <LinearProgress />
-      ) : (
-        <Grid container spacing={3}>
-          {filteredFormations.map((formation) => (
-            <Grid item xs={12} md={6} key={formation.id}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
+                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-orange-600 transition-colors">
                     {formation.titre}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
-                    {formation.categorie}
-                  </Typography>
+                  </h3>
 
-                  <Box sx={{ display: 'flex', gap: 2, my: 2 }}>
-                    <Chip
-                      icon={<PersonIcon />}
-                      label={`${formation.nb_stagiaires} stagiaires`}
-                      color="primary"
-                      size="small"
-                    />
-                    <Chip
-                      icon={<VideoIcon />}
-                      label={`${formation.nb_videos} vidéos`}
-                      size="small"
-                    />
-                    <Chip
-                      icon={<ScheduleIcon />}
-                      label={`${formation.duree_estimee}h`}
-                      size="small"
-                    />
-                  </Box>
+                  <div className="flex flex-wrap gap-2 mb-4 text-xs text-gray-500">
+                    <div className="flex items-center gap-1">
+                      <Users className="h-3.5 w-3.5" />
+                      <span>{formation.nb_stagiaires || 0} stagiaires</span>
+                    </div>
+                    {formation.nb_videos && (
+                      <div className="flex items-center gap-1">
+                        <Video className="h-3.5 w-3.5" />
+                        <span>{formation.nb_videos} vidéos</span>
+                      </div>
+                    )}
+                    {formation.duree && (
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-3.5 w-3.5" />
+                        <span>{formation.duree}</span>
+                      </div>
+                    )}
+                  </div>
 
-                  <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
+                  <div className="flex gap-2 pt-3 border-t border-gray-50">
                     <Button
-                      variant="outlined"
-                      size="small"
-                      startIcon={<VisibilityIcon />}
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 text-xs"
                       onClick={() => handleViewDetails(formation)}
                     >
+                      <Eye className="h-3.5 w-3.5 mr-1.5" />
                       Détails
                     </Button>
                     <Button
-                      variant="contained"
-                      size="small"
-                      startIcon={<AddIcon />}
+                      size="sm"
+                      className="flex-1 text-xs bg-orange-500 hover:bg-orange-600"
                       onClick={() => handleAssignClick(formation)}
                     >
+                      <UserPlus className="h-3.5 w-3.5 mr-1.5" />
                       Assigner
                     </Button>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      )}
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!loading && filteredFormations.length === 0 && (
+          <div className="text-center py-12">
+            <BookOpen className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-1">Aucune formation trouvée</h3>
+            <p className="text-sm text-gray-500">Modifiez votre recherche ou ajoutez de nouvelles formations.</p>
+          </div>
+        )}
+      </div>
 
       {/* Assign Dialog */}
-      <Dialog open={assignDialogOpen} onClose={() => setAssignDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Assigner: {selectedFormation?.titre}</DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" gutterBottom>
-            Sélectionnez les stagiaires:
-          </Typography>
-          {unassignedStagiaires.map((stagiaire) => (
-            <FormControlLabel
-              key={stagiaire.id}
-              control={
-                <Checkbox
-                  checked={selectedStagiaires.includes(stagiaire.id)}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setSelectedStagiaires([...selectedStagiaires, stagiaire.id]);
-                    } else {
-                      setSelectedStagiaires(selectedStagiaires.filter((id) => id !== stagiaire.id));
-                    }
-                  }}
-                />
-              }
-              label={`${stagiaire.prenom} ${stagiaire.nom} (${stagiaire.email})`}
-            />
-          ))}
+      <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <UserPlus className="h-5 w-5 text-orange-500" />
+              Assigner des stagiaires
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-gray-500 mb-4">
+            Formation: <span className="font-medium text-gray-900">{selectedFormation?.titre}</span>
+          </p>
+          <div className="space-y-2 max-h-60 overflow-y-auto">
+            {unassignedStagiaires.length === 0 ? (
+              <p className="text-sm text-gray-500 text-center py-4">Aucun stagiaire disponible</p>
+            ) : (
+              unassignedStagiaires.map((stagiaire) => (
+                <div
+                  key={stagiaire.id}
+                  className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
+                  onClick={() => toggleStagiaire(stagiaire.id)}
+                >
+                  <Checkbox checked={selectedStagiaires.includes(stagiaire.id)} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {stagiaire.prenom} {stagiaire.nom}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">{stagiaire.email}</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          <DialogFooter className="mt-4">
+            <DialogClose asChild>
+              <Button variant="outline">Annuler</Button>
+            </DialogClose>
+            <Button
+              onClick={handleAssign}
+              disabled={selectedStagiaires.length === 0}
+              className="bg-orange-500 hover:bg-orange-600"
+            >
+              <Check className="h-4 w-4 mr-1.5" />
+              Assigner ({selectedStagiaires.length})
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setAssignDialogOpen(false)}>Annuler</Button>
-          <Button onClick={handleAssign} variant="contained" disabled={selectedStagiaires.length === 0}>
-            Assigner
-          </Button>
-        </DialogActions>
       </Dialog>
 
       {/* Details Dialog */}
-      <Dialog open={detailsDialogOpen} onClose={() => setDetailsDialogOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle>{selectedFormation?.titre}</DialogTitle>
-        <DialogContent>
+      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-orange-500" />
+              {selectedFormation?.titre}
+            </DialogTitle>
+          </DialogHeader>
+
+          {/* Stats Grid */}
           {formationStats && (
-            <Grid container spacing={2} sx={{ mb: 3 }}>
-              <Grid item xs={3}>
-                <Card sx={{ bgcolor: 'primary.light', color: 'white' }}>
-                  <CardContent>
-                    <Typography variant="h4">{formationStats.total_stagiaires}</Typography>
-                    <Typography variant="body2">Total</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-              <Grid item xs={3}>
-                <Card sx={{ bgcolor: 'success.light', color: 'white' }}>
-                  <CardContent>
-                    <Typography variant="h4">{formationStats.completed}</Typography>
-                    <Typography variant="body2">Complété</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-              <Grid item xs={3}>
-                <Card sx={{ bgcolor: 'warning.light', color: 'white' }}>
-                  <CardContent>
-                    <Typography variant="h4">{formationStats.in_progress}</Typography>
-                    <Typography variant="body2">En cours</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-              <Grid item xs={3}>
-                <Card sx={{ bgcolor: 'grey.400', color: 'white' }}>
-                  <CardContent>
-                    <Typography variant="h4">{formationStats.not_started}</Typography>
-                    <Typography variant="body2">Pas démarré</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            </Grid>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 my-4">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center">
+                <Users className="h-5 w-5 text-blue-600 mx-auto mb-1" />
+                <p className="text-2xl font-bold text-blue-700">{formationStats.student_count || formationStats.total_stagiaires || 0}</p>
+                <p className="text-xs text-blue-600 font-medium">Total</p>
+              </div>
+              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center">
+                <Target className="h-5 w-5 text-green-600 mx-auto mb-1" />
+                <p className="text-2xl font-bold text-green-700">{formationStats.total_completions || formationStats.completed || 0}</p>
+                <p className="text-xs text-green-600 font-medium">Terminé</p>
+              </div>
+              <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-4 text-center">
+                <TrendingUp className="h-5 w-5 text-amber-600 mx-auto mb-1" />
+                <p className="text-2xl font-bold text-amber-700">{formationStats.in_progress || 0}</p>
+                <p className="text-xs text-amber-600 font-medium">En cours</p>
+              </div>
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 text-center">
+                <BarChart3 className="h-5 w-5 text-purple-600 mx-auto mb-1" />
+                <p className="text-2xl font-bold text-purple-700">{formationStats.avg_score?.toFixed(1) || 0}%</p>
+                <p className="text-xs text-purple-600 font-medium">Moyenne</p>
+              </div>
+            </div>
           )}
 
-          <Typography variant="h6" gutterBottom>
-            Stagiaires inscrits:
-          </Typography>
-          {formationStagiaires.map((stagiaire) => (
-            <Card key={stagiaire.id} sx={{ mb: 1 }}>
-              <CardContent>
-                <Typography variant="subtitle1">
-                  {stagiaire.prenom} {stagiaire.nom}
-                </Typography>
-                <LinearProgress variant="determinate" value={stagiaire.progress} sx={{ mt: 1 }} />
-                <Typography variant="body2" color="text.secondary">
-                  {stagiaire.progress}% complété
-                </Typography>
-              </CardContent>
-            </Card>
-          ))}
+          {/* Stagiaires List */}
+          <div>
+            <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <Users className="h-4 w-4 text-gray-400" />
+              Stagiaires inscrits ({formationStagiaires.length})
+            </h4>
+            <div className="space-y-2 max-h-60 overflow-y-auto">
+              {formationStagiaires.length === 0 ? (
+                <p className="text-sm text-gray-500 text-center py-4">Aucun stagiaire inscrit</p>
+              ) : (
+                formationStagiaires.map((stagiaire) => (
+                  <div key={stagiaire.id} className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
+                    <div className="h-9 w-9 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-semibold text-sm">
+                      {stagiaire.prenom?.[0]}{stagiaire.nom?.[0]}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900">
+                        {stagiaire.prenom} {stagiaire.nom}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Progress value={stagiaire.progress || 0} className="h-1.5 flex-1" />
+                        <span className="text-xs text-gray-500 font-medium">{stagiaire.progress || 0}%</span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          <DialogFooter className="mt-4">
+            <DialogClose asChild>
+              <Button variant="outline">Fermer</Button>
+            </DialogClose>
+            <Button
+              className="bg-orange-500 hover:bg-orange-600"
+              onClick={() => {
+                setDetailsDialogOpen(false);
+                if (selectedFormation) handleAssignClick(selectedFormation);
+              }}
+            >
+              <UserPlus className="h-4 w-4 mr-1.5" />
+              Ajouter des stagiaires
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDetailsDialogOpen(false)}>Fermer</Button>
-        </DialogActions>
       </Dialog>
-    </Container>
+    </Layout>
   );
 }
