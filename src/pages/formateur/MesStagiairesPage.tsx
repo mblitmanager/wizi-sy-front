@@ -135,7 +135,10 @@ export default function MesStagiairesPage() {
                     >
                       <div className="flex items-center gap-4">
                         <Avatar className="h-12 w-12 border border-border">
-                          <AvatarImage src={stagiaire.image} alt={stagiaire.name} />
+                          <AvatarImage 
+                            src={stagiaire.image && stagiaire.image.startsWith('http') ? stagiaire.image : (stagiaire.image ? `${import.meta.env.VITE_API_URL_MEDIA}/${stagiaire.image}` : undefined)} 
+                            alt={stagiaire.name} 
+                          />
                           <AvatarFallback className="bg-brand-primary/10 text-brand-primary-dark font-bold">
                             {stagiaire.name?.charAt(0).toUpperCase()}
                           </AvatarFallback>

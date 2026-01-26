@@ -11,6 +11,12 @@ import {
     TableRow 
 } from '@/components/ui/table';
 import { 
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion"
+import { 
     ClipboardList, 
     Search, 
     Calendar, 
@@ -20,7 +26,8 @@ import {
     CheckCircle2, 
     AlertCircle, 
     Filter,
-    ArrowUpDown
+    ArrowUpDown,
+    ExternalLink
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -106,7 +113,7 @@ const SuiviDemandesPage = () => {
         }
         acc[studentId].items.push(current);
         return acc;
-    }, {} as Record<number, { stagiaire: any, items: Demande[] }>);
+    }, {} as Record<number, { stagiaire: Demande['stagiaire'], items: Demande[] }>);
 
     if (loading) {
         return (
@@ -158,81 +165,93 @@ const SuiviDemandesPage = () => {
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="space-y-8">
                         {Object.values(groupedDemandes).length > 0 ? (
-                            Object.values(groupedDemandes).map((group) => (
-                                <Card key={group.stagiaire?.id || Math.random()} className="border-none shadow-xl shadow-slate-200/50 rounded-[2.5rem] overflow-hidden bg-white">
-                                    <div className="bg-slate-50/80 px-10 py-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-[1.25rem] bg-white border border-slate-200 shadow-sm flex items-center justify-center font-black text-[#FEB823] text-lg">
-                                                {group.stagiaire?.prenom?.[0] || 'S'}
-                                            </div>
-                                            <div>
-                                                <h3 className="font-black text-slate-900 text-lg leading-none">
-                                                    {group.stagiaire?.prenom} {group.stagiaire?.name}
-                                                </h3>
-                                                <div className="flex items-center gap-2 mt-1">
-                                                    <Badge variant="outline" className="border-[#FEB823]/20 text-[#FEB823] font-bold text-[9px] uppercase tracking-widest px-2">
-                                                        {group.items.length} {group.items.length > 1 ? 'Demandes' : 'Demande'}
-                                                    </Badge>
-                                                    <span className="text-[10px] font-bold text-slate-300 uppercase tracking-tighter">Inscrit via plateforme</span>
+                            <Accordion type="single" collapsible className="space-y-4">
+                                {Object.values(groupedDemandes).map((group) => (
+                                    <AccordionItem 
+                                        key={group.stagiaire?.id || Math.random()} 
+                                        value={`student-${group.stagiaire?.id}`}
+                                        className="border-none bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 overflow-hidden mb-4"
+                                    >
+                                        <div className="flex items-center px-8 py-2">
+                                            <AccordionTrigger className="flex-1 hover:no-underline py-6">
+                                                <div className="flex items-center gap-4 text-left">
+                                                    <div className="w-12 h-12 rounded-[1.25rem] bg-slate-50 border border-slate-100 shadow-sm flex items-center justify-center font-black text-[#FEB823] text-lg shrink-0">
+                                                        {group.stagiaire?.prenom?.[0] || 'S'}
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="font-black text-slate-900 text-lg leading-none">
+                                                            {group.stagiaire?.prenom} {group.stagiaire?.name}
+                                                        </h3>
+                                                        <div className="flex items-center gap-2 mt-2">
+                                                            <Badge variant="outline" className="border-[#FEB823]/20 text-[#FEB823] font-bold text-[9px] uppercase tracking-widest px-2">
+                                                                {group.items.length} {group.items.length > 1 ? 'Demandes' : 'Demande'}
+                                                            </Badge>
+                                                            <span className="hidden md:inline text-[10px] font-bold text-slate-300 uppercase tracking-tighter">Inscrit via plateforme</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            </AccordionTrigger>
+                                            
+                                            <Button 
+                                                variant="ghost" 
+                                                size="sm" 
+                                                className="hidden md:flex rounded-xl ml-4 h-10 px-4 text-slate-400 hover:text-[#FEB823] hover:bg-[#FEB823]/5 transition-all font-black uppercase text-[10px] tracking-widest"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    group.stagiaire?.id && navigate(`/formateur/stagiaire/${group.stagiaire.id}`);
+                                                }}
+                                            >
+                                                <ExternalLink className="w-3.5 h-3.5 mr-2" />
+                                                Profil
+                                            </Button>
                                         </div>
-                                        
-                                        <Button 
-                                            variant="outline" 
-                                            size="sm" 
-                                            className="rounded-xl px-6 border-slate-200 text-slate-400 hover:bg-[#FEB823] hover:text-white hover:border-[#FEB823] transition-all font-black uppercase text-[10px] tracking-widest shadow-sm"
-                                            onClick={() => group.stagiaire?.id && navigate(`/formateur/stagiaire/${group.stagiaire.id}`)}
-                                        >
-                                            Voir le profil complet
-                                        </Button>
-                                    </div>
 
-                                    <CardContent className="p-0">
-                                        <div className="overflow-x-auto">
-                                            <Table>
-                                                <TableHeader className="bg-white">
-                                                    <TableRow className="border-slate-50">
-                                                        <TableHead className="font-black text-[9px] uppercase tracking-widest text-slate-300 py-6 pl-10">Date</TableHead>
-                                                        <TableHead className="font-black text-[9px] uppercase tracking-widest text-slate-300 py-6">Formation demandée</TableHead>
-                                                        <TableHead className="font-black text-[9px] uppercase tracking-widest text-slate-300 py-6">Statut administratif</TableHead>
-                                                        <TableHead className="font-black text-[9px] uppercase tracking-widest text-slate-300 py-6 text-center">Motif</TableHead>
-                                                        <TableHead className="font-black text-[9px] uppercase tracking-widest text-slate-300 py-6 pr-10 text-right">Détails</TableHead>
-                                                    </TableRow>
-                                                </TableHeader>
-                                                <TableBody>
-                                                    {group.items.map((demande) => (
-                                                        <TableRow key={demande.id} className="border-slate-50 hover:bg-slate-50/30 transition-colors">
-                                                            <TableCell className="py-6 pl-10 text-sm font-bold text-slate-500 whitespace-nowrap">
-                                                                {format(new Date(demande.date), 'dd/MM/yyyy')}
-                                                            </TableCell>
-                                                            <TableCell className="py-6">
-                                                                <div className="flex items-center gap-2">
-                                                                    <BookOpen className="w-3.5 h-3.5 text-[#FEB823]/60" />
-                                                                    <span className="font-black text-sm text-slate-800">{demande.formation}</span>
-                                                                </div>
-                                                            </TableCell>
-                                                            <TableCell className="py-6">
-                                                                {getStatusBadge(demande.statut)}
-                                                            </TableCell>
-                                                            <TableCell className="py-6 text-center">
-                                                                <span className="text-[11px] font-medium text-slate-400 italic">
-                                                                    {demande.motif || 'Aucun motif renseigné'}
-                                                                </span>
-                                                            </TableCell>
-                                                            <TableCell className="py-6 pr-10 text-right">
-                                                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-200 hover:text-[#FEB823] hover:bg-[#FEB823]/5">
-                                                                    <Calendar className="h-4 w-4" />
-                                                                </Button>
-                                                            </TableCell>
+                                        <AccordionContent className="border-t border-slate-50 p-0">
+                                            <div className="overflow-x-auto">
+                                                <Table>
+                                                    <TableHeader className="bg-slate-50/50">
+                                                        <TableRow className="border-none">
+                                                            <TableHead className="font-black text-[9px] uppercase tracking-widest text-slate-400 py-4 pl-10">Date</TableHead>
+                                                            <TableHead className="font-black text-[9px] uppercase tracking-widest text-slate-400 py-4">Formation demandée</TableHead>
+                                                            <TableHead className="font-black text-[9px] uppercase tracking-widest text-slate-400 py-4">Statut</TableHead>
+                                                            <TableHead className="font-black text-[9px] uppercase tracking-widest text-slate-400 py-4">Motif</TableHead>
+                                                            <TableHead className="font-black text-[9px] uppercase tracking-widest text-slate-400 py-4 pr-10 text-right">Action</TableHead>
                                                         </TableRow>
-                                                    ))}
-                                                </TableBody>
-                                            </Table>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))
+                                                    </TableHeader>
+                                                    <TableBody>
+                                                        {group.items.map((demande) => (
+                                                            <TableRow key={demande.id} className="border-slate-50 hover:bg-slate-50/30 transition-colors">
+                                                                <TableCell className="py-5 pl-10 text-sm font-bold text-slate-500 whitespace-nowrap">
+                                                                    {format(new Date(demande.date), 'dd/MM/yyyy')}
+                                                                </TableCell>
+                                                                <TableCell className="py-5">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <BookOpen className="w-3.5 h-3.5 text-[#FEB823]/60" />
+                                                                        <span className="font-black text-sm text-slate-800">{demande.formation}</span>
+                                                                    </div>
+                                                                </TableCell>
+                                                                <TableCell className="py-5">
+                                                                    {getStatusBadge(demande.statut)}
+                                                                </TableCell>
+                                                                <TableCell className="py-5">
+                                                                    <span className="text-[11px] font-medium text-slate-400 italic">
+                                                                        {demande.motif || 'Aucun motif renseigné'}
+                                                                    </span>
+                                                                </TableCell>
+                                                                <TableCell className="py-5 pr-10 text-right">
+                                                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-200 hover:text-[#FEB823] hover:bg-[#FEB823]/5">
+                                                                        <Calendar className="h-4 w-4" />
+                                                                    </Button>
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        ))}
+                                                    </TableBody>
+                                                </Table>
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                ))}
+                            </Accordion>
                         ) : (
                             <Card className="border-none shadow-2xl shadow-slate-200/50 rounded-[2.5rem] overflow-hidden bg-white">
                                 <CardContent className="py-32 text-center">

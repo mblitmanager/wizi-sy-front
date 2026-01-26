@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { GraduationCap, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -22,6 +23,7 @@ interface PaginationData {
 }
 
 export function FormateurStatsFormateurs() {
+    const navigate = useNavigate();
     const [formateurs, setFormateurs] = useState<Formateur[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [lastPage, setLastPage] = useState(1);
@@ -101,7 +103,8 @@ export function FormateurStatsFormateurs() {
                             initial={{ opacity: 0, x: 10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: index * 0.05 }}
-                            className="flex items-center gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-white/10 transition-all group/item"
+                            onClick={() => navigate('/formateur/arena')}
+                            className="flex items-center gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-white/10 transition-all group/item cursor-pointer"
                         >
                             <div className="h-12 w-12 rounded-full bg-gradient-to-br from-white/5 to-white/[0.01] border border-white/10 flex items-center justify-center shadow-inner group-hover/item:border-yellow-500/30 transition-colors shrink-0">
                                 <span className="text-xs font-black text-gray-400 group-hover/item:text-yellow-500 tracking-tighter transition-colors">

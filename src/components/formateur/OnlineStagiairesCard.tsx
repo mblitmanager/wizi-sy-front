@@ -220,7 +220,7 @@ export function OnlineStagiairesCard() {
                                 <div className="relative shrink-0">
                                     {stagiaire.avatar ? (
                                         <img
-                                            src={stagiaire.avatar}
+                                            src={stagiaire.avatar.startsWith('http') ? stagiaire.avatar : `${import.meta.env.VITE_API_URL_MEDIA}/${stagiaire.avatar}`}
                                             alt={`${stagiaire.prenom} ${stagiaire.nom}`}
                                             className="h-12 w-12 rounded-2xl object-cover shadow-md"
                                         />

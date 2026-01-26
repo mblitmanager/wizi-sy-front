@@ -174,7 +174,7 @@ export default function StagiaireProfilePage() {
             <div className="h-32 bg-gradient-to-r from-brand-primary to-brand-secondary/80 relative">
                <div className="absolute -bottom-12 left-8">
                   <Avatar className="h-24 w-24 border-4 border-card shadow-md">
-                    <AvatarImage src={stagiaire.image} />
+                    <AvatarImage src={stagiaire.image && stagiaire.image.startsWith('http') ? stagiaire.image : (stagiaire.image ? `${import.meta.env.VITE_API_URL_MEDIA}/${stagiaire.image}` : undefined)} />
                     <AvatarFallback className="text-2xl font-bold bg-muted">
                       {stagiaire.prenom?.charAt(0)}
                     </AvatarFallback>
@@ -508,7 +508,7 @@ function ContactSmallCard({ name, role, email, phone, image }: {
     <Card className="p-3 border-l-4 border-l-brand-primary hover:shadow-md transition-shadow">
       <div className="flex items-center gap-3">
         <Avatar className="h-10 w-10">
-          <AvatarImage src={image} />
+          <AvatarImage src={image && image.startsWith('http') ? image : (image ? `${import.meta.env.VITE_API_URL_MEDIA}/${image}` : undefined)} />
           <AvatarFallback className="bg-muted text-xs">
             {name.charAt(0)}
           </AvatarFallback>

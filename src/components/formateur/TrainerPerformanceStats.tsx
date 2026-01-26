@@ -365,7 +365,7 @@ const TrainerPerformanceStats = () => {
             <Dialog open={selectedStudentId !== null} onOpenChange={(open) => !open && closeDetails()}>
                 <DialogContent className="max-w-md bg-white border-slate-100 rounded-[2.5rem] shadow-2xl p-0 overflow-hidden ring-1 ring-black/5">
                     <DialogHeader className="p-8 pb-4 border-b border-slate-50 relative bg-slate-50/50">
-                        <DialogTitle className="text-xs font-black uppercase text-slate-400 tracking-[0.3em] text-center">Filiation Analytique</DialogTitle>
+                        <DialogTitle className="text-xs font-black text-slate-400 tracking-[0.3em] text-center">Détails stagiaire</DialogTitle>
                     </DialogHeader>
                     {loadingDetails ? (
                         <div className="py-24 flex flex-col items-center justify-center space-y-6">
@@ -374,7 +374,7 @@ const TrainerPerformanceStats = () => {
                                 transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
                                 className="h-12 w-12 border-4 border-brand-primary/10 border-t-brand-primary rounded-full"
                             />
-                            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest animate-pulse">Extraction de données...</p>
+                            <p className="text-[10px] font-black text-slate-300 tracking-widest animate-pulse">Extraction de données...</p>
                         </div>
                     ) : details ? (
                         <div className="p-10 space-y-10 max-h-[75vh] overflow-y-auto custom-scrollbar">
@@ -385,7 +385,7 @@ const TrainerPerformanceStats = () => {
                                 </div>
                                 <div className="min-w-0">
                                     <div className="text-xl font-black text-slate-900 truncate leading-tight">{details.stagiaire.prenom} {details.stagiaire.nom}</div>
-                                    <div className="text-[11px] font-bold text-slate-400 truncate uppercase mt-1 tracking-tight">{details.stagiaire.email}</div>
+                                    <div className="text-[11px] font-bold text-slate-400 truncate mt-1 tracking-tight">{details.stagiaire.email}</div>
                                 </div>
                             </div>
 
@@ -433,7 +433,7 @@ const TrainerPerformanceStats = () => {
                                                         <span className="text-[10px] font-bold text-slate-600">{sf.completions}</span>
                                                     </div>
                                                     <div className="flex flex-col">
-                                                        <span className="text-[8px] font-black text-slate-300 uppercase">Best</span>
+                                                        <span className="text-[8px] font-black text-slate-300 uppercase">Meilleure score</span>
                                                         <span className="text-[10px] font-bold text-slate-600">{sf.best_score}%</span>
                                                     </div>
                                                 </div>
@@ -460,8 +460,8 @@ const TrainerPerformanceStats = () => {
                                 <div className="grid gap-4">
                                     {[
                                         { label: 'Dernier signal', value: details.activity.last_activity, icon: <Clock className="h-4 w-4" /> },
-                                        { label: 'Canal', value: details.activity.last_client || 'Web', icon: <Globe className="h-4 w-4" /> },
-                                        { label: 'Statut LIVE', value: details.activity.is_online ? "ACTIF" : "OFFLINE", icon: <Circle className={`h-4 w-4 ${details.activity.is_online ? 'fill-green-500 text-green-500' : 'text-slate-300'}`} />, isBadge: true, active: details.activity.is_online }
+                                        { label: 'Application', value: details.activity.last_client || 'Web', icon: <Globe className="h-4 w-4" /> },
+                                        { label: 'Statut LIVE', value: details.activity.is_online ? "En ligne" : "Hors ligne", icon: <Circle className={`h-4 w-4 ${details.activity.is_online ? 'fill-green-500 text-green-500' : 'text-slate-300'}`} />, isBadge: true, active: details.activity.is_online }
                                     ].map((item, i) => (
                                         <div key={i} className="flex items-center justify-between py-1">
                                             <div className="flex items-center gap-3">

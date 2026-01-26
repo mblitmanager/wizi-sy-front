@@ -249,7 +249,11 @@ export function TrainerArenaPage() {
                                                 <div className="relative">
                                                     <div className="h-16 w-16 rounded-2xl overflow-hidden bg-slate-100 flex items-center justify-center border-2 border-slate-100">
                                                         {formateur.image ? (
-                                                            <img src={formateur.image} alt="" className="w-full h-full object-cover" />
+                                                            <img 
+                                                                src={formateur.image.startsWith('http') ? formateur.image : `${import.meta.env.VITE_API_URL_MEDIA}/${formateur.image}`} 
+                                                                alt="" 
+                                                                className="w-full h-full object-cover" 
+                                                            />
                                                         ) : (
                                                             <span className="text-xl font-black text-slate-300">
                                                                 {formateur.prenom[0]}{formateur.nom[0]}
@@ -304,7 +308,11 @@ export function TrainerArenaPage() {
                                                                     <div className="flex items-center gap-3">
                                                                         <div className="h-10 w-10 rounded-xl bg-slate-100 overflow-hidden flex items-center justify-center border border-slate-200/50">
                                                                             {stagiaire.image ? (
-                                                                                <img src={stagiaire.image} alt="" className="w-full h-full object-cover" />
+                                                                                <img 
+                                                                                    src={stagiaire.image.startsWith('http') ? stagiaire.image : `${import.meta.env.VITE_API_URL_MEDIA}/${stagiaire.image}`} 
+                                                                                    alt="" 
+                                                                                    className="w-full h-full object-cover" 
+                                                                                />
                                                                             ) : (
                                                                                 <span className="text-xs font-black text-slate-300">
                                                                                     {stagiaire.prenom[0]}{stagiaire.nom[0]}

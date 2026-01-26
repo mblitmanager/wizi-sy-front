@@ -274,7 +274,12 @@ export function FormateurVideosPage() {
 
                                                                 <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all duration-500">
                                                                     <Button 
-                                                                        onClick={() => window.open(video.url, '_blank')}
+                                                                        onClick={() => {
+                                                                            const finalUrl = video.url.startsWith('http') 
+                                                                                ? video.url 
+                                                                                : `${import.meta.env.VITE_API_URL_MEDIA}/${video.url}`;
+                                                                            window.open(finalUrl, '_blank');
+                                                                        }}
                                                                         className="rounded-full w-14 h-14 bg-[#FEB823] hover:bg-[#FE9E00] shadow-2xl shadow-[#FEB823]/40 border-4 border-white"
                                                                     >
                                                                         <Play className="w-6 h-6 fill-white text-white translate-x-0.5" />

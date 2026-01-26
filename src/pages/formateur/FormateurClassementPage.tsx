@@ -228,7 +228,7 @@ export function FormateurClassementPage() {
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none">Leaderbord Peak</p>
+                                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none">Meilleur score</p>
                                 <div className="flex items-baseline gap-2">
                                     <span className="text-4xl font-black text-brand-primary-dark">{ranking[0]?.total_points || 0}</span>
                                     <Trophy className="h-4 w-4 text-brand-primary-accent" />
