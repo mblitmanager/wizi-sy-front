@@ -53,7 +53,6 @@ interface StagiaireProfile {
     } | null;
   };
   stats: {
-
     total_points: number;
     current_badge: string;
     formations_completed: number;
@@ -88,7 +87,22 @@ interface StagiaireProfile {
       };
     };
   }>;
-
+  activity: {
+    last_30_days: Array<{ date: string; actions: number }>;
+    recent_activities: Array<{ type: string; title: string; score: number; timestamp: string }>;
+  };
+  login_history: Array<{
+    id: number;
+    ip_address: string;
+    device: string;
+    browser: string;
+    platform: string;
+    login_at: string;
+  }>;
+  video_stats: {
+    total_watched: number;
+    total_time_watched: number;
+  };
 }
 
 export default function StagiaireProfilePage() {
@@ -109,7 +123,8 @@ export default function StagiaireProfilePage() {
     try {
       setLoading(true);
       const response = await api.get(`/formateur/stagiaire/${id}/profile`);
-      setData(response.data);
+      const payload = response.data?.data || response.data;
+      setData(payload);
     } catch (error) {
       console.error('Erreur chargement profil:', error);
     } finally {
@@ -245,11 +260,19 @@ export default function StagiaireProfilePage() {
             />
             <StatCard 
               icon={Clock} 
-              label="Temps d'apprentissage" 
+              label="Apprentissage" 
               value={`${Math.round(stats.total_time_minutes / 60)}h ${stats.total_time_minutes % 60}m`} 
-              subtext="Total estimé"
+              subtext="Temps total"
               color="text-purple-500"
               bg="bg-purple-500/10"
+            />
+             <StatCard 
+              icon={Activity} 
+              label="Vidéos" 
+              value={data.video_stats?.total_watched || 0} 
+              subtext={`${data.video_stats?.total_time_watched || 0}m visionnés`}
+              color="text-rose-500"
+              bg="bg-rose-500/10"
             />
           </div>
 
@@ -337,45 +360,104 @@ export default function StagiaireProfilePage() {
                 <Users className="h-5 w-5 text-brand-primary" />
                 Accompagnement
               </h2>
-              <div className="space-y-3">
-                 {data.contacts.formateurs.map((f) => (
-                    <ContactSmallCard 
-                      key={f.id} 
-                      name={f.nom} 
-                      role="Formateur" 
-                      email={f.email} 
-                      phone={f.telephone} 
-                      image={f.image}
-                    />
-                 ))}
-                 {data.contacts.pole_relation.map((p) => (
-                    <ContactSmallCard 
-                      key={p.id} 
-                      name={p.nom} 
-                      role="Relation Client" 
-                      email={p.email} 
-                      phone={p.telephone} 
-                    />
-                 ))}
-                 {data.contacts.commercials.map((c) => (
-                    <ContactSmallCard 
-                      key={c.id} 
-                      name={c.nom} 
-                      role="Conseiller" 
-                      email={c.email} 
-                      phone={c.telephone} 
-                      image={c.image}
-                    />
-                 ))}
+              <div className="space-y-6">
+                 {data.contacts.formateurs.length > 0 && (
+                   <div className="space-y-2">
+                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Formateurs</p>
+                     <div className="space-y-2">
+                        {data.contacts.formateurs.map((f) => (
+                           <ContactSmallCard 
+                             key={f.id} 
+                             name={f.nom} 
+                             role="Formateur" 
+                             email={f.email} 
+                             phone={f.telephone} 
+                             image={f.image}
+                           />
+                        ))}
+                     </div>
+                   </div>
+                 )}
+
+                 {data.contacts.pole_relation.length > 0 && (
+                   <div className="space-y-2">
+                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Relation Client</p>
+                     <div className="space-y-2">
+                        {data.contacts.pole_relation.map((p) => (
+                           <ContactSmallCard 
+                             key={p.id} 
+                             name={p.nom} 
+                             role="Support" 
+                             email={p.email} 
+                             phone={p.telephone} 
+                           />
+                        ))}
+                     </div>
+                   </div>
+                 )}
+
+                 {data.contacts.commercials.length > 0 && (
+                   <div className="space-y-2">
+                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Conseillers</p>
+                     <div className="space-y-2">
+                        {data.contacts.commercials.map((c) => (
+                           <ContactSmallCard 
+                             key={c.id} 
+                             name={c.nom} 
+                             role="Conseiller" 
+                             email={c.email} 
+                             phone={c.telephone} 
+                             image={c.image}
+                           />
+                        ))}
+                     </div>
+                   </div>
+                 )}
+
                  {data.contacts.partenaire && (
-                    <ContactSmallCard 
-                      name={data.contacts.partenaire.nom} 
-                      role="Entreprise/Partenaire" 
-                      email={data.contacts.partenaire.email} 
-                      phone={data.contacts.partenaire.telephone} 
-                    />
+                    <div className="space-y-2">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Partenaire</p>
+                      <ContactSmallCard 
+                        name={data.contacts.partenaire.nom} 
+                        role="Entreprise" 
+                        email={data.contacts.partenaire.email || undefined} 
+                        phone={data.contacts.partenaire.telephone || undefined} 
+                      />
+                    </div>
                  )}
               </div>
+
+               <h2 className="text-xl font-bold flex items-center gap-2 pt-6">
+                <Clock className="h-5 w-5 text-brand-primary" />
+                Historique Connexion
+              </h2>
+              <Card>
+                <CardContent className="p-0">
+                  {!data.login_history || data.login_history.length === 0 ? (
+                    <div className="p-8 text-center text-muted-foreground text-xs uppercase font-black">
+                      Aucun historique
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-border">
+                      {data.login_history.map((h, i) => (
+                        <div key={i} className="p-4 hover:bg-muted/50 transition-colors">
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="font-bold text-xs">
+                              {h.platform} - {h.browser}
+                            </span>
+                            <span className="text-[10px] font-black text-slate-400">
+                              {h.login_at ? new Date(h.login_at).toLocaleDateString() : '-'}
+                            </span>
+                          </div>
+                          <p className="text-[9px] text-slate-300 font-bold uppercase truncate">
+                            IP: {h.ip_address}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           </div>
 
