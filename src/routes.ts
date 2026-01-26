@@ -524,6 +524,14 @@ export const routes = [
     ),
   },
   {
+    path: "/formateur/formations",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(GestionFormations),
+    ),
+  },
+  {
     path: "/formateur/stagiaire/:id",
     element: React.createElement(
       ProtectedRoute,

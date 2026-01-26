@@ -3,6 +3,7 @@ import { BookOpen, Users, TrendingUp, Trophy, ChevronLeft, ChevronRight } from '
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -24,6 +25,7 @@ interface PaginationData {
 }
 
 export function FormateurStatsFormations() {
+    const navigate = useNavigate();
     const [formations, setFormations] = useState<Formation[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [lastPage, setLastPage] = useState(1);
@@ -106,7 +108,8 @@ export function FormateurStatsFormations() {
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 transition={{ duration: 0.2, delay: index * 0.05 }}
-                                className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-white/10 transition-all group/item shadow-sm"
+                                onClick={() => navigate('/formateur/formations')}
+                                className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-white/10 transition-all group/item shadow-sm cursor-pointer"
                             >
                                 <div className="flex-1 min-w-0">
                                     <h4 className="font-bold text-sm text-gray-200 group-hover/item:text-yellow-500 transition-colors truncate mb-1">
@@ -125,7 +128,7 @@ export function FormateurStatsFormations() {
                                 </div>
                                 
                                 <div className="flex items-center gap-3">
-                                    <div className="text-right flex flex-col items-end">
+                                    <div className="text-right flex flex-col items-end mr-2">
                                         <span className="text-[10px] text-gray-600 font-bold uppercase mb-1">Moyenne</span>
                                         <Badge
                                             variant="outline"
@@ -134,9 +137,9 @@ export function FormateurStatsFormations() {
                                             }`}
                                         >
                                             {Number(formation.score_moyen).toFixed(2)}%
-
                                         </Badge>
                                     </div>
+                                    <ChevronRight className="h-4 w-4 text-gray-600 group-hover/item:text-yellow-500 transition-colors" />
                                 </div>
                             </motion.div>
                         ))}

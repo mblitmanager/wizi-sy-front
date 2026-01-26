@@ -31,12 +31,15 @@ interface StagiaireProfile {
       telephone: string;
       email: string;
       image?: string;
+      civilite?: string;
     }>;
     pole_relation: Array<{
       id: number;
       nom: string;
       telephone: string;
       email: string;
+      image?: string;
+      civilite?: string;
     }>;
     commercials: Array<{
       id: number;
@@ -44,6 +47,7 @@ interface StagiaireProfile {
       telephone: string;
       email: string;
       image?: string;
+      civilite?: string;
     }>;
     partenaire?: {
       id: number;
@@ -104,6 +108,18 @@ interface StagiaireProfile {
     total_time_watched: number;
   };
 }
+
+const getGenderedRole = (baseRole: 'formateur' | 'commercial', civilite?: string) => {
+  const isFeminine = civilite?.toLowerCase().includes('mme') || civilite?.toLowerCase().includes('mlle');
+  
+  if (baseRole === 'formateur') {
+    return isFeminine ? 'Formatrice' : 'Formateur';
+  }
+  if (baseRole === 'commercial') {
+    return isFeminine ? 'Conseillère' : 'Conseiller';
+  }
+  return baseRole;
+};
 
 export default function StagiaireProfilePage() {
   const { id } = useParams();
@@ -340,12 +356,12 @@ export default function StagiaireProfilePage() {
                               quiz.score >= 80 ? 'text-green-600' : 
                               quiz.score >= 50 ? 'text-orange-500' : 'text-red-500'
                             }`}>
-                              {quiz.score}%
+                              {quiz.score*10}%
                             </span>
                           </div>
                           <div className="text-xs text-muted-foreground flex justify-between">
                             <span>{quiz.quiz?.formation?.categorie || 'Général'}</span>
-                            <span>{quiz.completedAt ? new Date(quiz.completedAt).toLocaleDateString() : '-'}</span>
+                            <span>{quiz.completedAt ? new Date(quiz.completedAt).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</span>
                           </div>
                         </div>
 
@@ -369,7 +385,7 @@ export default function StagiaireProfilePage() {
                            <ContactSmallCard 
                              key={f.id} 
                              name={f.nom} 
-                             role="Formateur" 
+                             role={getGenderedRole('formateur', f.civilite)} 
                              email={f.email} 
                              phone={f.telephone} 
                              image={f.image}
@@ -387,9 +403,10 @@ export default function StagiaireProfilePage() {
                            <ContactSmallCard 
                              key={p.id} 
                              name={p.nom} 
-                             role="Support" 
+                             role="Relation Client" 
                              email={p.email} 
                              phone={p.telephone} 
+                             image={p.image}
                            />
                         ))}
                      </div>
@@ -404,7 +421,7 @@ export default function StagiaireProfilePage() {
                            <ContactSmallCard 
                              key={c.id} 
                              name={c.nom} 
-                             role="Conseiller" 
+                             role={getGenderedRole('commercial', c.civilite)} 
                              email={c.email} 
                              phone={c.telephone} 
                              image={c.image}
@@ -446,7 +463,7 @@ export default function StagiaireProfilePage() {
                               {h.platform} - {h.browser}
                             </span>
                             <span className="text-[10px] font-black text-slate-400">
-                              {h.login_at ? new Date(h.login_at).toLocaleDateString() : '-'}
+                              {h.login_at ? new Date(h.login_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}
                             </span>
                           </div>
                           <p className="text-[9px] text-slate-300 font-bold uppercase truncate">
