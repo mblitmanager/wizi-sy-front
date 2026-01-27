@@ -80,12 +80,13 @@ export function FormateurVideosPage() {
         try {
             setLoading(true);
             const response = await api.get('/formateur/formations-videos');
-            const data = response.data.data || response.data;
-            setFormationsWithVideos(data || []);
+            const data = response.data.data ?? response.data ?? [];
+            const arrayData = Array.isArray(data) ? data : (data.data && Array.isArray(data.data) ? data.data : []);
+            setFormationsWithVideos(arrayData);
             
             // Expand all by default
             const expanded: Record<string, boolean> = {};
-            (data || []).forEach((g: FormationVideoGroup) => {
+            arrayData.forEach((g: FormationVideoGroup) => {
                 expanded[String(g.formation_id)] = true;
             });
             setExpandedFormations(expanded);
