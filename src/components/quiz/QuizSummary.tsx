@@ -419,7 +419,13 @@ export function QuizSummary(props: Partial<QuizSummaryProps>) {
       {/* Pied de page avec actions */}
       <div className="p-3 bg-gray-50 dark:bg-gray-700/30 border-t border-gray-100 dark:border-gray-700">
         <div className="flex flex-col sm:flex-row gap-3 justify-between items-center">
-          <QuizSummaryFooter quizId={result.quiz?.id || quizId || ""} score={result.score} quizTitle={result.quiz?.titre} />
+          <QuizSummaryFooter 
+            quizId={result.quiz?.id || quizId || ""} 
+            score={result.score} 
+            quizTitle={result.quiz?.titre}
+            questions={result.questions}
+            userAnswers={result.userAnswers}
+          />
 
           {/* Bouton Quiz suivant */}
           {nextQuiz && !showCountdown && (
