@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useUser } from "@/hooks/useAuth";
 import { useLoadQuizData } from "@/use-case/hooks/profile/useLoadQuizData";
 import { useLoadRankings } from "@/use-case/hooks/profile/useLoadRankings";
+import { useLoadFormations } from "@/use-case/hooks/profile/useLoadFormations";
 import CategoryProgress from "@/components/profile/CategoryProgress";
 import { RecentResults } from "@/components/profile/RecentResults";
 import { useEffect, useState, useMemo } from "react";
@@ -11,6 +12,7 @@ import { quizSubmissionService } from "@/services/quiz/QuizSubmissionService";
 import type { QuizHistory as QuizHistoryType, QuizResult } from "@/types/quiz";
 import { useToast } from "@/hooks/use-toast";
 import TrainerPerformanceStats from "@/components/formateur/TrainerPerformanceStats";
+import { BookOpen, GraduationCap } from "lucide-react";
 
 const isTrainer = (role: string | undefined) => role === 'formateur' || role === 'formatrice';
 const ProfileStatsPage = () => {
@@ -19,6 +21,7 @@ const ProfileStatsPage = () => {
   const isUserTrainer = isTrainer(rawRole);
   const { results, categories } = useLoadQuizData();
   const { userProgress, rankings } = useLoadRankings();
+  const { formations, loading: loadingFormations } = useLoadFormations();
   const { toast } = useToast();
   const [quizHistory, setQuizHistory] = useState<QuizHistoryType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -122,7 +125,63 @@ const ProfileStatsPage = () => {
     };
   }, [quizHistory]);
 
-  const isLoading = loading || !user || !categories || !userProgress;
+  const isLoading = loading || loadingFormations || !user || !categories || !userProgress;
+
+  // Calcul des statistiques par formation ET par niveau
+  const formationStats = useMemo(() => {
+    if (!formations || formations.length === 0 || quizHistory.length === 0) return [];
+
+    const statsMap = new Map<number, { 
+      title: string; 
+      count: number; 
+      totalScore: number; 
+      levels: Record<string, { count: number; totalScore: number; averageScore: number }> 
+    }>();
+
+    quizHistory.forEach((quiz) => {
+      const formationId = quiz.quiz?.formation?.id;
+      const formationTitle = quiz.quiz?.formation?.titre || "Inconnue";
+      const rawLevel = quiz.quiz?.level || quiz.quiz?.niveau || "Non défini";
+      const level = rawLevel.charAt(0).toUpperCase() + rawLevel.slice(1).toLowerCase();
+
+      if (formationId) {
+        if (!statsMap.has(formationId)) {
+          statsMap.set(formationId, { 
+            title: formationTitle, 
+            count: 0, 
+            totalScore: 0,
+            levels: {}
+          });
+        }
+        
+        const current = statsMap.get(formationId)!;
+        const totalQuestions = quiz.totalQuestions || 0;
+        const correctAnswers = quiz.correctAnswers || 0;
+        const percentage = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
+
+        current.count += 1;
+        current.totalScore += percentage;
+
+        if (!current.levels[level]) {
+          current.levels[level] = { count: 0, totalScore: 0, averageScore: 0 };
+        }
+        current.levels[level].count += 1;
+        current.levels[level].totalScore += percentage;
+        current.levels[level].averageScore = Math.round(current.levels[level].totalScore / current.levels[level].count);
+      }
+    });
+
+    return Array.from(statsMap.entries()).map(([id, data]) => ({
+      id,
+      title: data.title,
+      count: data.count,
+      averageScore: Math.round(data.totalScore / data.count),
+      levels: Object.entries(data.levels).map(([name, levelData]) => ({
+        name,
+        ...levelData
+      }))
+    }));
+  }, [formations, quizHistory]);
 
   // Fonction pour calculer les performances détaillées
   const detailedStats = useMemo(() => {
@@ -297,8 +356,62 @@ const ProfileStatsPage = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Progression par catégorie - Affichée uniquement si plusieurs catégories */}
-          {categories && categories.length > 1 && (
+          {/* Statistiques par formation - Toujours affiché */}
+          {formationStats.length > 0 && (
+             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm lg:col-span-2">
+                <h3 className="text-lg font-semibold mb-4 font-montserrat dark:text-white flex items-center gap-2">
+                  <GraduationCap className="h-5 w-5 text-amber-500" />
+                  Statistiques par Formation
+                </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {formationStats.map((stat) => (
+                      <div key={stat.id} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
+                        <div className="p-6 bg-brand-primary/5 border-b border-brand-primary/10">
+                          <h4 className="font-black text-slate-900 dark:text-white text-base line-clamp-1 flex items-center gap-2">
+                             <div className="h-2 w-2 rounded-full bg-brand-primary" />
+                             {stat.title}
+                          </h4>
+                        </div>
+                        
+                        <div className="p-6 space-y-6">
+                          <div className="flex justify-around items-center py-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+                            <div className="text-center">
+                              <span className="block text-2xl font-black text-brand-primary">{stat.count}</span>
+                              <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Quiz</span>
+                            </div>
+                            <div className="w-[1px] h-8 bg-slate-200 dark:bg-slate-700" />
+                            <div className="text-center">
+                              <span className="block text-2xl font-black text-brand-primary">{stat.averageScore}%</span>
+                              <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Moyenne</span>
+                            </div>
+                          </div>
+
+                          <div className="space-y-3">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Détails par niveau</p>
+                            {stat.levels.map((level) => (
+                              <div key={level.name} className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 border border-slate-50 dark:border-slate-800/50 rounded-xl hover:border-brand-primary/30 transition-colors group">
+                                <div className="flex items-center gap-3">
+                                  <div className="h-1.5 w-1.5 rounded-full bg-slate-300 group-hover:bg-brand-primary transition-colors" />
+                                  <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{level.name}</span>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                  <div className="text-right">
+                                    <span className="text-[10px] font-black text-slate-900 dark:text-white block">{level.averageScore}%</span>
+                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tight">{level.count} quiz</span>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+             </div>
+          )}
+
+          {/* Progression par catégorie - Affichée uniquement si plusieurs formations */}
+          {categories && categories.length > 1 && formations && formations.length > 1 && (
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
               <h3 className="text-lg font-semibold mb-4 font-montserrat dark:text-white">
                 Progression par Catégorie
@@ -317,7 +430,7 @@ const ProfileStatsPage = () => {
           )}
 
           {/* Résultats récents */}
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
+          <div className={`bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm ${(!formations || formations.length <= 1) ? 'lg:col-span-2' : ''}`}>
             <h3 className="text-lg font-semibold mb-4 font-montserrat dark:text-white">
               Quiz Récents
             </h3>

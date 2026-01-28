@@ -125,6 +125,11 @@ export interface QuizHistory {
     totalPoints?: number;
     level?: string;
     niveau?: string;
+    formation?: {
+      id: number;
+      titre: string;
+      id_formation?: number;
+    };
   };
   score: number;
   completedAt: string;
@@ -223,7 +228,13 @@ export interface QuizResult {
   timeSpent: number;
   questions: Question[];
   percentage?: number;
-  quiz?: Quiz;
+  quiz?: Quiz & {
+    formation?: {
+      id: number;
+      titre: string;
+      id_formation?: number;
+    };
+  };
   quiz_name?: string;
   completed_at?: string;
   quizId?: string;
