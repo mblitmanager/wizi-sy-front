@@ -167,9 +167,22 @@ export default function MesStagiairesPage() {
 
 
                         <div className="hidden sm:flex flex-col items-end gap-1 mr-4">
-                           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Points</span>
-                           <span className="font-bold text-brand-primary-dark">{stagiaire.total_points} XP</span>
+                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                            Dernière connexion
+                          </span>
+                          <span className="font-bold text-brand-primary-dark">
+                            {stagiaire.last_active
+                              ? new Date(stagiaire.last_active).toLocaleString('fr-FR', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })
+                              : '-'}
+                          </span>
                         </div>
+
 
                         <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-brand-primary transition-transform group-hover:translate-x-1" />
                       </div>

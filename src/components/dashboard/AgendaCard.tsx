@@ -1,14 +1,43 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AgendaEvent } from "@/types";
 import { cn } from "@/lib/utils";
-import { Calendar } from "lucide-react";
+import { Calendar, RefreshCw } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { googleCalendarService } from "@/services/googleCalendarService";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 interface AgendaCardProps {
   events: AgendaEvent[];
+  onRefresh: () => void;
 }
 
-export function AgendaCard({ events }: AgendaCardProps) {
+export function AgendaCard({ events, onRefresh }: AgendaCardProps) {
+  const [isSyncing, setIsSyncing] = useState(false);
+  const { toast } = useToast();
+
+  const handleSync = async () => {
+    setIsSyncing(true);
+    try {
+      await googleCalendarService.syncWithBackend();
+      toast({
+        title: "✅ Synchronisation réussie",
+        description: "Votre calendrier Google a été synchronisé avec succès.",
+      });
+      onRefresh();
+    } catch (error: unknown) {
+      console.error('Sync error:', error);
+      toast({
+        title: "❌ Erreur de synchronisation",
+        description: error instanceof Error ? error.message : "Une erreur est survenue lors de la synchronisation.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   // Sort events by date
   const sortedEvents = [...events].sort(
     (a, b) => a.start.getTime() - b.start.getTime()
@@ -57,8 +86,18 @@ export function AgendaCard({ events }: AgendaCardProps) {
 
   return (
     <Card className="mt-3">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-2xl md:text-2xl text-brand-primary font-bold">Agenda</CardTitle>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleSync}
+          disabled={isSyncing}
+          className="gap-2"
+        >
+          <RefreshCw className={cn("h-4 w-4", isSyncing && "animate-spin")} />
+          {isSyncing ? "Sync..." : "Synchroniser"}
+        </Button>
       </CardHeader>
       <CardContent>
         {upcomingEvents.length > 0 ? (
@@ -83,7 +122,11 @@ export function AgendaCard({ events }: AgendaCardProps) {
         ) : (
           <div className="flex flex-col items-center justify-center py-6 text-center">
             <Calendar className="h-10 w-10 text-muted-foreground mb-2" />
-            <p className="text-muted-foreground">Aucun événement à venir</p>
+            <p className="text-muted-foreground mb-4">Aucun événement à venir</p>
+            <Button onClick={handleSync} disabled={isSyncing} className="gap-2">
+              <RefreshCw className={cn("h-4 w-4", isSyncing && "animate-spin")} />
+              {isSyncing ? "Connexion..." : "Connecter Google Calendar"}
+            </Button>
           </div>
         )}
         <div className="mt-4">

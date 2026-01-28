@@ -158,7 +158,7 @@ export default function DashboardPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
           <ProgressCard user={user} />
-          <AgendaCard events={agendaEvents} />
+          <AgendaCard events={agendaEvents} onRefresh={refetch} />
         </div>
 
         {/* Badge unlock modal */}

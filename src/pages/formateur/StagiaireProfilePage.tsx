@@ -113,6 +113,21 @@ interface StagiaireProfile {
     total_time_watched: number;
   };
 }
+const formatPhone = (phone) => {
+  if (!phone) return "";
+
+  // enlève tout sauf les chiffres
+  const digits = phone.replace(/\D/g, "");
+
+  // ex: 0341234567 → 034 12 345 67
+  if (digits.length === 10) {
+    return digits.replace(/(\d{3})(\d{2})(\d{3})(\d{2})/, "$1 $2 $3 $4");
+  }
+
+  // fallback si format différent
+  return phone;
+};
+
 
 const getGenderedRole = (baseRole: 'formateur' | 'commercial', civilite?: string) => {
   const isFeminine = civilite?.toLowerCase().includes('mme') || civilite?.toLowerCase().includes('mlle');
@@ -268,13 +283,17 @@ export default function StagiaireProfilePage() {
                         {stagiaire.email}
                       </a>
                       {stagiaire.telephone && (
-                        <a href={`tel:${stagiaire.telephone.replace(/\s/g, "")}`} className="flex items-center gap-3 text-slate-500 hover:text-brand-primary transition-colors text-sm font-medium">
+                        <a
+                          href={`tel:${stagiaire.telephone.replace(/\D/g, "")}`}
+                          className="flex items-center gap-3 text-slate-500 hover:text-brand-primary transition-colors text-sm font-medium"
+                        >
                           <div className="h-8 w-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                             <Phone className="h-4 w-4" />
                           </div>
-                          {stagiaire.telephone}
+                          {formatPhone(stagiaire.telephone)}
                         </a>
                       )}
+
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center gap-3 text-slate-500 text-sm font-medium">
@@ -612,7 +631,7 @@ export default function StagiaireProfilePage() {
                 </h2>
                 <div className="space-y-4">
                    {contacts.formateurs.length > 0 && (
-                     <ContactSection title="Formateurs d'Excellence" contacts={contacts.formateurs} roleType="formateur" />
+                     <ContactSection title="Equipe formation" contacts={contacts.formateurs} roleType="formateur" />
                    )}
    
                    {contacts.pole_relation.length > 0 && (
@@ -620,7 +639,7 @@ export default function StagiaireProfilePage() {
                    )}
    
                    {contacts.commercials.length > 0 && (
-                     <ContactSection title="Conseillers Formation" contacts={contacts.commercials} roleType="commercial" />
+                     <ContactSection title="Equipe commerciale" contacts={contacts.commercials} roleType="commercial" />
                    )}
    
                    {contacts.partenaire && (
@@ -628,6 +647,7 @@ export default function StagiaireProfilePage() {
                         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Partenaire Social</p>
                         <ContactSmallCard 
                           name={contacts.partenaire.nom} 
+                          firstname={contacts.partenaire.prenom} 
                           role="Entreprise" 
                           email={contacts.partenaire.email || undefined} 
                           phone={contacts.partenaire.telephone || undefined} 
@@ -704,6 +724,7 @@ function ContactSection({ title, contacts, roleType }: { title: string, contacts
             <ContactSmallCard 
               key={contact.id} 
               name={contact.nom} 
+              firstname={contact.prenom} 
               role={roleType === 'formateur' ? getGenderedRole('formateur', contact.civilite) : 
                     roleType === 'commercial' ? getGenderedRole('commercial', contact.civilite) : "Relation Relation"} 
               email={contact.email} 
@@ -755,8 +776,9 @@ function PremiumStatCard({ icon: Icon, label, value, trend, color, delay }: {
   );
 }
 
-function ContactSmallCard({ name, role, email, phone, image }: { 
+function ContactSmallCard({ name, firstname, role, email, phone, image }: { 
   name: string; 
+  firstname: string;
   role: string; 
   email?: string; 
   phone?: string;
@@ -770,14 +792,14 @@ function ContactSmallCard({ name, role, email, phone, image }: {
             <Avatar className="h-12 w-12 border-2 border-white dark:border-slate-800 shadow-md">
               <AvatarImage src={image && image.startsWith('http') ? image : (image ? `${import.meta.env.VITE_API_URL_MEDIA}/${image}` : undefined)} />
               <AvatarFallback className="bg-slate-100 dark:bg-slate-800 text-brand-primary font-bold text-sm">
-                {name.charAt(0)}
+                {firstname.charAt(0)}
               </AvatarFallback>
             </Avatar>
             <div className="absolute -top-1 -right-1 h-3.5 w-3.5 bg-brand-primary rounded-full border-2 border-white dark:border-slate-900" />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex justify-between items-start">
-              <h4 className="font-extrabold text-sm text-slate-900 dark:text-white truncate group-hover:text-brand-primary transition-colors">{name}</h4>
+              <h4 className="font-extrabold text-sm text-slate-900 dark:text-white truncate group-hover:text-brand-primary transition-colors">{firstname} {name}</h4>
               <span className="text-[9px] font-black bg-brand-primary/5 text-brand-primary uppercase tracking-wider px-2 py-0.5 rounded-full whitespace-nowrap">
                 {role}
               </span>
