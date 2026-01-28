@@ -78,7 +78,7 @@ export const RecentResults: React.FC<RecentResultsProps> = ({
         // Calcul du pourcentage de réussite
         const successRate =
           totalQuestions > 0
-            ? Math.round((correctAnswers / totalQuestions) * 100)
+            ? Math.round((correctAnswers / 5) * 100)
             : 0;
 
         // Date de complétion avec fallback
@@ -100,7 +100,7 @@ export const RecentResults: React.FC<RecentResultsProps> = ({
         // Score avec fallback - si le score n'est pas disponible, calculer à partir des bonnes réponses
         const score =
           result.score !== undefined
-            ? result.score
+            ? result.score*10
             : totalQuestions > 0
             ? Math.round((correctAnswers / 5) * 100)
             : 0;
@@ -138,7 +138,7 @@ export const RecentResults: React.FC<RecentResultsProps> = ({
                   {typeof score === "number" && score <= 100 ? "%" : "pts"}
                 </div>
                 <div className="text-[10px] md:text-xs text-gray-500 font-roboto">
-                  {correctAnswers}/{totalQuestions} correctes
+                  {correctAnswers}/5 correctes
                 </div>
                 <div
                   className={`text-[10px] font-medium ${

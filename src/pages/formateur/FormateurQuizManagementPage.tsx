@@ -385,11 +385,11 @@ export default function FormateurQuizManagementPage() {
                         <Table>
                           <TableHeader className="bg-white">
                             <TableRow className="border-slate-50">
-                              <TableHead className="font-black text-[9px] uppercase tracking-widest text-slate-300 py-6 pl-10">Titre</TableHead>
-                              <TableHead className="font-black text-[9px] uppercase tracking-widest text-slate-300 py-6 text-center">Niveau</TableHead>
-                              <TableHead className="font-black text-[9px] uppercase tracking-widest text-slate-300 py-6 text-center">Statut</TableHead>
-                              <TableHead className="font-black text-[9px] uppercase tracking-widest text-slate-300 py-6 text-center">Mécanique</TableHead>
-                              <TableHead className="font-black text-[9px] uppercase tracking-widest text-slate-300 py-6 pr-10 text-right">Actions</TableHead>
+                              <TableHead className="font-black text-[9px]  tracking-widest text-slate-300 py-6 pl-10">Titre</TableHead>
+                              <TableHead className="font-black text-[9px]  tracking-widest text-slate-300 py-6 text-center">Niveau</TableHead>
+                              <TableHead className="font-black text-[9px]  tracking-widest text-slate-300 py-6 text-center">Statut</TableHead>
+                              <TableHead className="font-black text-[9px]  tracking-widest text-slate-300 py-6 text-center">Mécanique</TableHead>
+                              <TableHead className="font-black text-[9px]  tracking-widest text-slate-300 py-6 pr-10 text-right">Actions</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
@@ -397,12 +397,12 @@ export default function FormateurQuizManagementPage() {
                               <TableRow key={q.id} className="border-slate-50 hover:bg-slate-50/30 transition-colors">
                                 <TableCell className="py-6 pl-10">
                                   <div className="flex flex-col">
-                                    <span className="font-black text-sm text-slate-800 uppercase tracking-tight">{q.titre}</span>
+                                    <span className="font-black text-sm text-slate-800  tracking-tight">{q.titre}</span>
                                     <span className="text-[11px] font-medium text-slate-400 truncate max-w-xs">{q.description || 'Apprentissage interactif'}</span>
                                   </div>
                                 </TableCell>
                                 <TableCell className="py-6 text-center">
-                                  <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none font-bold text-[9px] uppercase px-3">
+                                  <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none font-bold text-[9px]  px-3">
                                     {q.niveau}
                                   </Badge>
                                 </TableCell>

@@ -222,6 +222,7 @@ export interface QuizResult {
   total_questions?: number;
   timeSpent: number;
   questions: Question[];
+  percentage?: number;
   quiz?: Quiz;
   quiz_name?: string;
   completed_at?: string;

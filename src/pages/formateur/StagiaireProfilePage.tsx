@@ -159,8 +159,15 @@ export default function StagiaireProfilePage() {
   }
 
   if (!data) return null;
-
-  const { stagiaire, stats, formations, quiz_history } = data;
+ 
+  const { 
+    stagiaire = {} as any, 
+    stats = {} as any, 
+    contacts = { formateurs: [], pole_relation: [], commercials: [] } as any,
+    formations = [], 
+    quiz_history = [],
+    login_history = []
+  } = data;
 
   const getBadgeColor = (badge: string) => {
     switch (badge) {
@@ -377,11 +384,11 @@ export default function StagiaireProfilePage() {
                 Accompagnement
               </h2>
               <div className="space-y-6">
-                 {data.contacts.formateurs.length > 0 && (
+                 {contacts.formateurs.length > 0 && (
                    <div className="space-y-2">
                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Formateurs</p>
                      <div className="space-y-2">
-                        {data.contacts.formateurs.map((f) => (
+                        {contacts.formateurs.map((f: any) => (
                            <ContactSmallCard 
                              key={f.id} 
                              name={f.nom} 
@@ -394,12 +401,12 @@ export default function StagiaireProfilePage() {
                      </div>
                    </div>
                  )}
-
-                 {data.contacts.pole_relation.length > 0 && (
+ 
+                 {contacts.pole_relation.length > 0 && (
                    <div className="space-y-2">
                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Relation Client</p>
                      <div className="space-y-2">
-                        {data.contacts.pole_relation.map((p) => (
+                        {contacts.pole_relation.map((p: any) => (
                            <ContactSmallCard 
                              key={p.id} 
                              name={p.nom} 
@@ -412,12 +419,12 @@ export default function StagiaireProfilePage() {
                      </div>
                    </div>
                  )}
-
-                 {data.contacts.commercials.length > 0 && (
+ 
+                 {contacts.commercials.length > 0 && (
                    <div className="space-y-2">
                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Conseillers</p>
                      <div className="space-y-2">
-                        {data.contacts.commercials.map((c) => (
+                        {contacts.commercials.map((c: any) => (
                            <ContactSmallCard 
                              key={c.id} 
                              name={c.nom} 
@@ -430,33 +437,33 @@ export default function StagiaireProfilePage() {
                      </div>
                    </div>
                  )}
-
-                 {data.contacts.partenaire && (
+ 
+                 {contacts.partenaire && (
                     <div className="space-y-2">
                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Partenaire</p>
                       <ContactSmallCard 
-                        name={data.contacts.partenaire.nom} 
+                        name={contacts.partenaire.nom} 
                         role="Entreprise" 
-                        email={data.contacts.partenaire.email || undefined} 
-                        phone={data.contacts.partenaire.telephone || undefined} 
+                        email={contacts.partenaire.email || undefined} 
+                        phone={contacts.partenaire.telephone || undefined} 
                       />
                     </div>
                  )}
               </div>
-
+ 
                <h2 className="text-xl font-bold flex items-center gap-2 pt-6">
                 <Clock className="h-5 w-5 text-brand-primary" />
                 Historique Connexion
               </h2>
               <Card>
                 <CardContent className="p-0">
-                  {!data.login_history || data.login_history.length === 0 ? (
+                  {login_history.length === 0 ? (
                     <div className="p-8 text-center text-muted-foreground text-xs uppercase font-black">
                       Aucun historique
                     </div>
                   ) : (
                     <div className="divide-y divide-border">
-                      {data.login_history.map((h, i) => (
+                      {login_history.map((h: any, i: number) => (
                         <div key={i} className="p-4 hover:bg-muted/50 transition-colors">
                           <div className="flex justify-between items-center mb-1">
                             <span className="font-bold text-xs">

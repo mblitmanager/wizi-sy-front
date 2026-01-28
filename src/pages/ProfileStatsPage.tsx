@@ -92,13 +92,17 @@ const ProfileStatsPage = () => {
     });
   }, [quizHistory]);
 
-  // Calcul des statistiques globales avec gestion des erreurs
   const stats = useMemo(() => {
     const validHistory = Array.isArray(quizHistory) ? quizHistory : [];
-    const totalQuizzes = validHistory.length;
+    
+    // Compter uniquement les quiz uniques
+    const uniqueQuizIds = new Set(
+      validHistory.map((h) => (h.quizId || h.quiz?.id || "").toString()).filter(id => id !== "")
+    );
+    const totalQuizzes = uniqueQuizIds.size;
 
     const averageScore =
-      totalQuizzes > 0
+      validHistory.length > 0
         ? Math.round(
             validHistory.reduce((acc, quiz) => {
               const totalQuestions = quiz.totalQuestions || 0;
@@ -108,17 +112,15 @@ const ProfileStatsPage = () => {
                   ? (correctAnswers / totalQuestions) * 100
                   : 0;
               return acc + percentage;
-            }, 0) / totalQuizzes
+            }, 0) / validHistory.length
           )
         : 0;
-
-    const totalCategories = Array.isArray(categories) ? categories.length : 0;
 
     return {
       totalQuizzes,
       averageScore,
     };
-  }, [quizHistory, categories, userProgress]);
+  }, [quizHistory]);
 
   const isLoading = loading || !user || !categories || !userProgress;
 
@@ -295,22 +297,24 @@ const ProfileStatsPage = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Progression par catégorie */}
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
-            <h3 className="text-lg font-semibold mb-4 font-montserrat dark:text-white">
-              Progression par Catégorie
-            </h3>
-            {categories && userProgress ? (
-              <CategoryProgress
-                categories={categories}
-                userProgress={userProgress}
-              />
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                Aucune donnée de progression disponible
-              </div>
-            )}
-          </div>
+          {/* Progression par catégorie - Affichée uniquement si plusieurs catégories */}
+          {categories && categories.length > 1 && (
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
+              <h3 className="text-lg font-semibold mb-4 font-montserrat dark:text-white">
+                Progression par Catégorie
+              </h3>
+              {userProgress ? (
+                <CategoryProgress
+                  categories={categories}
+                  userProgress={userProgress}
+                />
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  Aucune donnée de progression disponible
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Résultats récents */}
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">

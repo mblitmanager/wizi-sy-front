@@ -282,7 +282,7 @@ const CategoryProgress: React.FC<CategoryProgressProps> = ({
             },
             {
               title: "Score moyen",
-              value: progressStats?.daily_progress[0]?.average_points || 0,
+              value: progressStats?.daily_progress[0]?.average_points*10 || 0,
               suffix: "%",
               delay: 0.1,
             },

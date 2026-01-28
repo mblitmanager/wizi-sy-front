@@ -18,16 +18,16 @@ const UserStats: React.FC<UserStatsProps> = ({
   achievements = [],
 }) => {
   const totalPoints =
-    user?.points ||
-    userProgress?.total_points ||
     userProgress?.totalPoints ||
+    userProgress?.total_points ||
     userProgress?.points ||
     userProgress?.totalScore ||
+    user?.points ||
     0;
 
-  // Calculate level based on totalPoints (20 points per level)
-  const level = Math.max(1, Math.floor(totalPoints / 20) + 1);
-  const progressToNextLevel = ((totalPoints % 20) / 20) * 100;
+  // Calculate level based on totalPoints (10 points per level)
+  const level = Math.max(1, Math.floor(totalPoints / 10) + 1);
+  const progressToNextLevel = ((totalPoints % 10) / 10) * 100;
 
   // Nombre de badges débloqués (succès)
   const badgesCount = achievements.length;
