@@ -70,7 +70,7 @@ const Login = () => {
       }
     } catch (err) {
       console.error("❌ Erreur de connexion principale:", err);
-      setError("Échec de la connexion. Veuillez vérifier vos identifiants.");
+      setError("Veuillez vérifier votre connexion Internet ou vos identifiants (email/mot de passe).");
     }
   };
 

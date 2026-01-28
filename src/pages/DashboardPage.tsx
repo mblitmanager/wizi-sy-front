@@ -10,7 +10,6 @@ import ContactsSection from "@/components/FeatureHomePage/ContactSection";
 import { useUser } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { Contact } from "@/types/contact";
-import { agendaEvents } from "@/data/mockData";
 import { catalogueFormationApi } from "@/services/api";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -54,6 +53,27 @@ export default function DashboardPage() {
     queryFn: () => fetchContacts("pole-relation"),
   });
   const [catalogueData, setCatalogueData] = useState([]);
+
+  const { data: agendaEventsData, refetch: refetchAgenda } = useQuery({
+    queryKey: ["agenda", "events"],
+    queryFn: async () => {
+      const response = await fetch(`${API_URL}/agendas`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      const data = await response.json();
+      return data.member || [];
+    },
+  });
+
+  const agendaEvents = (agendaEventsData || []).map((e: any) => ({
+    id: e.id,
+    title: e.titre,
+    start: new Date(e.date_debut),
+    end: new Date(e.date_fin),
+    location: e.location,
+  }));
 
   // Check for new badges on mount
   useEffect(() => {

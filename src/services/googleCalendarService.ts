@@ -29,38 +29,79 @@ export class GoogleCalendarService {
   private tokenClient: google.accounts.oauth2.TokenClient | null = null;
   private accessToken: string | null = null;
 
+  private isGsiLoaded = false;
+
   async initializeGoogleAPI(): Promise<void> {
+    if (this.isGsiLoaded) return;
+
     return new Promise((resolve, reject) => {
+      if (typeof window.google !== "undefined" && window.google.accounts) {
+        this.isGsiLoaded = true;
+        resolve();
+        return;
+      }
+
       const script = document.createElement("script");
       script.src = "https://accounts.google.com/gsi/client";
       script.async = true;
       script.defer = true;
-      script.onload = () => resolve();
+      script.onload = () => {
+        this.isGsiLoaded = true;
+        console.log("✅ Google Identity Services script loaded");
+        resolve();
+      };
       script.onerror = () => reject(new Error("Failed to load Google API"));
       document.head.appendChild(script);
     });
   }
 
   async requestAccessToken(): Promise<string> {
+    console.log("🔑 Requesting Google Access Token...");
     await this.initializeGoogleAPI();
+
+    if (!this.clientId) {
+      console.error(
+        "❌ Google Client ID is missing in .env (VITE_GOOGLE_CLIENT_ID)",
+      );
+      throw new Error("Google Client ID non configuré");
+    }
+
+    console.log("🆔 Using Client ID:", this.clientId);
 
     return new Promise((resolve, reject) => {
       try {
         this.tokenClient = google.accounts.oauth2.initTokenClient({
           client_id: this.clientId,
           scope: "https://www.googleapis.com/auth/calendar.readonly",
-          callback: (response: google.accounts.oauth2.TokenResponse) => {
+          callback: (response: any) => {
+            console.log("📥 Received token response:", response);
             if (response.error) {
-              reject(response);
+              console.error(
+                "❌ Token error:",
+                response.error,
+                response.error_description,
+              );
+              reject(
+                new Error(
+                  `Erreur Google: ${response.error_description || response.error}`,
+                ),
+              );
               return;
             }
             this.accessToken = response.access_token;
+            console.log("✅ Access token obtained successfully");
             resolve(response.access_token);
+          },
+          error_callback: (err: any) => {
+            console.error("❌ GSI Error:", err);
+            reject(err);
           },
         });
 
-        this.tokenClient.requestAccessToken();
+        console.log("📢 Triggering popup with requestAccessToken()...");
+        this.tokenClient.requestAccessToken({ prompt: "consent" });
       } catch (error) {
+        console.error("❌ Exception in requestAccessToken:", error);
         reject(error);
       }
     });
