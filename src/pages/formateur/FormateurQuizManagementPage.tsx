@@ -303,7 +303,7 @@ export default function FormateurQuizManagementPage() {
                   <Clock className="w-3 h-3 mr-2" /> Atelier de Quiz
                 </Badge>
                 <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
-                  Gestion des <span className="text-[#FEB823]">Évaluations</span>
+                  Gestion des <span className="text-[#FEB823]">Quiz</span>
                 </h1>
                 <p className="text-gray-500 font-medium max-w-2xl text-lg leading-relaxed">
                   Consultez et organisez vos banques de questions par formation.
