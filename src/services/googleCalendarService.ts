@@ -73,7 +73,7 @@ export class GoogleCalendarService {
         this.tokenClient = google.accounts.oauth2.initTokenClient({
           client_id: this.clientId,
           scope: "https://www.googleapis.com/auth/calendar.readonly",
-          callback: (response: any) => {
+          callback: (response: google.accounts.oauth2.TokenResponse) => {
             console.log("📥 Received token response:", response);
             if (response.error) {
               console.error(
@@ -92,7 +92,7 @@ export class GoogleCalendarService {
             console.log("✅ Access token obtained successfully");
             resolve(response.access_token);
           },
-          error_callback: (err: any) => {
+          error_callback: (err: google.accounts.oauth2.ErrorResponse) => {
             console.error("❌ GSI Error:", err);
             reject(err);
           },
@@ -186,6 +186,14 @@ export class GoogleCalendarService {
                 start: start?.dateTime || start?.date || "",
                 end: end?.dateTime || end?.date || "",
                 htmlLink: event.htmlLink as string | undefined,
+                hangoutLink: event.hangoutLink as string | undefined,
+                organizer: (event.organizer as { email: string })?.email,
+                attendees: (event.attendees as { email: string }[])?.map(
+                  (a) => a.email,
+                ),
+                status: event.status as string | undefined,
+                recurrence: event.recurrence as string[] | undefined,
+                eventType: event.eventType as string | undefined,
               };
             },
           );

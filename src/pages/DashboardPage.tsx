@@ -20,6 +20,19 @@ import { BadgeUnlockModal } from "@/components/profile/BadgeUnlockModal";
 import { useNewBadges } from "@/hooks/useNewBadges";
 import AlertsWidget from "@/components/formateur/AlertsWidget";
 
+interface AgendaBackendEvent {
+  id: string | number;
+  titre?: string;
+  summary?: string;
+  date_debut?: string;
+  start?: string;
+  date_fin?: string;
+  end?: string;
+  location?: string;
+  description?: string;
+  htmlLink?: string;
+}
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 const fetchContacts = async (endpoint: string): Promise<Contact[]> => {
@@ -67,12 +80,14 @@ export default function DashboardPage() {
     },
   });
 
-  const agendaEvents = (agendaEventsData || []).map((e: any) => ({
-    id: e.id,
-    title: e.titre,
-    start: new Date(e.date_debut),
-    end: new Date(e.date_fin),
+  const agendaEvents = (agendaEventsData || []).map((e: AgendaBackendEvent) => ({
+    id: e.id.toString(),
+    title: e.titre || e.summary || "Sans titre",
+    start: new Date(e.date_debut || e.start || new Date().toISOString()),
+    end: new Date(e.date_fin || e.end || new Date().toISOString()),
     location: e.location,
+    description: e.description,
+    htmlLink: e.htmlLink || e.html_link,
   }));
 
   // Check for new badges on mount
@@ -80,26 +95,28 @@ export default function DashboardPage() {
     checkForNewBadges();
   }, [checkForNewBadges]);
   useEffect(() => {
-    catalogueFormationApi.getAllCatalogueFormation().then((response) => {
-      let formations = [];
+    catalogueFormationApi.getAllCatalogueFormation().then((response: unknown) => {
+      let formations: any[] = [];
       if (response && typeof response === "object") {
-        if ("data" in response && Array.isArray((response as any).data?.data)) {
-          formations = (response as any).data.data;
+        const resp = response as {
+          data?: { data?: any[]; member?: any[] } | any[];
+          member?: any[];
+        };
+        if (resp.data && !Array.isArray(resp.data) && Array.isArray(resp.data.data)) {
+          formations = resp.data.data;
         } else if (
-          "data" in response &&
-          typeof (response as any).data === "object" &&
-          Array.isArray((response as any).data.member)
+          resp.data &&
+          !Array.isArray(resp.data) &&
+          typeof resp.data === "object" &&
+          Array.isArray(resp.data.member)
         ) {
-          formations = (response as any).data.member;
-        } else if (Array.isArray((response as any).member)) {
-          formations = (response as any).member;
-        } else if (
-          "data" in response &&
-          Array.isArray((response as any).data)
-        ) {
-          formations = (response as any).data;
+          formations = resp.data.member;
+        } else if (Array.isArray(resp.member)) {
+          formations = resp.member;
+        } else if (resp.data && Array.isArray(resp.data)) {
+          formations = resp.data;
         } else if (Array.isArray(response)) {
-          formations = response;
+          formations = response as any[];
         }
       }
       setCatalogueData(formations);
@@ -178,7 +195,7 @@ export default function DashboardPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
           <ProgressCard user={user} />
-          <AgendaCard events={agendaEvents} onRefresh={refetch} />
+          <AgendaCard events={agendaEvents} onRefresh={refetchAgenda} />
         </div>
 
         {/* Badge unlock modal */}

@@ -87,7 +87,10 @@ export function AgendaCard({ events, onRefresh }: AgendaCardProps) {
   return (
     <Card className="mt-3">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-2xl md:text-2xl text-brand-primary font-bold">Agenda</CardTitle>
+        <div className="flex items-center gap-2">
+          <CardTitle className="text-2xl md:text-2xl text-brand-primary font-bold">Agenda</CardTitle>
+          <span className="px-2 py-0.5 text-[10px] font-bold bg-blue-100 text-blue-600 rounded-full border border-blue-200">Google</span>
+        </div>
         <Button
           variant="outline"
           size="sm"
@@ -109,8 +112,23 @@ export function AgendaCard({ events, onRefresh }: AgendaCardProps) {
                 <p className="text-sm text-muted-foreground">
                   {formatDate(event.start)}
                 </p>
-                <h4 className="font-medium">{event.title}</h4>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="flex items-center justify-between gap-2">
+                  <h4 className="font-semibold text-slate-800">
+                    {event.htmlLink ? (
+                      <a
+                        href={event.htmlLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-brand-primary hover:underline transition-colors">
+                        {event.title}
+                      </a>
+                    ) : (
+                      event.title
+                    )}
+                  </h4>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                  <Calendar className="h-3 w-3" />
                   <span>
                     {formatTime(event.start)} - {formatTime(event.end)}
                   </span>
