@@ -55,53 +55,37 @@ export class GoogleCalendarService {
     });
   }
 
-  async requestAccessToken(): Promise<string> {
-    console.log("🔑 Requesting Google Access Token...");
+  async requestAuthCode(): Promise<string> {
+    console.log("🔑 Requesting Google Auth Code...");
     await this.initializeGoogleAPI();
 
     if (!this.clientId) {
-      console.error(
-        "❌ Google Client ID is missing in .env (VITE_GOOGLE_CLIENT_ID)",
-      );
       throw new Error("Google Client ID non configuré");
     }
 
-    console.log("🆔 Using Client ID:", this.clientId);
-
     return new Promise((resolve, reject) => {
       try {
-        this.tokenClient = google.accounts.oauth2.initTokenClient({
+        const client = google.accounts.oauth2.initCodeClient({
           client_id: this.clientId,
           scope: "https://www.googleapis.com/auth/calendar.readonly",
-          callback: (response: google.accounts.oauth2.TokenResponse) => {
-            console.log("📥 Received token response:", response);
-            if (response.error) {
-              console.error(
-                "❌ Token error:",
-                response.error,
-                response.error_description,
-              );
-              reject(
-                new Error(
-                  `Erreur Google: ${response.error_description || response.error}`,
-                ),
-              );
-              return;
+          ux_mode: "popup",
+          callback: (response: google.accounts.oauth2.CodeResponse) => {
+            console.log("📥 Received code response:", response);
+            if (response.code) {
+              resolve(response.code);
+            } else {
+              reject(new Error("No code returned from Google"));
             }
-            this.accessToken = response.access_token;
-            console.log("✅ Access token obtained successfully");
-            resolve(response.access_token);
           },
-          error_callback: (err: google.accounts.oauth2.ErrorResponse) => {
+          error_callback: (err: Record<string, unknown>) => {
             console.error("❌ GSI Error:", err);
             reject(err);
           },
         });
 
-        console.log("📢 Triggering popup with requestAccessToken()...");
-        this.tokenClient.requestAccessToken({ prompt: "consent" });
+        client.requestCode();
       } catch (error) {
-        console.error("❌ Exception in requestAccessToken:", error);
+        console.error("❌ Exception in requestAuthCode:", error);
         reject(error);
       }
     });
@@ -212,33 +196,26 @@ export class GoogleCalendarService {
   }
 
   async syncWithBackend(): Promise<void> {
-    // Step 1: Authenticate
-    await this.requestAccessToken();
+    // Step 1: Authenticate and get Auth Code (to get Refresh Token on backend)
+    const authCode = await this.requestAuthCode();
 
-    // Step 2: Fetch calendars
-    const calendars = await this.fetchCalendars();
-    const calendarIds = calendars.map((c) => c.googleId);
-
-    // Step 3: Fetch events
-    const events = await this.fetchEvents(calendarIds);
-
-    // Step 4: Get user ID
+    // Step 2: Get user token
     const token = localStorage.getItem("token");
-    const meResponse = await axios.get(`${API_URL}/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const userId = meResponse.data.id;
 
-    // Step 5: Send to backend
+    // Step 3: Send to Laravel backend
+    // Note: On utilise l'URL de Laravel. Si elle n'est pas dans les variables d'env,
+    // on peut soit l'ajouter, soit utiliser une valeur par défaut.
+    const LARAVEL_API_URL =
+      import.meta.env.VITE_LARAVEL_API_URL || "http://localhost:8000/api";
+
     await axios.post(
-      `${API_URL}/agendas/sync`,
+      `${LARAVEL_API_URL}/calendar/sync`,
       {
-        userId: userId.toString(),
-        calendars,
-        events,
+        authCode: authCode,
       },
       {
         headers: {
+          Authorization: `Bearer ${token}`,
           "x-sync-secret": SYNC_SECRET,
         },
       },

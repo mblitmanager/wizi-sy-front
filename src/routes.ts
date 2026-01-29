@@ -142,6 +142,7 @@ const SuiviParrainagePage = lazy(() =>
   })),
 );
 const AboutPage = lazy(() => import("@/pages/AboutPage"));
+const AgendaPage = lazy(() => import("@/pages/AgendaPage"));
 
 // Admin routes
 const AdminDashboard = lazy(() => import("@/pages/admin/Dashboard"));
@@ -586,6 +587,14 @@ export const routes = [
       ProtectedRoute,
       undefined,
       Loadable(NotificationsPage),
+    ),
+  },
+  {
+    path: "/agenda",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(AgendaPage),
     ),
   },
   {

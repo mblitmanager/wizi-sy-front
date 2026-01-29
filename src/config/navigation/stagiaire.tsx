@@ -5,12 +5,13 @@ import {
     Video,
     Trophy,
     Gift,
+    Calendar
 } from "lucide-react";
 
 export interface NavItem {
     title: string;
     href: string;
-    icon: any;
+    icon: React.ComponentType;
     color: string;
 }
 
@@ -20,6 +21,12 @@ export const getStagiaireNavigation = () => ({
             title: "Accueil",
             href: "/",
             icon: Home,
+            color: "text-yellow-600",
+        },
+        {
+            title: "Agenda",
+            href: "/agenda",
+            icon: Calendar,
             color: "text-yellow-600",
         },
         {

@@ -7,7 +7,8 @@ import {
     Bell,
     Gamepad2,
     ClipboardList,
-    Users
+    Users,
+    Calendar
 } from "lucide-react";
 
 import { NavItem } from "./stagiaire";
@@ -19,6 +20,12 @@ export const getFormateurNavigation = () => ({
             href: "/formateur/dashboard",
             icon: LayoutDashboard,
             color: "text-blue-600",
+        },
+        {
+            title: "Agenda",
+            href: "/agenda",
+            icon: Calendar,
+            color: "text-blue-500",
         },
         {
             title: "Communications",
