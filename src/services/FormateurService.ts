@@ -90,6 +90,60 @@ const FormateurService = {
     return response.data.data || response.data;
   },
 
+  getFormations: async (): Promise<any[]> => {
+    const response = await api.get("/formateur/formations");
+    return response.data.formations || [];
+  },
+
+  getDashboardSummary: async (
+    period = 30,
+    formationId?: string,
+  ): Promise<any> => {
+    const fQuery = formationId ? `&formation_id=${formationId}` : "";
+    const response = await api.get(
+      `/formateur/analytics/dashboard?period=${period}${fQuery}`,
+    );
+    return response.data.summary;
+  },
+
+  getQuizSuccessRate: async (
+    period = 30,
+    formationId?: string,
+  ): Promise<any[]> => {
+    const fQuery = formationId ? `&formation_id=${formationId}` : "";
+    const response = await api.get(
+      `/formateur/analytics/quiz-success-rate?period=${period}${fQuery}`,
+    );
+    return response.data.quiz_stats || [];
+  },
+
+  getActivityHeatmap: async (
+    period = 30,
+    formationId?: string,
+  ): Promise<any[]> => {
+    const fQuery = formationId ? `&formation_id=${formationId}` : "";
+    const response = await api.get(
+      `/formateur/analytics/activity-heatmap?period=${period}${fQuery}`,
+    );
+    return response.data.activity_by_day || [];
+  },
+
+  getDropoutRate: async (formationId?: string): Promise<any[]> => {
+    const fQuery = formationId ? `?formation_id=${formationId}` : "";
+    const response = await api.get(
+      `/formateur/analytics/dropout-rate${fQuery}`,
+    );
+    return response.data.quiz_dropout || [];
+  },
+
+  getStudentsComparison: async (formationId?: string): Promise<any> => {
+    const fQuery = formationId ? `?formation_id=${formationId}` : "";
+    const response = await api.get(
+      `/formateur/analytics/students-comparison${fQuery}`,
+    );
+    return response.data;
+  },
+
   getTraineesAsContacts: async (): Promise<Contact[]> => {
     const response = await api.get("/formateur/analytics/performance");
     const trainees = response.data.performance || [];
