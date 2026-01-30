@@ -31,3 +31,12 @@ src/components/Contacts/Parrain2-aopia.txt
 src/components/Contacts/Parrain2-Like.txt
 src/components/Contacts/parrain3-aopia.txt
 src/components/Contacts/parrain3-Like.txt
+
+# Credentials
+.env
+.env*.local
+client_*.json
+*.plist
+*.jks
+*.keystore
+

@@ -269,9 +269,9 @@ export default function StagiaireProfilePage() {
                     <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
                       {stagiaire.prenom} <span className="text-brand-primary">{stagiaire.nom}</span>
                     </h1>
-                    <Badge className="bg-brand-primary/10 text-brand-primary border-none text-xs font-black uppercase px-3 py-1">
+                    {/* <Badge className="bg-brand-primary/10 text-brand-primary border-none text-xs font-black  px-3 py-1">
                       Stagiaire Actif
-                    </Badge>
+                    </Badge> */}
                   </div>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-4">
@@ -316,7 +316,7 @@ export default function StagiaireProfilePage() {
               </div>
               
               <div className="flex flex-col items-end gap-4 min-w-[200px]">
-                 <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4 border border-slate-100 dark:border-white/10 w-full">
+                 {/* <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4 border border-slate-100 dark:border-white/10 w-full">
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Badge Actuel</span>
                       <Trophy className="h-3 w-3 text-brand-primary" />
@@ -324,7 +324,7 @@ export default function StagiaireProfilePage() {
                     <p className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">
                       {stats.current_badge || 'BRONZE'}
                     </p>
-                 </div>
+                 </div> */}
                  <span className="text-xs font-bold text-slate-400 flex items-center gap-2">
                    <Clock className="h-3.5 w-3.5" />
                    Dernière activité: {stagiaire.last_login ? new Date(stagiaire.last_login).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Inconnue'}
@@ -581,7 +581,7 @@ export default function StagiaireProfilePage() {
                             >
                               <div className="flex justify-between items-start mb-2">
                                 <div className="space-y-0.5">
-                                  <span className="text-[9px] font-black uppercase text-brand-primary tracking-widest">
+                                  <span className="text-[9px] font-black  text-brand-primary tracking-widest">
                                     {quiz.quiz?.formation?.categorie || 'Quiz'}
                                   </span>
                                   <h4 className="font-extrabold text-sm text-slate-900 dark:text-white line-clamp-1">
@@ -602,8 +602,15 @@ export default function StagiaireProfilePage() {
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <Calendar className="h-3 w-3" />
-                                  {new Date(quiz.completedAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })}
+                                  {new Date(quiz.completedAt).toLocaleString('fr-FR', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })}
                                 </div>
+
                               </div>
                             </motion.div>
                           ))}
@@ -644,7 +651,7 @@ export default function StagiaireProfilePage() {
    
                    {contacts.partenaire && (
                       <div className="space-y-3">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Partenaire Social</p>
+                        <p className="text-[10px] font-black  tracking-widest text-slate-400 ml-1">Partenaire Social</p>
                         <ContactSmallCard 
                           name={contacts.partenaire.nom} 
                           firstname={contacts.partenaire.prenom} 
@@ -668,7 +675,7 @@ export default function StagiaireProfilePage() {
                 <Card className="rounded-3xl border-slate-100 dark:border-white/10 overflow-hidden shadow-sm">
                   <CardContent className="p-0">
                     {login_history.length === 0 ? (
-                      <div className="p-12 text-center text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                      <div className="p-12 text-center text-[10px] font-black text-slate-300  tracking-widest">
                         Aucun log de sécurité
                       </div>
                     ) : (
@@ -691,10 +698,10 @@ export default function StagiaireProfilePage() {
                                   </span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter truncate opacity-70">
+                                  <p className="text-[10px] font-black text-slate-400  tracking-tighter truncate opacity-70">
                                     IP: {h.ip_address}
                                   </p>
-                                  <span className="text-[9px] font-black text-slate-300 uppercase">
+                                  <span className="text-[9px] font-black text-slate-300 ">
                                      {h.login_at ? new Date(h.login_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '-'}
                                   </span>
                                 </div>
@@ -714,28 +721,58 @@ export default function StagiaireProfilePage() {
     </Layout>
   );
 }
+const getContactRoleLabel = (
+  roleType: 'formateur' | 'commercial' | 'relation',
+  contact: any
+): string => {
+  switch (roleType) {
+    case 'formateur':
+      return getGenderedRole('formateur', contact.civilite);
 
-function ContactSection({ title, contacts, roleType }: { title: string, contacts: any[], roleType: string }) {
+    case 'commercial':
+      return getGenderedRole('commercial', contact.civilite);
+
+    case 'relation':
+      // libellé venant de l’API ou fallback
+      return contact.role || 'Relation';
+
+    default:
+      return '';
+  }
+};
+
+function ContactSection({
+  title,
+  contacts,
+  roleType,
+}: {
+  title: string;
+  contacts: any[];
+  roleType: 'formateur' | 'commercial' | 'relation';
+}) {
   return (
     <div className="space-y-3">
-      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{title}</p>
+      <p className="text-[10px] font-black tracking-widest text-slate-400 ml-1">
+        {title}
+      </p>
+
       <div className="grid gap-3">
-         {contacts.map((contact) => (
-            <ContactSmallCard 
-              key={contact.id} 
-              name={contact.nom} 
-              firstname={contact.prenom} 
-              role={roleType === 'formateur' ? getGenderedRole('formateur', contact.civilite) : 
-                    roleType === 'commercial' ? getGenderedRole('commercial', contact.civilite) : "Relation Relation"} 
-              email={contact.email} 
-              phone={contact.telephone} 
-              image={contact.image}
-            />
-         ))}
+        {contacts.map((contact) => (
+          <ContactSmallCard
+            key={contact.id}
+            name={contact.nom}
+            firstname={contact.prenom}
+            role={getContactRoleLabel(roleType, contact)}
+            email={contact.email}
+            phone={contact.telephone}
+            image={contact.image}
+          />
+        ))}
       </div>
     </div>
   );
 }
+
 
 function PremiumStatCard({ icon: Icon, label, value, trend, color, delay }: {
   icon: React.ElementType;
@@ -762,11 +799,11 @@ function PremiumStatCard({ icon: Icon, label, value, trend, color, delay }: {
               <Icon className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>
+              <p className="text-xs font-black text-slate-400  tracking-widest mb-1">{label}</p>
               <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{value}</h3>
               <div className="flex items-center gap-2 mt-2">
                 <div className={`h-1.5 w-6 rounded-full ${color}`} />
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate">{trend}</p>
+                <p className="text-[10px] font-black text-slate-400  tracking-widest truncate">{trend}</p>
               </div>
             </div>
           </div>
@@ -800,7 +837,7 @@ function ContactSmallCard({ name, firstname, role, email, phone, image }: {
           <div className="flex-1 min-w-0">
             <div className="flex justify-between items-start">
               <h4 className="font-extrabold text-sm text-slate-900 dark:text-white truncate group-hover:text-brand-primary transition-colors">{firstname} {name}</h4>
-              <span className="text-[9px] font-black bg-brand-primary/5 text-brand-primary uppercase tracking-wider px-2 py-0.5 rounded-full whitespace-nowrap">
+              <span className="text-[9px] font-black bg-brand-primary/5 text-brand-primary  tracking-wider px-2 py-0.5 rounded-full whitespace-nowrap">
                 {role}
               </span>
             </div>
