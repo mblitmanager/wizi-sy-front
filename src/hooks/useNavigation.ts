@@ -9,9 +9,15 @@ import {
   getHelpNavigation,
 } from "@/config/navigation/common";
 import { NavItem } from "@/config/navigation/stagiaire";
+import { Settings } from "lucide-react";
+
+interface NavigationSection {
+  title: string;
+  items: NavItem[];
+}
 
 interface NavigationItems {
-  main: NavItem[];
+  mainSections: NavigationSection[];
   profile: NavItem[];
   help: NavItem[];
 }
@@ -23,22 +29,17 @@ export function useNavigation() {
     // Default empty navigation while loading or no user
     if (!user) {
       return {
-        main: [],
+        mainSections: [],
         profile: getProfileNavigation(),
         help: getHelpNavigation(),
       };
     }
 
-    // Debug: Log the current user role
-    // console.log('🔍 [useNavigation] Current user role:', user.role);
-    // console.log('🔍 [useNavigation] User object:', user);
-
-    // L'API retourne {user: {...}, stagiaire: null}, donc on accède à user.user.role
     const userRole = (user as any).user?.role || user.role;
-    // console.log('🔍 [useNavigation] Extracted role:', userRole);
+    const isFormateur = userRole === "formateur" || userRole === "formatrice";
 
     // Role-based navigation configurations
-    const roleNavigations: Record<string, () => { main: NavItem[] }> = {
+    const roleNavigations: Record<string, () => any> = {
       formateur: getFormateurNavigation,
       formatrice: getFormateurNavigation,
       commercial: getCommercialNavigation,
@@ -50,13 +51,35 @@ export function useNavigation() {
     const getMainNav = roleNavigations[userRole] || getStagiaireNavigation;
     const mainNav = getMainNav();
 
-    // Profiler visibility: ne pas afficher si vue formateur
-    const isFormateur = userRole === "formateur" || userRole === "formatrice";
+    // Transform into sections
+    let mainSections: NavigationSection[] = [];
+
+    if (isFormateur && mainNav.principal && mainNav.gestion) {
+      mainSections = [
+        { title: "PRINCIPAL", items: mainNav.principal },
+        { title: "GESTION", items: mainNav.gestion },
+        {
+          title: "PARAMÈTRES",
+          items: [
+            {
+              title: "Configuration",
+              href: "/settings",
+              icon: Settings,
+              color: "text-gray-600",
+            },
+            ...getHelpNavigation(),
+          ],
+        },
+      ];
+    } else {
+      // Pour les autres rôles, on garde la section par défaut
+      mainSections = [{ title: "Navigation", items: mainNav.main || [] }];
+    }
 
     return {
-      main: mainNav.main,
+      mainSections,
       profile: isFormateur ? [] : getProfileNavigation(),
-      help: getHelpNavigation(),
+      help: isFormateur ? [] : getHelpNavigation(),
     };
   }, [user]);
 

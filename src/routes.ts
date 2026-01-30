@@ -469,6 +469,14 @@ export const routes = [
     ),
   },
   {
+    path: "/formateur/analytiques",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(Analytiques),
+    ),
+  },
+  {
     path: "/formateur/dashboard",
     element: React.createElement(
       ProtectedRoute,

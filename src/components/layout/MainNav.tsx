@@ -93,14 +93,15 @@ export default function MainNav({
       {/* Navigation avec scroll */}
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 space-y-6">
-          {/* Main Navigation Section */}
-          {items.main.length > 0 && (
+          {/* Main Navigation Sections */}
+          {items.mainSections.map((section) => (
             <NavSection
-              title="Navigation"
-              items={items.main}
+              key={section.title}
+              title={section.title}
+              items={section.items}
               onItemClick={onItemClick}
             />
-          )}
+          ))}
 
           {/* Profile Navigation Section */}
           <NavSection
