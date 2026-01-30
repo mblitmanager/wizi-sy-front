@@ -100,7 +100,7 @@ const TrainerPerformanceStats = () => {
                             <Trophy className="h-5 w-5 text-brand-primary-dark" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-black text-slate-900 tracking-tight">Top Quizzers</h2>
+                            <h2 className="text-xl font-black text-slate-900 tracking-tight">Top Quizzeurs</h2>
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Champions de la révision</p>
                         </div>
                     </div>
@@ -252,7 +252,7 @@ const TrainerPerformanceStats = () => {
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-[8px] font-black text-slate-300 uppercase leading-none mb-1">Completions</p>
+                                    <p className="text-[8px] font-black text-slate-300 uppercase leading-none mb-1">Terminés</p>
                                     <div className="text-sm font-black text-slate-900">
                                         {formation.total_completions}
                                         <span className="text-[10px] text-slate-300 font-bold ml-1">Quiz</span>
@@ -339,7 +339,7 @@ const TrainerPerformanceStats = () => {
                                             <div className="w-[1px] h-6 bg-slate-100" />
                                             <div className="flex flex-col items-center">
                                                 <span className="text-xs font-black text-blue-600">{student.total_logins}</span>
-                                                <span className="text-[8px] font-black text-slate-300 uppercase">Logs</span>
+                                                <span className="text-[8px] font-black text-slate-300 uppercase">Connexions</span>
                                             </div>
                                         </div>
                                     </TableCell>
@@ -433,7 +433,7 @@ const TrainerPerformanceStats = () => {
                                                         <span className="text-[10px] font-bold text-slate-600">{sf.completions}</span>
                                                     </div>
                                                     <div className="flex flex-col">
-                                                        <span className="text-[8px] font-black text-slate-300 uppercase">Meilleure score</span>
+                                                        <span className="text-[8px] font-black text-slate-300 uppercase">Meilleur score</span>
                                                         <span className="text-[10px] font-bold text-slate-600">{sf.best_score}%</span>
                                                     </div>
                                                 </div>
