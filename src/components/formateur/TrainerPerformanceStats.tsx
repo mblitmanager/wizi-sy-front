@@ -74,11 +74,21 @@ export const StudentDetailModal = ({
                     <div className="p-10 space-y-10 max-h-[75vh] overflow-y-auto custom-scrollbar">
                         {/* Student Info */}
                         <div className="flex items-center gap-6 p-6 rounded-3xl bg-slate-50 border border-slate-100 shadow-inner">
-                            <div className="h-16 w-16 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-brand-primary-dark font-black text-2xl shadow-sm">
-                                {details.stagiaire.prenom[0]}{details.stagiaire.nom[0]}
+                            <div className="h-16 w-16 rounded-2xl bg-white border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm">
+                                {details.stagiaire.image ? (
+                                    <img 
+                                        src={details.stagiaire.image.startsWith('http') ? details.stagiaire.image : `${import.meta.env.VITE_API_URL_MEDIA}/${details.stagiaire.image.startsWith('/') ? details.stagiaire.image.substring(1) : details.stagiaire.image}`} 
+                                        alt={`${details.stagiaire.prenom} ${details.stagiaire.nom}`}
+                                        className="h-full w-full object-cover"
+                                    />
+                                ) : (
+                                    <span className="text-brand-primary-dark font-black text-2xl uppercase">
+                                        {details.stagiaire.prenom[0]}{details.stagiaire.nom[0]}
+                                    </span>
+                                )}
                             </div>
                             <div className="min-w-0">
-                                <div className="text-xl font-black text-slate-900 truncate leading-tight">{details.stagiaire.prenom} {details.stagiaire.nom}</div>
+                                <div className="text-xl font-black text-slate-900 truncate leading-tight">{details.stagiaire.prenom} {details.stagiaire.nom.toUpperCase()}</div>
                                 <div className="text-[11px] font-bold text-slate-400 truncate mt-1 tracking-tight">{details.stagiaire.email}</div>
                             </div>
                         </div>
@@ -343,14 +353,22 @@ export const StudentPerformanceTable = ({
                             >
                                 <TableCell className="pl-10 py-6">
                                     <div className="flex items-center gap-4">
-                                        <div className="h-11 w-11 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shadow-sm group-hover:border-brand-primary/30 transition-colors">
-                                            <span className="text-xs font-black text-slate-400 group-hover:text-brand-primary-dark uppercase">
-                                                {student.name.charAt(0)}
-                                            </span>
+                                        <div className="h-11 w-11 rounded-2xl bg-white border border-slate-100 flex items-center justify-center overflow-hidden shadow-sm group-hover:border-brand-primary/30 transition-colors">
+                                            {student.image ? (
+                                                <img 
+                                                    src={student.image.startsWith('http') ? student.image : `${import.meta.env.VITE_API_URL_MEDIA}/${student.image.startsWith('/') ? student.image.substring(1) : student.image}`} 
+                                                    alt={`${student.prenom} ${student.name}`}
+                                                    className="h-full w-full object-cover"
+                                                />
+                                            ) : (
+                                                <span className="text-xs font-black text-slate-400 group-hover:text-brand-primary-dark uppercase">
+                                                    {student.prenom?.[0]}{student.name?.[0]}
+                                                </span>
+                                            )}
                                         </div>
                                         <div className="min-w-0">
                                             <p className="text-sm font-bold text-slate-900 truncate">
-                                                {student.prenom} {student.name}
+                                                {student.prenom} {student.name.toUpperCase()}
                                             </p>
                                             <p className="text-[10px] font-bold text-slate-400 truncate mt-0.5 tracking-tight">{student.email}</p>
                                         </div>

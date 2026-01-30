@@ -27,6 +27,7 @@ export interface StudentDetails {
     prenom: string;
     nom: string;
     email: string;
+    image: string | null;
   };
   quiz_stats: {
     total_quiz: number;
