@@ -63,8 +63,17 @@ export interface StagiaireFormationPerformance {
 }
 
 const FormateurService = {
-  getStudentsPerformance: async (): Promise<TrainerPerformanceResponse> => {
-    const response = await api.get("/formateur/analytics/performance");
+  getStudentsPerformance: async (
+    formationId?: string,
+  ): Promise<TrainerPerformanceResponse> => {
+    const response = await api.get("/formateur/analytics/performance", {
+      params: { formation_id: formationId },
+    });
+    return response.data.data || response.data;
+  },
+
+  getRecentActivity: async (): Promise<{ activity: any[] }> => {
+    const response = await api.get("/formateur/analytics/recent-activity");
     return response.data.data || response.data;
   },
 

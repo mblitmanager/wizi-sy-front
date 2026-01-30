@@ -14,8 +14,11 @@ import {
     Activity,
     UserCircle2,
     BookOpen,
-    AlertCircle
+    AlertCircle,
+    Clock
 } from 'lucide-react';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import { 
     BarChart, 
     Bar, 
@@ -28,7 +31,7 @@ import {
 } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
 import FormateurService from '@/services/FormateurService';
-import TrainerPerformanceStats from '@/components/formateur/TrainerPerformanceStats';
+import TrainerPerformanceStats, { RankingsSection, StudentPerformanceTable, StudentDetailModal } from '@/components/formateur/TrainerPerformanceStats';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -45,6 +48,9 @@ export default function Analytiques() {
     const [formations, setFormations] = useState<any[]>([]);
     const [formationId, setFormationId] = useState('');
     const [formationsPerformance, setFormationsPerformance] = useState<any[]>([]);
+    const [studentsPerformance, setStudentsPerformance] = useState<any>(null);
+    const [recentActivity, setRecentActivity] = useState<any[]>([]);
+    const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
 
     useEffect(() => {
         loadFormations();
@@ -66,12 +72,14 @@ export default function Analytiques() {
     const loadData = async () => {
         setLoading(true);
         try {
-            const [summaryData, successData, activityData, dropoutData, performanceData] = await Promise.all([
+            const [summaryData, successData, activityData, dropoutData, performanceData, studentsData, activityLog] = await Promise.all([
                 FormateurService.getDashboardSummary(period, formationId),
                 FormateurService.getQuizSuccessRate(period, formationId),
                 FormateurService.getActivityHeatmap(period, formationId),
                 FormateurService.getDropoutRate(formationId),
-                FormateurService.getFormationsPerformance()
+                FormateurService.getFormationsPerformance(),
+                FormateurService.getStudentsPerformance(formationId),
+                FormateurService.getRecentActivity()
             ]);
 
             setSummary(summaryData);
@@ -79,6 +87,8 @@ export default function Analytiques() {
             setActivityByDay(activityData);
             setDropoutStats(dropoutData);
             setFormationsPerformance(performanceData);
+            setStudentsPerformance(studentsData);
+            setRecentActivity(activityLog.activity || []);
         } catch (error) {
             console.error('Error loading analytics:', error);
         } finally {
@@ -91,7 +101,6 @@ export default function Analytiques() {
         { label: "Formations", icon: BookOpen },
         { label: "Taux de réussite", icon: CheckCircle2 },
         { label: "Activité", icon: Activity },
-        { label: "Stagiaires", icon: UserCircle2 },
     ];
 
     return (
@@ -189,22 +198,58 @@ export default function Analytiques() {
                             transition={{ duration: 0.3 }}
                         >
                             {/* Tab 0: Vue d'ensemble */}
-                            {tabValue === 0 && summary && <OverviewTab summary={summary} />}
+                            {tabValue === 0 && summary && studentsPerformance && (
+                                <div className="space-y-12">
+                                    <OverviewTab summary={summary} />
+                                    <StudentPerformanceTable 
+                                        performance={studentsPerformance.performance} 
+                                        onViewDetails={setSelectedStudentId} 
+                                    />
+                                    <StudentDetailModal 
+                                        studentId={selectedStudentId} 
+                                        onClose={() => setSelectedStudentId(null)} 
+                                    />
+                                </div>
+                            )}
 
                             {/* Tab 1: Formations */}
-                            {tabValue === 1 && <FormationsTab performance={formationsPerformance} />}
+                            {tabValue === 1 && studentsPerformance && (
+                                <div className="space-y-12">
+                                    <FormationsTab performance={formationsPerformance} />
+                                    <div className="pt-8 border-t border-slate-100">
+                                        <RankingsSection data={studentsPerformance} />
+                                    </div>
+                                    <div className="pt-8 border-t border-slate-100">
+                                        <h2 className="text-xl font-black text-slate-900 tracking-tight mb-8">Stagiaires de cette formation</h2>
+                                        <StudentPerformanceTable 
+                                            performance={studentsPerformance.performance} 
+                                            onViewDetails={setSelectedStudentId} 
+                                        />
+                                    </div>
+                                    <StudentDetailModal 
+                                        studentId={selectedStudentId} 
+                                        onClose={() => setSelectedStudentId(null)} 
+                                    />
+                                </div>
+                            )}
 
                             {/* Tab 2: Taux de réussite */}
                             {tabValue === 2 && <SuccessRateTab stats={successStats} />}
 
                             {/* Tab 3: Activité */}
-                            {tabValue === 3 && <ActivityTab heatmap={activityByDay} dropout={dropoutStats} />}
-
-                            {/* Tab 4: Stagiaires */}
-                            {tabValue === 4 && (
-                                <div className="mt-4">
-                                    <TrainerPerformanceStats />
-                                </div>
+                            {tabValue === 3 && (
+                                <ActivityTab 
+                                    heatmap={activityByDay} 
+                                    dropout={dropoutStats} 
+                                    activityLog={recentActivity}
+                                    onViewStudent={setSelectedStudentId}
+                                />
+                            )}
+                            {tabValue === 3 && (
+                                <StudentDetailModal 
+                                    studentId={selectedStudentId} 
+                                    onClose={() => setSelectedStudentId(null)} 
+                                />
                             )}
                         </motion.div>
                     </AnimatePresence>
@@ -443,48 +488,106 @@ const SuccessRateTab = ({ stats }: { stats: any[] }) => {
     );
 };
 
-const ActivityTab = ({ heatmap, dropout }: { heatmap: any[], dropout: any[] }) => {
+const ActivityTab = ({ heatmap, dropout, activityLog, onViewStudent }: { 
+    heatmap: any[], 
+    dropout: any[], 
+    activityLog: any[],
+    onViewStudent: (id: number) => void
+}) => {
     return (
         <div className="space-y-8">
-            {/* Activity Heatmap Alternative (Bar Chart) */}
-            <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/20">
-                <div className="flex items-center gap-4 mb-10">
-                    <div className="p-3 bg-orange-500/10 rounded-2xl border border-orange-500/20">
-                        <Activity className="h-5 w-5 text-orange-600" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Activity Heatmap Alternative (Bar Chart) */}
+                <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/20">
+                    <div className="flex items-center gap-4 mb-10">
+                        <div className="p-3 bg-orange-500/10 rounded-2xl border border-orange-500/20">
+                            <Activity className="h-5 w-5 text-orange-600" />
+                        </div>
+                        <div>
+                            <h2 className="text-sm font-black text-slate-900 tracking-tight uppercase">Activité Journalière</h2>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Intensité des connexions & participations</p>
+                        </div>
                     </div>
-                    <div>
-                        <h2 className="text-sm font-black text-slate-900 tracking-tight uppercase">Activité Journalière</h2>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Intensité des connexions & participations</p>
+
+                    <div className="h-[300px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={heatmap}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                                <XAxis 
+                                    dataKey="day" 
+                                    axisLine={false} 
+                                    tickLine={false} 
+                                    tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 900 }}
+                                />
+                                <YAxis 
+                                    axisLine={false} 
+                                    tickLine={false} 
+                                    tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 900 }}
+                                />
+                                <Tooltip 
+                                    contentStyle={{ borderRadius: '16px', border: 'none' }}
+                                    cursor={{ fill: '#FFF7ED' }}
+                                />
+                                <Bar 
+                                    dataKey="activity_count" 
+                                    fill="#F7931E" 
+                                    radius={[4, 4, 0, 0]} 
+                                    barSize={40}
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
                     </div>
                 </div>
 
-                <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={heatmap}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                            <XAxis 
-                                dataKey="day" 
-                                axisLine={false} 
-                                tickLine={false} 
-                                tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 900 }}
-                            />
-                            <YAxis 
-                                axisLine={false} 
-                                tickLine={false} 
-                                tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 900 }}
-                            />
-                            <Tooltip 
-                                contentStyle={{ borderRadius: '16px', border: 'none' }}
-                                cursor={{ fill: '#FFF7ED' }}
-                            />
-                            <Bar 
-                                dataKey="activity_count" 
-                                fill="#F7931E" 
-                                radius={[4, 4, 0, 0]} 
-                                barSize={40}
-                            />
-                        </BarChart>
-                    </ResponsiveContainer>
+                {/* Recent Activity Feed */}
+                <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/20 flex flex-col h-full">
+                    <div className="flex items-center justify-between mb-8">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-brand-primary/10 rounded-2xl border border-brand-primary/20">
+                                <Clock className="h-5 w-5 text-brand-primary-dark" />
+                            </div>
+                            <div>
+                                <h2 className="text-sm font-black text-slate-900 tracking-tight uppercase">Activités Récentes</h2>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Flux en temps réel des stagiaires</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 space-y-4 overflow-y-auto custom-scrollbar max-h-[350px] pr-2">
+                        {activityLog.length > 0 ? activityLog.map((log) => (
+                            <div key={log.id} className="flex items-start gap-4 p-3 rounded-2xl bg-slate-50 border border-transparent hover:border-slate-100 transition-all cursor-pointer group" onClick={() => onViewStudent(log.user.id)}>
+                                <div className="h-10 w-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center overflow-hidden shrink-0 group-hover:border-brand-primary/30 transition-colors">
+                                    {log.user.image ? (
+                                        <img 
+                                            src={log.user.image.startsWith('http') ? log.user.image : `${import.meta.env.VITE_API_URL_MEDIA}/${log.user.image.startsWith('/') ? log.user.image.substring(1) : log.user.image}`} 
+                                            alt={log.user.name} 
+                                            className="h-full w-full object-cover" 
+                                        />
+                                    ) : (
+                                        <span className="text-xs font-black text-slate-400">
+                                            {log.user.prenom?.[0]}{log.user.name?.[0]}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <p className="text-xs font-bold text-slate-900 truncate">{log.user.prenom} {log.user.name.toUpperCase()}</p>
+                                        <span className="text-[9px] font-black text-slate-300 uppercase shrink-0">
+                                            {format(new Date(log.created_at), 'dd/MM HH:mm', { locale: fr })}
+                                        </span>
+                                    </div>
+                                    <p className="text-[10px] text-slate-500 font-medium mt-0.5 line-clamp-1">
+                                        A terminé le quiz <span className="font-black text-brand-primary-dark">{log.content.quiz_title}</span> avec un score de <span className="font-black">{log.content.score*10}%</span>
+                                    </p>
+                                </div>
+                            </div>
+                        )) : (
+                            <div className="flex flex-col items-center justify-center py-10 opacity-40">
+                                <Activity className="h-8 w-8 mb-2" />
+                                <p className="text-[10px] font-black uppercase">Aucune activité récente</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
