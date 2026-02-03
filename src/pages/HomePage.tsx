@@ -222,7 +222,7 @@ const HomePage: React.FC = () => {
       <ClassementSection />
 
       {/* Section de l'agenda */}
-      <AgendaSection />
+      {/* <AgendaSection /> */}
     </div>
   );
 };

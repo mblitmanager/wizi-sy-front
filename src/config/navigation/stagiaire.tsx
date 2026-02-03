@@ -23,12 +23,12 @@ export const getStagiaireNavigation = () => ({
             icon: Home,
             color: "text-yellow-600",
         },
-        {
-            title: "Agenda",
-            href: "/agenda",
-            icon: Calendar,
-            color: "text-yellow-600",
-        },
+        // {
+        //     title: "Agenda",
+        //     href: "/agenda",
+        //     icon: Calendar,
+        //     color: "text-yellow-600",
+        // },
         {
             title: "Formation",
             href: "/catalogue",
