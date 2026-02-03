@@ -141,6 +141,11 @@ const SuiviParrainagePage = lazy(() =>
     default: module.default,
   })),
 );
+const ManuelFormateurPage = lazy(() =>
+  import("@/pages/formateur/ManuelFormateurPage").then((module) => ({
+    default: module.default,
+  })),
+);
 const AboutPage = lazy(() => import("@/pages/AboutPage"));
 const AgendaPage = lazy(() => import("@/pages/AgendaPage"));
 
@@ -562,6 +567,14 @@ export const routes = [
       ProtectedRoute,
       undefined,
       Loadable(SuiviParrainagePage),
+    ),
+  },
+  {
+    path: "/formateur/guide",
+    element: React.createElement(
+      ProtectedRoute,
+      undefined,
+      Loadable(ManuelFormateurPage),
     ),
   },
   {

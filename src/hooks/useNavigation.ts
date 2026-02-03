@@ -9,7 +9,14 @@ import {
   getHelpNavigation,
 } from "@/config/navigation/common";
 import { NavItem } from "@/config/navigation/stagiaire";
-import { Settings } from "lucide-react";
+import { Settings, Book } from "lucide-react";
+
+interface UserProfile {
+  role: string;
+  user?: {
+    role: string;
+  };
+}
 
 interface NavigationSection {
   title: string;
@@ -35,7 +42,8 @@ export function useNavigation() {
       };
     }
 
-    const userRole = (user as any).user?.role || user.role;
+    const profile = user as unknown as UserProfile;
+    const userRole = profile.user?.role || profile.role;
     const isFormateur = userRole === "formateur" || userRole === "formatrice";
 
     // Role-based navigation configurations
@@ -67,7 +75,13 @@ export function useNavigation() {
               icon: Settings,
               color: "text-gray-600",
             },
-            ...getHelpNavigation(),
+            {
+              title: "Guide Formateur",
+              href: "/formateur/guide",
+              icon: Book,
+              color: "text-orange-600",
+            },
+            ...getHelpNavigation().filter((item) => item.title !== "Manuel"),
           ],
         },
       ];

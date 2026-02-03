@@ -27,10 +27,11 @@ export function MobileNav() {
   const { user } = useUser();
 
   const { items: navItems } = useNavigation();
-  // Flatten items for mobile: prioritize main items.
-  // Mobile nav usually needs limited items (max 5).
-  // We can take the first 4-5 items from main.
-  const items: NavItem[] = navItems.main.slice(0, 5).map(item => ({
+  
+  // Extraire les items de la première section ou une liste vide
+  const mainItems = navItems?.mainSections?.[0]?.items || [];
+
+  const items: NavItem[] = mainItems.slice(0, 5).map(item => ({
       icon: item.icon as any,
       label: item.title,
       href: item.href || '',
