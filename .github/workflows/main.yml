@@ -1,51 +1,53 @@
 name: Deploy React to OVH (SSH)
-
 on:
-  push:
-    branches: [main]
+    push:
+        branches: [main]
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20'
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
+            - name: Install dependencies
+              run: npm ci
 
-    - name: Install dependencies
-      run: npm ci
+            - name: Install Playwright Browsers
+              run: npx playwright install --with-deps
 
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
+            - name: Run E2E tests
+              run: npm run test:e2e
 
-    - name: Run E2E tests
-      run: npm run test:e2e
+            - name: Build project
+              run: npm run build
 
-    - name: Build project
-      run: npm run build
-      
-    - name: Deploy public assets via SSH (rsync)
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        REMOTE_HOST: ${{ secrets.SSH_HOST }}
-        REMOTE_USER: ${{ secrets.SSH_USER }}
-      run: |
-        echo "$SSH_PRIVATE_KEY" > private_key
-        chmod 600 private_key
-        echo "➤ Cleaning old index assets on server..."
-        echo "ssh -i private_key -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST rm -Rf ~/www/*"
-        echo "✓ Old assets cleaned"
+            - name: Install sshpass
+              run: sudo apt-get install -y sshpass
 
-        echo "➤ Deploying new assets..."
-        rsync -avz -e "ssh -i private_key -o StrictHostKeyChecking=no" ./dist/ $REMOTE_USER@$REMOTE_HOST:./www/
-        echo "✓ Assets deployed"
+            - name: Deploy public assets via SSH (rsync)
+              env:
+                  SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+                  REMOTE_HOST: ${{ secrets.SSH_HOST }}
+                  REMOTE_USER: ${{ secrets.SSH_USER }}
+              run: |
+                  echo "➤ Cleaning old assets on server..."
+                  sshpass -p "$SSH_PASSWORD" ssh \
+                    -o StrictHostKeyChecking=no \
+                    $REMOTE_USER@$REMOTE_HOST \
+                    "rm -Rf ~/www/*"
+                  echo "✓ Old assets cleaned"
 
-        rm -f private_key
-    
-    - name: Clean temporary files
-      run: rm -rf temp_views
+                  echo "➤ Deploying new assets..."
+                  sshpass -p "$SSH_PASSWORD" rsync -avz \
+                    -e "ssh -o StrictHostKeyChecking=no" \
+                    ./dist/ $REMOTE_USER@$REMOTE_HOST:./www/
+                  echo "✓ Assets deployed"
+
+            - name: Clean temporary files
+              run: rm -rf temp_views
