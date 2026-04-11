@@ -1,251 +1,262 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Roboto:wght@400;500&family=Nunito:wght@500;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Roboto:wght@400;500&family=Nunito:wght@500;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 * {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
 }
 @keyframes wave {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
 }
 
 .animate-wave {
-  animation: wave 10s linear infinite;
+    animation: wave 10s linear infinite;
 }
 
 .animate-wave-slow {
-  animation: wave 15s linear infinite;
+    animation: wave 15s linear infinite;
 }
 body {
-  font-family: Montserrat, sans-serif !important;
+    font-family: Montserrat, sans-serif !important;
 }
 
 .swiper-slide {
-  width: auto !important;
+    width: auto !important;
 }
 
 .swiper {
-  margin-left: auto;
-  margin-right: auto;
-  position: relative;
-  overflow: hidden;
-  list-style: none;
-  padding: 0;
-  width: 285px;
-  z-index: 1;
-  display: block;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    overflow: hidden;
+    list-style: none;
+    padding: 0;
+    width: 285px;
+    z-index: 1;
+    display: block;
 }
 
 .swiper-button-next,
 .swiper-button-prev {
-  position: absolute;
-  top: 70%;
-  transform: translateY(-50%);
-  width: 24px;
-  height: 24px;
-  background-color: white;
-  border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-  cursor: pointer;
+    position: absolute;
+    top: 70%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    background-color: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    cursor: pointer;
 }
 
 .swiper-button-next::after,
 .swiper-button-prev::after {
-  font-size: 12px !important;
-  color: currentColor;
+    font-size: 12px !important;
+    color: currentColor;
 }
 
 /* Modern Scrollbar Style */
 ::-webkit-scrollbar {
-  width: 10px;
-  background: #e0e7ef; /* Couleur de fond de la barre */
-  border-radius: 8px;
+    width: 10px;
+    background: #e0e7ef; /* Couleur de fond de la barre */
+    border-radius: 8px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #00509d 30%, #003f88 100%);
-  border-radius: 8px;
-  min-height: 40px;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
+    background: linear-gradient(135deg, #00509d 30%, #003f88 100%);
+    border-radius: 8px;
+    min-height: 40px;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #00509d 10%, #003f88 90%);
+    background: linear-gradient(135deg, #00509d 10%, #003f88 90%);
 }
 
 ::-webkit-scrollbar-corner {
-  background: #e0e7ef;
+    background: #e0e7ef;
 }
 
 /* Pour Firefox */
+/* Cache la scrollbar visible tout en gardant le scroll fonctionnel */
+
+/* Chrome, Safari, Edge */
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+}
+
+/* Firefox */
 * {
-  scrollbar-width: thin;
-  scrollbar-color: #00509d #e0e7ef;
+    scrollbar-width: none;
+}
+
+/* IE 10+ */
+* {
+    -ms-overflow-style: none;
 }
 
 /* Améliore le scroll sur mobile */
 @media (max-width: 1023px) {
-  html {
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
+    html {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 
-  /* Empêche le zoom sur les selects */
-  select {
-    font-size: 16px;
-  }
-}
-
-
-
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --brand-primary-rgb: 254, 184, 35;
-
-    --radius: 0.75rem;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
+    /* Empêche le zoom sur les selects */
+    select {
+        font-size: 16px;
+    }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+    :root {
+        --background: 0 0% 100%;
+        --foreground: 222.2 84% 4.9%;
 
-  body {
-    @apply bg-background text-foreground font-roboto;
-  }
+        --card: 0 0% 100%;
+        --card-foreground: 222.2 84% 4.9%;
 
-  h1,
-  h2,
-  h3 {
-    @apply font-poppins font-semibold;
-  }
+        --popover: 0 0% 100%;
+        --popover-foreground: 222.2 84% 4.9%;
 
-  button,
-  .btn {
-    @apply font-nunito font-medium;
-  }
+        --primary: 222.2 47.4% 11.2%;
+        --primary-foreground: 210 40% 98%;
 
-  .category-bureautique {
-    @apply bg-bureautique text-white;
-  }
+        --secondary: 210 40% 96.1%;
+        --secondary-foreground: 222.2 47.4% 11.2%;
 
-  .category-langues {
-    @apply bg-langues text-white;
-  }
+        --muted: 210 40% 96.1%;
+        --muted-foreground: 215.4 16.3% 46.9%;
 
-  .category-internet {
-    @apply bg-internet text-black;
-  }
+        --accent: 210 40% 96.1%;
+        --accent-foreground: 222.2 47.4% 11.2%;
 
-  .category-creation {
-    @apply bg-creation text-white;
-  }
-  .category-ia {
-    @apply bg-ia text-white;
-  }
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 210 40% 98%;
 
-  .quiz-option {
-    @apply border-2 rounded-lg p-4 cursor-pointer transition-all hover:shadow-md;
-  }
+        --border: 214.3 31.8% 91.4%;
+        --input: 214.3 31.8% 91.4%;
+        --ring: 222.2 84% 4.9%;
+        --brand-primary-rgb: 254, 184, 35;
 
-  .quiz-option.selected {
-    @apply border-primary bg-primary/10;
-  }
+        --radius: 0.75rem;
 
-  .quiz-option.correct {
-    @apply border-green-500 bg-green-100;
-  }
+        --sidebar-background: 0 0% 98%;
+        --sidebar-foreground: 240 5.3% 26.1%;
+        --sidebar-primary: 240 5.9% 10%;
+        --sidebar-primary-foreground: 0 0% 98%;
+        --sidebar-accent: 240 4.8% 95.9%;
+        --sidebar-accent-foreground: 240 5.9% 10%;
+        --sidebar-border: 220 13% 91%;
+        --sidebar-ring: 217.2 91.2% 59.8%;
+    }
 
-  .quiz-option.incorrect {
-    @apply border-red-500 bg-red-100;
-  }
+    .dark {
+        --background: 222.2 84% 4.9%;
+        --foreground: 210 40% 98%;
+
+        --card: 222.2 84% 4.9%;
+        --card-foreground: 210 40% 98%;
+
+        --popover: 222.2 84% 4.9%;
+        --popover-foreground: 210 40% 98%;
+
+        --primary: 210 40% 98%;
+        --primary-foreground: 222.2 47.4% 11.2%;
+
+        --secondary: 217.2 32.6% 17.5%;
+        --secondary-foreground: 210 40% 98%;
+
+        --muted: 217.2 32.6% 17.5%;
+        --muted-foreground: 215 20.2% 65.1%;
+
+        --accent: 217.2 32.6% 17.5%;
+        --accent-foreground: 210 40% 98%;
+
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 210 40% 98%;
+
+        --border: 217.2 32.6% 17.5%;
+        --input: 217.2 32.6% 17.5%;
+        --ring: 212.7 26.8% 83.9%;
+
+        --sidebar-background: 240 5.9% 10%;
+        --sidebar-foreground: 240 4.8% 95.9%;
+        --sidebar-primary: 224.3 76.3% 48%;
+        --sidebar-primary-foreground: 0 0% 100%;
+        --sidebar-accent: 240 3.7% 15.9%;
+        --sidebar-accent-foreground: 240 4.8% 95.9%;
+        --sidebar-border: 240 3.7% 15.9%;
+        --sidebar-ring: 217.2 91.2% 59.8%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground font-roboto;
+    }
+
+    h1,
+    h2,
+    h3 {
+        @apply font-poppins font-semibold;
+    }
+
+    button,
+    .btn {
+        @apply font-nunito font-medium;
+    }
+
+    .category-bureautique {
+        @apply bg-bureautique text-white;
+    }
+
+    .category-langues {
+        @apply bg-langues text-white;
+    }
+
+    .category-internet {
+        @apply bg-internet text-black;
+    }
+
+    .category-creation {
+        @apply bg-creation text-white;
+    }
+    .category-ia {
+        @apply bg-ia text-white;
+    }
+
+    .quiz-option {
+        @apply border-2 rounded-lg p-4 cursor-pointer transition-all hover:shadow-md;
+    }
+
+    .quiz-option.selected {
+        @apply border-primary bg-primary/10;
+    }
+
+    .quiz-option.correct {
+        @apply border-green-500 bg-green-100;
+    }
+
+    .quiz-option.incorrect {
+        @apply border-red-500 bg-red-100;
+    }
 }

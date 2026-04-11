@@ -354,44 +354,6 @@ const ProfilePage = () => {
 
     return (
       <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
-        {/* <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg sm:text-xl font-semibold font-montserrat dark:text-white">
-            Mes badges
-          </h3>
-          <div className="flex items-center gap-2">
-            <div className="text-sm text-gray-600 dark:text-gray-300">
-              {userAchievements.length} débloqués
-            </div>
-          </div>
-        </div> */}
-
-        {/* {achvLoading ? (
-          <div className="py-6 text-center text-sm text-gray-500">
-            Chargement des badges...
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-              {visibleBadges.map((a) => (
-                <AchievementBadge
-                  key={a.id}
-                  a={a}
-                  unlocked={unlockedIds.has(a.id)}
-                />
-              ))}
-            </div>
-            {filteredAchievements.length > 3 && (
-              <div className="flex justify-center mt-4">
-                <button
-                  type="button"
-                  className="px-4 py-2 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                  onClick={() => setShowAllBadges((v) => !v)}>
-                  {showAllBadges ? "Voir moins" : "Voir plus"}
-                </button>
-              </div>
-            )}
-          </>
-        )} */}
       </div>
     );
   };
@@ -490,45 +452,6 @@ const ProfilePage = () => {
           </div>
         )}
       </div>
-      {/* Section liens vers FAQ, CGV et Manuel */}
-      {/* <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm mb-4">
-        <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
-          Ressources utiles
-        </h3>
-        <div className="flex flex-wrap gap-4">
-          <Link
-            to="/faq"
-            className="px-4 py-2 bg-amber-100 text-amber-800 rounded-lg font-medium hover:bg-amber-200 transition">
-            FAQ
-          </Link>
-          <Link
-            to="/cgv"
-            className="px-4 py-2 bg-amber-100 text-amber-800 rounded-lg font-medium hover:bg-amber-200 transition">
-            CGV
-          </Link>
-          <Link
-            to="/contact-support"
-            className="px-4 py-2 bg-amber-100 text-amber-800 rounded-lg font-medium hover:bg-amber-200 transition">
-            Contact & Remarques
-          </Link>
-          <Link
-            to="/manuel"
-            className="px-4 py-2 bg-amber-100 text-amber-800 rounded-lg font-medium hover:bg-amber-200 transition">
-            Manuel d'utilisation
-          </Link>
-          <Link
-            to="/remerciements"
-            className="px-4 py-2 bg-amber-100 text-amber-800 rounded-lg font-medium hover:bg-amber-200 transition">
-            Remerciements
-          </Link>
-
-          <Link
-            to="/politique-confidentialite"
-            className="px-4 py-2 bg-amber-100 text-amber-800 rounded-lg font-medium hover:bg-amber-200 transition">
-            Politique de Confidentialité
-          </Link>
-        </div>
-      </div> */}
     </Layout>
   );
 };
