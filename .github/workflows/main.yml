@@ -36,17 +36,17 @@ jobs:
                   REMOTE_HOST: ${{ secrets.SSH_HOST }}
                   REMOTE_USER: ${{ secrets.SSH_USER }}
               run: |
+                  run: |
                   echo "➤ Cleaning old assets on server..."
                   sshpass -p "$SSH_PASSWORD" ssh \
                     -o StrictHostKeyChecking=no \
                     $REMOTE_USER@$REMOTE_HOST \
-                    "rm -Rf ~/www/*"
+                    "rm -Rf /var/www/react-app/dist/*"
                   echo "✓ Old assets cleaned"
-
                   echo "➤ Deploying new assets..."
                   sshpass -p "$SSH_PASSWORD" rsync -avz \
                     -e "ssh -o StrictHostKeyChecking=no" \
-                    ./dist/ $REMOTE_USER@$REMOTE_HOST:./www/
+                    ./dist/ $REMOTE_USER@$REMOTE_HOST:/var/www/react-app/dist/
                   echo "✓ Assets deployed"
 
             - name: Clean temporary files
