@@ -6,7 +6,7 @@ import { useQuizAnswers } from "./quiz/useQuizAnswers";
 import { useQuizDialogs } from "./quiz/useQuizDialogs";
 import { useQuizSubmission } from "./quiz/useQuizSubmission";
 import { Question } from "@/types/quiz";
-import apiClient from "@/lib/api-client";
+import { api } from "@/lib/api";
 
 export const useQuizPlay = (quizId: string) => {
   // Get quiz data
@@ -64,7 +64,7 @@ export const useQuizPlay = (quizId: string) => {
     if (token) {
       (async () => {
         try {
-          const resp = await apiClient.get(
+          const resp = await api.get(
             `/quiz/${quizId}/participation/resume`,
           );
           const data = resp?.data || resp;

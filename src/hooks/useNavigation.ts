@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useUser } from "@/hooks/useAuth";
+import type { AppRole } from "@/utils/roles";
 import { getStagiaireNavigation } from "@/config/navigation/stagiaire";
 import { getFormateurNavigation } from "@/config/navigation/formateur";
 import { getCommercialNavigation } from "@/config/navigation/commercial";
@@ -10,13 +11,6 @@ import {
 } from "@/config/navigation/common";
 import { NavItem } from "@/config/navigation/stagiaire";
 import { Settings, Book } from "lucide-react";
-
-interface UserProfile {
-  role: string;
-  user?: {
-    role: string;
-  };
-}
 
 interface NavigationSection {
   title: string;
@@ -30,7 +24,7 @@ interface NavigationItems {
 }
 
 export function useNavigation() {
-  const { user, isLoading } = useUser();
+  const { user, role, isLoading } = useUser();
 
   const items: NavigationItems = useMemo(() => {
     // Default empty navigation while loading or no user
@@ -42,21 +36,16 @@ export function useNavigation() {
       };
     }
 
-    const profile = user as unknown as UserProfile;
-    const userRole = profile.user?.role || profile.role;
-    const isFormateur = userRole === "formateur" || userRole === "formatrice";
+    const isFormateur = role === "formateur";
 
-    // Role-based navigation configurations
-    const roleNavigations: Record<string, () => any> = {
+    // Navigation principale selon le rôle (normalisé : formatrice → formateur, etc.)
+    const roleNavigations: Record<AppRole, () => any> = {
+      stagiaire: getStagiaireNavigation,
       formateur: getFormateurNavigation,
-      formatrice: getFormateurNavigation,
       commercial: getCommercialNavigation,
-      commerciale: getCommercialNavigation,
       admin: getAdminNavigation,
     };
-
-    // Get main navigation based on role, default to stagiaire
-    const getMainNav = roleNavigations[userRole] || getStagiaireNavigation;
+    const getMainNav = roleNavigations[role];
     const mainNav = getMainNav();
 
     // Transform into sections
@@ -95,7 +84,7 @@ export function useNavigation() {
       profile: isFormateur ? [] : getProfileNavigation(),
       help: isFormateur ? [] : getHelpNavigation(),
     };
-  }, [user]);
+  }, [user, role]);
 
   return { items, isLoading, user };
 }

@@ -29,6 +29,15 @@ export function CategoryCard({ category }: CategoryCardProps) {
     const count = FORMATION_COUNTS[category.slug] ?? category.formations?.length ?? 0;
     const isLight = category.slug === 'internet';
 
+    const categoryImages: Record<string, string> = {
+        bureautique: '/assets/splash1.jpeg',
+        langues: '/assets/splash2.jpeg',
+        internet: '/assets/splash3.jpeg',
+        creation: '/assets/splash1.jpeg',
+        IA: '/assets/splash2.jpeg',
+    };
+
+    const categoryImage = categoryImages[category.slug] ?? '/assets/splash1.jpeg';
     const headerClass = cn(
         'rounded-t-xl',
         isLight ? 'text-black' : 'text-white',
@@ -41,22 +50,41 @@ export function CategoryCard({ category }: CategoryCardProps) {
 
     return (
         <Link to={`/catalogue/${category.slug}`} className="block h-full">
-            <Card className="h-full flex flex-col overflow-hidden transition-all hover:shadow-md hover:-translate-y-1">
-                <CardHeader className={headerClass}>
+            <Card className="group h-full flex flex-col overflow-hidden rounded-2xl border-[#d3e2de] bg-[#fbfaf6] transition-all hover:-translate-y-1 hover:shadow-xl">
+                <div className="relative h-28 overflow-hidden">
+                    <img
+                        src={categoryImage}
+                        alt={`Illustration de la formation ${category.name}`}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className={cn('absolute inset-0 opacity-75 mix-blend-multiply', headerClass)} />
+                    <div className="absolute inset-x-4 bottom-3 flex items-center justify-between text-white">
+                        <span className="flex items-center gap-2 text-sm font-bold drop-shadow-sm">
+                            {icon}
+                            {category.name}
+                        </span>
+                        <span className={cn('text-xs font-semibold', isLight ? 'text-black/80' : 'text-white/85')}>
+                            {count}
+                        </span>
+                    </div>
+                </div>
+                <CardHeader className={cn(headerClass, 'rounded-none px-4 py-3')}>
                     <div className="flex items-center gap-2">
-                        {icon}
-                        <CardTitle className="text-base font-medium">{category.name}</CardTitle>
+                        <CardTitle className="text-xs font-bold uppercase tracking-[0.12em]">Parcours de formation</CardTitle>
                     </div>
                     <CardDescription
-                        className={cn('text-sm', isLight ? 'text-black/70' : 'text-white/75')}
+                        className={cn('text-xs', isLight ? 'text-black/70' : 'text-white/75')}
                     >
                         {count} formation{count > 1 ? 's' : ''}
                     </CardDescription>
                 </CardHeader>
 
                 {/* flex-1 = toutes les cartes ont la même hauteur peu importe la description */}
-                <CardContent className="flex-1 p-4">
-                    <p className="text-sm text-gray-500 leading-relaxed">{category.description}</p>
+                <CardContent className="flex-1 p-5">
+                    <p className="text-sm leading-relaxed text-[#526b70]">{category.description}</p>
+                    <span className="mt-5 inline-flex items-center gap-1 text-xs font-bold uppercase tracking-[0.12em] text-[#b47700]">
+                        Explorer <span aria-hidden="true">→</span>
+                    </span>
                 </CardContent>
             </Card>
         </Link>

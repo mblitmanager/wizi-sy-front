@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { api } from '@/lib/api';
 import UniversalVideoPlayer from './UniversalVideoPlayer';
 import '../../styles/VideoUploader.css';
 
 type Props = {
-  apiBase?: string; // e.g. process.env.REACT_APP_API_URL
   onUploaded?: (media: any) => void;
 };
 
-export default function VideoUploader({ apiBase = '', onUploaded }: Props) {
+export default function VideoUploader({ onUploaded }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [titre, setTitre] = useState('');
   const [description, setDescription] = useState('');
@@ -32,13 +31,9 @@ export default function VideoUploader({ apiBase = '', onUploaded }: Props) {
     form.append('description', description);
 
     try {
-      const token = localStorage.getItem('token') || '';
-      const url = `${apiBase}/medias/upload-video`;
-      const res = await axios.post(url, form, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
+      const res = await api.post('/medias/upload-video', form, {
+        // Un upload vidéo peut dépasser le timeout par défaut du client
+        timeout: 0,
         onUploadProgress: (ev) => {
           if (ev.total) setProgress(Math.round((ev.loaded * 100) / ev.total));
         },

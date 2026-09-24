@@ -1,10 +1,10 @@
 
-import apiClient from '@/lib/api-client';
+import { api } from "@/lib/api";
 import type { QuizHistory, QuizStats } from '@/types/quiz';
 
 export class RankingService {
   async updateClassement(quizId: string, stagiaireId: string, score: number): Promise<any> {
-    const response = await apiClient.post(`/api/quiz/${quizId}/classement`, {
+    const response = await api.post(`/quiz/${quizId}/classement`, {
       stagiaire_id: stagiaireId,
       score: score
     });
@@ -13,7 +13,7 @@ export class RankingService {
 
   async getClassement(quizId: string): Promise<any> {
     try {
-      const response = await apiClient.get(`/quiz/${quizId}/classement`);
+      const response = await api.get(`/quiz/${quizId}/classement`);
       return response.data;
     } catch (error) {
       console.error('Error fetching quiz ranking:', error);
@@ -24,7 +24,7 @@ export class RankingService {
   async getGlobalClassement(period: 'week' | 'month' | 'all' = 'all', quarter?: number | null): Promise<any> {
     const params: Record<string, any> = { period };
     if (quarter) params.quarter = quarter;
-    const response = await apiClient.get('/quiz/classement/global', {
+    const response = await api.get('/quiz/classement/global', {
       params
     });
     return response.data;

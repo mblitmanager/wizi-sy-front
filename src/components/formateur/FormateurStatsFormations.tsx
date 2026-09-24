@@ -1,12 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { BookOpen, Users, TrendingUp, Trophy, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { Paginated, useFormateurDashboardStats } from '@/hooks/queries/useFormateurQueries';
 
 interface Formation {
     id: number;
@@ -16,52 +14,15 @@ interface Formation {
     score_moyen: number;
 }
 
-interface PaginationData {
-    data: Formation[];
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-}
-
 export function FormateurStatsFormations() {
     const navigate = useNavigate();
-    const [formations, setFormations] = useState<Formation[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [lastPage, setLastPage] = useState(1);
-    const [total, setTotal] = useState(0);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchFormations = async () => {
-            setLoading(true);
-            try {
-                const token = localStorage.getItem('token');
-                const response = await axios.get(`${API_URL}/formateur/dashboard/stats`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache',
-                        'Expires': '0',
-                    },
-                    params: {
-                        formations_page: currentPage,
-                        formations_per_page: 5
-                    }
-                });
-                const data = response.data.formations as PaginationData;
-                setFormations(data.data || []);
-                setCurrentPage(data.current_page);
-                setLastPage(data.last_page);
-                setTotal(data.total);
-            } catch (err) {
-                console.error('Erreur chargement formations:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchFormations();
-    }, [currentPage]);
+    const { data, isLoading: loading, isPlaceholderData } = useFormateurDashboardStats<{ formations?: Paginated<Formation> }>({
+        formationsPage: currentPage,
+    });
+    const formations = data?.formations?.data ?? [];
+    const lastPage = data?.formations?.last_page ?? 1;
+    const total = data?.formations?.total ?? 0;
 
     if (loading) {
         return (
@@ -92,7 +53,7 @@ export function FormateurStatsFormations() {
             </div>
 
             {/* List */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
+            <div className={`flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3 transition-opacity ${isPlaceholderData ? "opacity-50" : ""}`} aria-busy={isPlaceholderData}>
                 {noFormations ? (
                     <div className="h-full flex flex-col items-center justify-center opacity-40 py-10">
                         <BookOpen className="h-12 w-12 text-gray-600 mb-4" />

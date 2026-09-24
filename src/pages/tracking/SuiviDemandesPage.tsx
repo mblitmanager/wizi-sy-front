@@ -33,13 +33,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/context/UserContext';
-import axios from 'axios';
+import { api } from "@/lib/api";
 
 
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-
-const API_URL = import.meta.env.VITE_API_URL;
 
 interface Demande {
     id: number;
@@ -66,10 +64,7 @@ const SuiviDemandesPage = () => {
     useEffect(() => {
         const fetchDemandes = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const response = await axios.get(`${API_URL}/formateur/suivi/demandes`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                const response = await api.get(`/formateur/suivi/demandes`);
                 setDemandes(response.data.data || response.data);
             } catch (error) {
                 console.error('Erreur lors du chargement des demandes:', error);

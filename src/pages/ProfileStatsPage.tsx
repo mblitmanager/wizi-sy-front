@@ -2,55 +2,22 @@
 import { Layout } from "@/components/layout/Layout";
 import { Link } from "react-router-dom";
 import { useUser } from "@/hooks/useAuth";
-import { useLoadQuizData } from "@/use-case/hooks/profile/useLoadQuizData";
-import { useLoadRankings } from "@/use-case/hooks/profile/useLoadRankings";
 import { useLoadFormations } from "@/use-case/hooks/profile/useLoadFormations";
+import { useQuizCategories, useQuizHistory, useUserProgress } from "@/hooks/queries/useProfileQueries";
 import CategoryProgress from "@/components/profile/CategoryProgress";
 import { RecentResults } from "@/components/profile/RecentResults";
-import { useEffect, useState, useMemo } from "react";
-import { quizSubmissionService } from "@/services/quiz/QuizSubmissionService";
-import type { QuizHistory as QuizHistoryType, QuizResult } from "@/types/quiz";
-import { useToast } from "@/hooks/use-toast";
+import { useMemo } from "react";
+import type { QuizResult } from "@/types/quiz";
 import TrainerPerformanceStats from "@/components/formateur/TrainerPerformanceStats";
 import { BookOpen, GraduationCap } from "lucide-react";
 
-const isTrainer = (role: string | undefined) => role === 'formateur' || role === 'formatrice';
 const ProfileStatsPage = () => {
-  const { user } = useUser();
-  const rawRole = user?.role || (user as any)?.user?.role;
-  const isUserTrainer = isTrainer(rawRole);
-  const { results, categories } = useLoadQuizData();
-  const { userProgress, rankings } = useLoadRankings();
-  const { formations, loading: loadingFormations } = useLoadFormations();
-  const { toast } = useToast();
-  const [quizHistory, setQuizHistory] = useState<QuizHistoryType[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Chargement de l'historique des quiz
-  useEffect(() => {
-    if (!user) return;
-
-    const fetchQuizHistory = async () => {
-      try {
-        setLoading(true);
-        const history = await quizSubmissionService.getQuizHistory();
-        console.log("Quiz History:", history); // Debug log
-        setQuizHistory(history);
-      } catch (error) {
-        console.error("Error fetching quiz history:", error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger l'historique des quiz",
-          variant: "destructive",
-        });
-        setQuizHistory([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchQuizHistory();
-  }, [user, toast]);
+  const { user, role } = useUser();
+  const isUserTrainer = role === "formateur";
+  const { data: categories = [] } = useQuizCategories();
+  const { data: userProgress = null, isLoading: progressLoading } = useUserProgress();
+  const { formations, loading: loadingFormations } = useLoadFormations({ enabled: !isUserTrainer });
+  const { data: quizHistory = [], isLoading: loading } = useQuizHistory();
 
   // Transformation des données pour RecentResults avec gestion des erreurs
   const recentResultsData: QuizResult[] = useMemo(() => {
@@ -125,7 +92,8 @@ const ProfileStatsPage = () => {
     };
   }, [quizHistory]);
 
-  const isLoading = loading || loadingFormations || !user || !categories || !userProgress;
+  // Les formateurs ont leur propre vue : inutile d'attendre les données stagiaire
+  const isLoading = !isUserTrainer && (loading || loadingFormations || progressLoading);
 
   // Calcul des statistiques par formation ET par niveau
   const formationStats = useMemo(() => {

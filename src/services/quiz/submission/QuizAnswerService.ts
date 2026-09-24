@@ -1,11 +1,11 @@
-import apiClient from "@/lib/api-client";
+import { api } from "@/lib/api";
 import { questionApi } from "@/services/api";
 import type { Question, Answer } from "@/types/quiz";
 
 export class QuizAnswerService {
   async getQuizQuestions(quizId: number): Promise<Question[]> {
     try {
-      const response = await apiClient.get(`/quiz/${quizId}/questions`);
+      const response = await api.get(`/quiz/${quizId}/questions`);
 
       const questions = response.data.data || [];
       return questions.map((question: any) => this.formatQuestion(question));
@@ -98,7 +98,7 @@ export class QuizAnswerService {
       }
 
       // Envoyer les réponses formatées à l'API
-      const response = await apiClient.post(`/quiz/${quizId}/result`, {
+      const response = await api.post(`/quiz/${quizId}/result`, {
         answers: formattedAnswers,
         timeSpent,
       });

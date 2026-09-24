@@ -1,5 +1,5 @@
 // hooks/useParrainageEvents.ts
-import axiosInstance from "@/services/axios";
+import { api } from "@/lib/api";
 import { useState, useEffect } from "react";
 
 interface ParrainageEvent {
@@ -48,7 +48,7 @@ export function useParrainageEvents() {
         setLoading(true);
         setError(null);
 
-        const response = await axiosInstance.get("/parrainage-events");
+        const response = await api.get("/parrainage-events");
         // console.log("Réponse API:", response.data);
 
         if (response.data.success) {

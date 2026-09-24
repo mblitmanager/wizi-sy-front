@@ -20,14 +20,8 @@ export function CountdownAnimation({
   const [countdown, setCountdown] = useState(delay); // ⭐ State pour le compte à rebours
 
   useEffect(() => {
-    console.log("🎯 CountdownAnimation - Données reçues:", {
-      currentQuizId,
-      nextQuiz,
-      delay,
-    });
 
     if (!nextQuiz) {
-      console.log("❌ CountdownAnimation: Aucun nextQuiz disponible");
       return;
     }
 
@@ -38,10 +32,6 @@ export function CountdownAnimation({
       setCountdown(currentCountdown);
 
       if (currentCountdown <= 0) {
-        console.log(
-          "🔄 Countdown terminé, redirection vers:",
-          `/quiz/${nextQuiz.id}/start`
-        );
         navigate(`/quiz/${nextQuiz.id}/start`);
         onCountdownEnd();
         clearInterval(interval);

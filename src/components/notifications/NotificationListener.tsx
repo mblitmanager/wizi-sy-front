@@ -1,57 +1,47 @@
-import { useEffect, useContext } from 'react';
-import { messaging, onMessage, useFcmToken, useOnMessage } from '@/firebase-fcm';
-import { toast } from 'sonner';
-import { useNotifications } from '@/hooks/useNotifications';
-import { UserContext } from '@/context/UserContext';
+import { useCallback } from "react";
+import { toast } from "sonner";
+import type { MessagePayload } from "firebase/messaging";
+import { showSystemNotification, useFcmToken, useForegroundMessages } from "@/firebase-fcm";
+import { useNotifications } from "@/hooks/useNotifications";
+import { useUser } from "@/context/UserContext";
 
-// Ce composant écoute les notifications FCM en premier plan et les synchronise avec l'API
-export default function NotificationListener({ onPushNotification }: { onPushNotification?: (n: unknown) => void }) {
+/**
+ * Écoute les notifications FCM au premier plan :
+ * - onglet visible → toast dans l'application
+ * - onglet masqué → notification système
+ * et les ajoute immédiatement à la liste locale.
+ */
+export default function NotificationListener() {
   const { pushLocal } = useNotifications();
-  const userContext = useContext(UserContext);
-  const token = userContext?.token;
+  const { token } = useUser();
 
-  // Register FCM token when user is logged in
-  useFcmToken(token || null);
-  
-  // Handle background/foreground browser notifications
-  useOnMessage();
+  useFcmToken(token);
 
-  useEffect(() => {
-    const unsub = onMessage(messaging, async (payload) => {
+  const handleMessage = useCallback(
+    (payload: MessagePayload) => {
       const { title, body } = payload.notification || {};
       const data = payload.data || {};
-      const notif = {
-        id: (data.id as string) || Date.now().toString(),
-        message: body || (data.message as string) || '',
-        type: (data.type as string) || 'system',
-        created_at: (data.created_at as string) || new Date().toISOString(),
+
+      if (document.visibilityState === "visible") {
+        toast(title || "Nouvelle notification", { description: body, duration: 5000 });
+      } else {
+        showSystemNotification(payload);
+      }
+
+      pushLocal({
+        id: Number(data.id) || Date.now(),
+        title,
+        message: body || data.message || "",
+        type: data.type || "system",
+        created_at: data.created_at || new Date().toISOString(),
         data,
         read: false,
-      };
+      });
+    },
+    [pushLocal]
+  );
 
-      // show toast/notification
-      toast(
-        <div className="flex items-center gap-2">
-          <span>🔔</span>
-          <span className="font-medium">{title}</span>
-          <span className="truncate max-w-xs">{body}</span>
-        </div>,
-        { duration: 5000 }
-      );
-
-  // Add to local state so UI updates immediately
-  // The provider will schedule a debounced refresh to sync with server
-      pushLocal(notif as any);
-
-      // also notify any parent callback (e.g. page-level handler used for toasts when app is visible)
-      if (onPushNotification) onPushNotification(notif);
-    });
-
-    return () => {
-      // onMessage has no unsubscribe callback in older firebase versions; keep return for future-proof
-      if (typeof unsub === 'function') (unsub as () => void)();
-    };
-  }, [pushLocal, onPushNotification]);
+  useForegroundMessages(handleMessage);
 
   return null;
 }

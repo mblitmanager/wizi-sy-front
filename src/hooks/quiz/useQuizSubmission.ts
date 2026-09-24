@@ -14,12 +14,6 @@ export const useQuizSubmission = (quizId: string) => {
     timeSpent: number,
     questions?: any[]
   ) => {
-    console.log("🎯 FINAL SUBMISSION DATA:", {
-      timeSpent: timeSpent,
-      answersCount: Object.keys(answers).length,
-      answers: answers,
-      timestamp: new Date().toISOString(),
-    });
     setIsSubmitting(true);
 
     try {

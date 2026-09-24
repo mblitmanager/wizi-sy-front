@@ -91,7 +91,7 @@ export function QuizPlay() {
   // Rendu conditionnel - AMÉLIORATION : Gestion complète des états de chargement
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-[60vh] flex items-center justify-center">
         <LoadingState />
       </div>
     );
@@ -99,7 +99,7 @@ export function QuizPlay() {
 
   if (error || !quiz) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-[60vh] flex items-center justify-center">
         <ErrorState />
       </div>
     );

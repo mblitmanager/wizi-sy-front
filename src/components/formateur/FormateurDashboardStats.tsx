@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, TrendingUp, TrendingDown, AlertTriangle, Video, Trophy } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
-import { api } from '@/lib/api';
+import { useFormateurDashboardStats } from '@/hooks/queries/useFormateurQueries';
 import { motion } from 'framer-motion';
 
 interface DashboardStats {
@@ -33,31 +32,8 @@ interface DashboardStats {
 }
 
 export function FormateurDashboardStats() {
-    const [stats, setStats] = useState<DashboardStats | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const response = await api.get('/formateur/dashboard/stats', {
-                    headers: {
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache',
-                        'Expires': '0',
-                    }
-                });
-                setStats(response.data);
-            } catch (err) {
-                console.error('Erreur chargement stats:', err);
-                setError('Impossible de charger les statistiques');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchStats();
-    }, []);
+    const { data: stats, isLoading: loading, isError } = useFormateurDashboardStats<DashboardStats>();
+    const error = isError ? "Impossible de charger les statistiques" : null;
 
     const navigate = useNavigate();
 

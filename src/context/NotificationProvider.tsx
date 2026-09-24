@@ -1,13 +1,14 @@
-import React, { createContext, useCallback, useContext, useEffect, useState, useRef } from 'react';
-import { notificationService, ApiNotification } from '@/services/NotificationService';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { notificationService, ApiNotification } from "@/services/NotificationService";
+import { useUser } from "@/context/UserContext";
 
-export interface AppNotification extends ApiNotification {
-  // UI helper fields if needed, but we try to stick to ApiNotification
-}
+export type AppNotification = ApiNotification;
 
 interface NotificationContextValue {
   notifications: AppNotification[];
   unreadCount: number;
+  /** Vrai pendant le premier chargement de la liste. */
+  isLoading: boolean;
   refresh: () => Promise<void>;
   markAsRead: (id: string | number) => Promise<void>;
   markAllAsRead: () => Promise<void>;
@@ -17,139 +18,115 @@ interface NotificationContextValue {
 
 export const NotificationContext = createContext<NotificationContextValue | undefined>(undefined);
 
-// Convenience hook for consumers which also throws when used outside provider
 export function useNotificationContext(): NotificationContextValue {
   const ctx = useContext(NotificationContext);
-  if (!ctx) throw new Error('useNotificationContext must be used within NotificationProvider');
+  if (!ctx) throw new Error("useNotificationContext must be used within NotificationProvider");
   return ctx;
 }
 
+/** Délai avant de resynchroniser avec le serveur après une notification push. */
+const REFRESH_DEBOUNCE_MS = 2000;
+
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { token } = useUser();
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
-  const [seenIds, setSeenIds] = useState<Set<number | string>>(new Set());
+  const [isLoading, setIsLoading] = useState<boolean>(!!token);
+  const seenIds = useRef<Set<number | string>>(new Set());
+  const refreshTimer = useRef<number | null>(null);
 
   const refresh = useCallback(async () => {
-    try {
-      const list = await notificationService.getNotifications();
+    const [list, count] = await Promise.all([
+      notificationService.getNotifications(),
+      notificationService.getUnreadCount().catch(() => null),
+    ]);
+    const normalized = list.map((item) => ({ ...item, data: item.data || {} }));
 
-      // No complex normalization needed anymore as we aligned types
-      const normalized: AppNotification[] = list.map(item => ({
-        ...item,
-        // Ensure data is at least an empty object if null
-        data: item.data || {},
-      }));
-
-      // Merge server notifications with any local-only notifications
-      // For now, we trust the server list as canonical
-      setNotifications(normalized);
-
-      // update seen IDs
-      setSeenIds(new Set(normalized.map(n => n.id)));
-
-      // try to get unread count from API if available
-      try {
-        const count = await notificationService.getUnreadCount();
-        setUnreadCount(Number(count));
-      } catch (e) {
-        setUnreadCount(normalized.filter(n => !n.read).length);
-      }
-    } catch (err) {
-      console.error('Failed to refresh notifications:', err);
-    }
+    seenIds.current = new Set(normalized.map((n) => n.id));
+    setNotifications(normalized);
+    setUnreadCount(count != null ? Number(count) : normalized.filter((n) => !n.read).length);
   }, []);
 
-  // Debounce timer for server refreshes after incoming push notifications
-  const refreshTimer = useRef<number | null>(null);
-  const REFRESH_DEBOUNCE_MS = 2000;
-
+  // Chargement à la connexion, remise à zéro à la déconnexion
   useEffect(() => {
-    // initial load: only refresh if we have a token (avoid 401 on public pages)
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    if (!token) {
+    if (token) {
+      setIsLoading(true);
+      refresh()
+        .catch((err) => console.error("Chargement des notifications impossible :", err))
+        .finally(() => setIsLoading(false));
+    } else {
+      setIsLoading(false);
+      seenIds.current = new Set();
       setNotifications([]);
       setUnreadCount(0);
-      return;
     }
-    // initial load
-    refresh();
-  }, [refresh]);
+  }, [token, refresh]);
+
+  useEffect(
+    () => () => {
+      if (refreshTimer.current) window.clearTimeout(refreshTimer.current);
+    },
+    []
+  );
 
   const markAsRead = useCallback(async (id: string | number) => {
-    try {
-      await notificationService.markAsRead(id);
-      setNotifications(prev => prev.map(n => (n.id === id ? { ...n, read: true } : n)));
-      setUnreadCount(c => Math.max(0, c - 1));
-    } catch (err) {
-      console.error('markAsRead failed', err);
-      throw err;
-    }
+    await notificationService.markAsRead(id);
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+    setUnreadCount((c) => Math.max(0, c - 1));
   }, []);
 
   const markAllAsRead = useCallback(async () => {
-    try {
-      await notificationService.markAllAsRead();
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-      setUnreadCount(0);
-    } catch (err) {
-      console.error('markAllAsRead failed', err);
-      throw err;
-    }
+    await notificationService.markAllAsRead();
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    setUnreadCount(0);
   }, []);
 
-  const remove = useCallback(async (id: string | number) => {
-    try {
+  const remove = useCallback(
+    async (id: string | number) => {
+      const wasUnread = notifications.some((n) => n.id === id && !n.read);
       await notificationService.deleteNotification(id);
-      setNotifications(prev => prev.filter(n => n.id !== id));
-    } catch (err) {
-      console.error('remove notification failed', err);
-      throw err;
-    }
-  }, []);
-
-  const pushLocal = useCallback((n: Partial<AppNotification>) => {
-    // If we already saw this id, don't insert duplicate
-    if (n.id && seenIds.has(n.id)) return;
-
-    // Construct a temporary AppNotification
-    const notif: AppNotification = {
-      id: n.id || Date.now(), // Use timestamp as temp ID if missing
-      user_id: n.user_id || 0,
-      type: n.type || 'system',
-      title: n.title,
-      message: n.message || '',
-      data: n.data || {},
-      read: !!n.read,
-      created_at: n.created_at || new Date().toISOString(),
-      updated_at: n.updated_at || new Date().toISOString(),
-    };
-
-    setNotifications(prev => [notif, ...prev]);
-    if (notif.id) setSeenIds(s => new Set(s).add(notif.id));
-    setUnreadCount(c => c + (notif.read ? 0 : 1));
-
-    // Schedule a debounced refresh from the server to ensure canonical state
-    if (refreshTimer.current) {
-      window.clearTimeout(refreshTimer.current);
-    }
-    refreshTimer.current = window.setTimeout(() => {
-      refresh().catch(err => console.error('Refresh after push failed', err));
-      refreshTimer.current = null;
-    }, REFRESH_DEBOUNCE_MS);
-  }, [seenIds, refresh]);
-
-  // Cleanup timer on unmount
-  useEffect(() => {
-    return () => {
-      if (refreshTimer.current) window.clearTimeout(refreshTimer.current);
-    };
-  }, []);
-
-  return (
-    <NotificationContext.Provider value={{ notifications, unreadCount, refresh, markAsRead, markAllAsRead, remove, pushLocal }}>
-      {children}
-    </NotificationContext.Provider>
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+      if (wasUnread) setUnreadCount((c) => Math.max(0, c - 1));
+    },
+    [notifications]
   );
+
+  const pushLocal = useCallback(
+    (n: Partial<AppNotification>) => {
+      if (n.id && seenIds.current.has(n.id)) return;
+
+      const now = new Date().toISOString();
+      const notif: AppNotification = {
+        id: n.id || Date.now(),
+        user_id: n.user_id || 0,
+        type: n.type || "system",
+        title: n.title,
+        message: n.message || "",
+        data: n.data || {},
+        read: !!n.read,
+        created_at: n.created_at || now,
+        updated_at: n.updated_at || now,
+      };
+
+      seenIds.current.add(notif.id);
+      setNotifications((prev) => [notif, ...prev]);
+      if (!notif.read) setUnreadCount((c) => c + 1);
+
+      if (refreshTimer.current) window.clearTimeout(refreshTimer.current);
+      refreshTimer.current = window.setTimeout(() => {
+        refreshTimer.current = null;
+        refresh().catch((err) => console.error("Resynchronisation des notifications impossible :", err));
+      }, REFRESH_DEBOUNCE_MS);
+    },
+    [refresh]
+  );
+
+  const value = useMemo(
+    () => ({ notifications, unreadCount, isLoading, refresh, markAsRead, markAllAsRead, remove, pushLocal }),
+    [notifications, unreadCount, isLoading, refresh, markAsRead, markAllAsRead, remove, pushLocal]
+  );
+
+  return <NotificationContext.Provider value={value}>{children}</NotificationContext.Provider>;
 };
 
 export default NotificationProvider;

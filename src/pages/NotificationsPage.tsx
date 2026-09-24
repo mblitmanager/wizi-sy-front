@@ -1,12 +1,12 @@
-import React, { useRef, useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Bell, Check, Trash2 } from "lucide-react";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useUser } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import NotificationListener from "@/components/notifications/NotificationListener";
 import { useNavigate } from "react-router-dom";
 import { AppNotification } from "@/context/NotificationProvider";
 
@@ -138,212 +138,99 @@ const NotificationItem = ({
   );
 };
 
-// Helper to load notifications from sessionStorage
-function loadNotificationsFromSession(): AppNotification[] {
-  try {
-    const data = sessionStorage.getItem('notifications');
-    if (data) return JSON.parse(data);
-  } catch (error) {
-    console.error('Error loading notifications from session:', error);
-  }
-  return [];
-}
-// Helper to save notifications to sessionStorage
-function saveNotificationsToSession(notifs: AppNotification[]) {
-  try {
-    sessionStorage.setItem('notifications', JSON.stringify(notifs));
-  } catch (error) {
-    console.error('Error saving notifications to session:', error);
-  }
+function NotificationListSkeleton() {
+  return (
+    <div className="flex flex-col gap-2" role="status" aria-live="polite">
+      <span className="sr-only">Chargement des notifications…</span>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Skeleton key={i} className="h-24 w-full rounded-2xl" />
+      ))}
+    </div>
+  );
 }
 
-// Page principale
+// Page principale : affiche l'état du NotificationProvider (source unique de vérité)
 export default function NotificationsPage() {
   const { user } = useUser();
-  const {
-    notifications: notificationsFromHook,
-    markAsRead,
-    markAllAsRead,
-    remove,
-  } = useNotifications();
+  const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead, remove } = useNotifications();
 
-  // Load notifications from sessionStorage or from hook
-  const [notifications, setNotifications] = useState<AppNotification[]>(() => {
-    const sessionNotifs = loadNotificationsFromSession();
-    return sessionNotifs.length > 0 ? sessionNotifs : notificationsFromHook;
-  });
+  const sortedNotifications = useMemo(
+    () =>
+      [...notifications].sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      ),
+    [notifications]
+  );
 
-  // Save notifications to sessionStorage on change
-  useEffect(() => {
-    saveNotificationsToSession(notifications);
-  }, [notifications]);
-
-  // Merge notifications from hook and local (Pusher) notifications, deduplicated by id
-  const mergedNotifications = React.useMemo(() => {
-    const map = new Map();
-    [...notificationsFromHook, ...notifications].forEach((n) => {
-      map.set(n.id, { ...n });
-    });
-    // Sort by created_at descending
-    return Array.from(map.values()).sort((a, b) => {
-      const aTime = new Date(a.created_at).getTime();
-      const bTime = new Date(b.created_at).getTime();
-      return bTime - aTime;
-    });
-  }, [notificationsFromHook, notifications]);
-
-  // Compute unread count from merged notifications
-  const unreadCount = React.useMemo(() => mergedNotifications.filter(n => !n.read).length, [mergedNotifications]);
-
-  // Marquer une notification comme lue
-  const handleMarkAsRead = useCallback(
+  // Les notifications visibles à l'écran sont marquées comme lues (une seule fois chacune)
+  const pendingReads = useRef(new Set<string>());
+  const markVisibleAsRead = useCallback(
     (id: number | string) => {
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-      );
-      markAsRead(id);
+      const key = String(id);
+      if (pendingReads.current.has(key)) return;
+      pendingReads.current.add(key);
+      markAsRead(id).catch(() => pendingReads.current.delete(key));
     },
     [markAsRead]
   );
 
-  // Marquer toutes les notifications comme lues
-  const handleMarkAllAsRead = useCallback(() => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-    markAllAsRead();
-  }, [markAllAsRead]);
-
-  // Suppression instantanée
-  const handleDelete = useCallback(
-    (id: number | string) => {
-      setNotifications((prev) => prev.filter((n) => n.id !== id));
-      // call provider remove method
-      remove(id);
-    },
-    [remove]
-  );
-
-  // Tout supprimer
-  const handleDeleteAll = useCallback(() => {
-    // Delete all from local state first
-    const idsToDelete = mergedNotifications.map((n) => n.id);
-    setNotifications([]);
-    // Then delete from backend
-    idsToDelete.forEach((id) => {
-      if (remove) {
-        remove(id);
-      }
-    });
-  }, [remove, mergedNotifications]);
-
-  // Marquer comme lu lors du scroll (IntersectionObserver)
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
   useEffect(() => {
-    const observer = new window.IntersectionObserver(
+    const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const notifId = entry.target.getAttribute("data-id");
-            // Handle both string and number IDs
-            const notif = notifications.find((n) => String(n.id) === notifId);
-            if (notif && !notif.read) {
-              markAsRead(notif.id);
-            }
-          }
+          if (!entry.isIntersecting) return;
+          const notif = notifications.find((n) => String(n.id) === entry.target.getAttribute("data-id"));
+          if (notif && !notif.read) markVisibleAsRead(notif.id);
         });
       },
       { threshold: 0.5 }
     );
-    Object.values(itemRefs.current).forEach((el) => {
-      if (el) observer.observe(el);
-    });
+    Object.values(itemRefs.current).forEach((el) => el && observer.observe(el));
     return () => observer.disconnect();
-  }, [notifications, markAsRead]);
+  }, [notifications, markVisibleAsRead]);
 
-  // Notification push si nouvelle
-  const prevNotifCount = React.useRef(notifications.length);
-  React.useEffect(() => {
-    if (notifications.length > prevNotifCount.current) {
-      const newNotif = notifications.find((n) => !n.read);
-      if (newNotif) {
-        toast(
-          <div className="flex items-center gap-2 bg-orange-400 text-white p-3 rounded">
-            <span>{getNotificationIcon(newNotif.type)}</span>
-            {/* <span className="font-medium">Nouvelle notification :</span> */}
-            <span className="truncate max-w-xs">{newNotif.message}</span>
-          </div>,
-          { duration: 5000 }
-        );
+  const handleMarkAsRead = useCallback((id: number | string) => markVisibleAsRead(id), [markVisibleAsRead]);
 
-        if ("Notification" in window) {
-          if (Notification.permission === "granted") {
-            new Notification("Nouvelle notification", {
-              body: newNotif.message,
-              icon: "/favicon2.ico",
-            });
-          } else if (Notification.permission !== "denied") {
-            Notification.requestPermission().then((permission) => {
-              if (permission === "granted") {
-                new Notification("Nouvelle notification", {
-                  body: newNotif.message,
-                  icon: "/favicon2.ico",
-                });
-              }
-            });
-          }
-        }
-      }
+  const handleDelete = useCallback(
+    (id: number | string) => {
+      remove(id).catch(() => toast.error("Suppression impossible"));
+    },
+    [remove]
+  );
+
+  const handleMarkAllAsRead = useCallback(() => {
+    markAllAsRead().catch(() => toast.error("Impossible de tout marquer comme lu"));
+  }, [markAllAsRead]);
+
+  const handleDeleteAll = useCallback(async () => {
+    const results = await Promise.allSettled(notifications.map((n) => remove(n.id)));
+    if (results.some((r) => r.status === "rejected")) {
+      toast.error("Certaines notifications n'ont pas pu être supprimées");
     }
-    prevNotifCount.current = notifications.length;
-  }, [notifications]);
-
-  // Handler to add Pusher notifications to local state (display once, deduplicate with backend)
-  const handlePushNotification = (notif: AppNotification) => {
-    // Check if notification already exists in local or backend/hook notifications
-    const exists = notifications.some((n) => n.id === notif.id) ||
-      notificationsFromHook.some((n) => n.id === notif.id);
-    if (exists) return;
-    // Show toast and browser notification only if new
-    toast(
-      <div className="flex items-center gap-2 bg-orange-400 text-white p-3 rounded">
-        <span>{getNotificationIcon(notif.type)}</span>
-        <span className="truncate max-w-xs">{notif.message}</span>
-      </div>,
-      { duration: 5000 }
-    );
-    if ("Notification" in window && Notification.permission === "granted") {
-      new Notification("Nouvelle notification", {
-        body: notif.message,
-        icon: "/favicon2.ico",
-      });
-    }
-    setNotifications((prev) => [notif, ...prev]);
-  };
+  }, [remove, notifications]);
 
   return (
     <Layout>
-      {/* Listen for Pusher notifications and add to state */}
-      <NotificationListener onPushNotification={handlePushNotification} />
-      <div className="mx-auto px-4 sm:px-6 lg:px-8 py-6 mt-[-15%] md:mt-0">
-        {/* Header sticky */}
-        <div className="sticky top-0 z-10 bg-white border-b border-gray-100 py-3 px-4 mb-6">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* En-tête collé sous le header de l'application */}
+        <div className="sticky top-12 md:top-14 lg:top-16 z-10 bg-white border-b border-gray-100 py-3 px-4 mb-6">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4">
-            <h1 className="text-2xl font-semibold text-brown-shade">
-              Notifications
-            </h1>
+            <h1 className="text-2xl font-semibold text-brown-shade">Notifications</h1>
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <Button
                 variant="outline"
                 onClick={handleMarkAllAsRead}
+                disabled={unreadCount === 0}
                 className="text-sm w-full sm:w-auto">
                 <Check className="h-4 w-4 mr-2" />
                 Tout marquer comme lu
-                {unreadCount > 0 && (
-                  <span className="ml-2 text-xs text-green-600">({unreadCount} non lues)</span>
-                )}
+                {unreadCount > 0 && <span className="ml-2 text-xs text-green-600">({unreadCount} non lues)</span>}
               </Button>
               <Button
                 variant="outline"
                 onClick={handleDeleteAll}
+                disabled={notifications.length === 0}
                 className="text-sm text-red-600 border-red-200 hover:bg-red-50 w-full sm:w-auto">
                 <Trash2 className="h-4 w-4 mr-2" />
                 Tout supprimer
@@ -352,12 +239,13 @@ export default function NotificationsPage() {
           </div>
         </div>
 
-        {/* Contenu notifications */}
-        {mergedNotifications.length === 0 ? (
+        {isLoading ? (
+          <NotificationListSkeleton />
+        ) : sortedNotifications.length === 0 ? (
           <EmptyState />
         ) : (
           <div className="flex flex-col gap-2">
-            {mergedNotifications.map((notification) => (
+            {sortedNotifications.map((notification) => (
               <div
                 key={notification.id}
                 data-id={notification.id}

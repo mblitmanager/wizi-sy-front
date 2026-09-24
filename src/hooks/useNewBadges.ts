@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { api } from "@/lib/api";
 
 interface Achievement {
     id: number | string;
@@ -19,20 +20,9 @@ export function useNewBadges() {
 
     const checkForNewBadges = async () => {
         try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(
-                `${import.meta.env.VITE_API_URL}/stagiaire/achievements`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-
-            if (!response.ok) return;
-
-            const badges: Achievement[] = await response.json();
+            const res = await api.get("/stagiaire/achievements");
+            const list = res.data?.achievements ?? res.data;
+            const badges: Achievement[] = Array.isArray(list) ? list : [];
 
             // Filtrer les badges débloqués aujourd'hui
             const today = new Date();

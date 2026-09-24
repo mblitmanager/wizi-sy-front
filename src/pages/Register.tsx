@@ -1,4 +1,3 @@
-import { Layout } from "@/components/layout/Layout";
 import {
   Card,
   CardContent,
@@ -9,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Link, Navigate } from "react-router-dom";
 import { useUser } from "@/hooks/useAuth";
+import { PublicAuthShell } from "@/components/auth/PublicAuthShell";
 
 const Register = () => {
   const { user } = useUser();
@@ -19,8 +19,8 @@ const Register = () => {
   }
 
   return (
-    <Layout>
-      <div className="max-w-md mx-auto px-4 py-16">
+    <PublicAuthShell eyebrow="ACCÈS À LA FORMATION" title="Votre parcours commence avec le bon accès.">
+      <div className="max-w-md mx-auto">
         <Card>
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">
@@ -42,7 +42,7 @@ const Register = () => {
           </CardContent>
         </Card>
       </div>
-    </Layout>
+    </PublicAuthShell>
   );
 };
 

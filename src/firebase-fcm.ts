@@ -1,8 +1,16 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { initializeApp } from "firebase/app";
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import {
+  getMessaging,
+  getToken,
+  isSupported,
+  Messaging,
+  MessagePayload,
+  onMessage,
+} from "firebase/messaging";
+import { isAxiosError } from "axios";
+import { api } from "@/lib/api";
 
-// Define the Firebase config object
 const firebaseConfig = {
   apiKey: "AIzaSyAAAaZVClNlMXgTktyjUg8lhLG5zSue4YY",
   authDomain: "wizi-learn.firebaseapp.com",
@@ -13,107 +21,98 @@ const firebaseConfig = {
   measurementId: "G-K9Z9J0CQM7",
 };
 
-const app = initializeApp(firebaseConfig);
-const messaging = getMessaging(app);
+let messagingPromise: Promise<Messaging | null> | null = null;
 
-import { api } from "./services/api";
+/**
+ * Firebase Messaging n'existe pas partout (Safari iOS hors PWA, navigation privée...).
+ * `getMessaging()` lève dans ce cas : on ne l'appelle qu'après `isSupported()`.
+ */
+export function getMessagingSafe(): Promise<Messaging | null> {
+  if (!messagingPromise) {
+    messagingPromise = isSupported()
+      .then((supported) => (supported ? getMessaging(initializeApp(firebaseConfig)) : null))
+      .catch(() => null);
+  }
+  return messagingPromise;
+}
 
+async function sendFcmTokenToBackend(fcmToken: string) {
+  try {
+    await api.post("/notifications/fcm-token", { token: fcmToken });
+  } catch (err) {
+    // Ancien endpoint encore utilisé par certaines versions du backend
+    if (isAxiosError(err) && err.response?.status === 404) {
+      await api.post("/fcm-token", { token: fcmToken });
+    } else {
+      throw err;
+    }
+  }
+}
+
+/** Enregistre le token FCM du navigateur dès qu'une session utilisateur existe. */
 export function useFcmToken(userToken: string | null) {
   useEffect(() => {
-    async function registerFcmToken() {
-      if (!userToken) return;
+    if (!userToken || !("Notification" in window)) return;
 
-      // Check if browser supports notifications
-      if (!("Notification" in window)) {
-        console.warn("Notifications are not supported by this browser.");
-        return;
-      }
-
+    (async () => {
+      const messaging = await getMessagingSafe();
+      if (!messaging) return;
       try {
-        const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
-        const fcmToken = await getToken(messaging, { vapidKey });
-
-        if (fcmToken) {
-          console.log("FCM Token retrieved:", fcmToken);
-          const response = await api.post("/notifications/fcm-token", {
-            token: fcmToken,
-          });
-          console.log("FCM Token registration response:", response.data);
-        }
+        // getToken demande la permission si elle n'a pas encore été accordée
+        const fcmToken = await getToken(messaging, {
+          vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+        });
+        if (fcmToken) await sendFcmTokenToBackend(fcmToken);
       } catch (err) {
-        if (err instanceof Error && err.name === "AbortError") {
-          console.warn(
-            "FCM registration aborted: push service error (check browser settings or SSL)."
-          );
-        } else {
-          console.error("Erreur FCM", err);
-        }
+        console.warn("Enregistrement FCM impossible :", err);
       }
-    }
-    registerFcmToken();
+    })();
   }, [userToken]);
 }
 
-export function useOnMessage() {
-  useEffect(() => {
-    onMessage(messaging, (payload) => {
-      // Affichez une notification formatée similaire au mobile
-      const title = payload.notification?.title || "Notification";
-      const body = payload.notification?.body || "";
-      const icon = "/favicon2.ico";
-      const image = payload.data?.image || payload.notification?.image;
-      const data = payload.data || {};
+/** Abonnement unique aux messages reçus quand l'application est au premier plan. */
+export function useForegroundMessages(handler: (payload: MessagePayload) => void) {
+  const handlerRef = useRef(handler);
+  handlerRef.current = handler;
 
-      // Try to use the service worker to show the notification (keeps it in the notification center)
-      if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
-        navigator.serviceWorker
-          .getRegistration()
-          .then((reg) => {
-            if (reg && reg.showNotification) {
-              reg.showNotification(title, {
-                body,
-                icon,
-                badge: "/favicon2.ico",
-                // cast to any to allow non-standard image field in some browsers/types
-                image,
-                data: Object.assign({}, data, { link: data.link || "/" }),
-              } as any);
-              return;
-            }
-            // Fallback to Notification API
-            new Notification(title, {
-              body,
-              icon,
-              data: Object.assign({}, data, { link: data.link || "/" }),
-            } as any);
-          })
-          .catch((err) => {
-            console.error("Erreur en affichant la notification via SW:", err);
-            try {
-              new Notification(title, {
-                body,
-                icon,
-                data: Object.assign({}, data, { link: data.link || "/" }),
-              } as any);
-            } catch (e) {
-              console.error("Notification API failed:", e);
-            }
-          });
-      } else {
-        try {
-          new Notification(title, {
-            body,
-            icon,
-            data: Object.assign({}, data, { link: data.link || "/" }),
-          });
-        } catch (e) {
-          console.error("Notification API failed (no SW):", e);
-          // As a last resort, update the UI; keep as simple alert for now
-          alert(title + "\n" + body);
-        }
-      }
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    let cancelled = false;
+
+    getMessagingSafe().then((messaging) => {
+      if (!messaging || cancelled) return;
+      unsubscribe = onMessage(messaging, (payload) => handlerRef.current(payload));
     });
+
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
   }, []);
 }
 
-export { messaging, getToken, onMessage };
+/** Affiche une notification système (utilisé quand l'onglet n'est pas visible). */
+export async function showSystemNotification(payload: MessagePayload) {
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+
+  const title = payload.notification?.title || "Notification";
+  const data = payload.data || {};
+  const options = {
+    body: payload.notification?.body || "",
+    icon: "/favicon2.ico",
+    badge: "/favicon2.ico",
+    image: data.image || payload.notification?.image,
+    data: { ...data, link: data.link || "/" },
+  } as NotificationOptions;
+
+  try {
+    const registration = await navigator.serviceWorker?.getRegistration();
+    if (registration) {
+      await registration.showNotification(title, options);
+      return;
+    }
+    new Notification(title, options);
+  } catch (err) {
+    console.warn("Affichage de la notification impossible :", err);
+  }
+}

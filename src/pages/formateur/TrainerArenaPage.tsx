@@ -65,11 +65,6 @@ export function TrainerArenaPage() {
                     period,
                     formation_id: selectedFormationId === 'all' ? undefined : selectedFormationId
                 },
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache',
-                    'Expires': '0',
-                }
             });
             setRanking(response.data || []);
             // Auto-expand the current user's card if found
@@ -87,13 +82,7 @@ export function TrainerArenaPage() {
     useEffect(() => {
         const fetchFormations = async () => {
             try {
-                const response = await api.get('/formateur/formations', {
-                    headers: {
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache',
-                        'Expires': '0',
-                    }
-                });
+                const response = await api.get('/formateur/formations');
                 setFormations(response.data?.formations || []);
             } catch (err) {
                 console.error('Erreur chargement formations:', err);
@@ -113,7 +102,7 @@ export function TrainerArenaPage() {
     if (loading && ranking.length === 0) {
         return (
             <Layout>
-                <div className="min-h-screen bg-slate-50/50 flex flex-col items-center justify-center p-4">
+                <div className="min-h-[60vh] flex flex-col items-center justify-center p-4">
                     <motion.div 
                         animate={{ rotate: 360 }}
                         transition={{ duration: 2, repeat: Infinity, ease: "linear" }}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import apiClient from "@/lib/api-client";
+import { api } from "@/lib/api";
 
 interface UnfinishedQuizSession {
   quizId: string;
@@ -21,7 +21,7 @@ export const useResumeQuiz = () => {
     queryKey: ["quiz", unfinishedQuiz?.quizId],
     queryFn: async () => {
       if (!unfinishedQuiz?.quizId) return null;
-      const response = await apiClient.get(`/quizzes/${unfinishedQuiz.quizId}`);
+      const response = await api.get(`/quizzes/${unfinishedQuiz.quizId}`);
       return response.data;
     },
     enabled: !!unfinishedQuiz?.quizId,
@@ -56,7 +56,7 @@ export const useResumeQuiz = () => {
               const quizId = key.replace("quiz_session_", "");
 
               // Send progress to API (server will create/update participation)
-              await apiClient.post(`/quiz/${quizId}/participation/progress`, {
+              await api.post(`/quiz/${quizId}/participation/progress`, {
                 questionIds: session.questionIds || [],
                 answers: session.answers || {},
                 currentIndex: session.currentIndex || 0,
@@ -79,7 +79,7 @@ export const useResumeQuiz = () => {
           const quizId = lastKey.replace("quiz_session_", "");
 
           try {
-            const resp = await apiClient.get(
+            const resp = await api.get(
               `/quiz/${quizId}/participation/resume`
             );
             const data = resp?.data || resp;

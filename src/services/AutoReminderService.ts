@@ -1,6 +1,5 @@
-import axios from "axios";
+import { api } from "@/lib/api";
 
-const API_URL = import.meta.env.VITE_API_URL || "/api";
 
 export interface ReminderStats {
     formation: Record<string, number>;
@@ -42,38 +41,22 @@ export interface TargetedUser {
 
 const AutoReminderService = {
     getStats: async (): Promise<ReminderStats> => {
-        const response = await axios.get(`${API_URL}/auto-reminders/stats`, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-        });
+        const response = await api.get(`/auto-reminders/stats`);
         return response.data;
     },
 
     getHistory: async (page = 1): Promise<PaginatedResponse<ReminderHistoryItem>> => {
-        const response = await axios.get(`${API_URL}/auto-reminders/history?page=${page}`, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-        });
+        const response = await api.get(`/auto-reminders/history?page=${page}`);
         return response.data;
     },
 
     runManualReminders: async (): Promise<{ message: string; output: string }> => {
-        const response = await axios.post(`${API_URL}/auto-reminders/run`, {}, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-        });
+        const response = await api.post(`/auto-reminders/run`, {});
         return response.data;
     },
 
     getTargeted: async (): Promise<TargetedUser[]> => {
-        const response = await axios.get(`${API_URL}/auto-reminders/targeted`, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-        });
+        const response = await api.get(`/auto-reminders/targeted`);
         return response.data;
     },
 };

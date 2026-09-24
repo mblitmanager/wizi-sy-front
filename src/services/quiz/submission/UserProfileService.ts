@@ -1,5 +1,5 @@
 
-import apiClient from '@/lib/api-client';
+import { api } from "@/lib/api";
 
 interface UserProfile {
   user: {
@@ -32,7 +32,7 @@ interface UserProfile {
 export class UserProfileService {
   async getStagiaireProfile(): Promise<UserProfile> {
     try {
-      const response = await apiClient.get('/me');
+      const response = await api.get('/me');
       return response.data;
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -42,7 +42,7 @@ export class UserProfileService {
 
   async getStagiaireQuizzes(): Promise<any[]> {
     try {
-      const response = await apiClient.get('/quiz/categories');
+      const response = await api.get('/quiz/categories');
       return response.data;
     } catch (error) {
       console.error('Error fetching stagiaire quizzes:', error);

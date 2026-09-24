@@ -1,117 +1,18 @@
-import React, { useEffect, useState, useMemo } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Mail, Phone, User } from "lucide-react";
-import { contactService } from "@/services/ContactService";
 import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
-import { CatalogueFormation } from "@/types/stagiaire";
-import apiClient from "@/lib/api-client";
 import { ContactCard } from "@/components/Contacts/ContactCard";
-import type { Contact } from "@/types/contact";
+import { MEDIA_URL } from "@/lib/api";
+import { useSuggestedFormations } from "@/hooks/queries/useCatalogueQueries";
+import { allContacts, useContactsDirectory, usePartner } from "@/hooks/queries/useContactQueries";
 
-const VITE_API_URL_IMG = import.meta.env.VITE_API_URL_MEDIA;
-
-interface PartnerContact {
-  prenom?: string;
-  nom?: string;
-  fonction?: string;
-  email?: string;
-  tel?: string;
-}
-
-interface PartnerDto {
-  identifiant: string;
-  type: string;
-  adresse: string;
-  ville: string;
-  departement: string;
-  code_postal: string;
-  logo?: string;
-  actif?: boolean;
-  contacts?: PartnerContact[];
-}
+const VITE_API_URL_IMG = MEDIA_URL;
 
 export default function Contact() {
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [partner, setPartner] = useState<PartnerDto | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingPartner, setIsLoadingPartner] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchContacts = async () => {
-      try {
-        setIsLoading(true);
-        const data = await contactService.getContacts();
-        // Fusionne tous les contacts dans un seul tableau pour l'affichage
-        const allContacts = [
-          ...(data.formateurs || []),
-          ...(data.commerciaux || []),
-          ...(data.pole_relation || []),
-          ...(data.pole_sav || []),
-        ];
-        setContacts(allContacts);
-      } catch (error) {
-        console.error("Erreur lors de la récupération des contacts :", error);
-        setError("Impossible de charger les contacts");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchContacts();
-    const fetchPartner = async () => {
-      try {
-        setIsLoadingPartner(true);
-        const data = await contactService.getPartner();
-        setPartner(data);
-      } catch (e) {
-        // silencieux si pas de partenaire
-      } finally {
-        setIsLoadingPartner(false);
-      }
-    };
-    fetchPartner();
-  }, []);
-
-  // Temporary placeholders for catalogue data used by AdCatalogueBlock
-  const [stagiaireCatalogues, setStagiaireCatalogues] = useState<
-    CatalogueFormation[]
-  >([]);
-  const [catalogueData, setCatalogueData] = useState<CatalogueFormation[]>([]);
-
-  // Fetch catalogue data and stagiaire-specific catalogues
-  useEffect(() => {
-    if (!localStorage.getItem("token")) return;
-    let mounted = true;
-    apiClient
-      .get("/catalogueFormations/formations")
-      .then((res) => {
-        if (!mounted) return;
-        const d = res?.data;
-        if (Array.isArray(d)) setCatalogueData(d);
-        else if (d && Array.isArray(d.data)) setCatalogueData(d.data);
-        else setCatalogueData([]);
-      })
-      .catch(() => setCatalogueData([]));
-
-    apiClient
-      .get("/catalogueFormations/stagiaire")
-      .then((res) => {
-        if (!mounted) return;
-        setStagiaireCatalogues(res?.data?.catalogues || []);
-      })
-      .catch(() => setStagiaireCatalogues([]));
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const filteredFormations = useMemo<CatalogueFormation[]>(() => {
-    if (!stagiaireCatalogues.length) return catalogueData;
-    const ids = new Set(stagiaireCatalogues.map((f) => f.id));
-    return catalogueData.filter((f) => !ids.has(f.id));
-  }, [catalogueData, stagiaireCatalogues]);
+  const { data: contacts = [], isLoading, isError } = useContactsDirectory(allContacts);
+  const { data: partner, isLoading: isLoadingPartner } = usePartner();
+  const { suggestions: filteredFormations } = useSuggestedFormations();
+  const error = isError ? "Impossible de charger les contacts" : null;
 
   if (isLoading) {
     return (

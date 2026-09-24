@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { api } from "@/lib/api";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { ScoreDisplay } from '@/components/ui/ScoreDisplay';
@@ -61,20 +62,8 @@ export function StagiaireDetailsModal({ stagiaire, isOpen, onClose }: StagiaireD
         setError(null);
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/stagiaires/${stagiaire.id}/details`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('Erreur lors de la récupération des détails');
-            }
-
-            const data = await response.json();
-            setDetails(data);
+            const res = await api.get(`/stagiaires/${stagiaire.id}/details`);
+            setDetails(res.data);
         } catch (err) {
             console.error('Error fetching stagiaire details:', err);
             setError('Impossible  de charger les détails');

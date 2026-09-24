@@ -1,39 +1,41 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { School, BarChart2, BadgeCheck, ArrowRight } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import {
+    ArrowRight,
+    BarChart3,
+    BadgeCheck,
+    BookOpen,
+    CheckCircle2,
+    ChevronLeft,
+    ChevronRight,
+    GraduationCap,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
-const splash1 = '/assets/splash1.jpeg';
-const splash2 = '/assets/splash2.jpeg';
-const splash3 = '/assets/splash3.jpeg';
 import logonsImg from '@/assets/NS.png';
 import wiziLogo from '@/assets/logo.png';
 
 const slides = [
     {
-        title: 'Apprentissage Mobile',
-        description:
-            'Accédez à des leçons courtes et efficaces où que vous soyez. Optimisez votre temps libre pour développer vos compétences.',
-        image: splash1,
-        icon: School,
-        accent: '#F97316',
+        eyebrow: 'APPRENDRE À SON RYTHME',
+        title: 'Des compétences qui avancent avec vous.',
+        description: 'Des leçons courtes, des quiz utiles et un parcours clair pour transformer chaque moment disponible en progrès concret.',
+        image: '/assets/splash1.jpeg',
+        icon: BookOpen,
         tag: '01',
     },
     {
-        title: 'Suivi de Progrès',
-        description:
-            'Visualisez votre évolution avec des statistiques détaillées et des récompenses motivantes pour maintenir votre engagement.',
-        image: splash2,
-        icon: BarChart2,
-        accent: '#F97316',
+        eyebrow: 'MESURER SES PROGRÈS',
+        title: 'Voyez vos progrès prendre forme.',
+        description: 'Suivez vos résultats, identifiez vos points forts et gardez le cap grâce à des objectifs visibles et motivants.',
+        image: '/assets/splash2.jpeg',
+        icon: BarChart3,
         tag: '02',
     },
     {
-        title: 'Contenu Expert',
-        description:
-            'Bénéficiez de contenus créés par des experts pour maximiser votre apprentissage et atteindre vos objectifs rapidement.',
-        image: splash3,
+        eyebrow: 'APPRENDRE AVEC CONFIANCE',
+        title: 'Un contenu pensé pour réussir.',
+        description: 'Des ressources sélectionnées par des experts pour développer des compétences professionnelles durables.',
+        image: '/assets/splash3.jpeg',
         icon: BadgeCheck,
-        accent: '#F97316',
         tag: '03',
     },
 ];
@@ -41,362 +43,104 @@ const slides = [
 export default function OnboardingCarousel() {
     const navigate = useNavigate();
     const [current, setCurrent] = useState(0);
-    const [animating, setAnimating] = useState(false);
-    const [direction, setDirection] = useState('next');
-    const [visible, setVisible] = useState(true);
-    const timeoutRef = useRef(null);
+    const [isChanging, setIsChanging] = useState(false);
+    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const slide = slides[current];
+    const Icon = slide.icon;
 
-    useEffect(() => {
-        const seen = localStorage.getItem('hasSeenOnboarding');
-        if (seen === 'true') return;
+    useEffect(() => () => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
     }, []);
-
-    const goTo = (idx, dir = 'next') => {
-        if (animating) return;
-        setDirection(dir);
-        setAnimating(true);
-        setVisible(false);
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = setTimeout(() => {
-            setCurrent(idx);
-            setVisible(true);
-            setAnimating(false);
-        }, 260);
-    };
-
-    const goNext = () => {
-        if (current < slides.length - 1) goTo(current + 1, 'next');
-        else finishOnboarding();
-    };
 
     const finishOnboarding = () => {
         localStorage.setItem('hasSeenOnboarding', 'true');
-        try {
-            navigate('/login');
-        } catch (_) {
-            window.location.href = '/login';
-        }
+        navigate('/login');
     };
 
-    const slide = slides[current];
-    const Icon = slide.icon;
-    const isLast = current === slides.length - 1;
+    const goTo = (index: number) => {
+        if (isChanging || index === current) return;
+        setIsChanging(true);
+        timeoutRef.current = setTimeout(() => {
+            setCurrent(index);
+            setIsChanging(false);
+        }, 180);
+    };
+
+    const goNext = () => {
+        if (current === slides.length - 1) finishOnboarding();
+        else goTo(current + 1);
+    };
+
+    const goPrevious = () => goTo(current === 0 ? slides.length - 1 : current - 1);
 
     return (
-        <div
-            style={{
-                minHeight: '100dvh',
-                background: '#FAFAF8',
-                display: 'flex',
-                flexDirection: 'column',
-                fontFamily: "'Instrument Sans', 'DM Sans', system-ui, sans-serif",
-            }}
-        >
-            {/* Google Font */}
+        <section className="landing-hero relative overflow-hidden">
             <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap');
+                .landing-hero { background: radial-gradient(circle at 8% 18%, rgba(246,196,84,.22), transparent 28%), linear-gradient(135deg, #eaf2f0 0%, #f7f4eb 100%); }
+                .landing-hero-card { animation: landingCardIn .65s cubic-bezier(.22,1,.36,1) both; }
+                @keyframes landingCardIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+                .landing-image { transition: transform .8s cubic-bezier(.22,1,.36,1); }
+                .landing-hero-card:hover .landing-image { transform: scale(1.035); }
+                @media (max-width: 767px) { .landing-hero-card { grid-template-columns: 1fr !important; } }
+                @media (prefers-reduced-motion: reduce) { .landing-hero-card, .landing-image { animation: none; transition: none; } }
+            `}</style>
 
-        .onb-slide-enter {
-          animation: slideIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
-        .onb-slide-exit {
-          animation: slideOut 0.26s cubic-bezier(0.4, 0, 1, 1) forwards;
-        }
-        @keyframes slideIn {
-          from { opacity: 0; transform: translateY(14px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes slideOut {
-          from { opacity: 1; transform: translateY(0); }
-          to   { opacity: 0; transform: translateY(-10px); }
-        }
-        .onb-img-zoom {
-          transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .onb-img-zoom:hover { transform: scale(1.03); }
-        .onb-next-btn {
-          transition: background 0.18s, transform 0.15s;
-        }
-        .onb-next-btn:hover { background: #1a1a1a !important; }
-        .onb-next-btn:active { transform: scale(0.97); }
-        .onb-login-btn {
-          transition: background 0.18s, color 0.18s;
-        }
-        .onb-login-btn:hover { background: #FFF0E6 !important; }
-        .onb-dot {
-          transition: width 0.3s cubic-bezier(0.22,1,0.36,1), background 0.3s;
-        }
-        .onb-step {
-          transition: opacity 0.2s, transform 0.2s;
-          cursor: pointer;
-        }
-        .onb-step:hover { opacity: 0.7; }
-      `}</style>
-
-            {/* Header */}
-            <header
-                style={{
-                    padding: '20px 32px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    borderBottom: '1px solid rgba(0,0,0,0.10)',
-                    background: '#fff',
-                    boxShadow: '0 1px 0 rgba(0,0,0,0.06)',
-                    flexShrink: 0,
-                    zIndex: 10,
-                }}
-            >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-                    <img
-                        src={logonsImg}
-                        alt="NS Conseil"
-                        style={{ height: 36, width: 'auto', opacity: 0.92 }}
-                    />
-                    <div style={{ width: 1, height: 28, background: 'rgba(0,0,0,0.12)' }} />
-                    <img src={wiziLogo} alt="Wizi Learn" style={{ height: 28, width: 'auto' }} />
+            <header className="relative z-10 border-b border-[#cbded9] bg-[#fbfaf6]/85 backdrop-blur-md">
+                <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8 lg:px-12">
+                    <div className="flex items-center gap-3 sm:gap-5">
+                        <img src={logonsImg} alt="NS Conseil" className="h-9 w-auto sm:h-10" />
+                        <span className="h-8 w-px bg-[#cbded9]" />
+                        <img src={wiziLogo} alt="Wizi Learn" className="h-9 w-auto sm:h-9" />
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <span className="hidden text-xs font-semibold uppercase tracking-[0.16em] text-[#6a8587] sm:block">Plateforme de formation</span>
+                        <button onClick={finishOnboarding} className="text-sm font-semibold text-[#173f46] transition hover:text-[#b47700]">Passer</button>
+                    </div>
                 </div>
-
-                <button
-                    onClick={finishOnboarding}
-                    style={{
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        fontSize: 13,
-                        color: '#999',
-                        fontFamily: 'inherit',
-                        letterSpacing: '0.02em',
-                        padding: '6px 0',
-                    }}
-                >
-                    Passer
-                </button>
             </header>
 
-            {/* Main */}
-            <main
-                style={{
-                    flex: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '40px 24px',
-                }}
-            >
-                <div style={{ width: '100%', maxWidth: 860 }}>
-                    {/* Progress line */}
-                    <div style={{ display: 'flex', gap: 6, marginBottom: 40 }}>
-                        {slides.map((_, i) => (
-                            <button
-                                key={i}
-                                className="onb-step"
-                                onClick={() => goTo(i, i > current ? 'next' : 'prev')}
-                                style={{
-                                    flex: 1,
-                                    height: 3,
-                                    background: i <= current ? '#111' : '#E0DDD6',
-                                    border: 'none',
-                                    padding: 0,
-                                    borderRadius: 2,
-                                    cursor: 'pointer',
-                                }}
-                                aria-label={`Aller à l'étape ${i + 1}`}
-                            />
-                        ))}
+            <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-10 sm:px-8 sm:pt-14 lg:px-12 lg:pb-24 lg:pt-20">
+                <div className="mb-7 flex items-end justify-between gap-4">
+                    <div>
+                        <p className="mb-2 text-xs font-bold tracking-[0.2em] text-[#b47700]">VOTRE PARCOURS COMMENCE ICI</p>
+                        <p className="max-w-xl text-sm leading-6 text-[#526b70] sm:text-base">Une expérience d’apprentissage simple, concrète et conçue pour vous faire progresser.</p>
                     </div>
+                    <div className="hidden items-center gap-2 text-sm font-semibold text-[#173f46] sm:flex"><GraduationCap className="h-5 w-5 text-[#d18a00]" /> Apprendre autrement</div>
+                </div>
 
-                    {/* Card */}
-                    <div
-                        style={{
-                            background: '#fff',
-                            borderRadius: 20,
-                            border: '1px solid rgba(0,0,0,0.07)',
-                            overflow: 'hidden',
-                            display: 'grid',
-                            gridTemplateColumns: '1fr 1fr',
-                            minHeight: 420,
-                        }}
-                    >
-                        {/* Left — Image */}
-                        <div
-                            style={{
-                                position: 'relative',
-                                overflow: 'hidden',
-                                background: '#F0EDE6',
-                            }}
-                        >
-                            <div
-                                className={visible ? 'onb-slide-enter' : 'onb-slide-exit'}
-                                style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    position: 'absolute',
-                                    inset: 0,
-                                }}
-                            >
-                                <img
-                                    className="onb-img-zoom"
-                                    src={slide.image}
-                                    alt={slide.title}
-                                    style={{
-                                        width: '100%',
-                                        height: '100%',
-                                        objectFit: 'cover',
-                                        display: 'block',
-                                    }}
-                                />
-                            </div>
+                <div className="mb-5 h-1.5 overflow-hidden rounded-full bg-[#d5e4e0]">
+                    <div className="h-full rounded-full bg-[#173f46] transition-all duration-500" style={{ width: `${((current + 1) / slides.length) * 100}%` }} />
+                </div>
 
-                            {/* Tag number overlay */}
-                            <div
-                                style={{
-                                    position: 'absolute',
-                                    top: 20,
-                                    left: 20,
-                                    background: 'rgba(255,255,255,0.92)',
-                                    backdropFilter: 'blur(8px)',
-                                    borderRadius: 8,
-                                    padding: '6px 12px',
-                                    fontSize: 11,
-                                    fontWeight: 600,
-                                    letterSpacing: '0.12em',
-                                    color: '#111',
-                                }}
-                            >
-                                {slide.tag} / {String(slides.length).padStart(2, '0')}
-                            </div>
-                        </div>
-
-                        {/* Right — Content */}
-                        <div
-                            style={{
-                                padding: '48px 44px',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'space-between',
-                            }}
-                        >
-                            <div className={visible ? 'onb-slide-enter' : 'onb-slide-exit'}>
-                                {/* Icon */}
-                                <div
-                                    style={{
-                                        width: 48,
-                                        height: 48,
-                                        borderRadius: 12,
-                                        background: '#FFF4EC',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        marginBottom: 28,
-                                    }}
-                                >
-                                    <Icon size={22} color="#F97316" strokeWidth={1.8} />
-                                </div>
-
-                                {/* Title */}
-                                <h2
-                                    style={{
-                                        fontSize: 28,
-                                        fontWeight: 600,
-                                        color: '#111',
-                                        margin: '0 0 14px',
-                                        lineHeight: 1.2,
-                                        fontFamily: "'Instrument Serif', Georgia, serif",
-                                        fontStyle: 'italic',
-                                    }}
-                                >
-                                    {slide.title}
-                                </h2>
-
-                                {/* Description */}
-                                <p
-                                    style={{
-                                        fontSize: 15,
-                                        color: '#6B6860',
-                                        lineHeight: 1.65,
-                                        margin: 0,
-                                    }}
-                                >
-                                    {slide.description}
-                                </p>
-                            </div>
-
-                            {/* Actions */}
-                            <div style={{ marginTop: 40 }}>
-                                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                                    <button
-                                        className="onb-next-btn"
-                                        onClick={goNext}
-                                        style={{
-                                            background: '#111',
-                                            color: '#fff',
-                                            border: 'none',
-                                            borderRadius: 10,
-                                            padding: '13px 24px',
-                                            fontSize: 14,
-                                            fontWeight: 500,
-                                            cursor: 'pointer',
-                                            fontFamily: 'inherit',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: 8,
-                                            letterSpacing: '0.01em',
-                                        }}
-                                    >
-                                        {isLast ? 'Se connecter' : 'Continuer'}
-                                        <ArrowRight size={16} strokeWidth={2} />
-                                    </button>
-
-                                    {!isLast && (
-                                        <button
-                                            className="onb-login-btn"
-                                            onClick={finishOnboarding}
-                                            style={{
-                                                background: 'transparent',
-                                                color: '#F97316',
-                                                border: '1.5px solid #FDDCBE',
-                                                borderRadius: 10,
-                                                padding: '12px 20px',
-                                                fontSize: 14,
-                                                fontWeight: 500,
-                                                cursor: 'pointer',
-                                                fontFamily: 'inherit',
-                                                letterSpacing: '0.01em',
-                                            }}
-                                        >
-                                            Se connecter
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
+                <div className="landing-hero-card grid min-h-[520px] overflow-hidden rounded-[2rem] border border-[#cbded9] bg-[#fbfaf6] shadow-[0_28px_70px_rgba(23,63,70,.16)] md:grid-cols-[1.12fr_.88fr]">
+                    <div className="relative min-h-[300px] overflow-hidden bg-[#dceae6] md:min-h-0">
+                        <img src={slide.image} alt={slide.title} className="landing-image absolute inset-0 h-full w-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#173f46]/75 via-transparent to-transparent" />
+                        <div className="absolute left-5 top-5 rounded-lg bg-[#fbfaf6]/90 px-3 py-2 text-xs font-bold tracking-[0.16em] text-[#173f46]">{slide.tag} / 03</div>
+                        <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between gap-4 text-white sm:bottom-8 sm:left-8 sm:right-8">
+                            <div><p className="mb-1 text-xs font-bold tracking-[0.18em] text-[#f6c454]">WIZI LEARN</p><p className="text-sm font-medium text-white/90">Développez vos compétences professionnelles.</p></div>
+                            <div className="hidden rounded-xl border border-white/25 bg-white/10 p-3 backdrop-blur-sm sm:block"><CheckCircle2 className="h-6 w-6 text-[#f6c454]" /></div>
                         </div>
                     </div>
 
-                    {/* Dots */}
-                    <div
-                        style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 28 }}
-                    >
-                        {slides.map((_, i) => (
-                            <button
-                                key={i}
-                                className="onb-dot"
-                                onClick={() => goTo(i, i > current ? 'next' : 'prev')}
-                                style={{
-                                    width: i === current ? 24 : 8,
-                                    height: 8,
-                                    borderRadius: 4,
-                                    background: i === current ? '#111' : '#D5D2CB',
-                                    border: 'none',
-                                    padding: 0,
-                                    cursor: 'pointer',
-                                }}
-                                aria-label={`Slide ${i + 1}`}
-                            />
-                        ))}
+                    <div className={`flex flex-col justify-between px-7 py-9 transition-opacity duration-200 sm:px-10 sm:py-12 lg:px-14 ${isChanging ? 'opacity-0' : 'opacity-100'}`}>
+                        <div>
+                            <div className="mb-8 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#fff1d2] text-[#d18a00]"><Icon className="h-7 w-7" strokeWidth={1.8} /></div>
+                            <p className="mb-3 text-xs font-bold tracking-[0.2em] text-[#b47700]">{slide.eyebrow}</p>
+                            <h1 className="max-w-lg font-poppins text-3xl font-semibold leading-tight text-[#173f46] sm:text-4xl lg:text-[2.75rem]">{slide.title}</h1>
+                            <p className="mt-5 max-w-lg text-base leading-7 text-[#526b70]">{slide.description}</p>
+                        </div>
+                        <div className="mt-10 flex flex-wrap items-center gap-3">
+                            <button onClick={goNext} className="inline-flex h-12 items-center gap-3 rounded-xl bg-[#173f46] px-5 text-sm font-bold text-white shadow-lg shadow-[#173f46]/20 transition hover:bg-[#245963]">{current === slides.length - 1 ? 'Accéder à la plateforme' : 'Découvrir le parcours'}<ArrowRight className="h-4 w-4" /></button>
+                            {current < slides.length - 1 && <button onClick={finishOnboarding} className="h-12 rounded-xl border border-[#e8c978] px-5 text-sm font-semibold text-[#b47700] transition hover:bg-[#fff4dc]">Se connecter</button>}
+                        </div>
                     </div>
                 </div>
-            </main>
-        </div>
+
+                <div className="mt-6 flex justify-end">
+                    <div className="flex gap-2"><button onClick={goPrevious} aria-label="Étape précédente" className="rounded-full border border-[#cbded9] bg-[#fbfaf6] p-2 text-[#173f46] transition hover:bg-[#fff4dc]"><ChevronLeft className="h-4 w-4" /></button><button onClick={goNext} aria-label="Étape suivante" className="rounded-full border border-[#cbded9] bg-[#fbfaf6] p-2 text-[#173f46] transition hover:bg-[#fff4dc]"><ChevronRight className="h-4 w-4" /></button></div>
+                </div>
+            </div>
+        </section>
     );
 }

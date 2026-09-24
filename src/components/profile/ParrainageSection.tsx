@@ -15,7 +15,8 @@ import image from "../../assets/plan.png";
 import { useUser } from "@/hooks/useAuth";
 import { FORMATIONMETADATA } from "@/utils/constants";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
+import { isAxiosError } from "axios";
+import { api } from "@/lib/api";
 
 interface FormData {
   civilite: string;
@@ -91,7 +92,12 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
   );
 };
 
-const ParrainageSection = () => {
+interface ParrainageSectionProps {
+  /** Appelé après l'inscription réussie d'un filleul. */
+  onParrainageSuccess?: () => void;
+}
+
+const ParrainageSection = ({ onParrainageSuccess }: ParrainageSectionProps) => {
   const [formData, setFormData] = useState<FormData>({
     civilite: "M",
     prenom: "",
@@ -142,22 +148,15 @@ const ParrainageSection = () => {
         date_demande: new Date().toISOString(),
       };
 
-      const response = await fetch(`${API_URL}/parrainage/register-filleul`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (data.errors) {
+      try {
+        await api.post("/parrainage/register-filleul", payload);
+      } catch (err) {
+        const data = isAxiosError(err) ? err.response?.data : undefined;
+        if (data?.errors) {
           setErrors(data.errors);
           throw new Error("Veuillez corriger les erreurs dans le formulaire");
         }
-        throw new Error(data.message || "Erreur lors de l'inscription");
+        throw new Error(data?.message || "Erreur lors de l'inscription");
       }
 
       // Stocker le nom du filleul pour le modal
@@ -180,6 +179,7 @@ const ParrainageSection = () => {
 
       // Afficher le modal de succès
       setShowSuccessModal(true);
+      onParrainageSuccess?.();
 
       toast({
         title: "Succès",
@@ -210,20 +210,20 @@ const ParrainageSection = () => {
   // console.log("Rendering ParrainageSection with user:", user);
   return (
     <>
-      <section className="mb-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row gap-8 mb-8">
+      <section className="mx-auto h-full max-w-7xl px-1 sm:px-2 lg:px-4">
+        <div className="flex h-full flex-col gap-4 lg:flex-row">
           {/* Left Column - Content */}
-          <div className="flex-1 order-2 lg:order-1">
+          <div className="order-2 flex min-w-0 flex-1 flex-col overflow-hidden lg:order-1">
             {/* Header Section */}
-            <div className="mb-8">
-              <div className="flex items-center gap-4 mb-4 lg:hidden">
+            <div className="mb-3">
+              <div className="flex items-center gap-3 mb-2 lg:hidden">
                 <img
                   src={image}
                   alt="Parrainage"
-                  className="w-16 h-16 object-contain rounded-lg"
+                    className="h-12 w-12 rounded-lg object-contain"
                 />
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-800">
+                  <h1 className="text-xl font-bold text-[#173f46]">
                     Programme de parrainage
                   </h1>
                   <p className="text-sm text-gray-600">
@@ -235,22 +235,22 @@ const ParrainageSection = () => {
                 </div>
               </div>
 
-              <h1 className="hidden lg:block text-3xl font-bold text-gray-800 mb-3">
+              <h1 className="hidden text-2xl font-bold text-[#173f46] lg:block">
                 Programme de parrainage
               </h1>
-              <p className="hidden lg:block text-lg text-gray-600 mb-6">
+              <p className="hidden text-sm text-[#526b70] lg:block">
                 Parrainez vos collègues et gagnez{" "}
                 <span className="text-orange-600 font-bold">50 €</span> pour
                 chaque inscription valide.
               </p>
 
-              <div className="bg-gradient-to-r from-wizi-muted/40 to-orange-50 rounded-xl p-6 mb-6 border border-wizi-accent/20">
-                <div className="flex items-start gap-4">
-                  <div className="bg-blue-100 p-3 rounded-full">
-                    <Gift className="h-6 w-6 text-orange-600" />
+              <div className="rounded-xl border border-[#e9c66c] bg-[#fff4d8] p-3">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-lg bg-[#f6c454] p-2">
+                    <Gift className="h-5 w-5 text-[#173f46]" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                    <h3 className="text-sm font-semibold text-[#173f46]">
                       Plus vous parrainez, plus vous gagnez des cartes cadeaux.
                     </h3>
                   </div>
@@ -259,30 +259,43 @@ const ParrainageSection = () => {
             </div>
 
             {/* Section Informations du Parrain */}
-            <div className="mb-6">
-              <Card className="border border-blue-200 rounded-xl shadow-sm">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="bg-blue-100 p-2 rounded-lg">
-                      <User className="h-5 w-5 text-blue-600" />
+            <div className="mb-3">
+              <Card className="rounded-xl border border-[#d3e2de] bg-[#eaf2f0] shadow-none">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-white p-2">
+                      <User className="h-4 w-4 text-[#173f46]" />
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-800">
+                    <h3 className="text-sm font-semibold text-[#173f46]">
                       Votre profil de parrain
                     </h3>
                   </div>
 
                   {/* Nouvelle structure pour éviter le troncage */}
-                  <div className="space-y-4">
-                    {/* Nom et prénom */}
+                  <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                    {/* Prénom */}
                     <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6">
                       <div className="w-full sm:w-32 flex-shrink-0">
-                        <p className="text-sm text-gray-600 font-medium">
-                          Nom et prénom
+                        <p className="text-xs font-medium text-[#6b7773]">
+                          Prénom
                         </p>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-lg font-semibold text-gray-800 break-words">
-                          {user?.stagiaire?.prenom || ""}{" "}
+                        <p className="truncate text-sm font-semibold text-[#173f46]">
+                          {user?.stagiaire?.prenom || ""}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Nom */}
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6">
+                      <div className="w-full sm:w-32 flex-shrink-0">
+                        <p className="text-xs font-medium text-[#6b7773]">
+                          Nom
+                        </p>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="truncate text-sm font-semibold text-[#173f46]">
                           {user?.user?.name?.toLocaleUpperCase() || ""}
                         </p>
                       </div>
@@ -291,13 +304,13 @@ const ParrainageSection = () => {
                     {/* Email - Structure améliorée */}
                     <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6">
                       <div className="w-full sm:w-32 flex-shrink-0">
-                        <p className="text-sm text-gray-600 font-medium">
+                        <p className="text-xs font-medium text-[#6b7773]">
                           Email
                         </p>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-lg font-semibold text-orange-600 break-all whitespace-normal word-wrap break-words">
-                          {user?.user?.email || "Non disponible"}
+                        <p className="truncate text-sm font-semibold text-[#b47700]">
+                          {user?.user?.email || ""}
                         </p>
                       </div>
                     </div>
@@ -307,14 +320,14 @@ const ParrainageSection = () => {
             </div>
 
             {/* Formulaire d'inscription des filleuls */}
-            <div className="mb-8">
-              <Card className="border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="bg-indigo-100 p-2 rounded-lg">
-                      <UserPlus className="h-5 w-5 text-orange-600" />
+            <div className="mb-3 min-h-0 flex-1 overflow-hidden">
+              <Card className="h-full overflow-hidden rounded-xl border border-[#d3e2de] bg-[#fbfaf6] shadow-sm">
+                <CardContent className="h-full overflow-hidden p-4">
+                  <div className="mb-3 flex items-center gap-3">
+                    <div className="rounded-lg bg-[#fff1d2] p-2">
+                      <UserPlus className="h-4 w-4 text-[#b47700]" />
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-800">
+                    <h3 className="text-base font-semibold text-[#173f46]">
                       Inscrire un filleul
                     </h3>
                   </div>
@@ -351,19 +364,19 @@ const ParrainageSection = () => {
                           </div>
                   )} */}
 
-                  <form onSubmit={handleSubmit} className="space-y-6">
+                  <form onSubmit={handleSubmit} className="space-y-3">
                     <input
                       type="hidden"
                       name="parrain_id"
                       value={formData.parrain_id}
                     />
 
-                    <div className="grid grid-cols-1 gap-6">
+                    <div className="grid grid-cols-1 gap-3">
                       {/* Civilité */}
                       <div>
                         <label
                           htmlFor="civilite"
-                          className="block text-sm font-medium text-gray-700 mb-2">
+                          className="mb-1 block text-xs font-semibold text-[#526b70]">
                           Civilité
                         </label>
                         <div className="flex space-x-4">
@@ -382,7 +395,7 @@ const ParrainageSection = () => {
                                 onChange={handleChange}
                                 className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300"
                               />
-                              <span className="ml-2 text-gray-700">
+                              <span className="ml-2 text-xs text-[#526b70]">
                                 {option.label}
                               </span>
                             </label>
@@ -396,12 +409,12 @@ const ParrainageSection = () => {
                       </div>
 
                       {/* Nom et Prénom */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                         {/* Prénom */}
                         <div>
                           <label
                             htmlFor="prenom"
-                            className="block text-sm font-medium text-gray-700 mb-2">
+                            className="mb-1 block text-xs font-semibold text-[#526b70]">
                             Prénom
                           </label>
                           <input
@@ -410,7 +423,7 @@ const ParrainageSection = () => {
                             name="prenom"
                             value={formData.prenom}
                             onChange={handleChange}
-                            className={`block w-full px-4 py-3 rounded-md border shadow-sm focus:ring-orange-500 focus:border-orange-500 ${
+                            className={`block w-full rounded-lg border px-3 py-2 text-sm shadow-sm focus:border-orange-500 focus:ring-orange-500 ${
                               errors.prenom
                                 ? "border-red-300"
                                 : "border-gray-300"
@@ -428,7 +441,7 @@ const ParrainageSection = () => {
                         <div>
                           <label
                             htmlFor="nom"
-                            className="block text-sm font-medium text-gray-700 mb-2">
+                            className="mb-1 block text-xs font-semibold text-[#526b70]">
                             Nom
                           </label>
                           <input
@@ -437,7 +450,7 @@ const ParrainageSection = () => {
                             name="nom"
                             value={formData.nom}
                             onChange={handleChange}
-                            className={`block w-full px-4 py-3 rounded-md border shadow-sm focus:ring-orange-500 focus:border-orange-500 ${
+                            className={`block w-full rounded-lg border px-3 py-2 text-sm shadow-sm focus:border-orange-500 focus:ring-orange-500 ${
                               errors.nom ? "border-red-300" : "border-gray-300"
                             }`}
                             required
@@ -454,7 +467,7 @@ const ParrainageSection = () => {
                       <div>
                         <label
                           htmlFor="telephone"
-                          className="block text-sm font-medium text-gray-700 mb-2">
+                          className="mb-1 block text-xs font-semibold text-[#526b70]">
                           Téléphone
                         </label>
                         <input
@@ -463,7 +476,7 @@ const ParrainageSection = () => {
                           name="telephone"
                           value={formData.telephone}
                           onChange={handleChange}
-                          className={`block w-full px-4 py-3 rounded-md border shadow-sm focus:ring-orange-500 focus:border-orange-500 ${
+                          className={`block w-full rounded-lg border px-3 py-2 text-sm shadow-sm focus:border-orange-500 focus:ring-orange-500 ${
                             errors.telephone
                               ? "border-red-300"
                               : "border-gray-300"
@@ -486,11 +499,11 @@ const ParrainageSection = () => {
                       value={formData.statut}
                     />
 
-                    <div className="pt-2">
+                    <div className="pt-1">
                       <button
                         type="submit"
                         disabled={submitting}
-                        className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition ${
+                        className={`flex w-full items-center justify-center rounded-lg border border-transparent bg-[#173f46] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#245963] focus:outline-none focus:ring-2 focus:ring-orange-500 ${
                           submitting ? "opacity-75 cursor-not-allowed" : ""
                         }`}>
                         {submitting ? (
@@ -525,77 +538,77 @@ const ParrainageSection = () => {
             </div>
 
             {/* How It Works Section */}
-            <Card className="border border-gray-200 rounded-xl shadow-sm bg-gray-50">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-6">
+            <Card className="hidden rounded-xl border border-[#d3e2de] bg-[#eaf2f0] shadow-none xl:block">
+              <CardContent className="p-3">
+                <div className="mb-3 flex items-center gap-3">
                   <div className="bg-wizi-muted p-2 rounded-lg">
                     <ChevronRight className="h-5 w-5 text-wizi-muted" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-800">
+                  <h3 className="text-sm font-semibold text-[#173f46]">
                     Comment ça marche ?
                   </h3>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="flex items-start gap-4">
-                    <div className="bg-blue-50 p-3 rounded-full flex-shrink-0">
-                      <span className="text-orange-600 font-bold text-sm">
+                <div className="grid grid-cols-4 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white">
+                      <span className="text-xs font-bold text-[#b47700]">
                         1
                       </span>
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-800 mb-1 text-sm">
+                      <h4 className="mb-1 text-xs font-semibold text-[#173f46]">
                         Remplissez le formulaire
                       </h4>
-                      <p className="text-gray-600 text-xs">
+                      <p className="text-[11px] leading-4 text-[#6b7773]">
                         Inscrivez la personne avec ses informations.
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4">
-                    <div className="bg-blue-50 p-3 rounded-full flex-shrink-0">
-                      <span className="text-orange-600 font-bold text-sm">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white">
+                      <span className="text-xs font-bold text-[#b47700]">
                         2
                       </span>
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-800 mb-1 text-sm">
+                      <h4 className="mb-1 text-xs font-semibold text-[#173f46]">
                         Contact commercial
                       </h4>
-                      <p className="text-gray-600 text-xs">
+                      <p className="text-[11px] leading-4 text-[#6b7773]">
                         Un commercial le contacte pour ses choix de formation.
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4">
-                    <div className="bg-blue-50 p-3 rounded-full flex-shrink-0">
-                      <span className="text-orange-600 font-bold text-sm">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white">
+                      <span className="text-xs font-bold text-[#b47700]">
                         3
                       </span>
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-800 mb-1 text-sm">
+                      <h4 className="mb-1 text-xs font-semibold text-[#173f46]">
                         Validation des formations
                       </h4>
-                      <p className="text-gray-600 text-xs">
+                      <p className="text-[11px] leading-4 text-[#6b7773]">
                         Le commercial valide les formations choisies.
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4">
-                    <div className="bg-blue-50 p-3 rounded-full flex-shrink-0">
-                      <span className="text-orange-600 font-bold text-sm">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white">
+                      <span className="text-xs font-bold text-[#b47700]">
                         4
                       </span>
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-800 mb-1 text-sm">
+                      <h4 className="mb-1 text-xs font-semibold text-[#173f46]">
                         Récompense de 50 €
                       </h4>
-                      <p className="text-gray-600 text-xs">
+                      <p className="text-[11px] leading-4 text-[#6b7773]">
                         Vous recevez 50 € en carte cadeau pour chaque
                         inscription validée.
                       </p>
@@ -607,13 +620,13 @@ const ParrainageSection = () => {
           </div>
 
           {/* Right Column - Image (Desktop only) */}
-          <div className="hidden lg:block flex-1 order-1 lg:order-2">
-            <div className="sticky top-6">
-              <div className="bg-wizi-muted/60 rounded-2xl p-8 border border-wizi-accent/30 shadow-sm">
+          <div className="order-1 hidden w-[36%] lg:block lg:order-2">
+            <div className="h-full">
+              <div className="flex h-full flex-col justify-center rounded-2xl border border-[#d3e2de] bg-[#eaf2f0] p-5 shadow-sm">
                 <img
                   src={image}
                   alt="Programme de parrainage"
-                  className="w-full h-auto object-contain rounded-lg"
+                  className="h-auto max-h-[42vh] w-full rounded-lg object-contain"
                 />
               </div>
             </div>

@@ -1,8 +1,7 @@
 import React, { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useStagiaireParticipations, useStagiaireQuizzes } from "@/hooks/queries/useQuizQueries";
+import { useQuizHistory } from "@/hooks/queries/useProfileQueries";
 import { useNavigate } from "react-router-dom";
-import { stagiaireQuizService } from "@/services/quiz/StagiaireQuizService";
-import { quizHistoryService } from "@/services/quiz/submission/QuizHistoryService";
 import type { Quiz, QuizHistory } from "@/types/quiz";
 import { Loader2, Lock, ChartSpline, Trophy, ArrowUp } from "lucide-react";
 import { useClassementPoints } from "@/hooks/useClassementPoints";
@@ -187,24 +186,10 @@ export const StagiaireQuizAdventure: React.FC<{
   };
 
   // Récupération des données
-  const { data: quizzes, isLoading: isQuizzesLoading } = useQuery<Quiz[]>({
-    queryKey: ["stagiaire-quizzes-adventure"],
-    queryFn: () => stagiaireQuizService.getStagiaireQuizzes(),
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const { data: participations, isLoading: isParticipationsLoading } = useQuery({
-    queryKey: ["stagiaire-participations-adventure"],
-    queryFn: () => stagiaireQuizService.getStagiaireQuizJoue(),
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const { data: quizHistory, isLoading: isHistoryLoading } = useQuery<QuizHistory[]>({
-    queryKey: ["quiz-history-adventure"],
-    queryFn: () => quizHistoryService.getQuizHistory(),
-    staleTime: 5 * 60 * 1000,
-    enabled: !!localStorage.getItem("token"),
-  });
+  // Mêmes requêtes (et même cache) que la vue liste
+  const { data: quizzes, isLoading: isQuizzesLoading } = useStagiaireQuizzes();
+  const { data: participations, isLoading: isParticipationsLoading } = useStagiaireParticipations();
+  const { data: quizHistory, isLoading: isHistoryLoading } = useQuizHistory();
 
   const isLoading = isQuizzesLoading || isParticipationsLoading || isHistoryLoading;
 

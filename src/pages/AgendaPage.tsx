@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { useQuery } from "@tanstack/react-query";
 import { useUser } from "@/hooks/useAuth";
 import { Calendar, RefreshCw, ExternalLink, MapPin, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { googleCalendarService } from "@/services/googleCalendarService";
+import { api, unwrapList } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -21,24 +22,18 @@ interface AgendaBackendEvent {
   location?: string;
   description?: string;
   htmlLink?: string;
+  html_link?: string;
 }
 
-const API_URL = import.meta.env.VITE_API_URL;
-
 export default function AgendaPage() {
-  const { user } = useUser();
+  const { role } = useUser();
   const { toast } = useToast();
 
   const { data: agendaEventsData, isLoading, refetch, isFetching } = useQuery({
     queryKey: ["agenda", "events", "full"],
     queryFn: async () => {
-      const response = await fetch(`${API_URL}/agendas`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      const data = (await response.json()) as { member?: AgendaBackendEvent[] };
-      return data.member || [];
+      const res = await api.get("/agendas");
+      return unwrapList<AgendaBackendEvent>(res.data);
     },
   });
 
@@ -52,44 +47,22 @@ export default function AgendaPage() {
     htmlLink: e.htmlLink || e.html_link,
   }));
 
+  // Seul l'administrateur voit le bouton : la synchronisation est globale
+  const [isSyncing, setIsSyncing] = useState(false);
   const handleSync = async () => {
+    setIsSyncing(true);
     try {
-      const isAdmin = user?.role === 'admin' || user?.role === 'administrateur';
-      
-      toast({
-        title: "Synchronisation en cours",
-        description: isAdmin ? "Lancement de la synchronisation globale..." : "Connexion à Google Calendar...",
-      });
-
-      if (isAdmin) {
-        // Option 1: Global sync (no auth code needed if refresh tokens exist)
-        // Option 2: Connect account (if they pass an auth code)
-        // For simplicity, if they click "Sync", we try global sync first.
-        // If they want to CONNECT, we might need requestAuthCode.
-        
-        // Let's try global sync first
-        const token = localStorage.getItem("token");
-        await axios.post(`${API_URL}/agendas/sync`, {}, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-      } else {
-        // Non-admins shouldn't really see the button based on user request "seul l'admin fait la synchronisation"
-        // But if they do, we can't let them sync everything.
-        throw new Error("Seul l'administrateur peut lancer la synchronisation.");
-      }
-
+      await api.post("/agendas/sync");
       await refetch();
-      toast({
-        title: "Succès",
-        description: "L'agenda a été synchronisé.",
-      });
+      toast({ title: "Succès", description: "L'agenda a été synchronisé." });
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.message || "La synchronisation a échoué.";
       toast({
         title: "Erreur",
-        description: errorMessage,
+        description: error.response?.data?.message || error.message || "La synchronisation a échoué.",
         variant: "destructive",
       });
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -112,14 +85,14 @@ export default function AgendaPage() {
             </p>
           </div>
           
-          {(user?.role === 'admin' || user?.role === 'administrateur') && (
+          {(role === "admin") && (
             <Button 
               onClick={handleSync} 
-              disabled={isFetching}
+              disabled={isSyncing || isFetching}
               className="bg-brand-primary hover:bg-brand-primary/90 text-white font-bold shadow-lg shadow-brand-primary/20 transition-all active:scale-95"
             >
-              <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
-              {isFetching ? "Synchronisation..." : "Synchroniser maintenant"}
+              <RefreshCw className={`mr-2 h-4 w-4 ${isSyncing || isFetching ? "animate-spin" : ""}`} />
+              {isSyncing ? "Synchronisation..." : "Synchroniser maintenant"}
             </Button>
           )}
         </div>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
-import axios from "axios";
 import { motion } from "framer-motion";
+import { api } from "@/lib/api";
 
 const ContactSupportPage = () => {
   const [form, setForm] = useState({
@@ -50,11 +50,7 @@ const ContactSupportPage = () => {
         formData.append("attachments[]", file);
       });
 
-      await axios.post(`${import.meta.env.VITE_API_URL}/contact`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await api.post("/contact", formData);
 
       setSubmitStatus("success");
       setForm({

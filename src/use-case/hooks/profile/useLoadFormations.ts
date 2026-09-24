@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { catalogueFormationApi } from "@/services/catalogueFormationApi";
+import { useStagiaireCatalogueResponse } from "@/hooks/queries/useCatalogueQueries";
 import type {
   CatalogueFormation,
   CatalogueFormationResponse,
@@ -41,117 +40,97 @@ type FormationCatalogueItem = {
   } | null;
 };
 
-export const useLoadFormations = (stagiaireId: number | null = null) => {
-  const [formations, setFormations] = useState<FormationCatalogueItem[] | null>(
-    null
+/** Normalise la réponse de /catalogueFormations/stagiaire pour l'affichage du profil. */
+function toFormationItems(res: CatalogueFormationResponse): FormationCatalogueItem[] {
+  const wrapped: {
+    catalogue: CatalogueFormation;
+    formation?: StagiaireFormation;
+  }[] = Array.isArray(res.catalogues)
+    ? (res.catalogues as unknown as {
+        catalogue: CatalogueFormation;
+        formation?: StagiaireFormation;
+      }[])
+    : [];
+
+  const singles: CatalogueFormation[] = Array.isArray(res.data)
+    ? res.data
+    : Array.isArray(res.stagiaire?.catalogue_formations)
+    ? (res.stagiaire.catalogue_formations as CatalogueFormation[])
+    : [];
+
+  const listFromWrapped: FormationCatalogueItem[] = wrapped.map(
+    (entry) => {
+      // Certaines réponses renvoient directement la formation, sans wrapper
+      const item = entry.catalogue ?? (entry as unknown as CatalogueFormation);
+      const titre = item.titre;
+      const categorie =
+        entry.formation?.categorie ?? item.formation?.categorie;
+      const description = item.description;
+      const image = item.image_url ?? null;
+      const duree = item.duree != null ? String(item.duree) : "";
+      return {
+        id: item.id,
+        catalogue: {
+          id: item.id,
+          titre,
+          description,
+          image_url: image,
+          duree,
+          certification: item.certification,
+          tarif: item.tarif != null ? String(item.tarif) : "",
+          categorie,
+        },
+        formation: entry.formation ?? item.formation ?? null,
+        titre,
+        categorie,
+        description,
+        image,
+        duree,
+        formateur: null,
+      };
+    }
   );
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadFormations = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const listFromSingles: FormationCatalogueItem[] = singles.map(
+    (item) => {
+      const titre = item.titre;
+      const categorie = item.formation?.categorie;
+      const description = item.description;
+      const image = item.image_url ?? null;
+      const duree = item.duree != null ? String(item.duree) : "";
+      return {
+        id: item.id,
+        catalogue: {
+          id: item.id,
+          titre,
+          description,
+          image_url: image,
+          duree,
+          certification: item.certification,
+          tarif: item.tarif != null ? String(item.tarif) : "",
+          categorie,
+        },
+        formation: item.formation ?? null,
+        titre,
+        categorie,
+        description,
+        image,
+        duree,
+        formateur: null,
+      };
+    }
+  );
 
-        const res: CatalogueFormationResponse =
-          await catalogueFormationApi.getCatalogueFormationStagiaire();
+  return [...listFromWrapped, ...listFromSingles];
+}
 
-        const wrapped: {
-          catalogue: CatalogueFormation;
-          formation?: StagiaireFormation;
-        }[] = Array.isArray(res.catalogues)
-          ? (res.catalogues as unknown as {
-              catalogue: CatalogueFormation;
-              formation?: StagiaireFormation;
-            }[])
-          : [];
-
-        const singles: CatalogueFormation[] = Array.isArray(res.data)
-          ? res.data
-          : Array.isArray(res.stagiaire?.catalogue_formations)
-          ? (res.stagiaire.catalogue_formations as CatalogueFormation[])
-          : [];
-
-        const listFromWrapped: FormationCatalogueItem[] = wrapped.map(
-          (entry) => {
-            const item = entry.catalogue;
-            const titre = item.titre;
-            const categorie =
-              entry.formation?.categorie ?? item.formation?.categorie;
-            const description = item.description;
-            const image = item.image_url ?? null;
-            const duree = item.duree != null ? String(item.duree) : "";
-            return {
-              id: item.id,
-              catalogue: {
-                id: item.id,
-                titre,
-                description,
-                image_url: image,
-                duree,
-                certification: item.certification,
-                tarif: item.tarif != null ? String(item.tarif) : "",
-                categorie,
-              },
-              formation: entry.formation ?? item.formation ?? null,
-              titre,
-              categorie,
-              description,
-              image,
-              duree,
-              formateur: null,
-            };
-          }
-        );
-
-        const listFromSingles: FormationCatalogueItem[] = singles.map(
-          (item) => {
-            const titre = item.titre;
-            const categorie = item.formation?.categorie;
-            const description = item.description;
-            const image = item.image_url ?? null;
-            const duree = item.duree != null ? String(item.duree) : "";
-            return {
-              id: item.id,
-              catalogue: {
-                id: item.id,
-                titre,
-                description,
-                image_url: image,
-                duree,
-                certification: item.certification,
-                tarif: item.tarif != null ? String(item.tarif) : "",
-                categorie,
-              },
-              formation: item.formation ?? null,
-              titre,
-              categorie,
-              description,
-              image,
-              duree,
-              formateur: null,
-            };
-          }
-        );
-
-        const allFormations = [...listFromWrapped, ...listFromSingles];
-        setFormations(allFormations);
-      } catch (err) {
-        console.error("Erreur lors du chargement des formations:", err);
-        setError("Erreur lors du chargement des formations");
-        setFormations([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadFormations();
-  }, []);
+/** Formations suivies par le stagiaire connecté (même requête que le reste de l'app, mise en cache). */
+export const useLoadFormations = ({ enabled = true }: { enabled?: boolean } = {}) => {
+  const { data, isLoading, isError } = useStagiaireCatalogueResponse(toFormationItems, { enabled });
 
   return {
-    formations,
-    loading,
-    error,
+    formations: data ?? (enabled && isLoading ? null : []),
+    loading: enabled && isLoading,
+    error: isError ? "Erreur lors du chargement des formations" : null,
   };
 };

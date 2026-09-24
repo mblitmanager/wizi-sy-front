@@ -1,4 +1,4 @@
-import apiClient from "@/lib/api-client";
+import { api } from "@/lib/api";
 import type { Quiz, QuizHistory, QuizStats } from "@/types/quiz";
 import { quizFormatterService } from "./QuizFormatterService";
 import { categoryService } from "../CategoryService";
@@ -7,7 +7,7 @@ import { quizAnswerService } from "../submission/QuizAnswerService";
 export class QuizFetchService {
   async getQuizzesByCategory(categoryId: string): Promise<Quiz[]> {
     try {
-      const response = await apiClient.get(`/quiz/category/${categoryId}`);
+      const response = await api.get(`/quiz/category/${categoryId}`);
       const quizzes = response.data || [];
       const categories = await categoryService.getCategories();
 
@@ -24,13 +24,13 @@ export class QuizFetchService {
 
   async getQuizById(quizId: string): Promise<Quiz> {
     try {
-      const response = await apiClient.get(`/quiz/${quizId}`);
+      const response = await api.get(`/quiz/${quizId}`);
 
       // Obtenir les questions directement de l'API
       let questions = [];
       try {
         // Essayer de récupérer des questions détaillées via l'endpoint des questions
-        const questionsResponse = await apiClient.get(
+        const questionsResponse = await api.get(
           `/quiz/${quizId}/questions`
         );
         if (questionsResponse.data && questionsResponse.data.data) {
@@ -65,7 +65,7 @@ export class QuizFetchService {
 
       // If the questions endpoint returned playedQuestions, attach them
       try {
-        const questionsResponse = await apiClient.get(`/quiz/${quizId}/questions`);
+        const questionsResponse = await api.get(`/quiz/${quizId}/questions`);
         if (questionsResponse.data && questionsResponse.data.playedQuestions) {
           formattedQuiz.playedQuestions = (questionsResponse.data.playedQuestions || []).map((p: any) => ({
             ...p,

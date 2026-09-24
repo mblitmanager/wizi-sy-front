@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import axios from "axios";
+import { api } from "@/lib/api";
 
 interface DownloadPdfButtonProps {
   formationId: string | number;
@@ -15,27 +15,11 @@ const DownloadPdfButton: React.FC<DownloadPdfButtonProps> = ({
   ) => {
     e.preventDefault();
     setLoading(true);
-    const apiUrl = `${
-      import.meta.env.VITE_API_URL
-    }/catalogueFormations/formations/${formationId}/pdf`;
-    const token = localStorage.getItem("token"); // Retrieve the JWT token from local storage
     try {
-      const lien = await axios.get(apiUrl, {
-        headers: {
-          Authorization: `Bearer ${token}`, // Add the JWT token to the headers
-        },
-      });
+      const lien = await api.get(`/catalogueFormations/formations/${formationId}/pdf`);
       // Récupérer l'URL du PDF depuis la réponse (tableau, premier élément)
       const pdfUrl = lien.data[0];
-      // Solution sans CORS : déclencher le téléchargement via un lien
-      const link = document.createElement("a");
-      link.href = pdfUrl;
-      // link.setAttribute('download', `formation_${formationId}.pdf`);
-      // document.body.appendChild(link);
-      // link.click();
-      // document.body.removeChild(link);
-      window.open(pdfUrl, "_blank");
-      // alert(pdfUrl);
+      window.open(pdfUrl, "_blank", "noopener");
     } catch (error) {
       console.error("Error downloading PDF:", error);
       alert(

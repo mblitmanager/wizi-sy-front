@@ -1,4 +1,4 @@
-import api from "../lib/api-client"; // Make sure this imports your configured api
+import { api } from "@/lib/api";
 
 export const contactService = {
   getCommerciaux: async () => {

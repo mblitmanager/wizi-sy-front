@@ -63,8 +63,8 @@ export function HowItWorks() {
     const target = user ? '/quiz' : '/login';
 
     return (
-        <section className="py-16 md:py-24">
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="border-b border-[#d3e2de] bg-[#f7f4eb] py-20 md:py-28">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <motion.div
                     className="text-center mb-14"
@@ -73,21 +73,21 @@ export function HowItWorks() {
                     variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
                 >
                     <motion.p
-                        className="text-xs font-medium tracking-widest uppercase text-gray-400 mb-3"
+                        className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[#b47700]"
                         variants={slideUp}
                         custom={0}
                     >
                         Fonctionnement
                     </motion.p>
                     <motion.h2
-                        className="text-3xl md:text-4xl font-medium mb-4 bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-wizi-accent"
+                        className="mb-4 font-poppins text-3xl font-semibold text-[#173f46] md:text-4xl"
                         variants={slideUp}
                         custom={1}
                     >
                         Comment ça marche
                     </motion.h2>
                     <motion.p
-                        className="text-gray-500 max-w-lg mx-auto text-base leading-relaxed"
+                        className="mx-auto max-w-lg text-base leading-relaxed text-[#526b70]"
                         variants={slideUp}
                         custom={2}
                     >
@@ -108,7 +108,7 @@ export function HowItWorks() {
                                 aria-label={item.title}
                             >
                                 <motion.div
-                                    className={`h-full flex flex-col border border-gray-100 dark:border-white/10 rounded-xl p-7 bg-white dark:bg-white/5 transition-all duration-250 cursor-pointer ${a.bg}`}
+                                    className={`h-full flex flex-col border border-[#d3e2de] rounded-2xl p-8 bg-[#fbfaf6]/90 shadow-sm transition-all duration-250 cursor-pointer ${a.bg}`}
                                     initial="hidden"
                                     animate="visible"
                                     variants={slideUp}

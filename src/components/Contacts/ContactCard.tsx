@@ -204,11 +204,11 @@ export const ContactCard = ({
 
   return (
     <TooltipProvider>
-      <Card className="bg-white dark:bg-gray-800 rounded-2xl border-0 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
+      <Card className="group overflow-hidden rounded-2xl border border-[#d3e2de] bg-[#fbfaf6] shadow-[0_8px_24px_rgba(23,63,70,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(23,63,70,0.12)]">
         <div
-          className="p-4 md:p-6"
+          className="border-b border-[#d3e2de] p-4 md:p-5"
           style={{
-            background: `linear-gradient(135deg, ${colors.neutralWhite} 0%, ${colors.neutralGrey} 100%)`,
+            background: "linear-gradient(135deg, #eaf2f0 0%, #fbfaf6 78%)",
           }}>
           <div className="flex items-start justify-between">
             {/* Section avatar et informations */}
@@ -253,7 +253,7 @@ export const ContactCard = ({
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-base md:text-lg font-bold text-gray-900 dark:text-white truncate">
+                    <h3 className="truncate text-base font-bold text-[#173f46] md:text-lg">
                       {formattedName}
                     </h3>
                     <div className="mt-1">
@@ -307,7 +307,7 @@ export const ContactCard = ({
                 </div>
 
                 {/* Coordonnées */}
-                <div className="mt-3 space-y-2">
+                <div className="mt-4 space-y-2 rounded-xl border border-[#d3e2de] bg-white/60 p-3">
                   {/* Email */}
                   <div className="flex items-center space-x-2">
                     <Mail
@@ -317,12 +317,12 @@ export const ContactCard = ({
                     {contact.email ? (
                       <a
                         href={`mailto:${contact.email}`}
-                        className="text-sm text-blue-600 hover:text-blue-800 hover:underline truncate flex-1">
+                        className="flex-1 truncate text-sm font-medium text-[#2a7bc8] hover:text-[#173f46] hover:underline">
                         {/* {contact.email}  */} Envoyer un email 
                       </a>
                     ) : (
-                      <span className="text-sm text-gray-400">
-                        Email non disponible
+                      <span className="text-sm text-[#8a9a99]">
+                        Email non renseigné
                       </span>
                     )}
                   </div>
@@ -336,11 +336,11 @@ export const ContactCard = ({
                     {contact.telephone ? (
                       <a
                         href={`tel:${contact.telephone}`}
-                        className="text-sm text-blue-600 hover:text-blue-800 hover:underline">
+                        className="text-sm font-medium text-[#2a7bc8] hover:text-[#173f46] hover:underline">
                         {contact.telephone}
                       </a>
                     ) : (
-                      <span className="text-sm text-gray-400">
+                      <span className="text-sm text-[#8a9a99]">
                         Non renseigné
                       </span>
                     )}
@@ -389,7 +389,7 @@ export const ContactCard = ({
           {/* Section Formations */}
           {showFormations && isFormateur() && formations.length > 0 && (
             <div
-              className="mt-4 p-3 rounded-xl border"
+              className="mt-4 rounded-xl border p-3"
               style={{
                 backgroundColor: colors.successGreenLight,
                 borderColor: colors.successGreen + "20",

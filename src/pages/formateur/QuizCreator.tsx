@@ -28,9 +28,7 @@ import {
   ExpandMore as ExpandMoreIcon,
   Publish as PublishIcon,
 } from "@mui/icons-material";
-import axios from "axios";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+import { api } from "@/lib/api";
 
 type QuizListItem = {
   id: number;
@@ -88,10 +86,7 @@ export default function QuizCreator() {
 
   const loadQuizzes = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`${API_URL}/formateur/quizzes`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get(`/formateur/quizzes`);
       const payload = res.data?.data || res.data;
       setQuizzes(payload?.quizzes || payload || []);
     } catch (error) {
@@ -103,10 +98,7 @@ export default function QuizCreator() {
 
   const loadFormations = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`${API_URL}/formateur/formations`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get(`/formateur/formations`);
       const payload = res.data?.data || res.data;
       setFormations(payload?.formations || payload?.data || payload || []);
     } catch (error) {
@@ -116,10 +108,7 @@ export default function QuizCreator() {
 
   const handleCreateQuiz = async () => {
     try {
-      const token = localStorage.getItem("token");
-      await axios.post(`${API_URL}/formateur/quizzes`, newQuizData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.post(`/formateur/quizzes`, newQuizData);
       setCreateDialogOpen(false);
       loadQuizzes();
       // Reset form
@@ -137,10 +126,7 @@ export default function QuizCreator() {
 
   const handleOpenQuiz = async (id: number) => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`${API_URL}/formateur/quizzes/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get(`/formateur/quizzes/${id}`);
       const payload = res.data?.data || res.data;
       const quiz = payload?.quiz || payload;
       const questions = payload?.questions || quiz?.questions || [];
@@ -154,10 +140,7 @@ export default function QuizCreator() {
   const handleDeleteQuiz = async (id: number) => {
     if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce quiz ?")) return;
     try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`${API_URL}/formateur/quizzes/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/formateur/quizzes/${id}`);
       loadQuizzes();
     } catch (error) {
       alert("Impossible de supprimer ce quiz (peut-être a-t-il des participations ?)");
@@ -167,13 +150,8 @@ export default function QuizCreator() {
   const handlePublishQuiz = async () => {
     if (!selectedQuiz) return;
     try {
-      const token = localStorage.getItem("token");
-      await axios.post(
-        `${API_URL}/formateur/quizzes/${selectedQuiz.quiz.id}/publish`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      await api.post(`/formateur/quizzes/${selectedQuiz.quiz.id}/publish`,
+        {}
       );
       setViewQuestionsOpen(false);
       loadQuizzes();
@@ -186,15 +164,12 @@ export default function QuizCreator() {
   const handleAddQuestion = async () => {
     if (!selectedQuiz) return;
     try {
-      const token = localStorage.getItem("token");
-      await axios.post(
-        `${API_URL}/formateur/quizzes/${selectedQuiz.quiz.id}/questions`,
+      await api.post(`/formateur/quizzes/${selectedQuiz.quiz.id}/questions`,
         {
           question: currentQuestion.text,
           type: "banque de mots", // aligné sur la payload Laravel existante
           reponses: currentQuestion.reponses,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
+        }
       );
       setQuestionDialogOpen(false);
       handleOpenQuiz(selectedQuiz.quiz.id); // Reload questions
@@ -390,10 +365,7 @@ export default function QuizCreator() {
                         onClick={async () => {
                           if (confirm("Supprimer cette question ?")) {
                             try {
-                              const token = localStorage.getItem("token");
-                              await axios.delete(
-                                `${API_URL}/formateur/quizzes/${selectedQuiz.quiz.id}/questions/${q.id}`,
-                                { headers: { Authorization: `Bearer ${token}` } }
+                              await api.delete(`/formateur/quizzes/${selectedQuiz.quiz.id}/questions/${q.id}`
                               );
                             } catch (err) {
                               console.error("Error deleting question:", err);

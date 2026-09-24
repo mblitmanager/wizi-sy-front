@@ -1,61 +1,26 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { contactService } from "@/services";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useQuery } from "@tanstack/react-query";
 import { Contact } from "@/types/contact";
 import { CONTACTEZ_NOUS } from "@/utils/constants";
 import { ArrowRight } from "lucide-react";
 import { ContactCard } from "@/components/Contacts/ContactCard";
-import { Skeleton } from "@/components/ui/skeleton";
+import { mainContacts, useContactsDirectory } from "@/hooks/queries/useContactQueries";
 
 interface ContactsSectionProps {
-  commerciaux?: Contact[];
-  formateurs?: Contact[];
-  poleRelation?: Contact[];
-  poleSav?: Contact[];
-  contacts?: Contact[]; // New prop to pass pre-fetched/mapped contacts
+  /** Contacts déjà chargés par la page (ex. apprenants d'un formateur). Sinon : un contact par pôle. */
+  contacts?: Contact[];
+  /** À fournir avec `contacts` quand la page charge elle-même la liste. */
+  loading?: boolean;
+  /** @deprecated Conservé pour compatibilité, sans effet. */
   showFormations?: boolean;
   title?: string;
 }
 
-const ContactSection = ({
-  commerciaux,
-  formateurs,
-  poleRelation,
-  poleSav,
-  contacts: initialContacts,
-  showFormations = true,
-  title,
-}: ContactsSectionProps) => {
-  const [showAllContacts, setShowAllContacts] = useState(false);
-  const isMobile = useIsMobile();
-
-  const {
-    data: fetchedContacts,
-    isLoading,
-    error,
-  } = useQuery<Contact[]>({
-    queryKey: ["contacts"],
-    queryFn: async () => {
-      const data = await contactService.getContacts();
-      const allContacts: Contact[] = [];
-      if (data.formateurs && data.formateurs.length > 0)
-        allContacts.push(data.formateurs[0]);
-      if (data.commerciaux && data.commerciaux.length > 0)
-        allContacts.push(data.commerciaux[0]);
-      if (data.pole_relation && data.pole_relation.length > 0)
-        allContacts.push(data.pole_relation[0]);
-      if (data.pole_sav && data.pole_sav.length > 0)
-        allContacts.push(data.pole_sav[0]);
-      return allContacts;
-    },
-    enabled: !initialContacts, // Skip query if contacts are provided
-    staleTime: 5 * 60 * 1000,
-    retry: 2,
-  });
-
-  const contacts = initialContacts || fetchedContacts;
+const ContactSection = ({ contacts: initialContacts, loading, title }: ContactsSectionProps) => {
+  const usesDirectory = !initialContacts && loading === undefined;
+  const directory = useContactsDirectory(mainContacts, { enabled: usesDirectory });
+  const isLoading = usesDirectory ? directory.isLoading : !!loading;
+  const error = usesDirectory ? directory.error : null;
+  const contacts = initialContacts ?? directory.data;
 
   const ContactCardSkeleton = () => (
     <div className="bg-white shadow-md rounded-2xl p-5 border">

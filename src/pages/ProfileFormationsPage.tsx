@@ -1,14 +1,10 @@
 import { Layout } from "@/components/layout/Layout";
-import { useUser } from "@/hooks/useAuth";
 import { useLoadFormations } from "@/use-case/hooks/profile/useLoadFormations";
 import { Link } from "react-router-dom";
 import FormationCatalogue from "@/components/profile/FormationCatalogue";
 
 const ProfileFormationsPage = () => {
-  const { user } = useUser();
-  const { formations, loading, error } = useLoadFormations(
-    user?.stagiaire?.id ?? null
-  );
+  const { formations, loading, error } = useLoadFormations();
 
   return (
     <Layout>

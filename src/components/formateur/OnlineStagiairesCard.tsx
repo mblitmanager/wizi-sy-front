@@ -4,11 +4,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
-import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { api } from "@/lib/api";
 
 interface OnlineStagiaire {
     id: number;
@@ -36,15 +34,7 @@ export function OnlineStagiairesCard() {
 
     const fetchOnlineStagiaires = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get(`${API_URL}/formateur/stagiaires/online`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache',
-                    'Expires': '0',
-                },
-            });
+            const response = await api.get(`/formateur/stagiaires/online`);
             setStagiaires(response.data.stagiaires || []);
             setTotal(response.data.total || 0);
             setSelectedIds([]); // Reset selection after refresh
@@ -68,11 +58,8 @@ export function OnlineStagiairesCard() {
 
         setDisconnecting(true);
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.post(
-                `${API_URL}/formateur/stagiaires/disconnect`,
-                { stagiaire_ids: stagiaireIds },
-                { headers: { Authorization: `Bearer ${token}` } }
+            const response = await api.post(`/formateur/stagiaires/disconnect`,
+                { stagiaire_ids: stagiaireIds }
             );
 
             toast({

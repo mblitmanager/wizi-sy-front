@@ -32,6 +32,7 @@ import {
   Clock,
   ChevronDown,
   Filter,
+  X,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { QuizDetailDialog } from "@/components/formateur/quiz/QuizDetailDialog";

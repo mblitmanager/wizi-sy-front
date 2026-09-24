@@ -23,13 +23,11 @@ export class NextQuizService {
         return match;
       });
 
-      console.log("📊 Résultat findIndex:", currentIndex);
 
       if (currentIndex === -1) {
         // Essayer avec conversion numérique
         const numericCurrentId = parseInt(currentQuizId);
         if (!isNaN(numericCurrentId)) {
-          console.log("🔄 Essai avec conversion numérique...");
           const numericIndex = quizzes.findIndex((quiz) => {
             const quizNum = parseInt(quiz.id);
             return !isNaN(quizNum) && quizNum === numericCurrentId;
@@ -37,10 +35,6 @@ export class NextQuizService {
 
           if (numericIndex !== -1 && numericIndex < quizzes.length - 1) {
             const nextQuiz = quizzes[numericIndex + 1];
-            console.log(
-              "✅ Quiz suivant trouvé (via conversion numérique):",
-              nextQuiz
-            );
             return {
               id: nextQuiz.id,
               titre: nextQuiz.titre,
@@ -58,7 +52,6 @@ export class NextQuizService {
       }
 
       const nextQuiz = quizzes[currentIndex + 1];
-      console.log("✅ SUCCES - Quiz suivant trouvé:", nextQuiz);
 
       return {
         id: nextQuiz.id,

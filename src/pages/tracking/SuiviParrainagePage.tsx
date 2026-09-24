@@ -22,17 +22,15 @@ import {
     ArrowUpRight,
     Filter as LuFilter
 } from 'lucide-react';
+import { api } from "@/lib/api";
 
 import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/context/UserContext';
-import axios from 'axios';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-
-const API_URL = import.meta.env.VITE_API_URL;
 
 interface Parrainage {
     id: number;
@@ -62,10 +60,7 @@ const SuiviParrainagePage = () => {
     useEffect(() => {
         const fetchParrainages = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const response = await axios.get(`${API_URL}/formateur/suivi/parrainage`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                const response = await api.get(`/formateur/suivi/parrainage`);
                 setParrainages(response.data.data || response.data);
             } catch (error) {
                 console.error('Erreur lors du chargement des parrainages:', error);

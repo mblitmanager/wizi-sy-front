@@ -1,7 +1,5 @@
-import axios from "axios";
+import { api, MEDIA_URL } from "@/lib/api";
 import { Category, FormationCardData } from "@/types/Formation";
-
-const VITE_API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 /**
  * Fetch an array of FormationCardData from the backend.
@@ -10,7 +8,7 @@ const VITE_API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
  */
 async function fetchFormations(): Promise<FormationCardData[]> {
   try {
-    const response = await axios.get(`${VITE_API_URL}/formationParrainage`);
+    const response = await api.get(`/formationParrainage`);
     // Handle both array and paginated response formats
     if (Array.isArray(response.data)) {
       return response.data;
@@ -89,12 +87,12 @@ const catalogueService = {
    * @param path - The image path, which may be relative or an absolute URL.
    * @returns The full URL to the image. If the path is an absolute URL, it is returned as-is.
    *          If the path is empty or undefined, an empty string is returned.
-   *          Otherwise, the path is appended to the base API URL.
+   *          Otherwise, the path is appended to the media base URL.
    */
   getFullImageUrl(path: string): string {
     if (!path) return "";
     if (path.startsWith("http")) return path;
-    return `${VITE_API_URL}/${path.replace(/^\/+/, "")}`;
+    return `${MEDIA_URL}/${path.replace(/^\/+/, "")}`;
   },
 };
 

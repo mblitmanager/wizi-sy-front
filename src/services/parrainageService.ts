@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
+import { api } from "@/lib/api";
 
 export interface ParrainageStats {
   total_filleuls: number;
@@ -30,167 +30,44 @@ export interface ParrainageHistory {
   }>;
 }
 
+/** Endpoints de parrainage du stagiaire connecté. */
 class ParrainageService {
-  private static instance: ParrainageService;
-  private baseUrl: string;
+  private readonly base = "/stagiaire/parrainage";
 
-  private constructor() {
-    this.baseUrl = `${API_URL}/stagiaire/parrainage`;
+  async getParrainageLink(): Promise<string> {
+    const { data } = await api.get<ParrainageLink>(`${this.base}/link`);
+    return data.link;
   }
 
-  public static getInstance(): ParrainageService {
-    if (!ParrainageService.instance) {
-      ParrainageService.instance = new ParrainageService();
-    }
-    return ParrainageService.instance;
+  async getParrainageStats(): Promise<ParrainageStats> {
+    const { data } = await api.get<ParrainageStats>(`${this.base}/stats`);
+    return data;
   }
 
-  public async getParrainageLink(): Promise<string> {
-    try {
-      const response = await fetch(`${this.baseUrl}/link`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la récupération du lien");
-      }
-
-      const data: ParrainageLink = await response.json();
-      return data.link;
-    } catch (error) {
-      console.error("Erreur dans getParrainageLink:", error);
-      throw error;
-    }
+  async getFilleuls(): Promise<ParrainageStats> {
+    const { data } = await api.get<ParrainageStats>(`${this.base}/filleuls`);
+    return data;
   }
 
-  public async getParrainageStats(): Promise<ParrainageStats> {
-    try {
-      const response = await fetch(`${this.baseUrl}/stats`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la récupération des statistiques");
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Erreur dans getParrainageStats:", error);
-      throw error;
-    }
+  async generateParrainageLink(): Promise<string> {
+    const { data } = await api.post<ParrainageLink>(`${this.base}/generate-link`);
+    return data.link;
   }
 
-  public async getFilleuls(): Promise<ParrainageStats> {
-    try {
-      const response = await fetch(`${this.baseUrl}/filleuls`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la récupération des filleuls");
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Erreur dans getFilleuls:", error);
-      throw error;
-    }
+  async acceptParrainage(token: string): Promise<{ success: boolean; message: string }> {
+    const { data } = await api.post(`${this.base}/accept`, { token });
+    return data;
   }
 
-  public async generateParrainageLink(): Promise<string> {
-    try {
-      const response = await fetch(`${this.baseUrl}/generate-link`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la génération du lien");
-      }
-
-      const data: ParrainageLink = await response.json();
-      return data.link;
-    } catch (error) {
-      console.error("Erreur dans generateParrainageLink:", error);
-      throw error;
-    }
+  async getParrainageRewards(): Promise<ParrainageRewards> {
+    const { data } = await api.get<ParrainageRewards>(`${this.base}/rewards`);
+    return data;
   }
 
-  public async acceptParrainage(
-    token: string
-  ): Promise<{ success: boolean; message: string }> {
-    try {
-      const response = await fetch(`${this.baseUrl}/accept`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ token }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de l'acceptation du parrainage");
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Erreur dans acceptParrainage:", error);
-      throw error;
-    }
-  }
-
-  public async getParrainageRewards(): Promise<ParrainageRewards> {
-    try {
-      const response = await fetch(`${this.baseUrl}/rewards`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la récupération des récompenses");
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Erreur dans getParrainageRewards:", error);
-      throw error;
-    }
-  }
-
-  public async getParrainageHistory(): Promise<ParrainageHistory> {
-    try {
-      const response = await fetch(`${this.baseUrl}/history`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la récupération de l'historique");
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Erreur dans getParrainageHistory:", error);
-      throw error;
-    }
+  async getParrainageHistory(): Promise<ParrainageHistory> {
+    const { data } = await api.get<ParrainageHistory>(`${this.base}/history`);
+    return data;
   }
 }
 
-export const parrainageService = ParrainageService.getInstance();
+export const parrainageService = new ParrainageService();

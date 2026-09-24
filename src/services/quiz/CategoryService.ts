@@ -1,10 +1,10 @@
-import apiClient from "@/lib/api-client";
+import { api } from "@/lib/api";
 import type { Category } from "@/types/quiz";
 
 class CategoryService {
   async getCategories(): Promise<Category[]> {
     try {
-      const response = await apiClient.get("/quiz/categories");
+      const response = await api.get("/quiz/categories");
 
       const categories = response.data.data || response.data || [];
 

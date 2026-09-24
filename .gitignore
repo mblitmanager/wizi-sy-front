@@ -40,3 +40,7 @@ client_*.json
 *.jks
 *.keystore
 
+
+# Artefacts Playwright
+test-results/
+playwright-report/

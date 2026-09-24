@@ -6,9 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Mail, Send, Users } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from '@/hooks/use-toast';
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { api } from "@/lib/api";
 
 interface Stagiaire {
     id: number;
@@ -31,10 +29,7 @@ export function EmailPanel() {
 
     const fetchStagiaires = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get(`${API_URL}/formateur/stagiaires`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const response = await api.get(`/formateur/stagiaires`);
             setStagiaires(response.data.stagiaires);
         } catch (err) {
             console.error('Erreur chargement stagiaires:', err);
@@ -67,16 +62,11 @@ export function EmailPanel() {
 
         setSending(true);
         try {
-            const token = localStorage.getItem('token');
-            await axios.post(
-                `${API_URL}/formateur/send-email`,
+            await api.post(`/formateur/send-email`,
                 {
                     recipient_ids: selectedIds,
                     subject,
                     message,
-                },
-                {
-                    headers: { Authorization: `Bearer ${token}` },
                 }
             );
 

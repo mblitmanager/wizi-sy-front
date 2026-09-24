@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
-import { stagiaireQuizService } from "@/services/quiz/StagiaireQuizService";
+import { StagiaireQuiz, useStagiaireParticipations, useStagiaireQuizzes } from "@/hooks/queries/useQuizQueries";
+import { useQuizHistory } from "@/hooks/queries/useProfileQueries";
 import { categoryService } from "@/services/quiz/CategoryService";
 import type { Category } from "@/types/quiz";
 import { Loader2, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
@@ -10,8 +11,19 @@ import { StagiaireQuizGrid } from "./StagiaireQuizGrid";
 import { useClassementPoints } from "@/hooks/useClassementPoints";
 import { buildAvailableQuizzes } from "./quizUtils";
 import { useToast } from "@/hooks/use-toast";
-import { quizHistoryService } from "@/services/quiz/submission/QuizHistoryService";
 import { LevelUnlockIndicator } from "./LevelUnlockIndicator";
+
+/** Ajoute le total de points de chaque quiz (utilisé pour l'affichage des cartes). */
+const withTotalPoints = (quizzes: StagiaireQuiz[]) =>
+  quizzes.map((quiz) => {
+    const totalPoints =
+      quiz.questions?.reduce((sum, question) => {
+        const points =
+          typeof question.points === "string" ? parseInt(question.points, 10) || 0 : question.points || 0;
+        return sum + points;
+      }, 0) || 0;
+    return { ...quiz, totalPoints, totalPointsFormatted: totalPoints.toString().padStart(2, "0") };
+  });
 
 export function StagiaireQuizList({
   selectedFormationId,
@@ -23,67 +35,19 @@ export function StagiaireQuizList({
   const { toast } = useToast();
   const quizzesPerPage = 6;
 
-  // DEBUG: Log pour voir la formation sélectionnée
-  useEffect(() => {
-    console.log("🔍 DEBUG - Formation sélectionnée:", selectedFormationId);
-  }, [selectedFormationId]);
-
   const {
     data: quizzes,
     isLoading: quizzesLoading,
     error: quizzesError,
-  } = useQuery({
-    queryKey: ["stagiaire-quizzes"],
-    queryFn: async () => {
-      const quizzes = await stagiaireQuizService.getStagiaireQuizzes();
-
-      // DEBUG: Log des quizzes récupérés
-      console.log("📥 DEBUG - Tous les quizzes récupérés:", quizzes);
-
-      return quizzes.map((quiz) => {
-        const totalPoints =
-          quiz.questions?.reduce((sum, question) => {
-            const points =
-              typeof question.points === "string"
-                ? parseInt(question.points, 10) || 0
-                : question.points || 0;
-            return sum + points;
-          }, 0) || 0;
-
-        return {
-          ...quiz,
-          totalPoints,
-          totalPointsFormatted: totalPoints.toString().padStart(2, "0"),
-        };
-      });
-    },
-    enabled: !!localStorage.getItem("token"),
-  });
+  } = useStagiaireQuizzes(withTotalPoints);
 
   const { data: categories, isLoading: categoriesLoading } = useQuery({
     queryKey: ["quiz-categories"],
     queryFn: () => categoryService.getCategories(),
-    enabled: !!localStorage.getItem("token"),
   });
 
-  const { data: participations, isLoading: participationsLoading } = useQuery({
-    queryKey: ["stagiaire-participations"],
-    queryFn: () => stagiaireQuizService.getStagiaireQuizJoue(),
-    enabled: !!localStorage.getItem("token"),
-  });
-
-  // Dans le useQuery de quizHistory, ajoutez :
-  const { data: quizHistory, isLoading: historyLoading } = useQuery({
-    queryKey: ["quiz-history"],
-    queryFn: async () => {
-      const history = await quizHistoryService.getQuizHistory();
-      console.log("📋 DEBUG - Historique complet:", history);
-      console.log("📋 DEBUG - Premier élément de l'historique:", history[0]);
-      return history;
-    },
-    enabled: !!localStorage.getItem("token"),
-    staleTime: 5 * 60 * 1000,
-  });
+  const { data: participations, isLoading: participationsLoading } = useStagiaireParticipations();
+  const { data: quizHistory, isLoading: historyLoading } = useQuizHistory();
 
   const isLoading = quizzesLoading || categoriesLoading || participationsLoading || historyLoading;
   const error = quizzesError;
@@ -131,26 +95,6 @@ export function StagiaireQuizList({
       setLastUserPoints(userPoints);
     }
   }, [userPoints, quizzes, notifiedLevel, toast, lastUserPoints]);
-
-  // DEBUG: Vérifier la structure des quizzes
-  useEffect(() => {
-    if (quizzes && quizzes.length > 0) {
-      console.log("- DEBUG - Structure du premier quiz:", quizzes[0]);
-      console.log(
-        "- DEBUG - FormationId du premier quiz:",
-        (quizzes[0] as any).formationId
-      );
-      console.log(
-        "- DEBUG - Tous les formationIds:",
-        quizzes.map((q: any) => ({
-          id: q.id,
-          titre: q.titre,
-          formationId: q.formationId,
-          formation: q.formation,
-        }))
-      );
-    }
-  }, [quizzes]);
 
   // Filter quizzes by formation, points, category, and level
   const filteredQuizzes = useMemo(() => {
@@ -219,8 +163,6 @@ export function StagiaireQuizList({
       list = list.filter((q) => q.niveau && q.niveau === selectedLevel);
     }
 
-    console.log("🎮 DEBUG - Quiz joués après filtrage:", list.length, list);
-
     // tri antéchronologique par completedAt
     list.sort((a, b) => {
       const ha = byId.get(String(a.id));
@@ -262,24 +204,6 @@ export function StagiaireQuizList({
     notPlayedQuizzes.length / quizzesPerPage
   );
   const totalPlayedPages = Math.ceil(playedQuizzes.length / quizzesPerPage);
-
-  // DEBUG: Résumé final
-  useEffect(() => {
-    console.log("- DEBUG - RÉSUMÉ FINAL:");
-    console.log("- Formation sélectionnée:", selectedFormationId);
-    console.log("- Total quizzes:", quizzes?.length);
-    console.log("- Quiz joués:", playedQuizzes.length);
-    console.log("- Quiz non joués:", notPlayedQuizzes.length);
-    console.log("- Pages non joués:", totalNotPlayedPages);
-    console.log("- Pages joués:", totalPlayedPages);
-  }, [
-    selectedFormationId,
-    quizzes,
-    playedQuizzes,
-    notPlayedQuizzes,
-    totalNotPlayedPages,
-    totalPlayedPages,
-  ]);
 
   if (isLoading) {
     return (

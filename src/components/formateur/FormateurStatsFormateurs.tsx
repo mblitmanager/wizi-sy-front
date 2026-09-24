@@ -1,11 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { GraduationCap, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { Paginated, useFormateurDashboardStats } from '@/hooks/queries/useFormateurQueries';
 
 interface Formateur {
     id: number;
@@ -14,52 +12,15 @@ interface Formateur {
     total_stagiaires: number;
 }
 
-interface PaginationData {
-    data: Formateur[];
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-}
-
 export function FormateurStatsFormateurs() {
     const navigate = useNavigate();
-    const [formateurs, setFormateurs] = useState<Formateur[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [lastPage, setLastPage] = useState(1);
-    const [total, setTotal] = useState(0);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchFormateurs = async () => {
-            setLoading(true);
-            try {
-                const token = localStorage.getItem('token');
-                const response = await axios.get(`${API_URL}/formateur/dashboard/stats`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache',
-                        'Expires': '0',
-                    },
-                    params: {
-                        formateurs_page: currentPage,
-                        formateurs_per_page: 5
-                    }
-                });
-                const data = response.data.formateurs as PaginationData;
-                setFormateurs(data.data || []);
-                setCurrentPage(data.current_page);
-                setLastPage(data.last_page);
-                setTotal(data.total);
-            } catch (err) {
-                console.error('Erreur chargement formateurs:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchFormateurs();
-    }, [currentPage]);
+    const { data, isLoading: loading, isPlaceholderData } = useFormateurDashboardStats<{ formateurs?: Paginated<Formateur> }>({
+        formateursPage: currentPage,
+    });
+    const formateurs = data?.formateurs?.data ?? [];
+    const lastPage = data?.formateurs?.last_page ?? 1;
+    const total = data?.formateurs?.total ?? 0;
 
     if (loading) {
         return (
@@ -90,7 +51,7 @@ export function FormateurStatsFormateurs() {
             </div>
 
             {/* List */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
+            <div className={`flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3 transition-opacity ${isPlaceholderData ? "opacity-50" : ""}`} aria-busy={isPlaceholderData}>
                 {noFormateurs ? (
                     <div className="h-full flex flex-col items-center justify-center opacity-40">
                         <Users className="h-10 w-10 text-gray-600 mb-3" />

@@ -14,8 +14,8 @@ const slideUp = {
 
 export function CategoriesSection() {
     return (
-        <section className="py-16 md:py-24">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="bg-[#eaf2f0] py-20 md:py-28">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {' '}
                 {/* Header */}
                 <motion.div
@@ -24,13 +24,13 @@ export function CategoriesSection() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, ease: 'easeOut' }}
                 >
-                    <p className="text-xs font-medium tracking-widest uppercase text-gray-400 mb-3">
+                    <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[#b47700]">
                         Formations
                     </p>
-                    <h2 className="text-3xl md:text-4xl font-medium mb-4 bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-amber-600">
+                    <h2 className="mb-4 font-poppins text-3xl font-semibold text-[#173f46] md:text-4xl">
                         Nos catégories de formations
                     </h2>
-                    <p className="text-gray-500 max-w-lg mx-auto text-base leading-relaxed">
+                    <p className="mx-auto max-w-lg text-base leading-relaxed text-[#526b70]">
                         Découvrez notre large éventail de formations pour développer vos compétences
                         professionnelles.
                     </p>

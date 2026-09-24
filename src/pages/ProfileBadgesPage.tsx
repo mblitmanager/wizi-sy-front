@@ -1,74 +1,28 @@
 import { Layout } from "@/components/layout/Layout";
 import { useUser } from "@/hooks/useAuth";
-import { useEffect, useState, useMemo } from "react";
-import { useToast } from "@/hooks/use-toast";
-import axios from "axios";
+import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-
-type Achievement = {
-  id: number;
-  name: string;
-  type: string;
-  description?: string | null;
-  icon?: string | null;
-  level?: string | null;
-  quiz_id?: number | null;
-  code?: string | null;
-  unlockedAt?: string | null;
-};
-
-const API_URL = import.meta.env.VITE_API_URL as string;
+import { api } from "@/lib/api";
+import { Achievement, useUserAchievements } from "@/hooks/queries/useProfileQueries";
 
 const ProfileBadgesPage = () => {
   const { user } = useUser();
-  const { toast } = useToast();
-  const [allAchievements, setAllAchievements] = useState<Achievement[]>([]);
-  const [userAchievements, setUserAchievements] = useState<Achievement[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const [selectedType, setSelectedType] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchAchievements = async () => {
-      if (!user) return;
-      setLoading(true);
-      try {
-        const token = localStorage.getItem("token");
-        const headers: Record<string, string> = token
-          ? { Authorization: `Bearer ${token}` }
-          : {};
-
-        // Badges utilisateur
-        const userResp = await axios.get(`${API_URL}/stagiaire/achievements`, {
-          headers,
-        });
-        const mine: Achievement[] =
-          userResp.data?.achievements || userResp.data || [];
-        setUserAchievements(mine);
-
-        // Tous les badges
-        try {
-          const allResp = await axios.get(`${API_URL}/stagiaire/achievements/all`, {
-            headers,
-          });
-          const all: Achievement[] =
-            allResp.data?.achievements || allResp.data || [];
-          setAllAchievements(all);
-        } catch (e) {
-          setAllAchievements([]);
-        }
-      } catch (e) {
-        console.error("Error loading achievements", e);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les badges",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAchievements();
-  }, [user, toast]);
+  // Les deux listes sont chargées en parallèle ; les badges obtenus partagent le cache du profil
+  const { data: userAchievements = [], isLoading: userLoading } = useUserAchievements();
+  const { data: allAchievements = [], isLoading: allLoading } = useQuery({
+    queryKey: ["stagiaire", "achievements", "all"],
+    queryFn: async (): Promise<Achievement[]> => {
+      const res = await api.get("/stagiaire/achievements/all");
+      const list = res.data?.achievements ?? res.data;
+      return Array.isArray(list) ? list : [];
+    },
+    enabled: !!user,
+    staleTime: 30 * 60 * 1000,
+  });
+  const loading = userLoading || allLoading;
 
   const unlockedIds = useMemo(
     () => new Set(userAchievements.map((a) => a.id)),

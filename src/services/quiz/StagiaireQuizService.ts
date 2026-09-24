@@ -1,11 +1,11 @@
-import apiClient from "@/lib/api-client";
+import { api } from "@/lib/api";
 import type { Quiz } from "@/types/quiz";
 import { quizManagementService } from "./QuizManagementService";
 
 class StagiaireQuizService {
   async getStagiaireQuizzes(): Promise<Quiz[]> {
     try {
-      const response = await apiClient.get("/stagiaire/quizzes");
+      const response = await api.get("/stagiaire/quizzes");
 
       const quizzes = response.data.data || [];
 
@@ -22,7 +22,7 @@ class StagiaireQuizService {
   }
   async getStagiaireQuizJoue(): Promise<any[]> {
     try {
-      const response = await apiClient.get("/quiz/history");
+      const response = await api.get("/quiz/history");
       const participations = response.data;
 
       // Filtrer les quiz uniques par leur ID

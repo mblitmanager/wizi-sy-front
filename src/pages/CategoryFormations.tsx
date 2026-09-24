@@ -7,22 +7,11 @@ import { toast } from "sonner";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, ChevronLeft } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { api } from "@/lib/api";
 
-const backendUrl = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
-
-async function fetchFormations(categoryId: string): Promise<Formation[]> {
-  try {
-    const response = await fetch(
-      `${backendUrl}/formations/categories/${categoryId}`
-    );
-    if (!response.ok) {
-      throw new Error("Failed to fetch formations");
-    }
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching formations:", error);
-    throw error;
-  }
+async function fetchFormations(categorySlug: string): Promise<Formation[]> {
+  const res = await api.get(`/formations/categories/${categorySlug}`);
+  return res.data;
 }
 
 export default function CategoryFormations() {

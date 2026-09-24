@@ -1,11 +1,11 @@
 
-import apiClient from '@/lib/api-client';
+import { api } from "@/lib/api";
 import type { QuizHistory, QuizStats } from '@/types/quiz';
 
 export class QuizStatsService {
   async getQuizHistory(): Promise<QuizHistory[]> {
     try {
-      const response = await apiClient.get('/quiz/history');
+      const response = await api.get('/quiz/history');
       return response.data.data || [];
     } catch (error) {
       console.error('Error fetching quiz history:', error);
@@ -15,7 +15,7 @@ export class QuizStatsService {
 
   async getQuizStats(): Promise<QuizStats> {
     try {
-      const response = await apiClient.get('/quiz/stats');
+      const response = await api.get('/quiz/stats');
       return response.data.data || { 
         totalQuizzes: 0, 
         totalScore: 0, 
@@ -39,7 +39,7 @@ export class QuizStatsService {
 
   async getQuizStatistics(quizId: string): Promise<any> {
     try {
-      const response = await apiClient.get(`/quiz/${quizId}/statistics`);
+      const response = await api.get(`/quiz/${quizId}/statistics`);
       return response.data || null;
     } catch (error) {
       console.error('Error fetching quiz statistics:', error);

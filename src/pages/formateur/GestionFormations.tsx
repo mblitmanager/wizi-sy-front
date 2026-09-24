@@ -14,10 +14,8 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
-import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { api } from "@/lib/api";
 
 interface Formation {
   id: number;
@@ -82,10 +80,7 @@ export default function GestionFormations() {
 
   const loadFormations = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_URL}/formateur/formations/available`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get(`/formateur/formations/available`);
       setFormations(res.data.formations || []);
       setFilteredFormations(res.data.formations || []);
     } catch (error) {
@@ -98,10 +93,7 @@ export default function GestionFormations() {
   const handleAssignClick = async (formation: Formation) => {
     setSelectedFormation(formation);
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get(
-        `${API_URL}/formateur/stagiaires/unassigned/${formation.id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const res = await api.get(`/formateur/stagiaires/unassigned/${formation.id}`
       );
       setUnassignedStagiaires(res.data.stagiaires || []);
       setAssignDialogOpen(true);
@@ -113,11 +105,8 @@ export default function GestionFormations() {
   const handleAssign = async () => {
     if (!selectedFormation) return;
     try {
-      const token = localStorage.getItem('token');
-      await axios.post(
-        `${API_URL}/formateur/formations/${selectedFormation.id}/assign`,
-        { stagiaire_ids: selectedStagiaires },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await api.post(`/formateur/formations/${selectedFormation.id}/assign`,
+        { stagiaire_ids: selectedStagiaires }
       );
       setAssignDialogOpen(false);
       setSelectedStagiaires([]);
@@ -130,14 +119,9 @@ export default function GestionFormations() {
   const handleViewDetails = async (formation: Formation) => {
     setSelectedFormation(formation);
     try {
-      const token = localStorage.getItem('token');
       const [stagRes, statsRes] = await Promise.all([
-        axios.get(`${API_URL}/formateur/formations/${formation.id}/stagiaires`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        axios.get(`${API_URL}/formateur/formations/${formation.id}/stats`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
+        api.get(`/formateur/formations/${formation.id}/stagiaires`),
+        api.get(`/formateur/formations/${formation.id}/stats`),
       ]);
       setFormationStagiaires(stagRes.data.stagiaires || []);
       setFormationStats(statsRes.data || null);

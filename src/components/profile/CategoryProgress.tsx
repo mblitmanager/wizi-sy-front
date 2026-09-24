@@ -16,7 +16,7 @@ import { Line, Doughnut } from "react-chartjs-2";
 import { motion, AnimatePresence } from "framer-motion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import axios from "axios";
+import { api } from "@/lib/api";
 import { CATEGORIES } from "@/utils/constants";
 
 ChartJS.register(
@@ -92,23 +92,6 @@ interface PerformanceStats {
     score: number;
   }>;
 }
-
-const VITE_API_URL = import.meta.env.VITE_API_URL;
-const api = axios.create({
-  baseURL: VITE_API_URL,
-  headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-  },
-});
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
 
 const CategoryProgress: React.FC<CategoryProgressProps> = ({
   categories,

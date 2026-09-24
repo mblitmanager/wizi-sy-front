@@ -1,148 +1,133 @@
-// Cache Names
-const CACHE_NAME = 'wizi-learn-cache-v1';
-const DYNAMIC_CACHE = 'wizi-learn-dynamic-cache-v1';
+// Incrémenter la version purge les anciens caches à l'activation.
+const VERSION = 'v2';
+const STATIC_CACHE = `wizi-learn-static-${VERSION}`;
+const RUNTIME_CACHE = `wizi-learn-runtime-${VERSION}`;
 
-// Assets to cache on install
-const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/favicon2.ico',
-  '/lovable-uploads/e4aa6740-d9f0-40d2-a150-efc75ae46692.png'
-];
+// Fichiers indispensables au démarrage hors connexion
+const PRECACHE = ['/', '/index.html', '/offline.html', '/manifest.json', '/favicon2.ico'];
 
-// Installation event - cache core assets
 self.addEventListener('install', (event) => {
-  console.log('[Service Worker] Installation');
-  
-  // Skip waiting to activate the service worker immediately
   self.skipWaiting();
-  
-  // Cache core assets
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('[Service Worker] Caching core assets');
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
-  );
+  event.waitUntil(caches.open(STATIC_CACHE).then((cache) => cache.addAll(PRECACHE)));
 });
 
-// Activation event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('[Service Worker] Activation');
-  
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME && name !== DYNAMIC_CACHE)
-          .map((name) => {
-            console.log('[Service Worker] Removing old cache', name);
-            return caches.delete(name);
-          })
-      );
-    })
+    caches
+      .keys()
+      .then((names) =>
+        Promise.all(
+          names
+            .filter((name) => name !== STATIC_CACHE && name !== RUNTIME_CACHE)
+            .map((name) => caches.delete(name))
+        )
+      )
+      .then(() => self.clients.claim())
   );
-  
-  // Ensures the service worker takes control of the page immediately
-  return self.clients.claim();
 });
 
-// Fetch event - serve from cache first, then network
 self.addEventListener('fetch', (event) => {
-  // Skip for non-GET requests or browser extensions
-  if (event.request.method !== 'GET' || 
-      !event.request.url.startsWith('http')) {
+  const { request } = event;
+  if (request.method !== 'GET') return;
+
+  const url = new URL(request.url);
+  // API, médias et services tiers : jamais interceptés (données toujours fraîches)
+  if (url.origin !== self.location.origin || url.pathname.startsWith('/api/')) return;
+
+  // Pages : réseau d'abord pour toujours servir la dernière version déployée
+  if (request.mode === 'navigate') {
+    event.respondWith(networkFirst(request));
     return;
   }
-  
-  // Skip for API requests
-  if (event.request.url.includes('/api/')) {
-    return fetch(event.request);
+
+  // Fichiers de build hashés : immuables, le cache suffit
+  if (url.pathname.startsWith('/assets/')) {
+    event.respondWith(cacheFirst(request));
+    return;
   }
-  
-  // Cache-first strategy
-  event.respondWith(
-    caches.match(event.request)
-      .then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-        
-        // Not in cache, get from network
-        return fetch(event.request)
-          .then((networkResponse) => {
-            // Cache the response for future
-            if (networkResponse && networkResponse.status === 200) {
-              const clonedResponse = networkResponse.clone();
-              caches.open(DYNAMIC_CACHE).then((cache) => {
-                cache.put(event.request, clonedResponse);
-              });
-            }
-            return networkResponse;
-          })
-          .catch(() => {
-            // If both cache and network fail, show a fallback for HTML pages
-            if (event.request.headers.get('accept').includes('text/html')) {
-              return caches.match('/');
-            }
-            // For other resources, fail gracefully
-            return new Response('Ressource indisponible hors connexion', {
-              status: 503,
-              headers: { 'Content-Type': 'text/plain' }
-            });
-          });
-      })
-  );
+
+  // Autres fichiers statiques (images, icônes...) : cache immédiat + mise à jour en arrière-plan
+  event.respondWith(staleWhileRevalidate(request));
 });
 
-// Push notifications handler (keeping existing code)
-self.addEventListener('push', (event) => {
-  console.log('[Service Worker] Notification push reçue', event);
+async function networkFirst(request) {
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      const cache = await caches.open(STATIC_CACHE);
+      cache.put('/index.html', response.clone());
+    }
+    return response;
+  } catch {
+    return (await caches.match('/index.html')) || (await caches.match('/offline.html'));
+  }
+}
 
-  let notificationData = {};
+async function cacheFirst(request) {
+  const cached = await caches.match(request);
+  if (cached) return cached;
+  const response = await fetch(request);
+  if (response.ok) {
+    const cache = await caches.open(RUNTIME_CACHE);
+    cache.put(request, response.clone());
+  }
+  return response;
+}
+
+async function staleWhileRevalidate(request) {
+  const cache = await caches.open(RUNTIME_CACHE);
+  const cached = await cache.match(request);
+  const network = fetch(request)
+    .then((response) => {
+      if (response.ok) cache.put(request, response.clone());
+      return response;
+    })
+    .catch(() => cached || new Response('Ressource indisponible hors connexion', { status: 503 }));
+  return cached || network;
+}
+
+self.addEventListener('push', (event) => {
+  let payload = {};
   if (event.data) {
     try {
-      notificationData = event.data.json();
+      payload = event.data.json();
     } catch (e) {
-      console.error('Erreur lors du parsing des données de notification', e);
+      console.error('Notification push illisible', e);
     }
   }
 
-  const title = notificationData.title || 'Notification';
-  const options = {
-    body: notificationData.body || 'Vous avez reçu une notification.',
-    icon: notificationData.icon || '/favicon2.ico',
-    badge: notificationData.badge || '/favicon2.ico',
-    data: notificationData.data || {}
-  };
-
   event.waitUntil(
-    self.registration.showNotification(title, options)
+    self.registration.showNotification(payload.title || 'Notification', {
+      body: payload.body || 'Vous avez reçu une notification.',
+      icon: payload.icon || '/favicon2.ico',
+      badge: payload.badge || '/favicon2.ico',
+      data: payload.data || {},
+    })
   );
 });
 
-// Notification click handler (keeping existing code)
+function notificationUrl(data) {
+  if (data.link) return data.link;
+  if (data.type === 'quiz-available' && data.quizId) return `/quiz/${data.quizId}`;
+  if (data.type === 'formation-update') return '/formations';
+  if (data.type === 'quiz-completed') return '/quizzes';
+  if (data.type === 'reward-earned') return '/profile';
+  return '/';
+}
+
 self.addEventListener('notificationclick', (event) => {
-  console.log('[Service Worker] Notification cliquée', event);
-
   event.notification.close();
+  const target = notificationUrl(event.notification.data || {});
 
-  // Gérer les actions en fonction du type de notification
-  const data = event.notification.data || {};
-  let url = '/';
-
-  if (data.type === 'quiz-available' && data.quizId) {
-    url = `/quiz/${data.quizId}`;
-  } else if (data.type === 'formation-update' && data.formationId) {
-    url = `/formation/${data.formationId}`;
-  } else if (data.type === 'quiz-completed') {
-    url = '/quiz';
-  } else if (data.type === 'reward-earned') {
-    url = '/profile';
-  }
-
+  // Réutilise un onglet de l'application déjà ouvert plutôt que d'en ouvrir un nouveau
   event.waitUntil(
-    clients.openWindow(url)
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
+      const existing = windows.find((w) => new URL(w.url).origin === self.location.origin);
+      if (existing) {
+        existing.focus();
+        return existing.navigate(target);
+      }
+      return self.clients.openWindow(target);
+    })
   );
 });

@@ -40,7 +40,7 @@ export default function MainNav({
   };
 
   return (
-    <div className="flex flex-col h-full bg-white border-r border-gray-200">
+    <div className="flex flex-col h-full bg-sidebar border-r border-sidebar-border">
       {/* Logo et utilisateur */}
       {/* <div className="p-4 border-b border-gray-200">
         <div className="flex items-center gap-3 mb-4">

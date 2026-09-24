@@ -54,18 +54,11 @@ export function FormateurClassementPage() {
             
             const response = await api.get(endpoint, {
                 params: { period },
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache',
-                    'Expires': '0',
-                }
             });
             const data = response.data;
-            console.log('Classement Data Received:', data);
             const finalRanking = Array.isArray(data) 
                 ? data 
                 : (data?.ranking || data?.data || []);
-            console.log('Processed Ranking:', finalRanking);
             setRanking(finalRanking);
         } catch (err) {
             console.error('Erreur chargement classement:', err);
@@ -77,13 +70,7 @@ export function FormateurClassementPage() {
     useEffect(() => {
         const fetchFormations = async () => {
             try {
-                const response = await api.get('/formateur/formations', {
-                    headers: {
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache',
-                        'Expires': '0',
-                    }
-                });
+                const response = await api.get('/formateur/formations');
                 const data = response.data;
                 setFormations(Array.isArray(data) ? data : data?.formations || []);
             } catch (err) {
@@ -113,7 +100,7 @@ export function FormateurClassementPage() {
     if (loading) {
         return (
             <Layout>
-                <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 space-y-6">
+                <div className="min-h-[60vh] flex flex-col items-center justify-center p-4 space-y-6">
                     <motion.div 
                         animate={{ 
                             scale: [1, 1.1, 1],

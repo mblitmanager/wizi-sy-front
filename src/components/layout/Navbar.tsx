@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useUser } from "@/hooks/useAuth";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -14,18 +14,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-import { Bell, LogOut, User, Trophy, Menu } from "lucide-react";
+import { LogOut, User, Trophy } from "lucide-react";
 
 const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
-import { rankingService } from "@/services/rankingService";
+import { useClassementPoints } from "@/hooks/useClassementPoints";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { parrainageService } from "@/services/parrainageService";
+import type { User as AppUser } from "@/types";
 
 import { NotificationDropdown } from "@/components/notifications/NotificationDropdown";
 
 /* ---------------------- Sous-composants ---------------------- */
 
 // Avatar utilisateur
-const UserAvatar = ({ user, initials }: { user: any; initials: string }) => {
+const UserAvatar = ({ user, initials }: { user: AppUser; initials: string }) => {
   const [imageError, setImageError] = useState(false);
 
   return (
@@ -48,12 +50,12 @@ const UserAvatar = ({ user, initials }: { user: any; initials: string }) => {
 };
 
 // Infos utilisateur
-const UserInfo = ({ user }: { user: any }) => (
-  <div className="flex flex-col items-start mr-2">
-    <span className="text-sm font-semibold text-gray-800">
+const UserInfo = ({ user }: { user: AppUser }) => (
+  <div className="mr-2 hidden flex-col items-start sm:flex">
+    <span className="text-sm font-semibold text-[#173f46]">
       {(user?.user?.name || "").toUpperCase()} {user?.stagiaire?.prenom || ""}
     </span>
-    <span className="text-xs text-gray-500">{user.role}</span>
+    <span className="text-xs capitalize text-[#6b7773]">{user.role}</span>
   </div>
 );
 
@@ -84,14 +86,14 @@ const NotificationBadge = ({ count }: { count: number }) => (
     <Button
       variant="ghost"
       size="icon"
-      className="relative transition rounded-full"
+      className="relative rounded-xl transition hover:bg-[#fff4d8]"
       style={{
         // subtle hover handled via CSS class using the existing Tailwind tokens
       }}>
       <Bell className="h-5 w-5" style={{ color: 'var(--brand-primary)' }} />
       {count > 0 && (
         <Badge
-          className="absolute -top-1 -right-1 px-1.5 h-5 min-w-5 text-xs text-white animate-pulse"
+          className="absolute -right-1 -top-1 h-5 min-w-5 animate-pulse px-1.5 text-xs text-white"
           style={{ backgroundColor: 'var(--brand-primary)' }}>
           {count}
         </Badge>
@@ -106,8 +108,7 @@ const UserScore = ({ score }: { score: number | null }) => {
 
   return (
     <>
-      {console.log("Score affiché dans la Navbar :", score)}
-      <span className="ml-2 text-sm font-semibold text-gray-700 flex items-center">
+      <span className="ml-2 flex items-center text-sm font-semibold text-[#173f46]">
         <Trophy className="inline h-4 w-4 mr-1" style={{ color: 'var(--brand-primary)' }} />
         {score} pts
       </span>
@@ -121,40 +122,12 @@ const UserScore = ({ score }: { score: number | null }) => {
 export function Navbar({ onMenuToggle }: { onMenuToggle?: () => void }) {
   const { user, logout } = useUser();
   const isMobile = useIsMobile();
-  const [isTablet, setIsTablet] = useState<boolean>(false);
+  const isTablet = useMediaQuery("(min-width: 769px) and (max-width: 1024px)");
   const { unreadCount } = useNotifications();
   const navigate = useNavigate();
-  const [userScore, setUserScore] = useState<number | null>(null);
-
-  // Detect tablet breakpoint (769px - 1024px)
-  useEffect(() => {
-    const mql = window.matchMedia("(min-width: 769px) and (max-width: 1024px)");
-    const onChange = () => setIsTablet(mql.matches);
-    mql.addEventListener("change", onChange);
-    setIsTablet(mql.matches);
-    return () => mql.removeEventListener("change", onChange);
-  }, []);
-
-  // Récupération du score utilisateur
-  const fetchUserScore = useCallback(async () => {
-    if (!user?.stagiaire?.id) return;
-    try {
-      const ranking = await rankingService.getGlobalRanking();
-      const entry = ranking.find(
-        (e: any) =>
-          e.stagiaire?.id?.toString() === user.stagiaire.id?.toString()
-      );
-      setUserScore(entry?.totalPoints ?? entry?.points ?? entry?.score ?? 0);
-    } catch (error) {
-      console.error("Failed to fetch user score:", error);
-      setUserScore(null);
-    }
-  }, [user]);
-
-  // Initialisation
-  useEffect(() => {
-    if (user) fetchUserScore();
-  }, [user, fetchUserScore]);
+  // Score partagé avec les pages quiz (une seule requête de classement)
+  const { points, loading: scoreLoading } = useClassementPoints();
+  const userScore = user?.stagiaire?.id && !scoreLoading ? points : null;
 
   // Initiales
   const getInitials = useCallback(() => {
@@ -185,9 +158,9 @@ export function Navbar({ onMenuToggle }: { onMenuToggle?: () => void }) {
   const initials = getInitials();
 
   return (
-    <nav className="px-3 md:px-6 py-2 sticky top-0 z-50 w-full">
+    <nav className="w-full px-1 py-1 md:px-2">
       <div className="w-full">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-end gap-3">
           {/* left: hamburger + logo */}
           <div className="flex items-center gap-3">
             {/* {(isTablet || isMobile) && (
@@ -210,21 +183,21 @@ export function Navbar({ onMenuToggle }: { onMenuToggle?: () => void }) {
           </div>
 
           {/* right: points + notifications + user menu */}
-          <div className="flex items-center gap-4">
-            <UserScore score={userScore} />
+          <div className="flex items-center gap-1 sm:gap-3">
+            <div className="hidden rounded-xl border border-[#d3e2de] bg-[#eaf2f0] px-3 py-2 sm:block">
+              <UserScore score={userScore} />
+            </div>
             <NotificationDropdown />
 
-            {/* <DropdownMenu>
+            <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="relative flex items-center gap-2 px-2 py-1 rounded-full hover:shadow-md transition" style={{
-                  backgroundColor: 'transparent'
-                }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(254,184,35,0.08)')} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}>
+                <button className="relative flex items-center gap-2 rounded-xl border border-transparent px-2 py-1.5 transition hover:border-[#d3e2de] hover:bg-[#eaf2f0]">
                   <UserAvatar user={user} initials={initials} />
-                  {!isMobile && <UserInfo user={user} />}
+                  <UserInfo user={user} />
                 </button>
               </DropdownMenuTrigger>
               <UserDropdownMenu onLogout={handleLogout} />
-            </DropdownMenu> */}
+            </DropdownMenu>
           </div>
         </div>
       </div>

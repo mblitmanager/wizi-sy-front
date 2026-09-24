@@ -6,7 +6,6 @@ import { quizSubmissionService } from "@/services/quiz/QuizSubmissionService";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect, useMemo, memo, lazy, Suspense } from "react";
 import { Loader2, ArrowRight, Play } from "lucide-react";
-import { useNotifications } from "@/hooks/useNotifications";
 import { Clock, CheckCircle, Calendar, TrendingUp } from "lucide-react";
 import QuizSummaryCard from "../Summary/QuizSummaryCard";
 import QuizAnswerCard from "../Summary/QuizAnswerCard";
@@ -51,7 +50,6 @@ export function QuizSummary(props: Partial<QuizSummaryProps>) {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { notifyQuizCompleted, permission } = useNotifications();
 
   const [result, setResult] = useState<QuizSummaryProps | null>(null);
   const [notificationSent, setNotificationSent] = useState(false);
@@ -118,14 +116,6 @@ export function QuizSummary(props: Partial<QuizSummaryProps>) {
       }
     }
   }, [result, notificationSent]);
-
-  // Handle notifications for quiz results
-  useEffect(() => {
-    if (result && permission === "granted" && !notificationSent) {
-      notifyQuizCompleted(result.correctAnswers, result.totalQuestions);
-      setNotificationSent(true);
-    }
-  }, [result, permission, notificationSent, notifyQuizCompleted]);
 
   // Handle API errors
   useEffect(() => {

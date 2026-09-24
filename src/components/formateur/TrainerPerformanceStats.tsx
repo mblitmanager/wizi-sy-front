@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
     Table,
     TableBody,
@@ -423,25 +424,24 @@ export const StudentPerformanceTable = ({
 };
 
 const TrainerPerformanceStats = () => {
-    const [data, setData] = useState<TrainerPerformanceResponse | null>(null);
-    const [loading, setLoading] = useState(true);
     const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
+    const { data, isLoading, isError, refetch } = useQuery<TrainerPerformanceResponse>({
+        queryKey: ['formateur', 'students-performance'],
+        queryFn: () => FormateurService.getStudentsPerformance(),
+    });
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const perfRes = await FormateurService.getStudentsPerformance();
-                setData(perfRes);
-            } catch (err) {
-                console.error('Error fetching trainer performance:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, []);
+    if (isError) {
+        return (
+            <div className="bg-white rounded-[2rem] border border-slate-100 p-12 flex flex-col items-center justify-center space-y-4 shadow-sm">
+                <p className="text-slate-500 text-sm">Impossible de charger les performances des stagiaires.</p>
+                <button onClick={() => refetch()} className="text-sm font-semibold text-brand-primary hover:underline">
+                    Réessayer
+                </button>
+            </div>
+        );
+    }
 
-    if (loading || !data) {
+    if (isLoading || !data) {
         return (
             <div className="bg-white rounded-[2rem] border border-slate-100 p-20 flex flex-col items-center justify-center space-y-6 shadow-sm">
                 <Trophy className="h-10 w-10 text-brand-primary/30 animate-pulse" />
@@ -454,7 +454,7 @@ const TrainerPerformanceStats = () => {
         <div className="space-y-12">
             <RankingsSection data={data} />
             <StudentPerformanceTable 
-                performance={data.performance} 
+                performance={data.performance ?? []} 
                 onViewDetails={setSelectedStudentId} 
             />
             <StudentDetailModal 

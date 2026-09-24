@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import image from "../assets/aopia-parrainage2.png";
 import { useFormations } from "@/use-case/hooks/catalogue/useCatalogue";
+import { isAxiosError } from "axios";
+import { api } from "@/lib/api";
 
 interface FormData {
   civilite: string;
@@ -35,7 +37,6 @@ interface ParrainData {
   };
 }
 
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
 
 const ParrainageInscriptionPage = () => {
   const { token } = useParams();
@@ -67,16 +68,12 @@ const ParrainageInscriptionPage = () => {
           throw new Error("Token de parrainage manquant");
         }
 
-        const response = await fetch(`${API_URL}/parrainage/get-data/${token}`);
-
-        const data = await response.json();
-
-        if (!response.ok) {
+        const { data } = await api.get(`/parrainage/get-data/${token}`).catch((err) => {
           throw new Error(
-            data.message ||
+            (isAxiosError(err) && err.response?.data?.message) ||
               "Erreur lors de la récupération des données du parrain"
           );
-        }
+        });
 
         if (data.success && data.parrain) {
           // Transformez la structure pour correspondre à votre interface
@@ -140,22 +137,15 @@ const ParrainageInscriptionPage = () => {
         date_demande: new Date().toISOString(),
       };
 
-      const response = await fetch(`${API_URL}/parrainage/register-filleul`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (data.errors) {
+      try {
+        await api.post("/parrainage/register-filleul", payload);
+      } catch (err) {
+        const data = isAxiosError(err) ? err.response?.data : undefined;
+        if (data?.errors) {
           setErrors(data.errors);
           throw new Error("Veuillez corriger les erreurs dans le formulaire");
         }
-        throw new Error(data.message || "Erreur lors de l'inscription");
+        throw new Error(data?.message || "Erreur lors de l'inscription");
       }
 
       // Réinitialisation du formulaire après succès

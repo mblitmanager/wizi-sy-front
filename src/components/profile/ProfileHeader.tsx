@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import axios from 'axios';
+import { api } from '@/lib/api';
 import { useUser } from '@/hooks/useAuth';
 import { UserProgress } from '@/types/quiz';
 import { toast } from 'sonner';
@@ -60,21 +60,18 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     const [imageError, setImageError] = useState(false);
 
     const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
-    const VITE_API_URL = import.meta.env.VITE_API_URL;
     const { t } = useTranslation();
     const isTrainer = user?.role === 'formateur' || user?.role === 'formatrice';
 
     useEffect(() => {
         if (achievements !== undefined || !user?.user?.id) return;
         setLocalAchievementsLoading(true);
-        axios
-            .get(`${VITE_API_URL}/achievements/${user.user.id}`, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-            })
+        api
+            .get(`/achievements/${user.user.id}`)
             .then((res) => setLocalAchievements(res.data || []))
             .catch(() => toast.error('Erreur lors du chargement des succès'))
             .finally(() => setLocalAchievementsLoading(false));
-    }, [user?.user?.id, VITE_API_URL, achievements]);
+    }, [user?.user?.id, achievements]);
 
     const getInitials = useCallback(() => {
         const first = user?.stagiaire?.prenom?.charAt(0).toUpperCase() || '';
