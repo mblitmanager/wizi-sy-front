@@ -12,10 +12,12 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children, roles }: ProtectedRouteProps) {
-  const { token, user, role, isLoading, refetchUser } = useUser();
+  const { token, user, role, isLoading, hasLoggedOut, refetchUser } = useUser();
   const location = useLocation();
 
   if (!token) {
+    // Après une déconnexion volontaire on retourne à l'accueil, sans mémoriser la page quittée
+    if (hasLoggedOut) return <Navigate to="/" replace />;
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

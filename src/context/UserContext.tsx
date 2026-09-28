@@ -10,7 +10,7 @@ import {
 import { isAxiosError } from "axios";
 import { toast } from "sonner";
 import { User } from "@/types";
-import { api, AUTH_LOGOUT_EVENT, setTokenProvider } from "@/lib/api";
+import { api, API_URL, AUTH_LOGOUT_EVENT, setTokenProvider } from "@/lib/api";
 import { queryClient } from "@/lib/queryClient";
 import { AppRole, getUserRole } from "@/utils/roles";
 
@@ -21,6 +21,8 @@ interface UserContextType {
   /** Vrai uniquement pendant la résolution initiale de la session. */
   isLoading: boolean;
   error: string | null;
+  /** Vrai après une déconnexion volontaire : les pages protégées renvoient alors vers l'accueil. */
+  hasLoggedOut: boolean;
   /** Renvoie le token en cas de succès, `null` sinon (le message est dans `error`). */
   login: (email: string, password: string) => Promise<string | null>;
   logout: () => Promise<void>;
@@ -57,19 +59,32 @@ function writeCachedUser(user: User | null) {
   }
 }
 
-/** IP du client transmise au login. Plafonnée pour ne jamais retarder la connexion. */
-async function getClientIp(timeoutMs = 1500): Promise<string> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const response = await fetch("https://api.ipify.org?format=json", { signal: controller.signal });
-    const data = await response.json();
-    return data.ip ?? "unknown";
-  } catch {
-    return "unknown";
-  } finally {
-    clearTimeout(timer);
+/**
+ * IP du client transmise au login.
+ * Résolue en arrière-plan dès l'affichage de l'application : le login ne l'attend
+ * jamais plus de quelques centaines de millisecondes.
+ */
+let clientIpPromise: Promise<string> | null = null;
+
+function prefetchClientIp(timeoutMs = 3000): Promise<string> {
+  if (!clientIpPromise) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    clientIpPromise = fetch("https://api.ipify.org?format=json", { signal: controller.signal })
+      .then((response) => response.json())
+      .then((data) => (data.ip as string) ?? "unknown")
+      .catch(() => {
+        clientIpPromise = null; // nouvel essai à la prochaine connexion
+        return "unknown";
+      })
+      .finally(() => clearTimeout(timer));
   }
+  return clientIpPromise;
+}
+
+async function getClientIp(maxWaitMs = 300): Promise<string> {
+  const timeout = new Promise<string>((resolve) => setTimeout(() => resolve("unknown"), maxWaitMs));
+  return Promise.race([prefetchClientIp(), timeout]);
 }
 
 function errorMessage(error: unknown, fallback: string): string {
@@ -84,6 +99,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => (localStorage.getItem(TOKEN_KEY) ? readCachedUser() : null));
   const [isLoading, setIsLoading] = useState<boolean>(() => !!localStorage.getItem(TOKEN_KEY) && !readCachedUser());
   const [error, setError] = useState<string | null>(null);
+  const [hasLoggedOut, setHasLoggedOut] = useState(false);
 
   const clearSession = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY);
@@ -126,6 +142,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setTokenProvider(() => token ?? localStorage.getItem(TOKEN_KEY));
+    if (!token) prefetchClientIp();
   }, [token]);
 
   const login = useCallback(async (email: string, password: string) => {
@@ -149,6 +166,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       if (refreshToken) localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
       writeCachedUser(userData ?? null);
 
+      setHasLoggedOut(false);
       setUser(userData ?? null);
       setToken(newToken);
       toast.success("Connexion réussie", TOAST_STYLE);
@@ -164,19 +182,25 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, [fetchUserData]);
 
   const logout = useCallback(async () => {
-    try {
-      await api.post("/logout");
-    } catch {
-      // Le token est peut-être déjà invalide : on nettoie quand même côté client
+    // Révocation côté serveur en arrière-plan : l'interface n'attend pas la réponse.
+    // `keepalive` garantit que la requête part même si l'onglet est fermé juste après.
+    const currentToken = localStorage.getItem(TOKEN_KEY);
+    if (currentToken) {
+      fetch(`${API_URL}/logout`, {
+        method: "POST",
+        keepalive: true,
+        headers: { Accept: "application/json", Authorization: `Bearer ${currentToken}` },
+      }).catch(() => {
+        // Le token est peut-être déjà invalide : la session locale est nettoyée quand même
+      });
     }
 
+    // Le Cache Storage n'est pas vidé : le service worker n'y met que les fichiers
+    // statiques de l'application (jamais les réponses de l'API). Le purger forçait
+    // le re-téléchargement complet de l'application à chaque déconnexion/connexion.
     try {
       localStorage.clear();
       sessionStorage.clear();
-      if ("caches" in window) {
-        const keys = await caches.keys();
-        await Promise.all(keys.map((key) => caches.delete(key)));
-      }
     } catch (e) {
       console.warn("Nettoyage du stockage incomplet", e);
     }
@@ -191,13 +215,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
       document.cookie = `${expired}; domain=.${domain}`;
     });
 
+    // Pas de rechargement complet : tout l'état dépendant de la session (React Query,
+    // notifications, FCM) se réinitialise sur le changement de token.
+    setHasLoggedOut(true);
     clearSession();
     toast.success("Déconnexion réussie", TOAST_STYLE);
-
-    // Rechargement complet pour repartir d'un état propre (service worker, sockets...)
-    setTimeout(() => {
-      window.location.href = "/";
-    }, 500);
   }, [clearSession]);
 
   const updateUser = useCallback((updatedUser: Partial<User>) => {
@@ -211,8 +233,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const role = useMemo(() => getUserRole(user), [user]);
 
   const contextValue = useMemo(
-    () => ({ user, token, role, isLoading, error, login, logout, updateUser, refetchUser }),
-    [user, token, role, isLoading, error, login, logout, updateUser, refetchUser]
+    () => ({ user, token, role, isLoading, error, hasLoggedOut, login, logout, updateUser, refetchUser }),
+    [user, token, role, isLoading, error, hasLoggedOut, login, logout, updateUser, refetchUser]
   );
 
   return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>;
