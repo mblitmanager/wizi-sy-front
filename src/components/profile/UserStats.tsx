@@ -1,7 +1,11 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { Award, Trophy, CheckCircle2, Medal, Clock } from 'lucide-react';
 import { User } from '@/types';
 import { UserProgress } from '@/types/quiz';
-import { Award, Star, Flame, BarChart2 } from 'lucide-react';
+import { getLevelProgress } from '@/hooks/quiz/useQuizOverview';
+import { LEVEL_THRESHOLDS } from '@/components/quiz/quizUtils';
+import { cn } from '@/lib/utils';
 
 interface MinimalAchievement {
     id: string | number;
@@ -14,107 +18,97 @@ interface UserStatsProps {
     achievements?: MinimalAchievement[];
 }
 
+function formatDuration(seconds: number) {
+    if (!seconds) return '—';
+    const h = Math.floor(seconds / 3600);
+    const m = Math.round((seconds % 3600) / 60);
+    return h > 0 ? `${h} h ${m.toString().padStart(2, '0')}` : `${m} min`;
+}
+
+/**
+ * Statistiques du stagiaire (GET /stagiaire/progress).
+ * Le niveau suit les paliers de déblocage des quiz du backend (0 / 50 / 100 points).
+ */
 const UserStats: React.FC<UserStatsProps> = ({ user, userProgress, achievements = [] }) => {
     const totalPoints =
+        userProgress?.totalScore ||
         userProgress?.totalPoints ||
         userProgress?.total_points ||
         userProgress?.points ||
-        userProgress?.totalScore ||
         user?.points ||
         0;
+    const completed = userProgress?.completedQuizzes || userProgress?.completed_quizzes || 0;
+    const rank = userProgress?.rank;
+    const { current, next } = getLevelProgress(totalPoints);
+    // Paliers équidistants (0 / 50 / 100) : la barre couvre toute l'échelle, alignée sur les repères
+    const maxPoints = LEVEL_THRESHOLDS[LEVEL_THRESHOLDS.length - 1].minPoints;
+    const percent = Math.min(100, Math.round((totalPoints / maxPoints) * 100));
 
-    const level = Math.max(1, Math.floor(totalPoints / 10) + 1);
-    const progressToNextLevel = ((totalPoints % 10) / 10) * 100;
-    const pointsToNext = 20 - (totalPoints % 20);
-    const badgesCount = achievements.length;
-    const streak = userProgress?.current_streak || userProgress?.currentStreak || 0;
-
-    const stats = [
-        {
-            icon: <Award className="h-4 w-4" />,
-            color: 'text-indigo-500',
-            bg: 'bg-indigo-50 dark:bg-indigo-900/20',
-            label: 'Niveau actuel',
-            value: String(level),
-            sub: `${pointsToNext} pts pour le niveau ${level + 1}`,
-            progress: progressToNextLevel,
-            progressColor: 'bg-indigo-500',
-        },
-        {
-            icon: <Star className="h-4 w-4" />,
-            color: 'text-amber-500',
-            bg: 'bg-amber-50 dark:bg-amber-900/20',
-            label: 'Badges obtenus',
-            value: String(badgesCount),
-            sub:
-                badgesCount > 0
-                    ? `${badgesCount} badge${badgesCount > 1 ? 's' : ''} débloqué${badgesCount > 1 ? 's' : ''}`
-                    : 'Aucun badge pour le moment',
-            progress: null,
-            progressColor: '',
-        },
-        ...(streak > 0
-            ? [
-                  {
-                      icon: <Flame className="h-4 w-4" />,
-                      color: 'text-orange-500',
-                      bg: 'bg-orange-50 dark:bg-orange-900/20',
-                      label: 'Série actuelle',
-                      value: `${streak}j`,
-                      sub: 'Continuez pour battre votre record !',
-                      progress: null,
-                      progressColor: '',
-                  },
-              ]
-            : []),
+    const tiles = [
+        { icon: Trophy, label: 'Points', value: String(totalPoints), tone: 'bg-gold/15 text-gold-deep', to: '/classement' },
+        { icon: CheckCircle2, label: 'Quiz terminés', value: String(completed), tone: 'bg-emerald-50 text-emerald-600', to: '/quizzes' },
+        { icon: Medal, label: 'Classement', value: rank ? `${rank}${rank === 1 ? 'er' : 'e'}` : '—', tone: 'bg-accent text-primary', to: '/classement' },
+        { icon: Award, label: 'Badges', value: String(achievements.length), tone: 'bg-rose-50 text-rose-600', to: '/profile/badges' },
     ];
 
     return (
-        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden">
-            {/* Header */}
-            <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
-                    <BarChart2 className="h-4 w-4 text-blue-500" />
-                </div>
-                <h2 className="text-sm font-medium text-gray-800 dark:text-white">
-                    Mes statistiques
-                </h2>
-            </div>
-
-            {/* Stats */}
-            <div className="p-4 space-y-3">
-                {stats.map((s, i) => (
-                    <div
-                        key={i}
-                        className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50"
+        <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+                {tiles.map((t) => (
+                    <Link
+                        key={t.label}
+                        to={t.to}
+                        className="group rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-sm)] transition-colors hover:border-primary/25"
                     >
-                        <div
-                            className={`w-8 h-8 rounded-lg ${s.bg} ${s.color} flex items-center justify-center flex-shrink-0`}
-                        >
-                            {s.icon}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between mb-0.5">
-                                <span className="text-xs text-gray-500 dark:text-gray-400">
-                                    {s.label}
-                                </span>
-                                <span className={`text-sm font-medium ${s.color}`}>{s.value}</span>
-                            </div>
-                            {s.progress !== null && (
-                                <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full mb-1">
-                                    <div
-                                        className={`h-1.5 rounded-full ${s.progressColor} transition-all duration-500`}
-                                        style={{ width: `${s.progress}%` }}
-                                    />
-                                </div>
-                            )}
-                            <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
-                                {s.sub}
-                            </p>
-                        </div>
-                    </div>
+                        <span className={cn('mb-3 flex h-9 w-9 items-center justify-center rounded-xl', t.tone)}>
+                            <t.icon className="h-[18px] w-[18px]" />
+                        </span>
+                        <p className="font-poppins text-2xl font-bold tabular-nums text-foreground">{t.value}</p>
+                        <p className="text-sm text-muted-foreground group-hover:text-foreground">{t.label}</p>
+                    </Link>
                 ))}
             </div>
+
+            <section className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-sm)]">
+                <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
+                    <div>
+                        <h2 className="text-base font-semibold text-foreground">Niveau {current.label}</h2>
+                        <p className="text-sm text-muted-foreground">
+                            {next
+                                ? `Encore ${next.minPoints - totalPoints} pts pour débloquer les quiz ${next.label.toLowerCase()}s.`
+                                : 'Tous les niveaux de quiz sont débloqués.'}
+                        </p>
+                    </div>
+                    {userProgress?.totalTimeSpent ? (
+                        <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+                            <Clock className="h-4 w-4" />
+                            {formatDuration(userProgress.totalTimeSpent)} de quiz
+                        </span>
+                    ) : null}
+                </div>
+
+                <div className="h-2.5 overflow-hidden rounded-full bg-secondary">
+                    <div className="h-full rounded-full bg-gold transition-[width] duration-500" style={{ width: `${percent}%` }} />
+                </div>
+                <ol className="mt-3 grid grid-cols-3 text-xs">
+                    {LEVEL_THRESHOLDS.map((t, i) => {
+                        const unlocked = totalPoints >= t.minPoints;
+                        return (
+                            <li
+                                key={t.level}
+                                className={cn(
+                                    i === 1 && 'text-center',
+                                    i === 2 && 'text-right',
+                                    unlocked ? 'font-semibold text-foreground' : 'text-muted-foreground'
+                                )}
+                            >
+                                {t.label}
+                                <span className="block font-normal text-muted-foreground">{t.minPoints} pts</span>
+                            </li>
+                        );
+                    })}
+                </ol>
+            </section>
         </div>
     );
 };

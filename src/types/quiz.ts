@@ -172,6 +172,8 @@ export interface UserProgress {
   total_points?: number;
   totalPoints?: number;
   rank?: number;
+  /** Temps total passé sur les quiz, en secondes. */
+  totalTimeSpent?: number;
   points?: number;
   category_progress?: {
     [key: string]: {

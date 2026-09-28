@@ -48,6 +48,8 @@ export function useUserProgress() {
         completedQuizzes: total.completed_quizzes || 0,
         averageScore: total.average_score || 0,
         level: total.level || 1,
+        rank: total.rank ?? undefined,
+        totalTimeSpent: total.total_time_spent || 0,
       };
     },
     enabled,

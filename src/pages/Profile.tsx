@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+import { Award, BarChart3, ChevronRight, GraduationCap, Gift } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
-import ProfileHeader from "@/components/profile/ProfileHeader";
+import ProfileHeader, { ProfileInfoCard } from "@/components/profile/ProfileHeader";
 import UserStats from "@/components/profile/UserStats";
 import ContactSection from "@/components/FeatureHomePage/ContactSection";
 import AdCatalogueBlock from "@/components/FeatureHomePage/AdCatalogueBlock";
@@ -12,15 +14,23 @@ import { useUserAchievements, useUserProgress } from "@/hooks/queries/useProfile
 import FormateurService from "@/services/FormateurService";
 import type { Contact } from "@/types/contact";
 
+const QUICK_LINKS = [
+  { to: "/profile/badges", icon: Award, title: "Mes badges", text: "Vos succès débloqués" },
+  { to: "/profile/formations", icon: GraduationCap, title: "Mes formations", text: "Vos parcours en cours" },
+  { to: "/profile/statistiques", icon: BarChart3, title: "Mes statistiques", text: "Résultats détaillés" },
+  { to: "/suivi-parrainage", icon: Gift, title: "Mes parrainages", text: "Suivi de vos filleuls" },
+];
+
 function UserStatsSkeleton() {
   return (
-    <div className="space-y-4">
-      <Skeleton className="h-6 w-1/2" />
-      <div className="grid grid-cols-2 gap-4">
+    <div className="space-y-4" role="status" aria-live="polite">
+      <span className="sr-only">Chargement des statistiques…</span>
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-20 rounded-xl" />
+          <Skeleton key={i} className="h-28 rounded-2xl" />
         ))}
       </div>
+      <Skeleton className="h-36 rounded-2xl" />
     </div>
   );
 }
@@ -28,6 +38,7 @@ function UserStatsSkeleton() {
 const ProfilePage = () => {
   const { user, role } = useUser();
   const isTrainer = role === "formateur";
+  const isStagiaire = role === "stagiaire";
   const isAdmin = role === "admin" || !!user?.is_admin;
 
   const { data: userProgress = null, isLoading: progressLoading } = useUserProgress();
@@ -42,50 +53,71 @@ const ProfilePage = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto py-4 px-2 sm:py-6 sm:px-4 lg:py-8 space-y-6 sm:space-y-8">
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-xl shadow-md overflow-hidden mb-4">
-          <div className="flex flex-col items-center lg:flex-row">
-            <div className="w-full mt-6 p-6 lg:w-2/4 lg:order-2 lg:mt-0">
-              <ProfileHeader
-                user={user}
-                userProgress={userProgress}
-                achievements={achievements}
-                achievementsLoading={achievementsLoading}
-              />
-            </div>
+      <div className="space-y-6">
+        <ProfileHeader
+          user={user}
+          userProgress={userProgress}
+          achievements={achievements}
+          achievementsLoading={achievementsLoading}
+        />
 
-            {!isTrainer && (
-              <div className="w-full dark:bg-gray-700 p-6 lg:w-2/4 lg:order-1">
-                {progressLoading ? (
-                  <UserStatsSkeleton />
-                ) : (
-                  <UserStats user={user} userProgress={userProgress} achievements={achievements} />
-                )}
-              </div>
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+          <div className="min-w-0 space-y-6">
+            {isStagiaire &&
+              (progressLoading || achievementsLoading ? (
+                <UserStatsSkeleton />
+              ) : (
+                <UserStats user={user} userProgress={userProgress} achievements={achievements} />
+              ))}
+
+            {isStagiaire && (
+              <section aria-labelledby="quick-links-title">
+                <h2 id="quick-links-title" className="mb-3 text-base font-semibold text-foreground">
+                  Accès rapides
+                </h2>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {QUICK_LINKS.map((link) => (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      className="group flex items-center gap-3 rounded-2xl border border-border bg-card p-4 transition-colors hover:border-primary/25 hover:bg-accent/40"
+                    >
+                      <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-accent text-primary">
+                        <link.icon className="h-5 w-5" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-semibold text-foreground">{link.title}</span>
+                        <span className="block text-xs text-muted-foreground">{link.text}</span>
+                      </span>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                    </Link>
+                  ))}
+                </div>
+              </section>
             )}
+
+            {isAdmin && (
+              <section className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-sm)]">
+                <h2 className="mb-3 text-base font-semibold text-foreground">Uploader une vidéo</h2>
+                <VideoUploader />
+              </section>
+            )}
+
+            {isTrainer && <ContactSection contacts={trainees} loading={traineesLoading} title="Mes Apprenants" />}
           </div>
+
+          <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+            <ProfileInfoCard user={user} />
+          </aside>
         </div>
 
-        {isAdmin && (
-          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm">
-            <h3 className="text-lg sm:text-xl font-semibold mb-3 font-montserrat dark:text-white">
-              Uploader une vidéo
-            </h3>
-            <VideoUploader />
-          </div>
+        {!isTrainer && (
+          <section className="rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-sm)] md:p-6">
+            <ContactSection />
+          </section>
         )}
 
-        {isTrainer ? (
-          <ContactSection contacts={trainees} loading={traineesLoading} title="Mes Apprenants" />
-        ) : (
-          <ContactSection />
-        )}
-
-        {!isTrainer && catalogue.length > 0 && (
-          <div className="mt-6">
-            <AdCatalogueBlock formations={catalogue.slice(0, 4)} />
-          </div>
-        )}
+        {!isTrainer && catalogue.length > 0 && <AdCatalogueBlock formations={catalogue.slice(0, 4)} />}
       </div>
     </Layout>
   );

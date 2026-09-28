@@ -9,6 +9,10 @@ export interface ProgressData {
     completed_quizzes: number;
     average_score: number;
     level?: number;
+    /** Rang dans le classement (RankingService::getStagiaireProgress). */
+    rank?: number | null;
+    /** Temps total passé sur les quiz, en secondes. */
+    total_time_spent?: number;
   };
   by_category: {
     [key: string]: {
@@ -75,6 +79,8 @@ export const rankingService = {
           completed_quizzes: data.completedQuizzes || 0,
           average_score: data.averageScore || 0,
           level: data.level || 1,
+          rank: Number(data.rang) || null,
+          total_time_spent: Number(data.totalTimeSpent) || 0,
         },
         by_category: categoryProgress,
       };
