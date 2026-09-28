@@ -1,22 +1,35 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import {
   UserPlus,
   Gift,
-  Share2,
-  ChevronRight,
   User,
-  X,
-  CheckCircle,
+  Mail,
+  Phone,
+  CheckCircle2,
+  ClipboardList,
+  Headset,
+  BadgeCheck,
+  ArrowRight,
+  Loader2,
 } from "lucide-react";
+import { isAxiosError } from "axios";
 import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import image from "../../assets/plan.png";
 import { useUser } from "@/hooks/useAuth";
 import { FORMATIONMETADATA } from "@/utils/constants";
-
-import { isAxiosError } from "axios";
+import { getUserAccount } from "@/utils/userAccount";
 import { api } from "@/lib/api";
+import { cn } from "@/lib/utils";
 
 interface FormData {
   civilite: string;
@@ -31,65 +44,79 @@ interface FormData {
   date_inscription?: string;
 }
 
-// Composant Modal pour le succès de l'inscription
+const REWARD = `50 ${FORMATIONMETADATA.euros}`;
+
+const STEPS = [
+  { icon: ClipboardList, title: "Remplissez le formulaire", text: "Inscrivez la personne avec ses coordonnées." },
+  { icon: Headset, title: "Contact commercial", text: "Un conseiller la contacte pour choisir sa formation." },
+  { icon: BadgeCheck, title: "Validation", text: "Le commercial valide les formations choisies." },
+  { icon: Gift, title: `Récompense de ${REWARD}`, text: "Vous recevez une carte cadeau pour chaque inscription validée." },
+];
+
+// Fenêtre de confirmation après l'inscription d'un filleul
 interface SuccessModalProps {
   isOpen: boolean;
   onClose: () => void;
   filleulName: string;
 }
 
-const SuccessModal: React.FC<SuccessModalProps> = ({
-  isOpen,
-  onClose,
-  filleulName,
-}) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-in fade-in duration-300">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center gap-3">
-            <div className="bg-wizi-muted p-2 rounded-full">
-              <CheckCircle className="w-6 h-6 text-wizi-muted" />
-            </div>
-            <h3 className="text-lg font-bold text-gray-900">
-              Filleul inscrit avec succès !
-            </h3>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="mb-6">
-          <p className="text-gray-700 mb-3">Vous avez inscrit avec succès :</p>
-          <p className="font-semibold text-gray-900 mb-4 text-center bg-gray-50 py-2 px-4 rounded-lg">
-            {filleulName}
-          </p>
-          <div className="bg-wizi-muted border border-wizi-accent rounded-lg p-4">
-            <p className="text-wizi-muted text-sm text-center">
-              Vous recevrez 50 {FORMATIONMETADATA.euros} en carte cadeau une
-              fois son inscription validée.
-            </p>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex gap-3">
-          <button
-            onClick={onClose}
-            className="flex-1 bg-gray-900 text-white py-2 px-4 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
-            Continuer
-          </button>
-        </div>
+const SuccessModal: React.FC<SuccessModalProps> = ({ isOpen, onClose, filleulName }) => (
+  <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <DialogContent className="max-w-md rounded-2xl">
+      <DialogHeader className="items-center text-center sm:text-center">
+        <span className="mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+          <CheckCircle2 className="h-7 w-7" />
+        </span>
+        <DialogTitle className="text-xl">Filleul inscrit avec succès !</DialogTitle>
+        <DialogDescription>
+          <span className="font-semibold text-foreground">{filleulName}</span> sera contacté(e) par un conseiller.
+        </DialogDescription>
+      </DialogHeader>
+      <p className="rounded-xl bg-gold-soft px-4 py-3 text-center text-sm text-foreground">
+        Vous recevrez <span className="font-semibold">{REWARD}</span> en carte cadeau une fois son inscription validée.
+      </p>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Button variant="outline" asChild className="flex-1">
+          <Link to="/suivi-parrainage">Suivre mes parrainages</Link>
+        </Button>
+        <Button onClick={onClose} className="flex-1">
+          Parrainer une autre personne
+        </Button>
       </div>
+    </DialogContent>
+  </Dialog>
+);
+
+/** Champ de formulaire avec libellé et message d'erreur renvoyé par le backend. */
+function Field({
+  id,
+  label,
+  error,
+  children,
+}: {
+  id: string;
+  label: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-foreground">
+        {label}
+      </label>
+      {children}
+      {error && <p className="mt-1.5 text-sm text-red-600">{error}</p>}
     </div>
   );
+}
+
+const EMPTY_FORM: Omit<FormData, "parrain_id"> = {
+  civilite: "M",
+  prenom: "",
+  nom: "",
+  telephone: "",
+  statut: "1",
+  lien_parrainage: "",
 };
 
 interface ParrainageSectionProps {
@@ -98,20 +125,16 @@ interface ParrainageSectionProps {
 }
 
 const ParrainageSection = ({ onParrainageSuccess }: ParrainageSectionProps) => {
-  const [formData, setFormData] = useState<FormData>({
-    civilite: "M",
-    prenom: "",
-    nom: "",
-    telephone: "",
-    statut: "1",
-    parrain_id: "",
-    lien_parrainage: "",
-  });
-  const [errors, setErrors] = useState<Record<string, string[]>>({});
-  const [submitting, setSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
   const { toast } = useToast();
   const { user } = useUser();
+
+  // Compte du parrain : `parrain_id` doit être un users.id (validation backend `exists:users,id`),
+  // quelle que soit la forme de l'objet utilisateur (réponse de /login ou de /me).
+  const account = getUserAccount(user);
+
+  const [formData, setFormData] = useState<FormData>({ ...EMPTY_FORM, parrain_id: account.id });
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
+  const [submitting, setSubmitting] = useState(false);
 
   // États pour le modal de succès
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -119,19 +142,17 @@ const ParrainageSection = ({ onParrainageSuccess }: ParrainageSectionProps) => {
 
   // Pré-remplir le parrain_id avec l'ID de l'utilisateur connecté
   useEffect(() => {
-    if (user?.user?.id) {
-      setFormData((prev) => ({
-        ...prev,
-        parrain_id: user.user.id.toString(),
-      }));
+    if (account.id) {
+      setFormData((prev) => ({ ...prev, parrain_id: account.id }));
     }
-  }, [user]);
-  // console.log("User in ParrainageSection:", user);
+  }, [account.id]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    // Une correction efface l'erreur du champ concerné
+    if (errors[name]) {
+      setErrors(({ [name]: _removed, ...rest }) => rest);
+    }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -159,39 +180,16 @@ const ParrainageSection = ({ onParrainageSuccess }: ParrainageSectionProps) => {
         throw new Error(data?.message || "Erreur lors de l'inscription");
       }
 
-      // Stocker le nom du filleul pour le modal
-      const fullName = `${formData.prenom} ${formData.nom}`;
-      setFilleulName(fullName);
-
-      // Réinitialisation du formulaire après succès
-      setFormData({
-        civilite: "M",
-        prenom: "",
-        nom: "",
-        telephone: "",
-        statut: "1",
-        parrain_id: user?.user?.id?.toString() || "",
-        lien_parrainage: "",
-      });
-
+      // Stocker le nom du filleul pour le modal, puis réinitialiser le formulaire
+      setFilleulName(`${formData.prenom} ${formData.nom}`);
+      setFormData({ ...EMPTY_FORM, parrain_id: account.id });
       setErrors({});
-      setIsSuccess(true);
 
-      // Afficher le modal de succès
       setShowSuccessModal(true);
       onParrainageSuccess?.();
-
-      toast({
-        title: "Succès",
-        description: "Inscription du filleul réussie !",
-      });
     } catch (error: unknown) {
       const message =
-        error instanceof Error
-          ? error.message
-          : typeof error === "string"
-          ? error
-          : "Une erreur est survenue";
+        error instanceof Error ? error.message : typeof error === "string" ? error : "Une erreur est survenue";
 
       toast({
         title: "Erreur",
@@ -207,439 +205,218 @@ const ParrainageSection = ({ onParrainageSuccess }: ParrainageSectionProps) => {
     setShowSuccessModal(false);
     setFilleulName("");
   };
-  // console.log("Rendering ParrainageSection with user:", user);
+
+  const inputClass = (field: string) =>
+    cn("h-11 rounded-lg bg-card", errors[field] && "border-red-400 focus-visible:ring-red-400");
+
+  const parrainName = [user?.stagiaire?.prenom, account.name.toLocaleUpperCase()].filter(Boolean).join(" ");
+
   return (
     <>
-      <section className="mx-auto h-full max-w-7xl px-1 sm:px-2 lg:px-4">
-        <div className="flex h-full flex-col gap-4 lg:flex-row">
-          {/* Left Column - Content */}
-          <div className="order-2 flex min-w-0 flex-1 flex-col overflow-hidden lg:order-1">
-            {/* Header Section */}
-            <div className="mb-3">
-              <div className="flex items-center gap-3 mb-2 lg:hidden">
-                <img
-                  src={image}
-                  alt="Parrainage"
-                    className="h-12 w-12 rounded-lg object-contain"
-                />
-                <div>
-                  <h1 className="text-xl font-bold text-[#173f46]">
-                    Programme de parrainage
-                  </h1>
-                  <p className="text-sm text-gray-600">
-                    Gagnez{" "}
-                    <span className="text-orange-600 font-bold">
-                      50 € par filleul
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(300px,38%)] lg:gap-8">
+        {/* ── Colonne principale ── */}
+        <div className="min-w-0 space-y-5">
+          <header>
+            <h2 className="font-poppins text-2xl font-bold text-foreground md:text-3xl">Programme de parrainage</h2>
+            <p className="mt-1.5 text-muted-foreground">
+              Recommandez Wizi Learn à vos proches et collègues : gagnez{" "}
+              <span className="font-semibold text-foreground">{REWARD}</span> en carte cadeau pour chaque
+              inscription validée.
+            </p>
+          </header>
+
+          <div className="flex items-center gap-3 rounded-2xl border border-gold/40 bg-gold-soft p-4">
+            <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gold text-navy">
+              <Gift className="h-5 w-5" />
+            </span>
+            <p className="text-sm font-medium text-foreground">
+              Aucune limite : plus vous parrainez, plus vous cumulez de cartes cadeaux.
+            </p>
+          </div>
+
+          {/* Formulaire */}
+          <section
+            className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-sm)] md:p-6"
+            aria-labelledby="filleul-title"
+          >
+            <div className="mb-5 flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+                <UserPlus className="h-5 w-5" />
+              </span>
+              <div>
+                <h3 id="filleul-title" className="text-lg font-semibold text-foreground">
+                  Inscrire un filleul
+                </h3>
+                <p className="text-sm text-muted-foreground">Un conseiller le contactera rapidement.</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <input type="hidden" name="parrain_id" value={formData.parrain_id} />
+              <input type="hidden" name="statut" value={formData.statut} />
+
+              <fieldset>
+                <legend className="mb-1.5 text-sm font-medium text-foreground">Civilité</legend>
+                <div className="inline-flex rounded-lg bg-secondary p-1">
+                  {[
+                    { value: "M", label: "Monsieur" },
+                    { value: "Mme", label: "Madame" },
+                  ].map((option) => (
+                    <label
+                      key={option.value}
+                      className={cn(
+                        "cursor-pointer rounded-md px-4 py-1.5 text-sm font-medium transition-colors focus-within:ring-2 focus-within:ring-ring",
+                        formData.civilite === option.value
+                          ? "bg-card text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <input
+                        type="radio"
+                        name="civilite"
+                        value={option.value}
+                        checked={formData.civilite === option.value}
+                        onChange={handleChange}
+                        className="sr-only"
+                      />
+                      {option.label}
+                    </label>
+                  ))}
+                </div>
+                {errors.civilite && <p className="mt-1.5 text-sm text-red-600">{errors.civilite[0]}</p>}
+              </fieldset>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field id="prenom" label="Prénom" error={errors.prenom?.[0]}>
+                  <Input
+                    id="prenom"
+                    name="prenom"
+                    value={formData.prenom}
+                    onChange={handleChange}
+                    autoComplete="off"
+                    aria-invalid={!!errors.prenom}
+                    className={inputClass("prenom")}
+                    required
+                  />
+                </Field>
+                <Field id="nom" label="Nom" error={errors.nom?.[0]}>
+                  <Input
+                    id="nom"
+                    name="nom"
+                    value={formData.nom}
+                    onChange={handleChange}
+                    autoComplete="off"
+                    aria-invalid={!!errors.nom}
+                    className={inputClass("nom")}
+                    required
+                  />
+                </Field>
+              </div>
+
+              <Field id="telephone" label="Téléphone" error={errors.telephone?.[0]}>
+                <div className="relative">
+                  <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    type="tel"
+                    id="telephone"
+                    name="telephone"
+                    value={formData.telephone}
+                    onChange={handleChange}
+                    placeholder="06 12 34 56 78"
+                    inputMode="tel"
+                    aria-invalid={!!errors.telephone}
+                    className={cn(inputClass("telephone"), "pl-9")}
+                    required
+                  />
+                </div>
+              </Field>
+
+              {errors.parrain_id && (
+                <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{errors.parrain_id[0]}</p>
+              )}
+
+              <Button
+                type="submit"
+                disabled={submitting}
+                className="h-11 w-full rounded-lg font-semibold sm:w-auto sm:px-8"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Inscription en cours…
+                  </>
+                ) : (
+                  <>
+                    Inscrire mon filleul
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            </form>
+
+            {/* Parrain */}
+            <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-border pt-4 text-sm">
+              <span className="text-muted-foreground">Parrain :</span>
+              <span className="inline-flex items-center gap-1.5 font-medium text-foreground">
+                <User className="h-4 w-4 text-muted-foreground" />
+                {parrainName || "—"}
+              </span>
+              {account.email && (
+                <span className="inline-flex min-w-0 items-center gap-1.5 text-muted-foreground">
+                  <Mail className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">{account.email}</span>
+                </span>
+              )}
+            </div>
+          </section>
+
+          {/* Étapes */}
+          <section aria-labelledby="steps-title">
+            <h3 id="steps-title" className="mb-3 text-lg font-semibold text-foreground">
+              Comment ça marche ?
+            </h3>
+            <ol className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {STEPS.map((step, i) => (
+                <li key={step.title} className="rounded-2xl border border-border bg-card p-4">
+                  <div className="mb-3 flex items-center justify-between">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-primary">
+                      <step.icon className="h-[18px] w-[18px]" />
                     </span>
-                  </p>
-                </div>
-              </div>
-
-              <h1 className="hidden text-2xl font-bold text-[#173f46] lg:block">
-                Programme de parrainage
-              </h1>
-              <p className="hidden text-sm text-[#526b70] lg:block">
-                Parrainez vos collègues et gagnez{" "}
-                <span className="text-orange-600 font-bold">50 €</span> pour
-                chaque inscription valide.
-              </p>
-
-              <div className="rounded-xl border border-[#e9c66c] bg-[#fff4d8] p-3">
-                <div className="flex items-center gap-3">
-                  <div className="rounded-lg bg-[#f6c454] p-2">
-                    <Gift className="h-5 w-5 text-[#173f46]" />
+                    <span className="font-poppins text-2xl font-bold text-border">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
                   </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-[#173f46]">
-                      Plus vous parrainez, plus vous gagnez des cartes cadeaux.
-                    </h3>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Section Informations du Parrain */}
-            <div className="mb-3">
-              <Card className="rounded-xl border border-[#d3e2de] bg-[#eaf2f0] shadow-none">
-                <CardContent className="p-3">
-                  <div className="flex items-center gap-3">
-                    <div className="rounded-lg bg-white p-2">
-                      <User className="h-4 w-4 text-[#173f46]" />
-                    </div>
-                    <h3 className="text-sm font-semibold text-[#173f46]">
-                      Votre profil de parrain
-                    </h3>
-                  </div>
-
-                  {/* Nouvelle structure pour éviter le troncage */}
-                  <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
-                    {/* Prénom */}
-                    <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6">
-                      <div className="w-full sm:w-32 flex-shrink-0">
-                        <p className="text-xs font-medium text-[#6b7773]">
-                          Prénom
-                        </p>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="truncate text-sm font-semibold text-[#173f46]">
-                          {user?.stagiaire?.prenom || ""}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Nom */}
-                    <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6">
-                      <div className="w-full sm:w-32 flex-shrink-0">
-                        <p className="text-xs font-medium text-[#6b7773]">
-                          Nom
-                        </p>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="truncate text-sm font-semibold text-[#173f46]">
-                          {user?.user?.name?.toLocaleUpperCase() || ""}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Email - Structure améliorée */}
-                    <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6">
-                      <div className="w-full sm:w-32 flex-shrink-0">
-                        <p className="text-xs font-medium text-[#6b7773]">
-                          Email
-                        </p>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="truncate text-sm font-semibold text-[#b47700]">
-                          {user?.user?.email || ""}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Formulaire d'inscription des filleuls */}
-            <div className="mb-3 min-h-0 flex-1 overflow-hidden">
-              <Card className="h-full overflow-hidden rounded-xl border border-[#d3e2de] bg-[#fbfaf6] shadow-sm">
-                <CardContent className="h-full overflow-hidden p-4">
-                  <div className="mb-3 flex items-center gap-3">
-                    <div className="rounded-lg bg-[#fff1d2] p-2">
-                      <UserPlus className="h-4 w-4 text-[#b47700]" />
-                    </div>
-                    <h3 className="text-base font-semibold text-[#173f46]">
-                      Inscrire un filleul
-                    </h3>
-                  </div>
-
-                  {/* Ancien message de succès (maintenant désactivé car on utilise le modal) */}
-                  {/* {isSuccess && (
-                    <div className="mb-6 p-4 bg-wizi-muted/40 border border-wizi-accent/30 rounded-lg">
-                            <div className="flex">
-                              <div className="flex-shrink-0">
-                                <svg
-                                  className="h-5 w-5 text-wizi-muted"
-                                  fill="currentColor"
-                                  viewBox="0 0 20 20">
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                              </div>
-                              <div className="ml-3">
-                                <h3 className="text-sm font-medium text-wizi-muted">
-                                  Filleul inscrit avec succès !
-                                </h3>
-                                <div className="mt-2 text-sm text-wizi-muted">
-                                  <p>
-                                    Le filleul a été inscrit avec succès. Vous recevrez
-                                    50€ en carte cadeau une fois son inscription
-                                    validée.
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                  )} */}
-
-                  <form onSubmit={handleSubmit} className="space-y-3">
-                    <input
-                      type="hidden"
-                      name="parrain_id"
-                      value={formData.parrain_id}
-                    />
-
-                    <div className="grid grid-cols-1 gap-3">
-                      {/* Civilité */}
-                      <div>
-                        <label
-                          htmlFor="civilite"
-                          className="mb-1 block text-xs font-semibold text-[#526b70]">
-                          Civilité
-                        </label>
-                        <div className="flex space-x-4">
-                          {[
-                            { value: "M", label: "Monsieur" },
-                            { value: "Mme", label: "Madame" },
-                          ].map((option) => (
-                            <label
-                              key={option.value}
-                              className="inline-flex items-center">
-                              <input
-                                type="radio"
-                                name="civilite"
-                                value={option.value}
-                                checked={formData.civilite === option.value}
-                                onChange={handleChange}
-                                className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300"
-                              />
-                              <span className="ml-2 text-xs text-[#526b70]">
-                                {option.label}
-                              </span>
-                            </label>
-                          ))}
-                        </div>
-                        {errors.civilite && (
-                          <p className="mt-2 text-sm text-red-600">
-                            {errors.civilite[0]}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Nom et Prénom */}
-                      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                        {/* Prénom */}
-                        <div>
-                          <label
-                            htmlFor="prenom"
-                            className="mb-1 block text-xs font-semibold text-[#526b70]">
-                            Prénom
-                          </label>
-                          <input
-                            type="text"
-                            id="prenom"
-                            name="prenom"
-                            value={formData.prenom}
-                            onChange={handleChange}
-                            className={`block w-full rounded-lg border px-3 py-2 text-sm shadow-sm focus:border-orange-500 focus:ring-orange-500 ${
-                              errors.prenom
-                                ? "border-red-300"
-                                : "border-gray-300"
-                            }`}
-                            required
-                          />
-                          {errors.prenom && (
-                            <p className="mt-2 text-sm text-red-600">
-                              {errors.prenom[0]}
-                            </p>
-                          )}
-                        </div>
-
-                        {/* Nom */}
-                        <div>
-                          <label
-                            htmlFor="nom"
-                            className="mb-1 block text-xs font-semibold text-[#526b70]">
-                            Nom
-                          </label>
-                          <input
-                            type="text"
-                            id="nom"
-                            name="nom"
-                            value={formData.nom}
-                            onChange={handleChange}
-                            className={`block w-full rounded-lg border px-3 py-2 text-sm shadow-sm focus:border-orange-500 focus:ring-orange-500 ${
-                              errors.nom ? "border-red-300" : "border-gray-300"
-                            }`}
-                            required
-                          />
-                          {errors.nom && (
-                            <p className="mt-2 text-sm text-red-600">
-                              {errors.nom[0]}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Téléphone uniquement */}
-                      <div>
-                        <label
-                          htmlFor="telephone"
-                          className="mb-1 block text-xs font-semibold text-[#526b70]">
-                          Téléphone
-                        </label>
-                        <input
-                          type="tel"
-                          id="telephone"
-                          name="telephone"
-                          value={formData.telephone}
-                          onChange={handleChange}
-                          className={`block w-full rounded-lg border px-3 py-2 text-sm shadow-sm focus:border-orange-500 focus:ring-orange-500 ${
-                            errors.telephone
-                              ? "border-red-300"
-                              : "border-gray-300"
-                          }`}
-                          required
-                          placeholder="Ex: +33 1 23 45 67 89"
-                        />
-                        {errors.telephone && (
-                          <p className="mt-2 text-sm text-red-600">
-                            {errors.telephone[0]}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Statut (caché) */}
-                    <input
-                      type="hidden"
-                      name="statut"
-                      value={formData.statut}
-                    />
-
-                    <div className="pt-1">
-                      <button
-                        type="submit"
-                        disabled={submitting}
-                        className={`flex w-full items-center justify-center rounded-lg border border-transparent bg-[#173f46] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#245963] focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                          submitting ? "opacity-75 cursor-not-allowed" : ""
-                        }`}>
-                        {submitting ? (
-                          <>
-                            <svg
-                              className="animate-spin -ml-1 mr-3 h-4 w-4 text-white"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24">
-                              <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"></circle>
-                              <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Inscription en cours...
-                          </>
-                        ) : (
-                          "Inscrire le filleul"
-                        )}
-                      </button>
-                    </div>
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* How It Works Section */}
-            <Card className="hidden rounded-xl border border-[#d3e2de] bg-[#eaf2f0] shadow-none xl:block">
-              <CardContent className="p-3">
-                <div className="mb-3 flex items-center gap-3">
-                  <div className="bg-wizi-muted p-2 rounded-lg">
-                    <ChevronRight className="h-5 w-5 text-wizi-muted" />
-                  </div>
-                  <h3 className="text-sm font-semibold text-[#173f46]">
-                    Comment ça marche ?
-                  </h3>
-                </div>
-
-                <div className="grid grid-cols-4 gap-3">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white">
-                      <span className="text-xs font-bold text-[#b47700]">
-                        1
-                      </span>
-                    </div>
-                    <div>
-                      <h4 className="mb-1 text-xs font-semibold text-[#173f46]">
-                        Remplissez le formulaire
-                      </h4>
-                      <p className="text-[11px] leading-4 text-[#6b7773]">
-                        Inscrivez la personne avec ses informations.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white">
-                      <span className="text-xs font-bold text-[#b47700]">
-                        2
-                      </span>
-                    </div>
-                    <div>
-                      <h4 className="mb-1 text-xs font-semibold text-[#173f46]">
-                        Contact commercial
-                      </h4>
-                      <p className="text-[11px] leading-4 text-[#6b7773]">
-                        Un commercial le contacte pour ses choix de formation.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white">
-                      <span className="text-xs font-bold text-[#b47700]">
-                        3
-                      </span>
-                    </div>
-                    <div>
-                      <h4 className="mb-1 text-xs font-semibold text-[#173f46]">
-                        Validation des formations
-                      </h4>
-                      <p className="text-[11px] leading-4 text-[#6b7773]">
-                        Le commercial valide les formations choisies.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white">
-                      <span className="text-xs font-bold text-[#b47700]">
-                        4
-                      </span>
-                    </div>
-                    <div>
-                      <h4 className="mb-1 text-xs font-semibold text-[#173f46]">
-                        Récompense de 50 €
-                      </h4>
-                      <p className="text-[11px] leading-4 text-[#6b7773]">
-                        Vous recevez 50 € en carte cadeau pour chaque
-                        inscription validée.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Right Column - Image (Desktop only) */}
-          <div className="order-1 hidden w-[36%] lg:block lg:order-2">
-            <div className="h-full">
-              <div className="flex h-full flex-col justify-center rounded-2xl border border-[#d3e2de] bg-[#eaf2f0] p-5 shadow-sm">
-                <img
-                  src={image}
-                  alt="Programme de parrainage"
-                  className="h-auto max-h-[42vh] w-full rounded-lg object-contain"
-                />
-              </div>
-            </div>
-          </div>
+                  <p className="text-sm font-semibold text-foreground">{step.title}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{step.text}</p>
+                </li>
+              ))}
+            </ol>
+          </section>
         </div>
-      </section>
 
-      {/* Modal de succès */}
-      <SuccessModal
-        isOpen={showSuccessModal}
-        onClose={handleCloseSuccessModal}
-        filleulName={filleulName}
-      />
+        {/* ── Visuel : occupe toute la largeur de sa colonne ── */}
+        <aside className="lg:sticky lg:top-24 lg:self-start">
+          <figure className="overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-sm)]">
+            <img
+              src={image}
+              alt="Parrainez et gagnez 50 € : une carte cadeau pour toute formation validée"
+              className="block h-auto w-full"
+              width={1241}
+              height={1754}
+              loading="lazy"
+              decoding="async"
+            />
+          </figure>
+          <Button variant="outline" asChild className="mt-3 h-11 w-full rounded-lg">
+            <Link to="/suivi-parrainage">
+              Suivre mes parrainages
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        </aside>
+      </div>
+
+      <SuccessModal isOpen={showSuccessModal} onClose={handleCloseSuccessModal} filleulName={filleulName} />
     </>
   );
 };
