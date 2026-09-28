@@ -1,236 +1,255 @@
+import { useCallback, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { AlertCircle, GraduationCap, List, Route, WifiOff } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
-import axios from "axios";
-import { useUser } from "@/hooks/useAuth";
-import { StagiaireQuizList } from "@/components/quiz/StagiaireQuizList";
-import { useQuery } from "@tanstack/react-query";
-import { categoryService } from "@/services/quiz/CategoryService";
-import {
-  Loader2,
-  Home,
-  Trophy,
-  HelpCircle,
-  Moon,
-  GraduationCap,
-  ChevronDown,
-  ChevronLeft,
-  Search,
-} from "lucide-react";
-import StagiaireQuizAdventure from "@/components/quiz/StagiaireQuizAdventure";
-import useOnlineStatus from "@/hooks/useOnlineStatus";
-import { useEffect, useMemo, useState } from "react";
-import { useFormationStagiaire } from "@/use-case/hooks/stagiaire/useFormationStagiaire";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useQuizPreferences } from "@/hooks/useQuizPreferences";
-import { QuizViewManager } from "@/components/quiz/QuizViewManager";
-import { useResumeQuiz } from "@/hooks/useResumeQuiz";
-import { ResumeQuizModal } from "@/components/quiz/ResumeQuizModal";
-import { ResumeQuizButton } from "@/components/quiz/ResumeQuizButton";
-import { useClassementPoints } from "@/hooks/useClassementPoints";
-import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import useOnlineStatus from "@/hooks/useOnlineStatus";
+import { useResumeQuiz } from "@/hooks/useResumeQuiz";
+import { readQuizViewPreference, useQuizPreferences } from "@/hooks/useQuizPreferences";
+import { useQuizOverview, type QuizItem } from "@/hooks/quiz/useQuizOverview";
+import { useStagiaireQuizzes } from "@/hooks/queries/useQuizQueries";
+import { getQuizFormationId } from "@/components/quiz/quizUtils";
+import { QuizHistoryModal } from "@/components/quiz/QuizHistoryModal";
+import { QuizPathView } from "@/components/quiz/overview/QuizPathView";
+import { QuizListView } from "@/components/quiz/overview/QuizListView";
+import { QuizProgressPanel } from "@/components/quiz/overview/QuizProgressPanel";
+import { ResumeQuizBanner } from "@/components/quiz/overview/ResumeQuizBanner";
+import { EmptyState } from "@/components/quiz/overview/EmptyState";
 
-export default function Quizzes() {
-  const isOnline = useOnlineStatus();
-  const { user } = useUser();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { points: userPoints } = useClassementPoints();
-  const [isDarkMode, setIsDarkMode] = useState(false);
+const FORMATION_KEY = "last_selected_formation_id";
 
-  const params = useMemo(
-    () => new URLSearchParams(location.search),
-    [location.search]
-  );
+/** Valeurs de `?toggle=` conservées pour la compatibilité des liens existants. */
+const VIEW_PARAM = { adventure: "adventure", list: "mes-quizzes" } as const;
+type View = keyof typeof VIEW_PARAM;
 
-  // Resume quiz functionality
-  const { unfinishedQuiz, dismissQuiz, hideModal, isModalHidden } = useResumeQuiz();
+function readStoredFormation() {
+  try {
+    return localStorage.getItem(FORMATION_KEY);
+  } catch {
+    return null;
+  }
+}
 
-  const handleResumeQuiz = () => {
-    if (unfinishedQuiz) {
-      navigate(`/quiz/${unfinishedQuiz.quizId}`);
-    }
-  };
-
-  const {
-    isLoading: preferencesLoading,
-    savePreference,
-  } = useQuizPreferences();
-
-  const initialToggle = params.get("toggle") || "adventure";
-  const [activeToggle, setActiveToggle] = useState<string>(initialToggle);
-  const [hasInitialized, setHasInitialized] = useState(false);
-
-  const [selectedFormationId, setSelectedFormationId] = useState<string | null>(() => {
-    return localStorage.getItem("last_selected_formation_id");
-  });
-
-  // Persister le choix de formation
-  useEffect(() => {
-    if (selectedFormationId) {
-      localStorage.setItem("last_selected_formation_id", selectedFormationId);
-    }
-  }, [selectedFormationId]);
-
-  const { data: formations = [] } = useFormationStagiaire(
-    user?.stagiaire?.id ?? null
-  );
-  const formationsWithTutos = useMemo(
-    () => formations.data ?? [],
-    [formations]
-  );
-
-  useEffect(() => {
-    // Priority 1: If there is an unfinished quiz, try to select its formation
-    if (unfinishedQuiz?.formationId && !selectedFormationId) {
-      const exists = formationsWithTutos.some(f => String(f.id) === String(unfinishedQuiz.formationId));
-      if (exists) {
-        setSelectedFormationId(String(unfinishedQuiz.formationId));
-        return;
-      }
-    }
-
-    // Priority 2: Default to the first available formation
-    if (!selectedFormationId && formationsWithTutos.length > 0) {
-      setSelectedFormationId(String(formationsWithTutos[0].id));
-    }
-  }, [formationsWithTutos, selectedFormationId, unfinishedQuiz]);
-
-  useEffect(() => {
-    if (preferencesLoading || hasInitialized) return;
-    const urlToggle = params.get("toggle");
-    if (!urlToggle) {
-      setActiveToggle("adventure");
-    } else {
-      setActiveToggle(urlToggle);
-    }
-    setHasInitialized(true);
-  }, [preferencesLoading, hasInitialized, params]);
-
-  const selectedFormation = useMemo(() => {
-    return formationsWithTutos.find(f => String(f.id) === String(selectedFormationId));
-  }, [formationsWithTutos, selectedFormationId]);
-
-  // Rendu principal
+function QuizzesSkeleton() {
   return (
-    <Layout>
-      <div className="flex flex-col -m-3 sm:-m-4 md:-m-6">
-        {/* Yellow Header section */}
-        <div className="bg-[#FFB800] px-4 py-3 flex items-center justify-between text-white shadow-md z-30">
-          <button 
-            onClick={() => navigate("/")}
-            className="p-2 hover:bg-white/10 rounded-full transition-colors"
-          >
-            <Home className="w-6 h-6" />
-          </button>
-
-          <h1 className="text-xl font-bold">Quiz</h1>
-
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-full">
-              <span className="text-sm font-bold">{userPoints || 0} points</span>
-              <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
-                <Trophy className="w-3.5 h-3.5 text-[#FFB800]" />
-              </div>
-            </div>
-            
-            <button className="p-1 hover:bg-white/10 rounded-full">
-              <HelpCircle className="w-6 h-6" />
-            </button>
-
-            {/* <div className="flex items-center">
-              <Switch 
-                checked={isDarkMode} 
-                onCheckedChange={setIsDarkMode}
-                className="data-[state=checked]:bg-white data-[state=unchecked]:bg-black/20"
-              />
-            </div> */}
-          </div>
+    <div className="space-y-3" role="status" aria-live="polite">
+      <span className="sr-only">Chargement des quiz…</span>
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="flex gap-4">
+          <Skeleton className="mt-4 h-10 w-10 flex-shrink-0 rounded-full" />
+          <Skeleton className="h-24 flex-1 rounded-2xl" />
         </div>
-
-        {/* Content with Spacer for the overlap? No, let's keep it clean */}
-        <div className="p-4 sm:p-6 bg-slate-50 min-h-[calc(100vh-140px)]">
-          <QuizViewManager>
-            <ResumeQuizModal
-              open={!!unfinishedQuiz && !isModalHidden}
-              quizTitle={unfinishedQuiz?.quizTitle || ""}
-              questionCount={unfinishedQuiz?.questionIds?.length || 0}
-              currentProgress={unfinishedQuiz?.currentIndex || 0}
-              onResume={handleResumeQuiz}
-              onDismiss={hideModal}
-            />
-
-            {/* View and Formation Selectors */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-6 items-center">
-              {/* Formation Selector Styled like Flutter */}
-              <div className="relative w-full sm:max-w-md group">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#FFB800]">
-                  <GraduationCap className="w-5 h-5" />
-                </div>
-                <select
-                  value={selectedFormationId ?? ""}
-                  onChange={(e) => setSelectedFormationId(e.target.value || null)}
-                  className="w-full bg-white border border-gray-100 rounded-xl pl-10 pr-10 py-3 text-sm font-medium shadow-sm appearance-none focus:outline-none focus:ring-2 focus:ring-[#FFB800]/50 transition-all"
-                >
-                  {formationsWithTutos.map((f) => (
-                    <option key={f.id} value={f.id}>
-                      {f.label ?? f.titre}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:rotate-180 transition-transform">
-                  <ChevronDown className="w-4 h-4" />
-                </div>
-              </div>
-
-              {/* View Toggle (Adventure vs List) - kept for functionality */}
-              <div className="flex bg-gray-100 p-1 rounded-xl w-fit">
-                <button
-                  onClick={() => {
-                    setActiveToggle("adventure");
-                    savePreference("adventure");
-                    navigate("/quizzes?toggle=adventure", { replace: true });
-                  }}
-                  className={cn(
-                    "px-4 py-2 rounded-lg text-xs font-bold transition-all",
-                    activeToggle === "adventure" ? "bg-white text-[#FFB800] shadow-sm" : "text-gray-500 hover:text-gray-700"
-                  )}
-                >
-                  AVENTURE
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveToggle("mes-quizzes");
-                    savePreference("list");
-                    navigate("/quizzes?toggle=mes-quizzes", { replace: true });
-                  }}
-                  className={cn(
-                    "px-4 py-2 rounded-lg text-xs font-bold transition-all",
-                    activeToggle === "mes-quizzes" ? "bg-white text-[#FFB800] shadow-sm" : "text-gray-500 hover:text-gray-700"
-                  )}
-                >
-                  LISTE
-                </button>
-              </div>
-            </div>
-
-            {categoriesLoading || preferencesLoading || !hasInitialized ? (
-              <div className="flex items-center justify-center min-h-[40vh]">
-                <Loader2 className="h-8 w-8 animate-spin text-[#FFB800]" />
-              </div>
-            ) : (
-              <div className="mt-4">
-                {activeToggle === "adventure" ? (
-                  <StagiaireQuizAdventure selectedFormationId={selectedFormationId} />
-                ) : (
-                  <StagiaireQuizList selectedFormationId={selectedFormationId} />
-                )}
-              </div>
-            )}
-          </QuizViewManager>
-        </div>
-      </div>
-    </Layout>
+      ))}
+    </div>
   );
 }
 
-const categoriesLoading = false; // Mock for now if not needed
+export default function Quizzes() {
+  const navigate = useNavigate();
+  const isOnline = useOnlineStatus();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { savePreference } = useQuizPreferences();
+  const { unfinishedQuiz, hideModal: hideResume, isModalHidden: isResumeHidden } = useResumeQuiz();
+
+  // Vue : paramètre d'URL, sinon préférence enregistrée
+  const param = searchParams.get("toggle");
+  const view: View =
+    param === VIEW_PARAM.list ? "list" : param === VIEW_PARAM.adventure ? "adventure" : readQuizViewPreference();
+
+  const setView = useCallback(
+    (next: View) => {
+      savePreference(next);
+      setSearchParams({ toggle: VIEW_PARAM[next] }, { replace: true });
+    },
+    [savePreference, setSearchParams]
+  );
+
+  const [storedFormationId, setStoredFormationId] = useState<string | null>(readStoredFormation);
+  const selectFormation = (id: string) => {
+    setStoredFormationId(id);
+    try {
+      localStorage.setItem(FORMATION_KEY, id);
+    } catch {
+      // stockage indisponible : le choix reste valable pour la session
+    }
+  };
+
+  // Quiz en cours : titre et formation complétés depuis la liste des quiz (même cache)
+  const { data: allQuizzes } = useStagiaireQuizzes();
+  const resumeSource = useMemo(
+    () => (unfinishedQuiz ? allQuizzes?.find((q) => String(q.id) === String(unfinishedQuiz.quizId)) : undefined),
+    [unfinishedQuiz, allQuizzes]
+  );
+
+  const overview = useQuizOverview({
+    preferredFormationId: storedFormationId,
+    fallbackFormationId:
+      unfinishedQuiz?.formationId != null
+        ? String(unfinishedQuiz.formationId)
+        : resumeSource
+          ? getQuizFormationId(resumeSource)
+          : null,
+  });
+
+  const resumeQuiz = unfinishedQuiz
+    ? {
+        id: unfinishedQuiz.quizId,
+        title: resumeSource?.titre || unfinishedQuiz.quizTitle || "Quiz",
+        answered: unfinishedQuiz.currentIndex || 0,
+        total: unfinishedQuiz.questionIds?.length || resumeSource?.questions?.length || 0,
+      }
+    : null;
+
+  const [historyItem, setHistoryItem] = useState<QuizItem | null>(null);
+  const openHistory = useCallback((item: QuizItem) => setHistoryItem(item), []);
+
+  const currentFormation = overview.formations.find((f) => f.id === overview.formationId);
+  const hasQuizzes = (allQuizzes?.length ?? 0) > 0;
+
+  return (
+    <Layout>
+      <div className="space-y-5">
+        {/* En-tête */}
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="font-poppins text-2xl font-bold text-foreground">Mes quiz</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Testez vos connaissances, gagnez des points et débloquez de nouveaux niveaux.
+            </p>
+          </div>
+
+          <div className="inline-flex self-start rounded-xl bg-secondary p-1 sm:self-auto" role="tablist" aria-label="Affichage">
+            {(
+              [
+                ["adventure", "Parcours", Route],
+                ["list", "Liste", List],
+              ] as const
+            ).map(([key, label, Icon]) => (
+              <button
+                key={key}
+                role="tab"
+                aria-selected={view === key}
+                onClick={() => setView(key)}
+                className={cn(
+                  "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors",
+                  view === key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                {label}
+              </button>
+            ))}
+          </div>
+        </header>
+
+        {!isOnline && (
+          <div className="flex items-center gap-2 rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-orange-800">
+            <WifiOff className="h-4 w-4 flex-shrink-0" />
+            Vous êtes hors ligne : les données affichées peuvent ne pas être à jour.
+          </div>
+        )}
+
+        {resumeQuiz && !isResumeHidden && (
+          <ResumeQuizBanner
+            title={resumeQuiz.title}
+            answered={resumeQuiz.answered}
+            total={resumeQuiz.total}
+            onResume={() => navigate(`/quiz/${resumeQuiz.id}`)}
+            onDismiss={hideResume}
+          />
+        )}
+
+        {overview.isError ? (
+          <EmptyState
+            icon={<AlertCircle className="h-6 w-6" />}
+            title="Impossible de charger vos quiz"
+            description="Vérifiez votre connexion puis réessayez."
+            action={<Button onClick={overview.refetch}>Réessayer</Button>}
+          />
+        ) : !overview.isLoading && !hasQuizzes ? (
+          <EmptyState
+            icon={<GraduationCap className="h-6 w-6" />}
+            title="Aucun quiz disponible"
+            description="Les quiz apparaissent dès que vous êtes inscrit à une formation."
+            action={<Button onClick={() => navigate("/catalogue")}>Voir le catalogue</Button>}
+          />
+        ) : (
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_320px]">
+            {/* Colonne latérale : progression (au-dessus du contenu sur mobile) */}
+            <aside className="lg:order-2">
+              <div className="lg:sticky lg:top-24">
+                {overview.isLoading ? (
+                  <Skeleton className="h-64 w-full rounded-2xl" />
+                ) : (
+                  <QuizProgressPanel
+                    points={overview.points}
+                    doneCount={overview.done.length}
+                    totalCount={currentFormation?.quizCount ?? 0}
+                    lockedByLevelCount={overview.lockedByLevelCount}
+                  />
+                )}
+              </div>
+            </aside>
+
+            <section className="min-w-0 space-y-4 lg:order-1">
+              {/* Formation */}
+              {overview.formations.length > 0 && (
+                <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
+                  <label htmlFor="quiz-formation" className="text-sm font-medium text-muted-foreground">
+                    Formation
+                  </label>
+                  <Select value={overview.formationId ?? undefined} onValueChange={selectFormation}>
+                    <SelectTrigger id="quiz-formation" className="h-10 w-full rounded-lg bg-card sm:w-80">
+                      <GraduationCap className="mr-2 h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                      <SelectValue placeholder="Choisir une formation" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {overview.formations.map((f) => (
+                        <SelectItem key={f.id} value={f.id}>
+                          {f.titre}
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            {f.quizCount} quiz
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {overview.isLoading ? (
+                <QuizzesSkeleton />
+              ) : view === "adventure" ? (
+                overview.path.length > 0 ? (
+                  <QuizPathView items={overview.path} onHistory={openHistory} />
+                ) : (
+                  <EmptyState
+                    title="Aucun quiz accessible pour le moment"
+                    description="Les quiz de cette formation se débloqueront quand vous aurez gagné plus de points."
+                  />
+                )
+              ) : (
+                <QuizListView
+                  key={overview.formationId ?? "none"}
+                  todo={overview.todo}
+                  done={overview.done}
+                  onHistory={openHistory}
+                />
+              )}
+            </section>
+          </div>
+        )}
+      </div>
+
+      <QuizHistoryModal
+        quizId={historyItem ? Number(historyItem.id) : null}
+        quizTitle={historyItem?.title}
+        quizHistory={overview.history}
+        onClose={() => setHistoryItem(null)}
+      />
+    </Layout>
+  );
+}

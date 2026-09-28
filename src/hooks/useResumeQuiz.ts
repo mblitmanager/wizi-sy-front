@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 
 interface UnfinishedQuizSession {
@@ -15,17 +14,6 @@ interface UnfinishedQuizSession {
 export const useResumeQuiz = () => {
   const [unfinishedQuiz, setUnfinishedQuiz] =
     useState<UnfinishedQuizSession | null>(null);
-
-  // Fetch quiz details when we have a session
-  const { data: quizDetails } = useQuery({
-    queryKey: ["quiz", unfinishedQuiz?.quizId],
-    queryFn: async () => {
-      if (!unfinishedQuiz?.quizId) return null;
-      const response = await api.get(`/quizzes/${unfinishedQuiz.quizId}`);
-      return response.data;
-    },
-    enabled: !!unfinishedQuiz?.quizId,
-  });
 
   useEffect(() => {
     (async () => {
@@ -152,20 +140,10 @@ export const useResumeQuiz = () => {
     setIsModalHidden(true);
   };
 
-  const formationId =
-    quizDetails?.formationId ||
-    quizDetails?.formation_id ||
-    quizDetails?.formation?.id ||
-    unfinishedQuiz?.formationId;
-
+  // Le titre et la formation du quiz sont complétés par la page à partir de la liste
+  // des quiz déjà chargée (GET /quizzes/{id} est réservé aux formateurs).
   return {
-    unfinishedQuiz: unfinishedQuiz
-      ? {
-          ...unfinishedQuiz,
-          quizTitle: quizDetails?.titre || unfinishedQuiz.quizTitle,
-          formationId,
-        }
-      : null,
+    unfinishedQuiz,
     dismissQuiz,
     isModalHidden,
     hideModal,

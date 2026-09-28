@@ -3,9 +3,15 @@ import type { Quiz } from "@/types/quiz";
 import { quizManagementService } from "./QuizManagementService";
 
 class StagiaireQuizService {
-  async getStagiaireQuizzes(): Promise<Quiz[]> {
+  /**
+   * @param options.summary questions allégées (id, points) sans les réponses :
+   *   suffisant pour les listes, beaucoup plus léger. Par défaut : format complet.
+   */
+  async getStagiaireQuizzes(options: { summary?: boolean } = {}): Promise<Quiz[]> {
     try {
-      const response = await api.get("/stagiaire/quizzes");
+      const response = await api.get("/stagiaire/quizzes", {
+        params: options.summary ? { summary: 1 } : undefined,
+      });
 
       const quizzes = response.data.data || [];
 

@@ -1,7 +1,6 @@
 
 import type { Quiz, Question } from '@/types/quiz';
 import { categoryService } from '../CategoryService';
-import { formations } from '@/data/mockData';
 
 export class QuizFormatterService {
   async formatQuiz(quiz: any, categories?: any[]) {
@@ -38,19 +37,27 @@ export class QuizFormatterService {
       points: quiz.points || 0
     };
   }
+  /** Format de `GET /stagiaire/quizzes` (QuizStagiaireController::getStagiaireQuizzes). */
   async formatStagiaireQuiz(quiz: any) {
-       return {
+    const questions = this.formatQuestions(quiz.questions || []);
+    const questionPoints = questions.reduce((sum, q) => sum + (Number(q.points) || 0), 0);
+    return {
       id: quiz.id,
       titre: quiz.titre || quiz.title || '',
       description: quiz.description || '',
       categorie: quiz.formation?.categorie || quiz.category || '',
       categorieId: quiz.formation?.categorieId || quiz.category_id || quiz.categoryId || '',
       niveau: quiz.niveau || quiz.level || '',
-      formations: quiz.formation ? [quiz.formation] : (formations || []),
+      duree: quiz.duree ?? undefined,
+      // Pas de formations fictives : un quiz sans formation ne doit correspondre à aucun filtre
+      formations: quiz.formation ? [quiz.formation] : [],
       formationId: quiz.formation?.id || quiz.formationId || quiz.formation_id || null,
       formation: quiz.formation || null,
-      questions: this.formatQuestions(quiz.questions || []),
-      points: quiz.points || 0
+      questions,
+      // Total officiel du backend (nb_points_total), à défaut la somme des points des questions
+      points: Number(quiz.nb_points_total) || questionPoints || Number(quiz.points) || 0,
+      // Dernière participation (QuizParticipation) renvoyée par le backend
+      userParticipation: quiz.userParticipation ?? null,
     };
   }
 

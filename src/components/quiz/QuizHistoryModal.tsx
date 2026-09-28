@@ -1,8 +1,9 @@
 import React from "react";
-import { ChartSpline, Lock, Trophy, Clock, Target, X } from "lucide-react";
+import { Clock, Target, History } from "lucide-react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -13,158 +14,120 @@ import { cn } from "@/lib/utils";
 interface QuizHistoryModalProps {
   quizId: number | null;
   quizTitle?: string;
-  quizHistory: QuizHistory[] | any;
+  quizHistory: QuizHistory[] | { data?: QuizHistory[] } | undefined;
   onClose: () => void;
 }
 
-export const QuizHistoryModal: React.FC<QuizHistoryModalProps> = ({
-  quizId,
-  quizTitle,
-  quizHistory,
-  onClose,
-}) => {
-  const historyArray = Array.isArray(quizHistory)
-    ? quizHistory
-    : quizHistory?.data || [];
+type RawAttempt = QuizHistory & {
+  quiz_id?: string | number;
+  correct_answers?: number;
+  total_questions?: number;
+  time_spent?: number;
+  created_at?: string;
+};
 
-  const recentAttempts = historyArray
-    .filter((h: any) => {
-      const hId = String(h.quizId || h.quiz_id || h.id_quiz || h.quiz?.id || "");
-      return hId === String(quizId);
+const MAX_ATTEMPTS = 5;
+
+function formatDuration(seconds: number) {
+  if (!Number.isFinite(seconds) || seconds <= 0) return "—";
+  const m = Math.floor(seconds / 60);
+  const s = Math.round(seconds % 60);
+  return m > 0 ? `${m} min ${s.toString().padStart(2, "0")} s` : `${s} s`;
+}
+
+/** Dernières tentatives d'un quiz (données de GET /quiz/history). */
+export const QuizHistoryModal: React.FC<QuizHistoryModalProps> = ({ quizId, quizTitle, quizHistory, onClose }) => {
+  const historyArray: RawAttempt[] = Array.isArray(quizHistory) ? quizHistory : quizHistory?.data ?? [];
+
+  const attempts = historyArray
+    .filter((h) => String(h.quiz?.id ?? h.quizId ?? h.quiz_id ?? "") === String(quizId))
+    .map((h) => {
+      const correct = Number(h.correctAnswers ?? h.correct_answers) || 0;
+      const total = Number(h.totalQuestions ?? h.total_questions) || 0;
+      return {
+        correct,
+        total,
+        percent: total > 0 ? Math.round((correct / total) * 100) : 0,
+        time: Number(h.timeSpent ?? h.time_spent) || 0,
+        date: h.completedAt ?? h.created_at ?? null,
+      };
     })
-    .sort(
-      (a: any, b: any) =>
-        new Date(b.completedAt || b.created_at).getTime() -
-        new Date(a.completedAt || a.created_at).getTime()
-    )
-    .slice(0, 5);
+    .sort((a, b) => (b.date ? Date.parse(b.date) : 0) - (a.date ? Date.parse(a.date) : 0))
+    .slice(0, MAX_ATTEMPTS);
+
+  const best = attempts.reduce((max, a) => Math.max(max, a.percent), 0);
 
   return (
-    <Dialog open={!!quizId} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent
-        className="
-          w-[95vw]
-          max-w-md
-          h-[90vh]
-          sm:h-auto
-          sm:max-h-[85vh]
-          p-0
-          flex
-          flex-col
-          overflow-hidden
-          rounded-3xl
-          border-none
-          shadow-2xl
-        "
-      >
-        {/* HEADER (fixed) */}
-        <div className="shrink-0 bg-[#FFB800] px-4 py-4 sm:px-6 sm:py-6 text-white relative">
-          <button
-            onClick={onClose}
-            className="absolute right-4 top-4 text-white/80 hover:text-white"
-          >
-            <X className="w-5 h-5" />
-          </button>
+    <Dialog open={!!quizId} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="flex max-h-[85vh] w-[95vw] max-w-md flex-col gap-0 overflow-hidden rounded-2xl p-0">
+        <DialogHeader className="border-b border-border px-5 py-4 text-left">
+          <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
+            <History className="h-5 w-5 text-muted-foreground" />
+            Historique
+          </DialogTitle>
+          <DialogDescription className="truncate">{quizTitle || "Vos dernières tentatives"}</DialogDescription>
+        </DialogHeader>
 
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-3 text-lg sm:text-2xl font-black italic">
-              <ChartSpline className="w-6 h-6 sm:w-8 sm:h-8" />
-              HISTORIQUE
-            </DialogTitle>
-            {quizTitle && (
-              <p className="text-[10px] sm:text-sm font-semibold uppercase italic truncate">
-                {quizTitle}
+        <div className="flex-1 overflow-y-auto px-5 py-4">
+          {attempts.length > 0 ? (
+            <>
+              <p className="mb-3 text-sm text-muted-foreground">
+                Meilleur résultat : <span className="font-semibold text-foreground">{best} %</span>
+                {" · "}
+                {attempts.length} tentative{attempts.length > 1 ? "s" : ""} récente{attempts.length > 1 ? "s" : ""}
               </p>
-            )}
-          </DialogHeader>
-        </div>
-
-        {/* CONTENT (scrollable) */}
-        <div className="flex-1 overflow-y-auto overscroll-contain px-3 sm:px-5 py-4 sm:py-6 bg-white">
-          {recentAttempts.length ? (
-            <div className="space-y-3">
-              {recentAttempts.map((attempt: any, idx: number) => {
-                const rawScore = attempt.score ?? attempt.result_score ?? 0;
-                const scorePercent = rawScore > 1
-                  ? Math.round(rawScore)
-                  : Math.round(rawScore * 100);
-                const isSuccess = scorePercent >= 70;
-                const correct = attempt.correctAnswers ?? attempt.correct_answers ?? 0;
-                const total = attempt.totalQuestions ?? attempt.total_questions ?? 0;
-                const time = attempt.timeSpent ?? attempt.time_spent ?? attempt.duration;
-                const date = attempt.completedAt ?? attempt.completed_at ?? attempt.created_at;
-
-                return (
-                  <div
-                    key={idx}
-                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-2xl bg-gray-50 hover:bg-white border border-gray-100 hover:border-yellow-300/40 transition"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
+              <ul className="space-y-2">
+                {attempts.map((a, idx) => {
+                  const success = a.percent >= 70;
+                  return (
+                    <li key={idx} className="flex items-center gap-3 rounded-xl border border-border bg-card p-3">
+                      <span
                         className={cn(
-                          "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center",
-                          isSuccess
-                            ? "bg-green-100 text-green-600"
-                            : "bg-orange-100 text-orange-600"
+                          "flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold tabular-nums",
+                          success ? "bg-emerald-50 text-emerald-700" : "bg-orange-50 text-orange-700"
                         )}
                       >
-                        <Trophy className="w-5 h-5 sm:w-6 sm:h-6" />
-                      </div>
-                      <div>
-                        <p className="text-xl sm:text-2xl font-black leading-none">
-                          {correct/5*100}%
+                        {a.percent}%
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-foreground">
+                          {a.date
+                            ? new Date(a.date).toLocaleString("fr-FR", {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })
+                            : "Date inconnue"}
                         </p>
-                        <p className="text-[9px] sm:text-[11px] text-gray-400 font-medium">
-                          {date
-                            ? new Date(date).toLocaleString("fr-FR", {
-                              day: "numeric",
-                              month: "long",
-                              year: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })
-                            : "-"}
+                        <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                          <span className="inline-flex items-center gap-1">
+                            <Target className="h-3.5 w-3.5" />
+                            {a.correct}/{a.total || "?"} bonnes réponses
+                          </span>
+                          <span className="inline-flex items-center gap-1">
+                            <Clock className="h-3.5 w-3.5" />
+                            {formatDuration(a.time)}
+                          </span>
                         </p>
                       </div>
-                    </div>
-
-                    <div className="flex sm:flex-col justify-between sm:items-end text-xs font-bold">
-                      <div className="flex items-center gap-1 text-yellow-700">
-                        <Target className="w-3 h-3" />
-                        {correct}/5
-                      </div>
-                      <div className="flex items-center gap-1 text-[10px] text-gray-500 italic">
-                        <Clock className="w-3 h-3" />
-                        {Number.isFinite(time)
-                          ? `${Math.floor(time / 60)}m ${time % 60}s`
-                          : "-"}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
           ) : (
-            <div className="flex flex-col items-center justify-center py-14 text-center gap-3">
-              <div className="w-20 h-20 rounded-full border-2 border-dashed border-gray-200 flex items-center justify-center">
-                <Lock className="w-9 h-9 text-gray-300" />
-              </div>
-              <h3 className="font-black italic uppercase text-lg">
-                Aucune tentative
-              </h3>
-              <p className="text-gray-400 text-sm italic">
-                Lance un quiz pour voir tes scores ici
-              </p>
+            <div className="flex flex-col items-center gap-2 py-10 text-center">
+              <History className="h-10 w-10 text-muted-foreground/40" />
+              <p className="font-medium text-foreground">Aucune tentative</p>
+              <p className="text-sm text-muted-foreground">Lancez ce quiz pour voir vos résultats ici.</p>
             </div>
           )}
         </div>
 
-        {/* FOOTER (fixed) */}
-        <div className="shrink-0 px-4 pb-4 bg-white">
-          <Button
-            onClick={onClose}
-            className="w-full sm:w-1/3 mx-auto block bg-white text-black border-2 border-black hover:bg-gray-50 h-10 sm:h-12 rounded-xl font-black italic uppercase tracking-widest"
-          >
+        <div className="border-t border-border px-5 py-3">
+          <Button variant="outline" className="w-full" onClick={onClose}>
             Fermer
           </Button>
         </div>
@@ -172,5 +135,3 @@ export const QuizHistoryModal: React.FC<QuizHistoryModalProps> = ({
     </Dialog>
   );
 };
-
-export default QuizHistoryModal;

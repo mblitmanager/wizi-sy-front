@@ -4,6 +4,15 @@ export type QuizViewMode = 'adventure' | 'list';
 
 const QUIZ_PREFERENCES_KEY = 'quiz_view_preference';
 
+/** Lecture synchrone de la vue préférée (évite un écran de chargement au premier rendu). */
+export function readQuizViewPreference(): QuizViewMode {
+  try {
+    return localStorage.getItem(QUIZ_PREFERENCES_KEY) === 'list' ? 'list' : 'adventure';
+  } catch {
+    return 'adventure';
+  }
+}
+
 /**
  * Hook pour gérer les préférences de vue des quiz
  * Stocke et récupère la préférence utilisateur entre vue aventure et vue liste
