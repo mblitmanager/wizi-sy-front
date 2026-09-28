@@ -167,8 +167,8 @@ export function QuizDetail() {
               className="h-72 w-72 animate-pulse"
             />
             <div className="flex flex-col items-center gap-2 text-center">
-                <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
-                <span className="text-indigo-600 font-medium text-lg px-4">Préparation de votre aventure...</span>
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                <span className="text-primary font-medium text-lg px-4">Préparation de votre aventure...</span>
             </div>
           </motion.div>
         </div>
@@ -231,8 +231,8 @@ export function QuizDetail() {
       <div className="min-h-screen pb-12 bg-[#fafbff]">
         {/* Background blobs for aesthetics */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-100/50 rounded-full blur-[100px]" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-100/50 rounded-full blur-[100px]" />
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-accent/70 rounded-full blur-[100px]" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent/70 rounded-full blur-[100px]" />
         </div>
 
         <motion.div 
@@ -241,20 +241,20 @@ export function QuizDetail() {
           initial="hidden"
           animate="visible"
         >
-          <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-[2.5rem] shadow-2xl shadow-indigo-100/50 overflow-hidden">
+          <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-[2.5rem] shadow-2xl shadow-slate-200/60 overflow-hidden">
             <div className="flex flex-col lg:flex-row">
               {/* Left Section - Content */}
               <div className="flex-1 p-8 lg:p-12 border-b lg:border-b-0 lg:border-r border-gray-100">
                 <motion.div variants={itemVariants}>
                   <div className="flex items-center justify-between mb-4">
-                    <Badge variant="secondary" className="bg-indigo-50 text-indigo-600 border-indigo-100 font-bold px-3 py-1">
+                    <Badge variant="secondary" className="bg-accent text-primary border-border font-bold px-3 py-1">
                       QUIZ AVENTURE
                     </Badge>
                     <Button 
                       variant="ghost" 
                       size="sm" 
                       onClick={() => navigate("/quizzes")}
-                      className="text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors gap-2"
+                      className="text-slate-500 hover:text-primary/80 hover:bg-accent transition-colors gap-2"
                     >
                       <ArrowLeft className="w-4 h-4" />
                       Liste des quiz
@@ -270,7 +270,7 @@ export function QuizDetail() {
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
                     <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                      <HelpCircle className="w-5 h-5 text-indigo-500 mb-2" />
+                      <HelpCircle className="w-5 h-5 text-gold-deep mb-2" />
                       <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">Questions</p>
                       <p className="text-xl font-bold text-slate-900">{totalQuestions}</p>
                     </div>
@@ -287,7 +287,7 @@ export function QuizDetail() {
                       <p className="text-xl font-bold text-slate-900">{possiblePoints} pts</p>
                     </div>
                     <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="w-5 h-5 flex items-center justify-center text-xs font-bold text-blue-500 bg-blue-50 rounded-full mb-2">⭐</div>
+                      <div className="w-5 h-5 flex items-center justify-center text-xs font-bold text-gold-deep bg-accent rounded-full mb-2">⭐</div>
                       <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">Niveau</p>
                       <p className="text-xl font-bold text-slate-900 capitalize">{quiz.niveau}</p>
                     </div>
@@ -296,7 +296,7 @@ export function QuizDetail() {
                   {quiz.tutos?.length > 0 && (
                     <div className="mb-10">
                       <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-indigo-600 rounded-full" />
+                        <div className="w-1.5 h-1.5 bg-foreground rounded-full" />
                         Ressources d'apprentissage
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -309,14 +309,14 @@ export function QuizDetail() {
                             whileHover={{ scale: 1.02, x: 5 }}
                             className="flex items-center p-3 bg-slate-50/50 rounded-xl border border-slate-100 group transition-all"
                           >
-                            <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center mr-3 shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                            <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center mr-3 shadow-sm group-hover:bg-foreground group-hover:text-white transition-colors">
                               <BookOpen className="w-5 h-5" />
                             </div>
                             <div className="min-w-0">
                                 <p className="font-bold text-slate-900 text-sm truncate">
                                     {tuto.titre || `Tuto ${idx + 1}`}
                                 </p>
-                                <p className="text-xs text-indigo-600 font-medium">Voir le tutoriel →</p>
+                                <p className="text-xs text-primary font-medium">Voir le tutoriel →</p>
                             </div>
                           </motion.a>
                         ))}
@@ -326,7 +326,7 @@ export function QuizDetail() {
 
                   <div className="flex items-center gap-4">
                     <Button
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-7 rounded-2xl text-lg font-bold shadow-lg shadow-indigo-200 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                      className="bg-foreground hover:bg-foreground/85 text-white px-10 py-7 rounded-2xl text-lg font-bold shadow-lg shadow-slate-300/60 transition-all hover:scale-[1.02] active:scale-[0.98]"
                       onClick={() => navigate(`/quiz/${quiz.id}/start`)}
                     >
                       C'est parti !
@@ -357,7 +357,7 @@ export function QuizDetail() {
                                 initial={{ opacity: 0, scale: 0.9, y: 10 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.9, y: -10 }}
-                                className={`w-full ${types[currentTypeIdx].bg} border-2 ${types[currentTypeIdx].border} rounded-[2rem] p-8 flex flex-col items-center text-center shadow-xl shadow-indigo-100/20`}
+                                className={`w-full ${types[currentTypeIdx].bg} border-2 ${types[currentTypeIdx].border} rounded-[2rem] p-8 flex flex-col items-center text-center shadow-xl shadow-slate-200/40`}
                                 onClick={handleNextType}
                             >
                                 <div className="p-4 bg-white rounded-2xl shadow-sm mb-4">
@@ -373,7 +373,7 @@ export function QuizDetail() {
                                     {types.map((_, i) => (
                                         <div 
                                             key={i} 
-                                            className={`w-2 h-2 rounded-full transition-all ${i === currentTypeIdx ? 'bg-indigo-600 w-4' : 'bg-slate-300'}`} 
+                                            className={`w-2 h-2 rounded-full transition-all ${i === currentTypeIdx ? 'bg-foreground w-4' : 'bg-slate-300'}`} 
                                         />
                                     ))}
                                 </div>
@@ -394,7 +394,7 @@ export function QuizDetail() {
                             autoplay={{ delay: 4000, disableOnInteraction: false }}
                             pagination={{ 
                                 clickable: true,
-                                bulletActiveClass: 'swiper-pagination-bullet-active !bg-indigo-600 !w-6 !rounded-full transition-all'
+                                bulletActiveClass: 'swiper-pagination-bullet-active !bg-foreground !w-6 !rounded-full transition-all'
                             }}
                             className="h-full w-full !pb-12"
                             onSwiper={(swiper) => (swiperRef.current = swiper)}
@@ -435,7 +435,7 @@ export function QuizDetail() {
                 className="mt-12 bg-white/60 backdrop-blur-md rounded-[2rem] p-8 border border-white/40 shadow-xl"
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
+                <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center text-primary">
                     <Clock className="w-5 h-5" />
                 </div>
                 <div>

@@ -49,10 +49,10 @@ export const RankingListItem = React.memo(function RankingListItem({
         transition-all duration-300 ease-in-out
         hover:scale-[1.02] hover:-translate-y-1
         ${onClick ? 'cursor-pointer' : ''}
-        ${isCurrentUser ? 'bg-blue-50 border-2 border-blue-400 shadow-md animate-pulse-subtle' : 'bg-white border border-gray-200'}
-        ${highlight ? 'shadow-lg ring-2 ring-blue-300 animate-bounce-subtle' : 'hover:shadow-xl'}
+        ${isCurrentUser ? 'bg-accent border-2 border-primary/40 shadow-md animate-pulse-subtle' : 'bg-white border border-gray-200'}
+        ${highlight ? 'shadow-lg ring-2 ring-ring animate-bounce-subtle' : 'hover:shadow-xl'}
         ${isTopRank ? 'shadow-md' : ''}
-        focus:outline-none focus:ring-2 focus:ring-blue-500
+        focus:outline-none focus:ring-2 focus:ring-ring
       `}
         >
             {/* Badge de rang */}
@@ -91,13 +91,13 @@ export const RankingListItem = React.memo(function RankingListItem({
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                         <p
-                            className={`font-semibold text-sm sm:text-base truncate ${isCurrentUser ? 'text-blue-800' : 'text-gray-900'
+                            className={`font-semibold text-sm sm:text-base truncate ${isCurrentUser ? 'text-primary' : 'text-gray-900'
                                 }`}
                         >
                             {formatName(ranking.firstname, ranking.name)}
                         </p>
                         {isCurrentUser && (
-                            <span className="flex-shrink-0 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                            <span className="flex-shrink-0 px-2 py-0.5 bg-accent text-primary text-xs font-medium rounded-full">
                                 Vous
                             </span>
                         )}

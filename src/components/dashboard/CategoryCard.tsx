@@ -50,7 +50,7 @@ export function CategoryCard({ category }: CategoryCardProps) {
 
     return (
         <Link to={`/catalogue/${category.slug}`} className="block h-full">
-            <Card className="group h-full flex flex-col overflow-hidden rounded-2xl border-[#d3e2de] bg-[#fbfaf6] transition-all hover:-translate-y-1 hover:shadow-xl">
+            <Card className="group h-full flex flex-col overflow-hidden rounded-2xl border-border bg-card transition-all hover:-translate-y-1 hover:shadow-xl">
                 <div className="relative h-28 overflow-hidden">
                     <img
                         src={categoryImage}
@@ -81,7 +81,7 @@ export function CategoryCard({ category }: CategoryCardProps) {
 
                 {/* flex-1 = toutes les cartes ont la même hauteur peu importe la description */}
                 <CardContent className="flex-1 p-5">
-                    <p className="text-sm leading-relaxed text-[#526b70]">{category.description}</p>
+                    <p className="text-sm leading-relaxed text-muted-foreground">{category.description}</p>
                     <span className="mt-5 inline-flex items-center gap-1 text-xs font-bold uppercase tracking-[0.12em] text-[#b47700]">
                         Explorer <span aria-hidden="true">→</span>
                     </span>

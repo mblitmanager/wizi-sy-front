@@ -110,15 +110,15 @@ const SuiviParrainagePage = () => {
             <div className="min-h-screen bg-[#F8FAFC] pb-20">
                 {/* Hero Section */}
                 <div className="relative overflow-hidden bg-white border-b border-gray-100 px-8 py-12 md:px-12 md:py-16 shadow-sm mb-10">
-                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/5 rounded-full -ml-20 -mb-20 blur-3xl"></div>
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/5 rounded-full -ml-20 -mb-20 blur-3xl"></div>
                     <div className="relative z-10 max-w-7xl mx-auto">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                             <div className="space-y-4">
-                                <Badge className="bg-blue-50 text-blue-600 border-blue-100 py-1.5 px-3 rounded-full font-black text-[10px] uppercase tracking-wider">
+                                <Badge className="bg-accent text-primary border-border py-1.5 px-3 rounded-full font-black text-[10px] uppercase tracking-wider">
                                     <TrendingUp className="w-3 h-3 mr-2" /> Croissance du Réseau
                                 </Badge>
                                 <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
-                                    Suivi <span className="text-blue-600">Parrainage</span>
+                                    Suivi <span className="text-primary">Parrainage</span>
                                 </h1>
                                 <p className="text-gray-500 font-medium max-w-2xl text-lg leading-relaxed">
                                     Suivez l'activité de vos filleuls et visualisez vos récompenses accumulées.
@@ -126,7 +126,7 @@ const SuiviParrainagePage = () => {
                             </div>
 
                             <div className="flex flex-wrap gap-4">
-                                <div className="bg-white shadow-xl shadow-blue-500/5 border border-blue-50 p-6 rounded-[2rem] min-w-[160px]">
+                                <div className="bg-white shadow-xl shadow-slate-500/5 border border-border p-6 rounded-[2rem] min-w-[160px]">
                                     <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Points</p>
                                     <p className="text-3xl font-black text-gray-900 leading-none">{totalPoints}</p>
                                 </div>
@@ -143,15 +143,15 @@ const SuiviParrainagePage = () => {
                     {/* Filter & Search */}
                     <div className="flex flex-col md:flex-row gap-4 mb-8">
                         <div className="relative flex-1 group">
-                            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-gold-deep transition-colors" />
                             <Input 
                                 placeholder="Rechercher par nom d'élève ou parrain..." 
-                                className="pl-14 py-8 bg-white border-gray-100 rounded-[2rem] focus:ring-blue-500/20 focus:border-blue-500 shadow-sm transition-all text-sm font-medium"
+                                className="pl-14 py-8 bg-white border-gray-100 rounded-[2rem] focus:ring-ring/20 focus:border-primary/40 shadow-sm transition-all text-sm font-medium"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </div>
-                        <Button className="rounded-[2rem] px-8 h-[64px] bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-500/20 font-black uppercase tracking-widest text-[10px] border-4 border-white transition-all">
+                        <Button className="rounded-[2rem] px-8 h-[64px] bg-foreground hover:bg-foreground/85 shadow-xl shadow-slate-500/20 font-black uppercase tracking-widest text-[10px] border-4 border-white transition-all">
                             <LuFilter className="w-4 h-4 mr-2" /> Filtrer
                         </Button>
 
@@ -183,9 +183,9 @@ const SuiviParrainagePage = () => {
                                                 </TableCell>
                                                 <TableCell className="py-8">
                                                     <div className="flex items-center gap-4">
-                                                        <div className="w-12 h-12 rounded-[1.25rem] bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-500 shadow-sm relative overflow-hidden group-hover:scale-105 transition-transform">
+                                                        <div className="w-12 h-12 rounded-[1.25rem] bg-accent border border-border flex items-center justify-center text-gold-deep shadow-sm relative overflow-hidden group-hover:scale-105 transition-transform">
                                                             <UserPlus className="w-5 h-5" />
-                                                            <div className="absolute inset-0 bg-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                                            <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                                         </div>
                                                         <div>
                                                             <p className="font-black text-slate-900 text-sm leading-tight">{p.filleul?.prenom} {p.filleul?.name}</p>
@@ -203,7 +203,7 @@ const SuiviParrainagePage = () => {
                                                 </TableCell>
                                                 <TableCell className="py-8">
                                                     <div className="flex flex-col items-center">
-                                                        <div className="flex items-center gap-1.5 text-blue-600 mb-1">
+                                                        <div className="flex items-center gap-1.5 text-primary mb-1">
                                                             <Gift className="w-3.5 h-3.5" />
                                                             <span className="font-black text-sm">{p.points}pts</span>
                                                         </div>
@@ -220,7 +220,7 @@ const SuiviParrainagePage = () => {
                                                     <Button 
                                                         size="icon" 
                                                         variant="ghost" 
-                                                        className="h-10 w-10 rounded-2xl bg-slate-50 hover:bg-blue-600 hover:text-white transition-all border border-slate-100 group/btn shadow-sm"
+                                                        className="h-10 w-10 rounded-2xl bg-slate-50 hover:bg-foreground hover:text-white transition-all border border-slate-100 group/btn shadow-sm"
                                                         onClick={() => p.filleul?.id && navigate(`/formateur/stagiaire/${p.filleul.id}`)}
                                                     >
                                                         <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-0.5 transition-transform" />

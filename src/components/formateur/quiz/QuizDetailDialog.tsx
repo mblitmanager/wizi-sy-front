@@ -76,14 +76,14 @@ export function QuizDetailDialog({
         
         {/* Header Section (Suivi Demandes Style) */}
         <div className="relative overflow-hidden bg-white border-b border-gray-100 p-10 pt-16 shadow-sm">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#FEB823]/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-accent rounded-full -mr-20 -mt-20 blur-3xl"></div>
             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="space-y-3">
-                    <Badge className="bg-[#FEB823]/10 text-[#FEB823] border-[#FEB823]/20 py-1 px-3">
+                    <Badge className="bg-accent text-primary border-primary/20 py-1 px-3">
                         <ClipboardList className="w-3 h-3 mr-2" /> Détails de l'Atelier
                     </Badge>
                     <DialogTitle className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">
-                        {selectedQuiz?.quiz.titre || "Focus Quiz"} <span className="text-[#FEB823]">Pédagogique</span>
+                        {selectedQuiz?.quiz.titre || "Focus Quiz"} <span className="text-primary">Pédagogique</span>
                     </DialogTitle>
                     {selectedQuiz?.quiz.description && (
                         <p className="text-gray-500 font-medium max-w-2xl text-base leading-relaxed italic">
@@ -95,7 +95,7 @@ export function QuizDetailDialog({
                 <div className="flex items-center gap-3">
                     {selectedQuiz?.quiz.status !== "actif" && !loading && (
                         <Button
-                            className="bg-[#FEB823] hover:bg-[#FEB823]/90 text-white font-black px-6 h-12 rounded-2xl shadow-xl shadow-[#FEB823]/20 transition-all hover:scale-105 active:scale-95"
+                            className="bg-primary hover:bg-primary/90 text-white font-black px-6 h-12 rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95"
                             onClick={onPublish}
                             disabled={loading}
                         >
@@ -116,7 +116,7 @@ export function QuizDetailDialog({
         <div className="p-10 space-y-10 max-h-[60vh] overflow-y-auto custom-scrollbar">
           {loading || !selectedQuiz ? (
             <div className="flex flex-col items-center justify-center py-24 space-y-4">
-                <div className="w-12 h-12 border-4 border-[#FEB823]/20 border-t-[#FEB823] rounded-full animate-spin"></div>
+                <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
                 <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Extraction des données...</p>
             </div>
           ) : (
@@ -124,19 +124,19 @@ export function QuizDetailDialog({
               {/* Info Stats Bar */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-white flex items-center gap-4 transition-transform hover:scale-105">
-                     <div className="w-12 h-12 bg-[#FEB823]/10 rounded-2xl flex items-center justify-center text-[#FEB823]"><Target className="w-6 h-6" /></div>
+                     <div className="w-12 h-12 bg-accent rounded-2xl flex items-center justify-center text-primary"><Target className="w-6 h-6" /></div>
                      <div><p className="text-[10px] text-slate-300 font-black uppercase tracking-widest">Niveau</p><p className="font-black text-slate-800 text-sm">{selectedQuiz.quiz.niveau || "Standard"}</p></div>
                   </div>
                   <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-white flex items-center gap-4 transition-transform hover:scale-105">
-                     <div className="w-12 h-12 bg-[#FEB823]/10 rounded-2xl flex items-center justify-center text-[#FEB823]"><Clock className="w-6 h-6" /></div>
+                     <div className="w-12 h-12 bg-accent rounded-2xl flex items-center justify-center text-primary"><Clock className="w-6 h-6" /></div>
                      <div><p className="text-[10px] text-slate-300 font-black uppercase tracking-widest">Timer</p><p className="font-black text-slate-800 text-sm">{selectedQuiz.quiz.duree ?? "-"} minutes</p></div>
                   </div>
                   <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-white flex items-center gap-4 transition-transform hover:scale-105">
-                     <div className="w-12 h-12 bg-[#FEB823]/10 rounded-2xl flex items-center justify-center text-[#FEB823]"><BookOpen className="w-6 h-6" /></div>
-                     <div><p className="text-[10px] text-slate-300 font-black uppercase tracking-widest">Statut</p><p className="font-black text-[#FEB823] text-sm uppercase">{(selectedQuiz.quiz.status || "brouillon")}</p></div>
+                     <div className="w-12 h-12 bg-accent rounded-2xl flex items-center justify-center text-primary"><BookOpen className="w-6 h-6" /></div>
+                     <div><p className="text-[10px] text-slate-300 font-black uppercase tracking-widest">Statut</p><p className="font-black text-primary text-sm uppercase">{(selectedQuiz.quiz.status || "brouillon")}</p></div>
                   </div>
                   <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-white flex items-center gap-4 transition-transform hover:scale-105">
-                     <div className="w-12 h-12 bg-[#FEB823]/10 rounded-2xl flex items-center justify-center text-[#FEB823]"><FileText className="w-6 h-6" /></div>
+                     <div className="w-12 h-12 bg-accent rounded-2xl flex items-center justify-center text-primary"><FileText className="w-6 h-6" /></div>
                      <div><p className="text-[10px] text-slate-300 font-black uppercase tracking-widest">Questions</p><p className="font-black text-slate-800 text-sm">{selectedQuiz.questions.length} Items</p></div>
                   </div>
               </div>
@@ -147,7 +147,7 @@ export function QuizDetailDialog({
                     <h3 className="text-2xl font-black text-slate-900 tracking-tight">Banque Digitale</h3>
                     <Button
                         variant="ghost"
-                        className="rounded-2xl text-[#FEB823] font-black uppercase text-[10px] tracking-widest hover:bg-[#FEB823]/5 flex items-center gap-2"
+                        className="rounded-2xl text-primary font-black uppercase text-[10px] tracking-widest hover:bg-accent flex items-center gap-2"
                         onClick={onAddQuestion}
                     >
                         <Plus className="w-4 h-4" /> Ajouter une question
@@ -171,12 +171,12 @@ export function QuizDetailDialog({
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: idx * 0.05 }}
                           key={q.id}
-                          className="group bg-white rounded-[2.5rem] p-8 shadow-sm border border-white hover:border-[#FEB823]/20 hover:shadow-xl transition-all duration-300 relative"
+                          className="group bg-white rounded-[2.5rem] p-8 shadow-sm border border-white hover:border-primary/20 hover:shadow-xl transition-all duration-300 relative"
                         >
                           <div className="flex flex-col space-y-6">
                             <div className="flex items-start justify-between gap-6">
                               <div className="flex items-start gap-4 flex-1">
-                                 <div className="w-12 h-12 bg-[#FEB823] text-white rounded-2xl flex items-center justify-center font-black text-lg shrink-0 shadow-lg shadow-[#FEB823]/20">
+                                 <div className="w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center font-black text-lg shrink-0 shadow-lg shadow-primary/20">
                                     {idx + 1}
                                  </div>
                                  <div className="space-y-1">
@@ -205,7 +205,7 @@ export function QuizDetailDialog({
                                   key={r.id ?? `${q.id}-${ridx}`}
                                   className={`rounded-2xl border-2 p-5 transition-all duration-300 flex items-center justify-between gap-3 ${
                                     r.correct
-                                      ? "border-[#FEB823]/30 bg-[#FEB823]/5 text-[#FEB823]"
+                                      ? "border-primary/30 bg-accent text-primary"
                                       : "border-slate-50 bg-slate-50/50 text-slate-400"
                                   }`}
                                 >
@@ -222,10 +222,10 @@ export function QuizDetailDialog({
                             {/* Pedagogical Tip (Yellow Accent) */}
                             {q.astuce && (
                               <div className="mt-4 pl-0 md:pl-16">
-                                 <div className="bg-[#FEB823]/10 rounded-2xl p-5 flex items-start gap-4 border border-[#FEB823]/10">
-                                    <Lightbulb className="w-6 h-6 text-[#FEB823] shrink-0 mt-0.5" />
+                                 <div className="bg-accent rounded-2xl p-5 flex items-start gap-4 border border-primary/10">
+                                    <Lightbulb className="w-6 h-6 text-primary shrink-0 mt-0.5" />
                                     <div className="space-y-1">
-                                       <p className="text-[9px] text-[#FEB823] font-black uppercase tracking-[0.2em] leading-none">Note Pédagogique</p>
+                                       <p className="text-[9px] text-primary font-black uppercase tracking-[0.2em] leading-none">Note Pédagogique</p>
                                        <p className="text-sm text-slate-600 font-bold italic leading-relaxed">"{q.astuce}"</p>
                                     </div>
                                  </div>
@@ -251,7 +251,7 @@ export function QuizDetailDialog({
               <div className="h-4 w-px bg-slate-100" />
               <p className="font-black text-[10px] uppercase tracking-widest italic opacity-50">Intégrité des données vérifiée</p>
            </div>
-           <Button variant="ghost" className="font-black text-[10px] uppercase tracking-[0.3em] text-slate-400 hover:text-[#FEB823] hover:bg-[#FEB823]/5 rounded-xl h-12 px-10 transition-all" onClick={() => onOpenChange(false)}>
+           <Button variant="ghost" className="font-black text-[10px] uppercase tracking-[0.3em] text-slate-400 hover:text-primary hover:bg-accent rounded-xl h-12 px-10 transition-all" onClick={() => onOpenChange(false)}>
               Fermer la vue
            </Button>
         </div>

@@ -296,15 +296,15 @@ export default function FormateurQuizManagementPage() {
     <Layout>
       <div className="min-h-screen bg-[#F8FAFC] pb-20">
         <div className="relative overflow-hidden bg-white border-b border-gray-100 px-8 py-12 md:px-12 md:py-16 shadow-sm mb-10">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[#FEB823]/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-accent rounded-full -mr-20 -mt-20 blur-3xl"></div>
           <div className="relative z-10 max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
               <div className="space-y-4 flex-1">
-                <Badge className="bg-[#FEB823]/10 text-[#FEB823] border-[#FEB823]/20 py-1 px-3">
+                <Badge className="bg-accent text-primary border-primary/20 py-1 px-3">
                   <Clock className="w-3 h-3 mr-2" /> Atelier de Quiz
                 </Badge>
                 <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
-                  Gestion des <span className="text-[#FEB823]">Quiz</span>
+                  Gestion des <span className="text-primary">Quiz</span>
                 </h1>
                 <p className="text-gray-500 font-medium max-w-2xl text-lg leading-relaxed">
                   Consultez et organisez vos banques de questions par formation.
@@ -312,10 +312,10 @@ export default function FormateurQuizManagementPage() {
               </div>
               <div className="w-full md:w-auto flex flex-col md:flex-row gap-4">
                 <div className="relative group w-full md:w-80">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#FEB823] transition-colors" />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-primary transition-colors" />
                   <Input 
                     placeholder="Rechercher un quiz..." 
-                    className="pl-12 py-6 bg-gray-50/50 border-gray-100 rounded-2xl focus:ring-[#FEB823]/20 focus:border-[#FEB823] transition-all"
+                    className="pl-12 py-6 bg-gray-50/50 border-gray-100 rounded-2xl focus:ring-ring/20 focus:border-primary transition-all"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
@@ -323,7 +323,7 @@ export default function FormateurQuizManagementPage() {
                 <div className="relative w-full md:w-64">
                     <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                     <select 
-                        className="w-full pl-12 h-14 rounded-2xl bg-gray-50/50 border border-gray-100 font-black text-slate-600 appearance-none focus:ring-[#FEB823]/20 focus:border-[#FEB823] outline-none"
+                        className="w-full pl-12 h-14 rounded-2xl bg-gray-50/50 border border-gray-100 font-black text-slate-600 appearance-none focus:ring-ring/20 focus:border-primary outline-none"
                         value={filterFormationId}
                         onChange={(e) => setFilterFormationId(e.target.value)}
                     >
@@ -337,7 +337,7 @@ export default function FormateurQuizManagementPage() {
             </div>
             <div className="mt-8 flex justify-end">
                 <Button 
-                    className="bg-[#FEB823] hover:bg-[#FEB823]/90 text-white font-black px-8 py-6 rounded-2xl shadow-xl shadow-[#FEB823]/20 transition-all hover:scale-105 active:scale-95"
+                    className="bg-primary hover:bg-primary/90 text-white font-black px-8 py-6 rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95"
                     onClick={() => setCreateOpen(true)}
                 >
                     <Plus className="w-5 h-5 mr-2" /> Nouveau Quiz
@@ -355,7 +355,7 @@ export default function FormateurQuizManagementPage() {
                     onClick={() => toggleFormation(String(group.formation?.id || 'unassigned'))}
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-[1.25rem] bg-white border border-slate-200 shadow-sm flex items-center justify-center font-black text-[#FEB823] text-lg">
+                    <div className="w-12 h-12 rounded-[1.25rem] bg-white border border-slate-200 shadow-sm flex items-center justify-center font-black text-primary text-lg">
                       {(group.formation?.nom || 'D')[0]}
                     </div>
                     <div>
@@ -363,7 +363,7 @@ export default function FormateurQuizManagementPage() {
                         {group.formation?.nom || 'Divers / Non assignés'}
                       </h3>
                       <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="outline" className="border-[#FEB823]/20 text-[#FEB823] font-bold text-[9px] uppercase tracking-widest px-2">
+                        <Badge variant="outline" className="border-primary/20 text-primary font-bold text-[9px] uppercase tracking-widest px-2">
                           {group.items.length} {group.items.length > 1 ? 'Quizzes' : 'Quiz'}
                         </Badge>
                       </div>
@@ -413,12 +413,12 @@ export default function FormateurQuizManagementPage() {
                                 <TableCell className="py-6 text-center">
                                   <div className="flex items-center justify-center gap-3">
                                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter flex items-center gap-1"><Clock className="w-3 h-3" /> {q.duree}m</span>
-                                      <span className="text-[10px] font-black text-[#FEB823] uppercase tracking-tighter bg-[#FEB823]/5 px-2 py-0.5 rounded-lg border border-[#FEB823]/10">{q.nb_questions || 0} Qs</span>
+                                      <span className="text-[10px] font-black text-primary uppercase tracking-tighter bg-accent px-2 py-0.5 rounded-lg border border-primary/10">{q.nb_questions || 0} Qs</span>
                                   </div>
                                 </TableCell>
                                 <TableCell className="py-6 pr-10 text-right">
                                   <div className="flex justify-end gap-2">
-                                      <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-slate-200 hover:text-[#FEB823] hover:bg-[#FEB823]/5" onClick={(e) => { e.stopPropagation(); openDetail(q.id); }}>
+                                      <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-slate-200 hover:text-primary hover:bg-accent" onClick={(e) => { e.stopPropagation(); openDetail(q.id); }}>
                                           <Eye className="h-5 w-5" />
                                       </Button>
                                       <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-slate-200 hover:text-rose-500 hover:bg-rose-50" onClick={(e) => { e.stopPropagation(); handleDeleteQuiz(q.id); }}>
@@ -449,11 +449,11 @@ export default function FormateurQuizManagementPage() {
           {lastPage > 1 && !loading && (
             <div className="flex items-center justify-between p-8 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm shadow-slate-100/50 mt-12 mb-10">
               <div className="text-sm font-black text-slate-300 uppercase tracking-[0.2em]">
-                Page <span className="text-slate-900 border-b-2 border-[#FEB823] pb-0.5">{page}</span> sur {lastPage}
+                Page <span className="text-slate-900 border-b-2 border-primary pb-0.5">{page}</span> sur {lastPage}
               </div>
               <div className="flex gap-3">
-                <Button variant="outline" className="rounded-xl px-6 font-black uppercase text-[10px] border-slate-100 text-slate-400 hover:bg-[#FEB823] hover:text-white" onClick={() => handlePageChange(page - 1)} disabled={page <= 1}>Précédent</Button>
-                <Button className="rounded-xl px-6 font-black uppercase text-[10px] bg-[#FEB823] text-white shadow-lg shadow-[#FEB823]/20 hover:bg-[#FEB823]/90" onClick={() => handlePageChange(page + 1)} disabled={page >= lastPage}>Suivant</Button>
+                <Button variant="outline" className="rounded-xl px-6 font-black uppercase text-[10px] border-slate-100 text-slate-400 hover:bg-primary hover:text-white" onClick={() => handlePageChange(page - 1)} disabled={page <= 1}>Précédent</Button>
+                <Button className="rounded-xl px-6 font-black uppercase text-[10px] bg-primary text-white shadow-lg shadow-primary/20 hover:bg-primary/90" onClick={() => handlePageChange(page + 1)} disabled={page >= lastPage}>Suivant</Button>
               </div>
             </div>
           )}
@@ -471,7 +471,7 @@ export default function FormateurQuizManagementPage() {
       
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogContent className="rounded-[3.5rem] p-0 overflow-hidden outline-none bg-white border-0 max-w-xl shadow-2xl">
-              <div className="bg-[#FEB823] p-10 pt-16 text-white text-center relative overflow-hidden">
+              <div className="bg-primary p-10 pt-16 text-white text-center relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
                 <DialogTitle className="text-3xl font-black uppercase relative z-10">Creer un Nouveau Quiz</DialogTitle>
                 <p className="text-white/80 font-bold text-xs uppercase tracking-widest mt-2 relative z-10">Paramétrez votre évaluation interactif</p>
@@ -479,13 +479,13 @@ export default function FormateurQuizManagementPage() {
               <div className="p-10 space-y-6 bg-slate-50/30">
                   <div className="space-y-2">
                       <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Titre du Quiz</Label>
-                      <Input value={newQuizData.titre} onChange={(e) => setNewQuizData(p => ({ ...p, titre: e.target.value }))} placeholder="Ex: Maîtrise de React hooks" className="h-16 rounded-[1.5rem] font-bold border-slate-100 focus:ring-[#FEB823]/20 px-6" />
+                      <Input value={newQuizData.titre} onChange={(e) => setNewQuizData(p => ({ ...p, titre: e.target.value }))} placeholder="Ex: Maîtrise de React hooks" className="h-16 rounded-[1.5rem] font-bold border-slate-100 focus:ring-ring/20 px-6" />
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                          <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Niveau</Label>
-                         <select className="w-full h-16 rounded-[1.5rem] px-6 font-bold bg-white border border-slate-100 outline-none focus:ring-2 focus:ring-[#FEB823]/10" value={newQuizData.niveau} onChange={(e) => setNewQuizData(p => ({ ...p, niveau: e.target.value }))}>
+                         <select className="w-full h-16 rounded-[1.5rem] px-6 font-bold bg-white border border-slate-100 outline-none focus:ring-2 focus:ring-ring/10" value={newQuizData.niveau} onChange={(e) => setNewQuizData(p => ({ ...p, niveau: e.target.value }))}>
                              <option value="débutant">Débutant</option>
                              <option value="intermédiaire">Intermédiaire</option>
                              <option value="avancé">Avancé</option>
@@ -499,20 +499,20 @@ export default function FormateurQuizManagementPage() {
 
                   <div className="space-y-2">
                       <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Formation associée</Label>
-                      <select className="w-full h-16 rounded-[1.5rem] px-6 font-bold bg-white border border-slate-100 outline-none focus:ring-2 focus:ring-[#FEB823]/10" value={newQuizData.formation_id} onChange={(e) => setNewQuizData(p => ({ ...p, formation_id: e.target.value }))}>
+                      <select className="w-full h-16 rounded-[1.5rem] px-6 font-bold bg-white border border-slate-100 outline-none focus:ring-2 focus:ring-ring/10" value={newQuizData.formation_id} onChange={(e) => setNewQuizData(p => ({ ...p, formation_id: e.target.value }))}>
                           <option value="">Sélectionner une formation...</option>
                           {formations.map(f => <option key={f.id} value={String(f.id)}>{f.nom}</option>)}
                       </select>
                   </div>
 
-                  <Button className="w-full h-16 rounded-[1.5rem] bg-[#FEB823] text-white font-black uppercase shadow-xl shadow-[#FEB823]/20 hover:bg-[#FEB823]/90 transition-all active:scale-[0.98] mt-4" onClick={handleCreateQuiz}>Générer le module</Button>
+                  <Button className="w-full h-16 rounded-[1.5rem] bg-primary text-white font-black uppercase shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-[0.98] mt-4" onClick={handleCreateQuiz}>Générer le module</Button>
               </div>
           </DialogContent>
       </Dialog>
 
       <Dialog open={questionOpen} onOpenChange={setQuestionOpen}>
         <DialogContent className="rounded-[3.5rem] p-0 overflow-hidden outline-none bg-white border-0 max-w-2xl shadow-2xl">
-          <div className="bg-[#FEB823] p-10 pt-16 text-white text-center relative overflow-hidden">
+          <div className="bg-primary p-10 pt-16 text-white text-center relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
             <DialogTitle className="text-3xl font-black uppercase relative z-10">Nouvelle Question</DialogTitle>
             <p className="text-white/80 font-bold text-xs uppercase tracking-widest mt-2 relative z-10">Enrichissez votre banque pédagogique</p>
@@ -525,7 +525,7 @@ export default function FormateurQuizManagementPage() {
                 value={currentQuestion.text} 
                 onChange={(e) => setCurrentQuestion(p => ({ ...p, text: e.target.value }))} 
                 placeholder="Saisissez votre question ici..." 
-                className="min-h-[100px] rounded-[1.5rem] font-bold border-slate-100 focus:ring-[#FEB823]/20 px-6 py-4" 
+                className="min-h-[100px] rounded-[1.5rem] font-bold border-slate-100 focus:ring-ring/20 px-6 py-4" 
               />
             </div>
 
@@ -535,7 +535,7 @@ export default function FormateurQuizManagementPage() {
                 value={currentQuestion.astuce} 
                 onChange={(e) => setCurrentQuestion(p => ({ ...p, astuce: e.target.value }))} 
                 placeholder="Un conseil pour aider le stagiaire..." 
-                className="h-14 rounded-[1.25rem] font-bold border-slate-100 focus:ring-[#FEB823]/20 px-6" 
+                className="h-14 rounded-[1.25rem] font-bold border-slate-100 focus:ring-ring/20 px-6" 
               />
             </div>
 
@@ -552,7 +552,7 @@ export default function FormateurQuizManagementPage() {
                   <Button 
                     type="button"
                     variant={r.correct ? "default" : "outline"}
-                    className={`h-14 w-14 rounded-2xl flex items-center justify-center transition-all ${r.correct ? 'bg-[#FEB823] hover:bg-[#FEB823]/90 border-none' : 'border-slate-100 text-slate-300'}`}
+                    className={`h-14 w-14 rounded-2xl flex items-center justify-center transition-all ${r.correct ? 'bg-primary hover:bg-primary/90 border-none' : 'border-slate-100 text-slate-300'}`}
                     onClick={() => updateReponse(idx, { correct: !r.correct })}
                   >
                     <CheckCircle2 className={`w-6 h-6 ${r.correct ? 'text-white' : 'text-slate-200'}`} />
@@ -579,7 +579,7 @@ export default function FormateurQuizManagementPage() {
             </div>
 
             <Button 
-              className="w-full h-16 rounded-[1.5rem] bg-[#FEB823] text-white font-black uppercase shadow-xl shadow-[#FEB823]/20 hover:bg-[#FEB823]/90 transition-all active:scale-[0.98] mt-6" 
+              className="w-full h-16 rounded-[1.5rem] bg-primary text-white font-black uppercase shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-[0.98] mt-6" 
               onClick={handleAddQuestion}
               disabled={!currentQuestion.text || currentQuestion.reponses.filter(r => r.correct).length === 0}
             >

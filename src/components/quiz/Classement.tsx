@@ -407,11 +407,11 @@ export function Classement() {
                       <div className="p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition">
                         <div className="flex items-center justify-between">
                           <div className="font-medium text-gray-800">{cat.category}</div>
-                          <div className="text-sm text-blue-600">{percentage}%</div>
+                          <div className="text-sm text-primary">{percentage}%</div>
                         </div>
                         <div className="mt-2 w-full h-2 bg-gray-100 rounded">
                           <div
-                            className="h-2 bg-blue-500 rounded"
+                            className="h-2 bg-primary rounded"
                             style={{ width: `${total > 0 ? (quizCount / total) * 100 : 0}%` }}
                           />
                         </div>
@@ -518,7 +518,7 @@ export function Classement() {
               <div className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl p-4 shadow-lg">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-blue-600">
+                    <span className="text-primary">
                       <svg
                         width="18"
                         height="18"
@@ -576,7 +576,7 @@ function StatsCard({
   onClick?: () => void;
 }) {
   const colorMap: Record<string, string> = {
-    primary: "text-blue-600 bg-blue-50",
+    primary: "text-primary bg-accent",
     amber: "text-amber-700 bg-amber-50",
     green: "text-green-700 bg-green-50",
   };

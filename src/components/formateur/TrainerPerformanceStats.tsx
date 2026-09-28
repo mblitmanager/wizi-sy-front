@@ -287,7 +287,7 @@ export const RankingsSection = ({ data }: { data: TrainerPerformanceResponse }) 
                         >
                             <div className="flex items-center gap-4 min-w-0">
                                 <div className={`h-9 w-9 rounded-xl flex items-center justify-center font-black text-sm tracking-tighter shadow-sm transition-transform group-hover/item:scale-110 ${
-                                    idx === 0 ? 'bg-blue-600 text-white shadow-blue-500/20' : 
+                                    idx === 0 ? 'bg-foreground text-white shadow-slate-500/20' : 
                                     'bg-white text-slate-400 border border-slate-100'
                                 }`}>
                                     {idx + 1}

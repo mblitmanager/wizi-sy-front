@@ -87,14 +87,14 @@ export function StagiaireDetailsModal({ stagiaire, isOpen, onClose }: StagiaireD
             <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto" aria-describedby="dialog-description">
                 {loading ? (
                     <div className="flex items-center justify-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary/40"></div>
                     </div>
                 ) : error ? (
                     <div className="text-center py-12">
                         <p className="text-red-600">{error}</p>
                         <button
                             onClick={fetchDetails}
-                            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                            className="mt-4 px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground/85"
                         >
                             Réessayer
                         </button>
@@ -128,7 +128,7 @@ export function StagiaireDetailsModal({ stagiaire, isOpen, onClose }: StagiaireD
                             {details.formations && details.formations.length > 0 && (
                                 <div>
                                     <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                                        <TrendingUp className="w-5 h-5 text-blue-600" />
+                                        <TrendingUp className="w-5 h-5 text-primary" />
 
                                         {details.formations.length > 1 ? "Formations" : "Formation"}
                                     </h3>

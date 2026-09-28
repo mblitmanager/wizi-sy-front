@@ -53,7 +53,7 @@ export const StreakModal = ({
 
         <div className="flex justify-center gap-3">
           <button
-            className="px-6 py-2 bg-[#feb823] text-white rounded-lg font-semibold hover:bg-[#fea523] transition-colors"
+            className="px-6 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors"
             onClick={onClose}>
             Continuer
           </button>

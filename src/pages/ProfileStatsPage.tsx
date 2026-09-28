@@ -443,11 +443,11 @@ const ProfileStatsPage = () => {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {Object.entries(detailedStats.statsByLevel).map(([level, data]) => (
-                  <div key={level} className="text-center p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
-                    <h4 className="font-semibold text-indigo-800 dark:text-indigo-300 mb-2">{level}</h4>
+                  <div key={level} className="text-center p-4 bg-accent dark:bg-indigo-900/20 rounded-lg">
+                    <h4 className="font-semibold text-primary dark:text-indigo-300 mb-2">{level}</h4>
                     <div className="flex justify-around items-center">
                       <div>
-                        <div className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
+                        <div className="text-xl font-bold text-primary dark:text-indigo-400">
                           {data.count}
                         </div>
                         <div className="text-xs text-gray-600 dark:text-gray-400">
@@ -455,7 +455,7 @@ const ProfileStatsPage = () => {
                         </div>
                       </div>
                       <div>
-                        <div className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
+                        <div className="text-xl font-bold text-primary dark:text-indigo-400">
                           {data.averageScore}%
                         </div>
                         <div className="text-xs text-gray-600 dark:text-gray-400">

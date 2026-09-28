@@ -2,6 +2,9 @@ import { Gamepad2, HelpCircle, Trophy, ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
 
 // Nouvelle palette de couleurs harmonieuse inspirée de Flutter
+// Étapes unifiées sur le bleu marine NS Conseil (lisible sur fond blanc)
+const brandStep = { color: "#263548", lightColor: "#EEF2F7" };
+
 const colors = {
   primaryBlue: "#3D9BE9",
   primaryBlueLight: "#E8F4FE",
@@ -29,8 +32,7 @@ const steps = [
   {
     number: "1",
     icon: Gamepad2,
-    color: colors.primaryBlue,
-    lightColor: colors.primaryBlueLight,
+    ...brandStep,
     title: "Sélectionnez un quiz",
     description:
       "Choisissez un quiz adapté à votre niveau et à votre domaine de formation.",
@@ -38,8 +40,7 @@ const steps = [
   {
     number: "2",
     icon: HelpCircle,
-    color: colors.successGreen,
-    lightColor: colors.successGreenLight,
+    ...brandStep,
     title: "Répondez aux questions",
     description:
       "Évaluez vos compétences en répondant à une série de questions interactives et chronométrées.",
@@ -47,8 +48,7 @@ const steps = [
   {
     number: "3",
     icon: Trophy,
-    color: colors.warningOrange,
-    lightColor: colors.warningOrangeLight,
+    ...brandStep,
     title: "Progressez dans le classement",
     description:
       "Accumulez des points à chaque réponse correcte et améliorez votre position dans le classement.",
@@ -89,7 +89,7 @@ export const HowToPlay = () => {
     <div className="my-8 sm:my-12 lg:my-16 px-4 sm:px-6 lg:px-8">
       {/* En-tête */}
       <div className="mb-6 sm:mb-8 lg:mb-12 text-center">
-        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 dark:text-white mb-2 sm:mb-3">
+        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-2 font-poppins sm:mb-3">
           Comment participer ?
         </h2>
         <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 max-w-2xl mx-auto px-4">
@@ -137,7 +137,7 @@ export const HowToPlay = () => {
               className="h-full rounded-full transition-all duration-500"
               style={{
                 width: "100%",
-                background: `linear-gradient(90deg, ${colors.primaryBlue}, ${colors.successGreen}, ${colors.warningOrange})`,
+                background: "linear-gradient(90deg, #263548, #3A4F6B, #FEB823)",
               }}
             />
           </div>

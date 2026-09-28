@@ -81,7 +81,7 @@ function TutorialOverlay({
             <div
               key={i}
               className={`w-2.5 h-2.5 rounded-full transition-all ${
-                i === step ? "bg-[#FFB800] w-6" : "bg-gray-300"
+                i === step ? "bg-primary w-6" : "bg-gray-300"
               }`}
             />
           ))}
@@ -103,7 +103,7 @@ function TutorialOverlay({
           {step < totalSteps - 1 ? (
             <button
               onClick={onNext}
-              className="px-6 py-2 bg-[#FFB800] hover:bg-[#E0A800] text-white font-bold rounded-lg transition-colors"
+              className="px-6 py-2 bg-primary hover:bg-primary/90 text-white font-bold rounded-lg transition-colors"
             >
               Suivant
             </button>
@@ -245,7 +245,7 @@ export default function TutoAstucePage() {
                     onClick={() => setActiveCategory("tutoriel")}
                     className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold rounded-lg transition-all ${
                       activeCategory === "tutoriel"
-                        ? "bg-[#FFB800] text-white shadow-md"
+                        ? "bg-primary text-white shadow-md"
                         : "text-gray-600 hover:text-gray-800"
                     }`}
                   >
@@ -273,7 +273,7 @@ export default function TutoAstucePage() {
                     setTutorialStep(0);
                     setShowTutorial(true);
                   }}
-                  className="w-10 h-10 bg-[#FFB800] hover:bg-[#E0A800] rounded-xl flex items-center justify-center transition-colors shadow-lg shadow-yellow-200"
+                  className="w-10 h-10 bg-primary hover:bg-primary/90 rounded-xl flex items-center justify-center transition-colors shadow-lg shadow-slate-300/50"
                   title="Aide"
                 >
                   <HelpCircle className="w-5 h-5 text-white" />
@@ -287,7 +287,7 @@ export default function TutoAstucePage() {
                 <select
                   value={selectedFormationId || formationsWithTutos[0]?.id || ""}
                   onChange={(e) => setSelectedFormationId(e.target.value)}
-                  className="w-full px-4 py-2 text-sm font-medium rounded-xl border-2 border-[#FFB800]/30 bg-[#FFB800]/5 hover:border-[#FFB800]/50 focus:outline-none focus:ring-2 focus:ring-[#FFB800]/50 focus:border-[#FFB800] transition-all"
+                  className="w-full px-4 py-2 text-sm font-medium rounded-xl border-2 border-primary/30 bg-accent hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-ring/50 focus:border-primary transition-all"
                 >
                   {formationsWithTutos.map((formation) => (
                     <option key={formation.id} value={formation.id}>
@@ -346,7 +346,7 @@ export default function TutoAstucePage() {
                   {selectedMedia && selectedMedia.url && (
                     <button
                       onClick={() => window.open(selectedMedia.url, '_blank')}
-                      className="p-2 text-[#FFB800] hover:bg-[#FFB800]/10 rounded-full transition-colors flex-shrink-0"
+                      className="p-2 text-primary hover:bg-accent rounded-full transition-colors flex-shrink-0"
                       title="Télécharger / Ouvrir"
                     >
                       <Download size={20} />
@@ -408,7 +408,7 @@ export default function TutoAstucePage() {
               {selectedMedia && selectedMedia.url && (
                 <button
                   onClick={() => window.open(selectedMedia.url, '_blank')}
-                  className="p-2 text-[#FFB800] hover:bg-[#FFB800]/10 rounded-full transition-colors"
+                  className="p-2 text-primary hover:bg-accent rounded-full transition-colors"
                   title="Télécharger / Ouvrir"
                 >
                   <Download size={20} />
@@ -455,7 +455,7 @@ export default function TutoAstucePage() {
               setTutorialStep(0);
               setShowTutorial(true);
             }}
-            className="fixed bottom-6 right-6 w-14 h-14 bg-[#FFB800] hover:bg-[#E0A800] rounded-full flex items-center justify-center shadow-2xl shadow-yellow-300/50 z-50 transition-colors"
+            className="fixed bottom-6 right-6 w-14 h-14 bg-primary hover:bg-primary/90 rounded-full flex items-center justify-center shadow-2xl shadow-slate-300/50 z-50 transition-colors"
             title="Aide"
           >
             <HelpCircle className="w-6 h-6 text-white" />

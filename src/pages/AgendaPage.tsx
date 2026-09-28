@@ -75,8 +75,8 @@ export default function AgendaPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Calendar className="h-6 w-6 text-blue-600" />
+              <div className="p-2 bg-accent rounded-lg">
+                <Calendar className="h-6 w-6 text-primary" />
               </div>
               <h1 className="text-3xl font-bold tracking-tight text-slate-900">Agenda Google</h1>
             </div>
@@ -121,12 +121,12 @@ export default function AgendaPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
               >
-                <Card className="overflow-hidden hover:shadow-md transition-all border-l-4 border-l-blue-500 group">
+                <Card className="overflow-hidden hover:shadow-md transition-all border-l-4 border-l-primary group">
                   <CardContent className="p-0">
                     <div className="flex flex-col md:flex-row">
                       {/* Date Block */}
                       <div className="md:w-48 bg-slate-50 p-6 flex flex-col items-center justify-center border-r">
-                        <span className="text-sm font-bold text-blue-600 uppercase tracking-wider">
+                        <span className="text-sm font-bold text-primary uppercase tracking-wider">
                           {format(event.start, "MMM", { locale: fr })}
                         </span>
                         <span className="text-4xl font-black text-slate-800">
@@ -146,7 +146,7 @@ export default function AgendaPage() {
                             </h3>
                             <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
                               <div className="flex items-center gap-1.5">
-                                <Clock className="h-4 w-4 text-blue-500" />
+                                <Clock className="h-4 w-4 text-gold-deep" />
                                 <span>{formatTime(event.start)} - {formatTime(event.end)}</span>
                               </div>
                               {event.location && (
@@ -159,7 +159,7 @@ export default function AgendaPage() {
                           </div>
 
                           {event.htmlLink && (
-                            <Button variant="ghost" size="icon" asChild className="hover:bg-blue-50 text-blue-600">
+                            <Button variant="ghost" size="icon" asChild className="hover:bg-accent text-primary">
                               <a href={event.htmlLink} target="_blank" rel="noopener noreferrer">
                                 <ExternalLink className="h-5 w-5" />
                               </a>

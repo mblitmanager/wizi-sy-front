@@ -284,7 +284,7 @@ export function QuizSummary(props: Partial<QuizSummaryProps>) {
       {/* Section des statistiques principales */}
       <div>
         <div className="flex items-center gap-2 mb-3">
-          <div className="p-1.5 rounded-md bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300">
+          <div className="p-1.5 rounded-md bg-accent dark:bg-indigo-900/20 text-primary dark:text-indigo-300">
             <TrendingUp size={16} />
           </div>
           <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
@@ -441,20 +441,20 @@ export function QuizSummary(props: Partial<QuizSummaryProps>) {
 
       {/* Section pour le quiz suivant */}
       {nextQuiz && !showCountdown && (
-        <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+        <div className="mt-4 p-4 bg-accent dark:bg-blue-900/20 rounded-lg border border-border dark:border-blue-800">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="font-semibold text-blue-800 dark:text-blue-300">
+              <h4 className="font-semibold text-primary dark:text-blue-300">
                 Quiz suivant disponible
               </h4>
-              <p className="text-sm text-blue-600 dark:text-blue-400">
+              <p className="text-sm text-primary dark:text-blue-400">
                 {nextQuiz.titre} • {nextQuiz.niveau}
               </p>
             </div>
             <Button
               onClick={handleStartNextQuiz}
               size="sm"
-              className="bg-blue-600 hover:bg-blue-700 text-white">
+              className="bg-foreground hover:bg-foreground/85 text-white">
               Commencer
             </Button>
           </div>

@@ -300,7 +300,7 @@ export default function VideoPlayer({
         <button
           onClick={toggleFitMode}
           className={`p-1.5 rounded transition-colors mt-1 ${
-            fitMode === 'cover' ? 'bg-[#FFB800] text-black' : 'bg-white/10 text-white hover:bg-white/20'
+            fitMode === 'cover' ? 'bg-gold text-black' : 'bg-white/10 text-white hover:bg-white/20'
           }`}
           title={fitMode === 'cover' ? t('video.fit') : t('video.fill')}
         >

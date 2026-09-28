@@ -4,30 +4,6 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-// Palette de couleurs Flutter harmonieuse
-const colors = {
-  primaryBlue: "#3D9BE9",
-  primaryBlueLight: "#E8F4FE",
-  primaryBlueDark: "#2A7BC8",
-
-  successGreen: "#ABDA96",
-  successGreenLight: "#F0F9ED",
-  successGreenDark: "#7BBF5E",
-
-  accentPurple: "#9392BE",
-  accentPurpleLight: "#F5F4FF",
-  accentPurpleDark: "#6A6896",
-
-  warningOrange: "#FFC533",
-  warningOrangeLight: "#FFF8E8",
-  warningOrangeDark: "#E6A400",
-
-  neutralWhite: "#FFFFFF",
-  neutralGrey: "#F8F9FA",
-  neutralGreyDark: "#6C757D",
-  neutralBlack: "#212529",
-};
-
 interface WelcomeBannerProps {
   showDismissOption?: boolean;
   variant?: "default" | "minimal" | "featured";
@@ -41,21 +17,13 @@ export const WelcomeBanner = ({
 }: WelcomeBannerProps) => {
   const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(true);
-  const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [isTablet, setIsTablet] = useState(false);
 
   // Vérifier la taille de l'écran
   useEffect(() => {
-    const checkScreenSize = () => {
-      const width = window.innerWidth;
-      setIsMobile(width < 768);
-      setIsTablet(width >= 768 && width < 1024);
-    };
-
+    const checkScreenSize = () => setIsMobile(window.innerWidth < 768);
     checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
-
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
@@ -75,76 +43,50 @@ export const WelcomeBanner = ({
 
   const handleDiscover = () => {
     window.open("/manuel", "_blank");
-    console.log("User clicked discover platform");
   };
 
   const features = [
-    {
-      icon: BookOpen,
-      text: t("welcome.features.formations"),
-      color: colors.primaryBlue,
-    },
-    { icon: Zap, text: t("welcome.features.quiz"), color: colors.successGreen },
-    { icon: Star, text: t("welcome.features.progress"), color: colors.warningOrange },
+    { icon: BookOpen, text: t("welcome.features.formations") },
+    { icon: Zap, text: t("welcome.features.quiz") },
+    { icon: Star, text: t("welcome.features.progress") },
   ];
 
   if (!isVisible) return null;
 
-  // Version minimaliste pour les petits écrans ou contextes spécifiques
+  // Version compacte pour les petits écrans ou contextes spécifiques
   if (variant === "minimal" || isMobile) {
     return (
-      <div
-        className="relative bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-4 transition-all duration-300 hover:shadow-md"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}>
+      <div className="relative mb-5 rounded-2xl border border-border bg-accent/60 p-4">
         {showDismissOption && (
           <button
-            className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors z-10"
+            className="absolute right-2.5 top-2.5 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-card hover:text-foreground"
             onClick={handleClose}
             aria-label="Fermer le message de bienvenue">
             <X size={16} />
           </button>
         )}
 
-        <div className="flex items-center gap-3">
-          <div
-            className="flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 flex-shrink-0"
-            style={{
-              backgroundColor: colors.primaryBlueLight,
-              transform: isHovered ? "scale(1.1)" : "scale(1)",
-            }}>
-            <Megaphone size={18} style={{ color: colors.primaryBlue }} />
+        <div className="flex items-center gap-3 pr-6">
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+            <Megaphone size={18} />
           </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="text-base font-semibold text-gray-900 truncate">
-              {t("welcome.title")}
-            </h3>
-            <p className="text-sm text-gray-600 truncate">
-              {t("welcome.subtitle")}
-            </p>
+          <div className="min-w-0 flex-1">
+            <h3 className="truncate text-base font-semibold text-foreground">{t("welcome.title")}</h3>
+            <p className="truncate text-sm text-muted-foreground">{t("welcome.subtitle")}</p>
           </div>
         </div>
 
-        {/* Bouton d'action pour mobile */}
         <div className="mt-3 flex gap-2">
           <Button
             onClick={handleDiscover}
-            className="flex-1 text-sm font-medium py-2 rounded-lg transition-all duration-300"
-            style={{
-              background: colors.primaryBlue,
-              color: colors.neutralWhite,
-            }}>
+            className="h-10 flex-1 rounded-xl bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90">
             {t("welcome.discover")}
           </Button>
           {showDismissOption && (
             <Button
               variant="outline"
               onClick={handleClose}
-              className="flex-1 text-sm font-medium py-2 rounded-lg border-2"
-              style={{
-                borderColor: colors.primaryBlue,
-                color: colors.primaryBlue,
-              }}>
+              className="h-10 flex-1 rounded-xl border-border bg-card text-sm font-medium">
               {t("welcome.ignore")}
             </Button>
           )}
@@ -154,175 +96,79 @@ export const WelcomeBanner = ({
   }
 
   return (
-    <div
-      className="group relative rounded-2xl overflow-hidden transition-all duration-500 hover:shadow-xl mb-6 mx-4 lg:mx-0"
-      style={{
-        background: `linear-gradient(135deg, ${colors.primaryBlueLight} 0%, ${colors.neutralWhite} 50%, ${colors.successGreenLight} 100%)`,
-        border: `1px solid ${colors.primaryBlue}20`,
-      }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}>
-      {/* Fond décoratif animé */}
+    <div className="relative mb-6 overflow-hidden rounded-2xl bg-gradient-to-br from-navy via-navy to-navy-light text-white shadow-[var(--shadow-md)]">
+      {/* Formes décoratives : bulle Wizi et or NS Conseil */}
       <div
-        className="absolute inset-0 opacity-50 transition-opacity duration-700"
-        style={{
-          background: `radial-gradient(circle at 30% 20%, ${colors.primaryBlue}15 0%, transparent 50%),
-                      radial-gradient(circle at 70% 80%, ${colors.successGreen}15 0%, transparent 50%)`,
-          opacity: isHovered ? 0.7 : 0.5,
-        }}
+        aria-hidden
+        className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-[45%_55%_60%_40%/55%_45%_55%_45%] bg-gold/15"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-20 right-24 h-40 w-40 rounded-[55%_45%_40%_60%/45%_55%_45%_55%] bg-white/5"
       />
 
-      {/* Points décoratifs - Responsive */}
-      <div className="absolute top-4 right-4 md:top-6 md:right-20 w-2 h-2 md:w-3 md:h-3 rounded-full bg-blue-400/30 animate-pulse" />
-      <div
-        className="absolute bottom-6 left-4 md:bottom-8 md:left-16 w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-green-400/40 animate-pulse"
-        style={{ animationDelay: "1s" }}
-      />
-      <div
-        className="absolute top-12 right-8 md:top-12 md:right-32 w-2.5 h-2.5 md:w-4 md:h-4 rounded-full bg-purple-400/20 animate-pulse"
-        style={{ animationDelay: "2s" }}
-      />
-
-      <div className="relative p-4 sm:p-6 md:p-8">
-        {/* Bouton de fermeture */}
+      <div className="relative p-6 md:p-8">
         {showDismissOption && (
           <button
-            className="absolute top-3 right-3 md:top-4 md:right-4 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 z-10 hover:bg-white/50 backdrop-blur-sm"
+            className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full text-white/60 transition-colors hover:bg-white/10 hover:text-white"
             onClick={handleClose}
-            aria-label="Fermer le message de bienvenue"
-            style={{ color: colors.neutralGreyDark }}>
+            aria-label="Fermer le message de bienvenue">
             <X size={16} />
           </button>
         )}
 
-        <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 md:gap-6">
-          {/* Section icône et titre */}
-          <div className="flex items-center gap-3 md:gap-4 flex-shrink-0">
-            <div
-              className="relative flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl transition-all duration-500 group-hover:scale-105"
-              style={{
-                background: `linear-gradient(135deg, ${colors.primaryBlue}, ${colors.primaryBlueDark})`,
-                boxShadow: `0 8px 32px ${colors.primaryBlue}40, 
-                           inset 0 1px 0 ${colors.primaryBlue}30`,
-              }}>
-              <Megaphone size={isTablet ? 24 : 28} className="text-white" />
-
-              {/* Effet de brillance */}
-              <div
-                className="absolute inset-0 rounded-xl md:rounded-2xl opacity-30 transition-opacity duration-500"
-                style={{
-                  background: `linear-gradient(135deg, transparent 30%, white 70%)`,
-                  opacity: isHovered ? 0.4 : 0.2,
-                }}
-              />
+        <div className="flex flex-col items-start gap-5 lg:flex-row lg:items-center lg:gap-8">
+          <div className="relative flex-shrink-0">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gold text-navy shadow-lg shadow-black/20 md:h-16 md:w-16">
+              <Megaphone size={28} />
             </div>
-
-            {/* Badge "Nouveau" pour la version featured */}
             {variant === "featured" && (
-                <Badge
-                className="absolute -top-1 -right-1 md:-top-2 md:-right-2 px-2 py-0.5 md:px-2 md:py-1 text-xs font-bold border-0 animate-bounce"
-                style={{
-                  backgroundColor: colors.warningOrange,
-                  color: colors.neutralWhite,
-                }}>
+              <Badge className="absolute -right-2 -top-2 border-0 bg-white px-2 py-0.5 text-[10px] font-bold text-navy hover:bg-white">
                 {t("welcome.new")}
               </Badge>
             )}
           </div>
 
-          {/* Contenu principal */}
-          <div className="flex-1 min-w-0">
-            <div className="mb-4 md:mb-6">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent leading-tight">
-                {t("welcome.title")}
-              </h1>
+          <div className="min-w-0 flex-1">
+            <h1 className="mb-1.5 font-poppins text-2xl font-bold leading-tight text-white md:text-3xl">
+              {t("welcome.title")}
+            </h1>
+            <p className="mb-2 text-base font-semibold text-gold md:text-lg">{t("welcome.subtitle")}</p>
+            <p className="mb-5 max-w-3xl text-sm leading-relaxed text-white/75 md:text-base">
+              {t("welcome.description")}
+            </p>
 
-              <p
-                className="text-base md:text-lg font-medium mb-2 md:mb-3 transition-colors duration-300"
-                style={{ color: colors.primaryBlueDark }}>
-                {t("welcome.subtitle")}
-              </p>
-
-              <p
-                className="text-sm md:text-base leading-relaxed max-w-3xl transition-colors duration-300"
-                style={{ color: colors.neutralGreyDark }}>
-                {t("welcome.description")}
-              </p>
-            </div>
-
-            {/* Fonctionnalités principales - Responsive */}
-            <div className="flex flex-col sm:flex-row flex-wrap gap-2 md:gap-4 mb-4 md:mb-6">
+            <div className="mb-6 flex flex-wrap gap-2">
               {features.map((feature, index) => (
-                <div
+                <span
                   key={index}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-300 hover:scale-105 flex-1 min-w-[140px] sm:flex-initial"
-                  style={{
-                    backgroundColor: `${feature.color}15`,
-                    border: `1px solid ${feature.color}20`,
-                  }}>
-                  <feature.icon
-                    size={isMobile ? 14 : 16}
-                    style={{ color: feature.color }}
-                  />
-                  <span
-                    className="text-xs md:text-sm font-medium whitespace-nowrap"
-                    style={{ color: feature.color }}>
-                    {feature.text}
-                  </span>
-                </div>
+                  className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-sm font-medium text-white/90">
+                  <feature.icon size={15} className="text-gold" />
+                  {feature.text}
+                </span>
               ))}
             </div>
 
-            {/* Actions - Responsive */}
-            <div className="flex flex-col sm:flex-row gap-2 md:gap-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
               <Button
                 onClick={handleDiscover}
-                className="group/btn font-semibold px-4 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl border-0 flex-1 sm:flex-initial"
-                style={{
-                  background: `linear-gradient(135deg, ${colors.primaryBlue}, ${colors.primaryBlueDark})`,
-                  color: colors.neutralWhite,
-                }}>
-                <span className="flex items-center gap-1 md:gap-2 justify-center">
-                  <span className="text-sm md:text-base">
-                    {isMobile ? t("welcome.discover") : t("welcome.discover_platform")}
-                  </span>
-                  <ArrowRight
-                    size={isMobile ? 14 : 16}
-                    className="transition-transform duration-300 group-hover/btn:translate-x-1"
-                  />
-                </span>
+                className="group/btn h-11 rounded-xl bg-gold px-6 font-semibold text-navy shadow-sm hover:bg-gold/90">
+                {t("welcome.discover_platform")}
+                <ArrowRight size={16} className="transition-transform duration-200 group-hover/btn:translate-x-0.5" />
               </Button>
 
               {showDismissOption && (
                 <Button
                   variant="outline"
                   onClick={handleClose}
-                  className="font-medium px-4 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl transition-all duration-300 border-2 hover:scale-105 flex-1 sm:flex-initial"
-                  style={{
-                    borderColor: colors.primaryBlue,
-                    color: colors.primaryBlue,
-                    backgroundColor: "transparent",
-                  }}>
-                  <span className="text-sm md:text-base">
-                    {isMobile ? t("welcome.explore") : t("welcome.explore_myself")}
-                  </span>
+                  className="h-11 rounded-xl border-white/25 bg-transparent px-6 font-medium text-white hover:bg-white/10 hover:text-white">
+                  {t("welcome.explore_myself")}
                 </Button>
               )}
             </div>
           </div>
         </div>
       </div>
-
-      {/* Indicateur de progression (optionnel) */}
-      {variant === "featured" && (
-        <div
-          className="h-1 bg-gradient-to-r from-blue-400 via-green-400 to-purple-400 opacity-50 transition-all duration-1000"
-          style={{
-            transform: isHovered ? "scaleX(1)" : "scaleX(0.8)",
-            transformOrigin: "left center",
-          }}
-        />
-      )}
     </div>
   );
 };

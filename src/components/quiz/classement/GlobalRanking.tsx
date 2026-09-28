@@ -235,7 +235,7 @@ export function GlobalRanking({
       className="mb-4 bg-white dark:bg-gray-900 rounded-lg ring-1 ring-gray-50 dark:ring-gray-800 overflow-hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
       {/* Header */}
-      <div className="p-4 sm:p-4 border-b bg-blue-50 dark:bg-gray-800/50">
+      <div className="p-4 sm:p-4 border-b bg-accent dark:bg-gray-800/50">
         <div className="flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -313,7 +313,7 @@ export function GlobalRanking({
               placeholder="Chercher..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-11 pr-4 py-3 w-full text-sm border-2 border-blue-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white shadow-sm"
+              className="pl-11 pr-4 py-3 w-full text-sm border-2 border-border dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-ring focus:border-primary/40 dark:bg-gray-800 dark:text-white shadow-sm"
             />
           </div>
 
@@ -366,7 +366,7 @@ export function GlobalRanking({
                   setSelectedQuarter(q);
                   onPeriodChange(period, q);
                 }}
-                className="px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 transition-all">
+                className="px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-ring transition-all">
                 <option value="">Tous trimestres</option>
                 <option value="1">T1 (Jan-Mar)</option>
                 <option value="2">T2 (Avr-Jun)</option>
@@ -431,7 +431,7 @@ export function GlobalRanking({
                     setSortKey('rang');
                     setSortOrder('asc');
                   }}
-                  className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1">
+                  className="text-xs text-primary hover:text-primary/80 font-medium flex items-center gap-1">
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
@@ -549,7 +549,7 @@ export function GlobalRanking({
                                   src={apiUrl + '/' + entry.image}
                                 />
                                 
-                                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                                <AvatarFallback className="bg-gradient-to-br from-navy to-navy-light text-white">
                                   {entry.name?.charAt(0) || "U"}
                                 </AvatarFallback>
                               </Avatar>

@@ -136,7 +136,7 @@ export function FormateurVideosPage() {
             <Layout>
                 <div className="flex items-center justify-center min-h-[60vh]">
                     <div className="flex flex-col items-center gap-4">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FEB823]"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                         <p className="text-muted-foreground animate-pulse font-bold uppercase text-xs tracking-widest">Chargement bibliothèque...</p>
                     </div>
                 </div>
@@ -151,15 +151,15 @@ export function FormateurVideosPage() {
             <div className="min-h-screen bg-[#F8FAFC] pb-20">
                 {/* Hero Section - Suivi Demandes style */}
                 <div className="relative overflow-hidden bg-white border-b border-gray-100 px-8 py-12 md:px-12 md:py-16 shadow-sm mb-10">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-[#FEB823]/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-accent rounded-full -mr-20 -mt-20 blur-3xl"></div>
                     <div className="relative z-10 max-w-7xl mx-auto">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
                             <div className="space-y-4 flex-1">
-                                <Badge className="bg-[#FEB823]/10 text-[#FEB823] border-[#FEB823]/20 py-1 px-3">
+                                <Badge className="bg-accent text-primary border-primary/20 py-1 px-3">
                                     <Video className="w-3 h-3 mr-2" /> Bibliothèque Médias
                                 </Badge>
                                 <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
-                                    Vos Contenus <span className="text-[#FEB823]">Vidéos</span>
+                                    Vos Contenus <span className="text-primary">Vidéos</span>
                                 </h1>
                                 <p className="text-gray-500 font-medium max-w-2xl text-lg leading-relaxed">
                                     Analysez l'engagement de vos stagiaires et gérez votre catalogue pédagogique.
@@ -189,10 +189,10 @@ export function FormateurVideosPage() {
 
                             <div className="w-full md:w-auto flex flex-col md:flex-row gap-4">
                                 <div className="relative group w-full md:w-80">
-                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#FEB823] transition-colors" />
+                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-primary transition-colors" />
                                     <Input 
                                         placeholder="Rechercher une leçon..." 
-                                        className="pl-12 py-6 bg-gray-50/50 border-gray-100 rounded-2xl focus:ring-[#FEB823]/20 focus:border-[#FEB823] transition-all font-medium"
+                                        className="pl-12 py-6 bg-gray-50/50 border-gray-100 rounded-2xl focus:ring-ring/20 focus:border-primary transition-all font-medium"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
@@ -200,7 +200,7 @@ export function FormateurVideosPage() {
                                 <div className="relative w-full md:w-64">
                                     <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                                     <select 
-                                        className="w-full pl-12 h-14 rounded-2xl bg-gray-50/50 border border-gray-100 font-black text-slate-600 appearance-none focus:ring-[#FEB823]/20 focus:border-[#FEB823] outline-none cursor-pointer shadow-inner"
+                                        className="w-full pl-12 h-14 rounded-2xl bg-gray-50/50 border border-gray-100 font-black text-slate-600 appearance-none focus:ring-ring/20 focus:border-primary outline-none cursor-pointer shadow-inner"
                                         value={selectedFormationId}
                                         onChange={(e) => setSelectedFormationId(e.target.value)}
                                     >
@@ -227,9 +227,9 @@ export function FormateurVideosPage() {
                                     onClick={() => toggleFormation(String(group.formation_id))}
                                 >
                                     <div className="flex items-center gap-5">
-                                        <div className="w-1.5 h-12 bg-[#FEB823] rounded-full group-hover:scale-y-110 transition-transform"></div>
+                                        <div className="w-1.5 h-12 bg-primary rounded-full group-hover:scale-y-110 transition-transform"></div>
                                         <div>
-                                            <h2 className="text-3xl font-black text-gray-900 tracking-tight group-hover:text-[#FEB823] transition-colors uppercase">
+                                            <h2 className="text-3xl font-black text-gray-900 tracking-tight group-hover:text-primary transition-colors uppercase">
                                                 {group.formation_titre}
                                             </h2>
                                             <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.2em] mt-1 pl-0.5">
@@ -237,7 +237,7 @@ export function FormateurVideosPage() {
                                             </p>
                                         </div>
                                     </div>
-                                    <Button variant="ghost" size="icon" className="text-slate-300 hover:text-[#FEB823] hover:bg-amber-50 rounded-xl">
+                                    <Button variant="ghost" size="icon" className="text-slate-300 hover:text-primary hover:bg-amber-50 rounded-xl">
                                         <ChevronDown className={`w-6 h-6 transition-transform duration-300 ${expandedFormations[String(group.formation_id)] ? 'rotate-180' : ''}`} />
                                     </Button>
                                 </div>
@@ -258,13 +258,13 @@ export function FormateurVideosPage() {
                                                         whileHover={{ y: -5 }}
                                                         className="group flex"
                                                     >
-                                                        <Card className="overflow-hidden border-none bg-white shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-[#FEB823]/10 transition-all duration-500 rounded-[2.5rem] flex flex-col w-full">
+                                                        <Card className="overflow-hidden border-none bg-white shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 rounded-[2.5rem] flex flex-col w-full">
                                                             {/* Video Thumbnail Area */}
                                                             <div className="aspect-[16/10] bg-slate-50 relative overflow-hidden flex items-center justify-center">
                                                                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
                                                                 
                                                                 <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                                                                    <Video className="w-8 h-8 text-slate-300 group-hover:text-[#FEB823] transition-colors" />
+                                                                    <Video className="w-8 h-8 text-slate-300 group-hover:text-primary transition-colors" />
                                                                 </div>
                                                                 
                                                                 <div className="absolute top-5 right-5 z-20">
@@ -281,7 +281,7 @@ export function FormateurVideosPage() {
                                                                                 : `${import.meta.env.VITE_API_URL_MEDIA}/${video.url}`;
                                                                             window.open(finalUrl, '_blank');
                                                                         }}
-                                                                        className="rounded-full w-14 h-14 bg-[#FEB823] hover:bg-[#FE9E00] shadow-2xl shadow-[#FEB823]/40 border-4 border-white"
+                                                                        className="rounded-full w-14 h-14 bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/40 border-4 border-white"
                                                                     >
                                                                         <Play className="w-6 h-6 fill-white text-white translate-x-0.5" />
                                                                     </Button>
@@ -309,7 +309,7 @@ export function FormateurVideosPage() {
                                                                             <Button
                                                                                 variant="ghost"
                                                                                 size="sm"
-                                                                                className="h-9 px-4 rounded-xl bg-slate-50 hover:bg-[#FEB823] hover:text-white transition-all font-black text-[9px] uppercase tracking-widest text-[#FEB823]"
+                                                                                className="h-9 px-4 rounded-xl bg-slate-50 hover:bg-primary hover:text-white transition-all font-black text-[9px] uppercase tracking-widest text-primary"
                                                                                 onClick={() => handleViewStats(video)}
                                                                             >
                                                                                 <BarChart3 className="h-4 w-4 mr-2" />
@@ -318,7 +318,7 @@ export function FormateurVideosPage() {
                                                                         </DialogTrigger>
                                                                         
                                                                         <DialogContent className="max-w-2xl bg-white border-none rounded-[3.5rem] p-0 overflow-hidden shadow-2xl outline-none">
-                                                                            <div className="bg-[#FEB823] p-10 pt-16 relative text-white">
+                                                                            <div className="bg-primary p-10 pt-16 relative text-white">
                                                                                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
                                                                                 <DialogHeader className="relative z-10 flex-row gap-6 items-center">
                                                                                     <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 shadow-xl">
@@ -336,7 +336,7 @@ export function FormateurVideosPage() {
                                                                             <div className="p-10 bg-slate-50/50">
                                                                                 {statsLoading ? (
                                                                                     <div className="py-20 flex flex-col items-center gap-6">
-                                                                                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FEB823]"></div>
+                                                                                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
                                                                                         <p className="text-slate-400 font-black uppercase tracking-widest text-[10px]">Traitement des données...</p>
                                                                                     </div>
                                                                                 ) : videoStats ? (
@@ -377,7 +377,7 @@ export function FormateurVideosPage() {
                                                                                         <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100">
                                                                                             <div className="flex items-center justify-between mb-8 md:px-2">
                                                                                                 <h4 className="text-lg font-black text-slate-900 flex items-center gap-3 uppercase tracking-tight">
-                                                                                                    <Users className="w-5 h-5 text-[#FEB823]" />
+                                                                                                    <Users className="w-5 h-5 text-primary" />
                                                                                                     Suivi Stagiaires
                                                                                                 </h4>
                                                                                                 <Badge className="bg-slate-50 text-slate-400 px-3 py-1 rounded-full text-[9px] font-black border-none uppercase">
@@ -391,7 +391,7 @@ export function FormateurVideosPage() {
                                                                                                         <div key={view.id} className="group/item bg-slate-50/50 hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 p-6 rounded-[1.75rem] transition-all duration-300 border border-transparent hover:border-slate-100">
                                                                                                             <div className="flex items-center justify-between mb-5">
                                                                                                                 <div className="flex items-center gap-4">
-                                                                                                                    <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center font-black text-[#FEB823] text-lg border border-slate-50 group-hover/item:scale-110 transition-transform">
+                                                                                                                    <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center font-black text-primary text-lg border border-slate-50 group-hover/item:scale-110 transition-transform">
                                                                                                                         {view.prenom[0]}
                                                                                                                     </div>
                                                                                                                     <div>
@@ -416,7 +416,7 @@ export function FormateurVideosPage() {
                                                                                                                     initial={{ width: 0 }}
                                                                                                                     animate={{ width: `${Math.min(100, view.percentage || (view.total_watched / 300) * 100)}%` }}
                                                                                                                     transition={{ duration: 1, ease: "easeOut" }}
-                                                                                                                    className={`h-full rounded-full ${view.completed ? 'bg-emerald-400' : 'bg-[#FEB823]'}`}
+                                                                                                                    className={`h-full rounded-full ${view.completed ? 'bg-emerald-400' : 'bg-primary'}`}
                                                                                                                 ></motion.div>
                                                                                                             </div>
                                                                                                         </div>
@@ -450,13 +450,13 @@ export function FormateurVideosPage() {
                     ) : (
                         <div className="py-40 text-center max-w-sm mx-auto">
                             <div className="w-32 h-32 bg-white shadow-2xl shadow-slate-200/50 rounded-[3rem] flex items-center justify-center mx-auto mb-10 border border-slate-50 group">
-                                <Search className="w-12 h-12 text-slate-200 group-hover:text-[#FEB823] transition-colors" />
+                                <Search className="w-12 h-12 text-slate-200 group-hover:text-primary transition-colors" />
                             </div>
                             <h3 className="text-3xl font-black text-gray-900 mb-4 tracking-tight uppercase">Aucun résultat</h3>
                             <p className="text-slate-400 mb-10 font-bold uppercase tracking-[0.15em] text-[10px] leading-relaxed px-10">
                                 Nous n'avons pas trouvé de leçons <br/> correspondant à votre recherche.
                             </p>
-                            <Button onClick={() => {setSearchQuery(''); setSelectedFormationId('all')}} className="rounded-2xl px-10 py-7 h-auto bg-[#FEB823] hover:bg-[#FE9E00] shadow-xl shadow-[#FEB823]/20 font-black uppercase tracking-widest text-xs border-4 border-white transition-all active:scale-95">
+                            <Button onClick={() => {setSearchQuery(''); setSelectedFormationId('all')}} className="rounded-2xl px-10 py-7 h-auto bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 font-black uppercase tracking-widest text-xs border-4 border-white transition-all active:scale-95">
                                 Réinitialiser les filtres
                             </Button>
                         </div>

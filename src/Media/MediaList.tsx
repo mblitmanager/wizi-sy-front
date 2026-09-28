@@ -95,19 +95,19 @@ export default function MediaList({ medias, selectedMedia, onSelect }: Props) {
                     onClick={() => onSelect(media)}
                     className={`p-3 transition-colors cursor-pointer flex items-center gap-3 ${
                       selectedMedia?.id === media.id
-                        ? "bg-blue-50"
+                        ? "bg-accent"
                         : "hover:bg-gray-50"
                     }`}>
                     <span
                       className={`flex-shrink-0 w-2 h-2 rounded-full ${
                         selectedMedia?.id === media.id
-                          ? "bg-blue-500"
+                          ? "bg-primary"
                           : "bg-gray-300"
                       }`}></span>
                     <span
                       className={`truncate text-sm flex-1 ${
                         selectedMedia?.id === media.id
-                          ? "text-blue-600 font-medium"
+                          ? "text-primary font-medium"
                           : "text-gray-700"
                       }`}>
                       {media.titre}

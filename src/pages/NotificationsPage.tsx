@@ -72,17 +72,17 @@ const NotificationItem = ({
     <div
       className={`p-4 rounded-2xl border transition-all duration-300 flex flex-col gap-3 group relative overflow-hidden ${notification.read
         ? "bg-gray-50/50 dark:bg-gray-800/40 border-gray-100 dark:border-gray-700/50"
-        : "bg-white dark:bg-gray-800 border-blue-100 dark:border-blue-900/30 shadow-sm hover:shadow-md"
+        : "bg-white dark:bg-gray-800 border-border dark:border-blue-900/30 shadow-sm hover:shadow-md"
         }`}
       onClick={handleClick}
       style={{ cursor: "pointer" }}
     >
       {!notification.read && (
-        <div className="absolute top-0 left-0 w-1 h-full bg-blue-500" />
+        <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
       )}
       
       <div className="flex items-start gap-4">
-        <div className={`p-3 rounded-xl ${notification.read ? 'bg-gray-100 dark:bg-gray-700' : 'bg-blue-50 dark:bg-blue-900/20'}`}>
+        <div className={`p-3 rounded-xl ${notification.read ? 'bg-gray-100 dark:bg-gray-700' : 'bg-accent dark:bg-blue-900/20'}`}>
           <span className="text-xl">
             {getNotificationIcon(notification.type)}
           </span>
@@ -118,7 +118,7 @@ const NotificationItem = ({
               e.stopPropagation();
               markAsRead(notification.id);
             }}
-            className="h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+            className="h-8 text-primary hover:text-primary/80 hover:bg-accent dark:hover:bg-blue-900/20">
             <Check className="h-4 w-4 mr-1" />
             Lu
           </Button>

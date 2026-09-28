@@ -134,7 +134,7 @@ export default function AdminDashboard() {
                   </p>
                   <p className="text-sm text-gray-500">Il y a 4 heures</p>
                 </div>
-                <span className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                <span className="px-3 py-1 rounded-full text-sm bg-accent text-primary">
                   Complété
                 </span>
               </div>
@@ -164,28 +164,28 @@ export default function AdminDashboard() {
                 <li>
                   <a
                     href="/admin/stagiaires"
-                    className="text-blue-600 hover:underline">
+                    className="text-primary hover:underline">
                     → Gérer les stagiaires
                   </a>
                 </li>
                 <li>
                   <a
                     href="/admin/formations"
-                    className="text-blue-600 hover:underline">
+                    className="text-primary hover:underline">
                     → Créer une formation
                   </a>
                 </li>
                 <li>
                   <a
                     href="/admin/quiz"
-                    className="text-blue-600 hover:underline">
+                    className="text-primary hover:underline">
                     → Ajouter un quiz
                   </a>
                 </li>
                 <li>
                   <a
                     href="/admin/catalogue"
-                    className="text-blue-600 hover:underline">
+                    className="text-primary hover:underline">
                     → Gérer le catalogue
                   </a>
                 </li>

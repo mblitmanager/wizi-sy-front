@@ -8,7 +8,7 @@ import timezone from "dayjs/plugin/timezone";
 
 import { Layout } from "@/components/layout/Layout";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { PageLoader, SectionSkeleton } from "@/components/common/PageLoader";
+import { FullScreenLoader, SectionSkeleton } from "@/components/common/PageLoader";
 import { HowToPlay } from "@/components/FeatureHomePage/HowToPlay";
 import { WelcomeBanner } from "@/components/FeatureHomePage/WelcomeBanner";
 import { StreakModal } from "@/components/FeatureHomePage/StreakModal";
@@ -77,7 +77,7 @@ function StagiaireHome({ user }: { user: User }) {
   useHomeSideEffects();
 
   return (
-    <div className="px-2 md:px-6 pb-28 sm:pb-16">
+    <div className="pb-8 md:px-2">
       <WelcomeBanner />
 
       <StreakModal
@@ -98,12 +98,13 @@ function StagiaireHome({ user }: { user: User }) {
         </div>
       ) : (
         suggestions.length > 0 && (
-          <Card className="border-yellow-100 mt-6">
+          <Card className="mt-6">
             <CardContent className="p-3 md:p-6">
-              <h2 className="mb-2 md:mb-3 text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-600">
+              <p className="eyebrow mb-1">Catalogue</p>
+              <h2 className="mb-2 font-poppins text-xl font-bold text-foreground md:mb-3 md:text-2xl">
                 Boostez vos compétences dès aujourd'hui !
               </h2>
-              <div className="px-2 py-6 md:py-3 bg-white rounded-xl">
+              <div className="rounded-xl bg-card px-2 py-6 md:py-3">
                 <Suspense fallback={<SectionSkeleton count={3} className="h-56" />}>
                   <AdCatalogueBlock formations={suggestions.slice(0, 6)} />
                 </Suspense>
@@ -113,7 +114,7 @@ function StagiaireHome({ user }: { user: User }) {
         )
       )}
 
-      <Card className="bg-white md:p-4 rounded-lg mt-6">
+      <Card className="mt-6 md:p-4">
         <CardContent className="p-3 md:p-6">
           <Suspense fallback={<SectionSkeleton count={4} />}>
             <ContactsSection showFormations={false} />
@@ -130,7 +131,7 @@ export function Index() {
 
   if (!token) {
     return (
-      <Suspense fallback={<PageLoader />}>
+      <Suspense fallback={<FullScreenLoader />}>
         <LandingPage />
       </Suspense>
     );
