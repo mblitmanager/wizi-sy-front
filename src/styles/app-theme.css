@@ -1,0 +1,174 @@
+/*
+ * Thème de l'espace connecté (stagiaire, formateur, commercial, admin).
+ *
+ * Palette tirée des deux logos de la plateforme :
+ *   - NS Conseil : bleu marine #263548 (couleur principale), or #E9B04E, gris clair #D9D9D9
+ *   - Wizi Learn : jaune #FEB823 (accent, utilisé avec parcimonie)
+ * Les variables ne s'appliquent que lorsque <html> porte la classe `theme-app`
+ * (posée par <ThemeScope />) : la landing page et les écrans d'authentification
+ * gardent volontairement leur apparence d'origine.
+ */
+
+html.theme-app {
+  /* Surfaces : gris-bleu très léger, cartes blanches */
+  --background: 216 25% 97%;
+  --foreground: 215 30% 14%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 215 30% 14%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 215 30% 14%;
+
+  /* Action principale : le bleu marine NS Conseil */
+  --primary: 214 31% 22%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 214 22% 95%;
+  --secondary-foreground: 215 30% 18%;
+
+  --muted: 214 20% 96%;
+  --muted-foreground: 215 12% 42%;
+
+  /* Survol / sélection : teinte marine très claire */
+  --accent: 214 36% 94%;
+  --accent-foreground: 214 31% 22%;
+
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 214 20% 89%;
+  --input: 214 18% 84%;
+  --ring: 214 45% 38%;
+
+  --radius: 0.875rem;
+
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 215 20% 26%;
+  --sidebar-primary: 214 31% 22%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 214 36% 95%;
+  --sidebar-accent-foreground: 214 31% 22%;
+  --sidebar-border: 214 20% 91%;
+  --sidebar-ring: 214 45% 38%;
+
+  /* Accents de marque (touches ponctuelles uniquement) */
+  --gold: 41 99% 57%;          /* jaune Wizi #FEB823 */
+  --gold-soft: 44 100% 94%;    /* fond jaune pâle */
+  --gold-deep: 36 70% 42%;     /* texte or lisible sur blanc */
+
+  /* Tokens de marque (utilisés par brand.css et les classes brand-*) */
+  --brand-primary: #FEB823;
+  --brand-primary-dark: #E09A00;
+  --brand-primary-accent: #FFE7A8;
+  --brand-secondary: #263548;
+  --brand-background: #F5F7FA;
+  --brand-surface: #FFFFFF;
+
+  /* Ombres douces teintées marine */
+  --shadow-sm: 0 1px 2px rgba(38, 53, 72, 0.06);
+  --shadow-md: 0 1px 2px rgba(38, 53, 72, 0.05), 0 4px 16px rgba(38, 53, 72, 0.07);
+  --shadow-lg: 0 2px 6px rgba(38, 53, 72, 0.06), 0 16px 40px rgba(38, 53, 72, 0.1);
+}
+
+html.theme-app body {
+  background-image: none;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: Montserrat, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+html.theme-app h1,
+html.theme-app h2,
+html.theme-app h3 {
+  letter-spacing: -0.01em;
+}
+
+/* Sélection et focus aux couleurs de la marque */
+html.theme-app ::selection {
+  background: rgba(254, 184, 35, 0.35);
+  color: inherit;
+}
+
+html.theme-app :focus-visible {
+  outline-color: hsl(var(--ring));
+}
+
+/*
+ * Barres de défilement : fines et visibles dans l'application
+ * (elles étaient masquées partout, ce qui empêchait de repérer les zones scrollables).
+ */
+html.theme-app * {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(214 16% 78%) transparent;
+}
+
+html.theme-app ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background: transparent;
+}
+
+html.theme-app ::-webkit-scrollbar-thumb {
+  background: hsl(214 16% 80%);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  box-shadow: none;
+}
+
+html.theme-app ::-webkit-scrollbar-thumb:hover {
+  background: hsl(214 25% 60%);
+  background-clip: padding-box;
+}
+
+html.theme-app ::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Respect des préférences d'accessibilité */
+@media (prefers-reduced-motion: reduce) {
+  html.theme-app *,
+  html.theme-app *::before,
+  html.theme-app *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Composants MUI encore utilisés sur certaines pages ── */
+html.theme-app .MuiCard-root,
+html.theme-app .MuiPaper-root.MuiCard-root {
+  border-radius: calc(var(--radius) + 2px);
+  border: 1px solid hsl(var(--border));
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── Utilitaires de mise en page ── */
+/* Carte de contenu standard */
+html.theme-app .surface {
+  @apply rounded-2xl border border-border bg-card;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Carte interactive (liste de formations, quiz...) */
+html.theme-app .surface-interactive {
+  @apply rounded-2xl border border-border bg-card transition-all duration-200;
+  box-shadow: var(--shadow-sm);
+}
+
+html.theme-app .surface-interactive:hover {
+  border-color: hsl(214 30% 78%);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+/* Pastille de section (sur-titre) */
+html.theme-app .eyebrow {
+  @apply text-[11px] font-bold uppercase tracking-[0.14em];
+  color: hsl(var(--gold-deep));
+}

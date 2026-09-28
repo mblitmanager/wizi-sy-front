@@ -11,7 +11,7 @@ import {
 export interface NavItem {
     title: string;
     href: string;
-    icon: React.ComponentType;
+    icon: React.ComponentType<{ className?: string }>;
     color: string;
 }
 

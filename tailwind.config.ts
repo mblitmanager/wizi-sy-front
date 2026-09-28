@@ -77,7 +77,18 @@ export default {
         internet: "#FFC533",
         creation: "#9392BE",
         ia: "#ABDA96",
-        gold: "#FEB823",
+        gold: {
+          // Jaune Wizi : accent ponctuel (variables définies dans app-theme.css)
+          DEFAULT: "hsl(var(--gold, 41 99% 57%) / <alpha-value>)",
+          soft: "hsl(var(--gold-soft, 44 100% 94%) / <alpha-value>)",
+          deep: "hsl(var(--gold-deep, 36 70% 42%) / <alpha-value>)",
+        },
+        // Bleu marine NS Conseil
+        navy: {
+          DEFAULT: "#263548",
+          light: "#3A4F6B",
+          soft: "#EEF2F7",
+        },
         // Wizi brand colors
         wizi: {
           // align React brand with Flutter AppColors.primary (#FEB823)

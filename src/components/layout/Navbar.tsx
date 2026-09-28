@@ -1,8 +1,8 @@
-import React, { useState, useCallback } from "react";
-import { useUser } from "@/hooks/useAuth";
-import { useNotifications } from "@/hooks/useNotifications";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { LogOut, User, Trophy, Settings, ChevronDown } from "lucide-react";
+import { useUser } from "@/hooks/useAuth";
+import { useClassementPoints } from "@/hooks/useClassementPoints";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,133 +11,78 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-
-import { LogOut, User, Trophy } from "lucide-react";
+import { NotificationDropdown } from "@/components/notifications/NotificationDropdown";
+import { cn } from "@/lib/utils";
+import type { User as AppUser } from "@/types";
+import { getUserAccount } from "@/utils/userAccount";
 
 const VITE_API_URL_MEDIA = import.meta.env.VITE_API_URL_MEDIA;
-import { useClassementPoints } from "@/hooks/useClassementPoints";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { parrainageService } from "@/services/parrainageService";
-import type { User as AppUser } from "@/types";
 
-import { NotificationDropdown } from "@/components/notifications/NotificationDropdown";
+const ROLE_LABELS: Record<string, string> = {
+  stagiaire: "Stagiaire",
+  formateur: "Formateur",
+  formatrice: "Formatrice",
+  commercial: "Commercial",
+  commerciale: "Commerciale",
+  admin: "Administrateur",
+  administrateur: "Administrateur",
+};
 
-/* ---------------------- Sous-composants ---------------------- */
+/* ---------------------- Helpers partagés ---------------------- */
 
-// Avatar utilisateur
-const UserAvatar = ({ user, initials }: { user: AppUser; initials: string }) => {
+export function getUserInitials(user: AppUser | null): string {
+  if (!user) return "U";
+  const firstNameInitial = user?.stagiaire?.prenom?.[0]?.toUpperCase() ?? "";
+  const lastNameInitial = getUserAccount(user).name[0]?.toUpperCase() ?? "U";
+  return `${firstNameInitial}${lastNameInitial}`;
+}
+
+export function getUserDisplayName(user: AppUser | null): string {
+  if (!user) return "";
+  const name = getUserAccount(user).name;
+  const prenom = user?.stagiaire?.prenom || "";
+  return [prenom, name.toUpperCase()].filter(Boolean).join(" ");
+}
+
+export function getRoleLabel(role?: string | null): string {
+  return ROLE_LABELS[role?.toLowerCase() ?? ""] ?? role ?? "";
+}
+
+/** Avatar utilisateur (photo de profil ou initiales). */
+export function UserAvatar({ user, className }: { user: AppUser; className?: string }) {
   const [imageError, setImageError] = useState(false);
+  const account = getUserAccount(user);
 
   return (
-    <div
-      className="relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-gray-700 overflow-hidden"
-      style={{ boxShadow: `0 0 0 2px var(--brand-primary)` }}
+    <span
+      className={cn(
+        "relative inline-flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-sm font-bold text-primary-foreground ring-2 ring-card",
+        className
+      )}
     >
-      {user?.user?.image && !imageError ? (
+      {account.image && !imageError ? (
         <img
-          src={`${VITE_API_URL_MEDIA}/${user.user.image}`}
-          alt={user.user.name || "User"}
-          className="w-full h-full object-cover"
+          src={`${VITE_API_URL_MEDIA}/${account.image}`}
+          alt={account.name || "Utilisateur"}
+          className="h-full w-full object-cover"
           onError={() => setImageError(true)}
         />
       ) : (
-        <span className="font-semibold">{initials}</span>
+        <span>{getUserInitials(user)}</span>
       )}
-    </div>
-  );
-};
-
-// Infos utilisateur
-const UserInfo = ({ user }: { user: AppUser }) => (
-  <div className="mr-2 hidden flex-col items-start sm:flex">
-    <span className="text-sm font-semibold text-[#173f46]">
-      {(user?.user?.name || "").toUpperCase()} {user?.stagiaire?.prenom || ""}
     </span>
-    <span className="text-xs capitalize text-[#6b7773]">{user.role}</span>
-  </div>
-);
-
-// Menu utilisateur
-const UserDropdownMenu = ({ onLogout }: { onLogout: () => void }) => (
-  <DropdownMenuContent align="end" className="w-48 rounded-lg shadow-xl">
-    <DropdownMenuLabel className="text-gray-700">Mon compte</DropdownMenuLabel>
-    <DropdownMenuSeparator />
-    <DropdownMenuItem asChild>
-      <Link to="/profile" className="flex items-center">
-  <User className="mr-2 h-4 w-4" style={{ color: 'var(--brand-primary)' }} />
-        <span>Profil</span>
-      </Link>
-    </DropdownMenuItem>
-    <DropdownMenuSeparator />
-    <DropdownMenuItem
-      onClick={onLogout}
-      className="text-red-600 hover:bg-red-50">
-      <LogOut className="mr-2 h-4 w-4" />
-      <span>Déconnexion</span>
-    </DropdownMenuItem>
-  </DropdownMenuContent>
-);
-
-// Badge de notifications
-const NotificationBadge = ({ count }: { count: number }) => (
-  <Link to="/notifications">
-    <Button
-      variant="ghost"
-      size="icon"
-      className="relative rounded-xl transition hover:bg-[#fff4d8]"
-      style={{
-        // subtle hover handled via CSS class using the existing Tailwind tokens
-      }}>
-      <Bell className="h-5 w-5" style={{ color: 'var(--brand-primary)' }} />
-      {count > 0 && (
-        <Badge
-          className="absolute -right-1 -top-1 h-5 min-w-5 animate-pulse px-1.5 text-xs text-white"
-          style={{ backgroundColor: 'var(--brand-primary)' }}>
-          {count}
-        </Badge>
-      )}
-    </Button>
-  </Link>
-);
-
-// Score utilisateur
-const UserScore = ({ score }: { score: number | null }) => {
-  if (score === null) return null;
-
-  return (
-    <>
-      <span className="ml-2 flex items-center text-sm font-semibold text-[#173f46]">
-        <Trophy className="inline h-4 w-4 mr-1" style={{ color: 'var(--brand-primary)' }} />
-        {score} pts
-      </span>
-    </>
   );
+}
 
-};
+/* ---------------------- Navbar (partie droite de l'en-tête) ---------------------- */
 
-/* ---------------------- Navbar principale ---------------------- */
-
-export function Navbar({ onMenuToggle }: { onMenuToggle?: () => void }) {
+export function Navbar(_props: { onMenuToggle?: () => void }) {
   const { user, logout } = useUser();
-  const isMobile = useIsMobile();
-  const isTablet = useMediaQuery("(min-width: 769px) and (max-width: 1024px)");
-  const { unreadCount } = useNotifications();
   const navigate = useNavigate();
   // Score partagé avec les pages quiz (une seule requête de classement)
   const { points, loading: scoreLoading } = useClassementPoints();
   const userScore = user?.stagiaire?.id && !scoreLoading ? points : null;
 
-  // Initiales
-  const getInitials = useCallback(() => {
-    if (!user) return "U";
-    const firstNameInitial = user?.stagiaire?.prenom?.[0]?.toUpperCase() ?? "";
-    const lastNameInitial = user?.user?.name?.[0]?.toUpperCase() ?? "U";
-    return `${firstNameInitial}${lastNameInitial}`;
-  }, [user]);
-
-  // Déconnexion
   const handleLogout = useCallback(async () => {
     try {
       await logout();
@@ -147,60 +92,69 @@ export function Navbar({ onMenuToggle }: { onMenuToggle?: () => void }) {
     }
   }, [logout, navigate]);
 
-  if (!user) {
-    return (
-      <nav className="px-2 md:px-6 py-2 sticky top-0 z-50 w-full text-white shadow-md bg-brand-primary">
-        {/* Navbar pour utilisateur non connecté (à compléter si besoin) */}
-      </nav>
-    );
-  }
-
-  const initials = getInitials();
+  if (!user) return null;
 
   return (
-    <nav className="w-full px-1 py-1 md:px-2">
-      <div className="w-full">
-        <div className="flex items-center justify-end gap-3">
-          {/* left: hamburger + logo */}
-          <div className="flex items-center gap-3">
-            {/* {(isTablet || isMobile) && (
-              <button
-                onClick={() => onMenuToggle && onMenuToggle()}
-                className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-200">
-                <Menu className="h-5 w-5" />
-              </button>
-            )} */}
-            {(isTablet || isMobile) && (
-              <Link to="/" className="flex items-center">
-                <img
-                  src="/assets/logo.png"
-                  alt="Wizi Learn"
-                  className={`object-contain ${isMobile ? "h-6" : "h-8"}`}
-                />
-              </Link>
-            )}
-            
-          </div>
+    <div className="flex items-center gap-1.5 sm:gap-2">
+      {userScore !== null && (
+        <Link
+          to="/classement"
+          className="hidden items-center gap-1.5 rounded-full border border-border bg-accent px-3 py-1.5 text-sm font-semibold text-accent-foreground transition-colors hover:border-primary/60 sm:flex"
+          title="Voir le classement"
+        >
+          <Trophy className="h-4 w-4 text-gold-deep" />
+          <span className="tabular-nums">{userScore}</span>
+          <span className="font-medium opacity-80">pts</span>
+        </Link>
+      )}
 
-          {/* right: points + notifications + user menu */}
-          <div className="flex items-center gap-1 sm:gap-3">
-            <div className="hidden rounded-xl border border-[#d3e2de] bg-[#eaf2f0] px-3 py-2 sm:block">
-              <UserScore score={userScore} />
-            </div>
-            <NotificationDropdown />
+      <NotificationDropdown />
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="relative flex items-center gap-2 rounded-xl border border-transparent px-2 py-1.5 transition hover:border-[#d3e2de] hover:bg-[#eaf2f0]">
-                  <UserAvatar user={user} initials={initials} />
-                  <UserInfo user={user} />
-                </button>
-              </DropdownMenuTrigger>
-              <UserDropdownMenu onLogout={handleLogout} />
-            </DropdownMenu>
-          </div>
-        </div>
-      </div>
-    </nav>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            className="flex items-center gap-2 rounded-full py-1 pl-1 pr-1 transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:pr-2.5"
+            aria-label="Menu du compte"
+          >
+            <UserAvatar user={user} />
+            <span className="hidden max-w-[160px] flex-col items-start leading-tight lg:flex">
+              <span className="w-full truncate text-sm font-semibold text-foreground">{getUserDisplayName(user)}</span>
+              <span className="text-xs text-muted-foreground">{getRoleLabel(user.role)}</span>
+            </span>
+            <ChevronDown className="hidden h-4 w-4 text-muted-foreground sm:block" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-60 rounded-xl p-1.5">
+          <DropdownMenuLabel className="flex items-center gap-3 px-2 py-2 font-normal">
+            <UserAvatar user={user} />
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-semibold text-foreground">{getUserDisplayName(user)}</span>
+              <span className="block truncate text-xs text-muted-foreground">{getUserAccount(user).email || getRoleLabel(user.role)}</span>
+            </span>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem asChild className="cursor-pointer rounded-lg py-2">
+            <Link to="/profile">
+              <User className="mr-2 h-4 w-4 text-muted-foreground" />
+              Mon profil
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild className="cursor-pointer rounded-lg py-2">
+            <Link to="/settings">
+              <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
+              Paramètres
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={handleLogout}
+            className="cursor-pointer rounded-lg py-2 text-red-600 focus:bg-red-50 focus:text-red-700"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Déconnexion
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }

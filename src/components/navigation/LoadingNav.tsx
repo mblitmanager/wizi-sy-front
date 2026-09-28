@@ -1,22 +1,14 @@
 export function LoadingNav() {
     return (
-        <div className="flex flex-col h-full bg-white border-r border-gray-200">
-            <div className="p-4">
-                <div className="animate-pulse space-y-4">
-                    {/* Logo skeleton */}
-                    <div className="h-12 bg-gray-200 rounded-lg w-32"></div>
-
-                    {/* Navigation items skeleton */}
-                    <div className="space-y-2 mt-8">
-                        {[...Array(6)].map((_, i) => (
-                            <div key={i} className="flex items-center gap-3 px-4 py-3">
-                                <div className="h-9 w-9 bg-gray-200 rounded-lg"></div>
-                                <div className="h-4 bg-gray-200 rounded w-24"></div>
-                            </div>
-                        ))}
-                    </div>
+        <div className="space-y-2 p-3" role="status" aria-live="polite">
+            <span className="sr-only">Chargement du menu…</span>
+            <div className="mx-3 mb-3 h-3 w-20 animate-pulse rounded bg-secondary" />
+            {[...Array(6)].map((_, i) => (
+                <div key={i} className="flex items-center gap-3 px-3 py-2">
+                    <div className="h-8 w-8 animate-pulse rounded-lg bg-secondary" />
+                    <div className="h-3.5 w-28 animate-pulse rounded bg-secondary" />
                 </div>
-            </div>
+            ))}
         </div>
     );
 }

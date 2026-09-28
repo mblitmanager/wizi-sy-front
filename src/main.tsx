@@ -6,6 +6,8 @@ import "./i18n";
 // Brand variables (shared with Flutter AppColors)
 import "./styles/brand.css";
 import "./styles/brand-yellow.css";
+// Thème de l'espace connecté (inactif sur la landing et l'authentification)
+import "./styles/app-theme.css";
 import { registerServiceWorker } from "./serviceWorkerRegistration";
 
 registerServiceWorker();

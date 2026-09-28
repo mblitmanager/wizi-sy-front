@@ -1,9 +1,11 @@
 import { ComponentType, lazy, ReactNode, Suspense } from "react";
-import { Outlet, RouteObject } from "react-router-dom";
+import { Outlet, RouteObject, useLocation } from "react-router-dom";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { Layout } from "@/components/layout/Layout";
+import { ThemeScope } from "@/components/layout/ThemeScope";
 import { FullScreenLoader, PageLoader } from "@/components/common/PageLoader";
 import { RouteError } from "@/components/common/RouteError";
+import { useUser } from "@/hooks/useAuth";
 import type { AppRole } from "@/utils/roles";
 
 /** `lazy()` pour un module qui exporte le composant sous un nom (export nommé). */
@@ -91,9 +93,13 @@ const guard = (element: ReactNode, roles?: AppRole[]) => <ProtectedRoute roles={
  * seul le contenu affiche un squelette pendant le chargement de la page.
  */
 function AppShell() {
+  const { pathname } = useLocation();
+  const { token } = useUser();
+  const fallback = pathname === "/" && !token ? <FullScreenLoader /> : <PageLoader />;
+
   return (
     <Layout>
-      <Suspense fallback={<PageLoader />}>
+      <Suspense fallback={fallback}>
         <Outlet />
       </Suspense>
     </Layout>
@@ -111,6 +117,7 @@ function StandaloneShell() {
 
 export const routes: RouteObject[] = [
   {
+    element: <ThemeScope />,
     errorElement: <RouteError />,
     children: [
       {
